@@ -671,7 +671,7 @@ public class DeviceResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("{mRID}/servicecalls")
+    @Path("{mRID}/runningservicecalls")
     public PagedInfoList getServiceCallsFor(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
@@ -682,6 +682,21 @@ public class DeviceResource {
                 DefaultState.PAUSED,
                 DefaultState.ONGOING,
                 DefaultState.WAITING);
+
+        serviceCallService.findServiceCalls(device, states)
+                .stream()
+                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
+
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("{mRID}/servicecallhistory")
+    public PagedInfoList getServiceCallHistoryFor(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
+        Set<DefaultState> states = EnumSet.allOf(DefaultState.class);
 
         serviceCallService.findServiceCalls(device, states)
                 .stream()
