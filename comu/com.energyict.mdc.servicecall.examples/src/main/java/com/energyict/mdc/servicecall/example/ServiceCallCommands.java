@@ -28,7 +28,8 @@ import java.util.Optional;
                 "osgi.command.function=updateYearOfCertification",
                 "osgi.command.function=updateYearOfCertificationGroup",
                 "osgi.command.function=hook",
-                "osgi.command.function=crash"
+                "osgi.command.function=crash",
+                "osgi.command.function=createCommand"
         }, immediate = true)
 public class ServiceCallCommands {
     public static final String HANDLER_NAME = "yearUpdater";
@@ -231,6 +232,10 @@ public class ServiceCallCommands {
             }
             context.commit();
         }
+    }
+
+    public void createCommand() {
+
     }
 
 }
