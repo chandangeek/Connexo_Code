@@ -82,10 +82,12 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
     private void validate(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
         String mRID = data.getmRID()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID, data.getLineNumber()));
-        ServiceKind serviceKind = ServiceKind.valueOf(data.getServiceKind()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber())));
+        String serviceKindString = data.getServiceKind()
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber()));
+        ServiceKind serviceKind =  Arrays.stream(ServiceKind.values()).filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString)).findFirst()
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber(), serviceKindString));
         ServiceCategory serviceCategory = context.getMeteringService().getServiceCategory(serviceKind)
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber()));
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, data.getLineNumber(), serviceKindString));
 
         Optional<UsagePoint> usagePointOptional = context.getMeteringService().findUsagePoint(mRID);
         if (usagePointOptional.isPresent()) {
@@ -97,7 +99,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             }
         } else {
             if (data.isAllowUpdate()) {
-                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID, data.getLineNumber());
+                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NOT_FOUND, data.getLineNumber(), data.getmRID().get());
             }
             UsagePoint dummyUsagePoint = serviceCategory.newUsagePoint(mRID, data.getInstallationTime()
                     .orElse(context.getClock().instant())).validate();
@@ -120,15 +122,17 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         UsagePoint usagePoint;
         String mRID = data.getmRID()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID, data.getLineNumber()));
-        ServiceKind serviceKind = ServiceKind.valueOf(data.getServiceKind()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber())));
+        String serviceKindString = data.getServiceKind()
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber()));
+        ServiceKind serviceKind =  Arrays.stream(ServiceKind.values()).filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString)).findFirst()
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber(), serviceKindString));
         Optional<UsagePoint> usagePointOptional = context.getMeteringService().findUsagePoint(mRID);
         Optional<ServiceCategory> serviceCategory = context.getMeteringService().getServiceCategory(serviceKind);
 
         if (usagePointOptional.isPresent()) {
             usagePoint = usagePointOptional.get();
             if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
-                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber());
+                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, data.getLineNumber(), serviceKindString);
             }
             return updateUsagePointForMdc(usagePoint, data, logger);
         } else {
@@ -142,15 +146,17 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         UsagePoint usagePoint;
         String mRID = data.getmRID()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID, data.getLineNumber()));
-        ServiceKind serviceKind = ServiceKind.valueOf(data.getServiceKind()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber())));
+        String serviceKindString = data.getServiceKind()
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber()));
+        ServiceKind serviceKind =  Arrays.stream(ServiceKind.values()).filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString)).findFirst()
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber(), serviceKindString));
         Optional<UsagePoint> usagePointOptional = context.getMeteringService().findUsagePoint(mRID);
         Optional<ServiceCategory> serviceCategory = context.getMeteringService().getServiceCategory(serviceKind);
 
         if (usagePointOptional.isPresent()) {
             usagePoint = usagePointOptional.get();
             if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
-                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber());
+                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, data.getLineNumber(), serviceKindString);
             }
             return updateUsagePoint(usagePoint, data, logger);
         } else {
@@ -187,7 +193,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
 
     private UsagePointDetailBuilder updateDetails(UsagePoint usagePoint, UsagePointImportRecord data, FileImportLogger logger) {
         UsagePointDetail detail = usagePoint.getDetail(context.getClock().instant())
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber()));
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, data.getLineNumber(), data.getServiceKind().get()));
 
         switch (usagePoint.getServiceCategory().getKind()) {
             case ELECTRICITY:
