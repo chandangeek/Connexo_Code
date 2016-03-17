@@ -1,9 +1,9 @@
-package com.elster.jupiter.metering.impl.config;
+package com.elster.jupiter.metering.config;
 
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.units.Dimension;
+
+import java.util.List;
 
 /**
  * Models a node of expression that comply with the BNF below.
@@ -23,22 +23,22 @@ import com.elster.jupiter.util.units.Dimension;
  * </code></pre>
  * Or the following abstract grammer:
  * <pre><code>
- * ExpressionNode             ::= ConstantNode | ReadingTypeRequirementNode | ReadingTypeDeliverableNode | VariableNode | OperationNode | FunctionCallNode
- * ConstantNode               ::= LeafNode(BigDecimal)
- * ReadingTypeRequirementNode ::= LeafNode(ReadingTypeRequirement)
- * ReadingTypeDeliverableNode ::= LeafNode(ReadingTypeDeliverable)
+ * ExpressionNode             ::= ConstantNodeImpl | ReadingTypeRequirementNodeImpl | ReadingTypeDeliverableNodeImpl | VariableNode | OperationNodeImpl | FunctionCallNodeImpl
+ * ConstantNodeImpl               ::= LeafNode(BigDecimal)
+ * ReadingTypeRequirementNodeImpl ::= LeafNode(ReadingTypeRequirement)
+ * ReadingTypeDeliverableNodeImpl ::= LeafNode(ReadingTypeDeliverable)
  * VariableNode               ::= LeafNode(CustomPropertySet, PropertySpec)
  * IdentifierNode             ::= LeafNode(Function)
- * OperationNode              ::= InternalNode(Operator)
+ * OperationNodeImpl              ::= InternalNode(Operator)
  * Operator                   ::= + | - | * | /
  * Function                   ::= AVG | MIN | MAX | SUM
- * FunctionCallNode           ::= InternalNode(IdentifierNode, ArgumentListNode)
+ * FunctionCallNodeImpl           ::= InternalNode(IdentifierNode, ArgumentListNode)
  * </code></pre>
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (15:08)
  */
-public interface ExpressionNode extends FormulaPart {
+public interface ExpressionNode {
 
     interface Visitor<T> {
         T visitConstant(ConstantNode constant);
@@ -64,5 +64,11 @@ public interface ExpressionNode extends FormulaPart {
     void validate();
 
     Dimension getDimension();
+
+    ExpressionNode getParent();
+
+    List<ExpressionNode> getChildren();
+
+    long getId();
 
 }

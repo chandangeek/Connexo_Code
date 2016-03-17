@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
@@ -8,7 +9,7 @@ import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link com.elster.jupiter.metering.impl.aggregation.ServerExpressionNode.Visitor}
- * interface that generates SQL for the visited {@link com.elster.jupiter.metering.impl.config.ExpressionNode}.
+ * interface that generates SQL for the visited {@link ExpressionNode}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (12:41)

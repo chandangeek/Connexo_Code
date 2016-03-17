@@ -1,7 +1,9 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Function;
+import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.units.Dimension;
@@ -11,26 +13,25 @@ import java.util.List;
 /**
  * Created by igh on 4/02/2016.
  */
-public class FunctionCallNode extends AbstractNode {
-
-    static final String TYPE_IDENTIFIER = "FCT";
+public class FunctionCallNodeImpl extends AbstractNode implements FunctionCallNode {
 
     private Function function;
     private Thesaurus thesaurus;
 
-    public FunctionCallNode() {}
+    public FunctionCallNodeImpl() {}
 
-    public FunctionCallNode init(Function function) {
+    public FunctionCallNodeImpl init(Function function) {
         this.function = function;
         return this;
     }
 
-    public FunctionCallNode(List<? extends ExpressionNode> children, Function function, Thesaurus thesaurus) {
+    public FunctionCallNodeImpl(List<? extends ExpressionNode> children, Function function, Thesaurus thesaurus) {
         super(children);
         this.function = function;
         this.thesaurus = thesaurus;
     }
 
+    @Override
     public Function getFunction() {
         return function;
     }

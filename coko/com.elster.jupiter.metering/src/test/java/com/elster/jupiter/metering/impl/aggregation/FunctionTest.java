@@ -14,22 +14,22 @@ public class FunctionTest {
 
     @Test
     public void max() {
-        assertThat(Function.from(com.elster.jupiter.metering.impl.config.Function.MAX)).isEqualTo(Function.MAX);
+        assertThat(Function.from(com.elster.jupiter.metering.config.Function.MAX)).isEqualTo(Function.MAX);
     }
 
     @Test
     public void min() {
-        assertThat(Function.from(com.elster.jupiter.metering.impl.config.Function.MIN)).isEqualTo(Function.MIN);
+        assertThat(Function.from(com.elster.jupiter.metering.config.Function.MIN)).isEqualTo(Function.MIN);
     }
 
     @Test
     public void sum() {
-        assertThat(Function.from(com.elster.jupiter.metering.impl.config.Function.SUM)).isEqualTo(Function.SUM);
+        assertThat(Function.from(com.elster.jupiter.metering.config.Function.SUM)).isEqualTo(Function.SUM);
     }
 
     @Test
     public void avg() {
-        assertThat(Function.from(com.elster.jupiter.metering.impl.config.Function.AVG)).isEqualTo(Function.AVG);
+        assertThat(Function.from(com.elster.jupiter.metering.config.Function.AVG)).isEqualTo(Function.AVG);
     }
 
 }

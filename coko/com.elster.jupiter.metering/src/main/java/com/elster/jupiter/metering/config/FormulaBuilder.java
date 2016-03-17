@@ -7,20 +7,20 @@ import java.math.BigDecimal;
  */
 public interface FormulaBuilder {
 
-    NodeBuilder constant(BigDecimal value);
-    NodeBuilder constant(long value);
-    NodeBuilder constant(double value);
-    NodeBuilder sum(NodeBuilder... terms);
-    NodeBuilder maximum(NodeBuilder... terms);
-    NodeBuilder minimum(NodeBuilder... terms);
-    NodeBuilder average(NodeBuilder... terms);
-    NodeBuilder plus(NodeBuilder term1, NodeBuilder term2);
-    NodeBuilder minus(NodeBuilder term1, NodeBuilder term2);
-    NodeBuilder divide(NodeBuilder dividend, NodeBuilder divisor);
-    NodeBuilder multiply(NodeBuilder multiplier, NodeBuilder multiplicand);
-    NodeBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable);
-    NodeBuilder requirement(ReadingTypeRequirement value);
-    FormulaBuilder init(NodeBuilder nodeBuilder);
-    FormulaBuilder init(FormulaPart formulaPart);
+    ExpressionNodeBuilder constant(BigDecimal value);
+    ExpressionNodeBuilder constant(long value);
+    ExpressionNodeBuilder constant(double value);
+    ExpressionNodeBuilder sum(ExpressionNodeBuilder... terms);
+    ExpressionNodeBuilder maximum(ExpressionNodeBuilder... terms);
+    ExpressionNodeBuilder minimum(ExpressionNodeBuilder... terms);
+    ExpressionNodeBuilder average(ExpressionNodeBuilder... terms);
+    ExpressionNodeBuilder plus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2);
+    ExpressionNodeBuilder minus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2);
+    ExpressionNodeBuilder divide(ExpressionNodeBuilder dividend, ExpressionNodeBuilder divisor);
+    ExpressionNodeBuilder multiply(ExpressionNodeBuilder multiplier, ExpressionNodeBuilder multiplicand);
+    ExpressionNodeBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable);
+    ExpressionNodeBuilder requirement(ReadingTypeRequirement value);
+    FormulaBuilder init(ExpressionNodeBuilder nodeBuilder);
+    FormulaBuilder init(ExpressionNode expressionNode);
     Formula build();
 }

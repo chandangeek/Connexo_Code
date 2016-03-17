@@ -29,9 +29,9 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
-import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -276,7 +276,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         ReadingType netConsumptionReadingType = this.mock15minReadingType();
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
         FormulaBuilder formulaBuilder = newFormulaBuilder();
-        FormulaPart node = formulaBuilder.plus(
+        ExpressionNode node = formulaBuilder.plus(
                 formulaBuilder.requirement(production),
                 formulaBuilder.requirement(consumption)).create();
         ServerFormula formula = mock(ServerFormula.class);
@@ -377,7 +377,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         ReadingType netConsumptionReadingType = this.mockMonthlyNetConsumptionReadingType();
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
         FormulaBuilder formulaBuilder = newFormulaBuilder();
-        FormulaPart node = formulaBuilder.plus(
+        ExpressionNode node = formulaBuilder.plus(
                 formulaBuilder.requirement(production),
                 formulaBuilder.requirement(consumption)).create();
         ServerFormula formula = mock(ServerFormula.class);
@@ -487,7 +487,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         ReadingType netConsumptionReadingType = this.mockMonthlyNetConsumptionReadingType();
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
         FormulaBuilder formulaBuilder = newFormulaBuilder();
-        FormulaPart node = formulaBuilder.plus(
+        ExpressionNode node = formulaBuilder.plus(
                 formulaBuilder.requirement(consumption),
                 formulaBuilder.multiply(
                         formulaBuilder.requirement(production),

@@ -129,7 +129,7 @@ public enum Operator {
      *
      * @param leftOperand The left operand
      * @param rightOperand The right operand
-     * @return The OperationNode
+     * @return The OperationNodeImpl
      */
     public OperationNode node(ServerExpressionNode leftOperand, ServerExpressionNode rightOperand) {
         return new OperationNode(this, leftOperand, rightOperand);
@@ -143,7 +143,7 @@ public enum Operator {
      *
      * @param leftOperand The left operand
      * @param rightOperand The numerical constant
-     * @return The OperationNode
+     * @return The OperationNodeImpl
      */
     public ServerExpressionNode node(ServerExpressionNode leftOperand, BigDecimal rightOperand) {
         return this.node(leftOperand, new NumericalConstantNode(rightOperand));
@@ -157,13 +157,13 @@ public enum Operator {
      *
      * @param leftOperand The numerical constant
      * @param rightOperand The right operand
-     * @return The OperationNode
+     * @return The OperationNodeImpl
      */
     public ServerExpressionNode node(BigDecimal leftOperand, ServerExpressionNode rightOperand) {
         return this.node(new NumericalConstantNode(leftOperand), rightOperand);
     }
 
-    public static Operator from(com.elster.jupiter.metering.impl.config.Operator operator) {
+    public static Operator from(com.elster.jupiter.metering.config.Operator operator) {
         switch (operator) {
             case PLUS: {
                 return PLUS;
