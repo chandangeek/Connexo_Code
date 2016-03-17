@@ -7,15 +7,22 @@ Ext.define('Fwc.firmwarecampaigns.view.ActionMenu', {
     plain: true,
     border: false,
     shadow: false,
-    items: [
-        {
-            text: Uni.I18n.translate('firmware.campaigns.editCampaign', 'FWC', 'Edit campaign'),
-            action: 'editCampaign',
-            privileges: Fwc.privileges.FirmwareCampaign.administrate
-        },
-        {
-            text: Uni.I18n.translate('firmware.campaigns.cancelCampaign', 'FWC', 'Cancel campaign'),
-            action: 'cancelCampaign'
-        }
-    ]
+    returnToCampaignOverview: false,
+
+    initComponent: function () {
+        var me = this;
+
+        me.items = [
+            {
+                text: Uni.I18n.translate('firmware.campaigns.editCampaign', 'FWC', 'Edit campaign'),
+                action: me.returnToCampaignOverview ? 'editCampaignAndReturnToOverview' : 'editCampaign',
+                privileges: Fwc.privileges.FirmwareCampaign.administrate
+            },
+            {
+                text: Uni.I18n.translate('firmware.campaigns.cancelCampaign', 'FWC', 'Cancel campaign'),
+                action: 'cancelCampaign'
+            }
+        ];
+        me.callParent(arguments);
+    }
 });

@@ -3,6 +3,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
+        'Uni.form.field.TimeInHoursAndMinutes',
         'Fwc.firmwarecampaigns.view.DynamicRadioGroup',
         'Fwc.model.FirmwareManagementOptions',
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
@@ -10,7 +11,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
     ],
     alias: 'widget.firmware-campaigns-add-form',
     returnLink: null,
+    action: null,
     skipLoadingIndication: false,
+    campaignRecordBeingEdited: null,
 
     defaults: {
         labelWidth: 260,
@@ -124,6 +127,32 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             },
             {
                 xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary'),
+                required: true,
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
+                items: [
+                    {
+                        xtype: 'timeInHoursAndMinutes',
+                        name: 'timeBoundaryStart',
+                        itemId: 'timeBoundaryStart'
+                    },
+                    {
+                        xtype: 'displayfield',
+                        value: ' - ',
+                        margin: '0 5 0 0'
+                    },
+                    {
+                        xtype: 'timeInHoursAndMinutes',
+                        name: 'timeBoundaryEnd',
+                        itemId: 'timeBoundaryEnd'
+                    }
+                ]
+            },
+            {
+                xtype: 'fieldcontainer',
                 itemId: 'form-buttons',
                 fieldLabel: '&nbsp;',
                 layout: 'hbox',
@@ -134,14 +163,14 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         itemId: 'btn-add-firmware-campaign',
                         text: Uni.I18n.translate('general.add', 'FWC', 'Add'),
                         ui: 'action',
-                        action: 'addFirmwareCampaign'
+                        action: me.action
                     },
                     {
                         xtype: 'button',
                         itemId: 'btn-cancel-add-firmware-campaign',
                         text: Uni.I18n.translate('general.cancel', 'FWC', 'Cancel'),
                         ui: 'link',
-                        action: 'cancelEditRule',
+                        action: 'cancel',
                         href: me.returnLink
                     }
                 ]
@@ -156,8 +185,12 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             counter = 2,
             onFieldsUpdate = function () {
                 counter--;
-                if (!counter && !me.skipLoadingIndication) {
-                    me.setLoading(false);
+                if (!counter) {
+                    if (!me.skipLoadingIndication) {
+                        me.setLoading(false);
+                    } else {
+                        me.fireEvent('fwc-deviceTypeChanged');
+                    }
                 }
             };
 
@@ -222,6 +255,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 callback: function () {
                     if (!me.skipLoadingIndication) {
                         me.setLoading(false);
+                    } else {
+                        me.fireEvent('fwc-propertiesInitialized');
                     }
                 }
             });
@@ -258,7 +293,6 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     loadRecordForEdit: function(campaignRecord) {
         var me = this,
-            taskRunner = new Ext.util.TaskRunner(),
             deviceTypeCombo = me.down('#firmware-campaign-device-type'),
             firmwareTypeRadioGroup = me.down('#firmware-type'),
             deviceGroupComboContainer = me.down('#firmware-campaign-device-group-field-container'),
@@ -266,48 +300,27 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             deviceTypeId = campaignRecord.get('deviceType').id,
             hideDeviceGroupComboAndSetDeviceType = function() {
                 deviceGroupComboContainer.hide();
-                deviceTypeCombo.setValue(deviceTypeId);
                 deviceTypeCombo.setDisabled(true);
+                deviceTypeCombo.setValue(deviceTypeId);
                 firmwareTypeRadioGroup.setDisabled(true);
-                setOptionsTask.start();
             },
             setOptions = function() {
                 managementOptionRadioGroup.setValue({
                     managementOption : campaignRecord.get('managementOption').id
                 });
                 managementOptionRadioGroup.setDisabled(true);
-                setPropertiesTask.start();
             },
             setProperties = function() {
                 me.down('#property-form').setPropertiesAndDisable(campaignRecord.propertiesStore.getRange());
                 me.setLoading(false);
                 me.skipLoadingIndication = false;
-            },
-            setDeviceTypeTask = taskRunner.newTask({
-                run: hideDeviceGroupComboAndSetDeviceType,
-                scope: me,
-                fireOnStart: false,
-                interval: 250,
-                repeat: 1
-            }),
-            setOptionsTask = taskRunner.newTask({
-                run: setOptions,
-                scope: me,
-                fireOnStart: false,
-                interval: 250,
-                repeat: 1
-            }),
-            setPropertiesTask = taskRunner.newTask({
-                run: setProperties,
-                scope: me,
-                fireOnStart: false,
-                interval: 250,
-                repeat: 1
-            });
+            };
 
-        me.setLoading(true);
+        me.campaignRecordBeingEdited = campaignRecord;
         me.skipLoadingIndication = true;
+        me.on('fwc-deviceTypeChanged', setOptions);
+        me.on('fwc-propertiesInitialized', setProperties);
         me.loadRecord(campaignRecord);
-        setDeviceTypeTask.start();
+        hideDeviceGroupComboAndSetDeviceType();
     }
 });

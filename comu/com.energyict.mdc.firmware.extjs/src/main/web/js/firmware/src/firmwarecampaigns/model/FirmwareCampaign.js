@@ -27,7 +27,35 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
         {name: 'startedOn', type: 'date', dateFormat: 'time', persist: false},
         {name: 'finishedOn', type: 'date', dateFormat: 'time', persist: false},
         {name: 'timeBoundaryStart',type: 'int',useNull: true},
-        {name: 'timeBoundaryEnd',type: 'int',useNull: true}
+        {name: 'timeBoundaryEnd',type: 'int',useNull: true},
+        {
+            name: 'timeBoundaryAsText',
+            persist: false,
+            mapping: function (data) {
+                if (data.timeBoundaryStart || data.timeBoundaryEnd) {
+                    var startMinutes = (data.timeBoundaryStart / 3600 | 0),
+                        startSeconds = (data.timeBoundaryStart / 60 - startMinutes * 60),
+                        endMinutes = (data.timeBoundaryEnd / 3600 | 0),
+                        endSeconds = (data.timeBoundaryEnd / 60 - endMinutes * 60),
+                        addZeroIfOneDigit = function (timeCount) {
+                            var timeInString = timeCount.toString();
+                            if (timeInString.length === 1) {
+                                timeInString = '0' + timeInString;
+                            }
+                            return timeInString;
+                        },
+                        doFormat = function(minutes, seconds) {
+                            return addZeroIfOneDigit(minutes) + ':' + addZeroIfOneDigit(seconds);
+                        };
+
+                    return Uni.I18n.translate('general.betweenXandY', 'FWC', 'Between {0} and {1}',
+                        [ doFormat(startMinutes, startSeconds), doFormat(endMinutes, endSeconds) ]
+                    );
+                } else {
+                    return '-';
+                }
+            }
+        }
     ],
     associations: [
         {

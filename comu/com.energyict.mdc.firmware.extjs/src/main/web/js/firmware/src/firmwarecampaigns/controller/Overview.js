@@ -25,6 +25,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         },
         { ref: 'campaignEdit', selector: '#firmware-campaigns-edit' }
     ],
+    returnToOverview : false,
 
     init: function () {
         this.control({
@@ -65,6 +66,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
             case 'cancelCampaign': this.onCancelCampaign(menu.record);
                 break;
             case 'editCampaign':
+            case 'editCampaignAndReturnToOverview':
+                this.returnToOverview = item.action === 'editCampaignAndReturnToOverview';
                 location.href = '#/workspace/firmwarecampaigns/' + encodeURIComponent(menu.record.get('id')) + '/edit';
                 break;
         }
@@ -114,7 +117,10 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('firmware-campaigns-add', {
                 itemId: 'firmware-campaigns-edit',
-                returnLink: router.getRoute('workspace/firmwarecampaigns').buildUrl()
+                action: 'saveFirmwareCampaign',
+                returnLink: me.returnToOverview
+                    ? router.getRoute('workspace/firmwarecampaigns/firmwarecampaign').buildUrl({firmwareCampaignId : campaignIdAsString})
+                    : router.getRoute('workspace/firmwarecampaigns').buildUrl()
             }),
             dependencies = ['Fwc.store.DeviceTypes'],
             dependenciesCounter = dependencies.length,
@@ -122,13 +128,12 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
                 dependenciesCounter--;
                 if (!dependenciesCounter) {
                     me.loadModelToEditForm(campaignIdAsString, widget);
-                    widget.setLoading(false);
                 }
             };
 
         me.getApplication().fireEvent('changecontentevent', widget);
+        widget.down('#firmware-campaigns-add-form').setLoading(true);
         widget.down('#btn-add-firmware-campaign').setText(Uni.I18n.translate('general.save', 'FWC', 'Save'));
-        widget.setLoading(true);
         Ext.Array.each(dependencies, function (store) {
             me.getStore(store).load(onDependenciesLoaded);
         });

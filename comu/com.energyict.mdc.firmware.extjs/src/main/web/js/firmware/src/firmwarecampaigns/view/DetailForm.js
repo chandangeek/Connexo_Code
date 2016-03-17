@@ -4,18 +4,6 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
         'Fwc.firmwarecampaigns.view.ActionMenu'
     ],
     alias: 'widget.firmware-campaigns-detail-form',
-    tools: [
-        {
-            xtype: 'button',
-            itemId: 'firmware-campaigns-detail-action-menu-button',
-            text: Uni.I18n.translate('general.actions', 'FWC', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
-            menu: {
-                xtype: 'firmware-campaigns-action-menu',
-                itemId: 'firmware-campaigns-action-menu'
-            }
-        }
-    ],
     layout: 'column',
     defaults: {
         xtype: 'container',
@@ -30,6 +18,20 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
     isPreview: false,
     initComponent: function () {
         var me = this;
+
+        me.tools = [
+            {
+                xtype: 'button',
+                itemId: 'firmware-campaigns-detail-action-menu-button',
+                text: Uni.I18n.translate('general.actions', 'FWC', 'Actions'),
+                iconCls: 'x-uni-action-iconD',
+                menu: {
+                    xtype: 'firmware-campaigns-action-menu',
+                    itemId: 'firmware-campaigns-action-menu',
+                    returnToCampaignOverview: !me.isPreview
+                }
+            }
+        ];
 
         me.items = [
             {
@@ -84,6 +86,11 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         defaults: {
                             labelWidth: me.defaults.defaults.labelWidth
                         }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        name: 'timeBoundaryAsText',
+                        fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary')
                     }
                 ]
             },
