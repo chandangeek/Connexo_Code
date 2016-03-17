@@ -38,6 +38,8 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -156,6 +158,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceProtocolService deviceProtocolService;
     private ValidationService validationService;
     private EstimationService estimationService;
+    private ServiceCallService serviceCallService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
@@ -242,7 +245,8 @@ public class InMemoryIntegrationPersistence {
                 new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
-                new SchedulingModule());
+                new SchedulingModule(),
+                new ServiceCallModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
@@ -259,6 +263,7 @@ public class InMemoryIntegrationPersistence {
             this.taskService = injector.getInstance(TaskService.class);
             this.validationService = injector.getInstance(ValidationService.class);
             this.estimationService = injector.getInstance(EstimationService.class);
+            this.serviceCallService = injector.getInstance(ServiceCallService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
@@ -446,6 +451,10 @@ public class InMemoryIntegrationPersistence {
 
     public EstimationService getEstimationService() {
         return estimationService;
+    }
+
+    public ServiceCallService getServiceCallService() {
+        return serviceCallService;
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {
