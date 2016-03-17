@@ -39,7 +39,7 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
 
     @Before
     public void setUp1() {
-        when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePoint(1L)).thenReturn(Optional.of(usagePoint));
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
         when(serviceCategory.newUsagePoint(anyString(), any(Instant.class))).thenReturn(usagePointBuilder);
         when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
@@ -54,6 +54,15 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         when(usagePoint.getCreateDate()).thenReturn(Instant.EPOCH);
         when(usagePoint.getModificationDate()).thenReturn(Instant.EPOCH);
 
+    }
+
+    @Test
+    public void testGetUsagePointInfo() {
+
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.hasPrivilege(any(String.class), any(String.class))).thenReturn(true);
+        UsagePointInfo response = target("usagepoints/1").request().get(UsagePointInfo.class);
+        assertThat(response.id).isEqualTo(1L);
     }
 
     @Test
