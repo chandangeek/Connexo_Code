@@ -50,6 +50,9 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
     },
 
     onTabChange: function (tabPanel, nawTab) {
+        var me = this,
+            store = Ext.getStore('Scs.store.ServiceCalls');
+
         if(nawTab.itemId === 'history-service-call-preview-container') {
             store.setProxy({
                 type: 'rest',
