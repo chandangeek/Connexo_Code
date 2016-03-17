@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -32,7 +33,6 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
 import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
@@ -876,28 +876,9 @@ public enum TableSpecs {
             //ConstantNodeImpl constantValue
             table.column("CONSTANTVALUE").number().map("constantValue").add();
 
-            // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
-            //todo add foreign key
-            Column readingTypeDeliverableIdColumn = table.column("READINGTYPE_DELIVERABLE").number().conversion(NUMBER2LONG).map("readingTypeDeliverable").add();
-
-            // ReadingTypeRequirementNodeImpl readingTypeRequirement value
-            //todo add foreign key
-            Column readingTypeRequirementIdColumn = table.column("READINGTYPE_REQUIREMENT").number().conversion(NUMBER2LONG).map("readingTypeRequirement").add();
-
             table.primaryKey("MTR_PK_FORMULA_NODE").on(idColumn).add();
-
             table.foreignKey("MTR_VALIDCHILD").references(MTR_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
                     .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").add();
-//            table.foreignKey("MTR_FORMULA_TO_DELIVERABLE")
-//                    .references(MTR_RT_DELIVERABLE.name())
-//                    .on(readingTypeDeliverableIdColumn)
-//                    .map("readingTypeDeliverable")
-//                    .add();
-//            table.foreignKey("MTR_FORMULA_TO_RT_REQ")
-//                    .references(MTR_RT_REQUIREMENT.name())
-//                    .on(readingTypeRequirementIdColumn)
-//                    .map("readingTypeRequirement")
-//                    .add();
         }
     },
     MTR_FORMULA {
@@ -1239,6 +1220,26 @@ public enum TableSpecs {
                     .add();
         }
     },
+    ADD_IN_OUT_DEPENDENCIES_TO_FORMULA_NODE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<?> table = dataModel.getTable(MTR_FORMULA_NODE.name());
+            // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
+            Column readingTypeDeliverableColumn = table.column("READINGTYPE_DELIVERABLE").number().map("readingTypeDeliverable").add();
+            // ReadingTypeRequirementNodeImpl readingTypeRequirement value
+            Column readingTypeRequirementColumn = table.column("READINGTYPE_REQUIREMENT").number().map("readingTypeRequirement").add();
+            table.foreignKey("MTR_FORMULA_TO_DELIVERABLE")
+                    .references(MTR_RT_DELIVERABLE.name())
+                    .on(readingTypeDeliverableColumn)
+                    .map("readingTypeDeliverable")
+                    .add();
+            table.foreignKey("MTR_FORMULA_TO_RT_REQ")
+                    .references(MTR_RT_REQUIREMENT.name())
+                    .on(readingTypeRequirementColumn)
+                    .map("readingTypeRequirement")
+                    .add();
+        }
+    }
     ;
 
     abstract void addTo(DataModel dataModel);

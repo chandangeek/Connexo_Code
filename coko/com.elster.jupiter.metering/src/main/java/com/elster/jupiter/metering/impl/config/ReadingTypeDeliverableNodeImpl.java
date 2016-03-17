@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.orm.associations.Reference;
@@ -11,7 +10,6 @@ import com.elster.jupiter.util.units.Dimension;
  * Created by igh on 4/02/2016.
  */
 public class ReadingTypeDeliverableNodeImpl extends AbstractNode implements ReadingTypeDeliverableNode {
-
 
     private Reference<ReadingTypeDeliverable> readingTypeDeliverable = ValueReference.absent();
 
