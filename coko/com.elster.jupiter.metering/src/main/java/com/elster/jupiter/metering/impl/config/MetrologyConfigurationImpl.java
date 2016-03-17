@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
@@ -48,7 +49,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
         STATUS("status"),
         SERVICECATEGORY("serviceCategory"),
         CUSTOM_PROPERTY_SETS("customPropertySets"),
-        RT_REQUIREMENTS("rtRequirements"),
+        RT_REQUIREMENTS("readingTypeRequirements"),
         METROLOGY_CONTRACTS("metrologyContracts"),;
 
         private final String javaFieldName;
@@ -80,7 +81,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     private Reference<ServiceCategory> serviceCategory = ValueReference.absent();
     @Valid
     private List<MetrologyConfigurationCustomPropertySetUsage> customPropertySets = new ArrayList<>();
-    private List<ReadingTypeRequirement> rtRequirements = new ArrayList<>();
+    private List<ReadingTypeRequirement> readingTypeRequirements = new ArrayList<>();
     private List<MetrologyContract> metrologyContracts = new ArrayList<>();
 
     @SuppressWarnings("unused")
@@ -234,32 +235,17 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
 
     @Override
     public List<ReadingTypeRequirement> getRequirements() {
-        return Collections.unmodifiableList(this.rtRequirements);
+        return Collections.unmodifiableList(this.readingTypeRequirements);
     }
 
     @Override
-    public FullySpecifiedReadingType addFullySpecifiedReadingTypeRequirement(String name, ReadingType readingType) {
-        FullySpecifiedReadingTypeImpl fullySpecifiedReadingType = this.dataModel.getInstance(FullySpecifiedReadingTypeImpl.class)
-                .init(this, name, readingType);
-        Save.CREATE.validate(this.dataModel, fullySpecifiedReadingType);
-        this.rtRequirements.add(fullySpecifiedReadingType);
-        touch();
-        return fullySpecifiedReadingType;
-    }
-
-    @Override
-    public PartiallySpecifiedReadingType addPartiallySpecifiedReadingTypeRequirement(String name, ReadingTypeTemplate readingTypeTemplate) {
-        PartiallySpecifiedReadingType partiallySpecifiedReadingType = this.dataModel.getInstance(PartiallySpecifiedReadingTypeImpl.class)
-                .init(this, name, readingTypeTemplate);
-        Save.CREATE.validate(this.dataModel, partiallySpecifiedReadingType);
-        this.rtRequirements.add(partiallySpecifiedReadingType);
-        touch();
-        return partiallySpecifiedReadingType;
+    public MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name) {
+        return new MetrologyConfigurationReadingTypeRequirementBuilderImpl(this).withName(name);
     }
 
     @Override
     public void removeReadingTypeRequirement(ReadingTypeRequirement readingTypeRequirement) {
-        if (this.rtRequirements.remove(readingTypeRequirement)) {
+        if (this.readingTypeRequirements.remove(readingTypeRequirement)) {
             touch();
         }
     }
@@ -318,5 +304,48 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     public boolean validateName() {
         Optional<MetrologyConfiguration> other = metrologyConfigurationService.findMetrologyConfiguration(getName());
         return !other.isPresent() || other.get().getId() == getId();
+    }
+
+    private static class MetrologyConfigurationReadingTypeRequirementBuilderImpl implements MetrologyConfigurationReadingTypeRequirementBuilder {
+        private final MetrologyConfigurationImpl metrologyConfiguration;
+
+        private String name;
+        private MeterRole meterRole;
+
+        private MetrologyConfigurationReadingTypeRequirementBuilderImpl(MetrologyConfigurationImpl metrologyConfiguration) {
+            this.metrologyConfiguration = metrologyConfiguration;
+        }
+
+        @Override
+        public MetrologyConfigurationReadingTypeRequirementBuilder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        @Override
+        public MetrologyConfigurationReadingTypeRequirementBuilder withMeterRole(MeterRole meterRole) {
+            this.meterRole = meterRole; //TODO add validation for meter roles.
+            return this;
+        }
+
+        @Override
+        public FullySpecifiedReadingType withReadingType(ReadingType readingType) {
+            FullySpecifiedReadingTypeImpl fullySpecifiedReadingType = this.metrologyConfiguration.dataModel.getInstance(FullySpecifiedReadingTypeImpl.class)
+                    .init(this.metrologyConfiguration, this.meterRole, this.name, readingType);
+            Save.CREATE.validate(this.metrologyConfiguration.dataModel, fullySpecifiedReadingType);
+            this.metrologyConfiguration.readingTypeRequirements.add(fullySpecifiedReadingType);
+            this.metrologyConfiguration.touch();
+            return fullySpecifiedReadingType;
+        }
+
+        @Override
+        public PartiallySpecifiedReadingType withReadingTypeTemplate(ReadingTypeTemplate readingTypeTemplate) {
+            PartiallySpecifiedReadingType partiallySpecifiedReadingType = this.metrologyConfiguration.dataModel.getInstance(PartiallySpecifiedReadingTypeImpl.class)
+                    .init(this.metrologyConfiguration, this.meterRole, this.name, readingTypeTemplate);
+            Save.CREATE.validate(this.metrologyConfiguration.dataModel, partiallySpecifiedReadingType);
+            this.metrologyConfiguration.readingTypeRequirements.add(partiallySpecifiedReadingType);
+            metrologyConfiguration.touch();
+            return partiallySpecifiedReadingType;
+        }
     }
 }

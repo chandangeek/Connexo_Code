@@ -27,6 +27,7 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -40,7 +41,7 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
 import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeAttributeValueImpl;
-import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
@@ -887,6 +888,16 @@ public enum TableSpecs {
 
             table.foreignKey("MTR_VALIDCHILD").references(MTR_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
                     .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").add();
+//            table.foreignKey("MTR_FORMULA_TO_DELIVERABLE")
+//                    .references(MTR_RT_DELIVERABLE.name())
+//                    .on(readingTypeDeliverableIdColumn)
+//                    .map("readingTypeDeliverable")
+//                    .add();
+//            table.foreignKey("MTR_FORMULA_TO_RT_REQ")
+//                    .references(MTR_RT_REQUIREMENT.name())
+//                    .on(readingTypeRequirementIdColumn)
+//                    .map("readingTypeRequirement")
+//                    .add();
         }
     },
     MTR_FORMULA {
@@ -1028,22 +1039,27 @@ public enum TableSpecs {
             table.map(ReadingTypeRequirementImpl.IMPLEMENTERS);
 
             Column idColumn = table.addAutoIdColumn();
-            table.column(ReadingTypeTemplateImpl.Fields.NAME.name())
+            table.column(ReadingTypeRequirementImpl.Fields.NAME.name())
                     .varChar(NAME_LENGTH)
                     .notNull()
-                    .map(ReadingTypeTemplateImpl.Fields.NAME.fieldName())
+                    .map(ReadingTypeRequirementImpl.Fields.NAME.fieldName())
                     .add();
-            Column metrologyConfig = table
-                    .column(PartiallySpecifiedReadingTypeImpl.Fields.METROLOGY_CONFIGURATION.name())
+            Column metrologyConfigColumn = table
+                    .column(ReadingTypeRequirementImpl.Fields.METROLOGY_CONFIGURATION.name())
                     .number()
+                    .notNull()
+                    .add();
+            Column meterRoleColumn = table
+                    .column(ReadingTypeRequirementImpl.Fields.METER_ROLE.name())
+                    .varChar(NAME_LENGTH)
                     .notNull()
                     .add();
             Column templateColumn = table
-                    .column(PartiallySpecifiedReadingTypeImpl.Fields.TEMPLATE.name())
+                    .column(ReadingTypeRequirementImpl.Fields.TEMPLATE.name())
                     .number()
                     .add();
             Column readingTypeColumn = table
-                    .column(PartiallySpecifiedReadingTypeImpl.Fields.READING_TYPE.name())
+                    .column(ReadingTypeRequirementImpl.Fields.READING_TYPE.name())
                     .varChar(NAME_LENGTH)
                     .add();
             table.addAuditColumns();
@@ -1051,20 +1067,25 @@ public enum TableSpecs {
             table.primaryKey("MTR_RT_REQUIREMENT_PK").on(idColumn).add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
-                    .on(metrologyConfig)
-                    .map(PartiallySpecifiedReadingTypeImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .on(metrologyConfigColumn)
+                    .map(ReadingTypeRequirementImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.RT_REQUIREMENTS.fieldName())
                     .composition()
+                    .add();
+            table.foreignKey("FK_RT_REQUIREMENT_TO_M_ROLE")
+                    .references(MeterRole.class)
+                    .on(meterRoleColumn)
+                    .map(ReadingTypeRequirementImpl.Fields.METER_ROLE.fieldName())
                     .add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_TPL")
                     .references(ReadingTypeTemplate.class)
                     .on(templateColumn)
-                    .map(PartiallySpecifiedReadingTypeImpl.Fields.TEMPLATE.fieldName())
+                    .map(ReadingTypeRequirementImpl.Fields.TEMPLATE.fieldName())
                     .add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_RT")
                     .references(ReadingType.class)
                     .on(readingTypeColumn)
-                    .map(PartiallySpecifiedReadingTypeImpl.Fields.READING_TYPE.fieldName())
+                    .map(ReadingTypeRequirementImpl.Fields.READING_TYPE.fieldName())
                     .add();
         }
     },
@@ -1135,12 +1156,13 @@ public enum TableSpecs {
             Table table = dataModel.addTable(name(), MetrologyContract.class);
             table.map(MetrologyContractImpl.class);
 
-            Column metrologyConfig = table
+            Column idColumn = table.addAutoIdColumn();
+            Column metrologyConfigColumn = table
                     .column(MetrologyContractImpl.Fields.METROLOGY_CONFIG.name())
                     .number()
                     .notNull()
                     .add();
-            Column metrologyPurpose = table
+            Column metrologyPurposeColumn = table
                     .column(MetrologyContractImpl.Fields.METROLOGY_PURPOSE.name())
                     .number()
                     .notNull()
@@ -1151,10 +1173,11 @@ public enum TableSpecs {
                     .map(MetrologyContractImpl.Fields.MANDATORY.fieldName())
                     .add();
 
-            table.primaryKey("MTR_METROLOGY_CONTRACT_PK").on(metrologyConfig, metrologyPurpose).add();
+            table.primaryKey("MTR_METROLOGY_CONTRACT_PK").on(idColumn).add();
+            table.unique("MTR_METROLOGY_CONTRACT_UQ").on(metrologyConfigColumn, metrologyPurposeColumn).add();
             table.foreignKey("MTR_CONTRACT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
-                    .on(metrologyConfig)
+                    .on(metrologyConfigColumn)
                     .onDelete(CASCADE)
                     .map(MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.METROLOGY_CONTRACTS.fieldName())
@@ -1162,8 +1185,57 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("MTR_CONTRACT_TO_M_PURPOSE")
                     .references(MetrologyPurpose.class)
-                    .on(metrologyPurpose)
+                    .on(metrologyPurposeColumn)
                     .map(MetrologyContractImpl.Fields.METROLOGY_PURPOSE.fieldName())
+                    .add();
+        }
+    },
+    MTR_RT_DELIVERABLE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), ReadingTypeDeliverable.class);
+            table.map(ReadingTypeDeliverableImpl.class);
+
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column(ReadingTypeDeliverableImpl.Fields.NAME.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(ReadingTypeDeliverableImpl.Fields.NAME.fieldName())
+                    .add();
+            Column metrologyContractColumn = table
+                    .column(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column readingTypeColumn = table
+                    .column(ReadingTypeDeliverableImpl.Fields.READING_TYPE.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .add();
+            Column formulaColumn = table
+                    .column(ReadingTypeDeliverableImpl.Fields.FORMULA.name())
+                    .number()
+                    .notNull()
+                    .add();
+            table.addAuditColumns();
+
+            table.primaryKey("MTR_DELIVERABLE_PK").on(idColumn).add();
+            table.unique("MTR_DELIVERABLE_NAME_UQ").on(nameColumn, metrologyContractColumn).add();
+            table.foreignKey("MTR_DELIVERABLE_TO_CONTRACT")
+                    .references(MetrologyContract.class)
+                    .on(metrologyContractColumn)
+                    .onDelete(CASCADE)
+                    .map(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                    .add();
+            table.foreignKey("MTR_DELIVERABLE_TO_RT")
+                    .references(ReadingType.class)
+                    .on(readingTypeColumn)
+                    .map(ReadingTypeDeliverableImpl.Fields.READING_TYPE.fieldName())
+                    .add();
+            table.foreignKey("MTR_DELIVERABLE_TO_FORMULA")
+                    .references(Formula.class)
+                    .on(formulaColumn)
+                    .map(ReadingTypeDeliverableImpl.Fields.FORMULA.fieldName())
                     .add();
         }
     },

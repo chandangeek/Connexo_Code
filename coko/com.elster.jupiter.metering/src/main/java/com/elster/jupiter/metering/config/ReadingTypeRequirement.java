@@ -92,5 +92,7 @@ public interface ReadingTypeRequirement extends HasId, HasName {
      */
     boolean matches(ReadingType candidate);
 
+    MeterRole getMeterRole();
+
     long getVersion();
 }

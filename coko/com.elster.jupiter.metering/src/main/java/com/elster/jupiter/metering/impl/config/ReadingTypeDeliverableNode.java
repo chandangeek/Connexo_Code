@@ -13,7 +13,6 @@ public class ReadingTypeDeliverableNode extends AbstractNode {
 
     static final String TYPE_IDENTIFIER = "DEL";
 
-    //todo add foreign key and replace id by reference
     private Reference<ReadingTypeDeliverable> readingTypeDeliverable = ValueReference.absent();
 
     public ReadingTypeDeliverableNode(ReadingTypeDeliverable readingTypeDeliverable) {
