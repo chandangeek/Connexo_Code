@@ -7,14 +7,15 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
-import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.ConstantNode;
+import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.users.UserService;
 
@@ -89,8 +90,8 @@ public class CopyAndVirtualizeReferencesTest {
     public void copyMinimumFunctionCallNodeWithoutArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
         FormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
-        com.elster.jupiter.metering.impl.config.FunctionCallNode node =
-                (com.elster.jupiter.metering.impl.config.FunctionCallNode) formulaBuilder.minimum().create();
+        FunctionCallNodeImpl node =
+                (FunctionCallNodeImpl) formulaBuilder.minimum().create();
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -107,8 +108,8 @@ public class CopyAndVirtualizeReferencesTest {
     public void copyFunctionCallNodeWithoutArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
         FormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
-        com.elster.jupiter.metering.impl.config.FunctionCallNode node =
-                (com.elster.jupiter.metering.impl.config.FunctionCallNode) formulaBuilder.maximum().create();
+        FunctionCallNodeImpl node =
+                (FunctionCallNodeImpl) formulaBuilder.maximum().create();
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -124,8 +125,8 @@ public class CopyAndVirtualizeReferencesTest {
     @Test
     public void copyFunctionCallNodeWithOneArgument() {
         FormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
-        com.elster.jupiter.metering.impl.config.FunctionCallNode node =
-                (com.elster.jupiter.metering.impl.config.FunctionCallNode) formulaBuilder.minimum(formulaBuilder.constant(BigDecimal.TEN)).create();
+        FunctionCallNodeImpl node =
+                (FunctionCallNodeImpl) formulaBuilder.minimum(formulaBuilder.constant(BigDecimal.TEN)).create();
         CopyAndVirtualizeReferences visitor = getTestInstance();
 
         // Business method
@@ -146,8 +147,8 @@ public class CopyAndVirtualizeReferencesTest {
     public void copyFunctionCallNodeWithTwoArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
         FormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
-        com.elster.jupiter.metering.impl.config.FunctionCallNode node =
-                (com.elster.jupiter.metering.impl.config.FunctionCallNode) formulaBuilder
+        FunctionCallNodeImpl node =
+                (FunctionCallNodeImpl) formulaBuilder
                         .maximum(
                             formulaBuilder.constant(BigDecimal.TEN),
                                 formulaBuilder.constant(BigDecimal.ZERO)).create();
@@ -173,8 +174,8 @@ public class CopyAndVirtualizeReferencesTest {
     public void copyFunctionCallNodeWithThreeArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
         FormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
-        com.elster.jupiter.metering.impl.config.FunctionCallNode node =
-                (com.elster.jupiter.metering.impl.config.FunctionCallNode) formulaBuilder
+        FunctionCallNodeImpl node =
+                (FunctionCallNodeImpl) formulaBuilder
                         .maximum(
                                 formulaBuilder.constant(BigDecimal.TEN),
                                 formulaBuilder.constant(BigDecimal.valueOf(1000L)),
@@ -204,10 +205,10 @@ public class CopyAndVirtualizeReferencesTest {
     public void copyPlusOperation() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
         FormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
-        FormulaPart formulaPart = formulaBuilder.plus(
+        ExpressionNode formulaPart = formulaBuilder.plus(
                 formulaBuilder.constant(BigDecimal.TEN),
                 formulaBuilder.constant(BigDecimal.ZERO)).create();
-        com.elster.jupiter.metering.impl.config.OperationNode node = (com.elster.jupiter.metering.impl.config.OperationNode) formulaPart;
+        com.elster.jupiter.metering.config.OperationNode node = (com.elster.jupiter.metering.config.OperationNode) formulaPart;
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -236,13 +237,13 @@ public class CopyAndVirtualizeReferencesTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
         FormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
-        FormulaPart formulaPart =
+        ExpressionNode formulaPart =
                 formulaBuilder.plus(
                     formulaBuilder.requirement(mock(ReadingTypeRequirement.class)),
                     formulaBuilder.maximum(
                         formulaBuilder.deliverable(readingTypeDeliverable),
                         formulaBuilder.constant(BigDecimal.TEN))).create();
-        com.elster.jupiter.metering.impl.config.OperationNode node = (com.elster.jupiter.metering.impl.config.OperationNode) formulaPart;
+        com.elster.jupiter.metering.config.OperationNode node = (com.elster.jupiter.metering.config.OperationNode) formulaPart;
         ReadingTypeDeliverableForMeterActivation readingTypeDeliverableForMeterActivation =
                 new ReadingTypeDeliverableForMeterActivation(
                         readingTypeDeliverable,

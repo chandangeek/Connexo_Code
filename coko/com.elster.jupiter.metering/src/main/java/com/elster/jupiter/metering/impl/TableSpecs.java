@@ -25,7 +25,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
-import com.elster.jupiter.metering.impl.config.ExpressionNode;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
@@ -842,20 +842,20 @@ public enum TableSpecs {
 
             Column argumentIndex = table.column("ARGUMENTINDEX").number().notNull().map("argumentIndex").conversion(NUMBER2INT).add();
 
-            //OperationNode operator value
+            //OperationNodeImpl operator value
             table.column("OPERATOR").number().conversion(ColumnConversion.NUMBER2ENUM).map("operator").add();
 
-            //FunctionCallNode function value
+            //FunctionCallNodeImpl function value
             table.column("FUNCTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("function").add();
 
-            //ConstantNode constantValue
+            //ConstantNodeImpl constantValue
             table.column("CONSTANTVALUE").number().map("constantValue").add();
 
-            // ReadingTypeDeliverableNode readingTypeDeliverable value
+            // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
             //todo add foreign key
             Column readingTypeDeliverableIdColumn = table.column("READINGTYPE_DELIVERABLE").number().conversion(NUMBER2LONG).map("readingTypeDeliverable").add();
 
-            // ReadingTypeRequirementNode readingTypeRequirement value
+            // ReadingTypeRequirementNodeImpl readingTypeRequirement value
             //todo add foreign key
             Column readingTypeRequirementIdColumn = table.column("READINGTYPE_REQUIREMENT").number().conversion(NUMBER2LONG).map("readingTypeRequirement").add();
 

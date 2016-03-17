@@ -1,12 +1,14 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.metering.config.ExpressionNode;
+
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * Provides an implementation for the {@link ServerExpressionNode.Visitor}
  * and returns the name of the SQL table (as String) that holds the data
- * of the visited {@link com.elster.jupiter.metering.impl.config.ExpressionNode}
+ * of the visited {@link ExpressionNode}
  * or <code>null</code> if the ExpressionNode is not backed by a SQL table.
  *
  * @author Rudi Vankeirsbilck (rudi)

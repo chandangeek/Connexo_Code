@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl.config;
+package com.elster.jupiter.metering.config;
 
 /**
  * Models the supported functions that can be used in {@link com.elster.jupiter.metering.config.Formula}'s

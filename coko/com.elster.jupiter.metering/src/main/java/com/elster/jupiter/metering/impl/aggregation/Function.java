@@ -17,7 +17,7 @@ public enum Function {
     MIN,
     AVG;
 
-    public static Function from(com.elster.jupiter.metering.impl.config.Function function) {
+    public static Function from(com.elster.jupiter.metering.config.Function function) {
         switch (function) {
             case SUM: {
                 return SUM;

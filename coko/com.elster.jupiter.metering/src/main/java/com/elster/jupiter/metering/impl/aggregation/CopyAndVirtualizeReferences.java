@@ -2,10 +2,9 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.impl.config.ConstantNode;
-import com.elster.jupiter.metering.impl.config.ExpressionNode;
-import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNode;
-import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNodeImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNodeImpl;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,8 +14,8 @@ import java.util.stream.Collectors;
  * that copies {@link ExpressionNode}s to the corresponding {@link ServerExpressionNode}
  * and applies the following replacements:
  * <ul>
- * <li>{@link ReadingTypeRequirementNode} -&gt; {@link VirtualRequirementNode}</li>
- * <li>{@link ReadingTypeDeliverableNode} -&gt; {@link VirtualDeliverableNode}</li>
+ * <li>{@link ReadingTypeRequirementNodeImpl} -&gt; {@link VirtualRequirementNode}</li>
+ * <li>{@link ReadingTypeDeliverableNodeImpl} -&gt; {@link VirtualDeliverableNode}</li>
  * </ul>
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -38,12 +37,12 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
     }
 
     @Override
-    public ServerExpressionNode visitConstant(ConstantNode constant) {
+    public ServerExpressionNode visitConstant(com.elster.jupiter.metering.config.ConstantNode constant) {
         return new NumericalConstantNode(constant.getValue());
     }
 
     @Override
-    public ServerExpressionNode visitRequirement(ReadingTypeRequirementNode node) {
+    public ServerExpressionNode visitRequirement(com.elster.jupiter.metering.config.ReadingTypeRequirementNode node) {
         // Replace this one with a VirtualRequirementNode
         return new VirtualRequirementNode(
                 this.virtualFactory,
@@ -53,7 +52,7 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
     }
 
     @Override
-    public ServerExpressionNode visitDeliverable(ReadingTypeDeliverableNode node) {
+    public ServerExpressionNode visitDeliverable(com.elster.jupiter.metering.config.ReadingTypeDeliverableNode node) {
         // Replace this one with a VirtualDeliverableNode
         return new VirtualDeliverableNode(
                 this.virtualFactory,
@@ -63,7 +62,7 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
     }
 
     @Override
-    public ServerExpressionNode visitOperation(com.elster.jupiter.metering.impl.config.OperationNode operationNode) {
+    public ServerExpressionNode visitOperation(com.elster.jupiter.metering.config.OperationNode operationNode) {
         return new OperationNode(
                 Operator.from(operationNode.getOperator()),
                 operationNode.getLeftOperand().accept(this),
@@ -71,7 +70,7 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
     }
 
     @Override
-    public ServerExpressionNode visitFunctionCall(com.elster.jupiter.metering.impl.config.FunctionCallNode functionCall) {
+    public ServerExpressionNode visitFunctionCall(com.elster.jupiter.metering.config.FunctionCallNode functionCall) {
         List<ServerExpressionNode> arguments = functionCall.getChildren().stream().map(child -> child.accept(this)).collect(Collectors.toList());
         Function function = Function.from(functionCall.getFunction());
         return new FunctionCallNode(function, arguments);

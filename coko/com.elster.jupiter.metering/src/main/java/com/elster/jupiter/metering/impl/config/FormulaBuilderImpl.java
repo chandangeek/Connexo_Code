@@ -1,9 +1,11 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
-import com.elster.jupiter.metering.config.FormulaPart;
-import com.elster.jupiter.metering.config.NodeBuilder;
+import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
+import com.elster.jupiter.metering.config.Function;
+import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.nls.Thesaurus;
@@ -20,7 +22,7 @@ public class FormulaBuilderImpl implements FormulaBuilder {
 
     private Formula.Mode mode;
     private DataModel dataModel;
-    private NodeBuilder nodebuilder; // use with api (default)
+    private ExpressionNodeBuilder nodebuilder; // use with api (default)
     private ExpressionNode node; // use with parser (first create a node from a String representation using ExpressionNodeParser)
     private Thesaurus thesaurus;
 
@@ -30,85 +32,85 @@ public class FormulaBuilderImpl implements FormulaBuilder {
         this.thesaurus = thesaurus;
     }
 
-    public FormulaBuilder init(NodeBuilder nodeBuilder) {
+    public FormulaBuilder init(ExpressionNodeBuilder nodeBuilder) {
         this.nodebuilder = nodeBuilder;
         return this;
     }
 
-    public FormulaBuilder init(FormulaPart formulaPart) {
-        this.node = (ExpressionNode) formulaPart;
+    public FormulaBuilder init(ExpressionNode formulaPart) {
+        this.node = formulaPart;
         return this;
     }
 
     public Formula build() {
         if (node == null) {
-            node = (ExpressionNode) nodebuilder.create();
+            node = nodebuilder.create();
         }
         Formula formula = dataModel.getInstance(FormulaImpl.class).init(mode, node);
         formula.save();
         return formula;
     }
 
-    public NodeBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable) {
-        return () -> new ReadingTypeDeliverableNode(readingTypeDeliverable);
+    public ExpressionNodeBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable) {
+        return () -> new ReadingTypeDeliverableNodeImpl(readingTypeDeliverable);
     }
 
-    public NodeBuilder requirement(ReadingTypeRequirement value) {
-        return () -> new ReadingTypeRequirementNode(value);
+    public ExpressionNodeBuilder requirement(ReadingTypeRequirement value) {
+        return () -> new ReadingTypeRequirementNodeImpl(value);
     }
 
     public NodeBuilder requirement(ReadingTypeRequirementNode existingNode) {
         return () -> existingNode;
     }
 
-    public NodeBuilder constant(BigDecimal value) {
-        return () -> new ConstantNode(value);
+    public ExpressionNodeBuilder constant(BigDecimal value) {
+        return () -> new ConstantNodeImpl(value);
     }
 
-    public NodeBuilder constant(long value) {
-        return () -> new ConstantNode(BigDecimal.valueOf(value));
+    public ExpressionNodeBuilder constant(long value) {
+        return () -> new ConstantNodeImpl(BigDecimal.valueOf(value));
     }
 
-    public NodeBuilder constant(double value) {
-        return () -> new ConstantNode(BigDecimal.valueOf(value));
+    public ExpressionNodeBuilder constant(double value) {
+        return () -> new ConstantNodeImpl(BigDecimal.valueOf(value));
     }
 
-    public NodeBuilder sum(NodeBuilder... terms) {
+    public ExpressionNodeBuilder sum(ExpressionNodeBuilder... terms) {
         return function(Function.SUM, terms);
     }
 
-    public NodeBuilder maximum(NodeBuilder... terms) {
+    public ExpressionNodeBuilder maximum(ExpressionNodeBuilder... terms) {
         return function(Function.MAX, terms);
     }
 
-    public NodeBuilder minimum(NodeBuilder... terms) {
+    public ExpressionNodeBuilder minimum(ExpressionNodeBuilder... terms) {
         return function(Function.MIN, terms);
     }
 
-    public NodeBuilder average(NodeBuilder... terms) {
+    public ExpressionNodeBuilder average(ExpressionNodeBuilder... terms) {
         return function(Function.AVG, terms);
     }
 
-    public NodeBuilder plus(NodeBuilder term1, NodeBuilder term2) {
-        return () -> new OperationNode(Operator.PLUS, (ExpressionNode) term1.create(), (ExpressionNode) term2.create(), thesaurus);
+    public ExpressionNodeBuilder plus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2) {
+        return () -> new OperationNodeImpl(Operator.PLUS,  term1.create(),  term2.create(), thesaurus);
     }
 
-    public NodeBuilder minus(NodeBuilder term1, NodeBuilder term2) {
-        return () -> new OperationNode(Operator.MINUS, (ExpressionNode) term1.create(), (ExpressionNode) term2.create(), thesaurus);
+    public ExpressionNodeBuilder minus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2) {
+        return () -> new OperationNodeImpl(Operator.MINUS, term1.create(), term2.create(), thesaurus);
     }
 
-    public NodeBuilder divide(NodeBuilder dividend, NodeBuilder divisor) {
-        return () -> new OperationNode(Operator.DIVIDE, (ExpressionNode) dividend.create(), (ExpressionNode) divisor.create(), thesaurus);
+    public ExpressionNodeBuilder divide(ExpressionNodeBuilder dividend, ExpressionNodeBuilder divisor) {
+        return () -> new OperationNodeImpl(Operator.DIVIDE, dividend.create(), divisor.create(), thesaurus);
     }
 
-    public NodeBuilder multiply(NodeBuilder multiplier, NodeBuilder multiplicand) {
-        return () -> new OperationNode(Operator.MULTIPLY, (ExpressionNode) multiplier.create(), (ExpressionNode) multiplicand.create(), thesaurus);
+    public ExpressionNodeBuilder multiply(ExpressionNodeBuilder multiplier, ExpressionNodeBuilder multiplicand) {
+        return () -> new OperationNodeImpl(Operator.MULTIPLY,  multiplier.create(), multiplicand.create(), thesaurus);
     }
 
-    private NodeBuilder function(Function function, NodeBuilder... terms) {
-        return () -> new FunctionCallNode(
+    private ExpressionNodeBuilder function(Function function, ExpressionNodeBuilder... terms) {
+        return () -> new FunctionCallNodeImpl(
                 Arrays.stream(terms)
-                        .map((NodeBuilder b) -> (ExpressionNode) b.create())
+                        .map((ExpressionNodeBuilder b) ->  b.create())
                         .collect(Collectors.toList()),
                         function, thesaurus);
     }
