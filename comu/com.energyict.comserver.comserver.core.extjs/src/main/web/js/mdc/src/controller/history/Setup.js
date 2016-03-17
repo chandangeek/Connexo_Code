@@ -1331,6 +1331,12 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         },
+                        servicecalls:  {
+                            title: Uni.I18n.translate('devicemenu.serviceCalls', 'MDC', 'Service calls'),
+                            route: 'servicecalls',
+                            controller: 'Mdc.controller.setup.ServiceCalls',
+                            action: 'showServiceCalls'
+                        },
                         changedeviceconfiguration: {
                             title: Uni.I18n.translate('devicemenu.changedeviceconfiguration', 'MDC', 'Change device configuration'),
                             route: 'changedeviceconfiguration',
