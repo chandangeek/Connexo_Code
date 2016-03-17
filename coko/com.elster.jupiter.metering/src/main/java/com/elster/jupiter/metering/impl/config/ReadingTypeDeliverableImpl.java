@@ -129,6 +129,11 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable {
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

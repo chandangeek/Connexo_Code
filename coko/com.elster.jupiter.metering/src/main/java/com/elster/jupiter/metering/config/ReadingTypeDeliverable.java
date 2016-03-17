@@ -49,4 +49,6 @@ public interface ReadingTypeDeliverable extends HasId, HasName {
     void update();
 
     void delete();
+
+    long getVersion();
 }

@@ -43,12 +43,21 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     List<ReadingTypeRequirement> getRequirements();
 
-    FullySpecifiedReadingType addFullySpecifiedReadingTypeRequirement(String name, ReadingType readingType);
-
-    PartiallySpecifiedReadingType addPartiallySpecifiedReadingTypeRequirement(String name, ReadingTypeTemplate readingTypeTemplate);
+    MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name);
 
     void removeReadingTypeRequirement(ReadingTypeRequirement readingTypeRequirement);
 
     List<ReadingTypeDeliverable> getDeliverables();
 
+    @ProviderType
+    interface MetrologyConfigurationReadingTypeRequirementBuilder {
+
+        MetrologyConfigurationReadingTypeRequirementBuilder withName(String name);
+
+        MetrologyConfigurationReadingTypeRequirementBuilder withMeterRole(MeterRole meterRole);
+
+        FullySpecifiedReadingType withReadingType(ReadingType readingType);
+
+        PartiallySpecifiedReadingType withReadingTypeTemplate(ReadingTypeTemplate readingTypeTemplate);
+    }
 }

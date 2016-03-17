@@ -98,6 +98,8 @@ public class MetrologyPurposeImpl implements MetrologyPurpose {
     @Override
     public void delete() {
         this.eventService.postEvent(EventType.METROLOGY_PURPOSE_DELETED.topic(), this);
+        // Event should be sent before actual deletion or SQL exception will be thrown if the metrology purpose is in use
+        // see MetrologyPurposeDeletionVetoEventHandler class
         this.dataModel.remove(this);
     }
 

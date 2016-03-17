@@ -41,7 +41,6 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
 import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeAttributeValueImpl;
-import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
@@ -1040,22 +1039,27 @@ public enum TableSpecs {
             table.map(ReadingTypeRequirementImpl.IMPLEMENTERS);
 
             Column idColumn = table.addAutoIdColumn();
-            table.column(ReadingTypeTemplateImpl.Fields.NAME.name())
+            table.column(ReadingTypeRequirementImpl.Fields.NAME.name())
                     .varChar(NAME_LENGTH)
                     .notNull()
-                    .map(ReadingTypeTemplateImpl.Fields.NAME.fieldName())
+                    .map(ReadingTypeRequirementImpl.Fields.NAME.fieldName())
                     .add();
             Column metrologyConfigColumn = table
-                    .column(PartiallySpecifiedReadingTypeImpl.Fields.METROLOGY_CONFIGURATION.name())
+                    .column(ReadingTypeRequirementImpl.Fields.METROLOGY_CONFIGURATION.name())
                     .number()
+                    .notNull()
+                    .add();
+            Column meterRoleColumn = table
+                    .column(ReadingTypeRequirementImpl.Fields.METER_ROLE.name())
+                    .varChar(NAME_LENGTH)
                     .notNull()
                     .add();
             Column templateColumn = table
-                    .column(PartiallySpecifiedReadingTypeImpl.Fields.TEMPLATE.name())
+                    .column(ReadingTypeRequirementImpl.Fields.TEMPLATE.name())
                     .number()
                     .add();
             Column readingTypeColumn = table
-                    .column(PartiallySpecifiedReadingTypeImpl.Fields.READING_TYPE.name())
+                    .column(ReadingTypeRequirementImpl.Fields.READING_TYPE.name())
                     .varChar(NAME_LENGTH)
                     .add();
             table.addAuditColumns();
@@ -1064,19 +1068,24 @@ public enum TableSpecs {
             table.foreignKey("FK_RT_REQUIREMENT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
-                    .map(PartiallySpecifiedReadingTypeImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .map(ReadingTypeRequirementImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.RT_REQUIREMENTS.fieldName())
                     .composition()
+                    .add();
+            table.foreignKey("FK_RT_REQUIREMENT_TO_M_ROLE")
+                    .references(MeterRole.class)
+                    .on(meterRoleColumn)
+                    .map(ReadingTypeRequirementImpl.Fields.METER_ROLE.fieldName())
                     .add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_TPL")
                     .references(ReadingTypeTemplate.class)
                     .on(templateColumn)
-                    .map(PartiallySpecifiedReadingTypeImpl.Fields.TEMPLATE.fieldName())
+                    .map(ReadingTypeRequirementImpl.Fields.TEMPLATE.fieldName())
                     .add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_RT")
                     .references(ReadingType.class)
                     .on(readingTypeColumn)
-                    .map(PartiallySpecifiedReadingTypeImpl.Fields.READING_TYPE.fieldName())
+                    .map(ReadingTypeRequirementImpl.Fields.READING_TYPE.fieldName())
                     .add();
         }
     },

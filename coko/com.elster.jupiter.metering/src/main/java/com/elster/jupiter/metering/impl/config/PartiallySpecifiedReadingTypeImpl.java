@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
 import com.elster.jupiter.orm.DataModel;
@@ -39,8 +40,8 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
         this.dataModel = dataModel;
     }
 
-    public PartiallySpecifiedReadingTypeImpl init(MetrologyConfiguration metrologyConfiguration, String name, ReadingTypeTemplate template) {
-        super.init(metrologyConfiguration, name);
+    public PartiallySpecifiedReadingTypeImpl init(MetrologyConfiguration metrologyConfiguration, MeterRole meterRole, String name, ReadingTypeTemplate template) {
+        super.init(metrologyConfiguration, meterRole, name);
         this.readingTypeTemplate.set(template);
         return this;
     }
