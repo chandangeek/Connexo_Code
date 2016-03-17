@@ -4,21 +4,24 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FormulaBuilder;
+import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.OperationNode;
-import com.elster.jupiter.metering.impl.config.Operator;
-import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
 
@@ -83,6 +86,12 @@ public class DataAggregationServiceImplCalculateTest {
     private SqlBuilderFactory sqlBuilderFactory;
     @Mock
     private ClauseAwareSqlBuilder sqlBuilder;
+    @Mock
+    private EventService eventService;
+    @Mock
+    private UserService userService;
+
+    private MetrologyConfigurationService metrologyConfigurationService;
     private SqlBuilder withClauseBuilder;
     private SqlBuilder selectClauseBuilder;
     private SqlBuilder completeSqlBuilder;
@@ -101,6 +110,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.connection.prepareStatement(anyString())).thenReturn(this.preparedStatement);
         when(this.preparedStatement.executeQuery()).thenReturn(this.resultSet);
         when(this.dataModel.getInstance(AggregatedReadingRecordFactory.class)).thenReturn(new AggregatedReadingRecordFactoryImpl(this.dataModel));
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.eventService, this.userService);
     }
 
     /**
@@ -134,14 +144,13 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mock15minReadingType("0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
+        FormulaBuilder formulaBuilder = this.newFormulaBuilder();
+        FormulaPart node = formulaBuilder.plus(
+                formulaBuilder.requirement(production),
+                formulaBuilder.requirement(consumption)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(
-            new OperationNode(
-                    Operator.PLUS,
-                    new ReadingTypeRequirementNode(production),
-                    new ReadingTypeRequirementNode(consumption)))
-            .when(formula).expressionNode();
+        doReturn(node).when(formula).expressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         VirtualReadingTypeRequirement virtualConsumption = mock(VirtualReadingTypeRequirement.class);
         when(virtualConsumption.sqlName()).thenReturn("vrt-consumption");
@@ -236,14 +245,13 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mock15minReadingType("13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
+        FormulaBuilder formulaBuilder = this.newFormulaBuilder();
+        FormulaPart node = formulaBuilder.plus(
+                formulaBuilder.requirement(production),
+                formulaBuilder.requirement(consumption)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(
-            new OperationNode(
-                    Operator.PLUS,
-                    new ReadingTypeRequirementNode(production),
-                    new ReadingTypeRequirementNode(consumption)))
-            .when(formula).expressionNode();
+        doReturn(node).when(formula).expressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         VirtualReadingTypeRequirement virtualConsumption = mock(VirtualReadingTypeRequirement.class);
         when(virtualConsumption.sqlName()).thenReturn("vrt-consumption");
@@ -329,6 +337,10 @@ public class DataAggregationServiceImplCalculateTest {
 
     private VirtualFactory getVirtualFactory() {
         return this.virtualFactory;
+    }
+
+    private FormulaBuilder newFormulaBuilder() {
+        return this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
     }
 
 }

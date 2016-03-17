@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.units.Dimension;
 
 /**
  * Created by igh on 4/02/2016.
@@ -30,7 +31,7 @@ public class ReadingTypeDeliverableNode extends AbstractNode {
     }
 
     @Override
-    public ReadingTypeUnit getReadingTypeUnit() {
-        return readingTypeDeliverable.get().getReadingType().getUnit();
+    public Dimension getDimension() {
+        return readingTypeDeliverable.get().getReadingType().getUnit().getUnit().getDimension();
     }
 }

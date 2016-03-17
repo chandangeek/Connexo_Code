@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.units.Dimension;
 
 import java.util.Optional;
 
@@ -31,9 +32,7 @@ public class ReadingTypeRequirementNode extends AbstractNode {
         return visitor.visitRequirement(this);
     }
 
-    @Override
-    public ReadingTypeUnit getReadingTypeUnit() {
-        //todo check wit Rudi how to handle this
-        return null;
+    public Dimension getDimension() {
+        return readingTypeRequirement.get().getDimension();
     }
 }

@@ -1,7 +1,10 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.units.Dimension;
 
 import java.util.List;
 
@@ -13,6 +16,7 @@ public class FunctionCallNode extends AbstractNode {
     static final String TYPE_IDENTIFIER = "FCT";
 
     private Function function;
+    private Thesaurus thesaurus;
 
     public FunctionCallNode() {}
 
@@ -21,9 +25,10 @@ public class FunctionCallNode extends AbstractNode {
         return this;
     }
 
-    public FunctionCallNode(List<? extends ExpressionNode> children, Function function) {
+    public FunctionCallNode(List<? extends ExpressionNode> children, Function function, Thesaurus thesaurus) {
         super(children);
         this.function = function;
+        this.thesaurus = thesaurus;
     }
 
     public Function getFunction() {
@@ -51,7 +56,7 @@ public class FunctionCallNode extends AbstractNode {
 
     public void validate() {
         if (this.getChildren().isEmpty()) {
-            throw new InvalidNodeException("At least 1 child required");
+            throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED);
         }
         ExpressionNode first = this.getChildren().get(0);
         first.validate();
@@ -59,14 +64,14 @@ public class FunctionCallNode extends AbstractNode {
             ExpressionNode child = this.getChildren().get(i);
             child.validate();
             if (!UnitConversionSupport.areCompatibleForAutomaticUnitConversion(
-                    first.getReadingTypeUnit(), child.getReadingTypeUnit())) {
-                throw new InvalidNodeException("Only reading type units that are compatible for automatic unit conversion can be used as children of a function");
+                    first.getDimension(), child.getDimension())) {
+                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_FUNCTION_CALL);
             }
         }
     }
 
     @Override
-    public ReadingTypeUnit getReadingTypeUnit() {
-        return this.getChildren().get(0).getReadingTypeUnit();
+    public Dimension getDimension() {
+        return this.getChildren().get(0).getDimension();
     }
 }

@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
@@ -51,6 +52,7 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     private volatile ServerMeteringService meteringService;
     private volatile EventService eventService;
     private volatile UserService userService;
+    private volatile Thesaurus thesaurus;
 
     @Inject
     public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, EventService eventService, UserService userService) {
@@ -115,6 +117,10 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         return this.meteringService.getDataModel();
     }
 
+    Thesaurus getThesaurus() {
+        return this.meteringService.getThesaurus();
+    }
+
     @Override
     public MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory) {
         MetrologyConfigurationBuilderImpl builder = new MetrologyConfigurationBuilderImpl(getDataModel());
@@ -152,7 +158,7 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
 
     @Override
     public FormulaBuilder newFormulaBuilder(Formula.Mode mode) {
-        return new FormulaBuilderImpl(mode, getDataModel());
+        return new FormulaBuilderImpl(mode, getDataModel(), getThesaurus());
     }
 
     @Override

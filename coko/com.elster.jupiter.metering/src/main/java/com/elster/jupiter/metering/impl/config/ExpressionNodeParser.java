@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 
@@ -12,6 +13,12 @@ import java.util.List;
  * Created by igh on 29/02/2016.
  */
 public class ExpressionNodeParser {
+
+    private Thesaurus thesaurus;
+
+    public ExpressionNodeParser(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
 
     private ArrayDeque<String> stack = new ArrayDeque<>();
 
@@ -64,7 +71,7 @@ public class ExpressionNodeParser {
         if (nodes.size() < 2) {
             throw new IllegalArgumentException("Operator '" + operator + "' requires at least 2 arguments");
         }
-        OperationNode operationNode = new OperationNode(getOperator(operator), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1));
+        OperationNode operationNode = new OperationNode(getOperator(operator), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1), thesaurus);
         nodes.remove(nodes.size() - 2);
         nodes.remove(nodes.size() - 1);
         nodes.add(operationNode);
@@ -77,7 +84,7 @@ public class ExpressionNodeParser {
         int numberOfArguments = getNumberOfArguments();
         FunctionCallNode functionCallNode = new FunctionCallNode(
                 nodes.subList(nodes.size() - numberOfArguments, nodes.size()),
-                getFunction(function));
+                getFunction(function), thesaurus);
         for (int i = 0; i < numberOfArguments; i++) {
             nodes.remove(nodes.size() - 1);
         }

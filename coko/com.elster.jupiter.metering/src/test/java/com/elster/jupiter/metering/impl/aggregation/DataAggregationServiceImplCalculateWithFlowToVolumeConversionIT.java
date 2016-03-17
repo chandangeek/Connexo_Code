@@ -30,16 +30,15 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FormulaBuilder;
+import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.ConstantNode;
-import com.elster.jupiter.metering.impl.config.OperationNode;
-import com.elster.jupiter.metering.impl.config.Operator;
-import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -197,6 +196,14 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
                 sqlBuilderFactory);
     }
 
+    private static MetrologyConfigurationService getMetrologyConfigurationService() {
+        return injector.getInstance(MetrologyConfigurationService.class);
+    }
+
+    private static FormulaBuilder newFormulaBuilder() {
+        return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
+    }
+
     private static void setupReadingTypes() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             fifteenMinuteskWForward = getMeteringService().getReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.38.0").get();
@@ -268,14 +275,13 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mock15minReadingType();
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
+        FormulaBuilder formulaBuilder = newFormulaBuilder();
+        FormulaPart node = formulaBuilder.plus(
+                formulaBuilder.requirement(production),
+                formulaBuilder.requirement(consumption)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(
-                new OperationNode(
-                        Operator.PLUS,
-                        new ReadingTypeRequirementNode(production),
-                        new ReadingTypeRequirementNode(consumption)))
-                .when(formula).expressionNode();
+        doReturn(node).when(formula).expressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
@@ -370,14 +376,13 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mockMonthlyNetConsumptionReadingType();
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
+        FormulaBuilder formulaBuilder = newFormulaBuilder();
+        FormulaPart node = formulaBuilder.plus(
+                formulaBuilder.requirement(production),
+                formulaBuilder.requirement(consumption)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(
-                new OperationNode(
-                        Operator.PLUS,
-                        new ReadingTypeRequirementNode(production),
-                        new ReadingTypeRequirementNode(consumption)))
-                .when(formula).expressionNode();
+        doReturn(node).when(formula).expressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
@@ -481,17 +486,15 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mockMonthlyNetConsumptionReadingType();
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
+        FormulaBuilder formulaBuilder = newFormulaBuilder();
+        FormulaPart node = formulaBuilder.plus(
+                formulaBuilder.requirement(consumption),
+                formulaBuilder.multiply(
+                        formulaBuilder.requirement(production),
+                        formulaBuilder.constant(BigDecimal.valueOf(2L)))).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(
-                new OperationNode(
-                        Operator.PLUS,
-                        new ReadingTypeRequirementNode(consumption),
-                        new OperationNode(
-                                Operator.MULTIPLY,
-                                new ReadingTypeRequirementNode(production),
-                                new ConstantNode(BigDecimal.valueOf(2L)))))
-                .when(formula).expressionNode();
+        doReturn(node).when(formula).expressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));

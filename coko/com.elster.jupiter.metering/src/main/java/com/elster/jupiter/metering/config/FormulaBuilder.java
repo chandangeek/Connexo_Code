@@ -18,6 +18,8 @@ public interface FormulaBuilder {
     NodeBuilder minus(NodeBuilder term1, NodeBuilder term2);
     NodeBuilder divide(NodeBuilder dividend, NodeBuilder divisor);
     NodeBuilder multiply(NodeBuilder multiplier, NodeBuilder multiplicand);
+    NodeBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable);
+    NodeBuilder requirement(ReadingTypeRequirement value);
     FormulaBuilder init(NodeBuilder nodeBuilder);
     FormulaBuilder init(FormulaPart formulaPart);
     Formula build();
