@@ -7,15 +7,12 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.Dimension;
 
-import java.util.Optional;
-
 /**
  * Created by igh on 4/02/2016.
  */
 public class ReadingTypeRequirementNodeImpl extends AbstractNode implements ReadingTypeRequirementNode {
 
 
-    //todo add foreign key and replace id by reference
     private Reference<ReadingTypeRequirement> readingTypeRequirement = ValueReference.absent();
 
     public ReadingTypeRequirementNodeImpl(ReadingTypeRequirement readingTypeRequirement) {

@@ -5,13 +5,16 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableMap;
 
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +29,7 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
         ID("id"),
         NAME("name"),
         METROLOGY_CONFIGURATION("metrologyConfiguration"),
+        METER_ROLE("meterRole"),
         TEMPLATE("readingTypeTemplate"),
         ATTRIBUTES("overriddenAttributes"),
         READING_TYPE("readingType"),;
@@ -44,7 +48,10 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Reference<MeterRole> meterRole = ValueReference.absent();
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
 
     private long version;
@@ -55,7 +62,8 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     public ReadingTypeRequirementImpl() {
     }
 
-    protected void init(MetrologyConfiguration metrologyConfiguration, String name) {
+    protected void init(MetrologyConfiguration metrologyConfiguration, MeterRole meterRole, String name) {
+        this.meterRole.set(meterRole);
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.name = name;
     }
@@ -89,6 +97,11 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
         return meterActivation.getChannels().stream()
                 .filter(channel -> matches(channel.getMainReadingType()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public MeterRole getMeterRole() {
+        return this.meterRole.get();
     }
 
     @Override
