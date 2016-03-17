@@ -248,4 +248,22 @@ public class ReadingTypeTemplateImplTestIT {
                 .setAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, null, ReadingTypeUnit.AMPERE.getId(), ReadingTypeUnit.LITRE.getId())
                 .done();
     }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}", property = "name", strict = true)
+    public void testValidTemplateHasUniqueNameDuringCreation() {
+        inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Name");
+        inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Name");
+    }
+
+    @Test
+    @Transactional
+    public void testNoValidTemplateHasUniqueNameDuringUpdate() {
+        inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Name")
+                .updater()
+                .setAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 5)
+                .done();
+        // assert no exception about non-unique name
+    }
 }

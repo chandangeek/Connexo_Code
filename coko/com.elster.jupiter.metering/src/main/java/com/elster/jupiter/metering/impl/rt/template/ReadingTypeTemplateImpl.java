@@ -7,6 +7,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
+import com.elster.jupiter.metering.impl.config.HasUniqueName;
+import com.elster.jupiter.metering.impl.config.UniqueName;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 
@@ -23,7 +25,10 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, PersistenceAware {
+import static com.elster.jupiter.util.conditions.Where.where;
+
+@UniqueName(groups = {Save.Create.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, PersistenceAware, HasUniqueName {
     public enum Fields {
         ID("id"),
         NAME("name"),
@@ -108,7 +113,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     }
 
     public void save() {
-        this.dataModel.persist(this);
+        Save.action(getId()).save(this.dataModel, this);
     }
 
     @Override
@@ -124,6 +129,11 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     @Override
     public ReadingTypeTemplateUpdater updater() {
         return new ReadingTypeTemplateUpdaterImpl(this);
+    }
+
+    @Override
+    public boolean validateName() {
+        return this.dataModel.query(ReadingTypeTemplate.class).select(where(Fields.NAME.fieldName()).isEqualTo(getName())).isEmpty();
     }
 
     @Override
