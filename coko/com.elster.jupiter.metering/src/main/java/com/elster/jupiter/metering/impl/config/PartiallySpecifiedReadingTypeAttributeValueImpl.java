@@ -59,11 +59,7 @@ public class PartiallySpecifiedReadingTypeAttributeValueImpl implements SelfObje
     @Override
     public boolean validate(ConstraintValidatorContext context) {
         ReadingTypeTemplate readingTypeTemplate = this.readingTypeRequirement.get().getReadingTypeTemplate();
-        ReadingTypeTemplateAttribute templateAttribute = readingTypeTemplate.getAttributes()
-                .stream()
-                .filter(attrName -> attrName.getName() == getName())
-                .findAny()
-                .orElseThrow(() -> new IllegalStateException("ReadingTypeTemplate has missed " + getName()));
+        ReadingTypeTemplateAttribute templateAttribute = readingTypeTemplate.getAttribute(getName());
         List<Integer> attributePossibleValues = templateAttribute.getPossibleValues();
         if (!isCodeInAttributePossibleValues(attributePossibleValues)
                 || !isCodeInSystemPossibleValues(templateAttribute, attributePossibleValues)) {

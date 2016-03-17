@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.rt.template;
 
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
@@ -83,6 +84,9 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
         boolean isValid = validateCodeIsNotEmpty(context, definition);
         if (!this.values.isEmpty()) {
             isValid &= validateCodeIsInAllowedCodes(context, getPossibleValues());
+            if (ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE == getName()) {
+                isValid &= validateAllPossibleValuesHasTheSameDimension(context, getPossibleValues());
+            }
         }
         return isValid;
     }
@@ -103,6 +107,23 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}")
                     .addPropertyNode(Fields.CODE.fieldName())
+                    .addConstraintViolation();
+            return false;
+        }
+        return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean validateAllPossibleValuesHasTheSameDimension(ConstraintValidatorContext context, List<Integer> possibleValues) {
+        ReadingTypeTemplateAttributeName.ReadingTypeAttribute<ReadingTypeUnit> definition =
+                (ReadingTypeTemplateAttributeName.ReadingTypeAttribute<ReadingTypeUnit>) ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE.getDefinition();
+        if (possibleValues.stream()
+                .map(definition.getCodeToValueConverter())
+                .map(rtUnit -> rtUnit.getUnit().getDimension())
+                .distinct().count() != 1) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.READING_TYPE_TEMPLATE_UNITS_SHOULD_HAVE_THE_SAME_DIMENSION + "}")
+                    .addPropertyNode(Fields.POSSIBLE_VALUES.fieldName())
                     .addConstraintViolation();
             return false;
         }

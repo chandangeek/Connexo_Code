@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.units.Dimension;
 
 import javax.inject.Inject;
 
@@ -28,6 +29,11 @@ public class FullySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl im
     @Override
     public ReadingType getReadingType() {
         return this.readingType.get();
+    }
+
+    @Override
+    public Dimension getDimension() {
+        return getReadingType().getUnit().getUnit().getDimension();
     }
 
     @Override

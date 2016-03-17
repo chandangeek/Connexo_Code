@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -236,5 +237,15 @@ public class ReadingTypeTemplateImplTestIT {
         ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Wildcard template");
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("8.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Macro period reading type");
         assertThat(template.matches(readingType)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.READING_TYPE_TEMPLATE_UNITS_SHOULD_HAVE_THE_SAME_DIMENSION + "}", property = "values", strict = true)
+    public void testValidPossibleValuesHaveTheSameDimension() {
+        inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Valid possible units dimension")
+                .updater()
+                .setAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, null, ReadingTypeUnit.AMPERE.getId(), ReadingTypeUnit.LITRE.getId())
+                .done();
     }
 }

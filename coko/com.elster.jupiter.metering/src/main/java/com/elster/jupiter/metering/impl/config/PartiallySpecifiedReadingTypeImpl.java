@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
@@ -12,6 +13,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.units.Dimension;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     private List<PartiallySpecifiedReadingTypeAttributeValueImpl> overriddenAttributes = new ArrayList<>(ReadingTypeTemplateAttributeName.values().length);
 
     private Collection<Function<ReadingType, Boolean>> attributeMatchers;
+    private Dimension dimension;
 
     @Inject
     public PartiallySpecifiedReadingTypeImpl(DataModel dataModel) {
@@ -48,6 +51,39 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     @Override
     public ReadingTypeTemplate getReadingTypeTemplate() {
         return this.readingTypeTemplate.get();
+    }
+
+    @Override
+    public Dimension getDimension() {
+        if (this.dimension == null) {
+            this.dimension = this.overriddenAttributes
+                    .stream()
+                    .filter(attr -> ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE == attr.getName())
+                    .map(PartiallySpecifiedReadingTypeAttributeValueImpl::getCode)
+                    .map(this::getDimensionFromReadingTypeUnitCode)
+                    .findAny()
+                    .orElseGet(() -> getDimensionFromTemplate());
+        }
+        return this.dimension;
+    }
+
+    private Dimension getDimensionFromTemplate() {
+        ReadingTypeTemplateAttribute unitAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE);
+        if (unitAttribute.getCode().isPresent()) {
+            return getDimensionFromReadingTypeUnitCode(unitAttribute.getCode().get());
+        }
+        // the unit attribute always have a code or possible values, but let's check it
+        if (unitAttribute.getPossibleValues().isEmpty()) {
+            throw new IllegalStateException("The UNIT_OF_MEASURE has no code and no possible values in reading type template '"
+                    + getReadingTypeTemplate().getName() + "'.");
+        }
+        // all possible values have the same dimension
+        return getDimensionFromReadingTypeUnitCode(unitAttribute.getPossibleValues().get(0));
+    }
+
+    private Dimension getDimensionFromReadingTypeUnitCode(int code) {
+        return ((ReadingTypeUnit) ReadingTypeTemplateAttributeName.getAttributeValueFromCode(
+                ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE.getDefinition(), code)).getUnit().getDimension();
     }
 
     @Override

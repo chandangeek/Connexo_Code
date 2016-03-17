@@ -91,6 +91,15 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     }
 
     @Override
+    public ReadingTypeTemplateAttribute getAttribute(ReadingTypeTemplateAttributeName attributeName) {
+        return this.allAttributes
+                .stream()
+                .filter(attr -> attributeName == attr.getName())
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException("ReadingTypeTemplate has missed " + getName()));
+    }
+
+    @Override
     public String toString() {
         return getName() + " " + this.allAttributes.stream()
                 .map(ReadingTypeTemplateAttributeImpl.class::cast)

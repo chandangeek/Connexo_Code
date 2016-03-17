@@ -13,6 +13,14 @@ public interface ReadingTypeTemplate extends HasId, HasName {
      */
     Set<ReadingTypeTemplateAttribute> getAttributes();
 
+    /**
+     * Returns a specific template attribute.
+     *
+     * @param attributeName attribute unique id
+     * @return a specific template attribute
+     */
+    ReadingTypeTemplateAttribute getAttribute(ReadingTypeTemplateAttributeName attributeName);
+
     ReadingTypeTemplateUpdater updater();
 
     /**
