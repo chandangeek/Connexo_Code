@@ -3,6 +3,7 @@ package com.energyict.mdc.firmware.rest.impl;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -81,7 +82,17 @@ public class FirmwareCampaignResource {
         if(info.status.id.equals(FirmwareCampaignStatus.CANCELLED.name())){
             this.firmwareService.cancelFirmwareCampaign(firmwareCampaign);
         } else {
-            info.writeTo(firmwareCampaign, mdcPropertyUtils);
+            // Since only the name/comWindow is editable
+            // info.writeTo(firmwareCampaign, mdcPropertyUtils);
+            if (firmwareCampaign.getName().compareTo(info.name) != 0) {
+                firmwareCampaign.setName(info.name);
+            }
+            if (info.timeBoundaryStart != null && info.timeBoundaryEnd != null) {
+                ComWindow newWindow = new ComWindow(info.timeBoundaryStart, info.timeBoundaryEnd);
+                if (!firmwareCampaign.getComWindow().equals(newWindow)) {
+                    firmwareCampaign.setComWindow(newWindow);
+                }
+            }
             firmwareCampaign.save();
         }
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
