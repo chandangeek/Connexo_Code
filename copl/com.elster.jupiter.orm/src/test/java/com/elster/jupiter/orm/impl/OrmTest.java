@@ -1,17 +1,5 @@
 package com.elster.jupiter.orm.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import java.security.Principal;
-import java.sql.SQLException;
-import java.util.Optional;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
@@ -24,8 +12,25 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
+
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
+
+import java.security.Principal;
+import java.sql.SQLException;
+import java.util.Optional;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -38,13 +43,14 @@ public class OrmTest {
     private Principal principal;
 
     @Before
-    public void setUp() {   
+    public void setUp() {
 		injector = Guice.createInjector(
+                    new MockModule(),
 					inMemoryBootstrapModule,
-        			new UtilModule(), 
+        			new UtilModule(),
         			new ThreadSecurityModule(principal),
         			new PubSubModule(),
-        			new TransactionModule(false),        			        		
+        			new TransactionModule(false),
         			new OrmModule());
 		try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
 			injector.getInstance(OrmService.class);
@@ -67,11 +73,11 @@ public class OrmTest {
     	assertThat(dataModel.mapper(TableConstraint.class).find()).isNotEmpty();
     	assertThat(dataModel.mapper(ColumnInConstraintImpl.class).find()).isNotEmpty();
     }
-    
+
     @Test
     public void testEagerQuery() {
     	OrmService ormService = injector.getInstance(OrmService.class);
-    	DataModel dataModel = ((OrmServiceImpl) ormService).getDataModels().get(0);
+    	DataModel dataModel = ormService.getDataModels().get(0);
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
     		Optional<DataModel> copy = dataModel.mapper(DataModel.class).getEager("ORM");
     		for (Table<?> each : copy.get().getTables()) {
@@ -89,4 +95,12 @@ public class OrmTest {
     		assertThat(column.isPresent()).isTrue();
     	}
     }
+
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+        }
+    }
+
 }
