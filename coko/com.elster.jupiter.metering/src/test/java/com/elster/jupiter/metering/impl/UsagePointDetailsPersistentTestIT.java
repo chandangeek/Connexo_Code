@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Unit;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -25,6 +26,11 @@ public class UsagePointDetailsPersistentTestIT {
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryPersistentModule.getTransactionService());
+
+    @BeforeClass
+    public static void setUp() {
+        inMemoryPersistentModule.activate();
+    }
 
     @AfterClass
     public static void afterClass() {

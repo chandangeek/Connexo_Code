@@ -13,7 +13,6 @@ import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.TableSpecs;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.orm.callback.InstallService;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -107,9 +106,6 @@ public class MeterRoleTest {
     @Test
     @Transactional
     public void testOutOfTheBoxMeterRolesAttachingToServiceCategory() {
-        //Business method
-        ((InstallService) getMetrologyConfigurationService()).install();
-
         //Asserts
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         List<MeterRole> meterRoles;

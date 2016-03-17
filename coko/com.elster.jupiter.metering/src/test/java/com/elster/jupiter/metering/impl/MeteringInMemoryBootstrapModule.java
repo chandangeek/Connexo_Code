@@ -31,21 +31,13 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.time.Clock;
 
 import static org.mockito.Mockito.mock;
@@ -77,6 +69,7 @@ public class MeteringInMemoryBootstrapModule {
 
     public void activate() {
         injector = Guice.createInjector(
+                new UtilModule(clock),
                 new MockModule(),
                 inMemoryBootstrapModule,
                 new IdsModule(),
@@ -153,14 +146,13 @@ public class MeteringInMemoryBootstrapModule {
         return injector.getInstance(Publisher.class);
     }
 
+    public FiniteStateMachineService getFiniteStateMachineService() {
+        return injector.getInstance(FiniteStateMachineService.class);
+    }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(Clock.class).toInstance(clock);
-            bind(FileSystem.class).toInstance(FileSystems.getDefault());
-            bind(JsonService.class).to(JsonServiceImpl.class).in(Scopes.SINGLETON);
-            bind(BeanService.class).to(BeanServiceImpl.class).in(Scopes.SINGLETON);
-            bind(CronExpressionParser.class).to(DefaultCronExpressionParser.class).in(Scopes.SINGLETON);
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(SearchService.class).toInstance(mock(SearchService.class));

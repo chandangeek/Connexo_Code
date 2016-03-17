@@ -10,16 +10,15 @@ import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Optional;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -45,6 +44,7 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
     @BeforeClass
     public static void setUp() {
         when(clock.instant()).thenReturn(Instant.now());
+        when(clock.getZone()).thenReturn(Clock.systemUTC().getZone());
         inMemoryBootstrapModule.activate();
     }
 
