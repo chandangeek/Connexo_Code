@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -51,24 +52,35 @@ import static org.mockito.Mockito.mock;
 
 public class MeteringInMemoryBootstrapModule {
     private final Clock clock;
+    private final String[] readingTypeRequirements;
+
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
     public MeteringInMemoryBootstrapModule() {
-        this(Clock.systemUTC());
+        this(Clock.systemUTC(), null);
+    }
+
+    public MeteringInMemoryBootstrapModule(String... requiredReadingTypes) {
+        this(Clock.systemUTC(), requiredReadingTypes);
     }
 
     public MeteringInMemoryBootstrapModule(Clock clock) {
-        super();
-        this.clock = clock;
+        this(clock, null);
     }
+
+    public MeteringInMemoryBootstrapModule(Clock clock, String... requiredReadingTypes) {
+        this.clock = clock;
+        this.readingTypeRequirements = requiredReadingTypes;
+    }
+
 
     public void activate() {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
                 new IdsModule(),
-                new MeteringModule(),
+                this.readingTypeRequirements != null ? new MeteringModule(readingTypeRequirements) : new MeteringModule(),
                 new PartyModule(),
                 new FiniteStateMachineModule(),
                 new UserModule(),
@@ -135,6 +147,10 @@ public class MeteringInMemoryBootstrapModule {
 
     public OrmService getOrmService() {
         return injector.getInstance(OrmService.class);
+    }
+
+    public Publisher getPublisher() {
+        return injector.getInstance(Publisher.class);
     }
 
     private class MockModule extends AbstractModule {

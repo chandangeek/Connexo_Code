@@ -17,7 +17,6 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
@@ -43,8 +42,8 @@ public class MeteringModule extends AbstractModule {
         return meteringModule;
     }
 
-    public MeteringModule(String readingType, String... requiredReadingTypes) {
-        this.readingTypes = Stream.concat(Stream.of(readingType), Stream.of(requiredReadingTypes)).collect(Collectors.joining(";"));
+    public MeteringModule(String... requiredReadingTypes) {
+        this.readingTypes = Stream.of(requiredReadingTypes).collect(Collectors.joining(";"));
         this.createReadingTypes = false;
     }
 
