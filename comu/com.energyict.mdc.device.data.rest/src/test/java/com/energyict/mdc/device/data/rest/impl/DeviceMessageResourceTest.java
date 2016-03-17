@@ -37,6 +37,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -80,7 +81,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessageResourceTest.Necessity.Required;
@@ -143,6 +145,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.name")).isEqualTo("do delete rule");
         assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.id")).isEqualTo("DEVICE_ACTIONS_DEMAND_RESET");
         assertThat(model.<String>get("$.deviceMessages[0].trackingId")).isEqualTo("T14");
+        assertThat(model.<String>get("$.deviceMessages[0].trackingCategory.id")).isEqualTo("trackingCategory.serviceCall");
+        assertThat(model.<String>get("$.deviceMessages[0].trackingCategory.name")).isEqualTo("Service call");
         assertThat(model.<String>get("$.deviceMessages[0].category")).isEqualTo("Device actions");
         assertThat(model.<String>get("$.deviceMessages[0].status.displayValue")).isEqualTo("Pending");
         assertThat(model.<String>get("$.deviceMessages[0].status.value")).isEqualTo("PENDING");
@@ -630,6 +634,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(mock.getProtocolInfo()).thenReturn(errorMessage);
         when(mock.getStatus()).thenReturn(status);
         when(mock.getTrackingId()).thenReturn(trackingId);
+        when(mock.getTrackingCategory()).thenReturn(TrackingCategory.serviceCall);
         when(mock.getUser()).thenReturn(userName);
         DeviceMessageSpec specification = mock(DeviceMessageSpec.class);
         when(specification.getCategory()).thenReturn(deviceMessageCategory);
