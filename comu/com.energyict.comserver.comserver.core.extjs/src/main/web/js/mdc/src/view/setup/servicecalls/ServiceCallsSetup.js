@@ -4,6 +4,7 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
     itemId: 'serviceCallsSetup',
     device: null,
     store: null,
+    activeTab: 0,
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
@@ -33,7 +34,7 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
                 xtype: 'tabpanel',
                 itemId: 'device-service-calls-tab-panel',
                 ui: 'large',
-                activeTab: 0,
+                activeTab: me.activeTab,
                 mRID: me.device.get('mRID'),
                 items: [
                     {
