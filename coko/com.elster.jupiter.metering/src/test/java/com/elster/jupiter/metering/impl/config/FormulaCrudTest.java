@@ -323,6 +323,61 @@ public class FormulaCrudTest {
         }
     }
 
+    @Test
+    // formula = 10 (constant)
+    public void testDelete() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+            FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+
+            NodeBuilder nodeBuilder = builder.constant(10);
+            Formula formula = builder.init(nodeBuilder).build();
+            long formulaId = formula.getId();
+            Optional<Formula> loadedFormula = service.findFormula(formulaId);
+            assertThat(loadedFormula).isPresent();
+            Formula myFormula = loadedFormula.get();
+            myFormula.delete();
+            loadedFormula = service.findFormula(formulaId);
+            assertThat(loadedFormula).isEmpty();
+            context.commit();
+        }
+    }
+
+    @Test
+    // formula = 10 (constant)
+    public void testUpdate() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+            FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+
+            NodeBuilder nodeBuilder = builder.constant(10);
+            Formula formula = builder.init(nodeBuilder).build();
+            long formulaId = formula.getId();
+            Optional<Formula> loadedFormula = service.findFormula(formulaId);
+            assertThat(loadedFormula).isPresent();
+            Formula myFormula = loadedFormula.get();
+
+            ExpressionNode newExpression = (ExpressionNode) builder.constant(99).create();
+            myFormula.updateExpression(newExpression);
+            context.commit();
+
+            loadedFormula = service.findFormula(formulaId);
+            assertThat(loadedFormula).isPresent();
+            myFormula = loadedFormula.get();
+            assertThat(myFormula.getId() == formulaId);
+            assertThat(myFormula.getMode().equals(Formula.Mode.EXPERT));
+            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            assertThat(myNode.equals(newExpression));
+            assertThat(myNode).isInstanceOf(ConstantNode.class);
+            ConstantNode constantNode = (ConstantNode) myNode;
+            assertThat(constantNode.getValue().equals(new BigDecimal(99)));
+
+
+        }
+    }
+
 
 
 

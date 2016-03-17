@@ -54,6 +54,11 @@ public interface ExpressionNode extends FormulaPart {
      * Update this ExpressionNode.
      */
     void save(DataModel dataModel);
+    /**
+     * Delete this ExpressionNode.
+     */
+    void delete(DataModel dataModel);
+
 
 
     void validate();

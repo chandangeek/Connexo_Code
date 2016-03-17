@@ -106,7 +106,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_ARGUMENTS_FOR_DIVISION = "expression.node.invalid.arguments.division";
         public static final String INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION = "expression.node.invalid.arguments.sum.or.substraction";
         public static final String INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED = "expression.node.invalid.arguments.one.child.required";
-        public static final String INVALID_ARGUMENTS_FOR_FUNCTION_CALL = "Only dimensions that are compatible for automatic unit conversion can be used as children of a function";
+        public static final String INVALID_ARGUMENTS_FOR_FUNCTION_CALL = "expression.node.invalid.arguments.functioncall";
     }
 
 }
