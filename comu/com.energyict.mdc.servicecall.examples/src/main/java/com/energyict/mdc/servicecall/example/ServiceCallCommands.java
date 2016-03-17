@@ -14,10 +14,13 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.protocol.api.TrackingCategory;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -29,7 +32,7 @@ import java.util.Optional;
                 "osgi.command.function=updateYearOfCertificationGroup",
                 "osgi.command.function=hook",
                 "osgi.command.function=crash",
-                "osgi.command.function=createCommand"
+                "osgi.command.function=createTrackedCommand"
         }, immediate = true)
 public class ServiceCallCommands {
     public static final String HANDLER_NAME = "yearUpdater";
@@ -234,8 +237,27 @@ public class ServiceCallCommands {
         }
     }
 
-    public void createCommand() {
+    public void createTrackedCommand() {
+        System.out.println("Usage: createTrackedCommand <device mRID> <device message id> <service call id>");
+        System.out.println("  Creates a device message for _device message id_ for the device identified by _device mRID_ so that the device command is tracked by the service call");
+    }
 
+    public void createTrackedCommand(String deviceMrid, long deviceMessageId, long serviceCallId) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            Device device = deviceService.findByUniqueMrid(deviceMrid)
+                    .orElseThrow(() -> new IllegalArgumentException("No device known with mRID " + deviceMrid));
+
+
+            device.newDeviceMessage(DeviceMessageId.havingId(deviceMessageId), TrackingCategory.serviceCall)
+                    .setTrackingId("" + serviceCallId)
+                    .setReleaseDate(Instant.now())
+                    .add();
+            context.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
