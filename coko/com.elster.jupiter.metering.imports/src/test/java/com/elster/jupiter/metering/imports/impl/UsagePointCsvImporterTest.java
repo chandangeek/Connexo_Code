@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.imports.impl;
 
+import com.elster.jupiter.devtools.persistence.test.SimpleNlsMessageFormat;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.metering.imports.impl.exceptions.FileImportParserException;
 import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;

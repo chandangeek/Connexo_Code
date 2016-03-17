@@ -443,11 +443,20 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
     }
 
     private Range<Instant> getRangeToCreate(CustomPropertySetRecord customPropertySetRecord) {
-        if (!customPropertySetRecord.getStartTime().isPresent() && !customPropertySetRecord.getEndTime().isPresent()) {
+        if ((!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime()
+                .get()
+                .equals(Instant.EPOCH))
+                && (!customPropertySetRecord.getEndTime().isPresent() || customPropertySetRecord.getEndTime()
+                .get()
+                .equals(Instant.EPOCH))) {
             return Range.all();
-        } else if (!customPropertySetRecord.getStartTime().isPresent()) {
+        } else if (!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime()
+                .get()
+                .equals(Instant.EPOCH)) {
             return Range.lessThan(customPropertySetRecord.getEndTime().get());
-        } else if (!customPropertySetRecord.getEndTime().isPresent()) {
+        } else if (!customPropertySetRecord.getEndTime().isPresent() || customPropertySetRecord.getEndTime()
+                .get()
+                .equals(Instant.EPOCH)) {
             return Range.atLeast(customPropertySetRecord.getStartTime().get());
         } else {
             return Range.closedOpen(customPropertySetRecord.getStartTime().get(), customPropertySetRecord.getEndTime()
@@ -461,18 +470,21 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         } else if (!customPropertySetRecord.getStartTime().isPresent()) {
             if (oldRange.hasUpperBound()) {
                 return Range.closedOpen(customPropertySetRecord.getStartTime().get(), oldRange.upperEndpoint());
+            } else if (customPropertySetRecord.getEndTime().get().equals(Instant.EPOCH)) {
+                return Range.all();
             } else {
                 return Range.lessThan(customPropertySetRecord.getEndTime().get());
             }
         } else if (!customPropertySetRecord.getEndTime().isPresent()) {
             if (oldRange.hasUpperBound()) {
                 return Range.closedOpen(oldRange.lowerEndpoint(), customPropertySetRecord.getEndTime().get());
+            } else if (customPropertySetRecord.getStartTime().get().equals(Instant.EPOCH)) {
+                return Range.all();
             } else {
                 return Range.atLeast(customPropertySetRecord.getStartTime().get());
             }
         } else {
-            return Range.closedOpen(customPropertySetRecord.getStartTime().get(), customPropertySetRecord.getEndTime()
-                    .get());
+            return getRangeToCreate(customPropertySetRecord);
         }
     }
 }

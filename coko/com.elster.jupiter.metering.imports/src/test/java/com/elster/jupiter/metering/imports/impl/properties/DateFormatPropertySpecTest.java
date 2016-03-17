@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.imports.impl.properties;
 
-import com.elster.jupiter.metering.imports.impl.SimpleNlsMessageFormat;
+import com.elster.jupiter.devtools.persistence.test.SimpleNlsMessageFormat;
 import com.elster.jupiter.metering.imports.impl.TranslationKeys;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
