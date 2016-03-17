@@ -62,20 +62,18 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
 
     protected void beforeTransition(Device device, T data) throws ProcessorException {
         LocationBuilder builder = context.getMeteringService().newLocationBuilder();
-        Optional<EndDevice> endDevice = context.getMeteringService().findEndDevice(data.getDeviceMRID());
-        if(endDevice.isPresent()) {
-            Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getRankings();
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(data.getLocation().get(ranking.get("locale")));
-            if (memberBuilder.isPresent()) {
-                setLocationAttributes(memberBuilder.get(), data, ranking);
-                endDevice.get().setLocation(builder.create());
-            } else {
-                setLocationAttributes(builder.member(), data, ranking).add();
-                endDevice.get().setLocation(builder.create());
-            }
-            endDevice.get().update();
+        EndDevice endDevice = context.getMeteringService().findEndDevice(data.getDeviceMRID())
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
+        Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getRankings();
+        Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(data.getLocation().get(ranking.get("locale")));
+        if (memberBuilder.isPresent()) {
+            setLocationAttributes(memberBuilder.get(), data, ranking);
+            endDevice.setLocation(builder.create());
+        } else {
+            setLocationAttributes(builder.member(), data, ranking).add();
+            endDevice.setLocation(builder.create());
         }
-
+        endDevice.update();
     }
 
     protected void afterTransition(Device device, T data, FileImportLogger logger) throws ProcessorException {

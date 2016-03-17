@@ -71,9 +71,17 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
                 .sorted(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .forEach(s-> {
-                    fields.add(CommonField.withParser(stringParser)
-                            .withSetter(record::addLocation)
-                            .build());
+                    if(context.getMeteringService().getLocationTemplate().getMandatoryFieldsNames().stream().anyMatch(m -> m.equals(s))){
+                        fields.add(CommonField.withParser(stringParser)
+                                .withSetter(record::addLocation)
+                                .markMandatory()
+                                .build());
+                    }else{
+                        fields.add(CommonField.withParser(stringParser)
+                                .withSetter(record::addLocation)
+                                .build());
+                    }
+
                 });
         return fields;
     }
