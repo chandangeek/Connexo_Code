@@ -679,12 +679,12 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public MultiplierType getMultiplierType(MultiplierType.StandardType standardType) {
-        return this.dataModel.mapper(MultiplierType.class).getOptional(standardType.translationKey(), true).get();
+        return this.dataModel.mapper(MultiplierType.class).getUnique("name", standardType.translationKey(), "nameIsKey", true).get();
     }
 
     @Override
     public Optional<MultiplierType> getMultiplierType(String name) {
-        return this.dataModel.mapper(MultiplierType.class).getOptional(name, false);
+        return this.dataModel.mapper(MultiplierType.class).getUnique("name", name, "nameIsKey", false);
     }
 
     @Override
