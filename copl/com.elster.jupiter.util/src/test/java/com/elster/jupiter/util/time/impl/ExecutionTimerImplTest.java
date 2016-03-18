@@ -179,17 +179,17 @@ public class ExecutionTimerImplTest {
 
     @Test
     public void joinWithTheSameTimeout() throws Exception {
-        ExecutionTimerImpl parent = this.getTestInstance("parent", 5L);
-        ExecutionTimerImpl child1 = this.getTestInstance("child1", 5L);
-        ExecutionTimerImpl child2 = this.getTestInstance("child2", 5L);
+        ExecutionTimerImpl parent = this.getTestInstance("parent", 50L);
+        ExecutionTimerImpl child1 = this.getTestInstance("child1", 50L);
+        ExecutionTimerImpl child2 = this.getTestInstance("child2", 50L);
 
         // Business method
         parent.join(child1);
         parent.join(child2);
 
         // Asserts
-        child1.time(new WaitingRunnable(10L));  // timeout
-        child2.time(new WaitingRunnable(2L));   // no timeout
+        child1.time(new WaitingRunnable(100L));  // timeout
+        child2.time(new WaitingRunnable(5L));   // no timeout
         ExecutionStatistics statistics = parent.getStatistics();
         assertThat(statistics).isNotNull();
         assertThat(statistics.getCompleteCount()).isEqualTo(1L);
@@ -198,17 +198,17 @@ public class ExecutionTimerImplTest {
 
     @Test
     public void joinWithTheDifferentTimeout() throws Exception {
-        ExecutionTimerImpl parent = this.getTestInstance("parent", 5L);
-        ExecutionTimerImpl child1 = this.getTestInstance("child1", 10L);
-        ExecutionTimerImpl child2 = this.getTestInstance("child2", 10L);
+        ExecutionTimerImpl parent = this.getTestInstance("parent", 50L);
+        ExecutionTimerImpl child1 = this.getTestInstance("child1", 100L);
+        ExecutionTimerImpl child2 = this.getTestInstance("child2", 100L);
 
         // Business method
         parent.join(child1);
         parent.join(child2);
 
         // Asserts
-        child1.time(new WaitingRunnable(6L));   // no timeout for child but timeout for parent
-        child2.time(new WaitingRunnable(2L));   // no timeout
+        child1.time(new WaitingRunnable(60L));   // no timeout for child but timeout for parent
+        child2.time(new WaitingRunnable(5L));    // no timeout
         ExecutionStatistics statistics = parent.getStatistics();
         assertThat(statistics).isNotNull();
         assertThat(statistics.getCompleteCount()).isEqualTo(1L);
