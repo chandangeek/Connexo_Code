@@ -336,12 +336,14 @@ public class BpmResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
     public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String response;
         String userName = getQueryValue(uriInfo, "username");
         String rest = "/rest/tasks/";
         rest += String.valueOf(id);
+        String req = getQueryParam(queryParameters);
         if (userName != null && !userName.isEmpty()) {
-            rest += "/assign?username=" + userName;
+            rest += "/assign/" + req;
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             try {
                 response = bpmService.getBpmServer().doPost(rest, null, auth, 0);
