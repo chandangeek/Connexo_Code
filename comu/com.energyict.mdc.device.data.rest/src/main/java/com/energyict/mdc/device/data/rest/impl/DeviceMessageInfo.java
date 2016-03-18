@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import java.time.Instant;
 import java.util.List;
@@ -14,6 +14,7 @@ public class DeviceMessageInfo {
 
     public long id;
     public String trackingId;
+    public IdWithNameInfo trackingCategory;
     public DeviceMessageSpecInfo messageSpecification;
     public String category;
     public StatusInfo status;

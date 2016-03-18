@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.TypedProperties;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
@@ -41,6 +41,12 @@ public class DeviceMessageInfoFactory {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
         info.trackingId = deviceMessage.getTrackingId();
+        if (deviceMessage.getTrackingCategory() != null) {
+            info.trackingCategory = new IdWithNameInfo();
+            info.trackingCategory.id = deviceMessage.getTrackingCategory().getKey();
+            info.trackingCategory.name = thesaurus.getFormat(deviceMessage.getTrackingCategory()).format();
+        }
+
         info.messageSpecification = new DeviceMessageSpecInfo();
         info.messageSpecification.id = deviceMessage.getSpecification().getId().name();
         info.messageSpecification.name = deviceMessage.getSpecification().getName();
