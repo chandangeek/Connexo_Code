@@ -1,10 +1,7 @@
 Ext.define('Imt.usagepointmanagement.controller.View', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.controller.history.Router',
-        'Imt.usagepointmanagement.model.UsagePoint',
-        'Imt.metrologyconfiguration.model.MetrologyConfiguration',
-        'Ext.container.Container'
+        'Uni.controller.history.Router'
     ],
     stores: [
         'Imt.usagepointmanagement.store.MeterActivations',
@@ -22,6 +19,10 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.store.measurementunits.Pressure',
         'Imt.usagepointmanagement.store.measurementunits.Capacity',
         'Imt.usagepointmanagement.store.measurementunits.EstimationLoad'
+    ],
+    models: [
+        'Imt.usagepointmanagement.model.UsagePoint',
+        'Imt.usagepointmanagement.model.MetrologyConfigOnUsagePoint'
     ],
     views: [
         'Imt.usagepointmanagement.view.Setup',
@@ -56,36 +57,31 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     },
 
     showUsagePoint: function (mRID) {
-
         var me = this,
+            app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
-            usagePointModel = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
-            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
-       
-        pageMainContent.setLoading(true);
-        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load();
-        usagePointModel.load(mRID, {
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            dependenciesCounter = 2,
+            showPage = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    app.fireEvent('usagePointLoaded', usagePoint);
+                    app.fireEvent('changecontentevent', Ext.widget('usage-point-management-setup', {
+                        itemId: 'usage-point-management-setup',
+                        router: router,
+                        usagePoint: usagePoint
+                    }));
+                    mainView.setLoading(false);
+                }
+            },
+            usagePoint;
+
+        mainView.setLoading();
+        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(showPage);
+        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
             success: function (record) {
-                    me.getApplication().fireEvent('usagePointLoaded', record);
-                    var widget = Ext.widget('usage-point-management-setup', {router: router, parent: record.getData()});
-                    me.parent = record.getData();
-
-                    me.getApplication().fireEvent('changecontentevent', widget);
-                    me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load({
-                        callback: function () {
-                            me.getStore('Imt.usagepointmanagement.store.BypassStatuses').load({
-                                callback: function () {
-                                    me.initAttributes(record);
-                                }
-                            });
-                        }
-                    });
-                    me.getOverviewLink().setText(record.get('mRID'));
-                    if (record.get('metrologyConfiguration') && record.get('metrologyConfiguration').name) {
-                        widget.down('#fld-mc-name').setValue(record.get('metrologyConfiguration').name);
-                    }
-
-                    pageMainContent.setLoading(false);
+                usagePoint = record;
+                showPage();
             }
         });
     },

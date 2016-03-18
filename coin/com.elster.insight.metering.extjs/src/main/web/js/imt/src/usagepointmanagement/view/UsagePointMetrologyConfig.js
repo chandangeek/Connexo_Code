@@ -1,0 +1,74 @@
+Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
+    extend: 'Ext.form.Panel',
+    alias: 'widget.usage-point-metrology-config',
+    layout: 'form',
+    defaults: {
+        xtype: 'displayfield',
+        labelWidth: 150
+    },
+
+    router: null,
+
+    initComponent: function () {
+        var me = this;
+
+        me.items = [
+            {
+                itemId: 'up-metrology-config-name',
+                name: 'name',
+                fieldLabel: Uni.I18n.translate('general.name', 'IMT', 'Name'),
+                renderer: function (value) {
+                    var result = '-',
+                        record = me.getRecord(),
+                        activationTime;
+
+                    if (record) {
+                        activationTime = record.get('createTime');
+                        if (value) {
+                            result = '<a href="'
+                                + me.router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: record.getId()})
+                                + '">' + value + '</a>';
+                        }
+                        if (activationTime) {
+                            result += '<br><span style="font-size: 90%">'
+                                + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(activationTime))], false)
+                                + '</span>';
+                        }
+                    }
+
+                    return result;
+                }
+            },
+            {
+                itemId: 'up-metrology-config-purposes',
+                name: 'purposes',
+                fieldLabel: Uni.I18n.translate('general.label.activePurposes', 'IMT', 'Active purposes'),
+                renderer: function (value) {
+                    var result = '-';
+
+                    if (!Ext.isEmpty(value)) {
+                        // will be implemented in scope of another story
+                    }
+
+                    return result;
+                }
+            },
+            {
+                itemId: 'up-metrology-config-meters',
+                name: 'meters',
+                fieldLabel: Uni.I18n.translate('general.meters', 'IMT', 'Meters'),
+                renderer: function (value) {
+                    var result = '-';
+
+                    if (!Ext.isEmpty(value)) {
+                        // will be implemented in scope of another story
+                    }
+
+                    return result;
+                }
+            }
+        ];
+
+        me.callParent(arguments);
+    }
+});
