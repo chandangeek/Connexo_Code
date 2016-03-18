@@ -43,7 +43,21 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
                 .withSetter(record::setTransitionDate)
                 .markMandatory()
                 .build());
-        fields.addAll(setLocationElement(fields,record));
+        context.getMeteringService().getLocationTemplate().getRankings().entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .forEach(s-> {
+                    if(context.getMeteringService().getLocationTemplate().getMandatoryFieldsNames().stream().anyMatch(m -> m.equals(s))){
+                        fields.add(CommonField.withParser(stringParser)
+                                .withSetter(record::addLocation)
+                                .markMandatory()
+                                .build());
+                    }else{
+                        fields.add(CommonField.withParser(stringParser)
+                                .withSetter(record::addLocation)
+                                .build());
+                    }
+                });
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setMasterDeviceMrid)
                 .build());
@@ -62,27 +76,6 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
         fields.add(CommonField.withParser(bigDecimalParser)
                 .withSetter(record::setMultiplier)
                 .build());
-        return fields;
-    }
-
-    private List<FileImportField<?>> setLocationElement(List<FileImportField<?>> fields, DeviceInstallationImportRecord record){
-        LiteralStringParser stringParser = new LiteralStringParser();
-        context.getMeteringService().getLocationTemplate().getRankings().entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .forEach(s-> {
-                    if(context.getMeteringService().getLocationTemplate().getMandatoryFieldsNames().stream().anyMatch(m -> m.equals(s))){
-                        fields.add(CommonField.withParser(stringParser)
-                                .withSetter(record::addLocation)
-                                .markMandatory()
-                                .build());
-                    }else{
-                        fields.add(CommonField.withParser(stringParser)
-                                .withSetter(record::addLocation)
-                                .build());
-                    }
-
-                });
         return fields;
     }
 }
