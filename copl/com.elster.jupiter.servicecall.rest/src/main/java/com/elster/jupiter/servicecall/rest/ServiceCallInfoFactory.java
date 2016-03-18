@@ -5,8 +5,12 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Map;
 
+
+@ProviderType
 public interface ServiceCallInfoFactory {
 
     ServiceCallInfo detailed(ServiceCall serviceCall, Map<DefaultState, Long> childrenInformation);
