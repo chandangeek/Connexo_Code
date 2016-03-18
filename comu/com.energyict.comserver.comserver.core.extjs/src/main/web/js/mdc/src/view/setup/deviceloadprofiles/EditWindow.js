@@ -39,6 +39,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.EditWindow', {
                     xtype: 'fieldcontainer',
                     margin: '10 0 10 0',
                     fieldLabel: Uni.I18n.translate('general.nextReadingBlockStart', 'MDC', 'Next reading block start'),
+                    itemId: 'lbl-loadprofile-next-reading',
                     required: true,
                     layout: 'hbox',
                     items: [
