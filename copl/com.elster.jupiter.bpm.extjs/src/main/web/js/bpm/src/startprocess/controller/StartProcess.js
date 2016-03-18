@@ -27,8 +27,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
             '#process-start-content button[action=startProcess]': {
                 click: this.startProcess
             },
-            'combobox[itemId=processes-definition-combo]':
-            {
+            '#start-process-form #processes-definition-combo': {
                 select: this.processComboChange
             }
         });
@@ -36,6 +35,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
 
     loadJbpmForm: function (processRecord) {
         var me = this,
+            startProcessPanel = me.getStartProcessPanel(),
             processStartContent = me.getProcessStartContent(),
             processContent = me.getModel('Bpm.startprocess.model.ProcessContent'),
             propertyForm;
@@ -44,7 +44,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
             return;
         }
         propertyForm = processStartContent.down('property-form');
-        processStartContent.setLoading();
+        startProcessPanel.setLoading();
 
         me.processRecord = processRecord.lastSelection[0].data;
         processContent.getProxy().setUrl(me.processRecord.processId);
@@ -58,10 +58,11 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
                 } else {
                     propertyForm.hide();
                 }
-                processStartContent.setLoading(false);
+                startProcessPanel.setLoading(false);
                 propertyForm.up('#process-start-content').doLayout();
             },
             failure: function (record, operation) {
+                startProcessPanel.setLoading(false);
                 propertyForm.hide();
                 propertyForm.up('#process-start-content').doLayout();
             }
@@ -69,7 +70,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
 
     },
 
-    processComboChange: function (record) {
+    processComboChange: function (processCombo) {
         var me = this,
             widget = me.getStartProcessPanel(),
             form = widget.down('#start-process-form'),
@@ -78,7 +79,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
         if (!formErrorsPanel.isHidden()) {
             formErrorsPanel.hide();
         }
-        me.loadJbpmForm(record);
+        me.loadJbpmForm(processCombo);
     },
 
     cancelStartProcess: function (btn) {

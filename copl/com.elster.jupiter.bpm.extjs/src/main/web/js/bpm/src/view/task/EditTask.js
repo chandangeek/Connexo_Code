@@ -81,7 +81,7 @@ Ext.define('Bpm.view.task.EditTask', {
                                                 valueField: 'name',
                                                 itemId: 'cbo-assignee-user',
                                                 store: 'Bpm.store.task.TasksFilterAllUsers',
-                                                width: 500,
+                                                width: 564,
                                                 labelWidth: 250,
                                                 editable: false,
                                                 queryMode: 'local',

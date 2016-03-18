@@ -170,7 +170,11 @@ Ext.define('Bpm.view.task.PerformTask', {
                                 privileges: Bpm.privileges.BpmManagement.execute,
                                 items: [
                                     {
-                                        xtype: 'property-form'
+                                        xtype: 'property-form',
+                                        defaults: {
+                                            labelWidth: 250,
+                                            width: 268
+                                        }
                                     },
                                     {
                                         xtype: 'container',

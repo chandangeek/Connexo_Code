@@ -14,7 +14,6 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
                 {
                     xtype: 'form',
                     itemId: 'start-process-form',
-                    margin: '0 50 10 0',
                     layout: {
                         type: 'vbox',
                         align: 'left'
@@ -35,7 +34,7 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
                             emptyText: Uni.I18n.translate('bpm.startProcess.selectProcess', 'BPM', 'Select a process'),
                             multiSelect: false,
                             displayField: 'displayname',
-                            valueField: 'id',
+                            valueField: 'processId',
                             itemId: 'processes-definition-combo',
                             allowBlank: false,
                             width: 500,
@@ -49,7 +48,6 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
                 },
                 {
                     xtype: 'form',
-                    ui: 'medium',
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
@@ -59,7 +57,6 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
                     items: [
                         {
                             xtype: 'container',
-                            margin: '20 0 0 0',
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
@@ -67,7 +64,11 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
                             itemId: 'process-start-content',
                             items: [
                                 {
-                                    xtype: 'property-form'
+                                    xtype: 'property-form',
+                                    defaults: {
+                                        labelWidth: 150,
+                                        width: 335
+                                    }
                                 },
                                 {
                                     xtype: 'container',
