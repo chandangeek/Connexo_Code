@@ -414,6 +414,9 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         if (filter.getParent() != null) {
             condition = condition.and(where(ServiceCallImpl.Fields.parent.fieldName()).isEqualTo(filter.getParent()));
         }
+        if (filter.getTargetObject() != null) {
+            condition = condition.and(where(ServiceCallImpl.Fields.targetObject.fieldName()).isEqualTo(filter.getTargetObject()));
+        }
 
         return condition;
     }

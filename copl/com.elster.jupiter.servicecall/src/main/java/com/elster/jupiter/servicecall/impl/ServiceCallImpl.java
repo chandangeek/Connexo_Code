@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.Arrays.fill;
 
 public class ServiceCallImpl implements ServiceCall {
@@ -281,6 +282,11 @@ public class ServiceCallImpl implements ServiceCall {
     public Finder<ServiceCall> findChildren(ServiceCallFilter filter) {
         filter.setParent(this);
         return serviceCallService.getServiceCallFinder(filter);
+    }
+
+    @Override
+    public Finder<ServiceCall> findChildren() {
+        return DefaultFinder.of(ServiceCall.class, where(ServiceCallImpl.Fields.parent.fieldName()).isEqualTo(this), dataModel);
     }
 
     @Override

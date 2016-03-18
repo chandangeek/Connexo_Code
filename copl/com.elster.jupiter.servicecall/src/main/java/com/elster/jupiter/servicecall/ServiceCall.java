@@ -63,6 +63,8 @@ public interface ServiceCall extends HasId {
 
     Finder<ServiceCall> findChildren(ServiceCallFilter filter);
 
+    Finder<ServiceCall> findChildren();
+
     <T extends PersistentDomainExtension<ServiceCall>> Optional<T> getExtensionFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues);
 
     <T extends PersistentDomainExtension<ServiceCall>> CustomPropertySetValues getValuesFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues);
