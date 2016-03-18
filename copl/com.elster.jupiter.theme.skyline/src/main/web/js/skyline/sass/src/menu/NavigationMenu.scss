@@ -1,8 +1,16 @@
 .#{$prefix}navigation-menu {
+  @include border-radius(8px);
+  background: $color-grey-10;
+  margin-bottom: 16px;
+  padding: 10px 12px !important;
 
-/*  .#{$prefix}menu-item-disabled {
-    opacity: 1 !important;
-  }*/
+  .#{$prefix}panel-header {
+    font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
+    padding-left: 4px;
+    font-size: 24px;
+    color: $color-blue;
+    background: none;
+  }
 
   .#{$prefix}menu-body:before {
     border-left: 2px dotted #A0A0A0;
@@ -14,10 +22,7 @@
   }
 
   .#{$prefix}menu-body {
-    border-radius: $menu-navigation-border-radius !important;
-    background: $menu-navigation-background-color !important;
-    padding-top: $menu-navigation-padding-top;
-    padding-bottom: $menu-navigation-padding-bottom;
+    background: none;
   }
 
   .#{$prefix}menu-item {
