@@ -26,7 +26,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.ReadingTypeMridFilter;
-import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -42,7 +41,6 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.aggregation.AggregatedReadingRecordFactory;
 import com.elster.jupiter.metering.impl.aggregation.AggregatedReadingRecordFactoryImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
-import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateImpl;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
@@ -704,23 +702,5 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public List<MultiplierType> getMultiplierTypes() {
         return dataModel.mapper(MultiplierType.class).find();
-    }
-
-    @Override
-    public ReadingTypeTemplate createReadingTypeTemplate(String name) {
-        ReadingTypeTemplateImpl template = dataModel.getInstance(ReadingTypeTemplateImpl.class)
-                .init(name);
-        template.save();
-        return template;
-    }
-
-    @Override
-    public Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id) {
-        return dataModel.mapper(ReadingTypeTemplate.class).getOptional(id);
-    }
-
-    @Override
-    public Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version) {
-        return dataModel.mapper(ReadingTypeTemplate.class).lockObjectIfVersion(version, id);
     }
 }

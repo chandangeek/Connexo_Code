@@ -1,10 +1,10 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.ReadingTypeTemplate;
-import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
-import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
+import com.elster.jupiter.metering.config.ReadingTypeTemplate;
+import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
+import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 

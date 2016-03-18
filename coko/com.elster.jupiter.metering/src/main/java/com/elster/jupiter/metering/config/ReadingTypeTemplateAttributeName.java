@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering;
+package com.elster.jupiter.metering.config;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.Accumulation;
@@ -11,6 +11,7 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.impl.ReadingTypeTranslationKeys;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;

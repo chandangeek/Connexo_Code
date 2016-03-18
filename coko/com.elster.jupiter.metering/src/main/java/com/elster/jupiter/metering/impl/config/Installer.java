@@ -22,7 +22,8 @@ public class Installer {
     public void install() {
         ExceptionCatcher.executing(
                 this::createMeterRoles,
-                this::createMetrologyPurposes
+                this::createMetrologyPurposes,
+                this::createReadingTypeTemplates
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
     }
@@ -50,5 +51,9 @@ public class Installer {
         metrologyConfigurationService.createMetrologyPurpose().fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
         metrologyConfigurationService.createMetrologyPurpose().fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
         metrologyConfigurationService.createMetrologyPurpose().fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.VOLTAGE_MONITORING);
+    }
+
+    private void createReadingTypeTemplates() {
+        new ReadingTypeTemplateInstaller(metrologyConfigurationService).install();
     }
 }

@@ -1,6 +1,7 @@
-package com.elster.jupiter.metering;
+package com.elster.jupiter.metering.config;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.metering.ReadingType;
 
 import java.util.List;
 import java.util.Optional;

@@ -78,11 +78,11 @@ public interface ReadingTypeRequirement extends HasId, HasName {
      * For {@link PartiallySpecifiedReadingType} checks that each candidate's attribute:
      * <ul>
      * <li>is equal to overridden attribute value (if it was overridden,
-     * see {@link PartiallySpecifiedReadingType#overrideAttribute(com.elster.jupiter.metering.ReadingTypeTemplateAttributeName, int)})</li>
+     * see {@link PartiallySpecifiedReadingType#overrideAttribute(ReadingTypeTemplateAttributeName, int)})</li>
      * <li>or is equal to template attribute value (if attribute has code or possible values,
-     * see {@link com.elster.jupiter.metering.ReadingTypeTemplateAttribute#matches(ReadingType)})</li>
+     * see {@link ReadingTypeTemplateAttribute#matches(ReadingType)})</li>
      * <li>or has one of system allowed values, see
-     * {@link com.elster.jupiter.metering.ReadingTypeTemplateAttributeName.ReadingTypeAttribute#getPossibleValues()}</li>
+     * {@link ReadingTypeTemplateAttributeName.ReadingTypeAttribute#getPossibleValues()}</li>
      * </ul>
      * </p>
      *

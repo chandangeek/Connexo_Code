@@ -12,9 +12,9 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ReadingTypeTemplate;
-import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
-import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
+import com.elster.jupiter.metering.config.ReadingTypeTemplate;
+import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
+import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -62,7 +62,7 @@ public class ReadingTypeTemplateImplTestIT {
     @Transactional
     public void createEmptyTemplate() {
         String name = "Empty";
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate(name);
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate(name);
         System.out.println("Template: " + template);
 
         assertThat(template.getId()).isGreaterThan(0);
@@ -73,7 +73,7 @@ public class ReadingTypeTemplateImplTestIT {
     @Test
     @Transactional
     public void createTemplateAttributeWithNullCodeWhichDoesNotSupportWildcard() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("No wildcard");
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("No wildcard");
         assertThat(ReadingTypeTemplateAttributeName.ARGUMENT_DENOMINATOR.getDefinition().canBeWildcard()).isFalse()
                 .as("This test need attribute which can not accept wildcards");
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.ARGUMENT_DENOMINATOR, null).done();
@@ -92,7 +92,7 @@ public class ReadingTypeTemplateImplTestIT {
     @Test
     @Transactional
     public void createTemplateAttributeWithNullCodeWhichSupportsWildcard() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("With wildcard");
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("With wildcard");
         assertThat(ReadingTypeTemplateAttributeName.TIME.getDefinition().canBeWildcard()).isTrue()
                 .as("This test need attribute which can accept wildcards");
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.TIME, null).done();
@@ -110,7 +110,7 @@ public class ReadingTypeTemplateImplTestIT {
     @Test
     @Transactional
     public void createTemplateAttributeWithCode() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("With code");
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("With code");
         assertThat(ReadingTypeTemplateAttributeName.TIME.getDefinition().canBeWildcard()).isTrue()
                 .as("This test need attribute which can accept wildcards");
         int timeAttrCode = TimeAttribute.HOUR24.getId();
@@ -130,7 +130,7 @@ public class ReadingTypeTemplateImplTestIT {
     @Test
     @Transactional
     public void createTemplateAttributeWithPossibleValues() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("With possible values");
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("With possible values");
         assertThat(ReadingTypeTemplateAttributeName.COMMODITY.getDefinition().canBeWildcard()).isFalse()
                 .as("This test need attribute which can not accept wildcards");
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.COMMODITY, null, Commodity.CARBON.getId(), Commodity.C2H2.getId(), Commodity.CO.getId()).done();
@@ -149,14 +149,14 @@ public class ReadingTypeTemplateImplTestIT {
     @Transactional
     @ExpectedConstraintViolation(property = "code", messageId = "{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}", strict = true)
     public void createAttributeWithCodeIsNotWithinPossibleValues() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Bad time code");
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Bad time code");
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.MINUTE15.getId(), TimeAttribute.MINUTE1.getId()).done();
     }
 
     @Test
     @Transactional
     public void redefineForAttributeDoesNotIncreasePersistedAttributes() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Time");
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Time");
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.MINUTE15.getId()).done();
         assertThat(getPersistedAttributes()).hasSize(1);
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.MINUTE1.getId()).done();
@@ -166,7 +166,7 @@ public class ReadingTypeTemplateImplTestIT {
     @Test
     @Transactional
     public void redefineForDefaultAttributeRemovesOldPersisted() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Time");
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Time");
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.MINUTE15.getId(), TimeAttribute.MINUTE15.getId(), TimeAttribute.MINUTE1.getId()).done();
         assertThat(getPersistedAttributes()).hasSize(1);
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.TIME, null).done();
@@ -178,7 +178,7 @@ public class ReadingTypeTemplateImplTestIT {
         ReadingTypeTemplate template;
         // Manual transaction handling to be sure that attributes will be persisted only after the #done() call
         try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
-            template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Batch");
+            template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Batch");
             context.commit();
         }
         ReadingTypeTemplate.ReadingTypeTemplateUpdater updater = template.startUpdate()
@@ -199,7 +199,7 @@ public class ReadingTypeTemplateImplTestIT {
     @Test
     @Transactional
     public void testMatchDefaultAttributeInTemplate() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Default template");
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Default template");
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "ToU reading type");
         assertThat(template.matches(readingType)).isTrue();
     }
@@ -207,7 +207,7 @@ public class ReadingTypeTemplateImplTestIT {
     @Test
     @Transactional
     public void testMatchCodeAttributeInTemplate() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Code template");
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Code template");
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.COMMODITY, 7).done();
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.7.0.0.0.0.0.0.0.0.0.0.0.0", "Commodity reading type");
         assertThat(template.matches(readingType)).isTrue();
@@ -216,7 +216,7 @@ public class ReadingTypeTemplateImplTestIT {
     @Test
     @Transactional
     public void testMatchPossibleValuesAttributeInTemplate() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Possible values template");
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Possible values template");
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.CRITICAL_PEAK_PERIOD, null, 4, 6).done();
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.6.0.0.0.0.0", "CPP reading type");
         assertThat(template.matches(readingType)).isTrue();
@@ -225,7 +225,7 @@ public class ReadingTypeTemplateImplTestIT {
     @Test
     @Transactional
     public void testMatchCodeAndPossibleValuesAttributeInTemplate() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Code and possible values template");
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Code and possible values template");
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.ARGUMENT_DENOMINATOR, 5, 5, 6).done();
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.6.0.0.0.0.0.0.0", "Arg. denom. reading type");
         assertThat(template.matches(readingType)).isFalse();
@@ -234,7 +234,7 @@ public class ReadingTypeTemplateImplTestIT {
     @Test
     @Transactional
     public void testMatchWildcardAttributeInTemplate() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Wildcard template");
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Wildcard template");
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("8.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Macro period reading type");
         assertThat(template.matches(readingType)).isTrue();
     }
@@ -243,7 +243,7 @@ public class ReadingTypeTemplateImplTestIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.READING_TYPE_TEMPLATE_UNITS_SHOULD_HAVE_THE_SAME_DIMENSION + "}", property = "values", strict = true)
     public void testValidPossibleValuesHaveTheSameDimension() {
-        inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Valid possible units dimension")
+        inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Valid possible units dimension")
                 .startUpdate()
                 .setAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, null, ReadingTypeUnit.AMPERE.getId(), ReadingTypeUnit.LITRE.getId())
                 .done();
@@ -253,14 +253,14 @@ public class ReadingTypeTemplateImplTestIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}", property = "name", strict = true)
     public void testValidTemplateHasUniqueNameDuringCreation() {
-        inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Name");
-        inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Name");
+        inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Name");
+        inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Name");
     }
 
     @Test
     @Transactional
     public void testNoValidTemplateHasUniqueNameDuringUpdate() {
-        inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Name")
+        inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Name")
                 .startUpdate()
                 .setAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 5)
                 .done();

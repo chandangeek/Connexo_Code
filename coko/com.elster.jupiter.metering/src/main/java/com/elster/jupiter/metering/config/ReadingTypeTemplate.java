@@ -1,6 +1,7 @@
-package com.elster.jupiter.metering;
+package com.elster.jupiter.metering.config;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 

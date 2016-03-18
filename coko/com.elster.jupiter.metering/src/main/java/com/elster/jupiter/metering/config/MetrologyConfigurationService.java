@@ -44,6 +44,12 @@ public interface MetrologyConfigurationService {
 
     List<Formula> findFormulas();
 
+    ReadingTypeTemplate createReadingTypeTemplate(String name);
+
+    Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id);
+
+    Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version);
+
     MetrologyPurpose.MetrologyPurposeBuilder createMetrologyPurpose();
 
     Optional<MetrologyPurpose> findMetrologyPurpose(long id);

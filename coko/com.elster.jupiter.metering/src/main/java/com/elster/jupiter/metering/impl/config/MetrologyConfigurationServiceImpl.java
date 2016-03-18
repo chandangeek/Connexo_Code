@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
+import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
@@ -175,6 +176,23 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         return getDataModel().mapper(Formula.class).find();
     }
 
+    @Override
+    public ReadingTypeTemplate createReadingTypeTemplate(String name) {
+        ReadingTypeTemplateImpl template = getDataModel().getInstance(ReadingTypeTemplateImpl.class)
+                .init(name);
+        template.save();
+        return template;
+    }
+
+    @Override
+    public Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id) {
+        return getDataModel().mapper(ReadingTypeTemplate.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version) {
+        return getDataModel().mapper(ReadingTypeTemplate.class).lockObjectIfVersion(version, id);
+    }
 
     @Override
     public MeterRole newMeterRole(TranslationKey key) {
