@@ -41,7 +41,7 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('taskOverview.pagingtoolbartop.displayMsg', 'APR', '{0} - {1} of {2} tasks'),
                 displayMoreMsg: Uni.I18n.translate('taskOverview.pagingtoolbartop.displayMoreMsg', 'APR', '{0} - {1} of more than {2} tasks'),
-                emptyMsg: Uni.I18n.translate('taskOverview.pagingtoolbartop.emptyMsg', 'APR', 'There are no tasks to display'),
+                emptyMsg: Uni.I18n.translate('taskOverview.pagingtoolbartop.emptyMsg', 'APR', 'There are no tasks to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
