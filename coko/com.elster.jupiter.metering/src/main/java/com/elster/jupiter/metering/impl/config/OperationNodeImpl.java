@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
+import com.elster.jupiter.metering.impl.aggregation.TemporaryDimension;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.units.Dimension;
@@ -54,29 +55,29 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
     }
 
     public void validate() {
-        ExpressionNode left = getLeftOperand();
-        ExpressionNode right = getRightOperand();
-        left.validate();
-        right.validate();
-        if (operator.equals(Operator.MINUS) || operator.equals(Operator.PLUS)) {
-           if (!UnitConversionSupport.areCompatibleForAutomaticUnitConversion(
-                   left.getDimension(), right.getDimension())) {
-               throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION);
-           }
-        }
-        if ((operator.equals(Operator.MULTIPLY)) &&
-                (!UnitConversionSupport.isAllowedMultiplication(left.getDimension(), right.getDimension()))) {
-            throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_MULTIPLICATION);
-        }
-        if ((operator.equals(Operator.DIVIDE)) &&
-                (!UnitConversionSupport.isAllowedDivision(left.getDimension(), right.getDimension()))) {
-            throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_DIVISION);
+        if (this.getParent() == null) {
+            AbstractNode left = (AbstractNode) getLeftOperand();
+            AbstractNode right = (AbstractNode) getRightOperand();
+            if (operator.equals(Operator.MINUS) || operator.equals(Operator.PLUS)) {
+                if (!UnitConversionSupport.areCompatibleForAutomaticUnitConversion(
+                        left.getDimension(), right.getDimension())) {
+                    throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION);
+                }
+            }
+            if ((operator.equals(Operator.MULTIPLY)) &&
+                    (!UnitConversionSupport.isAllowedMultiplication(left.getTemporaryDimension(), right.getTemporaryDimension()))) {
+                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_MULTIPLICATION);
+            }
+            if ((operator.equals(Operator.DIVIDE)) &&
+                    (!UnitConversionSupport.isAllowedDivision(left.getTemporaryDimension(), right.getTemporaryDimension()))) {
+                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_DIVISION);
+            }
         }
 
     }
 
     @Override
-    public Dimension getDimension() {
+     public Dimension getDimension() {
         if (operator.equals(Operator.MINUS) || operator.equals(Operator.PLUS)) {
             return getLeftOperand().getDimension();
         } else if (operator.equals(Operator.MULTIPLY)) {
@@ -93,6 +94,22 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_DIVISION);
             }
             return dimension.get();
+        }
+    }
+
+    @Override
+    public TemporaryDimension getTemporaryDimension() {
+        if (operator.equals(Operator.MINUS) || operator.equals(Operator.PLUS)) {
+            return ((AbstractNode) getLeftOperand()).getTemporaryDimension();
+        } else if (operator.equals(Operator.MULTIPLY)) {
+            return
+                    UnitConversionSupport.multiply(
+                            ((AbstractNode) getLeftOperand()).getTemporaryDimension(),
+                            ((AbstractNode) getRightOperand()).getTemporaryDimension());
+        } else {
+            return UnitConversionSupport.divide(
+                    ((AbstractNode) getLeftOperand()).getTemporaryDimension(),
+                    ((AbstractNode) getRightOperand()).getTemporaryDimension());
         }
     }
 }

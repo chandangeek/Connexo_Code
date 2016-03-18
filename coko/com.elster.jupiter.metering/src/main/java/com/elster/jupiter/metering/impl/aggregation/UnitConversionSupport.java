@@ -220,51 +220,29 @@ public class UnitConversionSupport {
 
 
     public static Optional<Dimension> getMultiplicationDimension(Dimension first, Dimension second) {
-        return getMultiplicationOrDivisionDimension(first, second, true);
+        return TemporaryDimension.of(first).multiply(second).getDimension();
     }
 
     public static Optional<Dimension> getDivisionDimension(Dimension first, Dimension second) {
-        return getMultiplicationOrDivisionDimension(first, second, false);
+        return TemporaryDimension.of(first).divide(second).getDimension();
     }
 
-
-    public static Optional<Dimension> getMultiplicationOrDivisionDimension(Dimension firstDim, Dimension secondDim, boolean multiplication) {
-        int factor = (multiplication) ? 1 : -1;
-
-        int length = firstDim.getLengthDimension() + (secondDim.getLengthDimension() * factor);
-        int mass = firstDim.getMassDimension() + (secondDim.getMassDimension() * factor);
-        int time = firstDim.getTimeDimension() + (secondDim.getTimeDimension() * factor);
-        int current = firstDim.getCurrentDimension() + (secondDim.getCurrentDimension() * factor);
-        int temp = firstDim.getTemperatureDimension() + (secondDim.getTemperatureDimension() * factor);
-        int amount = firstDim.getAmountDimension() + (secondDim.getAmountDimension() * factor);
-        int luminous = firstDim.getLuminousIntensityDimension() + (secondDim.getLuminousIntensityDimension() * factor);
-
-        Dimension[] values = Dimension.values();
-        return Stream.of(values)
-                .filter(dim -> dim.getLengthDimension() == length)
-                .filter(dim -> dim.getMassDimension() == mass)
-                .filter(dim -> dim.getTimeDimension() == time)
-                .filter(dim -> dim.getCurrentDimension() == current)
-                .filter(dim -> dim.getTemperatureDimension() == temp)
-                .filter(dim -> dim.getAmountDimension() == amount)
-                .filter(dim -> dim.getLuminousIntensityDimension() == luminous)
-                .findAny();
+    public static TemporaryDimension multiply(TemporaryDimension first, TemporaryDimension second) {
+        return first.add(second);
     }
 
-
-
-    public static boolean isAllowedMultiplication(Dimension first, Dimension second) {
-        return (isDimensionless(first) || (isDimensionless(second))) ||
-                isAllowedMultiplicationOrDivision(first, second, true);
+    public static TemporaryDimension divide(TemporaryDimension first, TemporaryDimension second) {
+        return first.substract(second);
     }
 
-    public static boolean isAllowedDivision(Dimension first, Dimension second) {
-        return (isDimensionless(first) || (isDimensionless(second))) ||
-                isAllowedMultiplicationOrDivision(first, second, false);
+    public static boolean isAllowedMultiplication(TemporaryDimension first, TemporaryDimension second) {
+        return (first.isDimensionless() || (second.isDimensionless())) ||
+                multiply(first, second).exists();
     }
 
-    private static boolean isAllowedMultiplicationOrDivision(Dimension first, Dimension second, boolean multiplication) {
-        return getMultiplicationOrDivisionDimension(first, second, multiplication).isPresent();
+    public static boolean isAllowedDivision(TemporaryDimension first, TemporaryDimension second) {
+        return (first.isDimensionless() || (second.isDimensionless())) ||
+                divide(first, second).exists();
     }
 
     private static Dimension toDimension(ReadingTypeUnit unit) {

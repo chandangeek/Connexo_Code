@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.impl.aggregation.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -125,6 +126,10 @@ public abstract class AbstractNode implements ExpressionNode {
     @Override
     public void delete(DataModel dataModel) {
         dataModel.remove(this);
+    }
+
+    public TemporaryDimension getTemporaryDimension() {
+        return TemporaryDimension.of(getDimension());
     }
 
 }

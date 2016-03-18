@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
@@ -57,6 +58,8 @@ public interface Formula extends HasId {
     void save();
 
     void updateExpression(ExpressionNode nodeValue);
+
+    Reference<ExpressionNode> getExpressionNode();
 
 
 

@@ -54,7 +54,15 @@ public class FormulaImpl implements ServerFormula {
 
     @Override
     public String getDescription() {
-        return "";
+        if (expressionNode.isPresent()) {
+            return expressionNode.get().toString();
+        } else {
+            return "";
+        }
+    }
+
+    public Reference<ExpressionNode> getExpressionNode() {
+        return expressionNode;
     }
 
     @Override
