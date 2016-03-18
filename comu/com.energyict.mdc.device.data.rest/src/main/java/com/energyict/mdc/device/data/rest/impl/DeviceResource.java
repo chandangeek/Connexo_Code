@@ -693,7 +693,7 @@ public class DeviceResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("{mRID}/servicecallhistory")
-    public PagedInfoList getServiceCallHistoryFor(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getServiceCallHistoryFor(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Set<DefaultState> states = EnumSet.allOf(DefaultState.class);
