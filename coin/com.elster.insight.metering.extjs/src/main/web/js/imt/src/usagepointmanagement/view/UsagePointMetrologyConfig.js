@@ -18,16 +18,24 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 name: 'name',
                 fieldLabel: Uni.I18n.translate('general.name', 'IMT', 'Name'),
                 renderer: function (value) {
-                    var result = '-',
+                    var result = '',
                         record = me.getRecord(),
+                        canViewMetrologyConfig,
                         activationTime;
 
                     if (record) {
+                        canViewMetrologyConfig = Imt.privileges.MetrologyConfig.canView();
                         activationTime = record.get('createTime');
                         if (value) {
-                            result = '<a href="'
-                                + me.router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: record.getId()})
-                                + '">' + value + '</a>';
+                            if (canViewMetrologyConfig) {
+                                result += '<a href="'
+                                    + me.router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: record.getId()})
+                                    + '">';
+                            }
+                            result += value;
+                            if (canViewMetrologyConfig) {
+                                result += '</a>';
+                            }
                         }
                         if (activationTime) {
                             result += '<br><span style="font-size: 90%">'
@@ -36,7 +44,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                         }
                     }
 
-                    return result;
+                    return result || '-';
                 }
             },
             {
