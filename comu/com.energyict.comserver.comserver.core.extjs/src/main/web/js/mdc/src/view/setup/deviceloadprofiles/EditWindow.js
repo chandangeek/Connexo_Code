@@ -11,7 +11,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.EditWindow', {
     ],
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            currentNextReadingBlockStart = me.loadProfileRecord && me.loadProfileRecord.get('lastReading')
+                ? me.loadProfileRecord.get('lastReading') : new Date();
 
         me.items = {
             xtype: 'form',
@@ -45,9 +47,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.EditWindow', {
                             valueInMilliseconds: true,
                             itemId: 'mdc-deviceloadprofile-edit-window-date-picker',
                             layout: 'hbox',
-                            //labelWidth: 30,
                             labelAlign: 'left',
-                            value: me.loadProfileRecord.get('lastReading'),
+                            value: currentNextReadingBlockStart,
                             style: {
                                 border: 'none',
                                 padding: 0,
