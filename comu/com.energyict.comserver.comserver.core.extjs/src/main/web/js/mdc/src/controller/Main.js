@@ -102,8 +102,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnDevice',
         'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnRegister',
         'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
-        'Mdc.controller.Search',
-        'Mdc.controller.setup.ServiceCalls'
+        'Mdc.controller.Search'
     ],
 
     stores: [
