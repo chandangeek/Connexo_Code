@@ -411,12 +411,6 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
                     Range.closed(Instant.EPOCH, filter.getModificationDateTo());
             condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
         }
-        if (filter.getParent() != null) {
-            condition = condition.and(where(ServiceCallImpl.Fields.parent.fieldName()).isEqualTo(filter.getParent()));
-        }
-        if (filter.getTargetObject() != null) {
-            condition = condition.and(where(ServiceCallImpl.Fields.targetObject.fieldName()).isEqualTo(filter.getTargetObject()));
-        }
 
         return condition;
     }

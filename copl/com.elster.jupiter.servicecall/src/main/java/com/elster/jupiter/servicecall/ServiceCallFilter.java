@@ -24,8 +24,6 @@ public interface ServiceCallFilter {
 
     void setParent(ServiceCall serviceCall);
 
-    void setTargetObject(Object object);
-
     String getReference();
 
     List<String> getTypes();
@@ -41,6 +39,4 @@ public interface ServiceCallFilter {
     Instant getModificationDateTo();
 
     ServiceCall getParent();
-
-    Object getTargetObject();
 }
