@@ -20,7 +20,7 @@ public class TrackingInformationValidator implements ConstraintValidator<ValidTr
     @Override
     public boolean isValid(DeviceMessageImpl deviceMessage, ConstraintValidatorContext constraintValidatorContext) {
         if (deviceMessage.getTrackingCategory() != null
-                && deviceMessage.getTrackingCategory().equals(TrackingCategory.serviceCategory)
+                && deviceMessage.getTrackingCategory().equals(TrackingCategory.serviceCall)
                 && deviceMessage.getTrackingId() == null) {
             constraintValidatorContext.buildConstraintViolationWithTemplate(message)
                     .addPropertyNode(DeviceMessageImpl.Fields.TRACKINGID.fieldName())

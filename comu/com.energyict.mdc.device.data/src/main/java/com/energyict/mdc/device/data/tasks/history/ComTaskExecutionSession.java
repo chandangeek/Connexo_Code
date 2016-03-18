@@ -86,6 +86,8 @@ public interface ComTaskExecutionSession extends HasId {
      */
     CompletionCode getHighestPriorityCompletionCode();
 
+    String getHighestPriorityCompletionCodeDisplayName();
+
     /**
      * Gets the error description of the journal entry with the highest priority completion code
      * @return The error description

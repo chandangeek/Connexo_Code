@@ -147,6 +147,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     TaskStatus getStatus();
 
+    String getStatusDisplayName();
+
     /**
      * Tests if this ComTaskExecution is on hold.
      * Remember that the execution of a ComTaskExecution that is
