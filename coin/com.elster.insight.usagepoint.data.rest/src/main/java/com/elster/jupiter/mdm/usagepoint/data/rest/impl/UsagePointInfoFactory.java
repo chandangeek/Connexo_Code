@@ -7,14 +7,12 @@ import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetail;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 
@@ -33,7 +31,6 @@ import java.util.stream.Collectors;
 public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     private volatile Clock clock;
-    private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
     private volatile CustomPropertySetInfoFactory customPropertySetInfoFactory;
 
@@ -41,11 +38,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Inject
-    public UsagePointInfoFactory(Clock clock, Thesaurus thesaurus, MeteringService meteringService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
-        this.clock = clock;
-        this.thesaurus = thesaurus;
-        this.meteringService = meteringService;
-        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+    public UsagePointInfoFactory(Clock clock, MeteringService meteringService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+        this();
+        this.setClock(clock);
+        this.setMeteringService(meteringService);
+        this.setCustomPropertySetInfoFactory(customPropertySetInfoFactory);
     }
 
     @Reference
@@ -59,8 +56,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(UsagePointApplication.COMPONENT_NAME, Layer.REST);
+    public void setCustomPropertySetInfoFactory(CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
     }
 
     @Override
@@ -68,7 +65,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         UsagePointInfo info = new UsagePointInfo();
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
-        info.serviceLocationId = usagePoint.getServiceLocationId();
+        info.serviceLocationId = usagePoint.getServiceLocation().map(ServiceLocation::getId).orElse(0L);
         info.location = usagePoint.getServiceLocationString();
         info.name = usagePoint.getName();
         info.isSdp = usagePoint.isSdp();
