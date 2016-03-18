@@ -114,12 +114,14 @@ public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
         }
         if (filter.hasProperty("receivedDateFrom")) {
             serviceCallFilter.setReceivedDateFrom(filter.getInstant("receivedDateFrom"));
-        } else if (filter.hasProperty("receivedDateTo")) {
+        }
+        if (filter.hasProperty("receivedDateTo")) {
             serviceCallFilter.setReceivedDateTo(filter.getInstant("receivedDateTo"));
         }
         if (filter.hasProperty("modificationDateFrom")) {
             serviceCallFilter.setModificationDateFrom(filter.getInstant("modificationDateFrom"));
-        } else if (filter.hasProperty("modificationDateTo")) {
+        }
+        if (filter.hasProperty("modificationDateTo")) {
             serviceCallFilter.setModificationDateTo(filter.getInstant("modificationDateTo"));
         }
 
