@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
@@ -100,6 +101,7 @@ public class InferReadingTypeTest {
         InferReadingType infer = this.testInstance();
         VirtualRequirementNode node =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         this.requirement,
                         this.deliverable,
@@ -132,6 +134,7 @@ public class InferReadingTypeTest {
         when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement1,
                         this.deliverable,
@@ -143,6 +146,7 @@ public class InferReadingTypeTest {
         when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement2,
                         this.deliverable,
@@ -167,6 +171,7 @@ public class InferReadingTypeTest {
         when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement1,
                         this.deliverable,
@@ -178,6 +183,7 @@ public class InferReadingTypeTest {
         when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement2,
                         this.deliverable,
@@ -223,6 +229,7 @@ public class InferReadingTypeTest {
         when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMinChannel, hourlyChannel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement1,
                         this.deliverable,
@@ -231,6 +238,7 @@ public class InferReadingTypeTest {
         when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinChannel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement2,
                         this.deliverable,
@@ -270,6 +278,7 @@ public class InferReadingTypeTest {
         when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMinChannel, hourlyChannel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement1,
                         this.deliverable,
@@ -278,6 +287,7 @@ public class InferReadingTypeTest {
         when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinChannel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement2,
                         this.deliverable,
@@ -329,6 +339,7 @@ public class InferReadingTypeTest {
         when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMin_kW_Channel, hourly_kW_Channel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement1,
                         this.deliverable,
@@ -337,6 +348,7 @@ public class InferReadingTypeTest {
         when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMin_kWh_Channel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement2,
                         this.deliverable,
@@ -381,6 +393,7 @@ public class InferReadingTypeTest {
         when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMin_kW_Channel, hourly_kW_Channel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement1,
                         this.deliverable,
@@ -389,6 +402,7 @@ public class InferReadingTypeTest {
         when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMin_kWh_Channel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement2,
                         this.deliverable,

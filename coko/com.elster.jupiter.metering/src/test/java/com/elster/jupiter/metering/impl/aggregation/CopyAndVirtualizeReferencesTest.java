@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
@@ -14,7 +15,6 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.users.UserService;
@@ -246,7 +246,7 @@ public class CopyAndVirtualizeReferencesTest {
         com.elster.jupiter.metering.config.OperationNode node = (com.elster.jupiter.metering.config.OperationNode) formulaPart;
         ReadingTypeDeliverableForMeterActivation readingTypeDeliverableForMeterActivation =
                 new ReadingTypeDeliverableForMeterActivation(
-                        readingTypeDeliverable,
+                        Formula.Mode.AUTO, readingTypeDeliverable,
                         this.meterActivation,
                         Range.all(),
                         1,
@@ -275,7 +275,7 @@ public class CopyAndVirtualizeReferencesTest {
     }
 
     private CopyAndVirtualizeReferences getTestInstance() {
-        return new CopyAndVirtualizeReferences(this.virtualFactory, this.readingTypeDeliverableForMeterActivationProvider, this.deliverable, this.meterActivation);
+        return new CopyAndVirtualizeReferences(Formula.Mode.AUTO, this.virtualFactory, this.readingTypeDeliverableForMeterActivationProvider, this.deliverable, this.meterActivation);
     }
 
 }

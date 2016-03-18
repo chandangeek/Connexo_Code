@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -118,12 +119,18 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
      * @param period The requested period in time
      */
     private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period, VirtualFactory virtualFactory) {
-        ServerExpressionNode virtualizedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation, virtualFactory);
-        VirtualReadingType readingType = this.inferReadingType(deliverable, virtualizedExpression);
+        ServerExpressionNode virtualizedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation, virtualFactory, deliverable.getFormula().getMode());
+        VirtualReadingType readingType;
+        if (Formula.Mode.AUTO.equals(deliverable.getFormula().getMode())) {
+            readingType = this.inferReadingType(deliverable, virtualizedExpression);
+        } else {
+            readingType = VirtualReadingType.from(deliverable.getReadingType());
+        }
         ServerExpressionNode withMultipliers = virtualizedExpression.accept(new ApplyCurrentAndOrVoltageTransformer(this.meteringService, meterActivation));
         this.deliverablesPerMeterActivation
                 .get(meterActivation)
                 .add(new ReadingTypeDeliverableForMeterActivation(
+                        deliverable.getFormula().getMode(),
                         deliverable,
                         meterActivation,
                         period,
@@ -137,13 +144,14 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
      * references to requirements and deliverables with virtual references
      * as described by {@link CopyAndVirtualizeReferences}.
      *
+     * @param mode The mode
      * @param deliverable The ReadingTypeDeliverable
      * @param meterActivation The MeterActivation
      * @return The copied formula with virtual requirements and deliverables
      */
-    private ServerExpressionNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, VirtualFactory virtualFactory) {
+    private ServerExpressionNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, VirtualFactory virtualFactory, Formula.Mode mode) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
-        CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(virtualFactory, this, deliverable, meterActivation);
+        CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(mode, virtualFactory, this, deliverable, meterActivation);
         return formula.expressionNode().accept(visitor);
     }
 

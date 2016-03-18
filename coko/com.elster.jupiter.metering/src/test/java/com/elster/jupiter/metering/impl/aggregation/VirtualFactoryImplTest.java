@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
@@ -56,7 +57,7 @@ public class VirtualFactoryImplTest {
         VirtualFactoryImpl factory = this.testInstance();
 
         // Business method
-        factory.requirementFor(this.requirement, this.deliverable, this.dailyVirtualReadingType());
+        factory.requirementFor(Formula.Mode.AUTO, this.requirement, this.deliverable, this.dailyVirtualReadingType());
 
         // Asserts: see expected exception rule
     }
@@ -66,7 +67,7 @@ public class VirtualFactoryImplTest {
         VirtualFactoryImpl factory = this.testInstance();
         ReadingTypeDeliverableForMeterActivation deliverable =
                 new ReadingTypeDeliverableForMeterActivation(
-                        this.deliverable,
+                        Formula.Mode.AUTO, this.deliverable,
                         this.meterActivation,
                         Range.all(),
                         0,
@@ -112,10 +113,10 @@ public class VirtualFactoryImplTest {
     public void sameRequirementIsCreatedOnlyOnce() {
         VirtualFactoryImpl factory = this.testInstance();
         factory.nextMeterActivation(this.meterActivation, this.aggregationPeriod);
-        VirtualReadingTypeRequirement first = factory.requirementFor(this.requirement, this.deliverable, this.dailyVirtualReadingType());
+        VirtualReadingTypeRequirement first = factory.requirementFor(Formula.Mode.AUTO, this.requirement, this.deliverable, this.dailyVirtualReadingType());
 
         // Business method
-        VirtualReadingTypeRequirement second = factory.requirementFor(this.requirement, this.deliverable, this.dailyVirtualReadingType());
+        VirtualReadingTypeRequirement second = factory.requirementFor(Formula.Mode.AUTO, this.requirement, this.deliverable, this.dailyVirtualReadingType());
 
         // Asserts
         assertThat(first).isSameAs(second);
@@ -125,13 +126,13 @@ public class VirtualFactoryImplTest {
     public void sameRequirementIsRecreatedForAnotherMeterActivation() {
         VirtualFactoryImpl factory = this.testInstance();
         factory.nextMeterActivation(this.meterActivation, this.aggregationPeriod);
-        VirtualReadingTypeRequirement first = factory.requirementFor(this.requirement, this.deliverable, this.dailyVirtualReadingType());
+        VirtualReadingTypeRequirement first = factory.requirementFor(Formula.Mode.AUTO, this.requirement, this.deliverable, this.dailyVirtualReadingType());
         MeterActivation nextMeterActivation = mock(MeterActivation.class);
         when(nextMeterActivation.getRange()).thenReturn(Range.all());
         factory.nextMeterActivation(nextMeterActivation, this.aggregationPeriod);
 
         // Business method
-        VirtualReadingTypeRequirement second = factory.requirementFor(this.requirement, this.deliverable, this.dailyVirtualReadingType());
+        VirtualReadingTypeRequirement second = factory.requirementFor(Formula.Mode.AUTO, this.requirement, this.deliverable, this.dailyVirtualReadingType());
 
         // Asserts
         assertThat(first).isNotSameAs(second);
@@ -141,10 +142,10 @@ public class VirtualFactoryImplTest {
     public void sameRequirementIsRecreatedForAnotherInterval() {
         VirtualFactoryImpl factory = this.testInstance();
         factory.nextMeterActivation(this.meterActivation, this.aggregationPeriod);
-        VirtualReadingTypeRequirement first = factory.requirementFor(this.requirement, this.deliverable, this.dailyVirtualReadingType());
+        VirtualReadingTypeRequirement first = factory.requirementFor(Formula.Mode.AUTO, this.requirement, this.deliverable, this.dailyVirtualReadingType());
 
         // Business method
-        VirtualReadingTypeRequirement second = factory.requirementFor(this.requirement, this.deliverable, this.hourlyVirtualReadingType());
+        VirtualReadingTypeRequirement second = factory.requirementFor(Formula.Mode.AUTO, this.requirement, this.deliverable, this.hourlyVirtualReadingType());
 
         // Asserts
         assertThat(first).isNotSameAs(second);
@@ -154,11 +155,11 @@ public class VirtualFactoryImplTest {
     public void sameRequirementIsRecreatedForAnotherDeliverable() {
         VirtualFactoryImpl factory = this.testInstance();
         factory.nextMeterActivation(this.meterActivation, this.aggregationPeriod);
-        VirtualReadingTypeRequirement first = factory.requirementFor(this.requirement, this.deliverable, this.dailyVirtualReadingType());
+        VirtualReadingTypeRequirement first = factory.requirementFor(Formula.Mode.AUTO, this.requirement, this.deliverable, this.dailyVirtualReadingType());
         ReadingTypeDeliverable otherDeliverable = mock(ReadingTypeDeliverable.class);
 
         // Business method
-        VirtualReadingTypeRequirement second = factory.requirementFor(this.requirement, otherDeliverable, this.dailyVirtualReadingType());
+        VirtualReadingTypeRequirement second = factory.requirementFor(Formula.Mode.AUTO, this.requirement, otherDeliverable, this.dailyVirtualReadingType());
 
         // Asserts
         assertThat(first).isNotSameAs(second);
@@ -177,7 +178,7 @@ public class VirtualFactoryImplTest {
     public void allRequirementsWhenOnlyOneCreated() {
         VirtualFactoryImpl factory = this.testInstance();
         factory.nextMeterActivation(this.meterActivation, this.aggregationPeriod);
-        VirtualReadingTypeRequirement requirement = factory.requirementFor(this.requirement, this.deliverable, this.dailyVirtualReadingType());
+        VirtualReadingTypeRequirement requirement = factory.requirementFor(Formula.Mode.AUTO, this.requirement, this.deliverable, this.dailyVirtualReadingType());
 
         // Business method
         List<VirtualReadingTypeRequirement> requirements = factory.allRequirements();
@@ -190,14 +191,14 @@ public class VirtualFactoryImplTest {
     public void allRequirementsWhenMultipleCreated() {
         VirtualFactoryImpl factory = this.testInstance();
         factory.nextMeterActivation(this.meterActivation, this.aggregationPeriod);
-        VirtualReadingTypeRequirement daily = factory.requirementFor(this.requirement, this.deliverable, this.dailyVirtualReadingType());
-        VirtualReadingTypeRequirement hourly = factory.requirementFor(this.requirement, this.deliverable, this.hourlyVirtualReadingType());
+        VirtualReadingTypeRequirement daily = factory.requirementFor(Formula.Mode.AUTO, this.requirement, this.deliverable, this.dailyVirtualReadingType());
+        VirtualReadingTypeRequirement hourly = factory.requirementFor(Formula.Mode.AUTO, this.requirement, this.deliverable, this.hourlyVirtualReadingType());
         ReadingTypeDeliverable otherDeliverable = mock(ReadingTypeDeliverable.class);
-        VirtualReadingTypeRequirement dailyForOtherDeliverable = factory.requirementFor(this.requirement, otherDeliverable, this.dailyVirtualReadingType());
+        VirtualReadingTypeRequirement dailyForOtherDeliverable = factory.requirementFor(Formula.Mode.AUTO, this.requirement, otherDeliverable, this.dailyVirtualReadingType());
         MeterActivation nextMeterActivation = mock(MeterActivation.class);
         when(nextMeterActivation.getRange()).thenReturn(Range.all());
         factory.nextMeterActivation(nextMeterActivation, this.aggregationPeriod);
-        VirtualReadingTypeRequirement dailyForOtherMeterActivation = factory.requirementFor(this.requirement, this.deliverable, this.dailyVirtualReadingType());
+        VirtualReadingTypeRequirement dailyForOtherMeterActivation = factory.requirementFor(Formula.Mode.AUTO, this.requirement, this.deliverable, this.dailyVirtualReadingType());
 
         // Business method
         List<VirtualReadingTypeRequirement> requirements = factory.allRequirements();
@@ -212,7 +213,7 @@ public class VirtualFactoryImplTest {
         factory.nextMeterActivation(this.meterActivation, this.aggregationPeriod);
         ReadingTypeDeliverableForMeterActivation deliverable =
                 new ReadingTypeDeliverableForMeterActivation(
-                        this.deliverable,
+                        Formula.Mode.AUTO, this.deliverable,
                         this.meterActivation,
                         Range.all(),
                         0,
@@ -233,7 +234,7 @@ public class VirtualFactoryImplTest {
         factory.nextMeterActivation(this.meterActivation, this.aggregationPeriod);
         ReadingTypeDeliverableForMeterActivation deliverable =
                 new ReadingTypeDeliverableForMeterActivation(
-                        this.deliverable,
+                        Formula.Mode.AUTO, this.deliverable,
                         this.meterActivation,
                         Range.all(),
                         0,
@@ -255,7 +256,7 @@ public class VirtualFactoryImplTest {
         factory.nextMeterActivation(this.meterActivation, this.aggregationPeriod);
         ReadingTypeDeliverableForMeterActivation deliverable =
                 new ReadingTypeDeliverableForMeterActivation(
-                        this.deliverable,
+                        Formula.Mode.AUTO, this.deliverable,
                         this.meterActivation,
                         Range.all(),
                         0,
@@ -285,7 +286,7 @@ public class VirtualFactoryImplTest {
         factory.nextMeterActivation(this.meterActivation, this.aggregationPeriod);
         ReadingTypeDeliverableForMeterActivation deliverable =
                 new ReadingTypeDeliverableForMeterActivation(
-                        this.deliverable,
+                        Formula.Mode.AUTO, this.deliverable,
                         this.meterActivation,
                         Range.all(),
                         0,
@@ -303,7 +304,7 @@ public class VirtualFactoryImplTest {
         factory.nextMeterActivation(this.meterActivation, this.aggregationPeriod);
         ReadingTypeDeliverableForMeterActivation deliverable =
                 new ReadingTypeDeliverableForMeterActivation(
-                        this.deliverable,
+                        Formula.Mode.AUTO, this.deliverable,
                         this.meterActivation,
                         Range.all(),
                         0,

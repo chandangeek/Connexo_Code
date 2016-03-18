@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
@@ -24,12 +25,14 @@ public interface VirtualFactory {
      * {@link VirtualReadingType} or one that was already produced before
      * if such a node has already been produced before.
      *
+     *
+     * @param mode
      * @param requirement The ReadingTypeRequirement
      * @param deliverable The ReadingTypeDeliverable
      * @param readingType The VirtualReadingType
      * @return The VirtualRequirementNode
      */
-    VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType);
+    VirtualReadingTypeRequirement requirementFor(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType);
 
     /**
      * Returns a new {@link VirtualDeliverableNode} for the specified

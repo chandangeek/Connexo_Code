@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -22,6 +23,7 @@ import java.util.Optional;
  */
 class ReadingTypeDeliverableForMeterActivation {
 
+    private final Formula.Mode mode;
     private final ReadingTypeDeliverable deliverable;
     private final MeterActivation meterActivation;
     private final Range<Instant> requestedPeriod;
@@ -30,8 +32,9 @@ class ReadingTypeDeliverableForMeterActivation {
     private final VirtualReadingType expressionReadingType;
     private final VirtualReadingType targetReadingType;
 
-    ReadingTypeDeliverableForMeterActivation(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType expressionReadingType) {
+    ReadingTypeDeliverableForMeterActivation(Formula.Mode mode, ReadingTypeDeliverable deliverable, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType expressionReadingType) {
         super();
+        this.mode = mode;
         this.deliverable = deliverable;
         this.meterActivation = meterActivation;
         this.requestedPeriod = requestedPeriod;
@@ -101,7 +104,7 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private void appendWithSelectClause(SqlBuilder withClauseBuilder) {
         withClauseBuilder.append("SELECT ");
-        SqlConstants.TimeSeriesColumnNames.appendAllDeliverableSelectValues(this.expressionNode, withClauseBuilder);
+        SqlConstants.TimeSeriesColumnNames.appendAllDeliverableSelectValues(this.expressionNode, this.resultValueNeedsTimeBasedAggregation(), withClauseBuilder);
     }
 
     private void appendWithFromClause(SqlBuilder sqlBuilderBuilder) {
@@ -142,6 +145,7 @@ class ReadingTypeDeliverableForMeterActivation {
             sqlBuilder.append("(");
             sqlBuilder.append(
                     this.expressionReadingType.buildSqlUnitConversion(
+                            this.mode,
                             this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
                             this.targetReadingType));
             sqlBuilder.append(")");

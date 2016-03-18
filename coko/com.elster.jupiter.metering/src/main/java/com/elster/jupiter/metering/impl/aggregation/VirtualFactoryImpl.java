@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
@@ -26,8 +27,8 @@ public class VirtualFactoryImpl implements VirtualFactory {
     private VirtualFactory currentFactory = new NoCurrentMeterActivation();
 
     @Override
-    public VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
-        return this.currentFactory.requirementFor(requirement, deliverable, readingType);
+    public VirtualReadingTypeRequirement requirementFor(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
+        return this.currentFactory.requirementFor(mode, requirement, deliverable, readingType);
     }
 
     @Override
@@ -71,7 +72,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
      */
     private class NoCurrentMeterActivation implements VirtualFactory {
         @Override
-        public VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
+        public VirtualReadingTypeRequirement requirementFor(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
             throw new IllegalStateException("You need to set a current MeterActivation first");
         }
 
@@ -121,10 +122,10 @@ public class VirtualFactoryImpl implements VirtualFactory {
         }
 
         @Override
-        public VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
+        public VirtualReadingTypeRequirement requirementFor(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
             return this.factoriesPerRequirement
                     .computeIfAbsent(requirement, key -> new MeterActivationAndRequirementFactory(this))
-                    .requirementFor(requirement, deliverable, readingType);
+                    .requirementFor(mode, requirement, deliverable, readingType);
         }
 
         @Override
@@ -186,10 +187,10 @@ public class VirtualFactoryImpl implements VirtualFactory {
             this.parent = parent;
         }
 
-        public VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
+        public VirtualReadingTypeRequirement requirementFor(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
             return this.requirements
                     .computeIfAbsent(readingType, key -> new MeterActivationAndRequirementInDeliverableFactory(this))
-                    .requirementFor(requirement, deliverable, readingType);
+                    .requirementFor(mode, requirement, deliverable, readingType);
         }
 
         public List<VirtualReadingTypeRequirement> allRequirements() {
@@ -228,14 +229,15 @@ public class VirtualFactoryImpl implements VirtualFactory {
             this.parent = parent;
         }
 
-        public VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
+        public VirtualReadingTypeRequirement requirementFor(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
             return this.requirements.computeIfAbsent(
                     deliverable,
-                    key -> this.newRequirement(requirement, deliverable, readingType));
+                    key -> this.newRequirement(mode, requirement, deliverable, readingType));
         }
 
-        private VirtualReadingTypeRequirement newRequirement(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
+        private VirtualReadingTypeRequirement newRequirement(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType) {
             return new VirtualReadingTypeRequirement(
+                    mode,
                     requirement,
                     deliverable,
                     requirement.getMatchingChannelsFor(this.parent.getMeterActivation()),

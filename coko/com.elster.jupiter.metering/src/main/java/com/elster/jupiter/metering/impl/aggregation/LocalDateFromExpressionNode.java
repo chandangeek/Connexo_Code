@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Provides an implementation for the {@link com.elster.jupiter.metering.impl.aggregation.ServerExpressionNode.Visitor}
@@ -58,8 +59,9 @@ public class LocalDateFromExpressionNode implements ServerExpressionNode.Visitor
         return children
                 .stream()
                 .map(child -> child.accept(this))
-                .findFirst().orElse(null);
-
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
 }

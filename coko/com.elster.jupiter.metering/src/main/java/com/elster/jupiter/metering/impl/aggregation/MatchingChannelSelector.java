@@ -2,12 +2,14 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the algorithm that selects
@@ -24,13 +26,15 @@ import java.util.Optional;
 class MatchingChannelSelector {
 
     private final List<Channel> matchingChannels;
+    private final Formula.Mode mode;
 
     MatchingChannelSelector(ReadingTypeRequirement requirement, MeterActivation meterActivation) {
-        this(requirement.getMatchingChannelsFor(meterActivation));
+        this(requirement.getMatchingChannelsFor(meterActivation), Formula.Mode.AUTO);
     }
 
-    MatchingChannelSelector(List<Channel> matchingChannels) {
+    MatchingChannelSelector(List<Channel> matchingChannels, Formula.Mode mode) {
         super();
+        this.mode = mode;
         this.matchingChannels = Collections.unmodifiableList(matchingChannels);
     }
 
@@ -53,13 +57,17 @@ class MatchingChannelSelector {
      * @return The preferred VirtualReadingType
      */
     Optional<Channel> getPreferredChannel(VirtualReadingType readingType) {
-        /* For now, the preferred interval is the smallest matching reading type
-         * that is compatible with the target interval. */
-        return this.matchingChannels
-                .stream()
-                .sorted(new ChannelComparator(readingType))
-                .filter(each -> this.areCompatible(each, readingType))
-                .findFirst();
+        Stream<Channel> sortedChannels = this.matchingChannels.stream().sorted(new ChannelComparator(readingType));
+        if (this.mode.equals(Formula.Mode.AUTO)) {
+            /* For now, the preferred interval is the smallest matching reading type
+             * that is compatible with the target interval. */
+            return sortedChannels
+                    .filter(each -> this.areCompatible(each, readingType))
+                    .findFirst();
+        } else {
+            // Sort order is good enough for the expert
+            return sortedChannels.findFirst();
+        }
     }
 
     /**

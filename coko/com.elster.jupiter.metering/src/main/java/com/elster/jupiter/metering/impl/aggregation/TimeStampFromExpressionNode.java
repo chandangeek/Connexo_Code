@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Provides an implementation for the {@link ServerExpressionNode.Visitor} interface
@@ -17,29 +18,19 @@ import java.util.List;
  */
 public class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor<String> {
 
-    /**
-     * The value that will be used for expression that cannot support UTC timestamps.
-     * Good examples of such expressions are:
-     * <ul>
-     * <li>NumericalConstantNode</li>
-     * <li>StringConstantNode</li>
-     * </ul>
-     */
-    private static final String FIXED_TIMESTAMP_VALUE = "0";
-
     @Override
     public String visitConstant(NumericalConstantNode constant) {
-        return FIXED_TIMESTAMP_VALUE;
+        return null;
     }
 
     @Override
     public String visitConstant(StringConstantNode constant) {
-        return FIXED_TIMESTAMP_VALUE;
+        return null;
     }
 
     @Override
     public String visitVariable(VariableReferenceNode variable) {
-        return FIXED_TIMESTAMP_VALUE;
+        return null;
     }
 
     @Override
@@ -68,8 +59,9 @@ public class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor
         return children
                 .stream()
                 .map(child -> child.accept(this))
-                .findFirst().orElse(null);
-
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
 }

@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class MatchingChannelSelectorTest {
 
     @Test
     public void noPreferredChannelWithZeroMatchingChannels() {
-        MatchingChannelSelector testInstance = new MatchingChannelSelector(Collections.emptyList());// As promised: no matching channels
+        MatchingChannelSelector testInstance = new MatchingChannelSelector(Collections.emptyList(), Formula.Mode.AUTO);// As promised: no matching channels
 
         for (IntervalLength intervalLength : IntervalLength.values()) {
             VirtualReadingType readingType = VirtualReadingType.from(intervalLength, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
@@ -64,7 +65,7 @@ public class MatchingChannelSelectorTest {
                         this.mockChannelFor(this.mock2minReadingType()),
                         this.mockChannelFor(this.mock10minReadingType()),
                         this.mockChannelFor(this.mock20minReadingType())
-                ));
+                ), Formula.Mode.AUTO);
 
         for (IntervalLength intervalLength : EnumSet.of(IntervalLength.MINUTE3, IntervalLength.MINUTE5, IntervalLength.MINUTE15)) {
             VirtualReadingType readingType = VirtualReadingType.from(intervalLength, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
@@ -85,7 +86,7 @@ public class MatchingChannelSelectorTest {
                         this.mockChannelFor(this.mock15minReadingType()),
                         this.mockChannelFor(this.mock20minReadingType()),
                         this.mockChannelFor(this.mockHourlyReadingType())
-                ));
+                ), Formula.Mode.AUTO);
 
         for (IntervalLength intervalLength : EnumSet.of(IntervalLength.MINUTE1, IntervalLength.MINUTE2, IntervalLength.MINUTE3, IntervalLength.MINUTE4, IntervalLength.MINUTE6)) {
             VirtualReadingType readingType = VirtualReadingType.from(intervalLength, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
@@ -103,7 +104,7 @@ public class MatchingChannelSelectorTest {
         Channel tenMinutes = this.mockChannelFor(this.mock10minReadingType());
         Channel fifteenMinutes = this.mockChannelFor(this.mock15minReadingType());
         Channel hourly = this.mockChannelFor(this.mockHourlyReadingType());
-        MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes, hourly));
+        MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes, hourly), Formula.Mode.AUTO);
         VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
 
         // Business method
@@ -120,7 +121,7 @@ public class MatchingChannelSelectorTest {
     public void fifteenMinutesIsBestMatchForHourlyWhenOnly10And15MinAreAvailable() {
         Channel tenMinutes = this.mockChannelFor(this.mock10minReadingType());
         Channel fifteenMinutes = this.mockChannelFor(this.mock15minReadingType());
-        MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes));
+        MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes), Formula.Mode.AUTO);
         VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
 
         // Business method
@@ -132,7 +133,7 @@ public class MatchingChannelSelectorTest {
 
     @Test
     public void noPreferredIntervalWithZeroMatchingChannels() {
-        MatchingChannelSelector testInstance = new MatchingChannelSelector(Collections.emptyList());// As promised: no matching channels
+        MatchingChannelSelector testInstance = new MatchingChannelSelector(Collections.emptyList(), Formula.Mode.AUTO);// As promised: no matching channels
 
         for (IntervalLength intervalLength : IntervalLength.values()) {
             VirtualReadingType readingType = VirtualReadingType.from(intervalLength, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
@@ -152,7 +153,7 @@ public class MatchingChannelSelectorTest {
                         this.mockChannelFor(this.mock2minReadingType()),
                         this.mockChannelFor(this.mock10minReadingType()),
                         this.mockChannelFor(this.mock20minReadingType())
-                ));
+                ), Formula.Mode.AUTO);
 
         for (IntervalLength intervalLength : EnumSet.of(IntervalLength.MINUTE3, IntervalLength.MINUTE5, IntervalLength.MINUTE15)) {
             VirtualReadingType readingType = VirtualReadingType.from(intervalLength, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
@@ -173,7 +174,7 @@ public class MatchingChannelSelectorTest {
                         this.mockChannelFor(this.mock15minReadingType()),
                         this.mockChannelFor(this.mock20minReadingType()),
                         this.mockChannelFor(this.mockHourlyReadingType())
-                ));
+                ), Formula.Mode.AUTO);
 
         for (IntervalLength intervalLength : EnumSet.of(IntervalLength.MINUTE1, IntervalLength.MINUTE2, IntervalLength.MINUTE3, IntervalLength.MINUTE4, IntervalLength.MINUTE6)) {
             VirtualReadingType readingType = VirtualReadingType.from(intervalLength, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
@@ -191,7 +192,7 @@ public class MatchingChannelSelectorTest {
         Channel tenMinutes = this.mockChannelFor(this.mock10minReadingType());
         Channel fifteenMinutes = this.mockChannelFor(this.mock15minReadingType());
         Channel hourly = this.mockChannelFor(this.mockHourlyReadingType());
-        MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes, hourly));
+        MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes, hourly), Formula.Mode.AUTO);
         VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
 
         // Business method
@@ -206,7 +207,7 @@ public class MatchingChannelSelectorTest {
     public void fifteenMinutesIntervalIsBestMatchForHourlyWhenOnly10And15MinAreAvailable() {
         Channel tenMinutes = this.mockChannelFor(this.mock10minReadingType());
         Channel fifteenMinutes = this.mockChannelFor(this.mock15minReadingType());
-        MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes));
+        MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes), Formula.Mode.AUTO);
         VirtualReadingType hourlyReadingType = VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
         VirtualReadingType min15ReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
 
@@ -219,7 +220,7 @@ public class MatchingChannelSelectorTest {
 
     @Test
     public void intervalIsNeverSupportedWithZeroMatchingChannels() {
-        MatchingChannelSelector testInstance = new MatchingChannelSelector(Collections.emptyList());// As promised: no matching channels
+        MatchingChannelSelector testInstance = new MatchingChannelSelector(Collections.emptyList(), Formula.Mode.AUTO);// As promised: no matching channels
 
         for (IntervalLength intervalLength : IntervalLength.values()) {
             VirtualReadingType readingType = VirtualReadingType.from(intervalLength, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
@@ -239,7 +240,7 @@ public class MatchingChannelSelectorTest {
                         this.mockChannelFor(this.mock2minReadingType()),
                         this.mockChannelFor(this.mock10minReadingType()),
                         this.mockChannelFor(this.mock20minReadingType())
-                ));
+                ), Formula.Mode.AUTO);
 
         for (IntervalLength intervalLength : EnumSet.of(IntervalLength.MINUTE3, IntervalLength.MINUTE5, IntervalLength.MINUTE15)) {
             VirtualReadingType readingType = VirtualReadingType.from(intervalLength, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
@@ -260,7 +261,7 @@ public class MatchingChannelSelectorTest {
                         this.mockChannelFor(this.mock15minReadingType()),
                         this.mockChannelFor(this.mock20minReadingType()),
                         this.mockChannelFor(this.mockHourlyReadingType())
-                ));
+                ), Formula.Mode.AUTO);
 
         for (IntervalLength intervalLength : EnumSet.of(IntervalLength.MINUTE1, IntervalLength.MINUTE2, IntervalLength.MINUTE3, IntervalLength.MINUTE4, IntervalLength.MINUTE6)) {
             VirtualReadingType readingType = VirtualReadingType.from(intervalLength, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
@@ -278,7 +279,7 @@ public class MatchingChannelSelectorTest {
         Channel tenMinutes = this.mockChannelFor(this.mock10minReadingType());
         Channel fifteenMinutes = this.mockChannelFor(this.mock15minReadingType());
         Channel hourly = this.mockChannelFor(this.mockHourlyReadingType());
-        MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes, hourly));
+        MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes, hourly), Formula.Mode.AUTO);
         VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
 
         // Business method
@@ -292,7 +293,7 @@ public class MatchingChannelSelectorTest {
     public void hourlyIntervalIsSupportedWhenOnly10And15MinAreAvailable() {
         Channel tenMinutes = this.mockChannelFor(this.mock10minReadingType());
         Channel fifteenMinutes = this.mockChannelFor(this.mock15minReadingType());
-        MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes));
+        MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes), Formula.Mode.AUTO);
         VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR);
 
         // Business method

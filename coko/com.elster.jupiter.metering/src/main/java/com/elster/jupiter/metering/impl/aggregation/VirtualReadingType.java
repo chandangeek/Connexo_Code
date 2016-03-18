@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.Formula;
 
 import com.google.common.base.MoreObjects;
 
@@ -131,10 +132,11 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
      * Builds and returns the appropriate SQL constructs to achieve unit conversion for the specified
      * expression from this VirtualReadingType to the specified target VirtualReadingType.
      *
+     * @param mode The Mode
      * @param expression The expression
      * @param targetReadingType The target VirtualReadingType
      */
-    String buildSqlUnitConversion(String expression, VirtualReadingType targetReadingType) {
+    String buildSqlUnitConversion(Formula.Mode mode, String expression, VirtualReadingType targetReadingType) {
         StringBuilder sqlBuilder = new StringBuilder();
         if (this.getUnit().equals(targetReadingType.getUnit())) {
             // Unit is the same, consider multiplier
@@ -153,6 +155,9 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         }
         else if (UnitConversionSupport.areCompatibleForAutomaticUnitConversion(this.getUnit(), targetReadingType.getUnit())) {
             this.applyUnitConversion(expression, targetReadingType, sqlBuilder);
+        }
+        else if (mode.equals(Formula.Mode.EXPERT)) {
+            sqlBuilder.append(expression);
         }
         else {
             throw new UnsupportedOperationException("Unsuported unit conversion from " + this + " to " + targetReadingType);

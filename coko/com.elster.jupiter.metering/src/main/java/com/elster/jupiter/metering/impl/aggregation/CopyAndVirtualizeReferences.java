@@ -1,8 +1,9 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNodeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNodeImpl;
 
@@ -23,13 +24,15 @@ import java.util.stream.Collectors;
  */
 class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpressionNode> {
 
+    private final Formula.Mode mode;
     private final VirtualFactory virtualFactory;
     private final ReadingTypeDeliverableForMeterActivationProvider deliverableProvider;
     private final ReadingTypeDeliverable deliverable;
     private final MeterActivation meterActivation;
 
-    CopyAndVirtualizeReferences(VirtualFactory virtualFactory, ReadingTypeDeliverableForMeterActivationProvider deliverableProvider, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
+    CopyAndVirtualizeReferences(Formula.Mode mode, VirtualFactory virtualFactory, ReadingTypeDeliverableForMeterActivationProvider deliverableProvider, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
         super();
+        this.mode = mode;
         this.virtualFactory = virtualFactory;
         this.deliverableProvider = deliverableProvider;
         this.deliverable = deliverable;
@@ -45,6 +48,7 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
     public ServerExpressionNode visitRequirement(com.elster.jupiter.metering.config.ReadingTypeRequirementNode node) {
         // Replace this one with a VirtualRequirementNode
         return new VirtualRequirementNode(
+                this.mode,
                 this.virtualFactory,
                 node.getReadingTypeRequirement(),
                 this.deliverable,

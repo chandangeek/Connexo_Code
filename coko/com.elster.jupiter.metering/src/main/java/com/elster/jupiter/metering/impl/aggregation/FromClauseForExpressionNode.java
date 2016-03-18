@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Provides an implementation for the {@link ServerExpressionNode.Visitor}
@@ -57,6 +58,7 @@ public class FromClauseForExpressionNode implements ServerExpressionNode.Visitor
         return children
                 .stream()
                 .map(child -> child.accept(this))
+                .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
     }

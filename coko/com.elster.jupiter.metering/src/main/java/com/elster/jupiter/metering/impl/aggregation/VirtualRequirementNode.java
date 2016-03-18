@@ -1,10 +1,11 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.Optional;
@@ -28,6 +29,7 @@ import java.util.Optional;
  */
 class VirtualRequirementNode implements ServerExpressionNode {
 
+    private final Formula.Mode mode;
     private final VirtualFactory virtualFactory;
     private final ReadingTypeRequirement requirement;
     private final ReadingTypeDeliverable deliverable;
@@ -35,8 +37,9 @@ class VirtualRequirementNode implements ServerExpressionNode {
     private VirtualReadingType targetReadingType;
     private VirtualReadingTypeRequirement virtualRequirement;
 
-    VirtualRequirementNode(VirtualFactory virtualFactory, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
+    VirtualRequirementNode(Formula.Mode mode, VirtualFactory virtualFactory, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
         super();
+        this.mode = mode;
         this.virtualFactory = virtualFactory;
         this.requirement = requirement;
         this.deliverable = deliverable;
@@ -117,7 +120,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
      * Todo: support changing the target interval with notification to the factory that old requirement is no longer necessary
      */
     private void virtualize() {
-        this.virtualRequirement = this.virtualFactory.requirementFor(this.requirement, this.deliverable, this.targetReadingType);
+        this.virtualRequirement = this.virtualFactory.requirementFor(this.mode, this.requirement, this.deliverable, this.targetReadingType);
     }
 
     @Override

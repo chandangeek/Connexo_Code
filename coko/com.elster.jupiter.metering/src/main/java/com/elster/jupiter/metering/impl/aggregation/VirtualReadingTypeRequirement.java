@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
@@ -29,6 +30,7 @@ import java.util.Optional;
  */
 public class VirtualReadingTypeRequirement {
 
+    private final Formula.Mode mode;
     private final ReadingTypeRequirement requirement;
     private final ReadingTypeDeliverable deliverable;
     private final List<Channel> matchingChannels;
@@ -37,18 +39,15 @@ public class VirtualReadingTypeRequirement {
     private final int meterActivationSequenceNumber;
     private ChannelContract preferredChannel;   // Lazy from the list of matching channels and the targetIntervalLength
 
-    public VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, VirtualReadingType targetReadingType, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
+    public VirtualReadingTypeRequirement(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, VirtualReadingType targetReadingType, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
         super();
+        this.mode = mode;
         this.requirement = requirement;
         this.deliverable = deliverable;
         this.rawDataPeriod = requestedPeriod.intersection(meterActivation.getRange());
         this.matchingChannels = Collections.unmodifiableList(matchingChannels);
         this.targetReadingType = targetReadingType;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
-    }
-
-    public List<Channel> getMatchingChannels() {
-        return matchingChannels;
     }
 
     /**
@@ -123,7 +122,7 @@ public class VirtualReadingTypeRequirement {
     }
 
     private ChannelContract findPreferredChannel() {
-        return new MatchingChannelSelector(this.matchingChannels)
+        return new MatchingChannelSelector(this.matchingChannels, this.mode)
                     .getPreferredChannel(this.targetReadingType)
                     .map(ChannelContract.class::cast)
                     .orElseThrow(() -> new IllegalStateException("Calculation of preferred channel failed before"));
@@ -137,8 +136,9 @@ public class VirtualReadingTypeRequirement {
         VirtualReadingType sourceReadingType = this.getSourceReadingType();
         sqlBuilder.append(
             sourceReadingType.buildSqlUnitConversion(
-                this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
-                this.targetReadingType));
+                    this.mode,
+                    this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
+                    this.targetReadingType));
     }
 
     private VirtualReadingType getSourceReadingType() {
