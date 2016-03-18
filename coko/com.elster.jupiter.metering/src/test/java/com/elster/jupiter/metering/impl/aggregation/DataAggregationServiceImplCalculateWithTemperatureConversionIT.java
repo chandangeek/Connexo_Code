@@ -265,7 +265,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
                 formulaBuilder.constant(BigDecimal.TEN)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(node).when(formula).expressionNode();
+        doReturn(node).when(formula).getExpressionNode();
         when(avgTemperature.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(avgTemperature));
@@ -348,7 +348,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
                 formulaBuilder.constant(BigDecimal.TEN)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(node).when(formula).expressionNode();
+        doReturn(node).when(formula).getExpressionNode();
         when(avgTemperature.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(avgTemperature));
@@ -442,7 +442,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(node).when(formula).expressionNode();
+        doReturn(node).when(formula).getExpressionNode();
         when(avgTemperature.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(avgTemperature));

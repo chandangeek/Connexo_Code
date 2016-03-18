@@ -4,9 +4,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.util.units.Dimension;
 import com.elster.jupiter.util.units.Unit;
 
-import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Provides support for unit conversion as part of data aggregation.
@@ -220,27 +218,27 @@ public class UnitConversionSupport {
 
 
     public static Optional<Dimension> getMultiplicationDimension(Dimension first, Dimension second) {
-        return TemporaryDimension.of(first).multiply(second).getDimension();
+        return IntermediateDimension.of(first).multiply(second).getDimension();
     }
 
     public static Optional<Dimension> getDivisionDimension(Dimension first, Dimension second) {
-        return TemporaryDimension.of(first).divide(second).getDimension();
+        return IntermediateDimension.of(first).divide(second).getDimension();
     }
 
-    public static TemporaryDimension multiply(TemporaryDimension first, TemporaryDimension second) {
+    public static IntermediateDimension multiply(IntermediateDimension first, IntermediateDimension second) {
         return first.add(second);
     }
 
-    public static TemporaryDimension divide(TemporaryDimension first, TemporaryDimension second) {
+    public static IntermediateDimension divide(IntermediateDimension first, IntermediateDimension second) {
         return first.substract(second);
     }
 
-    public static boolean isAllowedMultiplication(TemporaryDimension first, TemporaryDimension second) {
+    public static boolean isAllowedMultiplication(IntermediateDimension first, IntermediateDimension second) {
         return (first.isDimensionless() || (second.isDimensionless())) ||
                 multiply(first, second).exists();
     }
 
-    public static boolean isAllowedDivision(TemporaryDimension first, TemporaryDimension second) {
+    public static boolean isAllowedDivision(IntermediateDimension first, IntermediateDimension second) {
         return (first.isDimensionless() || (second.isDimensionless())) ||
                 divide(first, second).exists();
     }

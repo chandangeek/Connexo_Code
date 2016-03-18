@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 /**
  * Created by igh on 18/03/2016.
  */
-public class TemporaryDimension {
+public class IntermediateDimension {
 
     private int lengthDimension;
     private int massDimension;
@@ -18,7 +18,7 @@ public class TemporaryDimension {
     private int amountDimension;
     private int luminousIntensityDimension;
 
-    public TemporaryDimension(Dimension dimension) {
+    public IntermediateDimension(Dimension dimension) {
         this.lengthDimension = dimension.getLengthDimension();
         this.massDimension = dimension.getMassDimension();
         this.timeDimension = dimension.getTimeDimension();
@@ -28,7 +28,7 @@ public class TemporaryDimension {
         this.luminousIntensityDimension = dimension.getLuminousIntensityDimension();
     }
 
-    public TemporaryDimension(int lengthD, int massD, int timeD, int currentD, int temperatureD,int amountD,int luminousIntensityD) {
+    public IntermediateDimension(int lengthD, int massD, int timeD, int currentD, int temperatureD,int amountD,int luminousIntensityD) {
         this.lengthDimension = lengthD;
         this.massDimension = massD;
         this.timeDimension = timeD;
@@ -38,20 +38,20 @@ public class TemporaryDimension {
         this.luminousIntensityDimension = luminousIntensityD;
     }
 
-    public static TemporaryDimension of (Dimension dimension) {
-        return new TemporaryDimension(dimension);
+    public static IntermediateDimension of (Dimension dimension) {
+        return new IntermediateDimension(dimension);
     }
 
-    TemporaryDimension multiply(Dimension second) {
+    IntermediateDimension multiply(Dimension second) {
         return this.add(of(second));
     }
 
-    TemporaryDimension divide(Dimension second) {
+    IntermediateDimension divide(Dimension second) {
         return this.substract(of(second));
     }
 
-    TemporaryDimension add(TemporaryDimension second) {
-        return new TemporaryDimension(
+    IntermediateDimension add(IntermediateDimension second) {
+        return new IntermediateDimension(
                 this.lengthDimension + second.getLengthDimension(),
                 this.massDimension + second.getMassDimension(),
                 this.timeDimension + second.getTimeDimension(),
@@ -61,8 +61,8 @@ public class TemporaryDimension {
                 this.luminousIntensityDimension + second.getLuminousIntensityDimension());
     }
 
-    TemporaryDimension substract(TemporaryDimension second) {
-        return new TemporaryDimension(
+    IntermediateDimension substract(IntermediateDimension second) {
+        return new IntermediateDimension(
                 this.lengthDimension - second.getLengthDimension(),
                 this.massDimension - second.getMassDimension(),
                 this.timeDimension - second.getTimeDimension(),
@@ -117,7 +117,7 @@ public class TemporaryDimension {
         return getDimension().isPresent();
     }
 
-    public boolean hasSameDimensions(TemporaryDimension other) {
+    public boolean hasSameDimensions(IntermediateDimension other) {
         return
                 lengthDimension == other.lengthDimension && massDimension ==  other.massDimension &&
                         timeDimension == other.timeDimension && currentDimension == other.currentDimension &&
@@ -126,10 +126,10 @@ public class TemporaryDimension {
     }
 
     public boolean isDimensionless() {
-        return hasSameDimensions(new TemporaryDimension(0, 0, 0, 0, 0, 0, 0));
+        return hasSameDimensions(new IntermediateDimension(0, 0, 0, 0, 0, 0, 0));
     }
 
     public boolean isCurrency() {
-        return hasSameDimensions(new TemporaryDimension(0, 0, 0, 0, 0, 0, 0));
+        return hasSameDimensions(new IntermediateDimension(0, 0, 0, 0, 0, 0, 0));
     }
 }

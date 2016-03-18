@@ -33,11 +33,6 @@ public class FormulaImpl implements ServerFormula {
     }
 
     @Override
-    public ExpressionNode expressionNode() {
-        return expressionNode.orNull();
-    }
-
-    @Override
     public Mode getMode() {
         return mode;
     }
@@ -61,8 +56,9 @@ public class FormulaImpl implements ServerFormula {
         }
     }
 
-    public Reference<ExpressionNode> getExpressionNode() {
-        return expressionNode;
+    @Override
+    public ExpressionNode getExpressionNode() {
+        return expressionNode.get();
     }
 
     @Override

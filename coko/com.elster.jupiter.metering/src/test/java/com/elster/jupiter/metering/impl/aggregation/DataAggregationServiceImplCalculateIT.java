@@ -284,7 +284,7 @@ public class DataAggregationServiceImplCalculateIT {
                 formulaBuilder.plus(
                     formulaBuilder.requirement(production),
                     formulaBuilder.requirement(consumption)).create();
-        doReturn(operationNode).when(formula).expressionNode();
+        doReturn(operationNode).when(formula).getExpressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
@@ -382,7 +382,7 @@ public class DataAggregationServiceImplCalculateIT {
                     formulaBuilder.requirement(consumption)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(operationNode).when(formula).expressionNode();
+        doReturn(operationNode).when(formula).getExpressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
@@ -488,7 +488,7 @@ public class DataAggregationServiceImplCalculateIT {
                                 formulaBuilder.constant(BigDecimal.valueOf(2L)))).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(operationNode).when(formula).expressionNode();
+        doReturn(operationNode).when(formula).getExpressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));

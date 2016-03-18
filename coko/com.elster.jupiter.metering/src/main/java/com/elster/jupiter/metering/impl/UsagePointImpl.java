@@ -175,12 +175,6 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public long getServiceLocationId() {
-        Optional<ServiceLocation> location = getServiceLocation();
-        return location.isPresent() ? location.get().getId() : 0L;
-    }
-
-    @Override
     public String getAliasName() {
         return aliasName;
     }

@@ -289,7 +289,7 @@ public class DataAggregationServiceImplExpertModeIT {
                     .create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.EXPERT);
-        doReturn(node).when(formula).expressionNode();
+        doReturn(node).when(formula).getExpressionNode();
         when(energy.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(energy));

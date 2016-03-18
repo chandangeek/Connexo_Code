@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ConstantNode;
-import com.elster.jupiter.metering.impl.aggregation.TemporaryDimension;
 import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;

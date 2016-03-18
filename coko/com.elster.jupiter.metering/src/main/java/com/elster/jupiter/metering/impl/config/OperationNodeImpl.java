@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
-import com.elster.jupiter.metering.impl.aggregation.TemporaryDimension;
+import com.elster.jupiter.metering.impl.aggregation.IntermediateDimension;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.units.Dimension;
@@ -98,7 +98,7 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
     }
 
     @Override
-    public TemporaryDimension getTemporaryDimension() {
+    public IntermediateDimension getTemporaryDimension() {
         if (operator.equals(Operator.MINUS) || operator.equals(Operator.PLUS)) {
             return ((AbstractNode) getLeftOperand()).getTemporaryDimension();
         } else if (operator.equals(Operator.MULTIPLY)) {

@@ -78,7 +78,7 @@ public class FormulaCrudTest {
             Formula myFormula = loadedFormula.get();
             assertThat(myFormula.getId() == formulaId);
             assertThat(myFormula.getMode().equals(myMode));
-            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            ExpressionNode myNode = myFormula.getExpressionNode();
             ConstantNode node = (ConstantNode) nodeBuilder.create();
             assertThat(myNode.equals(node));
             assertThat(myNode).isInstanceOf(ConstantNodeImpl.class);
@@ -109,7 +109,7 @@ public class FormulaCrudTest {
             Formula myFormula = loadedFormula.get();
             assertThat(myFormula.getId() == formulaId);
             assertThat(myFormula.getMode().equals(myMode));
-            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            ExpressionNode myNode = myFormula.getExpressionNode();
             FunctionCallNodeImpl node = (FunctionCallNodeImpl) nodeBuilder.create();
             assertThat(myNode.equals(node));
             assertThat(myNode).isInstanceOf(FunctionCallNodeImpl.class);
@@ -155,7 +155,7 @@ public class FormulaCrudTest {
             Formula myFormula = loadedFormula.get();
             assertThat(myFormula.getId() == formulaId);
             assertThat(myFormula.getMode().equals(myMode));
-            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            ExpressionNode myNode = myFormula.getExpressionNode();
 
             FunctionCallNodeImpl node = (FunctionCallNodeImpl) nodeBuilder.create();
 
@@ -193,7 +193,7 @@ public class FormulaCrudTest {
             Formula myFormula = loadedFormula.get();
             assertThat(myFormula.getId() == formulaId);
             assertThat(myFormula.getMode().equals(myMode));
-            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            ExpressionNode myNode = myFormula.getExpressionNode();
             assertThat(myNode.equals(node));
             assertThat(myNode).isInstanceOf(ConstantNodeImpl.class);
             ConstantNode constantNode = (ConstantNode) myNode;
@@ -220,7 +220,7 @@ public class FormulaCrudTest {
             Formula myFormula = loadedFormula.get();
             assertThat(myFormula.getId() == formulaId);
             assertThat(myFormula.getMode().equals(myMode));
-            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            ExpressionNode myNode = myFormula.getExpressionNode();
             assertThat(myNode.equals(node));
             assertThat(myNode).isInstanceOf(FunctionCallNodeImpl.class);
             FunctionCallNodeImpl functionCallNode = (FunctionCallNodeImpl) myNode;
@@ -258,8 +258,7 @@ public class FormulaCrudTest {
             Formula myFormula = loadedFormula.get();
             assertThat(myFormula.getId() == formulaId);
             assertThat(myFormula.getMode().equals(myMode));
-            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
-
+            ExpressionNode myNode = myFormula.getExpressionNode();
 
             assertThat(myNode.equals(node));
             assertThat(myNode).isInstanceOf(FunctionCallNodeImpl.class);
@@ -299,16 +298,12 @@ public class FormulaCrudTest {
             Formula myFormula = loadedFormula.get();
             assertThat(myFormula.getId() == formulaId);
             assertThat(myFormula.getMode().equals(myMode));
-            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
-
+            ExpressionNode myNode = myFormula.getExpressionNode();
 
             assertThat(myNode.equals(node));
-
             assertThat(myNode.toString().equals(formulaString));
         }
     }
-
-
 
     @Test
     public void testParser()  {
@@ -372,18 +367,12 @@ public class FormulaCrudTest {
             myFormula = loadedFormula.get();
             assertThat(myFormula.getId() == formulaId);
             assertThat(myFormula.getMode().equals(Formula.Mode.EXPERT));
-            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            ExpressionNode myNode = myFormula.getExpressionNode();
             assertThat(myNode.equals(newExpression));
             assertThat(myNode).isInstanceOf(ConstantNodeImpl.class);
             ConstantNode constantNode = (ConstantNode) myNode;
             assertThat(constantNode.getValue().equals(new BigDecimal(99)));
-
-
         }
     }
-
-
-
-
 
 }

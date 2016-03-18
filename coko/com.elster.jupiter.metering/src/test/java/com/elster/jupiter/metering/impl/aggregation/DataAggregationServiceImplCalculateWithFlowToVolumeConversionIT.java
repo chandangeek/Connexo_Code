@@ -281,7 +281,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
                 formulaBuilder.requirement(consumption)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(node).when(formula).expressionNode();
+        doReturn(node).when(formula).getExpressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
@@ -382,7 +382,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
                 formulaBuilder.requirement(consumption)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(node).when(formula).expressionNode();
+        doReturn(node).when(formula).getExpressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
@@ -494,7 +494,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
                         formulaBuilder.constant(BigDecimal.valueOf(2L)))).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(node).when(formula).expressionNode();
+        doReturn(node).when(formula).getExpressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));

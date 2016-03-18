@@ -152,7 +152,7 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
     private ServerExpressionNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, VirtualFactory virtualFactory, Formula.Mode mode) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
         CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(mode, virtualFactory, this, deliverable, meterActivation);
-        return formula.expressionNode().accept(visitor);
+        return formula.getExpressionNode().accept(visitor);
     }
 
     /**

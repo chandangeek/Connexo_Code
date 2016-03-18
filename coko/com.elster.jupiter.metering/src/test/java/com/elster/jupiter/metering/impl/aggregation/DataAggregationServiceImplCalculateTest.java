@@ -152,14 +152,14 @@ public class DataAggregationServiceImplCalculateTest {
                 formulaBuilder.requirement(consumption)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(node).when(formula).expressionNode();
+        doReturn(node).when(formula).getExpressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         VirtualReadingTypeRequirement virtualConsumption = mock(VirtualReadingTypeRequirement.class);
         when(virtualConsumption.sqlName()).thenReturn("vrt-consumption");
         VirtualReadingTypeRequirement virtualProduction = mock(VirtualReadingTypeRequirement.class);
         when(virtualProduction.sqlName()).thenReturn("vrt-production");
-        when(this.virtualFactory.requirementFor(Formula.Mode.AUTO, eq(consumption), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualConsumption);
-        when(this.virtualFactory.requirementFor(Formula.Mode.AUTO, eq(production), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualProduction);
+        when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualConsumption);
+        when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualProduction);
 
         // Setup contract deliverables
         VirtualReadingTypeDeliverable virtualNetConsumption = mock(VirtualReadingTypeDeliverable.class);
@@ -195,10 +195,10 @@ public class DataAggregationServiceImplCalculateTest {
         // Asserts
         verify(this.virtualFactory).nextMeterActivation(meterActivation, aggregationPeriod);
         ArgumentCaptor<VirtualReadingType> readingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory).requirementFor(Formula.Mode.AUTO, eq(consumption), eq(netConsumption), readingTypeArgumentCaptor.capture());
+        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), readingTypeArgumentCaptor.capture());
         VirtualReadingType capturedConsumptionReadingType = readingTypeArgumentCaptor.getValue();
         assertThat(capturedConsumptionReadingType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
-        verify(this.virtualFactory).requirementFor(Formula.Mode.AUTO, eq(production), eq(netConsumption), readingTypeArgumentCaptor.capture());
+        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), readingTypeArgumentCaptor.capture());
         VirtualReadingType capturedProductionReadngType = readingTypeArgumentCaptor.getValue();
         assertThat(capturedProductionReadngType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         // Formula does not contain a reference to the deliverable
@@ -256,14 +256,14 @@ public class DataAggregationServiceImplCalculateTest {
                 formulaBuilder.requirement(consumption)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(node).when(formula).expressionNode();
+        doReturn(node).when(formula).getExpressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         VirtualReadingTypeRequirement virtualConsumption = mock(VirtualReadingTypeRequirement.class);
         when(virtualConsumption.sqlName()).thenReturn("vrt-consumption");
         VirtualReadingTypeRequirement virtualProduction = mock(VirtualReadingTypeRequirement.class);
         when(virtualProduction.sqlName()).thenReturn("vrt-production");
-        when(this.virtualFactory.requirementFor(Formula.Mode.AUTO, eq(consumption), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualConsumption);
-        when(this.virtualFactory.requirementFor(Formula.Mode.AUTO, eq(production), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualProduction);
+        when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualConsumption);
+        when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualProduction);
 
         // Setup contract deliverables
         VirtualReadingTypeDeliverable virtualNetConsumption = mock(VirtualReadingTypeDeliverable.class);
@@ -299,10 +299,10 @@ public class DataAggregationServiceImplCalculateTest {
         // Asserts
         verify(this.virtualFactory).nextMeterActivation(meterActivation, aggregationPeriod);
         ArgumentCaptor<VirtualReadingType> readingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory).requirementFor(Formula.Mode.AUTO, eq(consumption), eq(netConsumption), readingTypeArgumentCaptor.capture());
+        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), readingTypeArgumentCaptor.capture());
         VirtualReadingType capturedConsumptionReadingType = readingTypeArgumentCaptor.getValue();
         assertThat(capturedConsumptionReadingType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
-        verify(this.virtualFactory).requirementFor(Formula.Mode.AUTO, eq(production), eq(netConsumption), readingTypeArgumentCaptor.capture());
+        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), readingTypeArgumentCaptor.capture());
         VirtualReadingType capturedProductionReadngType = readingTypeArgumentCaptor.getValue();
         assertThat(capturedProductionReadngType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         // Formula does not contain a reference to the deliverable
