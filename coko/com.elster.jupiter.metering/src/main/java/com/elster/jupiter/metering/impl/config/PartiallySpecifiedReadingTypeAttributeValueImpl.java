@@ -5,8 +5,6 @@ import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
-import com.elster.jupiter.metering.impl.rt.template.SelfObjectValidator;
-import com.elster.jupiter.metering.impl.rt.template.SelfValid;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 

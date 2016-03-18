@@ -4,8 +4,6 @@ import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
-import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.units.Dimension;
@@ -80,10 +78,11 @@ public interface ReadingTypeRequirement extends HasId, HasName {
      * For {@link PartiallySpecifiedReadingType} checks that each candidate's attribute:
      * <ul>
      * <li>is equal to overridden attribute value (if it was overridden,
-     * see {@link PartiallySpecifiedReadingType#overrideAttribute(ReadingTypeTemplateAttributeName, int)})</li>
+     * see {@link PartiallySpecifiedReadingType#overrideAttribute(com.elster.jupiter.metering.ReadingTypeTemplateAttributeName, int)})</li>
      * <li>or is equal to template attribute value (if attribute has code or possible values,
-     * see {@link ReadingTypeTemplateAttribute#matches(ReadingType)})</li>
-     * <li>or has one of system allowed values, see {@link ReadingTypeTemplateAttributeName.ReadingTypeAttribute#getPossibleValues()}</li>
+     * see {@link com.elster.jupiter.metering.ReadingTypeTemplateAttribute#matches(ReadingType)})</li>
+     * <li>or has one of system allowed values, see
+     * {@link com.elster.jupiter.metering.ReadingTypeTemplateAttributeName.ReadingTypeAttribute#getPossibleValues()}</li>
      * </ul>
      * </p>
      *

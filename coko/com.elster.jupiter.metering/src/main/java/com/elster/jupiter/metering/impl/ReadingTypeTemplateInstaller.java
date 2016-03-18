@@ -295,7 +295,7 @@ public class ReadingTypeTemplateInstaller {
 
         Template(MeteringService meteringService, String name) {
             this.template = meteringService.createReadingTypeTemplate(name);
-            this.updater = this.template.updater();
+            this.updater = this.template.startUpdate();
         }
 
         <T> Template withValues(ReadingTypeTemplateAttributeName attr, T... values) {

@@ -4,7 +4,6 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
 public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequirement {
     public static final Map<String, Class<? extends ReadingTypeRequirement>> IMPLEMENTERS = ImmutableMap.of(
             PartiallySpecifiedReadingTypeImpl.TYPE_IDENTIFIER, PartiallySpecifiedReadingTypeImpl.class,
-            FullySpecifiedReadingType.TYPE_IDENTIFIER, FullySpecifiedReadingTypeImpl.class);
+            FullySpecifiedReadingTypeImpl.TYPE_IDENTIFIER, FullySpecifiedReadingTypeImpl.class);
 
     public enum Fields {
         ID("id"),

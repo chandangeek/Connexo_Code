@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
 
 @ProviderType
 public interface PartiallySpecifiedReadingType extends ReadingTypeRequirement {
-    String TYPE_IDENTIFIER = "P";
 
     /**
      * Overrides a specific reading type attribute's value.

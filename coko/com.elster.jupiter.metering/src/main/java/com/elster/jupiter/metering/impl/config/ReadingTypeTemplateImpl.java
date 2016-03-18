@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl.rt.template;
+package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
@@ -7,8 +7,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
-import com.elster.jupiter.metering.impl.config.HasUniqueName;
-import com.elster.jupiter.metering.impl.config.UniqueName;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 
@@ -127,7 +125,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     }
 
     @Override
-    public ReadingTypeTemplateUpdater updater() {
+    public ReadingTypeTemplateUpdater startUpdate() {
         return new ReadingTypeTemplateUpdaterImpl(this);
     }
 

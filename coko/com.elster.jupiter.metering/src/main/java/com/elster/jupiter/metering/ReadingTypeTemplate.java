@@ -21,7 +21,7 @@ public interface ReadingTypeTemplate extends HasId, HasName {
      */
     ReadingTypeTemplateAttribute getAttribute(ReadingTypeTemplateAttributeName attributeName);
 
-    ReadingTypeTemplateUpdater updater();
+    ReadingTypeTemplateUpdater startUpdate();
 
     /**
      * Indicates that one or more attributes does not define nor specific code, nor possible values.

@@ -235,13 +235,13 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
             throw new IllegalArgumentException("Filter can not be null.");
         }
         Condition condition = Condition.TRUE;
-        if (filter.getReadingTypes() != null) {
+        if (!filter.getReadingTypes().isEmpty()) {
             condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.READING_TYPE.fieldName()).in(filter.getReadingTypes()));
         }
-        if (filter.getMetrologyContracts() != null) {
+        if (!filter.getMetrologyContracts().isEmpty()) {
             condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName()).in(filter.getMetrologyContracts()));
         }
-        if (filter.getMetrologyConfigurations() != null) {
+        if (!filter.getMetrologyConfigurations().isEmpty()) {
             condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName()
                     + "." + MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName()).in(filter.getMetrologyConfigurations()));
         }

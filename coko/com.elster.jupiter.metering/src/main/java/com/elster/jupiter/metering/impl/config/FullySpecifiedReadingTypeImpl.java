@@ -10,16 +10,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.Dimension;
 
-import javax.inject.Inject;
-
 public class FullySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl implements FullySpecifiedReadingType {
+    public static final String TYPE_IDENTIFIER = "F";
+
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
-
-    @Inject
-    public FullySpecifiedReadingTypeImpl() {
-        super();
-    }
 
     public FullySpecifiedReadingTypeImpl init(MetrologyConfiguration metrologyConfiguration, MeterRole meterRole, String name, ReadingType readingType) {
         super.init(metrologyConfiguration, meterRole, name);
