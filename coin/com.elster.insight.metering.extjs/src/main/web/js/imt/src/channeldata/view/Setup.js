@@ -24,10 +24,9 @@ Ext.define('Imt.channeldata.view.Setup', {
                     {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'stepsMenu',
-//                        usagepoint: me.usagepoint,
+                        usagepoint: me.usagepoint,
                         toggleId: 'channelsLink',
-                        router: me.router,
-                        mRID: me.mRID
+                        router: me.router
                     }
                 ]
             }

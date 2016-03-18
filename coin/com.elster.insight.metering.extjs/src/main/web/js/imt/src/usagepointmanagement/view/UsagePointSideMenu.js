@@ -1,14 +1,20 @@
 Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
     extend: 'Uni.view.menu.SideMenu',
+    requires: [
+        'Imt.util.IconsMap'
+    ],
     alias: 'widget.usage-point-management-side-menu',
     router: null,
     title: Uni.I18n.translate('usagepoint.label.usagepoint', 'IMT', 'Usage point'),
+    usagePoint: null,
     
     initComponent: function () {
-        var me = this;
+        var me = this,
+            iconStyle;
+
         me.menuItems = [
             {
-                text: me.router.arguments.mRID,
+                text: me.usagePoint ? me.usagePoint.get('mRID') : me.router.arguments.mRID,
                 itemId: 'usage-point-overview-link',
                 href: me.router.getRoute('usagepoints/view').buildUrl()
             },
@@ -24,6 +30,29 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                 href: me.router.getRoute('usagepoints/view/processes').buildUrl()
             }
         ];
+
+        if (me.usagePoint) {
+            iconStyle = "color: #686868;font-size: 16px;";
+            me.tools = [
+                {
+                    xtype: 'component',
+                    html: '<span class="'
+                    + Imt.util.IconsMap.getCls(me.usagePoint.get('serviceCategory'))
+                    + '" style="' + iconStyle + '" data-qtip="'
+                    + me.usagePoint.get('serviceCategory')
+                    + '"></span>'
+                },
+                {
+                    xtype: 'component',
+                    html: '<span class="'
+                    + Imt.util.IconsMap.getCls(me.usagePoint.get('connectionState'))
+                    + '" style="' + iconStyle + '" data-qtip="'
+                    + me.usagePoint.get('connectionState')
+                    + '"></span>'
+                }
+            ]
+        }
+
         me.callParent(arguments);
     }
 });

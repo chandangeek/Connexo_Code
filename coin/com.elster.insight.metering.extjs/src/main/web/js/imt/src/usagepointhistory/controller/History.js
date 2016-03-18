@@ -47,20 +47,23 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 if (!dependenciesCounter) {
                     widget =  Ext.widget('usage-point-history', {
                         itemId: 'usage-point-history',
-                        router: router
+                        router: router,
+                        usagePoint: usagePoint
                     });
                     app.fireEvent('changecontentevent',widget);
                     mainView.setLoading(false);
                     tabPanel = widget.down('#usage-point-history-tab-panel');
                     tabPanel.fireEvent('beforetabchange', tabPanel, tabPanel.getActiveTab(), undefined, undefined, true);
                 }
-            };
+            },
+            usagePoint;
 
         customAttributesStore.getProxy().setUrl(mRID);
         customAttributesStore.load(showPage);
         mainView.setLoading();
         me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
             success: function (record) {
+                usagePoint = record;
                 app.fireEvent('usagePointLoaded', record);
                 showPage();
             }

@@ -130,7 +130,8 @@ Ext.define('Imt.channeldata.view.TabbedChannelsView', {
                                 mRID: me.usagepoint.get('mRID'),
                                 channelId: me.channel.getId(),
                                 toggleId: 'channelsLink',
-                                router: me.router
+                                router: me.router,
+                                usagePoint: me.usagepoint
                             }
                         ]
                     }
