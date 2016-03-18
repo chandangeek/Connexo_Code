@@ -209,11 +209,6 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
-    public ServiceCallFilter newServiceCallFilter() {
-        return new ServiceCallFilterImpl();
-    }
-
-    @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList(OrmService.COMPONENTNAME,
                 UserService.COMPONENTNAME,
