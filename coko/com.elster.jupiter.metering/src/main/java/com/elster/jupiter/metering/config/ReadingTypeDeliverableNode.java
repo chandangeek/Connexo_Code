@@ -6,7 +6,7 @@ package com.elster.jupiter.metering.config;
 public interface ReadingTypeDeliverableNode extends ExpressionNode {
 
 
-    String TYPE_IDENTIFIER = "DEL";
+
 
     ReadingTypeDeliverable getReadingTypeDeliverable();
 }

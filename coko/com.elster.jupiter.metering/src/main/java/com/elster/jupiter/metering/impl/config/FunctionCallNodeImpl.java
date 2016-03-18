@@ -15,6 +15,8 @@ import java.util.List;
  */
 public class FunctionCallNodeImpl extends AbstractNode implements FunctionCallNode {
 
+    static final String TYPE_IDENTIFIER = "FCT";
+
     private Function function;
     private Thesaurus thesaurus;
 

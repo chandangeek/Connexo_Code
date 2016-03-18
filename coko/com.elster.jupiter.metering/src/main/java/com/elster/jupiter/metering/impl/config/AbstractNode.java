@@ -21,11 +21,11 @@ public abstract class AbstractNode implements ExpressionNode {
     // ORM inheritance map
     public static final Map<String, Class<? extends ExpressionNode>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ExpressionNode>>of(
-                    com.elster.jupiter.metering.config.ConstantNode.TYPE_IDENTIFIER, ConstantNodeImpl.class,
-                    com.elster.jupiter.metering.config.FunctionCallNode.TYPE_IDENTIFIER, FunctionCallNodeImpl.class,
-                    com.elster.jupiter.metering.config.OperationNode.TYPE_IDENTIFIER, OperationNodeImpl.class,
-                    com.elster.jupiter.metering.config.ReadingTypeDeliverableNode.TYPE_IDENTIFIER, ReadingTypeDeliverableNodeImpl.class,
-                    com.elster.jupiter.metering.config.ReadingTypeRequirementNode.TYPE_IDENTIFIER, ReadingTypeRequirementNodeImpl.class
+                    com.elster.jupiter.metering.impl.config.ConstantNodeImpl.TYPE_IDENTIFIER, ConstantNodeImpl.class,
+                    com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl.TYPE_IDENTIFIER, FunctionCallNodeImpl.class,
+                    com.elster.jupiter.metering.impl.config.OperationNodeImpl.TYPE_IDENTIFIER, OperationNodeImpl.class,
+                    com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNodeImpl.TYPE_IDENTIFIER, ReadingTypeDeliverableNodeImpl.class,
+                    com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNodeImpl.TYPE_IDENTIFIER, ReadingTypeRequirementNodeImpl.class
             );
 
     private long id;

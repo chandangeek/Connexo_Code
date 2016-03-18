@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  */
 public interface ConstantNode extends ExpressionNode {
 
-    String TYPE_IDENTIFIER = "CST";
+
 
     BigDecimal getValue();
 }

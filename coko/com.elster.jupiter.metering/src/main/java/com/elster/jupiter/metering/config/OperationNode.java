@@ -5,7 +5,7 @@ package com.elster.jupiter.metering.config;
  */
 public interface OperationNode extends ExpressionNode {
 
-    String TYPE_IDENTIFIER = "OPR";
+
 
     Operator getOperator();
 
