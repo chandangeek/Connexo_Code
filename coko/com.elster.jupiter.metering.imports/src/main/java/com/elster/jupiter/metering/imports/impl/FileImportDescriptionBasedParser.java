@@ -20,9 +20,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class FileImportDescriptionBasedParser<T extends FileImportRecord> implements FileImportParser<T> {
+
+    private static final String MRID_FIELD = "mRID";
+    private static final String SERVICEKIND_FIELD = "serviceKind";
+    private static final String CUSTOM_PROPERTY_FIELD = "customPropertySetValue";
+    private static final String CUSTOM_PROPERTY_TIME_FIELD = "customPropertySetTime";
 
     private final FileImportDescription<T> descriptor;
     private final MeteringDataImporterContext context;
@@ -50,20 +56,51 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
 
         for (Map.Entry<String, FileImportField<?>> field : fields.entrySet()
                 .stream()
-                .filter(f -> !f.getKey().equals("customPropertySetValue") && csvRecord.isMapped(f.getKey()))
+                .filter(f -> !f.getKey().equals(CUSTOM_PROPERTY_FIELD) && csvRecord.isMapped(f.getKey()))
                 .collect(Collectors.toList())) {
-            try {
-                FieldSetter fieldSetter = field.getValue().getSetter();
-                FieldParser parser = field.getValue().getParser();
-                fieldSetter.setFieldWithHeader(field.getKey(), parser.parse(csvRecord.get(field.getKey())));
-            } catch (ValueParserException ex) {
-                throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(), field.getKey(), ex
-                        .getExpected());
+            if (field.getValue().isMandatory() && (csvRecord.toMap().entrySet().stream()
+                    .allMatch(e -> !e.getKey().equalsIgnoreCase(field.getKey()) || Checks.is(csvRecord.get(e.getKey()))
+                            .emptyOrOnlyWhiteSpace()))) {
+                throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), field
+                        .getKey());
             }
         }
 
-        FieldSetter fieldSetter = fields.get("customPropertySetValue").getSetter();
-        FieldParser dateParser = fields.get("customPropertySetTime").getParser();
+        for (Map.Entry<String, String> entry : csvRecord.toMap().entrySet()) {
+            Optional<FileImportField<?>> field = fields.entrySet()
+                    .stream()
+                    .filter(e -> e.getKey().equalsIgnoreCase(entry.getKey()))
+                    .map(Map.Entry::getValue)
+                    .findFirst();
+            if (field.isPresent()) {
+                if (field.get()
+                        .isMandatory() && csvRecord.isMapped(entry.getKey()) && Checks.is(csvRecord.get(entry.getKey()))
+                        .emptyOrOnlyWhiteSpace()) {
+                    throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), field
+                            .get()
+                            .getFieldName());
+                }
+                try {
+                    FieldSetter fieldSetter = field.get().getSetter();
+                    FieldParser parser = field.get().getParser();
+                    fieldSetter.setFieldWithHeader(field.get()
+                            .getFieldName(), parser.parse(csvRecord.get(entry.getKey())));
+                } catch (ValueParserException ex) {
+                    throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(), field
+                            .get()
+                            .getFieldName(), ex
+                            .getExpected());
+                }
+            }
+        }
+
+        return parseCustomProperties(record, csvRecord, fields);
+    }
+
+    private T parseCustomProperties(T record, CSVRecord csvRecord, Map<String, FileImportField<?>> fields) {
+        Map<String, String> csvRecordMap = csvRecord.toMap();
+        FieldSetter fieldSetter = fields.get(CUSTOM_PROPERTY_FIELD).getSetter();
+        FieldParser dateParser = fields.get(CUSTOM_PROPERTY_TIME_FIELD).getParser();
         Map<CustomPropertySet, CustomPropertySetRecord> customPropertySetValues = new HashMap<>();
         for (RegisteredCustomPropertySet rset : context.getCustomPropertySetService()
                 .findActiveCustomPropertySets(UsagePoint.class)) {
@@ -72,29 +109,43 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
             CustomPropertySetValues values = CustomPropertySetValues.empty();
 
             if (dateParser instanceof DateParser) {
-                if (csvRecord.isMapped(set.getId() + ".versionId")) {
-                    customPropertySetRecord.setVersionId(((DateParser) dateParser).parse(csvRecord.get(set.getId() + ".versionId")));
-                }
-                if (csvRecord.isMapped(set.getId() + ".startTime")) {
-                    customPropertySetRecord.setStartTime(((DateParser) dateParser).parse(csvRecord.get(set.getId() + ".startTime")));
-                }
-                if (csvRecord.isMapped(set.getId() + ".endTime")) {
-                    customPropertySetRecord.setEndTime(((DateParser) dateParser).parse(csvRecord.get(set.getId() + ".endTime")));
-                }
+                csvRecordMap.entrySet()
+                        .stream()
+                        .filter(r -> r.getKey().equalsIgnoreCase(set.getId() + ".versionId"))
+                        .findFirst()
+                        .ifPresent(r -> customPropertySetRecord.setVersionId(((DateParser) dateParser).parse(r.getValue())));
+                csvRecordMap.entrySet()
+                        .stream()
+                        .filter(r -> r.getKey().equalsIgnoreCase(set.getId() + ".startTime"))
+                        .findFirst()
+                        .ifPresent(r -> customPropertySetRecord.setStartTime(((DateParser) dateParser).parse(r.getValue())));
+                csvRecordMap.entrySet()
+                        .stream()
+                        .filter(r -> r.getKey().equalsIgnoreCase(set.getId() + ".endTime"))
+                        .findFirst()
+                        .ifPresent(r -> customPropertySetRecord.setEndTime(((DateParser) dateParser).parse(r.getValue())));
             }
 
             Map<Class, FieldParser> parsers = descriptor.getParsers();
             for (Object spec : set.getPropertySpecs()) {
                 try {
-                    if (spec instanceof PropertySpec && csvRecord.isMapped(set.getId() + "." + ((PropertySpec) spec).getName())) {
-                        FieldParser parser = parsers.get(((PropertySpec) spec).getValueFactory().getValueType());
-                        if (parser != null) {
-                            values.setProperty(((PropertySpec) spec).getName(), parser.parse(csvRecord.get(set.getId() + "." + ((PropertySpec) spec)
-                                    .getName())));
-                        } else {
-                            values.setProperty(((PropertySpec) spec).getName(), ((PropertySpec) spec).getValueFactory()
-                                    .fromStringValue(csvRecord.get(set.getId() + "." + ((PropertySpec) spec).getName())));
+                    if (spec instanceof PropertySpec) {
+                        Optional<String> propertyValue = csvRecordMap.entrySet()
+                                .stream()
+                                .filter(r -> r.getKey()
+                                        .equalsIgnoreCase(set.getId() + "." + ((PropertySpec) spec).getName()))
+                                .map(Map.Entry::getValue)
+                                .findFirst();
+                        if (propertyValue.isPresent()) {
+                            FieldParser parser = parsers.get(((PropertySpec) spec).getValueFactory().getValueType());
+                            if (parser != null) {
+                                values.setProperty(((PropertySpec) spec).getName(), parser.parse(propertyValue.get()));
+                            } else {
+                                values.setProperty(((PropertySpec) spec).getName(), ((PropertySpec) spec).getValueFactory()
+                                        .fromStringValue(propertyValue.get()));
+                            }
                         }
+
                     }
                 } catch (ValueParserException ex) {
                     throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(), ((PropertySpec) spec)
@@ -109,7 +160,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                 customPropertySetValues.put(set, customPropertySetRecord);
             }
         }
-        fieldSetter.setFieldWithHeader("customPropertySetValue", customPropertySetValues);
+        fieldSetter.setFieldWithHeader(CUSTOM_PROPERTY_FIELD, customPropertySetValues);
 
         return record;
     }

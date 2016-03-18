@@ -66,7 +66,6 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
         fields.put("installationTime", CommonField.withParser(dateParser)
                 .withSetter(record::setInstallationTime)
                 .withName("installationTime")
-                .markMandatory()
                 .build());
         fields.put("serviceLocationString", CommonField.withParser(stringParser)
                 .withSetter(record::setServiceLocationString)

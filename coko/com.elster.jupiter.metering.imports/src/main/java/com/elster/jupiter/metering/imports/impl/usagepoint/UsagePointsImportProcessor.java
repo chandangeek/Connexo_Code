@@ -370,7 +370,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                         .validateCustomPropertySetValues(usagePointCustomPropertySet.getCustomPropertySet(), values);
             } else {
                 throw new ProcessorException(MessageSeeds.IMPORT_VERSIONED_VALUES_NOT_FOUND, customPropertySetRecord.getLineNumber(), customPropertySetRecord
-                        .getStartTime()
+                        .getVersionId().get()
                         .toString());
             }
         } else {
@@ -401,7 +401,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                                         .get());
             } else {
                 throw new ProcessorException(MessageSeeds.IMPORT_VERSIONED_VALUES_NOT_FOUND, customPropertySetRecord.getLineNumber(), customPropertySetRecord
-                        .getStartTime()
+                        .getVersionId().get()
                         .toString());
             }
         } else {

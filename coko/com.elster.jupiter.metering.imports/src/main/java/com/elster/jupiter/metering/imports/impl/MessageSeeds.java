@@ -15,7 +15,7 @@ public enum MessageSeeds implements MessageSeed {
 
     MISSING_TITLE_ERROR(4, "TitleMissingError", "File format error: wrong number of title columns in the first line. Importer service expects {0} but was {1}.", Level.SEVERE),
     FILE_FORMAT_ERROR(5, "FileFormatError", "File format error: wrong number of columns in the line {0}. Importer service expects {1} but was {2}.", Level.SEVERE),
-    LINE_MISSING_VALUE_ERROR(6, "LineMissingValueError", "Format error for line {0}: missing value for column {1}.", Level.SEVERE),
+    LINE_MISSING_VALUE_ERROR(6, "LineMissingValueError", "Format error for line {0}: missing mandatory value for column {1}.", Level.SEVERE),
     LINE_FORMAT_ERROR(7, "LineFormatError", "Format error for line {0}: wrong value format for column {1} (expected format = ''{2}'')", Level.SEVERE),
     UPDATE_NOT_ALLOWED(8, Constants.UPDATE_NOT_ALLOWED, "Can''t process line {0}: Update not allowed", Level.SEVERE),
 
