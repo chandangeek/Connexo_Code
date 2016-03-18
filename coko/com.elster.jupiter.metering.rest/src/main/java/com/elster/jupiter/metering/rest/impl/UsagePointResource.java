@@ -78,7 +78,7 @@ public class UsagePointResource {
     @Transactional
     public UsagePointInfo updateUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo info) {
         UsagePoint usagePoint = meteringService.findAndLockUsagePointByIdAndVersion(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
                         .withActualVersion(() -> meteringService.findUsagePoint(mRID).map(UsagePoint::getVersion).orElse(Long.valueOf(0)))
                         .supplier());
         info.writeTo(usagePoint);
