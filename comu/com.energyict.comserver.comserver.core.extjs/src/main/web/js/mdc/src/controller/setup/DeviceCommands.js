@@ -391,6 +391,9 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             releaseDate && record.set('releaseDate', releaseDate);
             messageSpecification && record.set('messageSpecification', messageSpecification);
             record.set('status', null);
+            if (commandForm.getValues().trackingCategory === "") {
+                record.set('trackingCategory', null);
+            }
             record.endEdit();
             record.save({
                 url: '/api/ddr/devices/' + encodeURIComponent(btn.mRID) + '/devicemessages',
