@@ -83,7 +83,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Integration tests for the {@link DataAggregationServiceImpl#calculate(UsagePoint, MetrologyContract, Range)} method
- * when temparature conversion (K, °C, °F) is required.
+ * when temperature conversion (K, °C, °F) is required.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-03-04 (10:55)
@@ -403,7 +403,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
      *    meter activations:
      *       Jan 1st 2015 -> forever
      *           minT -> 15 min °C
-     *           minT -> 15 min °F
+     *           maxT -> 15 min °F
      * In other words, the requirement is provided by exactly
      * one matching channel from a single meter activation
      * but the temparature channel needs to be converted from
@@ -482,7 +482,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT -1, rid97_99_1\\.timestamp,.*");
-            // Assert that the max temperature requirements' value is not coverted
+            // Assert that the min temperature requirements' value is not converted
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT.*\\(rid97_99_1\\.value\\s*\\+\\s*\\(.*");
             verify(clauseAwareSqlBuilder).select();

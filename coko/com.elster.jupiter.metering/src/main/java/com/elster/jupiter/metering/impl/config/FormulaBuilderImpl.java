@@ -1,13 +1,14 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
-import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
@@ -57,6 +58,10 @@ public class FormulaBuilderImpl implements FormulaBuilder {
 
     public ExpressionNodeBuilder requirement(ReadingTypeRequirement value) {
         return () -> new ReadingTypeRequirementNodeImpl(value);
+    }
+
+    public ExpressionNodeBuilder requirement(ReadingTypeRequirementNode existingNode) {
+        return () -> existingNode;
     }
 
     public ExpressionNodeBuilder constant(BigDecimal value) {

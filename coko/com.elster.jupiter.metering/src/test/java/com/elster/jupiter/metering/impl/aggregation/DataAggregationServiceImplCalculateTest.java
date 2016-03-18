@@ -1,12 +1,13 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
@@ -17,6 +18,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
@@ -167,17 +169,20 @@ public class DataAggregationServiceImplCalculateTest {
         // Setup meter activations
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getUsagePoint()).thenReturn(Optional.of(this.usagePoint));
+        when(meterActivation.getMultiplier(any(MultiplierType.class))).thenReturn(Optional.empty());
         Interval year2015 = Interval.startAt(jan1st2015());
         when(meterActivation.getInterval()).thenReturn(year2015);
         when(meterActivation.getRange()).thenReturn(year2015.toClosedOpenRange());
         when(meterActivation.overlaps(aggregationPeriod)).thenReturn(true);
         doReturn(Collections.singletonList(meterActivation)).when(this.usagePoint).getMeterActivations();
         ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0");
-        Channel chn1 = mock(Channel.class);
+        ChannelContract chn1 = mock(ChannelContract.class);
         when(chn1.getMainReadingType()).thenReturn(consumptionReadingType15min);
+        when(virtualConsumption.getPreferredChannel()).thenReturn(chn1);
         ReadingType productionReadingType15min = this.mock15minReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
-        Channel chn2 = mock(Channel.class);
+        ChannelContract chn2 = mock(ChannelContract.class);
         when(chn2.getMainReadingType()).thenReturn(productionReadingType15min);
+        when(virtualProduction.getPreferredChannel()).thenReturn(chn2);
         when(consumption.getMatchesFor(meterActivation)).thenReturn(Collections.singletonList(productionReadingType15min));
         when(consumption.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(chn1));
         when(production.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(chn2));
@@ -268,17 +273,20 @@ public class DataAggregationServiceImplCalculateTest {
         // Setup meter activations
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getUsagePoint()).thenReturn(Optional.of(this.usagePoint));
+        when(meterActivation.getMultiplier(any(MultiplierType.class))).thenReturn(Optional.empty());
         Interval year2015 = Interval.startAt(jan1st2015());
         when(meterActivation.getInterval()).thenReturn(year2015);
         when(meterActivation.getRange()).thenReturn(year2015.toClosedOpenRange());
         when(meterActivation.overlaps(aggregationPeriod)).thenReturn(true);
         doReturn(Collections.singletonList(meterActivation)).when(this.usagePoint).getMeterActivations();
         ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0");
-        Channel chn1 = mock(Channel.class);
+        ChannelContract chn1 = mock(ChannelContract.class);
         when(chn1.getMainReadingType()).thenReturn(consumptionReadingType15min);
         ReadingType productionReadingType15min = this.mock15minReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
-        Channel chn2 = mock(Channel.class);
+        when(virtualConsumption.getPreferredChannel()).thenReturn(chn1);
+        ChannelContract chn2 = mock(ChannelContract.class);
         when(chn2.getMainReadingType()).thenReturn(productionReadingType15min);
+        when(virtualProduction.getPreferredChannel()).thenReturn(chn2);
         when(consumption.getMatchesFor(meterActivation)).thenReturn(Collections.singletonList(productionReadingType15min));
         when(consumption.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(chn1));
         when(production.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(chn2));
@@ -328,6 +336,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
         return readingType;
     }
 

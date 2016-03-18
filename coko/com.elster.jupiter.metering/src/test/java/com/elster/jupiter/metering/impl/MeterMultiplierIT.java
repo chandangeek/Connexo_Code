@@ -26,9 +26,17 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.time.ZonedDateTime;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,12 +45,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -54,8 +56,6 @@ public class MeterMultiplierIT {
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
-    private Injector injector;
-
     private static final ZonedDateTime ACTIVE_DATE = ZonedDateTime.of(2014, 4, 9, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
 
     @Mock
@@ -65,17 +65,15 @@ public class MeterMultiplierIT {
     @Mock
     private EventAdmin eventAdmin;
 
-
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private Injector injector;
     private Meter meter;
     private MeterActivation meterActivation;
     private MultiplierType multiplierType;
     private MeteringService meteringService;
     private TransactionService transactionService;
 
-
     private class MockModule extends AbstractModule {
-
         @Override
         protected void configure() {
             bind(UserService.class).toInstance(userService);
@@ -124,17 +122,6 @@ public class MeterMultiplierIT {
     }
 
     @Test
-    public void testCreateMultiplierType() {
-        createAndActivateMeter();
-
-        // business method
-        createMultiplierType();
-
-        assertThat(meteringService.getMultiplierType(MULTIPLIER_TYPE_NAME)).contains(multiplierType);
-
-    }
-
-    @Test
     public void testSetMultiplier() {
         createAndActivateMeter();
         createMultiplierType();
@@ -167,6 +154,5 @@ public class MeterMultiplierIT {
         meter = meteringService.findMeter(meter.getId()).get();
         meterActivation = meter.getMeterActivations().get(0);
     }
-
 
 }
