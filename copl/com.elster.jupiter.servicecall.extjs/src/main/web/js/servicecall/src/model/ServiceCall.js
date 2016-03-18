@@ -45,8 +45,9 @@ Ext.define('Scs.model.ServiceCall', {
             }
         },
         {
-            name: 'creationTimeDisplay',
+            name: 'creationTimeDisplayLong',
             type: 'string',
+            persist: false,
             convert: function (value, record) {
                 var creationTime = record.get('creationTime');
                 if (creationTime && (creationTime !== 0)) {
@@ -56,8 +57,9 @@ Ext.define('Scs.model.ServiceCall', {
             }
         },
         {
-            name: 'lastModificationTimeDisplay',
+            name: 'lastModificationTimeDisplayLong',
             type: 'string',
+            persist: false,
             convert: function (value, record) {
                 var lastModificationTime = record.get('lastModificationTime');
                 if (lastModificationTime && (lastModificationTime !== 0)) {
@@ -67,8 +69,33 @@ Ext.define('Scs.model.ServiceCall', {
             }
         },
         {
+            name: 'creationTimeDisplayShort',
+            type: 'string',
+            persist: false,
+            convert: function (value, record) {
+                var creationTime = record.get('creationTime');
+                if (creationTime && (creationTime !== 0)) {
+                    return Uni.DateTime.formatDateTimeShort(new Date(creationTime));
+                }
+                return '-';
+            }
+        },
+        {
+            name: 'lastModificationTimeDisplayShort',
+            type: 'string',
+            persist: false,
+            convert: function (value, record) {
+                var lastModificationTime = record.get('lastModificationTime');
+                if (lastModificationTime && (lastModificationTime !== 0)) {
+                    return Uni.DateTime.formatDateTimeShort(new Date(lastModificationTime));
+                }
+                return '-';
+            }
+        },
+        {
             name: 'lastCompletedTimeDisplay',
             type: 'string',
+            persist: false,
             convert: function (value, record) {
                 var lastCompletedTime = record.get('lastModificationTime');
                 if (lastCompletedTime && (lastCompletedTime !== 0)) {

@@ -125,13 +125,13 @@ Ext.define('Scs.view.PreviewForm', {
                     {
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate('general.receivedDate', 'SCS', 'Received date'),
-                        name: 'creationTimeDisplay',
+                        name: 'creationTimeDisplayLong',
                         hidden: !me.detailed
                     },
                     {
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate('general.modificationDate', 'SCS', 'Modification date'),
-                        name: 'lastModificationTimeDisplay',
+                        name: 'lastModificationTimeDisplayLong',
                         hidden: !me.detailed
                     },
                     {
