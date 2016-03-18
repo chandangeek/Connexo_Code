@@ -312,6 +312,13 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
+    public Finder<ServiceCall> getServiceCallFinder() {
+        return DefaultFinder.of(ServiceCall.class, dataModel)
+                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
+                .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
+    }
+
+    @Override
     public Map<DefaultState, Long> getChildrenStatus(long id) {
         HashMap<DefaultState, Long> childrenStateCount = new HashMap<>();
         SqlBuilder sqlBuilder = new SqlBuilder();

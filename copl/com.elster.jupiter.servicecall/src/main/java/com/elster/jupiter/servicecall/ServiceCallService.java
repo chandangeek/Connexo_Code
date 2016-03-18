@@ -84,9 +84,17 @@ public interface ServiceCallService {
     /**
      * Returns a finder which allows you to filter the found service calls
      *
-     * @return ServiceCallFinder
+     * @param serviceCallFilter a filter for servicecalls
+     * @return Finder
      */
     Finder<ServiceCall> getServiceCallFinder(ServiceCallFilter serviceCallFilter);
+
+    /**
+     * Returns a finder for servicecalls
+     *
+     * @return Finder
+     */
+    Finder<ServiceCall> getServiceCallFinder();
 
     /**
      * Returns information about the status of the children in a given service call
