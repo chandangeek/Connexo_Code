@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.impl.aggregation.TemporaryDimension;
 import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
@@ -41,6 +42,8 @@ public class ConstantNodeImpl extends AbstractNode implements ConstantNode {
     public Dimension getDimension() {
        return Dimension.DIMENSIONLESS;
     }
+
+
 
 
 }
