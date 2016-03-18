@@ -34,12 +34,15 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.rest.whiteboard.impl.RestWhiteboardModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.servicecall.rest.impl.ServiceCallRestModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -159,6 +162,7 @@ public class InMemoryIntegrationPersistence {
     private ValidationService validationService;
     private EstimationService estimationService;
     private ServiceCallService serviceCallService;
+    private ServiceCallInfoFactory serviceCallInfoFactory;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
@@ -246,7 +250,9 @@ public class InMemoryIntegrationPersistence {
                 new TasksModule(),
                 new DeviceDataModule(),
                 new SchedulingModule(),
-                new ServiceCallModule());
+                new RestWhiteboardModule(),
+                new ServiceCallModule(),
+                new ServiceCallRestModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
@@ -264,6 +270,7 @@ public class InMemoryIntegrationPersistence {
             this.validationService = injector.getInstance(ValidationService.class);
             this.estimationService = injector.getInstance(EstimationService.class);
             this.serviceCallService = injector.getInstance(ServiceCallService.class);
+            this.serviceCallInfoFactory = injector.getInstance(ServiceCallInfoFactory.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
@@ -455,6 +462,10 @@ public class InMemoryIntegrationPersistence {
 
     public ServiceCallService getServiceCallService() {
         return serviceCallService;
+    }
+
+    public ServiceCallInfoFactory getServiceCallInfoFactory() {
+        return serviceCallInfoFactory;
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {

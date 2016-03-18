@@ -9,8 +9,10 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
@@ -693,13 +695,15 @@ public class DeviceResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("{mRID}/servicecallhistory")
-    public PagedInfoList getServiceCallHistoryFor(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+    public PagedInfoList getServiceCallHistoryFor(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
-        Set<DefaultState> states = EnumSet.allOf(DefaultState.class);
 
-        serviceCallService.findServiceCalls(device, states)
+        ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
+        //filter.setTargetObject(device);
+        serviceCallService.getServiceCallFinder(filter)
                 .stream()
+                .filter(serviceCall -> serviceCall.getTargetObject().map(device::equals).orElse(false))
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
