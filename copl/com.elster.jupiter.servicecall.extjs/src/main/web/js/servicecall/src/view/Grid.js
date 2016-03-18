@@ -46,12 +46,12 @@ Ext.define('Scs.view.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.receivedDate', 'SCS', 'Received date'),
-                dataIndex: 'creationTimeDisplay',
+                dataIndex: 'creationTimeDisplayShort',
                 flex: 1
             },
             {
                 header: Uni.I18n.translate('general.modificationDate', 'SCS', 'Modification date'),
-                dataIndex: 'lastModificationTimeDisplay',
+                dataIndex: 'lastModificationTimeDisplayShort',
                 flex: 1
             }/*,
             {

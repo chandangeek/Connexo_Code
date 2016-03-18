@@ -13,7 +13,7 @@ Ext.define('Scs.model.Log', {
             convert: function (value, record) {
                 var timestamp = record.get('timestamp');
                 if (timestamp && (timestamp !== 0)) {
-                    return Uni.DateTime.formatDateTimeLong(new Date(timestamp));
+                    return Uni.DateTime.formatDateTimeShort(new Date(timestamp));
                 }
                 return '-';
             }
