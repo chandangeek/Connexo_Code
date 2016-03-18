@@ -162,6 +162,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         }
         InstallerImpl installer = new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, messageService, createAllReadingTypes, requiredReadingTypes, clock);
         installer.install();
+        new CreateLocationMemberTableOperation(dataModel,locationTemplate).execute();
         installer.addDefaultData();
     }
 

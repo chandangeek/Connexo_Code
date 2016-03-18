@@ -187,8 +187,6 @@ public enum TableSpecs {
                     .onDelete(RESTRICT)
                     .map("locationId")
                     .add();
-            table.unique("MTR_U_LOCATIONMEMBER_ZIPCODE").on(zipcodeColumn).add();
-            //table.index("MTR_IDX_STREETNAME").on(streetNameColumn).add();
         }
     },
 
