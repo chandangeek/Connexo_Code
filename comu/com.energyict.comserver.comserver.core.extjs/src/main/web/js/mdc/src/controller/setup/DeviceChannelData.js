@@ -268,7 +268,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         filter.options = [
             {
                 display: Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect'),
-                value: 'suspect'
+                value: 'suspect',
+                itemId: 'devicechannels-topfilter-suspect'
             }
         ];
         if (contentName === 'block') {
@@ -277,7 +278,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         } else {
             filter.options.push({
                 display: Uni.I18n.translate('validationStatus.ok', 'MDC', 'Not suspect'),
-                value: 'nonSuspect'
+                value: 'nonSuspect',
+                itemId: 'devicechannels-topfilter-notsuspect'
             });
             filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart((channel.get('lastReading') || new Date()));
         }
