@@ -723,7 +723,7 @@ public class BpmResource {
     @POST
     @Path("/managetasks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.EXECUTE_TASK)
+    @RolesAllowed({Privileges.Constants.EXECUTE_TASK, Privileges.Constants.ASSIGN_TASK})
     public Response manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String result;
