@@ -172,7 +172,7 @@ public class ServiceCallCommands {
     }
 
     public void hook() {
-        System.out.println("Usage: hook <device id> <# clocks>");
+        System.out.println("Usage: hook <device id>");
     }
 
     public void hook(long deviceId) {
