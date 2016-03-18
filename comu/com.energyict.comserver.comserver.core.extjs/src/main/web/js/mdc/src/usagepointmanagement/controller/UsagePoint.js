@@ -166,6 +166,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
 
         me.getAddUsagePointPanel().down('#add-edit-form').getForm().clearInvalid();
         usagePointModel.save({
+            backUrl:  router.getRoute('usagepoints/usagepoint').buildUrl(),
             success: function (record) {
                 if (btn.action == 'save') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.added', 'MDC', "Usage point '{0}' saved.", record.get('mRID')));
