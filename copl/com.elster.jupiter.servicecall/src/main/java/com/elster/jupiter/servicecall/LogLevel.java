@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
 /**
+ * Sorted list of known log levels
  * Created by bvn on 2/10/16.
  */
 public enum LogLevel implements TranslationKey {

@@ -2,8 +2,11 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
@@ -11,11 +14,18 @@ import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
+import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Clock;
@@ -24,8 +34,20 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
+import static java.util.Arrays.fill;
+
 public class ServiceCallImpl implements ServiceCall {
-    public static final NumberFormat NUMBER_PREFIX = new DecimalFormat("SC_00000000");
+    static final int ZEROFILL_SIZE = 8;
+    private static final NumberFormat NUMBER_PREFIX = createFormat();
+
+    private static NumberFormat createFormat() {
+        char[] zeroFillChars = new char[ZEROFILL_SIZE];
+        fill(zeroFillChars, '0');
+        return new DecimalFormat("SC_" + new String(zeroFillChars));
+    }
+    private final IServiceCallService serviceCallService;
+    private final JsonService jsonService;
+
     private long id;
     private Instant lastCompletedTime;
     private String origin;
@@ -75,10 +97,12 @@ public class ServiceCallImpl implements ServiceCall {
 
 
     @Inject
-    ServiceCallImpl(DataModel dataModel, Clock clock, CustomPropertySetService customPropertySetService) {
+    ServiceCallImpl(DataModel dataModel, IServiceCallService serviceCallService, Clock clock, CustomPropertySetService customPropertySetService, JsonService jsonService) {
         this.dataModel = dataModel;
+        this.serviceCallService = serviceCallService;
         this.clock = clock;
         this.customPropertySetService = customPropertySetService;
+        this.jsonService = jsonService;
     }
 
     static ServiceCallImpl from(DataModel dataModel, IServiceCallType type) {
@@ -125,10 +149,13 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public void setState(DefaultState defaultState) {
-        // TODO invoke FSM checks, for now a plain setter
-        this.state.set(asState(defaultState));
+    public void requestTransition(DefaultState defaultState) {
+        getType().getServiceCallLifeCycle()
+                .triggerTransition(this, defaultState);
+    }
 
+    void setState(DefaultState defaultState) {
+        this.state.set(asState(defaultState));
     }
 
     private State asState(DefaultState state) {
@@ -169,12 +196,17 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void cancel() {
-
+        requestTransition(DefaultState.CANCELLED);
     }
 
     @Override
     public IServiceCallType getType() {
         return this.type.orNull();
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
     }
 
     @Override
@@ -185,6 +217,38 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public ServiceCallBuilder newChildCall(ServiceCallType serviceCallType) {
         return ServiceCallBuilderImpl.from(dataModel, this, (IServiceCallType) serviceCallType);
+    }
+
+    @Override
+    public Finder<ServiceCallLog> getLogs() {
+        return DefaultFinder.of(ServiceCallLog.class,
+                Where.where(ServiceCallLogImpl.Fields.serviceCall.fieldName())
+                        .isEqualTo(this), dataModel).sorted(ServiceCallLogImpl.Fields.timestamp.fieldName(), false);
+    }
+
+    @Override
+    public void log(LogLevel logLevel, String message) {
+        if (type.get().getLogLevel().compareTo(logLevel) > -1) {
+            ServiceCallLogImpl instance = ServiceCallLogImpl.from(dataModel, this, message, logLevel, clock.instant(), null);
+            instance.save();
+        }
+    }
+
+    @Override
+    public void log(String message, Exception exception) {
+        LogLevel level = LogLevel.SEVERE;
+        if (type.get().getLogLevel().compareTo(level) > -1) {
+            ServiceCallLogImpl instance = ServiceCallLogImpl.from(dataModel, this, message, level, clock.instant(), stackTrace2String(exception));
+            instance.save();
+        }
+    }
+
+    private String stackTrace2String(Exception e) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (PrintWriter printWriter = new PrintWriter(byteArrayOutputStream)) {
+            e.printStackTrace(printWriter);
+        }
+        return byteArrayOutputStream.toString();
     }
 
     @Override
@@ -214,8 +278,19 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
+    public Finder<ServiceCall> findChildren(ServiceCallFilter filter) {
+        filter.setParent(this);
+        return serviceCallService.getServiceCallFinder(filter);
+    }
+
+    @Override
     public <T extends PersistentDomainExtension<ServiceCall>> Optional<T> getExtensionFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues) {
         return customPropertySetService.getUniqueValuesEntityFor(customPropertySet, this, additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <T extends PersistentDomainExtension<ServiceCall>> CustomPropertySetValues getValuesFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues) {
+        return customPropertySetService.getUniqueValuesFor(customPropertySet, this, additionalPrimaryKeyValues);
     }
 
     @Override
