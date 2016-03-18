@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.comServersGrid',
-    store: Ext.getStore('Mdc.store.ComServers') || Ext.create('Mdc.store.ComServers'),
+    store: 'Mdc.store.ComServers',
     overflowY: 'auto',
     itemId: 'comservergrid',
 
@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.grid.column.Action',
-        'Mdc.view.setup.comserver.ActionMenu'
+        'Mdc.view.setup.comserver.ActionMenu',
+        'Mdc.store.ComServers'
     ],
 
     columns: [
@@ -52,7 +53,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
     dockedItems: [
         {
             xtype: 'pagingtoolbartop',
-            store: 'ComServers',
+            store: 'Mdc.store.ComServers',
             dock: 'top',
             displayMsg: Uni.I18n.translate('comserver.displayMsg', 'MDC', '{0} - {1} of {2} communication servers'),
             displayMoreMsg: Uni.I18n.translate('comserver.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} communication servers'),
@@ -69,7 +70,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
         {
             xtype: 'pagingtoolbarbottom',
             itemsPerPageMsg: Uni.I18n.translate('comserver.itemsPerPageMsg', 'MDC', 'Communication servers per page'),
-            store: 'ComServers',
+            store: 'Mdc.store.ComServers',
             dock: 'bottom'
         }
     ]
