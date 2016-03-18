@@ -53,7 +53,8 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=serviceCalls",
                 "osgi.command.function=log",
                 "osgi.command.function=deleteServiceCallLifeCycle",
-                "osgi.command.function=hierarchy"
+                "osgi.command.function=hierarchy",
+                "osgi.command.function=deleteServiceCall"
         }, immediate = true)
 public class ServiceCallsCommands {
 
@@ -349,6 +350,21 @@ public class ServiceCallsCommands {
     public void hierarchy(String name, String version, long... levels) {
         threadPrincipalService.set(() -> "Console");
         new HierarchyCreator(name, version, levels).create();
+    }
+
+    public void deleteServiceCall() {
+        System.out.println("usage: deleteServiceCall <service call id>");
+        System.out.println("    Deletes the service call, the service call's children and all logs of both the mentioned service call and all children");
+    }
+
+    public void deleteServiceCall(long serviceCallId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.getServiceCall(serviceCallId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such service call"))
+                    .delete();
+            context.commit();
+        }
     }
 
     class HierarchyCreator {
