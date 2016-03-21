@@ -1,10 +1,9 @@
 package com.elster.jupiter.metering.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-
-import aQute.bnd.annotation.ProviderType;
 
 /**
  * Specifies details of a {@link com.elster.jupiter.metering.ReadingType}
@@ -19,12 +18,12 @@ import aQute.bnd.annotation.ProviderType;
 public interface ReadingTypeDeliverable extends HasId, HasName {
 
     /**
-     * Returns the {@link MetrologyConfiguration} that defined
+     * Returns the {@link MetrologyContract} that defined
      * this ReadingTypeDeliverable.
      *
-     * @return The MetrologyConfiguration
+     * @return The MetrologyContract
      */
-    MetrologyConfiguration getMetrologyConfiguration();
+    MetrologyContract getMetrologyContract();
 
     /**
      * Returns the {@link Formula} that defines
@@ -41,4 +40,15 @@ public interface ReadingTypeDeliverable extends HasId, HasName {
      */
     ReadingType getReadingType();
 
+    void setName(String name);
+
+    void setReadingType(ReadingType readingType);
+
+    void setFormula(Formula formula);
+
+    void update();
+
+    void delete();
+
+    long getVersion();
 }

@@ -114,9 +114,9 @@ public class InstallerImpl {
                                         .toCode();
                                 try {
                                     if (meteringService.getEndDeviceEventType(code).isPresent()) {
-                                        LOGGER.finer("Skipping code "+code+": already exists");
+                                        LOGGER.finer("Skipping code " + code + ": already exists");
                                     } else {
-                                        LOGGER.finer("adding code "+code);
+                                        LOGGER.finer("adding code " + code);
                                         meteringService.createEndDeviceEventType(code);
                                     }
                                 } catch (Exception e) {
@@ -178,9 +178,9 @@ public class InstallerImpl {
     }
 
     private void createPartitions(Vault vault) {
-    	Instant start = YearMonth.now(clock).atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
-    	vault.activate(start);
-    	vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));
+        Instant start = YearMonth.now(clock).atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        vault.activate(start);
+        vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));
     }
 
     private void createRecordSpecs() {
@@ -196,12 +196,16 @@ public class InstallerImpl {
         ServiceCategoryImpl serviceCategory = null;
         for (ServiceKind kind : ServiceKind.values()) {
             try {
-                switch (kind){
+                switch (kind) {
                     case ELECTRICITY:
                     case GAS:
                     case WATER:
-                    case HEAT: serviceCategory = meteringService.createServiceCategory(kind, true); break;
-                    default: serviceCategory = meteringService.createServiceCategory(kind, false); break;
+                    case HEAT:
+                        serviceCategory = meteringService.createServiceCategory(kind, true);
+                        break;
+                    default:
+                        serviceCategory = meteringService.createServiceCategory(kind, false);
+                        break;
                 }
                 list.add(serviceCategory);
             } catch (Exception e) {
@@ -220,10 +224,10 @@ public class InstallerImpl {
 
     private void createReadingTypes() {
         try {
-            if(createAllReadingTypes){
+            if (createAllReadingTypes) {
                 List<Pair<String, String>> readingTypes = ReadingTypeGenerator.generate();
                 this.meteringService.createAllReadingTypes(readingTypes);
-            } else if(requiredReadingTypes.length > 0){
+            } else if (requiredReadingTypes.length > 0) {
                 ReadingTypeGenerator.generateSelectedReadingTypes(meteringService, requiredReadingTypes);
             }
         } catch (Exception e) {
@@ -251,10 +255,10 @@ public class InstallerImpl {
             DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(queueDestination, DEFAULT_RETRY_DELAY_IN_SECONDS);
             destinationSpec.activate();
             destinationSpec.subscribe(queueSubscriber);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.log(Level.WARNING, e.getMessage(), e);
         }
     }
+}
 
 }

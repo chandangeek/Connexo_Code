@@ -65,6 +65,7 @@ public class MeteringServiceImplTest {
     public void setUp() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
+        when(dataModel.getTable(anyString())).thenReturn(table);
         when(dataModel.getInstance(ServiceLocationImpl.class)).thenReturn(new ServiceLocationImpl(dataModel, eventService));
         when(table.addIntervalColumns(anyString())).thenReturn(Arrays.asList(column1, column2));
         when(dataModel.mapper(ReadingType.class)).thenReturn(readingTypeFactory);

@@ -20,16 +20,33 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeTemplate;
+import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
+import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
+import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeAttributeValueImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateAttributeImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateAttributeValueImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateImpl;
+import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
 import com.elster.jupiter.orm.Column;
@@ -44,6 +61,7 @@ import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
@@ -51,6 +69,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
@@ -456,9 +475,9 @@ public enum TableSpecs {
                     .add();
             table.unique("MTR_U_READINGQUALITY").on(channelColumn, timestampColumn, typeColumn, readingTypeColumn).add();
             table
-                .index("MTR_READINGQUALITY_VAL_OVERVW")
-                .on(channelColumn, typeColumn, actual)
-                .add();
+                    .index("MTR_READINGQUALITY_VAL_OVERVW")
+                    .on(channelColumn, typeColumn, actual)
+                    .add();
         }
     },
     MTR_ENDDEVICEEVENTTYPE {
@@ -584,10 +603,17 @@ public enum TableSpecs {
             table.map(MetrologyConfigurationImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column(MetrologyConfigurationImpl.Fields.NAME.name()).varChar().notNull().map(MetrologyConfigurationImpl.Fields.NAME.fieldName()).add();
-            table.column(MetrologyConfigurationImpl.Fields.ACTIVE.name()).bool().map(MetrologyConfigurationImpl.Fields.ACTIVE.fieldName()).notNull().add();
+            table.column(MetrologyConfigurationImpl.Fields.DESCRIPTION.name()).varChar().map(MetrologyConfigurationImpl.Fields.DESCRIPTION.fieldName()).add();
+            table.column(MetrologyConfigurationImpl.Fields.STATUS.name()).number().conversion(NUMBER2ENUM).map(MetrologyConfigurationImpl.Fields.STATUS.fieldName()).notNull().add();
+            Column serviceCategoryColumn = table.column(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
             table.addAuditColumns();
-            table.unique("MTR_UK_METROLOGYCONFIGURATION").on(name).add();
             table.primaryKey("MTR_PK_METROLOGYCONFIGURATION").on(id).add();
+            table.foreignKey("MTR_FK_METROLOGYCONFIG2SERVCAT")
+                    .references(MTR_SERVICECATEGORY.name())
+                    .on(serviceCategoryColumn)
+                    .map(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.fieldName())
+                    .add();
+            table.unique("MTR_UK_METROLOGYCONFIGURATION").on(name).add();
         }
     },
     MTR_M_CONFIG_CPS_USAGES {
@@ -832,7 +858,7 @@ public enum TableSpecs {
     MTR_FORMULA_NODE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<ExpressionNode> table = dataModel.addTable(name(),ExpressionNode.class);
+            Table<ExpressionNode> table = dataModel.addTable(name(), ExpressionNode.class);
             table.map(AbstractNode.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("NODETYPE", "char(3)");
@@ -851,16 +877,7 @@ public enum TableSpecs {
             //ConstantNodeImpl constantValue
             table.column("CONSTANTVALUE").number().map("constantValue").add();
 
-            // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
-            //todo add foreign key
-            Column readingTypeDeliverableIdColumn = table.column("READINGTYPE_DELIVERABLE").number().conversion(NUMBER2LONG).map("readingTypeDeliverable").add();
-
-            // ReadingTypeRequirementNodeImpl readingTypeRequirement value
-            //todo add foreign key
-            Column readingTypeRequirementIdColumn = table.column("READINGTYPE_REQUIREMENT").number().conversion(NUMBER2LONG).map("readingTypeRequirement").add();
-
             table.primaryKey("MTR_PK_FORMULA_NODE").on(idColumn).add();
-
             table.foreignKey("MTR_VALIDCHILD").references(MTR_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
                     .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").add();
         }
@@ -876,6 +893,352 @@ public enum TableSpecs {
             table.primaryKey("MTR_PK_FORMULA").on(idColumn).add();
             table.foreignKey("MTR_VALIDNODE").references(MTR_FORMULA_NODE.name()).on(expressionNodeColumn).onDelete(CASCADE)
                     .map("expressionNode").add();
+        }
+    },
+
+    MTR_METERROLE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<MeterRole> table = dataModel.addTable(name(), MeterRole.class);
+            table.map(MeterRoleImpl.class);
+            Column nameColumn = table.column(MeterRoleImpl.Fields.KEY.name()).varChar(NAME_LENGTH).notNull().map(MeterRoleImpl.Fields.KEY.fieldName()).add();
+
+            table.primaryKey("MTR_PK_METERROLE").on(nameColumn).add();
+        }
+    },
+
+    MTR_SERVICECAT_METERROLE_USAGE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), ServiceCategoryMeterRoleUsage.class);
+            table.map(ServiceCategoryMeterRoleUsage.class);
+            Column serviceCategory = table.column(ServiceCategoryMeterRoleUsage.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
+            Column meterRole = table.column(ServiceCategoryMeterRoleUsage.Fields.METERROLE.name()).varChar(NAME_LENGTH).notNull().add();
+
+            table.primaryKey("MTR_PK_SERVCATMETERROLE_USAGE").on(serviceCategory, meterRole).add();
+            table.foreignKey("MTR_FK_SERVCATMETERROLE2CAT")
+                    .references(MTR_SERVICECATEGORY.name())
+                    .on(serviceCategory)
+                    .onDelete(CASCADE)
+                    .map(ServiceCategoryMeterRoleUsage.Fields.SERVICECATEGORY.fieldName())
+                    .reverseMap(ServiceCategoryImpl.Fields.METERROLEUSAGE.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("MTR_FK_SERVCATMETERROLE2ROLE")
+                    .references(MeterRole.class)
+                    .on(meterRole)
+                    .onDelete(CASCADE)
+                    .map(ServiceCategoryMeterRoleUsage.Fields.METERROLE.fieldName())
+                    .add();
+        }
+    },
+    MTR_RT_TEMPLATE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), ReadingTypeTemplate.class);
+            table.map(ReadingTypeTemplateImpl.class);
+
+            Column idColumn = table.addAutoIdColumn();
+            table.column(ReadingTypeTemplateImpl.Fields.NAME.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(ReadingTypeTemplateImpl.Fields.NAME.fieldName())
+                    .add();
+            table.addAuditColumns();
+
+            table.primaryKey("MTR_RT_TEMPLATE_PK").on(idColumn).add();
+        }
+    },
+    MTR_RT_TEMPLATE_ATTR {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), ReadingTypeTemplateAttribute.class);
+            table.map(ReadingTypeTemplateAttributeImpl.class);
+
+            Column idColumn = table.addAutoIdColumn();
+            Column templateColumn = table
+                    .column(ReadingTypeTemplateAttributeImpl.Fields.TEMPLATE.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column nameColumn = table.column(ReadingTypeTemplateAttributeImpl.Fields.NAME.name())
+                    .number()
+                    .conversion(NUMBER2ENUM)
+                    .notNull()
+                    .map(ReadingTypeTemplateAttributeImpl.Fields.NAME.fieldName())
+                    .add();
+            table.column(ReadingTypeTemplateAttributeImpl.Fields.CODE.name())
+                    .number()
+                    .conversion(NUMBER2INT)
+                    .map(ReadingTypeTemplateAttributeImpl.Fields.CODE.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_RT_TEMPLATE_ATTR_PK").on(idColumn).add();
+            table.unique("MTR_RT_TEMPLATE_ATTR_UQ").on(templateColumn, nameColumn).add();
+            table.foreignKey("FK_TEMPLATE_ATTR_TO_TEMPLATE")
+                    .references(ReadingTypeTemplate.class)
+                    .on(templateColumn)
+                    .onDelete(CASCADE)
+                    .map(ReadingTypeTemplateAttributeImpl.Fields.TEMPLATE.fieldName())
+                    .reverseMap(ReadingTypeTemplateImpl.Fields.ATTRIBUTES.fieldName())
+                    .composition()
+                    .add();
+        }
+    },
+    MTR_RT_TEMPLATE_ATTR_VALUE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), ReadingTypeTemplateAttributeValueImpl.class);
+            table.map(ReadingTypeTemplateAttributeValueImpl.class);
+
+            Column attrColumn = table
+                    .column(ReadingTypeTemplateAttributeValueImpl.Fields.ATTR.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column valueColumn = table.column(ReadingTypeTemplateAttributeValueImpl.Fields.CODE.name())
+                    .number()
+                    .conversion(NUMBER2INT)
+                    .notNull()
+                    .map(ReadingTypeTemplateAttributeValueImpl.Fields.CODE.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_RT_TPL_ATTR_VALUE_PK").on(attrColumn, valueColumn).add();
+            table.foreignKey("FK_RT_TPL_ATTR_VALUE_TO_ATTR")
+                    .references(ReadingTypeTemplateAttribute.class)
+                    .on(attrColumn)
+                    .onDelete(CASCADE)
+                    .map(ReadingTypeTemplateAttributeValueImpl.Fields.ATTR.fieldName())
+                    .reverseMap(ReadingTypeTemplateAttributeImpl.Fields.POSSIBLE_VALUES.fieldName())
+                    .composition()
+                    .add();
+        }
+    },
+    MTR_RT_REQUIREMENT {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), ReadingTypeRequirement.class);
+            table.map(ReadingTypeRequirementImpl.IMPLEMENTERS);
+
+            Column idColumn = table.addAutoIdColumn();
+            table.column(ReadingTypeRequirementImpl.Fields.NAME.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(ReadingTypeRequirementImpl.Fields.NAME.fieldName())
+                    .add();
+            Column metrologyConfigColumn = table
+                    .column(ReadingTypeRequirementImpl.Fields.METROLOGY_CONFIGURATION.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column meterRoleColumn = table
+                    .column(ReadingTypeRequirementImpl.Fields.METER_ROLE.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .add();
+            Column templateColumn = table
+                    .column(ReadingTypeRequirementImpl.Fields.TEMPLATE.name())
+                    .number()
+                    .add();
+            Column readingTypeColumn = table
+                    .column(ReadingTypeRequirementImpl.Fields.READING_TYPE.name())
+                    .varChar(NAME_LENGTH)
+                    .add();
+            table.addAuditColumns();
+
+            table.primaryKey("MTR_RT_REQUIREMENT_PK").on(idColumn).add();
+            table.foreignKey("FK_RT_REQUIREMENT_TO_M_CONFIG")
+                    .references(MetrologyConfiguration.class)
+                    .on(metrologyConfigColumn)
+                    .map(ReadingTypeRequirementImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .reverseMap(MetrologyConfigurationImpl.Fields.RT_REQUIREMENTS.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_RT_REQUIREMENT_TO_M_ROLE")
+                    .references(MeterRole.class)
+                    .on(meterRoleColumn)
+                    .map(ReadingTypeRequirementImpl.Fields.METER_ROLE.fieldName())
+                    .add();
+            table.foreignKey("FK_RT_REQUIREMENT_TO_TPL")
+                    .references(ReadingTypeTemplate.class)
+                    .on(templateColumn)
+                    .map(ReadingTypeRequirementImpl.Fields.TEMPLATE.fieldName())
+                    .add();
+            table.foreignKey("FK_RT_REQUIREMENT_TO_RT")
+                    .references(ReadingType.class)
+                    .on(readingTypeColumn)
+                    .map(ReadingTypeRequirementImpl.Fields.READING_TYPE.fieldName())
+                    .add();
+        }
+    },
+    MTR_RT_REQUIREMENT_ATTR_VALUE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), PartiallySpecifiedReadingTypeAttributeValueImpl.class);
+            table.map(PartiallySpecifiedReadingTypeAttributeValueImpl.class);
+
+            Column requirementColumn = table
+                    .column(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.READING_TYPE_REQUIREMENT.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column nameColumn = table.column(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.ATTRIBUTE_NAME.name())
+                    .number()
+                    .conversion(NUMBER2ENUM)
+                    .notNull()
+                    .map(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.ATTRIBUTE_NAME.fieldName())
+                    .add();
+            table.column(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.CODE.name())
+                    .number()
+                    .conversion(NUMBER2INT)
+                    .notNull()
+                    .map(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.CODE.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_RT_REQ_ATTR_VALUE_PK").on(requirementColumn, nameColumn).add();
+            table.foreignKey("FK_RT_REQ_ATTR_VALUE_TO_RT_REQ")
+                    .references(ReadingTypeRequirement.class)
+                    .on(requirementColumn)
+                    .onDelete(CASCADE)
+                    .map(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.READING_TYPE_REQUIREMENT.fieldName())
+                    .reverseMap(ReadingTypeRequirementImpl.Fields.ATTRIBUTES.fieldName())
+                    .composition()
+                    .add();
+        }
+    },
+    MTR_METROLOGY_PURPOSE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), MetrologyPurpose.class);
+            table.map(MetrologyPurposeImpl.class);
+
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column(MetrologyPurposeImpl.Fields.NAME.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(MetrologyPurposeImpl.Fields.NAME.fieldName())
+                    .add();
+            table.column(MetrologyPurposeImpl.Fields.DESCRIPTION.name())
+                    .varChar(DESCRIPTION_LENGTH)
+                    .map(MetrologyPurposeImpl.Fields.DESCRIPTION.fieldName())
+                    .add();
+            table.column(MetrologyPurposeImpl.Fields.DEFAULT_PURPOSE.name())
+                    .number()
+                    .conversion(NUMBER2ENUM)
+                    .map(MetrologyPurposeImpl.Fields.DEFAULT_PURPOSE.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_METROLOGY_PURPOSE_PK").on(idColumn).add();
+            table.unique("MTR_METROLOGY_PURPOSE_NAME_UQ").on(nameColumn).add();
+        }
+    },
+    MTR_METROLOGY_CONTRACT {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), MetrologyContract.class);
+            table.map(MetrologyContractImpl.class);
+
+            Column idColumn = table.addAutoIdColumn();
+            Column metrologyConfigColumn = table
+                    .column(MetrologyContractImpl.Fields.METROLOGY_CONFIG.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column metrologyPurposeColumn = table
+                    .column(MetrologyContractImpl.Fields.METROLOGY_PURPOSE.name())
+                    .number()
+                    .notNull()
+                    .add();
+            table.column(MetrologyContractImpl.Fields.MANDATORY.name())
+                    .bool()
+                    .notNull()
+                    .map(MetrologyContractImpl.Fields.MANDATORY.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_METROLOGY_CONTRACT_PK").on(idColumn).add();
+            table.unique("MTR_METROLOGY_CONTRACT_UQ").on(metrologyConfigColumn, metrologyPurposeColumn).add();
+            table.foreignKey("MTR_CONTRACT_TO_M_CONFIG")
+                    .references(MetrologyConfiguration.class)
+                    .on(metrologyConfigColumn)
+                    .onDelete(CASCADE)
+                    .map(MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName())
+                    .reverseMap(MetrologyConfigurationImpl.Fields.METROLOGY_CONTRACTS.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("MTR_CONTRACT_TO_M_PURPOSE")
+                    .references(MetrologyPurpose.class)
+                    .on(metrologyPurposeColumn)
+                    .map(MetrologyContractImpl.Fields.METROLOGY_PURPOSE.fieldName())
+                    .add();
+        }
+    },
+    MTR_RT_DELIVERABLE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), ReadingTypeDeliverable.class);
+            table.map(ReadingTypeDeliverableImpl.class);
+
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column(ReadingTypeDeliverableImpl.Fields.NAME.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(ReadingTypeDeliverableImpl.Fields.NAME.fieldName())
+                    .add();
+            Column metrologyContractColumn = table
+                    .column(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column readingTypeColumn = table
+                    .column(ReadingTypeDeliverableImpl.Fields.READING_TYPE.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .add();
+            Column formulaColumn = table
+                    .column(ReadingTypeDeliverableImpl.Fields.FORMULA.name())
+                    .number()
+                    .notNull()
+                    .add();
+            table.addAuditColumns();
+
+            table.primaryKey("MTR_DELIVERABLE_PK").on(idColumn).add();
+            table.unique("MTR_DELIVERABLE_NAME_UQ").on(nameColumn, metrologyContractColumn).add();
+            table.foreignKey("MTR_DELIVERABLE_TO_CONTRACT")
+                    .references(MetrologyContract.class)
+                    .on(metrologyContractColumn)
+                    .onDelete(CASCADE)
+                    .map(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                    .add();
+            table.foreignKey("MTR_DELIVERABLE_TO_RT")
+                    .references(ReadingType.class)
+                    .on(readingTypeColumn)
+                    .map(ReadingTypeDeliverableImpl.Fields.READING_TYPE.fieldName())
+                    .add();
+            table.foreignKey("MTR_DELIVERABLE_TO_FORMULA")
+                    .references(Formula.class)
+                    .on(formulaColumn)
+                    .map(ReadingTypeDeliverableImpl.Fields.FORMULA.fieldName())
+                    .add();
+        }
+    },
+    ADD_IN_OUT_DEPENDENCIES_TO_FORMULA_NODE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<?> table = dataModel.getTable(MTR_FORMULA_NODE.name());
+            // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
+            Column readingTypeDeliverableColumn = table.column("READINGTYPE_DELIVERABLE").number().map("readingTypeDeliverable").add();
+            // ReadingTypeRequirementNodeImpl readingTypeRequirement value
+            Column readingTypeRequirementColumn = table.column("READINGTYPE_REQUIREMENT").number().map("readingTypeRequirement").add();
+            table.foreignKey("MTR_FORMULA_TO_DELIVERABLE")
+                    .references(MTR_RT_DELIVERABLE.name())
+                    .on(readingTypeDeliverableColumn)
+                    .map("readingTypeDeliverable")
+                    .add();
+            table.foreignKey("MTR_FORMULA_TO_RT_REQ")
+                    .references(MTR_RT_REQUIREMENT.name())
+                    .on(readingTypeRequirementColumn)
+                    .map("readingTypeRequirement")
+                    .add();
         }
     }
     ;

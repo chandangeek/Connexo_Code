@@ -529,7 +529,7 @@ public final class ReadingTypeTranslationKeys {
 
         @Override
         public String getDefaultFormat() {
-            return this.currency.getNumericCode() != 999 ? this.currency.getDisplayName(Locale.ENGLISH) : "Not applicable";
+            return getCurrencyDefaultFormat(this.currency);
         }
 
         public int getCurrencyCode() {
@@ -538,6 +538,10 @@ public final class ReadingTypeTranslationKeys {
 
         private TranslationKey asTranslationKey() {
             return new SimpleTranslationKey(this.getKey(), this.getDefaultFormat());
+        }
+
+        public static String getCurrencyDefaultFormat(java.util.Currency currency) {
+            return currency != null && currency.getNumericCode() != 999 ? currency.getDisplayName(Locale.ENGLISH) : "Not applicable";
         }
     }
 
