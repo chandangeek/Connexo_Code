@@ -7,10 +7,10 @@ Ext.define('Imt.util.IconsMap', {
         WATER: 'icon-droplet',
         HEAT: 'icon-rating3',
         CONNECTED: 'icon-rating3',
-        PHYSICALLYDISCONNECTED: 'icon-rating3',
-        LOGICALLYDISCONNECTED: 'icon-rating3',
-        UNKNOWN: 'icon-blocked',
-        UNDERCONSTRUCTION: 'icon-construction'
+        PHYSICALLY_DISCONNECTED: 'icon-rating3',
+        LOGICALLY_DISCONNECTED: 'icon-rating3',
+        DEMOLISHED: 'icon-blocked',
+        UNDER_CONSTRUCTION: 'icon-construction'
     },
 
     getCls: function (key) {
