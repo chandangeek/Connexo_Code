@@ -141,7 +141,7 @@ public enum TableSpecs {
             table.map(LocationTemplateImpl.class);
             //table.setJournalTableName("MTR_LOCATIONTEMPLATEJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column templateColumn = table.column("LOCATIONTEMPLATE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("locationTemplate").add();
+            Column templateColumn = table.column("LOCATIONTEMPLATE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("templateFields").add();
             table.column("MANDATORYFIELDS").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("mandatoryFields").add();
             table.primaryKey("MTR_PK_LOCATIONTEMPLATE").on(idColumn).add();
             table.unique("MTR_U_LOCATIONTEMPLATE").on(templateColumn).add();
