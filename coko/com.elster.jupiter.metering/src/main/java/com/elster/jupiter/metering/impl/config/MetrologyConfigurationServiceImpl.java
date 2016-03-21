@@ -141,11 +141,6 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     }
 
     @Override
-    public Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id) {
-        return this.getDataModel().mapper(ReadingTypeDeliverable.class).getUnique("id", id);
-    }
-
-    @Override
     public Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id) {
         return this.getDataModel().mapper(ReadingTypeRequirement.class).getUnique("id", id);
     }
