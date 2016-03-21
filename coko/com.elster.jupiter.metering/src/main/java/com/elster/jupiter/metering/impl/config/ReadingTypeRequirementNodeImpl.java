@@ -13,7 +13,6 @@ public class ReadingTypeRequirementNodeImpl extends AbstractNode implements Read
 
     static final String TYPE_IDENTIFIER = "REQ";
 
-    //todo add foreign key and replace id by reference
     private Reference<ReadingTypeRequirement> readingTypeRequirement = ValueReference.absent();
 
     public ReadingTypeRequirementNodeImpl(ReadingTypeRequirement readingTypeRequirement) {
