@@ -2,9 +2,9 @@
     "name": "com.elster.jupiter.yellowfin.app",
 
     "requires": [
-        "com.elster.jupiter.loaderjs@1.1.0",
-        "com.elster.jupiter.unifyingjs@1.1.0",
-        "com.elster.jupiter.yellowfin.extjs@1.1.0"
+        "com.elster.jupiter.loaderjs",
+        "com.elster.jupiter.unifyingjs",
+        "com.elster.jupiter.yellowfin.extjs"
     ],
 
     "id": "29c462c9-436e-4d93-8f74-038373138820"
