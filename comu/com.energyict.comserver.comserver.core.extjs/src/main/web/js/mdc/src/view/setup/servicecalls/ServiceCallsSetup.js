@@ -5,6 +5,7 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
     device: null,
     store: null,
     activeTab: 0,
+    filterDefault: {},
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
@@ -53,7 +54,8 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
                         items: [
                             {
                                 xtype: 'service-call-filter',
-                                modDateHidden: true
+                                modDateHidden: true,
+                                filterDefault: me.filterDefault
                             },
                             {
                                 xtype: 'history-service-call-preview-container',

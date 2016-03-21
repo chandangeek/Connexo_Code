@@ -41,9 +41,8 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
         var me = this,
             store = Ext.getStore('Scs.store.ServiceCalls');
 
-        me.setCorrectStore(mRID, store, false)
-
         if(!Uni.util.History.isSuspended()) {
+            me.setCorrectStore(mRID, store, false)
             me.showTabbedView(mRID, store, 0);
         }
 
@@ -53,10 +52,8 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
         var me = this,
             store = Ext.getStore('Scs.store.ServiceCalls');
 
-        me.setCorrectStore(mRID, store, true);
-
-
         if(!Uni.util.History.isSuspended()) {
+            me.setCorrectStore(mRID, store, true);
             me.showTabbedView(mRID, store, 1);
         }
 
@@ -89,11 +86,18 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
     showTabbedView: function (mRID, store, activeTab) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            widget;
+            widget,
+            date,
+            filter = {};
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
-                widget = Ext.widget('service-calls-setup', {device: device, router: router, store: store, activeTab: activeTab});
+                date = new Date();
+                date.setDate(date.getDate() - 60);
+                filter.fromDate = date;
+                date = new Date();
+                filter.toDate = date;
+                widget = Ext.widget('service-calls-setup', {device: device, router: router, store: store, activeTab: activeTab, filterDefault: filter});
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
             }
@@ -105,22 +109,30 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
             router = me.getController('Uni.controller.history.Router'),
             navigationController = me.getController('Uni.controller.Navigation'),
             store = Ext.getStore('Scs.store.ServiceCalls'),
-            route;
+            route,
+            filter = {},
+            d,
+            now;
 
         me.getFilter().clearFilters();
         router.arguments.mRID = tabPanel.mRID;
         Uni.util.History.suspendEventsForNextCall(true);
         if(newTab.itemId === 'history-service-calls-tab') {
             me.setCorrectStore(tabPanel.mRID, store, true);
+            d = new Date();
+            d.setDate(d.getDate() - 1);
+            now = new Date()
+            filter.creationTime = d.getTime() + '-' + now.getTime();
             route = router.getRoute('devices/device/servicecalls/history');
         } else if (newTab.itemId === 'running-service-calls-tab') {
             me.setCorrectStore(tabPanel.mRID, store, false);
             route = router.getRoute('devices/device/servicecalls');
         }
 
-        route.forward();
-        navigationController.updateBreadcrumb(route);
+
         store.load();
+        route.forward({}, filter);
+        navigationController.updateBreadcrumb(route);
         me.getBreadcrumbs().doLayout();
     }
 });
