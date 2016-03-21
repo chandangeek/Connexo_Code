@@ -25,7 +25,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
 
                     if (record) {
                         canViewMetrologyConfig = Imt.privileges.MetrologyConfig.canView();
-                        activationTime = record.get('createTime');
+                        activationTime = record.get('activationTime');
                         if (value) {
                             if (canViewMetrologyConfig) {
                                 result += '<a href="'

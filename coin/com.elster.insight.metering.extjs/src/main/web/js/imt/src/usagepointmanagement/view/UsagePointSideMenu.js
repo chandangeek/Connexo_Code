@@ -1,7 +1,8 @@
 Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     requires: [
-        'Imt.util.IconsMap'
+        'Imt.util.IconsMap',
+        'Imt.util.ServiceCategoryTranslations'
     ],
     alias: 'widget.usage-point-management-side-menu',
     router: null,
@@ -10,7 +11,9 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
     
     initComponent: function () {
         var me = this,
-            iconStyle;
+            iconStyle,
+            serviceCategory,
+            connectionState;
 
         me.menuItems = [
             {
@@ -38,21 +41,23 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
 
         if (me.usagePoint) {
             iconStyle = "color: #686868;font-size: 16px;";
+            serviceCategory = me.usagePoint.get('serviceCategory');
+            connectionState = me.usagePoint.get('connectionState');
             me.tools = [
                 {
                     xtype: 'component',
                     html: '<span class="'
-                    + Imt.util.IconsMap.getCls(me.usagePoint.get('serviceCategory'))
+                    + Imt.util.IconsMap.getCls(serviceCategory)
                     + '" style="' + iconStyle + '" data-qtip="'
-                    + me.usagePoint.get('serviceCategory')
+                    + Imt.util.ServiceCategoryTranslations.getTranslation(serviceCategory)
                     + '"></span>'
                 },
                 {
                     xtype: 'component',
                     html: '<span class="'
-                    + Imt.util.IconsMap.getCls(me.usagePoint.get('connectionState'))
+                    + Imt.util.IconsMap.getCls(connectionState.id)
                     + '" style="' + iconStyle + '" data-qtip="'
-                    + me.usagePoint.get('connectionState')
+                    + connectionState.name
                     + '"></span>'
                 }
             ]
