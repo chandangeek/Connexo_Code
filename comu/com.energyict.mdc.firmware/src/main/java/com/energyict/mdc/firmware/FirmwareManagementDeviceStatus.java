@@ -512,5 +512,6 @@ public enum FirmwareManagementDeviceStatus {
         public static final String PENDING = "pending";
         public static final String CONFIGURATION_ERROR = "configurationError";
         public static final String CANCELLED = "cancelled";
+        public static final String SKIPPED = "skipped";
     }
 }
