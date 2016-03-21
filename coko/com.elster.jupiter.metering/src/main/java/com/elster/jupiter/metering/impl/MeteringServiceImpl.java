@@ -88,8 +88,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
-    private volatile LocationTemplate locationTemplate = new LocationTemplateImpl(dataModel);
-
+    private volatile LocationTemplate locationTemplate;
     public MeteringServiceImpl() {
         this.createAllReadingTypes = true;
     }
@@ -363,6 +362,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Activate
     public final void activate(BundleContext context) {
 
+        String fields = LocationTemplateImpl.ALLOWED_LOCATION_TEMPLATE_ELEMENTS.stream().
+                reduce((s, t) -> s + "," + t).get();
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -382,6 +383,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             }
         });
 
+        locationTemplate = LocationTemplateImpl.from(dataModel,fields,fields);
         if (!dataModel.isInstalled() && context != null && locationTemplate !=null) {
             locationTemplate
                     .parseTemplate(context.getProperty(LOCATION_TEMPLATE).trim(),
@@ -389,7 +391,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         }else if(dataModel.isInstalled() && getLocationTemplateFromDB().isPresent()){
                 locationTemplate = getLocationTemplateFromDB().get();
                 locationTemplate
-                        .parseTemplate(locationTemplate.getLocationTemplate(),locationTemplate.getMandatoryFields());
+                        .parseTemplate(locationTemplate.getTemplateFields(),locationTemplate.getMandatoryFields());
         }
     }
 
@@ -706,7 +708,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public void createLocationTemplate(){
-        LocationTemplateImpl.from(dataModel,locationTemplate.getLocationTemplate(),locationTemplate.getMandatoryFields() ).doSave();
+        LocationTemplateImpl.from(dataModel,locationTemplate.getTemplateFields(),locationTemplate.getMandatoryFields() ).doSave();
     }
 
     @Override

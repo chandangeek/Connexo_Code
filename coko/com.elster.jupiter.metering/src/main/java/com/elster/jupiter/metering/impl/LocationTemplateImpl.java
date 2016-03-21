@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
@@ -13,11 +12,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LocationTemplateImpl implements LocationTemplate {
 
     private long id;
-    private String locationTemplate;
+    private String templateFields;
     private String mandatoryFields;
     private Map<String, Integer> rankings;
     private final DataModel dataModel;
-    private final ImmutableList<String> ALLOWED_LOCATION_TEMPLATE_ELEMENTS =
+    static final ImmutableList<String> ALLOWED_LOCATION_TEMPLATE_ELEMENTS =
             ImmutableList.of("#ccod", "#cnam", "#adma", "#loc", "#subloc",
                     "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip", "#locale");
 
@@ -56,7 +55,7 @@ public class LocationTemplateImpl implements LocationTemplate {
                 AtomicInteger index = new AtomicInteger(-1);
                 Arrays.asList(templateElements).stream().forEach(t ->
                         rankings.put(templateMap.get(t), index.incrementAndGet()));
-                this.locationTemplate = locationTemplate.trim();
+                this.templateFields = locationTemplate.trim();
                 this.mandatoryFields = mandatoryFields.trim();
             } else {
                 throw new IllegalArgumentException("Bad Template");
@@ -72,7 +71,7 @@ public class LocationTemplateImpl implements LocationTemplate {
     }
 
     LocationTemplateImpl init(String locationTemplate, String mandatoryFields) {
-        this.locationTemplate = locationTemplate;
+        this.templateFields = locationTemplate;
         this.mandatoryFields = mandatoryFields;
         return this;
     }
@@ -109,7 +108,7 @@ public class LocationTemplateImpl implements LocationTemplate {
     @Override
     public List<String> getTemplateElementsNames() {
         List<String> list = new ArrayList<>();
-        Arrays.asList(locationTemplate.split(",")).stream().forEach(t ->
+        Arrays.asList(templateFields.split(",")).stream().forEach(t ->
                 list.add(templateMap.get(t)));
         return list;
     }
@@ -119,9 +118,8 @@ public class LocationTemplateImpl implements LocationTemplate {
         return rankings;
     }
 
-    @Override
-    public String getLocationTemplate() {
-        return locationTemplate;
+    public String getTemplateFields() {
+        return templateFields;
     }
 
     @Override

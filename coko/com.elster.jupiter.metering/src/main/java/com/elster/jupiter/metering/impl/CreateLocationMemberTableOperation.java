@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -20,6 +21,7 @@ public class CreateLocationMemberTableOperation {
     private final DataModel dataModel;
     private final LocationTemplate locationTemplate;
 
+    @Inject
     public CreateLocationMemberTableOperation(DataModel dataModel, LocationTemplate locationTemplate) {
         this.dataModel = dataModel;
         this.locationTemplate = locationTemplate;
@@ -27,13 +29,15 @@ public class CreateLocationMemberTableOperation {
 
     public void execute() {
         try (Connection conn = dataModel.getConnection(false)) {
-            locationTemplate.getMandatoryFieldsNames().stream().forEach(columnName -> {
+           locationTemplate.getMandatoryFieldsNames().stream().forEach(columnName -> {
                 try {
                     buildStatement(conn, setNontNullableColumnsSQL(columnName)).execute();
                 } catch (SQLException sqlEx) {
                     LOG.log(Level.SEVERE, "Unable to set mandatory fields for MTR_LOCATIONMEMBER table", sqlEx);
                 }
             });
+
+            locationTemplate.parseTemplate(locationTemplate.getTemplateFields(),locationTemplate.getMandatoryFields());
             Map<String, Integer> columns = locationTemplate.getRankings();
             columns.remove("locale");
             columns.entrySet().stream().sorted(Map.Entry.comparingByValue())
