@@ -79,11 +79,11 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         margin: '0 0 0 10',
                         htmlEncode: false,
                         value: '<div class="uni-icon-info-small" style="width: 16px; height: 16px;" data-qtip="'
-                        + Ext.htmlEncode(Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.title', 'FWC', 'Only devices that meet the following criteria will be included in firmware campaign')
+                        + Ext.htmlEncode(Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.title', 'FWC', 'Only devices that meet the following criteria will be included in the firmware campaign')
                             + ':<br>-'
-                            + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason1', 'FWC', 'Devices of a selected device type')
+                            + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason1', 'FWC', 'Devices with as device type the selected device type')
                             + '<br>-'
-                            + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason2', 'FWC', 'Devices that are in a selected device group at that moment'))
+                            + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason2', 'FWC', 'Devices that are member of the selected device group at the moment the firmware campaign is added'))
                         + '"></div>'
                     }
                 ]
