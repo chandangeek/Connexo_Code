@@ -9,7 +9,7 @@ Ext.define('Scs.view.Preview', {
 
     initComponent: function () {
         var me = this;
-       /* me.tools = [
+        me.tools = [
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('general.actions', 'SCS', 'Actions'),
@@ -19,7 +19,7 @@ Ext.define('Scs.view.Preview', {
                     xtype: 'scs-action-menu'
                 }
             }
-        ];*/
+        ];
 
         me.items = {
             xtype: 'servicecalls-preview-form',

@@ -6,7 +6,8 @@ Ext.define('Scs.controller.ServiceCalls', {
         'Scs.view.Landing',
         'Scs.view.SetupOverview',
         'Scs.view.ServiceCallPreviewContainer',
-        'Scs.view.PreviewForm'
+        'Scs.view.PreviewForm',
+        'Uni.view.window.Confirmation'
     ],
     stores: [
         'Scs.store.ServiceCalls',
@@ -219,13 +220,35 @@ Ext.define('Scs.controller.ServiceCalls', {
 
         switch (item.action) {
             case 'cancel':
-                break;
-            case 'pause':
-                break;
-            case 'resume':
-                break;
-            case 'retry':
-                break;
+                me.cancelServiceCall(menu.record);
         }
+    },
+
+    cancelServiceCall: function (record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.yes', 'SCS', 'Yes'),
+                cancelText: Uni.I18n.translate('general.no', 'SCS', 'No')
+            });
+        confirmationWindow.show(
+            {
+                msg: Uni.I18n.translate('servicecall.remove.msg', 'SCS', 'This service call will be canceled and no longer be running. Do you wish to continue?'),
+                title: Uni.I18n.translate('general.cancelX', 'SCS', "Cancel '{0}'?", [record.data.name]),
+                fn: function (state) {
+                    if (state === 'confirm') {
+                        record.set('state', 'Cancelled');
+                        if(record.get('parents') === '') {
+                            record.set('parents', [])
+                        }
+                        if(record.get('children') === '') {
+                            record.set('children', [])
+                        }
+                        if(record.get('targetObject') === '') {
+                            record.set('targetObject', null)
+                        }
+                        record.save();
+                    }
+                }
+            });
     }
 });
