@@ -113,16 +113,7 @@ Ext.define('Scs.view.PreviewForm', {
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate('general.status', 'SCS', 'Status'),
                         name: 'state',
-                        hidden: !me.detailed,
-                        renderer: function(value) {
-                            if(value.displayValue) {
-                                return value.displayValue;
-                            } else {
-                                return '-';
-                            }
-                        }
-
-
+                        hidden: !me.detailed
                     },
                     {
                         xtype: 'displayfield',
