@@ -8,6 +8,8 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
@@ -151,6 +153,17 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {
         return this.getDataModel().mapper(MetrologyConfiguration.class).getUnique("id", id);
     }
+
+    @Override
+    public Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id) {
+        return this.getDataModel().mapper(ReadingTypeDeliverable.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id) {
+        return this.getDataModel().mapper(ReadingTypeRequirement.class).getUnique("id", id);
+    }
+
 
     @Override
     public Optional<MetrologyConfiguration> findAndLockMetrologyConfiguration(long id, long version) {

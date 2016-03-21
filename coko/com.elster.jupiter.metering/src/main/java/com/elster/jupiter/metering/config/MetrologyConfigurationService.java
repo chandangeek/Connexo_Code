@@ -34,4 +34,9 @@ public interface MetrologyConfigurationService {
 
     List<Formula> findFormulas();
 
+    Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
+
+    Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id);
+
+
 }

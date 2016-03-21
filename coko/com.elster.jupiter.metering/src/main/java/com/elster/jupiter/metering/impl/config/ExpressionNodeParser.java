@@ -2,7 +2,10 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Function;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.Operator;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
@@ -11,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by igh on 29/02/2016.
@@ -18,9 +22,11 @@ import java.util.List;
 public class ExpressionNodeParser {
 
     private Thesaurus thesaurus;
+    private MetrologyConfigurationService metrologyConfigurationService;
 
-    public ExpressionNodeParser(Thesaurus thesaurus) {
+    public ExpressionNodeParser(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService) {
         this.thesaurus = thesaurus;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     private ArrayDeque<String> stack = new ArrayDeque<>();
@@ -56,7 +62,11 @@ public class ExpressionNodeParser {
         String last = stack.pop();
         if (last.equals("constant")) {
             handleConstantNode(value);
-        } else if ((last.equals("sum")) || (last.equals("avg")) || (last.equals("max")) || (last.equals("min"))) {
+        } /*else if (last.equals("D")) {
+            handleDeliverableNode(value);
+        } else if (last.equals("R")) {
+            handleRequirementNode(value);
+        } */else if ((last.equals("sum")) || (last.equals("avg")) || (last.equals("max")) || (last.equals("min"))) {
             handleFunctionNode(last);
         } else if ((last.equals("plus")) || (last.equals("minus")) || (last.equals("multiply")) || (last.equals("divide"))) {
             handleOperationNode(last);
@@ -64,6 +74,36 @@ public class ExpressionNodeParser {
         removeArgumentCounter();
         incrementArgumentCounter();
 
+    }
+
+    private void handleDeliverableNode(String value) {
+        long id;
+        try {
+            id =  Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(value + " is not number");
+        }
+        Optional<ReadingTypeDeliverable> readingTypeDeliverable = metrologyConfigurationService.findReadingTypeDeliverable(id);
+        if (readingTypeDeliverable.isPresent()) {
+            nodes.add(new ReadingTypeDeliverableNodeImpl(readingTypeDeliverable.get()));
+        } else {
+            throw new IllegalArgumentException("No deliverable found with id " + id);
+        }
+    }
+
+    private void handleRequirementNode(String value) {
+        long id;
+        try {
+            id = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(value + " is not number");
+        }
+        Optional<ReadingTypeRequirement> readingTypeRequirement = metrologyConfigurationService.findReadingTypeRequirement(id);
+        if (readingTypeRequirement.isPresent()) {
+            nodes.add(new ReadingTypeRequirementNodeImpl(readingTypeRequirement.get()));
+        } else {
+            throw new IllegalArgumentException("No requirement found with id " + id);
+        }
     }
 
     private void handleConstantNode(String value) {
