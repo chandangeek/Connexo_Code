@@ -1,9 +1,10 @@
 package com.elster.jupiter.metering.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.nls.TranslationKey;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -60,12 +61,12 @@ public interface MetrologyConfigurationService {
 
     ReadingTypeDeliverable createReadingTypeDeliverable(String name, MetrologyContract contract, ReadingType readingType, Formula formula);
 
+    Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
+
     Optional<ReadingTypeDeliverable> findAndLockReadingTypeDeliverableByIdAndVersion(long id, long version);
 
     List<ReadingTypeDeliverable> findReadingTypeDeliverable(ReadingTypeDeliverableFilter filter);
-    Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
 
     Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id);
-
 
 }

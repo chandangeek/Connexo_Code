@@ -2,12 +2,11 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -67,7 +66,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder builder = (ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
 
             ExpressionNodeBuilder nodeBuilder = builder.constant(10);
             Formula formula = builder.init(nodeBuilder).build();
@@ -95,7 +94,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder builder = (ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
 
             ExpressionNodeBuilder nodeBuilder = builder.maximum(
                     builder.constant(10),
@@ -138,7 +137,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder builder = (ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
 
             ExpressionNodeBuilder nodeBuilder = builder.maximum(
                     builder.constant(10),
@@ -185,7 +184,7 @@ public class FormulaCrudTest {
 
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse("constant(10)");
 
-            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+            Formula formula = ((ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT)).init(node).build();
             context.commit();
             long formulaId = formula.getId();
             Optional<Formula> loadedFormula = service.findFormula(formulaId);
@@ -211,7 +210,7 @@ public class FormulaCrudTest {
 
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse("max(constant(10), constant(0))");
 
-            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+            Formula formula = ((ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT)).init(node).build();
 
             context.commit();
             long formulaId = formula.getId();
@@ -249,7 +248,7 @@ public class FormulaCrudTest {
 
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse("max(constant(1), plus(constant(2), constant(3)))");
 
-            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+            Formula formula = ((ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT)).init(node).build();
 
             context.commit();
             long formulaId = formula.getId();
@@ -289,7 +288,7 @@ public class FormulaCrudTest {
             String formulaString = "max(constant(1), min(constant(2), constant(3), constant(4)))";
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse("max(constant(1), min(constant(2), constant(3), constant(4)))");
 
-            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+            Formula formula = ((ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT)).init(node).build();
 
             context.commit();
             long formulaId = formula.getId();
@@ -311,7 +310,7 @@ public class FormulaCrudTest {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
             String formulaString = "multiply(sum(max(constant(10), constant(0)), constant(5), constant(3)), constant(2))";
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse(formulaString);
-            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+            Formula formula = ((ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT)).init(node).build();
             context.commit();
             List<Formula> formulas = service.findFormulas();
             for (Formula f : formulas) {
@@ -328,7 +327,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder builder = (ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
 
             ExpressionNodeBuilder nodeBuilder = builder.constant(10);
             Formula formula = builder.init(nodeBuilder).build();
@@ -349,7 +348,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder builder = (ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
 
             ExpressionNodeBuilder nodeBuilder = builder.constant(10);
             Formula formula = builder.init(nodeBuilder).build();

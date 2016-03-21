@@ -24,8 +24,6 @@ public interface FormulaBuilder {
     ExpressionNodeBuilder multiply(ExpressionNodeBuilder multiplier, ExpressionNodeBuilder multiplicand);
     ExpressionNodeBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable);
     ExpressionNodeBuilder requirement(ReadingTypeRequirement value);
-    FormulaBuilder init(ExpressionNodeBuilder nodeBuilder);
-    FormulaBuilder init(ExpressionNode expressionNode);
     Formula build();
 
 }

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * Created by igh on 26/02/2016.
  */
-public class FormulaBuilderImpl implements FormulaBuilder {
+public class FormulaBuilderImpl implements ServerFormulaBuilder {
 
     private Formula.Mode mode;
     private DataModel dataModel;
