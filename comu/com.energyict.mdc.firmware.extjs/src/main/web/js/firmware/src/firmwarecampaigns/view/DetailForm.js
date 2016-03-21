@@ -22,6 +22,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
         me.tools = [
             {
                 xtype: 'button',
+                privileges: Fwc.privileges.FirmwareCampaign.administrate,
                 itemId: 'firmware-campaigns-detail-action-menu-button',
                 text: Uni.I18n.translate('general.actions', 'FWC', 'Actions'),
                 iconCls: 'x-uni-action-iconD',

@@ -57,8 +57,10 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         preview.down('property-form').loadRecord(record);
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         Ext.resumeLayouts(true);
-        preview.down('firmware-campaigns-action-menu').record = record;
-        preview.down('#firmware-campaigns-detail-action-menu-button').setVisible(record.get('status').id === 'ONGOING');
+        if (preview.down('firmware-campaigns-action-menu')) {
+            preview.down('firmware-campaigns-action-menu').record = record;
+            preview.down('#firmware-campaigns-detail-action-menu-button').setVisible(record.get('status').id === 'ONGOING');
+        }
     },
 
     onActionMenuClicked: function (menu, item) {

@@ -8,6 +8,7 @@ Ext.define('Fwc.firmwarecampaigns.view.ActionMenu', {
     border: false,
     shadow: false,
     returnToCampaignOverview: false,
+    privileges: Fwc.privileges.FirmwareCampaign.administrate,
 
     initComponent: function () {
         var me = this;
@@ -15,13 +16,11 @@ Ext.define('Fwc.firmwarecampaigns.view.ActionMenu', {
         me.items = [
             {
                 text: Uni.I18n.translate('firmware.campaigns.editCampaign', 'FWC', 'Edit campaign'),
-                action: me.returnToCampaignOverview ? 'editCampaignAndReturnToOverview' : 'editCampaign',
-                privileges: Fwc.privileges.FirmwareCampaign.administrate
+                action: me.returnToCampaignOverview ? 'editCampaignAndReturnToOverview' : 'editCampaign'
             },
             {
                 text: Uni.I18n.translate('firmware.campaigns.cancelCampaign', 'FWC', 'Cancel campaign'),
-                action: 'cancelCampaign',
-                privileges: Fwc.privileges.FirmwareCampaign.administrate
+                action: 'cancelCampaign'
             }
         ];
         me.callParent(arguments);
