@@ -229,7 +229,8 @@ Ext.define('Scs.controller.ServiceCalls', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.yes', 'SCS', 'Yes'),
                 cancelText: Uni.I18n.translate('general.no', 'SCS', 'No')
-            });
+            }),
+            store = Ext.getStore('Scs.store.ServiceCalls');
         confirmationWindow.show(
             {
                 msg: Uni.I18n.translate('servicecall.remove.msg', 'SCS', 'This service call will be canceled and no longer be running. Do you wish to continue?'),
@@ -246,7 +247,11 @@ Ext.define('Scs.controller.ServiceCalls', {
                         if(record.get('targetObject') === '') {
                             record.set('targetObject', null)
                         }
-                        record.save();
+                        record.save({
+                            success: function(){
+                                store.load();
+                            }
+                        });
                     }
                 }
             });
