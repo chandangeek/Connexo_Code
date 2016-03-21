@@ -315,6 +315,28 @@ Ext.define('Uni.service.Search', {
         me.fireEvent('applyFilters', me, filters);
     },
 
+    count: function(){
+        var me = this;
+        me.fireEvent('loadingcount');
+        Ext.Ajax.suspendEvent('requestexception');
+        Ext.Ajax.request({
+            url: this.getSearchResultsStore().getProxy().url + '/count',
+            timeout: 120000,
+            method: 'GET',
+            params: {
+                filter: JSON.stringify(this.getFilters())
+            },
+            success: function (response) {
+                me.fireEvent('count', JSON.parse(response.responseText));
+                Ext.Ajax.resumeEvent('requestexception');
+            },
+            failure: function (response, request) {
+                me.fireEvent('loadingcountfailed');
+                Ext.Ajax.resumeEvent('requestexception');
+            }
+        });
+    },
+
     clearFilters: function () {
         var me = this;
 
