@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -21,10 +22,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component(name="device.info.factory", service = { InfoFactory.class }, immediate = true)
@@ -93,7 +91,20 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
-        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus);
+        Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
+        String formattedLocation = "";
+        if(location.isPresent()){
+            Optional<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
+            if(formattedLocationMembers.isPresent()){
+                for(int i=0; i < formattedLocationMembers.get().size(); i++){
+                    if(i != 0 && formattedLocationMembers.get().get(i) != null){
+                        formattedLocation += ", ";
+                    }
+                    formattedLocation += formattedLocationMembers.get().get(i) != null ? formattedLocationMembers.get().get(i) : "";
+                }
+            }
+        }
+        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation);
     }
 
     @Override

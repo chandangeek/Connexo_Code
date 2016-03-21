@@ -1,0 +1,32 @@
+package com.energyict.mdc.device.data.rest.impl;
+
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationMember;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+
+public class LocationInfo {
+
+    public long id;
+    public List<LocationMemberInfo> members = new ArrayList<>();
+
+    public LocationInfo(){
+
+    }
+
+    public LocationInfo(Location location){
+        this.id = location.getId();
+        Optional<List<? extends LocationMember>> locationMembers = location.getMembers();
+        if(locationMembers.isPresent()){
+            addAll(locationMembers.get());
+        }
+    }
+
+    private void addAll(List<? extends LocationMember> locationMembers){
+        locationMembers.stream()
+                .forEach(locationMember -> members.add(new LocationMemberInfo(locationMember)));
+    }
+}

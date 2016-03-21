@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -16,6 +17,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -42,8 +44,25 @@ public class DeviceAttributesInfoFactory {
 
     public DeviceAttributesInfo from(Device device) {
         DeviceAttributesInfo info = new DeviceAttributesInfo();
-        info.device = DeviceInfo.from(device);
+        Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
+        String formattedLocation = "";
+        if(location.isPresent()){
+            Optional<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
+            if(formattedLocationMembers.isPresent()){
+                for(int i=0; i < formattedLocationMembers.get().size(); i++){
+                    if(i != 0 && formattedLocationMembers.get().get(i) != null){
+                        formattedLocation += ", ";
+                    }
+                    formattedLocation += formattedLocationMembers.get().get(i) != null ? formattedLocationMembers.get().get(i) : "";
+                }
+            }
+        }
+        info.device = DeviceInfo.from(device, formattedLocation);
         State state = device.getState();
+
+        info.location = new DeviceAttributeInfo();
+        info.location.displayValue = formattedLocation;
+        fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);
 
         info.mrid = new DeviceAttributeInfo();
         info.mrid.displayValue = device.getmRID();
