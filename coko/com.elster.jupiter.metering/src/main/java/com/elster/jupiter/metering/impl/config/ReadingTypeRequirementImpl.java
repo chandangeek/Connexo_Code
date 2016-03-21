@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.Size;
@@ -57,9 +58,6 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     private Instant createTime;
     private Instant modTime;
     private String userName;
-
-    public ReadingTypeRequirementImpl() {
-    }
 
     protected void init(MetrologyConfiguration metrologyConfiguration, MeterRole meterRole, String name) {
         this.meterRole.set(meterRole);

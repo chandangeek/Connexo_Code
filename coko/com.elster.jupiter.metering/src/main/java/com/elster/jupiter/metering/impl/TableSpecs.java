@@ -38,6 +38,7 @@ import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationMeterRoleUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
 import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeAttributeValueImpl;
@@ -928,6 +929,38 @@ public enum TableSpecs {
                     .on(meterRole)
                     .onDelete(CASCADE)
                     .map(ServiceCategoryMeterRoleUsage.Fields.METERROLE.fieldName())
+                    .add();
+        }
+    },
+    MTR_M_CONFIG_ROLE_USAGE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), MetrologyConfigurationMeterRoleUsageImpl.class);
+            table.map(MetrologyConfigurationMeterRoleUsageImpl.class);
+
+            Column metrologyConfigColumn = table.column(MetrologyConfigurationMeterRoleUsageImpl.Fields.METROLOGY_CONFIGURATION.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column meterRoleColumn = table.column(MetrologyConfigurationMeterRoleUsageImpl.Fields.METER_ROLE.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .add();
+
+            table.primaryKey("MTR_PK_CONF_ROLE_USAGE").on(metrologyConfigColumn, meterRoleColumn).add();
+            table.foreignKey("FK_USAGE_MCMR_TO_CONFIG")
+                    .references(MetrologyConfiguration.class)
+                    .on(metrologyConfigColumn)
+                    .onDelete(CASCADE)
+                    .map(MetrologyConfigurationMeterRoleUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .reverseMap(MetrologyConfigurationImpl.Fields.METER_ROLES.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_USAGE_MCMR_TO_ROLE")
+                    .references(MeterRole.class)
+                    .on(meterRoleColumn)
+                    .onDelete(CASCADE)
+                    .map(MetrologyConfigurationMeterRoleUsageImpl.Fields.METER_ROLE.fieldName())
                     .add();
         }
     },
