@@ -391,7 +391,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             releaseDate && record.set('releaseDate', releaseDate);
             messageSpecification && record.set('messageSpecification', messageSpecification);
             record.set('status', null);
-            if (commandForm.getValues().trackingCategory === "") {
+            if (commandForm.getValues().trackingCategory === "" || commandForm.getValues().trackingCategory === undefined) {
                 record.set('trackingCategory', null);
             }
             record.endEdit();
