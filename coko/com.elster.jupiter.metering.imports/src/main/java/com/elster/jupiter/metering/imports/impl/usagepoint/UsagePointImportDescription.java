@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.imports.impl.parsers.NumberParser;
 import com.elster.jupiter.metering.imports.impl.parsers.YesNoAnswerParser;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,10 +25,12 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
     private final DateParser dateParser;
     private final BigDecimalParser bigDecimalParser;
     private final MeteringDataImporterContext context;
+    NumberParser numberParser;
 
     public UsagePointImportDescription(String dateFormat, String timeZone, SupportedNumberFormat numberFormat, MeteringDataImporterContext context) {
         this.dateParser = new DateParser(dateFormat, timeZone);
         this.bigDecimalParser = new BigDecimalParser(numberFormat);
+        this.numberParser = new NumberParser(NumberFormat.getInstance(context.getThreadPrincipalService().getLocale()));
         this.context = context;
     }
 
@@ -41,7 +44,6 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
         Map<String, FileImportField<?>> fields = new HashMap<>();
         LiteralStringParser stringParser = new LiteralStringParser();
         BooleanParser booleanParser = new BooleanParser();
-        NumberParser numberParser = new NumberParser();
         YesNoAnswerParser yesNoAnswerParser = new YesNoAnswerParser();
         //mRID
         fields.put("mRID", CommonField.withParser(stringParser)
@@ -234,9 +236,9 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
         Arrays.asList(
                 dateParser,
                 bigDecimalParser,
+                numberParser,
                 new LiteralStringParser(),
                 new BooleanParser(),
-                new NumberParser(),
                 new YesNoAnswerParser()
         ).forEach(e -> parsers.put(e.getValueType(), e));
         return parsers;

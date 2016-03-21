@@ -1,11 +1,11 @@
 package com.elster.jupiter.metering.imports.impl;
 
-import com.elster.jupiter.devtools.persistence.test.SimpleNlsMessageFormat;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.metering.imports.impl.exceptions.FileImportParserException;
 import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointImportRecord;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImportLogger;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -79,14 +80,17 @@ public class UsagePointCsvImporterTest {
     private MeteringDataImporterContext context;
     @Mock
     private Logger logger;
+    @Mock
+    private NlsMessageFormat simpleNlsMessageFormat;
 
     @Before
     public void beforeTest() {
         reset(logger, context, thesaurus);
+        when(simpleNlsMessageFormat.format(anyObject())).thenReturn("format");
         when(thesaurus.getFormat(any(TranslationKey.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
+                .thenAnswer(invocationOnMock -> simpleNlsMessageFormat);
         when(thesaurus.getFormat(any(MessageSeed.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
+                .thenAnswer(invocationOnMock -> simpleNlsMessageFormat);
         when(context.getThesaurus()).thenReturn(thesaurus);
     }
 
@@ -135,7 +139,7 @@ public class UsagePointCsvImporterTest {
 
     @Test
     // No ups were processed (No ups in file)
-    public void testNoDevicesInFile() throws Exception {
+    public void testNoUsagePointsInFile() throws Exception {
         String csv = "mRID;SomeColumn";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
@@ -143,7 +147,6 @@ public class UsagePointCsvImporterTest {
         CsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.Labels.IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
@@ -159,7 +162,6 @@ public class UsagePointCsvImporterTest {
         CsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.Labels.IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED.getDefaultFormat());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, times(1)).severe(Matchers.anyString());
@@ -168,7 +170,7 @@ public class UsagePointCsvImporterTest {
     @Test
     // Parser fails on up 1
     // 0 success, 0 warning, 0 error
-    public void testFailOnDevice1() throws Exception {
+    public void testFailOnUsagePoint1() throws Exception {
         String csv = "mRID\nup1\nup2\nup3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(2);
@@ -176,13 +178,12 @@ public class UsagePointCsvImporterTest {
         CsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.Labels.IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED.getDefaultFormat());
     }
 
     @Test
     // Parser fails on up 2
     // 1 success, 0 warning, 0 error
-    public void testFailOnDevice2() throws Exception {
+    public void testFailOnUsagePoint2() throws Exception {
         String csv = "mRID\nup1\nup2\nup3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(3);
@@ -199,7 +200,7 @@ public class UsagePointCsvImporterTest {
     @Test
     // Parser fails on up 2
     // 1 success, 1 warning, 0 error
-    public void testFailOnDevice2WithWarningOnDevice1() throws Exception {
+    public void testFailOnUsagePoint2WithWarningOnUsagePoint1() throws Exception {
         String csv = "mRID\nup1\nup2\nup3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(3);
@@ -217,7 +218,7 @@ public class UsagePointCsvImporterTest {
     @Test
     // Parser fails on up 2
     // 0 success, 0 warning, 1 error
-    public void testFailOnDevice2WithErrorOnDevice1() throws Exception {
+    public void testFailOnUsagePoint2WithErrorOnUsagePoint1() throws Exception {
         String csv = "mRID\nup1\nup2\nup3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(3);
@@ -235,7 +236,7 @@ public class UsagePointCsvImporterTest {
     @Test
     // Parser fails on up 3
     // 1 success, 1 warning, 1 error
-    public void testFailOnDevice3WithErrorOnDevice1AndWarningOnDevice2() throws Exception {
+    public void testFailOnUsagePoint3WithErrorOnUsagePoint1AndWarningOnUsagePoint2() throws Exception {
         String csv = "mRID\nup1\nup2\nup3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(4);
@@ -253,7 +254,7 @@ public class UsagePointCsvImporterTest {
     @Test
     // Parser fails on up 3
     // 1 success, 0 warning, 1 error
-    public void testFailOnDevice3WithErrorOnDevice1() throws Exception {
+    public void testFailOnUsagePoint3WithErrorOnUsagePoint1() throws Exception {
         String csv = "mRID\nup1\nup2\nup3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(4);
@@ -271,7 +272,7 @@ public class UsagePointCsvImporterTest {
     @Test
     // Parser successfully finished
     // 2 success, 0 warning, 0 error
-    public void testSuccessWithTwoDevices() throws Exception {
+    public void testSuccessWithTwoUsagePoints() throws Exception {
         String csv = "mRID\nup1\nup2";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);

@@ -10,6 +10,12 @@ import java.util.Locale;
 
 public class NumberParser implements FieldParser<Number> {
 
+    private NumberFormat numberFormat;
+
+    public NumberParser(NumberFormat numberFormat) {
+        this.numberFormat = numberFormat;
+    }
+
     @Override
     public Class<Number> getValueType() {
         return Number.class;
@@ -24,7 +30,7 @@ public class NumberParser implements FieldParser<Number> {
 
     private Number parseNonEmptyNumberString(String value) throws ValueParserException {
         try {
-            return NumberFormat.getInstance(Locale.ENGLISH).parse(value);
+            return numberFormat.parse(value);
         } catch (Exception e) {
             throw new ValueParserException(value, "123456");
         }

@@ -67,31 +67,28 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         }
 
         for (Map.Entry<String, String> entry : csvRecord.toMap().entrySet()) {
-            Optional<FileImportField<?>> field = fields.entrySet()
+            fields.entrySet()
                     .stream()
                     .filter(e -> e.getKey().equalsIgnoreCase(entry.getKey()))
                     .map(Map.Entry::getValue)
-                    .findFirst();
-            if (field.isPresent()) {
-                if (field.get()
+                    .findFirst().ifPresent(field -> {
+                if (field
                         .isMandatory() && csvRecord.isMapped(entry.getKey()) && Checks.is(csvRecord.get(entry.getKey()))
                         .emptyOrOnlyWhiteSpace()) {
                     throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), field
-                            .get()
                             .getFieldName());
                 }
                 try {
-                    FieldSetter fieldSetter = field.get().getSetter();
-                    FieldParser parser = field.get().getParser();
-                    fieldSetter.setFieldWithHeader(field.get()
+                    FieldSetter fieldSetter = field.getSetter();
+                    FieldParser parser = field.getParser();
+                    fieldSetter.setFieldWithHeader(field
                             .getFieldName(), parser.parse(csvRecord.get(entry.getKey())));
                 } catch (ValueParserException ex) {
                     throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(), field
-                            .get()
                             .getFieldName(), ex
                             .getExpected());
                 }
-            }
+            });
         }
 
         return parseCustomProperties(record, csvRecord, fields);

@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.imports.impl.properties;
 
-import com.elster.jupiter.devtools.persistence.test.SimpleNlsMessageFormat;
 import com.elster.jupiter.metering.imports.impl.TranslationKeys;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.InvalidValueException;
@@ -18,6 +18,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -25,16 +26,19 @@ public class TimeZonePropertySpecTest {
 
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    NlsMessageFormat nlsMessageFormat;
 
     private Clock clock = Clock.systemUTC();
     private TimeZonePropertySpec propertySpec;
 
     @Before
     public void beforeTest() {
+        when(nlsMessageFormat.format(anyObject())).thenReturn("format");
         when(thesaurus.getFormat(any(TranslationKey.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
+                .thenAnswer(invocationOnMock -> nlsMessageFormat);
         when(thesaurus.getFormat(any(MessageSeed.class)))
-                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
+                .thenAnswer(invocationOnMock -> nlsMessageFormat);
         this.propertySpec = new TimeZonePropertySpec("name", TranslationKeys.Labels.DATA_IMPORTER_TIMEZONE, this.thesaurus, this.clock);
     }
 
