@@ -57,11 +57,7 @@ import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -674,6 +670,35 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public Optional<Location> findLocation(long id) {
         return dataModel.mapper(Location.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<List<String>> getFormattedLocationMembers(long id){
+        List<LocationMember> members = dataModel.query(LocationMember.class).select(Operator.EQUAL.compare("locationId", id));
+        List<String> formattedLocation = new ArrayList<>();
+        if(!members.isEmpty()){
+            LocationMember member = members.get(0);
+            Map<String, String> memberValues = new HashMap<>();
+            memberValues.put("countryCode", member.getCountryCode());
+            memberValues.put("countryName", member.getCountryName());
+            memberValues.put("administrativeArea", member.getAdministrativeArea());
+            memberValues.put("locality", member.getLocality());
+            memberValues.put("subLocality", member.getSubLocality());
+            memberValues.put("streetType", member.getStreetType());
+            memberValues.put("streetName", member.getStreetName());
+            memberValues.put("streetNumber", member.getStreetNumber());
+            memberValues.put("establishmentType", member.getEstablishmentType());
+            memberValues.put("establishmentName", member.getEstablishmentName());
+            memberValues.put("establishmentNumber", member.getEstablishmentNumber());
+            memberValues.put("addressDetail", member.getAddressDetail());
+            memberValues.put("zipCode", member.getZipCode());
+            memberValues.put("locale", member.getLocale());
+            locationTemplate.getTemplateElementsNames().stream()
+                    .forEach(element -> {
+                        formattedLocation.add(memberValues.get(element));
+                    });
+        }
+        return formattedLocation.isEmpty() ? Optional.empty() : Optional.of(formattedLocation);
     }
 
     @Override

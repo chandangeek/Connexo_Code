@@ -165,7 +165,7 @@ public enum TableSpecs {
             Table<LocationMember> table = dataModel.addTable(name(), LocationMember.class);
             table.map(LocationMemberImpl.class);
             //table.setJournalTableName("MTR_LOCATIONMEMBERJRNL");
-            Column locationIdColumn = table.column("LOCATIONID").notNull().number().map("locationId").add();
+            Column locationIdColumn = table.column("LOCATIONID").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map("locationId").add();
             Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
             Column countryCodeColumn = table.column("COUNTRYCODE").varChar(Table.NAME_LENGTH).map("countryCode").add();
             Column countryNameColumn = table.column("COUNTRYNAME").varChar(Table.NAME_LENGTH).map("countryName").add();
