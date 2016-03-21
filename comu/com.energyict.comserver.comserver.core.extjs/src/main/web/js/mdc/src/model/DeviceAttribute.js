@@ -31,7 +31,8 @@ Ext.define('Mdc.model.DeviceAttribute', {
 
                 return res
             }
-        }
+        },
+        {name: 'location', type: 'auto'}
     ],
 
     proxy: {
