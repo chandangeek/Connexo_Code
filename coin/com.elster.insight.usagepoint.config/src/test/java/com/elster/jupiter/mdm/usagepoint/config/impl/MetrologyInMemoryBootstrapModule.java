@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -117,8 +118,8 @@ public class MetrologyInMemoryBootstrapModule {
         return injector.getInstance(CustomPropertySetService.class);
     }
 
-    public MetrologyConfigurationService getMetrologyConfigurationService() {
-        return injector.getInstance(MetrologyConfigurationService.class);
+    public ServerMetrologyConfigurationService getMetrologyConfigurationService() {
+        return (ServerMetrologyConfigurationService) injector.getInstance(MetrologyConfigurationService.class);
     }
 
     private static class MockModule extends AbstractModule {
