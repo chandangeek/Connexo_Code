@@ -11,4 +11,6 @@ import java.util.Optional;
  */
 public interface IServiceCallLifeCycle extends ServiceCallLifeCycle {
     Optional<State> getState(DefaultState defaultState);
+
+    boolean canTransition(DefaultState currentState, DefaultState targetState);
 }

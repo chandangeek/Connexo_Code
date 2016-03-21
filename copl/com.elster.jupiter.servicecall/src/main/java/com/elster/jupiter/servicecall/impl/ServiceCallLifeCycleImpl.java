@@ -21,7 +21,9 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.streams.Currying.test;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
+import static com.elster.jupiter.util.streams.Predicates.on;
 
 /**
  * Created by bvn on 2/4/16.
@@ -131,5 +133,13 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
                 ImmutableMap.of(ServiceCall.class.getName(), serviceCall))
                 .publish();
 
+    }
+
+    @Override
+    public boolean canTransition(DefaultState currentState, DefaultState targetState) {
+        return getFiniteStateMachine().getTransitions()
+                .stream()
+                .filter(on(StateTransition::getFrom).test(currentState::matches))
+                .anyMatch(on(StateTransition::getTo).test(targetState::matches));
     }
 }
