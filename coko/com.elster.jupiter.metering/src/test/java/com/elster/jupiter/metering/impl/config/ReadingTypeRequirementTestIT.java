@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
@@ -18,6 +19,7 @@ import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.transaction.TransactionContext;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -38,9 +40,12 @@ public class ReadingTypeRequirementTestIT {
     public static void beforeClass() {
         inMemoryBootstrapModule.activate();
         try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
+            ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
             metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newMetrologyConfiguration("Test",
-                    inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get()).create();
+                    serviceCategory).create();
             meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+            serviceCategory.addMeterRole(meterRole);
+            metrologyConfiguration.addMeterRole(meterRole);
             context.commit();
         }
     }
@@ -256,5 +261,15 @@ public class ReadingTypeRequirementTestIT {
                 .withReadingTypeTemplate(readingTypeTemplate);
         // System possible values for macro period should be applied
         assertThat(partiallySpecifiedReadingType.matches(readingType)).isFalse();
+    }
+
+    @Test(expected = CannotManageMeterRoleOnMetrologyConfigurationException.class)
+    @Transactional
+    public void testCanNotAddRequirementWithUnassignedRole() {
+        metrologyConfiguration.removeMeterRole(meterRole);
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
+        metrologyConfiguration.addReadingTypeRequirement("Requirement")
+                .withMeterRole(meterRole)
+                .withReadingType(readingType);
     }
 }

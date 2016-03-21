@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -49,7 +50,7 @@ public class MetrologyPurposeDeletionVetoEventHandler implements TopicHandler {
         if (!this.metrologyConfigurationService.getDataModel().query(MetrologyContract.class)
                 .select(where(MetrologyContractImpl.Fields.METROLOGY_PURPOSE.fieldName()).isEqualTo(metrologyPurpose))
                 .isEmpty()) {
-            throw new MetrologyPurposeDeletionFail(this.thesaurus, metrologyPurpose.getName());
+            throw new CannotDeleteMetrologyPurposeException(this.thesaurus, metrologyPurpose.getName());
         }
     }
 
