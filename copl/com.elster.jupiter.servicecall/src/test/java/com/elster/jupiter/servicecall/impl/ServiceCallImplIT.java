@@ -198,13 +198,11 @@ public class ServiceCallImplIT {
                         .getId()).get();
 
                 serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
-                        .handler("someHandler")
                         .customPropertySet(registeredCustomPropertySet)
                         .handler("DisconnectHandler1")
                         .create();
 
                 serviceCallTypeTwo = serviceCallService.createServiceCallType("second", "v2")
-                        .handler("someHandler")
                         .handler("DisconnectHandler1")
                         .create();
 
