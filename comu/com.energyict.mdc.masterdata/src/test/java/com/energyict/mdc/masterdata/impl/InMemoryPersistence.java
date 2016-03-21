@@ -1,12 +1,9 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -31,6 +28,9 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -39,7 +39,6 @@ import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -87,7 +86,7 @@ public class InMemoryPersistence {
                 new EventsModule(),
                 new OrmModule(),
                 new FiniteStateMachineModule(),
-                readingTypes.length==0?MeteringModule.withAllReadingTypes_AVOID_AVOID():new MeteringModule(readingTypes[0], Arrays.copyOfRange(readingTypes, 1, readingTypes.length)),
+                readingTypes.length==0?MeteringModule.withAllReadingTypes_AVOID_AVOID():new MeteringModule(readingTypes),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
                 new CustomPropertySetsModule()
