@@ -1,12 +1,9 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.whiteboard.ReferenceInfo;
-import com.elster.jupiter.servicecall.DefaultState;
 
 import java.util.List;
-import java.util.Map;
 
 public class ServiceCallInfo {
     public long id;
@@ -24,6 +21,7 @@ public class ServiceCallInfo {
     public String type;
     public long numberOfChildren;
     public List<ServiceCallCustomPropertySetInfo> customPropertySets;
+    public boolean canCancel;
 
     public ServiceCallInfo() {
 

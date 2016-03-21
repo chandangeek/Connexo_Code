@@ -33,26 +33,17 @@ public class ServiceCallInfoFactory {
     }
 
     public ServiceCallInfo detailed(ServiceCall serviceCall, Map<DefaultState, Long> childrenInformation) {
-        ServiceCallInfo serviceCallInfo = new ServiceCallInfo();
-        serviceCallInfo.id = serviceCall.getId();
-        serviceCallInfo.name = serviceCall.getNumber();
-        serviceCallInfo.version = serviceCall.getVersion();
-        serviceCallInfo.creationTime = serviceCall.getCreationTime().toEpochMilli();
-        serviceCallInfo.lastModificationTime = serviceCall.getLastModificationTime().toEpochMilli();
+        ServiceCallInfo serviceCallInfo = summarized(serviceCall);
         Optional<Instant> lastCompletedOptional = serviceCall.getLastCompletedTime();
         if (lastCompletedOptional.isPresent()) {
             serviceCallInfo.lastCompletedTime = lastCompletedOptional.get().toEpochMilli();
         }
-        serviceCallInfo.state = serviceCall.getState().getDisplayName(thesaurus);
         serviceCallInfo.origin = serviceCall.getOrigin().isPresent() ? serviceCall.getOrigin().get() : null;
-        serviceCallInfo.externalReference = serviceCall.getExternalReference()
-                .isPresent() ? serviceCall.getExternalReference().get() : null;
         Optional<ReferenceInfo> referenceInfo = serviceCall.getTargetObject().isPresent() ? referenceResolver.resolve(serviceCall.getTargetObject().get()) : Optional.empty();
         serviceCallInfo.targetObject = referenceInfo.isPresent() ? referenceInfo.get() : null;
         addCustomPropertySetInfos(serviceCall, serviceCallInfo);
         addParents(serviceCallInfo, serviceCall.getParent());
         addChildrenInfo(serviceCallInfo, childrenInformation);
-        serviceCallInfo.type = serviceCall.getType().getName();
         return serviceCallInfo;
     }
 
@@ -67,6 +58,7 @@ public class ServiceCallInfoFactory {
         serviceCallInfo.externalReference = serviceCall.getExternalReference()
                 .isPresent() ? serviceCall.getExternalReference().get() : null;
         serviceCallInfo.type = serviceCall.getType().getName();
+        serviceCallInfo.canCancel = serviceCall.canTransitionTo(DefaultState.CANCELLED);
         return serviceCallInfo;
     }
 
