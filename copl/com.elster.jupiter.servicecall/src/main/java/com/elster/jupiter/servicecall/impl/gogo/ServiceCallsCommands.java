@@ -284,7 +284,7 @@ public class ServiceCallsCommands {
     }
 
     public void createChildServiceCall() {
-        System.out.println("Usage: createChildServiceCall <type> <typeVersion> <externalReference> <parentReference>");
+        System.out.println("Usage: createChildServiceCall <type> <typeVersion> <externalReference> <parentId>");
     }
 
     public void createChildServiceCall(String type, String typeVersion, String externalReference, Long parent) {
