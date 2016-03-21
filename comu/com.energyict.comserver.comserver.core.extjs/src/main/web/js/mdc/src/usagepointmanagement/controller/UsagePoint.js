@@ -164,14 +164,15 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             viewport = Ext.ComponentQuery.query('viewport')[0],
+            isEdit = btn.action == 'save',
             usagePointModel = me.usagePoint || Ext.create('Mdc.usagepointmanagement.model.UsagePoint');
-        me.getAddUsagePointPanel().down('#add-edit-form').updateRecord(usagePointModel);
 
+        me.getAddUsagePointPanel().down('#add-edit-form').updateRecord(usagePointModel);
         me.getAddUsagePointPanel().down('#add-edit-form').getForm().clearInvalid();
         usagePointModel.save({
-            backUrl:  router.getRoute('usagepoints/usagepoint').buildUrl(),
+            backUrl: isEdit ? router.getRoute('usagepoints/usagepoint').buildUrl() : null,
             success: function (record) {
-                if (btn.action == 'save') {
+                if (isEdit) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.added', 'MDC', "Usage point '{0}' saved.", record.get('mRID')));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.added', 'MDC', "Usage point '{0}' added.", record.get('mRID')));
