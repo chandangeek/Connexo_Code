@@ -35,6 +35,7 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.aggregation.AggregatedReadingRecordFactory;
@@ -65,11 +66,14 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -85,6 +89,8 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -111,6 +117,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile JsonService jsonService;
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile MetrologyConfigurationServiceImpl metrologyConfigurationService;
+    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
@@ -137,9 +145,10 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setJsonService(jsonService);
         setFiniteStateMachineService(finiteStateMachineService);
         setCustomPropertySetService(customPropertySetService);
-        activate();
+        activate(null);
         if (!dataModel.isInstalled()) {
             install();
+            this.metrologyConfigurationService.install();
         }
     }
 
@@ -165,16 +174,16 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public List<ReadingType> findReadingTypes(List<String> mRids) {
-       return dataModel.mapper(ReadingType.class).select(where("mRID").in(mRids));
+       return dataModel.mapper(ReadingType.class).select(Where.where("mRID").in(mRids));
     }
 
     @Override
-    public Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter){
-        return DefaultFinder.of(ReadingType.class,filter.getCondition(),dataModel);
+    public Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter) {
+        return DefaultFinder.of(ReadingType.class, filter.getCondition(), dataModel);
     }
 
     @Override
-    public Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version){
+    public Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version) {
         return dataModel.mapper(ReadingType.class).lockObjectIfVersion(version, mRID);
     }
 
@@ -383,7 +392,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext bundleContext) {
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.eventService, this.userService);
+        registerMetrologyConfigurationService(bundleContext);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -399,14 +410,32 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
-                bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class);
+                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(AggregatedReadingRecordFactory.class).to(AggregatedReadingRecordFactoryImpl.class);
             }
         });
     }
 
+    private void registerMetrologyConfigurationService(BundleContext bundleContext) {
+        if (bundleContext != null) {
+            Dictionary<String, Object> properties = new Hashtable<>(1);
+            properties.put("name", MetrologyConfigurationService.COMPONENT_NAME);
+            this.serviceRegistrations.add(bundleContext.registerService(
+                    new String[]{MetrologyConfigurationService.class.getName(),
+                            InstallService.class.getName(),
+                            PrivilegesProvider.class.getName(),
+                            MessageSeedProvider.class.getName(),
+                            TranslationKeyProvider.class.getName()},
+                    this.metrologyConfigurationService,
+                    properties));
+        }
+    }
+
     @Deactivate
     public final void deactivate() {
+        if (!this.serviceRegistrations.isEmpty()) {
+            this.serviceRegistrations.forEach(ServiceRegistration::unregister);
+        }
     }
 
     @Override
@@ -478,10 +507,10 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public Finder<UsagePoint> getUsagePoints(UsagePointFilter filter) {
         Condition condition = Condition.TRUE;
-        if (!Checks.is(filter.getMrid()).emptyOrOnlyWhiteSpace()){
+        if (!Checks.is(filter.getMrid()).emptyOrOnlyWhiteSpace()) {
             condition = condition.and(where("mRID").likeIgnoreCase(filter.getMrid()));
         }
-        if (filter.isAccountabilityOnly()){
+        if (filter.isAccountabilityOnly()) {
             condition = condition.and(hasAccountability());
         }
         return DefaultFinder.of(UsagePoint.class, condition, dataModel);
@@ -604,11 +633,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             throw new IllegalArgumentException("Effective timestamp of the statemachine switch over cannot be in the future");
         }
         StateMachineSwitcher
-            .forValidation(this.dataModel)
-            .validate(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
+                .forValidation(this.dataModel)
+                .validate(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
         StateMachineSwitcher
-            .forPublishing(this.dataModel, this.messageService, this.jsonService)
-            .publishEvents(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
+                .forPublishing(this.dataModel, this.messageService, this.jsonService)
+                .publishEvents(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
     }
 
     @Override
@@ -652,6 +681,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         Arrays.stream(PropertyTranslationKeys.values()).forEach(translationKeys::add);
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
         Arrays.stream(AmiBillingReadyKind.values()).forEach(translationKeys::add);
+        Arrays.stream(DefaultMeterRole.values()).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         return translationKeys;
     }

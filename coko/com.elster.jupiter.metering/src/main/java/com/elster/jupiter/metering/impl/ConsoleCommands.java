@@ -253,7 +253,7 @@ public class ConsoleCommands {
             if (!formula.isPresent()) {
                 System.out.println("No formula found with id " + id);
             } else {
-                ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus()).parse(formulaString);
+                ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
                 Formula formulaObject = formula.get();
                 formulaObject.updateExpression(node);
                 context.commit();
@@ -263,7 +263,7 @@ public class ConsoleCommands {
 
     public void addFormula(String formulaString) {
         try (TransactionContext context = transactionService.getContext()) {
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus()).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
             Formula formula = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
             context.commit();
         }

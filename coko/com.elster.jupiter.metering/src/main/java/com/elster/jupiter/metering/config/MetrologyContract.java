@@ -33,4 +33,7 @@ public interface MetrologyContract {
      */
     List<ReadingTypeDeliverable> getDeliverables();
 
+    MetrologyPurpose getMetrologyPurpose();
+
+    boolean isMandatory();
 }

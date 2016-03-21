@@ -1,5 +1,10 @@
 package com.elster.jupiter.metering.config;
 
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.nls.TranslationKey;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -9,11 +14,12 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-15 (13:09)
  */
+@ProviderType
 public interface MetrologyConfigurationService {
 
     String COMPONENT_NAME = "MCF";
 
-    MetrologyConfiguration newMetrologyConfiguration(String name);
+    MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
 
@@ -25,6 +31,10 @@ public interface MetrologyConfigurationService {
 
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
+    MeterRole newMeterRole(TranslationKey key);
+
+    Optional<MeterRole> findMeterRole(String key);
+
     FormulaBuilder newFormulaBuilder(Formula.Mode mode);
 
     /**
@@ -33,5 +43,29 @@ public interface MetrologyConfigurationService {
     Optional<Formula> findFormula(long id);
 
     List<Formula> findFormulas();
+
+    ReadingTypeTemplate createReadingTypeTemplate(String name);
+
+    Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id);
+
+    Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version);
+
+    MetrologyPurpose.MetrologyPurposeBuilder createMetrologyPurpose();
+
+    Optional<MetrologyPurpose> findMetrologyPurpose(long id);
+
+    Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
+
+    List<MetrologyPurpose> getMetrologyPurposes();
+
+    ReadingTypeDeliverable createReadingTypeDeliverable(String name, MetrologyContract contract, ReadingType readingType, Formula formula);
+
+    Optional<ReadingTypeDeliverable> findAndLockReadingTypeDeliverableByIdAndVersion(long id, long version);
+
+    List<ReadingTypeDeliverable> findReadingTypeDeliverable(ReadingTypeDeliverableFilter filter);
+    Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
+
+    Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id);
+
 
 }

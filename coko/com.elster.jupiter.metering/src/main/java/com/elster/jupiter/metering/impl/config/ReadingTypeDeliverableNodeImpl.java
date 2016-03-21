@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.orm.associations.Reference;
@@ -14,7 +13,6 @@ public class ReadingTypeDeliverableNodeImpl extends AbstractNode implements Read
 
     static final String TYPE_IDENTIFIER = "DEL";
 
-    //todo add foreign key and replace id by reference
     private Reference<ReadingTypeDeliverable> readingTypeDeliverable = ValueReference.absent();
 
     public ReadingTypeDeliverableNodeImpl(ReadingTypeDeliverable readingTypeDeliverable) {

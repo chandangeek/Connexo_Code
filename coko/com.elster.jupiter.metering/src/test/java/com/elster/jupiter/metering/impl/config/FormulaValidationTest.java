@@ -32,6 +32,18 @@ public class FormulaValidationTest {
     private ReadingTypeRequirement readingTypeRequirement2;
     @Mock
     private ReadingTypeRequirement readingTypeRequirement3;
+    @Mock
+    private ReadingTypeRequirement pressure1;
+    @Mock
+    private ReadingTypeRequirement temperature1;
+    @Mock
+    private ReadingTypeRequirement volume1;
+    @Mock
+    private ReadingTypeRequirement pressure2;
+    @Mock
+    private ReadingTypeRequirement temperature2;
+    @Mock
+    private ReadingTypeRequirement volume2;
 
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
 
@@ -284,6 +296,32 @@ public class FormulaValidationTest {
             fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessage(), "Only dimensions that are compatible for automatic unit conversion can be used as children of a function.");
+        }
+    }
+
+    @Test
+    // formula = ((pressure1 * volume 1) / temperature1)  * (temperature2/pressure2) => should result in valid Volume Dimension
+    public void testGasPressureTemperature() {
+        when(pressure1.getDimension()).thenReturn(Dimension.PRESSURE);
+        when(pressure2.getDimension()).thenReturn(Dimension.PRESSURE);
+        when(temperature1.getDimension()).thenReturn(Dimension.TEMPERATURE);
+        when(temperature2.getDimension()).thenReturn(Dimension.TEMPERATURE);
+        when(volume1.getDimension()).thenReturn(Dimension.VOLUME);
+        when(volume2.getDimension()).thenReturn(Dimension.VOLUME);
+        MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+
+        ExpressionNodeBuilder nodeBuilder = builder.multiply(builder.divide(builder.multiply(
+                                builder.requirement(pressure1), builder.requirement(volume1)),
+                        builder.requirement(temperature1)),
+                builder.divide(builder.requirement(temperature2), builder.requirement(pressure2)) );
+        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        try {
+            node.validate();
+            assertEquals(node.getDimension(), Dimension.VOLUME);
+        } catch (InvalidNodeException e) {
+            fail("No InvalidNodeException expected!");
         }
     }
 }

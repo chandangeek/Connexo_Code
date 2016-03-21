@@ -34,7 +34,6 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     protected Object getInstanceA() {
         if (instanceA == null) {
             instanceA = new MetrologyConfigurationImpl(dataModel, eventService, thesaurus, metrologyConfigurationService);
-            instanceA.init("name");
             Reflection.field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCE_A_ID);
         }
         return instanceA;
@@ -43,7 +42,6 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     @Override
     protected Object getInstanceEqualToA() {
         MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, eventService, thesaurus, metrologyConfigurationService);
-        other.init("name");
         Reflection.field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID);
         return other;
     }
@@ -51,7 +49,6 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, eventService, thesaurus, metrologyConfigurationService);
-        other.init("name");
         Reflection.field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID + 1);
         return singletonList(other);
     }

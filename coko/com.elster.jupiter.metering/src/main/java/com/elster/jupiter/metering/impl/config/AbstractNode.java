@@ -128,7 +128,7 @@ public abstract class AbstractNode implements ExpressionNode {
         dataModel.remove(this);
     }
 
-    public IntermediateDimension getTemporaryDimension() {
+    public IntermediateDimension getIntermediateDimension() {
         return IntermediateDimension.of(getDimension());
     }
 

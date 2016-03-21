@@ -2,12 +2,25 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
+import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
@@ -27,14 +40,13 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link MetrologyConfigurationService} interface.
@@ -42,11 +54,6 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-15 (13:20)
  */
-@Component(
-        name = "com.elster.jupiter.metering.config.MetrologyConfigurationServiceImpl",
-        service = {MetrologyConfigurationService.class, InstallService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
-        property = {"name=" + MetrologyConfigurationService.COMPONENT_NAME},
-        immediate = false)
 public class MetrologyConfigurationServiceImpl implements MetrologyConfigurationService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile ServerMeteringService meteringService;
@@ -54,23 +61,16 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     private volatile UserService userService;
     private volatile Thesaurus thesaurus;
 
-    // For OSGi purposes
-    public MetrologyConfigurationServiceImpl() {
-        super();
-    }
-
     @Inject
     public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, EventService eventService, UserService userService) {
-        this();
-        setMeteringService(meteringService);
-        setEventService(eventService);
-        setUserService(userService);
-        this.install();
+        this.meteringService = meteringService;
+        this.eventService = eventService;
+        this.userService = userService;
     }
 
     @Override
     public void install() {
-        new Installer(this.eventService).install();
+        new Installer(this.meteringService, this).install();
     }
 
     @Override
@@ -109,27 +109,15 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(Privileges.values());
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.addAll(Arrays.asList(Privileges.values()));
+        translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
+        return translationKeys;
     }
 
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
-    }
-
-    @Reference
-    public void setMeteringService(ServerMeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
-    }
-
-    @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
     }
 
     DataModel getDataModel() {
@@ -141,16 +129,22 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     }
 
     @Override
-    public MetrologyConfiguration newMetrologyConfiguration(String name) {
-        MetrologyConfigurationImpl metrologyConfiguration = this.getDataModel().getInstance(MetrologyConfigurationImpl.class).init(name);
-        metrologyConfiguration.update();
-        return metrologyConfiguration;
+    public MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory) {
+        MetrologyConfigurationBuilderImpl builder = new MetrologyConfigurationBuilderImpl(getDataModel());
+        builder.init(name, serviceCategory);
+        return builder;
     }
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {
         return this.getDataModel().mapper(MetrologyConfiguration.class).getUnique("id", id);
     }
+
+    @Override
+    public Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id) {
+        return this.getDataModel().mapper(ReadingTypeRequirement.class).getUnique("id", id);
+    }
+
 
     @Override
     public Optional<MetrologyConfiguration> findAndLockMetrologyConfiguration(long id, long version) {
@@ -190,5 +184,93 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         return getDataModel().mapper(Formula.class).find();
     }
 
+    @Override
+    public ReadingTypeTemplate createReadingTypeTemplate(String name) {
+        ReadingTypeTemplateImpl template = getDataModel().getInstance(ReadingTypeTemplateImpl.class)
+                .init(name);
+        template.save();
+        return template;
+    }
 
+    @Override
+    public Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id) {
+        return getDataModel().mapper(ReadingTypeTemplate.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version) {
+        return getDataModel().mapper(ReadingTypeTemplate.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public MeterRole newMeterRole(TranslationKey key) {
+        MeterRoleImpl meterRole = getDataModel().getInstance(MeterRoleImpl.class).init(key.getKey());
+        Save.CREATE.save(getDataModel(), meterRole);
+        return meterRole;
+    }
+
+    @Override
+    public Optional<MeterRole> findMeterRole(String key) {
+        return getDataModel().mapper(MeterRole.class).getUnique(MeterRoleImpl.Fields.KEY.fieldName(), key);
+    }
+
+    @Override
+    public MetrologyPurpose.MetrologyPurposeBuilder createMetrologyPurpose() {
+        return new MetrologyPurposeBuilderImpl(getDataModel());
+    }
+
+    @Override
+    public Optional<MetrologyPurpose> findMetrologyPurpose(long id) {
+        return getDataModel().mapper(MetrologyPurpose.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose) {
+        return getDataModel().query(MetrologyPurpose.class)
+                .select(where(MetrologyPurposeImpl.Fields.DEFAULT_PURPOSE.fieldName()).isEqualTo(defaultMetrologyPurpose))
+                .stream()
+                .findFirst();
+    }
+
+    @Override
+    public List<MetrologyPurpose> getMetrologyPurposes() {
+        return getDataModel().mapper(MetrologyPurpose.class).find();
+    }
+
+    @Override
+    public ReadingTypeDeliverable createReadingTypeDeliverable(String name, MetrologyContract contract, ReadingType readingType, Formula formula) {
+        ReadingTypeDeliverableImpl deliverable = getDataModel().getInstance(ReadingTypeDeliverableImpl.class)
+                .init(name, contract, readingType, formula);
+        deliverable.save();
+        return deliverable;
+    }
+
+    @Override
+    public Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id) {
+        return getDataModel().mapper(ReadingTypeDeliverable.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<ReadingTypeDeliverable> findAndLockReadingTypeDeliverableByIdAndVersion(long id, long version) {
+        return getDataModel().mapper(ReadingTypeDeliverable.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public List<ReadingTypeDeliverable> findReadingTypeDeliverable(ReadingTypeDeliverableFilter filter) {
+        if (filter == null) {
+            throw new IllegalArgumentException("Filter can not be null.");
+        }
+        Condition condition = Condition.TRUE;
+        if (!filter.getReadingTypes().isEmpty()) {
+            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.READING_TYPE.fieldName()).in(filter.getReadingTypes()));
+        }
+        if (!filter.getMetrologyContracts().isEmpty()) {
+            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName()).in(filter.getMetrologyContracts()));
+        }
+        if (!filter.getMetrologyConfigurations().isEmpty()) {
+            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName()
+                    + "." + MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName()).in(filter.getMetrologyConfigurations()));
+        }
+        return getDataModel().query(ReadingTypeDeliverable.class, MetrologyContract.class).select(condition);
+    }
 }
