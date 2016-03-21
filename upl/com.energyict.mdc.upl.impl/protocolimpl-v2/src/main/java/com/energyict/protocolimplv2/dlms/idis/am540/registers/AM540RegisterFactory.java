@@ -41,11 +41,16 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
     }
 
     @Override
-    protected void addComposedObjectToComposedRegisterMap(Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes, OfflineRegister register) {
+    protected Boolean addComposedObjectToComposedRegisterMap(Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes, OfflineRegister register) {
         G3Mapping g3Mapping = getPLCRegisterMapper().getG3Mapping(register.getObisCode());
         if (g3Mapping != null) {
             ComposedRegister composedRegister = new ComposedRegister();
             int[] attributeNumbers = g3Mapping.getAttributeNumbers();
+
+            if (dlmsAttributes.size() + attributeNumbers.length > BULK_REQUEST_ATTRIBUTE_LIMIT) {
+                return null; //Don't add the new attributes, no more room
+            }
+
             for (int index = 0; index < attributeNumbers.length; index++) {
                 int attributeNumber = attributeNumbers[index];
                 DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
@@ -61,8 +66,9 @@ public class AM540RegisterFactory extends AM130RegisterFactory {
                 }
             }
             composedObjectMap.put(register.getObisCode(), composedRegister);
+            return true;
         } else {
-            super.addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
+            return super.addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
         }
     }
 
