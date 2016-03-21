@@ -59,13 +59,7 @@ Ext.define('Cps.customattributesets.view.AttributeSetsGrid', {
                     xtype: 'custom-attribute-sets-action-menu',
                     itemId: 'custom-attribute-sets-action-menu-id'
                 },
-                renderer: function (value, metaData, record) {
-                    if(record.get('domainNameUntranslated') === 'com.elster.jupiter.servicecall.ServiceCall') {
-                        this.disable();
-                    } else {
-                        this.enable();
-                    }
-                }
+                isDisabled: me.fnIsDisabled
             }
         ];
 
@@ -87,6 +81,14 @@ Ext.define('Cps.customattributesets.view.AttributeSetsGrid', {
         ];
 
         me.callParent(arguments);
+    },
+
+    fnIsDisabled: function (view, rowIndex, colIndex, item, record) {
+        if(record.get('domainNameUntranslated') === 'com.elster.jupiter.servicecall.ServiceCall') {
+            return true;
+        } else {
+            return false;
+        }
     }
 });
 
