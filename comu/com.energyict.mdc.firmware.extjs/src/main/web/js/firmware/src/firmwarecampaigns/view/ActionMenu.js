@@ -20,7 +20,8 @@ Ext.define('Fwc.firmwarecampaigns.view.ActionMenu', {
             },
             {
                 text: Uni.I18n.translate('firmware.campaigns.cancelCampaign', 'FWC', 'Cancel campaign'),
-                action: 'cancelCampaign'
+                action: 'cancelCampaign',
+                privileges: Fwc.privileges.FirmwareCampaign.administrate
             }
         ];
         me.callParent(arguments);

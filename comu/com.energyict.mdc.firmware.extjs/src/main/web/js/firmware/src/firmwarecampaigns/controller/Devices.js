@@ -20,6 +20,14 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
         }
     ],
 
+    init: function () {
+        this.control({
+            '#firmware-campaigns-device-action-menu': {
+                click: this.onActionMenuClicked
+            }
+        });
+    },
+
     showDevices: function (firmwareCampaignId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -32,7 +40,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('firmware-campaign-devices', {
                     itemId: 'firmware-campaign-devices',
                     router: router,
-                    deviceType: record.get('deviceType')
+                    deviceType: record.get('deviceType'),
+                    campaignIsOngoing: record.get('status').id === 'ONGOING'
                 }));
                 me.getSideMenu().down('#firmware-campaign-link').setText(record.get('name'));
                 me.getApplication().fireEvent('loadFirmwareCampaign', record);
@@ -41,5 +50,17 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
                 pageView.setLoading(false);
             }
         });
+    },
+
+    onActionMenuClicked: function (menu, item) {
+        switch (item.action) {
+            case 'skipDevice':
+                console.log('To do: skip the device');
+                break;
+            case 'retryDevice':
+                console.log('To do: retry the device');
+                break;
+        }
     }
+
 });
