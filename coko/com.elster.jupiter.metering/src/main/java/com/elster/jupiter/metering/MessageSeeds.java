@@ -102,7 +102,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String OBJECT_MUST_HAVE_UNIQUE_NAME = "name.must.be.unique";
         public static final String REQUIRED = "isRequired";
         public static final String FIELD_TOO_LONG = "invalidFieldLength";
-        public static final String LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED = "lastChecked.after.currentLastChecked";
         public static final String CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER = "custom.property.set.is.not.editable.by.user";
         public static final String NO_LINKED_CUSTOM_PROPERTY_SET_ON_USAGE_POINT = "no.linked.custom.property.set.on.usage.point";
         public static final String CUSTOM_PROPERTY_SET_HAS_DIFFERENT_DOMAIN = "custom.property.set.has.different.domain";
