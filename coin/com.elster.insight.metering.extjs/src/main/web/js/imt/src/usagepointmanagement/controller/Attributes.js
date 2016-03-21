@@ -50,6 +50,9 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
             success: function (record) {
                 usagePoint = record;
                 showPage();
+            },
+            failure: function () {
+                mainView.setLoading(false);
             }
         });
     }
