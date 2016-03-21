@@ -38,24 +38,27 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
             iconStyle = "color: #686868;font-size: 16px;";
             serviceCategory = me.usagePoint.get('serviceCategory');
             connectionState = me.usagePoint.get('connectionState');
-            me.tools = [
-                {
+            me.tools = [];
+            if (serviceCategory) {
+                me.tools.push({
                     xtype: 'component',
                     html: '<span class="'
                     + Imt.util.IconsMap.getCls(serviceCategory)
                     + '" style="' + iconStyle + '" data-qtip="'
                     + Imt.util.ServiceCategoryTranslations.getTranslation(serviceCategory)
                     + '"></span>'
-                },
-                {
+                });
+            }
+            if (Ext.isObject(connectionState)) {
+                me.tools.push({
                     xtype: 'component',
                     html: '<span class="'
                     + Imt.util.IconsMap.getCls(connectionState.id)
                     + '" style="' + iconStyle + '" data-qtip="'
                     + connectionState.name
                     + '"></span>'
-                }
-            ]
+                });
+            }
         }
 
         me.callParent(arguments);
