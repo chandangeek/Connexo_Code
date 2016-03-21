@@ -18,6 +18,9 @@ Ext.define('Cps.customattributesets.view.Setup', {
                 title: Uni.I18n.translate('general.customAttributeSets', 'CPS', 'Custom attribute sets'),
                 items: [
                     {
+                        xtype: 'custom-attributes-top-filter'
+                    },
+                    {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'custom-attribute-sets-grid',
@@ -45,12 +48,6 @@ Ext.define('Cps.customattributesets.view.Setup', {
                                 }
                             ]
                         }
-                    }
-                ],
-                dockedItems: [
-                    {
-                        dock: 'top',
-                        xtype: 'custom-attributes-top-filter'
                     }
                 ]
             }
