@@ -37,7 +37,8 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_ARGUMENTS_FOR_DIVISION(5002, Constants.INVALID_ARGUMENTS_FOR_DIVISION, "Dimensions from division arguments do not result in a valid dimension."),
     INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION(5003, Constants.INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION, "Only dimensions that are compatible for automatic unit conversion can be summed or substracted."),
     INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED(5004, Constants.INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED, "At least 1 child is required for a function call."),
-    INVALID_ARGUMENTS_FOR_FUNCTION_CALL(5005, Constants.INVALID_ARGUMENTS_FOR_FUNCTION_CALL, "Only dimensions that are compatible for automatic unit conversion can be used as children of a function.")
+    INVALID_ARGUMENTS_FOR_FUNCTION_CALL(5005, Constants.INVALID_ARGUMENTS_FOR_FUNCTION_CALL, "Only dimensions that are compatible for automatic unit conversion can be used as children of a function."),
+    INVALID_DIMENSION(5006, Constants.INVALID_DIMENSION, "Invalid dimension")
     ;
 
     private final int number;
@@ -107,6 +108,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION = "expression.node.invalid.arguments.sum.or.substraction";
         public static final String INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED = "expression.node.invalid.arguments.one.child.required";
         public static final String INVALID_ARGUMENTS_FOR_FUNCTION_CALL = "expression.node.invalid.arguments.functioncall";
+        public static final String INVALID_DIMENSION = "expression.node.invalid.dimension";
     }
 
 }

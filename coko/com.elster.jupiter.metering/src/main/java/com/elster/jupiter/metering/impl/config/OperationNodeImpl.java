@@ -65,11 +65,11 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
                 }
             }
             if ((operator.equals(Operator.MULTIPLY)) &&
-                    (!UnitConversionSupport.isAllowedMultiplication(left.getTemporaryDimension(), right.getTemporaryDimension()))) {
+                    (!UnitConversionSupport.isAllowedMultiplication(left.getIntermediateDimension(), right.getIntermediateDimension()))) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_MULTIPLICATION);
             }
             if ((operator.equals(Operator.DIVIDE)) &&
-                    (!UnitConversionSupport.isAllowedDivision(left.getTemporaryDimension(), right.getTemporaryDimension()))) {
+                    (!UnitConversionSupport.isAllowedDivision(left.getIntermediateDimension(), right.getIntermediateDimension()))) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_DIVISION);
             }
         }
@@ -78,38 +78,26 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
 
     @Override
      public Dimension getDimension() {
-        if (operator.equals(Operator.MINUS) || operator.equals(Operator.PLUS)) {
-            return getLeftOperand().getDimension();
-        } else if (operator.equals(Operator.MULTIPLY)) {
-            Optional<Dimension> dimension =
-                    UnitConversionSupport.getMultiplicationDimension(getLeftOperand().getDimension(), getRightOperand().getDimension());
-            if (!dimension.isPresent()) {
-                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_MULTIPLICATION);
-            }
-            return dimension.get();
-        } else {
-            Optional<Dimension> dimension =
-                    UnitConversionSupport.getDivisionDimension(getLeftOperand().getDimension(), getRightOperand().getDimension());
-            if (!dimension.isPresent()) {
-                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_DIVISION);
-            }
-            return dimension.get();
+        IntermediateDimension intermediateDimension = getIntermediateDimension();
+        if (!intermediateDimension.exists()) {
+            throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_FOR_DIVISION);
         }
+        return intermediateDimension.getDimension().get();
     }
 
     @Override
-    public IntermediateDimension getTemporaryDimension() {
+    public IntermediateDimension getIntermediateDimension() {
         if (operator.equals(Operator.MINUS) || operator.equals(Operator.PLUS)) {
-            return ((AbstractNode) getLeftOperand()).getTemporaryDimension();
+            return ((AbstractNode) getLeftOperand()).getIntermediateDimension();
         } else if (operator.equals(Operator.MULTIPLY)) {
             return
                     UnitConversionSupport.multiply(
-                            ((AbstractNode) getLeftOperand()).getTemporaryDimension(),
-                            ((AbstractNode) getRightOperand()).getTemporaryDimension());
+                            ((AbstractNode) getLeftOperand()).getIntermediateDimension(),
+                            ((AbstractNode) getRightOperand()).getIntermediateDimension());
         } else {
             return UnitConversionSupport.divide(
-                    ((AbstractNode) getLeftOperand()).getTemporaryDimension(),
-                    ((AbstractNode) getRightOperand()).getTemporaryDimension());
+                    ((AbstractNode) getLeftOperand()).getIntermediateDimension(),
+                    ((AbstractNode) getRightOperand()).getIntermediateDimension());
         }
     }
 }
