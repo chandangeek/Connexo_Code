@@ -32,7 +32,13 @@ Ext.define('Mdc.model.DeviceAttribute', {
                 return res
             }
         },
-        {name: 'location', type: 'auto'}
+        {
+            name: 'location',
+            type: 'auto',
+            convert: function (value, record) {
+                return value.displayValue;
+            }
+        }
     ],
 
     proxy: {
