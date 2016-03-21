@@ -33,6 +33,11 @@ public class AM540Properties extends IDISProperties {
     }
 
     @Override
+    public boolean isBulkRequest() {
+        return true;
+    }
+
+    @Override
     public boolean isUsePolling() {
         return false;   //The AM540 protocol will run embedded in the Beacon3100, so avoid polling on the inputstream
     }
