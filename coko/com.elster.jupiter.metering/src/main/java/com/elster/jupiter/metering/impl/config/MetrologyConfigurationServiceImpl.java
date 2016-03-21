@@ -52,7 +52,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-15 (13:20)
  */
-public class MetrologyConfigurationServiceImpl implements MetrologyConfigurationService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
+public class MetrologyConfigurationServiceImpl implements MetrologyConfigurationService, ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile ServerMeteringService meteringService;
     private volatile EventService eventService;
@@ -118,11 +118,13 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         return Arrays.asList(MessageSeeds.values());
     }
 
-    DataModel getDataModel() {
+    @Override
+    public DataModel getDataModel() {
         return this.meteringService.getDataModel();
     }
 
-    Thesaurus getThesaurus() {
+    @Override
+    public Thesaurus getThesaurus() {
         return this.meteringService.getThesaurus();
     }
 
@@ -180,6 +182,14 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     public ReadingTypeTemplate createReadingTypeTemplate(String name) {
         ReadingTypeTemplateImpl template = getDataModel().getInstance(ReadingTypeTemplateImpl.class)
                 .init(name);
+        template.save();
+        return template;
+    }
+
+    @Override
+    public ReadingTypeTemplate createReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate) {
+        ReadingTypeTemplateImpl template = getDataModel().getInstance(ReadingTypeTemplateImpl.class)
+                .init(defaultTemplate);
         template.save();
         return template;
     }

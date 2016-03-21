@@ -41,6 +41,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.aggregation.AggregatedReadingRecordFactory;
 import com.elster.jupiter.metering.impl.aggregation.AggregatedReadingRecordFactoryImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
@@ -69,6 +70,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
+
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -419,6 +421,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             properties.put("name", MetrologyConfigurationService.COMPONENT_NAME);
             this.serviceRegistrations.add(bundleContext.registerService(
                     new String[]{MetrologyConfigurationService.class.getName(),
+                            ServerMetrologyConfigurationService.class.getName(),
                             InstallService.class.getName(),
                             PrivilegesProvider.class.getName(),
                             MessageSeedProvider.class.getName(),

@@ -943,6 +943,11 @@ public enum TableSpecs {
                     .notNull()
                     .map(ReadingTypeTemplateImpl.Fields.NAME.fieldName())
                     .add();
+            table.column(ReadingTypeTemplateImpl.Fields.DEFAULT_TEMPLATE.name())
+                    .number()
+                    .conversion(NUMBER2ENUM)
+                    .map(ReadingTypeTemplateImpl.Fields.DEFAULT_TEMPLATE.fieldName())
+                    .add();
             table.addAuditColumns();
 
             table.primaryKey("MTR_RT_TEMPLATE_PK").on(idColumn).add();
