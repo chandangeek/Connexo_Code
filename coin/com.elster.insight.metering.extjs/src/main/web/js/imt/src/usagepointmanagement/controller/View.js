@@ -82,6 +82,9 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             success: function (record) {
                 usagePoint = record;
                 showPage();
+            },
+            failure: function () {
+                mainView.setLoading(false);
             }
         });
     },
