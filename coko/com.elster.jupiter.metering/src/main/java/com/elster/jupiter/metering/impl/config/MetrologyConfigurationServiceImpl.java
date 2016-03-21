@@ -4,7 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
@@ -23,7 +23,6 @@ import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -36,7 +35,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -52,12 +50,11 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-15 (13:20)
  */
-public class MetrologyConfigurationServiceImpl implements MetrologyConfigurationService, ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
+public class MetrologyConfigurationServiceImpl implements MetrologyConfigurationService, ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
     private volatile ServerMeteringService meteringService;
     private volatile EventService eventService;
     private volatile UserService userService;
-    private volatile Thesaurus thesaurus;
 
     @Inject
     public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, EventService eventService, UserService userService) {
@@ -97,7 +94,7 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
 
     @Override
     public String getComponentName() {
-        return COMPONENT_NAME;
+        return MeteringService.COMPONENTNAME;
     }
 
     @Override
@@ -110,12 +107,8 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         List<TranslationKey> translationKeys = new ArrayList<>();
         translationKeys.addAll(Arrays.asList(Privileges.values()));
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
+        translationKeys.addAll(Arrays.asList(DefaultReadingTypeTemplate.TemplateTranslation.values()));
         return translationKeys;
-    }
-
-    @Override
-    public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override

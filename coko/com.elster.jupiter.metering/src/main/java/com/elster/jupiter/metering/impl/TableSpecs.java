@@ -1058,6 +1058,8 @@ public enum TableSpecs {
             table.map(ReadingTypeRequirementImpl.IMPLEMENTERS);
 
             Column idColumn = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("REQTYPE", "char(3)");
+
             table.column(ReadingTypeRequirementImpl.Fields.NAME.name())
                     .varChar(NAME_LENGTH)
                     .notNull()

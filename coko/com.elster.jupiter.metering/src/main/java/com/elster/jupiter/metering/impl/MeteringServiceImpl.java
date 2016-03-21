@@ -424,8 +424,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                             ServerMetrologyConfigurationService.class.getName(),
                             InstallService.class.getName(),
                             PrivilegesProvider.class.getName(),
-                            MessageSeedProvider.class.getName(),
-                            TranslationKeyProvider.class.getName()},
+                            MessageSeedProvider.class.getName()},
                     this.metrologyConfigurationService,
                     properties));
         }
