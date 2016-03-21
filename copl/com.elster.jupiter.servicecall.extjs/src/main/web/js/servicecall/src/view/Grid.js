@@ -35,14 +35,7 @@ Ext.define('Scs.view.Grid', {
             {
                 header: Uni.I18n.translate('general.status', 'SCS', 'Status'),
                 dataIndex: 'state',
-                flex: 1,
-                renderer: function(value) {
-                    if(value.displayValue) {
-                        return value.displayValue;
-                    } else {
-                        return '-';
-                    }
-                }
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('general.receivedDate', 'SCS', 'Received date'),
