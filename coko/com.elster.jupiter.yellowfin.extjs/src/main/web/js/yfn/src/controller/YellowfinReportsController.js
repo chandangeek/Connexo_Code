@@ -313,9 +313,10 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                 success: function (response) {
                     data = Ext.JSON.decode(response.responseText);
                     if (typeof yellowfin == "undefined") {
-                        Ext.Loader.injectScriptElement(data.url + '/JsAPI', function () {
-                            yellowfin.baseURL = data.url + '/JsAPI';
-                            Ext.Loader.injectScriptElement(data.url + '/JsAPI?api=reports', function () {
+                        var url = data.url.charAt(data.url.length - 1) === "/" ? data.url + 'JsAPI' : data.url + '/JsAPI';
+                        Ext.Loader.injectScriptElement(url, function () {
+                            yellowfin.baseURL = url;
+                            Ext.Loader.injectScriptElement(url + '?api=reports', function () {
                                 me.generateReport(data);
                             }, function () {
                             });
