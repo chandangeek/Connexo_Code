@@ -190,9 +190,9 @@ public class ServiceCallsCommands {
                 .sorted(Comparator.comparing(ServiceCall::getId))
                 .map(sc -> sc.getNumber() + " "
                 + sc.getState().getKey() + " " + sc.getType().getName() + " "
-                + sc.getParent().map(p -> p.getNumber()).orElse("-P-") + " "
-                + sc.getOrigin().orElse("-O-") + " "
-                + sc.getExternalReference().orElse("-E-"))
+                + sc.getParent().map(p -> p.getNumber()).orElse("[no parent]") + " "
+                + sc.getOrigin().orElse("[no orig]") + " "
+                + sc.getExternalReference().orElse("[no ext ref]"))
                 .forEach(System.out::println);
     }
 
