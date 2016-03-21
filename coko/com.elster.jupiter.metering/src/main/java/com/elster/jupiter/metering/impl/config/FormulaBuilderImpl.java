@@ -92,6 +92,11 @@ public class FormulaBuilderImpl implements FormulaBuilder {
         return function(Function.AVG, terms);
     }
 
+    @Override
+    public ExpressionNodeBuilder aggregate(ExpressionNodeBuilder expression) {
+        return function(Function.AGG_TIME, expression);
+    }
+
     public ExpressionNodeBuilder plus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2) {
         return () -> new OperationNodeImpl(Operator.PLUS,  term1.create(),  term2.create(), thesaurus);
     }
@@ -111,8 +116,9 @@ public class FormulaBuilderImpl implements FormulaBuilder {
     private ExpressionNodeBuilder function(Function function, ExpressionNodeBuilder... terms) {
         return () -> new FunctionCallNodeImpl(
                 Arrays.stream(terms)
-                        .map((ExpressionNodeBuilder b) ->  b.create())
+                        .map(ExpressionNodeBuilder::create)
                         .collect(Collectors.toList()),
                         function, thesaurus);
     }
+
 }

@@ -82,6 +82,11 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
         return new FunctionCallNode(functionCall.getFunction(), arguments);
     }
 
+    @Override
+    public ServerExpressionNode visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+        return new TimeBasedAggregationNode(aggregationNode.getAggregatedExpression().accept(this), aggregationNode.getTargetReadingType());
+    }
+
     private class Context {
         final VirtualRequirementNode node;
         final MeteringService meteringService;

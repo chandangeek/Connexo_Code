@@ -93,7 +93,11 @@ class ReadingTypeDeliverableForMeterActivation {
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
         SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(sqlComment()), SqlConstants.TimeSeriesColumnNames.names());
         this.appendWithClause(withClauseBuilder);
-        this.appendSelectClause(sqlBuilder.select());
+        SqlBuilder withSelectClause = sqlBuilder.select();
+        this.appendSelectClause(withSelectClause);
+        if (this.expertModeAppliesAggregation()) {
+            this.appendWithGroupByClause(withClauseBuilder);
+        }
     }
 
     private void appendWithClause(SqlBuilder withClauseBuilder) {
@@ -104,7 +108,12 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private void appendWithSelectClause(SqlBuilder withClauseBuilder) {
         withClauseBuilder.append("SELECT ");
-        SqlConstants.TimeSeriesColumnNames.appendAllDeliverableSelectValues(this.expressionNode, this.resultValueNeedsTimeBasedAggregation(), withClauseBuilder);
+        SqlConstants.TimeSeriesColumnNames
+                .appendAllDeliverableSelectValues(
+                        this.expressionNode,
+                        this.expertModeAppliesAggregation(),
+                        this.targetReadingType,
+                        withClauseBuilder);
     }
 
     private void appendWithFromClause(SqlBuilder sqlBuilderBuilder) {
@@ -123,6 +132,12 @@ class ReadingTypeDeliverableForMeterActivation {
                 sqlBuilder.append("\n  ");
             }
         }
+    }
+
+    private void appendWithGroupByClause(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(" GROUP BY ");
+        String sqlName = this.expressionNode.accept(new LocalDateFromExpressionNode());
+        this.appendTrucatedTimeline(sqlBuilder, sqlName);
     }
 
     private void appendSelectClause(SqlBuilder sqlBuilder) {
@@ -150,7 +165,7 @@ class ReadingTypeDeliverableForMeterActivation {
                             this.targetReadingType));
             sqlBuilder.append(")");
         } else {
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
         }
     }
 
@@ -159,39 +174,39 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
-        if (!this.resultValueNeedsTimeBasedAggregation()) {
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.TIMESTAMP, sqlBuilder);
+        if (this.resultValueNeedsTimeBasedAggregation()) {
+            this.appendTrucatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
         } else {
-            this.appendTrucatedTimeline(sqlBuilder);
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.TIMESTAMP, sqlBuilder, this.sqlName());
         }
     }
 
-    private void appendTrucatedTimeline(SqlBuilder sqlBuilder) {
+    private void appendTrucatedTimeline(SqlBuilder sqlBuilder, String sqlName) {
         sqlBuilder.append("TRUNC(");
-        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.LOCALDATE, sqlBuilder);
+        sqlBuilder.append(sqlName);
         sqlBuilder.append(", '");
         sqlBuilder.append(this.targetReadingType.getIntervalLength().toOracleTruncFormatModel());
         sqlBuilder.append("')");
     }
 
-    private void appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames columnName, SqlBuilder sqlBuilder) {
-        sqlBuilder.append(this.sqlName());
+    private void appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames columnName, SqlBuilder sqlBuilder, String sqlName) {
+        sqlBuilder.append(sqlName);
         sqlBuilder.append(".");
         sqlBuilder.append(columnName.sqlName());
     }
 
     private void appendProcessStatusToSelectClause(SqlBuilder sqlBuilder) {
-        if (!this.resultValueNeedsTimeBasedAggregation()) {
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS, sqlBuilder);
-        } else {
+        if (this.resultValueNeedsTimeBasedAggregation()) {
             this.appendAggregatedProcessStatus(sqlBuilder);
+        } else {
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS, sqlBuilder, this.sqlName());
         }
     }
 
     private void appendAggregatedProcessStatus(SqlBuilder sqlBuilder) {
         sqlBuilder.append(AggregationFunction.BIT_OR.sqlName());
         sqlBuilder.append("(");
-        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS, sqlBuilder);
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS, sqlBuilder, this.sqlName());
         sqlBuilder.append(")");
     }
 
@@ -203,11 +218,22 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private void appendGroupByClause(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" GROUP BY ");
-        this.appendTrucatedTimeline(sqlBuilder);
+        this.appendTrucatedTimeline(sqlBuilder, this.sqlName() + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
     }
 
     private boolean resultValueNeedsTimeBasedAggregation() {
-        return this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength();
+        return Formula.Mode.AUTO.equals(this.mode)
+            && this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength();
+    }
+
+    private boolean expertModeAppliesAggregation() {
+        if (Formula.Mode.EXPERT.equals(this.mode)) {
+            Flatten visitor = new Flatten();
+            this.expressionNode.accept(visitor);
+            return visitor.getFlattened().stream().anyMatch(each -> each instanceof TimeBasedAggregationNode);
+        } else {
+            return false;
+        }
     }
 
     private class FinishRequirementAndDeliverableNodes implements ServerExpressionNode.Visitor<Void> {
@@ -253,6 +279,12 @@ class ReadingTypeDeliverableForMeterActivation {
             functionCall.getArguments().forEach(child -> child.accept(this));
             return null;
         }
+
+        @Override
+        public Void visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+            return aggregationNode.getAggregatedExpression().accept(this);
+        }
+
     }
 
 }

@@ -8,31 +8,19 @@ package com.elster.jupiter.metering.config;
  * @since 2016-02-08
  */
 public enum Function {
-    SUM(1),
-    MAX(2),
-    MIN(3),
-    AVG(4);
-
-    private final int id;
-
-    Function(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
+    SUM,
+    MAX,
+    MIN,
+    AVG,
+    AGG_TIME {
+        @Override
+        public String toString() {
+            return "agg";
+        }
+    };
 
     public String toString() {
-        if (this.equals(SUM)) {
-            return "sum";
-        } else if (this.equals(MAX)) {
-            return "max";
-        } else if (this.equals(MIN)) {
-            return "min";
-        } else {
-            return "avg";
-        }
+        return this.name().toLowerCase();
     }
 
 }

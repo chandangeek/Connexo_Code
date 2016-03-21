@@ -64,4 +64,9 @@ public class ProcessStatusFromExpressionNode implements ServerExpressionNode.Vis
                 .orElse(null);
     }
 
+    @Override
+    public String visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+        return aggregationNode.getAggregatedExpression().accept(this);
+    }
+
 }

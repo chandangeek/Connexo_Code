@@ -30,6 +30,11 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
     }
 
     @Override
+    public VirtualReadingType visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+        throw new IllegalArgumentException("Inference of reading type is not supported for expert mode functions");
+    }
+
+    @Override
     public VirtualReadingType visitVirtualRequirement(VirtualRequirementNode node) {
         return node.getPreferredReadingType();
     }
@@ -187,6 +192,11 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         }
 
         @Override
+        public Boolean visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+            throw new IllegalArgumentException("Inference of reading type is not supported for expert mode functions");
+        }
+
+        @Override
         public Boolean visitConstant(NumericalConstantNode constant) {
             return Boolean.TRUE;
         }
@@ -245,6 +255,11 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         }
 
         @Override
+        public Void visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+            throw new IllegalArgumentException("Inference of reading type is not supported for expert mode functions");
+        }
+
+        @Override
         public Void visitConstant(NumericalConstantNode constant) {
             return null;
         }
@@ -298,12 +313,13 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
             this.intervalLength = intervalLength;
         }
 
-        private void onto(ServerExpressionNode expression) {
-            expression.accept(this);
-        }
-
         private void enforceOntoAll(List<ServerExpressionNode> expressions) {
             expressions.stream().forEach(expression -> expression.accept(this));
+        }
+
+        @Override
+        public Void visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+            throw new IllegalArgumentException("Inference of reading type is not supported for expert mode functions");
         }
 
         @Override

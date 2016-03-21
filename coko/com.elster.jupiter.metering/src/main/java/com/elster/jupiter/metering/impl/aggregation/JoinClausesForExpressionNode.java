@@ -93,4 +93,9 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
         return null;
     }
 
+    @Override
+    public Void visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+        return aggregationNode.getAggregatedExpression().accept(this);
+    }
+
 }
