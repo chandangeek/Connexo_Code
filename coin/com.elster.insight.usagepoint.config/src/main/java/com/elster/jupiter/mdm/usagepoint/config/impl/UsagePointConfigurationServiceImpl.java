@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.config.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -16,6 +17,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -144,8 +146,8 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public MetrologyConfiguration newMetrologyConfiguration(String name) {
-        return this.metrologyConfigurationService.newMetrologyConfiguration(name);
+    public MetrologyConfiguration newMetrologyConfiguration(String name, ServiceCategory serviceCategory) {
+        return this.metrologyConfigurationService.newMetrologyConfiguration(name, serviceCategory).create();
     }
 
     @Override

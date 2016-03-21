@@ -30,6 +30,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component(name = "com.elster.insight.usagepoint.config.console",
         service = ConsoleCommands.class,
@@ -56,11 +57,16 @@ public class ConsoleCommands {
     private volatile ValidationService validationService;
     private volatile Clock clock;
 
-    public void createMetrologyConfiguration(String name) {
+    public void createMetrologyConfiguration(String name, String serviceKindName) {
         try {
-            transactionService.builder()
-                    .principal(() -> "console")
-                    .run(() -> usagePointConfigurationService.newMetrologyConfiguration(name));
+            Optional<ServiceCategory> serviceCategory = meteringService.getServiceCategory(ServiceKind.valueOf(serviceKindName));
+            if (serviceCategory.isPresent()) {
+                transactionService.builder()
+                        .principal(() -> "console")
+                        .run(() -> usagePointConfigurationService.newMetrologyConfiguration(name, serviceCategory.get()));
+            } else {
+                System.out.println("No ServiceCategory for: " + serviceKindName);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

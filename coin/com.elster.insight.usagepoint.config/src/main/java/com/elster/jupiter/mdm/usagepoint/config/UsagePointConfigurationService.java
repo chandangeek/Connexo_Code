@@ -1,9 +1,11 @@
 package com.elster.jupiter.mdm.usagepoint.config;
 
-import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.validation.ValidationRuleSet;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +14,7 @@ import java.util.Optional;
 public interface UsagePointConfigurationService {
     String COMPONENTNAME = "UPC";
 
-    MetrologyConfiguration newMetrologyConfiguration(String name);
+    MetrologyConfiguration newMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
 
