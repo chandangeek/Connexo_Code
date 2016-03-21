@@ -19,6 +19,11 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                 href: me.router.getRoute('usagepoints/view').buildUrl()
             },
             {
+                text: Uni.I18n.translate('general.usagePointAttributes', 'IMT', 'Usage point attributes'),
+                itemId: 'usage-point-attributes-link',
+                href: me.router.getRoute('usagepoints/view/attributes').buildUrl()
+            },
+            {
                 text: Uni.I18n.translate('general.history', 'IMT', 'History'),
                 itemId: 'usage-point-history-link',
                 href: me.router.getRoute('usagepoints/view/history').buildUrl()

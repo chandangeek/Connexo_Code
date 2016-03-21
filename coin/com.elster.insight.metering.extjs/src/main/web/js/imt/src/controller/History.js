@@ -35,6 +35,12 @@ Ext.define('Imt.controller.History', {
                         //    controller: 'Imt.usagepointmanagement.controller.Edit',
                         //    action: 'editUsagePoint'
                         //},
+                        attributes: {
+                            title: Uni.I18n.translate('general.usagePointAttributes', 'IMT', 'Usage point attributes'),
+                            route: 'attributes',
+                            controller: 'Imt.usagepointmanagement.controller.Attributes',
+                            action: 'showUsagePointAttributes'
+                        },
                         history: {
                             title: Uni.I18n.translate('general.history', 'IMT', 'History'),
                             route: 'history',
