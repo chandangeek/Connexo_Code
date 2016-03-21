@@ -8,6 +8,9 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.mdm.common.services.ListPager;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfo;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.security.Privileges;
@@ -22,7 +25,18 @@ import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -40,15 +54,17 @@ public class MetrologyConfigurationResource {
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
+    private final MeteringService meteringService;
     private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
 
     @Inject
-    public MetrologyConfigurationResource(ResourceHelper resourceHelper, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService, CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory, MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory) {
+    public MetrologyConfigurationResource(ResourceHelper resourceHelper, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService, CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory, MeteringService meteringService, MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.validationService = validationService;
         this.customPropertySetService = customPropertySetService;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+        this.meteringService = meteringService;
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
     }
 
@@ -80,8 +96,19 @@ public class MetrologyConfigurationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Transactional
     public Response createMetrologyConfiguration(MetrologyConfigurationInfo metrologyConfigurationInfo) {
-        MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.newMetrologyConfiguration(metrologyConfigurationInfo.name);
+        ServiceCategory serviceCategory = this.getServiceCategoryOrThrowException(metrologyConfigurationInfo);
+        MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.newMetrologyConfiguration(metrologyConfigurationInfo.name, serviceCategory);
         return Response.status(Response.Status.CREATED).entity(metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration)).build();
+    }
+
+    private ServiceCategory getServiceCategoryOrThrowException(MetrologyConfigurationInfo metrologyConfigurationInfo) {
+        try {
+            return meteringService
+                    .getServiceCategory(ServiceKind.valueOf(metrologyConfigurationInfo.creationServiceKind))
+                    .orElseThrow(() -> new WebApplicationException("No service category for service kind " + metrologyConfigurationInfo.creationServiceKind, Response.Status.NOT_FOUND));
+        } catch (IllegalArgumentException e) {
+            throw new WebApplicationException("No service kind " + metrologyConfigurationInfo.creationServiceKind);
+        }
     }
 
     @PUT

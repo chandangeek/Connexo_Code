@@ -4,25 +4,36 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfo;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class MetrologyConfigurationResourceTest extends UsagePointConfigurationRestApplicationJerseyTest {
 
@@ -30,6 +41,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     private MetrologyConfiguration config1, config2;
     @Mock
     private ValidationRuleSet vrs, vrs2;
+    @Mock
+    private ServiceCategory serviceCategory;
 
     @Before
     public void setUpStubs() {
@@ -93,7 +106,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(metrologyConfiguration.getId()).thenReturn(3L);
         when(metrologyConfiguration.getVersion()).thenReturn(1L);
         when(metrologyConfiguration.getName()).thenReturn("newName");
-        when(usagePointConfigurationService.newMetrologyConfiguration(metrologyConfigurationInfo.name)).thenReturn(metrologyConfiguration);
+        when(usagePointConfigurationService.newMetrologyConfiguration(metrologyConfigurationInfo.name, serviceCategory)).thenReturn(metrologyConfiguration);
 
         Response response = target("/metrologyconfigurations/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());

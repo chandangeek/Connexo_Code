@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.config.rest;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -16,6 +17,12 @@ public class MetrologyConfigurationInfo {
 
     public long id;
     public String name;
+    public long serviceCategoryId;
+    /**
+     * Needless to say that this is intended to be used for creation of a new MetrologyConfiguration only.
+     * Initializing to ELECTRICITY for backwards compatibility
+     */
+    public String creationServiceKind = ServiceKind.ELECTRICITY.name();
     public boolean active;
     public List<CustomPropertySetInfo> customPropertySets;
 
