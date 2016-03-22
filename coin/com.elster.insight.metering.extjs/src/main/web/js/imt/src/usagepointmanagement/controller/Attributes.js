@@ -5,7 +5,8 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
     ],
 
     stores: [
-
+        'Imt.usagepointmanagement.store.UsagePointTypes',
+        'Imt.usagepointmanagement.store.PhaseCodes'
     ],
 
     models: [
@@ -20,7 +21,9 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
         var me = this;
 
         me.control({
-
+            'view-edit-form': {
+                save: me.saveAttributes
+            }
         });
     },
 
@@ -29,7 +32,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
-            dependenciesCounter = 2,
+            dependenciesCounter = 3,
             showPage = function () {
                 dependenciesCounter--;
                 if (!dependenciesCounter) {
@@ -46,6 +49,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
 
         mainView.setLoading();
         me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(showPage);
+        me.getStore('Imt.usagepointmanagement.store.PhaseCodes').load(showPage);
         me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
             success: function (record) {
                 usagePoint = record;
@@ -55,5 +59,9 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
                 mainView.setLoading(false);
             }
         });
+    },
+
+    saveAttributes: function (form) {
+        console.info(form);
     }
 });

@@ -2,15 +2,23 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usage-point-attributes',
     requires: [
-        'Imt.usagepointmanagement.view.landingpageattributes.GeneralAttributesForm',
-        'Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormElectricity',
-        'Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormGas',
-        'Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormWater',
-        'Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormThermal'
+        'Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm',
+        'Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFormElectricity',
+        'Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFormGas',
+        'Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFormWater',
+        'Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFormThermal'
     ],
 
     router: null,
     usagePoint: null,
+    viewDefaults: {
+        xtype: 'displayfield',
+        labelWidth: 250
+    },
+    editDefaults: {
+        labelWidth: 250,
+        width: 520
+    },
 
     serviceCategoryMap: {
         'ELECTRICITY': {
@@ -64,12 +72,18 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                             {
                                 xtype: 'general-attributes-form',
                                 itemId: 'general-attributes-form',
-                                title: Uni.I18n.translate('general.generalInformation', 'IMT', 'General information')
+                                title: Uni.I18n.translate('general.generalInformation', 'IMT', 'General information'),
+                                record: me.usagePoint,
+                                viewDefaults: me.viewDefaults,
+                                editDefaults: me.editDefaults
                             },
                             {
                                 xtype: me.serviceCategoryMap[me.usagePoint.get('serviceCategory')].form,
                                 itemId: 'technical-attributes-form',
-                                title: Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information')
+                                title: Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information'),
+                                record: Ext.create(me.serviceCategoryMap[me.usagePoint.get('serviceCategory')].model, me.usagePoint.get('techInfo')),
+                                viewDefaults: me.viewDefaults,
+                                editDefaults: me.editDefaults
                             }
                         ]
                     }
@@ -93,17 +107,5 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
         ];
 
         me.callParent(arguments);
-
-        me.loadUsagePoint(me.usagePoint);
-    },
-
-    loadUsagePoint: function (usagePoint) {
-        var me = this;
-
-        if (usagePoint) {
-            //me.down('#usage-point-summary').loadRecord(usagePoint);
-            //me.down('#usage-point-metrology-config').loadRecord(new Imt.usagepointmanagement.model.MetrologyConfigOnUsagePoint(usagePoint.get('metrologyConfiguration')));
-            me.usagePoint = usagePoint;
-        }
     }
 });

@@ -26,8 +26,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     ],
     views: [
         'Imt.usagepointmanagement.view.Setup',
-        'Imt.usagepointmanagement.view.MetrologyConfigurationSetup',
-        'Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechnicalAttributesPanel'
+        'Imt.usagepointmanagement.view.MetrologyConfigurationSetup'
     ],
     refs: [
         {ref: 'associatedDevices', selector: 'associated-devices'},
