@@ -4,6 +4,8 @@ import com.elster.jupiter.demo.impl.commands.*;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.search.SearchService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -74,6 +76,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.security.Principal;
 import java.time.Clock;
+import java.util.Map;
 
 @Component(name = "com.elster.jupiter.demo", service = {DemoServiceImpl.class}, property = {
         "osgi.command.scope=demo",
@@ -645,6 +648,7 @@ public class DemoServiceImpl {
             command.setComServerName(comServerName);
             command.setHost(host);
             command.setStartDate(startDate);
+            command.setLocation(createLocation());
             if (numberOfDevicesPerType == null) {
                 command.setDevicesPerType(null);
             } else {
@@ -652,6 +656,31 @@ public class DemoServiceImpl {
             }
             command.run();
         });
+    }
+
+    private Location createLocation(){
+        LocationBuilder builder = meteringService.newLocationBuilder();
+        setLocationAttributes(builder.member()).add();
+        return builder.create();
+    }
+
+    private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder){
+        builder.setCountryCode("US")
+                .setCountryName("United States")
+                .setAdministrativeArea("New Jersey")
+                .setLocality("New Jersey")
+                .setSubLocality("Morris Plains")
+                .setStreetType("street")
+                .setStreetName("Tabor Ave")
+                .setStreetNumber("115")
+                .setEstablishmentType("building")
+                .setEstablishmentName("HON")
+                .setEstablishmentNumber("1")
+                .setAddressDetail("HONEYWELL HEADQUARTERS")
+                .setZipCode("07950")
+                .isDaultLocation(true)
+                .setLocale("locale");
+        return builder;
     }
 
     @SuppressWarnings("unused")

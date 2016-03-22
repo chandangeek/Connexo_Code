@@ -5,6 +5,7 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.UploadAllCommand;
 import com.elster.jupiter.demo.impl.commands.upload.ValidateStartDateCommand;
+import com.elster.jupiter.metering.Location;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -33,6 +34,7 @@ public class CreateDemoDataCommand {
     private String host;
     private String startDate;
     private Integer devicesPerType = null;
+    private Location location;
 
     @Inject
     public CreateDemoDataCommand(
@@ -70,6 +72,10 @@ public class CreateDemoDataCommand {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public void setLocation(Location location){
+        this.location = location;
     }
 
     public void setStartDate(String startDate) {
@@ -141,6 +147,7 @@ public class CreateDemoDataCommand {
         command.setComServerName(this.comServerName);
         command.setHost(this.host);
         command.setDevicesPerType(this.devicesPerType);
+        command.setLocation(location);
         command.run();
     }
 

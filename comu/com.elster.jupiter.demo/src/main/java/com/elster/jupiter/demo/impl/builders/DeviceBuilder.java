@@ -1,6 +1,7 @@
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
+import com.elster.jupiter.metering.Location;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -19,6 +20,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private DeviceConfiguration deviceConfiguration;
     private List<ComSchedule> comSchedules;
     private int yearOfCertification;
+    private Location location;
 
     private List<Consumer<Device>> postBuilders;
 
@@ -32,6 +34,11 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     public DeviceBuilder withMrid(String mrid){
         this.mrid = mrid;
         super.withName(mrid);
+        return this;
+    }
+
+    public DeviceBuilder withLocation(Location location){
+        this.location = location;
         return this;
     }
 
@@ -71,6 +78,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
                 device.newScheduledComTaskExecution(comSchedule).add();
             }
         }
+        device.setLocation(location);
         device.save();
         applyPostBuilders(device);
         return device;
