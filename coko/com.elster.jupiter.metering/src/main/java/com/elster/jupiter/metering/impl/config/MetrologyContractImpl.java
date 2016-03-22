@@ -40,8 +40,6 @@ public class MetrologyContractImpl implements MetrologyContract {
     private final Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
     private boolean mandatory;
 
-    private List<ReadingTypeDeliverable> readingTypeDeliverables;
-
     @Inject
     public MetrologyContractImpl(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;

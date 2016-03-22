@@ -38,7 +38,6 @@ import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
-import com.elster.jupiter.metering.impl.config.MetrologyConfigurationMeterRoleUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
 import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeAttributeValueImpl;
@@ -932,6 +931,7 @@ public enum TableSpecs {
                     .add();
         }
     },
+    /*
     MTR_M_CONFIG_ROLE_USAGE {
         @Override
         public void addTo(DataModel dataModel) {
@@ -964,6 +964,7 @@ public enum TableSpecs {
                     .add();
         }
     },
+    */
     MTR_RT_TEMPLATE {
         @Override
         void addTo(DataModel dataModel) {
@@ -1070,11 +1071,6 @@ public enum TableSpecs {
                     .number()
                     .notNull()
                     .add();
-            Column meterRoleColumn = table
-                    .column(ReadingTypeRequirementImpl.Fields.METER_ROLE.name())
-                    .varChar(NAME_LENGTH)
-                    .notNull()
-                    .add();
             Column templateColumn = table
                     .column(ReadingTypeRequirementImpl.Fields.TEMPLATE.name())
                     .number()
@@ -1092,11 +1088,6 @@ public enum TableSpecs {
                     .map(ReadingTypeRequirementImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.RT_REQUIREMENTS.fieldName())
                     .composition()
-                    .add();
-            table.foreignKey("FK_RT_REQUIREMENT_TO_M_ROLE")
-                    .references(MeterRole.class)
-                    .on(meterRoleColumn)
-                    .map(ReadingTypeRequirementImpl.Fields.METER_ROLE.fieldName())
                     .add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_TPL")
                     .references(ReadingTypeTemplate.class)

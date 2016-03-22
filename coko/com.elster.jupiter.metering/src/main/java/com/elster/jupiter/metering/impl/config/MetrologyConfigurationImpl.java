@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
-import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
@@ -84,7 +83,6 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     private List<MetrologyConfigurationCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     private List<ReadingTypeRequirement> readingTypeRequirements = new ArrayList<>();
     private List<MetrologyContract> metrologyContracts = new ArrayList<>();
-    private List<MetrologyConfigurationMeterRoleUsageImpl> meterRoles = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private long version;
@@ -260,46 +258,6 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public void addMeterRole(MeterRole meterRole) {
-        if (!getMeterRoles().contains(meterRole)) {
-            if (!getServiceCategory().getMeterRoles().contains(meterRole)) {
-                throw CannotManageMeterRoleOnMetrologyConfigurationException.canNotAddMeterRoleWhichIsNotAssignedToServiceCategory(this.thesaurus,
-                        meterRole.getDisplayName(), getServiceCategory().getDisplayName());
-            }
-            MetrologyConfigurationMeterRoleUsageImpl usage = this.dataModel.getInstance(MetrologyConfigurationMeterRoleUsageImpl.class)
-                    .init(this, meterRole);
-            this.meterRoles.add(usage);
-            touch();
-        }
-    }
-
-    @Override
-    public void removeMeterRole(MeterRole meterRole) {
-        Optional<MetrologyConfigurationMeterRoleUsageImpl> meterRoleUsage = this.meterRoles
-                .stream()
-                .filter(usage -> usage.getMeterRole().equals(meterRole))
-                .findAny();
-        if (meterRoleUsage.isPresent()) {
-            if (this.readingTypeRequirements
-                    .stream()
-                    .map(ReadingTypeRequirement::getMeterRole)
-                    .anyMatch(meterRole::equals)) {
-                throw CannotManageMeterRoleOnMetrologyConfigurationException.canNotDeleteMeterRoleFromMetrologyConfiguration(this.thesaurus, meterRole.getDisplayName(), getName());
-            }
-            this.meterRoles.remove(meterRoleUsage.get());
-            touch();
-        }
-    }
-
-    @Override
-    public List<MeterRole> getMeterRoles() {
-        return this.meterRoles
-                .stream()
-                .map(MetrologyConfigurationMeterRoleUsageImpl::getMeterRole)
-                .collect(Collectors.toList());
-    }
-
     void create() {
         CREATE.save(dataModel, this);
         eventService.postEvent(EventType.METROLOGYCONFIGURATION_CREATED.topic(), this);
@@ -352,7 +310,6 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
         private final MetrologyConfigurationImpl metrologyConfiguration;
 
         private String name;
-        private MeterRole meterRole;
 
         private MetrologyConfigurationReadingTypeRequirementBuilderImpl(MetrologyConfigurationImpl metrologyConfiguration) {
             this.metrologyConfiguration = metrologyConfiguration;
@@ -365,23 +322,9 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
         }
 
         @Override
-        public MetrologyConfigurationReadingTypeRequirementBuilder withMeterRole(MeterRole meterRole) {
-            this.meterRole = meterRole;
-            return this;
-        }
-
-        private void checkThatMeterRoleIsAssignedToMetrologyConfiguration() {
-            if (this.meterRole != null && !this.metrologyConfiguration.getMeterRoles().contains(this.meterRole)) {
-                throw CannotManageMeterRoleOnMetrologyConfigurationException.canNotAddRequirementWithThatMeterRole(this.metrologyConfiguration.thesaurus,
-                        this.meterRole.getDisplayName(), this.metrologyConfiguration.getName());
-            }
-        }
-
-        @Override
         public FullySpecifiedReadingType withReadingType(ReadingType readingType) {
-            checkThatMeterRoleIsAssignedToMetrologyConfiguration();
             FullySpecifiedReadingTypeImpl fullySpecifiedReadingType = this.metrologyConfiguration.dataModel.getInstance(FullySpecifiedReadingTypeImpl.class)
-                    .init(this.metrologyConfiguration, this.meterRole, this.name, readingType);
+                    .init(this.metrologyConfiguration, this.name, readingType);
             Save.CREATE.validate(this.metrologyConfiguration.dataModel, fullySpecifiedReadingType);
             this.metrologyConfiguration.readingTypeRequirements.add(fullySpecifiedReadingType);
             this.metrologyConfiguration.touch();
@@ -390,9 +333,8 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
 
         @Override
         public PartiallySpecifiedReadingType withReadingTypeTemplate(ReadingTypeTemplate readingTypeTemplate) {
-            checkThatMeterRoleIsAssignedToMetrologyConfiguration();
             PartiallySpecifiedReadingType partiallySpecifiedReadingType = this.metrologyConfiguration.dataModel.getInstance(PartiallySpecifiedReadingTypeImpl.class)
-                    .init(this.metrologyConfiguration, this.meterRole, this.name, readingTypeTemplate);
+                    .init(this.metrologyConfiguration, this.name, readingTypeTemplate);
             Save.CREATE.validate(this.metrologyConfiguration.dataModel, partiallySpecifiedReadingType);
             this.metrologyConfiguration.readingTypeRequirements.add(partiallySpecifiedReadingType);
             metrologyConfiguration.touch();

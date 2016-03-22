@@ -49,18 +49,10 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     List<ReadingTypeDeliverable> getDeliverables();
 
-    void addMeterRole(MeterRole meterRole);
-
-    void removeMeterRole(MeterRole meterRole);
-
-    List<MeterRole> getMeterRoles();
-
     @ProviderType
     interface MetrologyConfigurationReadingTypeRequirementBuilder {
 
         MetrologyConfigurationReadingTypeRequirementBuilder withName(String name);
-
-        MetrologyConfigurationReadingTypeRequirementBuilder withMeterRole(MeterRole meterRole);
 
         FullySpecifiedReadingType withReadingType(ReadingType readingType);
 

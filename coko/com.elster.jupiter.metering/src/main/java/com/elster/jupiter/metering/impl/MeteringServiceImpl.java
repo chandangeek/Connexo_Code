@@ -410,6 +410,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(Clock.class).toInstance(clock);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
+                bind(ServerMetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(AggregatedReadingRecordFactory.class).to(AggregatedReadingRecordFactoryImpl.class);
             }
         });
