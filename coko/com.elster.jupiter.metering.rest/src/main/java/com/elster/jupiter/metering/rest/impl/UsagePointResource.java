@@ -106,12 +106,8 @@ public class UsagePointResource {
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualVersion(() -> meteringService.findUsagePoint(mRID).map(UsagePoint::getVersion).orElse(Long.valueOf(0)))
                         .supplier());
-        if (usagePoint != null) {
             usagePoint.delete();
             return Response.status(Response.Status.OK).entity(info).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
     }
 
     @POST
