@@ -69,8 +69,8 @@ Ext.define('Cps.customattributesets.view.AttributeSetsGrid', {
                 store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('customattributesets.pagingtoolbartop.displayMsg', 'CPS', '{0} - {1} of {2} custom attribute sets'),
-                displayMoreMsg: Uni.I18n.translate('customattributesets.pagingtoolbartop.displayMoreMsg', 'CPS', '{0} - {1} of more than {2} custom attribute sets'),
-                emptyMsg: Uni.I18n.translate('customattributesets.pagingtoolbartop.emptyMsg', 'CPS', 'There are no custom attribute sets to display')
+                emptyMsg: Uni.I18n.translate('customattributesets.pagingtoolbartop.emptyMsg', 'CPS', 'There are no custom attribute sets to display'),
+                usesExactCount: true
             },
             {
                 xtype: 'pagingtoolbarbottom',
