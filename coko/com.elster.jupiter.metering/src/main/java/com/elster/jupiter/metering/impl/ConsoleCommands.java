@@ -233,9 +233,7 @@ public class ConsoleCommands {
             List<String> templateElements = meteringService.getLocationTemplate().getTemplateElementsNames();
             Map<String, String> location = new HashMap<>();
             if (templateElements.size() != args.length) {
-                for (String arg : args) {
-                    System.out.println(arg);
-                }
+                throw new RuntimeException("Location provided does not meet template length !");
             } else {
                 int i = 0;
                 for (String arg : args) {
