@@ -600,8 +600,9 @@ public enum TableSpecs {
     MTR_METROLOGYCONFIG {
         void addTo(DataModel dataModel) {
             Table<MetrologyConfiguration> table = dataModel.addTable(name(), MetrologyConfiguration.class);
-            table.map(MetrologyConfigurationImpl.class);
+            table.map(MetrologyConfigurationImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("CONFIG_TYPE", "char(1)");
             Column name = table.column(MetrologyConfigurationImpl.Fields.NAME.name()).varChar().notNull().map(MetrologyConfigurationImpl.Fields.NAME.fieldName()).add();
             table.column(MetrologyConfigurationImpl.Fields.DESCRIPTION.name()).varChar().map(MetrologyConfigurationImpl.Fields.DESCRIPTION.fieldName()).add();
             table.column(MetrologyConfigurationImpl.Fields.STATUS.name()).number().conversion(NUMBER2ENUM).map(MetrologyConfigurationImpl.Fields.STATUS.fieldName()).notNull().add();

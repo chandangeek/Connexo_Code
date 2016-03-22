@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 
 import java.util.List;
@@ -155,6 +156,22 @@ public class MetrologyConfigurationCrudTest {
         assertThat(metrologyContracts).hasSize(0);
     }
 
+    @Test
+    @Transactional
+    public void canCreateUsagePointMetrologyConfiguration() {
+        String name = "UsagePoint metrology configuration";
+        String description = "Description";
+        UPMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration(name, getServiceCategory())
+                .withDescription(description)
+                .create();
+
+        assertThat(usagePointMetrologyConfiguration.getName()).isEqualTo(name);
+        assertThat(usagePointMetrologyConfiguration.getDescription()).isEqualTo(description);
+        Optional<MetrologyConfiguration> metrologyConfiguration = getMetrologyConfigurationService().findMetrologyConfiguration(name);
+        assertThat(metrologyConfiguration).isPresent();
+        assertThat(metrologyConfiguration.get().getId()).isEqualTo(usagePointMetrologyConfiguration.getId());
+    }
 /*
     @Test(expected = CannotManageMeterRoleOnMetrologyConfigurationException.class)
     @Transactional
