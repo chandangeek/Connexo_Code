@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
@@ -14,6 +15,7 @@ public class UPMetrologyConfigurationImpl extends MetrologyConfigurationImpl imp
     public static final String TYPE_IDENTIFIER = "U";
 
     private List<MetrologyConfigurationMeterRoleUsageImpl> meterRoles = new ArrayList<>();
+    private List<UsagePointMetrologyConfigurationRequirementRoleReference> requirementToRoleReferences = new ArrayList<>();
 
     @Inject
     UPMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
@@ -43,12 +45,13 @@ public class UPMetrologyConfigurationImpl extends MetrologyConfigurationImpl imp
                 .filter(usage -> usage.getMeterRole().equals(meterRole))
                 .findAny();
         if (meterRoleUsage.isPresent()) {
-//            if (this.readingTypeRequirements
-//                    .stream()
-//                    .map(ReadingTypeRequirement::getMeterRole)
-//                    .anyMatch(meterRole::equals)) {
-//                throw CannotManageMeterRoleOnMetrologyConfigurationException.canNotDeleteMeterRoleFromMetrologyConfiguration(this.thesaurus, meterRole.getDisplayName(), getName());
-//            }
+            if (this.requirementToRoleReferences
+                    .stream()
+                    .map(UsagePointMetrologyConfigurationRequirementRoleReference::getMeterRole)
+                    .anyMatch(meterRole::equals)) {
+                throw CannotManageMeterRoleOnMetrologyConfigurationException.canNotDeleteMeterRoleFromMetrologyConfiguration(
+                        getMetrologyConfigurationService().getThesaurus(), meterRole.getDisplayName(), getName());
+            }
             this.meterRoles.remove(meterRoleUsage.get());
             touch();
         }
@@ -61,4 +64,15 @@ public class UPMetrologyConfigurationImpl extends MetrologyConfigurationImpl imp
                 .map(MetrologyConfigurationMeterRoleUsageImpl::getMeterRole)
                 .collect(Collectors.toList());
     }
+
+    void addReadingTypeRequirementToMeterRoleReference(UsagePointMetrologyConfigurationRequirementRoleReference reference) {
+        Save.CREATE.validate(getMetrologyConfigurationService().getDataModel(), reference);
+        this.requirementToRoleReferences.add(reference);
+    }
+
+    @Override
+    public UPMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name) {
+        return new UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(getMetrologyConfigurationService(), this).withName(name);
+    }
+
 }

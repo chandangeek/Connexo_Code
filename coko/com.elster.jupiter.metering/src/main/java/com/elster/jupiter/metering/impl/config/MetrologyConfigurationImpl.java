@@ -6,17 +6,13 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -56,7 +52,8 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
         CUSTOM_PROPERTY_SETS("customPropertySets"),
         RT_REQUIREMENTS("readingTypeRequirements"),
         METROLOGY_CONTRACTS("metrologyContracts"),
-        METER_ROLES("meterRoles"),;
+        METER_ROLES("meterRoles"),
+        REQUIREMENT_TO_ROLE_REFERENCES("requirementToRoleReferences"),;
 
         private final String javaFieldName;
 
@@ -278,6 +275,12 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
         this.metrologyConfigurationService.getDataModel().touch(this);
     }
 
+    void addReadingTypeRequirement(ReadingTypeRequirement readingTypeRequirement) {
+        Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), readingTypeRequirement);
+        this.readingTypeRequirements.add(readingTypeRequirement);
+        touch();
+    }
+
     @Override
     public void delete() {
         this.metrologyConfigurationService.getDataModel().remove(this);
@@ -312,41 +315,4 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
         return !other.isPresent() || other.get().getId() == getId();
     }
 
-    private static class MetrologyConfigurationReadingTypeRequirementBuilderImpl implements MetrologyConfigurationReadingTypeRequirementBuilder {
-        private final ServerMetrologyConfigurationService metrologyConfigurationService;
-        private final MetrologyConfigurationImpl metrologyConfiguration;
-
-        private String name;
-
-        private MetrologyConfigurationReadingTypeRequirementBuilderImpl(ServerMetrologyConfigurationService metrologyConfigurationService, MetrologyConfigurationImpl metrologyConfiguration) {
-            this.metrologyConfigurationService = metrologyConfigurationService;
-            this.metrologyConfiguration = metrologyConfiguration;
-        }
-
-        @Override
-        public MetrologyConfigurationReadingTypeRequirementBuilder withName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        @Override
-        public FullySpecifiedReadingType withReadingType(ReadingType readingType) {
-            FullySpecifiedReadingTypeImpl fullySpecifiedReadingType = this.metrologyConfigurationService.getDataModel().getInstance(FullySpecifiedReadingTypeImpl.class)
-                    .init(this.metrologyConfiguration, this.name, readingType);
-            Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), fullySpecifiedReadingType);
-            this.metrologyConfiguration.readingTypeRequirements.add(fullySpecifiedReadingType);
-            this.metrologyConfiguration.touch();
-            return fullySpecifiedReadingType;
-        }
-
-        @Override
-        public PartiallySpecifiedReadingType withReadingTypeTemplate(ReadingTypeTemplate readingTypeTemplate) {
-            PartiallySpecifiedReadingType partiallySpecifiedReadingType = this.metrologyConfigurationService.getDataModel().getInstance(PartiallySpecifiedReadingTypeImpl.class)
-                    .init(this.metrologyConfiguration, this.name, readingTypeTemplate);
-            Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), partiallySpecifiedReadingType);
-            this.metrologyConfiguration.readingTypeRequirements.add(partiallySpecifiedReadingType);
-            metrologyConfiguration.touch();
-            return partiallySpecifiedReadingType;
-        }
-    }
 }

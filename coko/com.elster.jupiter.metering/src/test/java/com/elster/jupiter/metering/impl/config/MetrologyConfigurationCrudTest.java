@@ -7,15 +7,12 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
-import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 
 import java.util.List;
@@ -157,107 +154,4 @@ public class MetrologyConfigurationCrudTest {
                         .and(where(MetrologyContractImpl.Fields.METROLOGY_PURPOSE.fieldName()).isEqualTo(metrologyPurpose)));
         assertThat(metrologyContracts).hasSize(0);
     }
-
-    @Test
-    @Transactional
-    public void canCreateUsagePointMetrologyConfiguration() {
-        String name = "UsagePoint metrology configuration";
-        String description = "Description";
-        UPMetrologyConfiguration usagePointMetrologyConfiguration = getMetrologyConfigurationService()
-                .newUsagePointMetrologyConfiguration(name, getServiceCategory())
-                .withDescription(description)
-                .create();
-
-        assertThat(usagePointMetrologyConfiguration.getName()).isEqualTo(name);
-        assertThat(usagePointMetrologyConfiguration.getDescription()).isEqualTo(description);
-        Optional<MetrologyConfiguration> metrologyConfiguration = getMetrologyConfigurationService().findMetrologyConfiguration(name);
-        assertThat(metrologyConfiguration).isPresent();
-        assertThat(metrologyConfiguration.get().getId()).isEqualTo(usagePointMetrologyConfiguration.getId());
-    }
-
-    @Test(expected = CannotManageMeterRoleOnMetrologyConfigurationException.class)
-    @Transactional
-    public void testAddMeterRoleWhichIsNotAssignedToServiceCategory() {
-        UPMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", getServiceCategory()).create();
-        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
-        metrologyConfiguration.addMeterRole(meterRole);
-    }
-
-    @Test
-    @Transactional
-    public void testAddMeterRole() {
-        ServiceCategory serviceCategory = getServiceCategory();
-        UPMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
-        long version = metrologyConfiguration.getVersion();
-        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
-        serviceCategory.addMeterRole(meterRole);
-        metrologyConfiguration.addMeterRole(meterRole);
-
-        assertThat(metrologyConfiguration.getMeterRoles()).contains(meterRole);
-        assertThat(metrologyConfiguration.getVersion()).isEqualTo(version + 1);
-    }
-
-    @Test
-    @Transactional
-    public void testCanNotAddMeterRoleTwice() {
-        ServiceCategory serviceCategory = getServiceCategory();
-        UPMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
-        long version = metrologyConfiguration.getVersion();
-        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
-        serviceCategory.addMeterRole(meterRole);
-        metrologyConfiguration.addMeterRole(meterRole);
-        metrologyConfiguration.addMeterRole(meterRole);
-
-        assertThat(metrologyConfiguration.getMeterRoles()).contains(meterRole);
-        assertThat(metrologyConfiguration.getMeterRoles()).hasSize(1);
-        assertThat(metrologyConfiguration.getVersion()).isEqualTo(version + 1);
-    }
-
-    @Test
-    @Transactional
-    public void testCanRemoveMeterRole() {
-        ServiceCategory serviceCategory = getServiceCategory();
-        UPMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
-        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
-        serviceCategory.addMeterRole(meterRole);
-        metrologyConfiguration.addMeterRole(meterRole);
-
-        long version = metrologyConfiguration.getVersion();
-        metrologyConfiguration.removeMeterRole(meterRole);
-
-        assertThat(metrologyConfiguration.getMeterRoles()).hasSize(0);
-        assertThat(metrologyConfiguration.getVersion()).isEqualTo(version + 1);
-    }
-
-    @Test
-    @Transactional
-    public void testCanNotRemoveUnassignedMeterRole() {
-        ServiceCategory serviceCategory = getServiceCategory();
-        UPMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
-        serviceCategory.addMeterRole(defaultMeterRole);
-        metrologyConfiguration.addMeterRole(defaultMeterRole);
-
-        MeterRole productionRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.PRODUCTION.getKey()).get();
-        metrologyConfiguration.removeMeterRole(productionRole);
-
-        assertThat(metrologyConfiguration.getMeterRoles()).contains(defaultMeterRole);
-    }
-/*
-
-    @Test(expected = CannotManageMeterRoleOnMetrologyConfigurationException.class)
-    @Transactional
-    public void testCanNotRemoveMeterRoleInUse() {
-        ServiceCategory serviceCategory = getServiceCategory();
-        MetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newMetrologyConfiguration("config", serviceCategory).create();
-        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
-        serviceCategory.addMeterRole(meterRole);
-        metrologyConfiguration.addMeterRole(meterRole);
-        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
-        metrologyConfiguration.addReadingTypeRequirement("Reading type requirement")
-                .withReadingType(readingType);
-
-        metrologyConfiguration.removeMeterRole(meterRole);
-    }
-    */
 }

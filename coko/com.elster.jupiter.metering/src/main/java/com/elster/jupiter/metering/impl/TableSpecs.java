@@ -51,6 +51,7 @@ import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationRequirementRoleReference;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -1134,6 +1135,47 @@ public enum TableSpecs {
                     .map(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.READING_TYPE_REQUIREMENT.fieldName())
                     .reverseMap(ReadingTypeRequirementImpl.Fields.ATTRIBUTES.fieldName())
                     .composition()
+                    .add();
+        }
+    },
+    MTR_CONFIG_ROLE_REQ_USAGE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), UsagePointMetrologyConfigurationRequirementRoleReference.class);
+            table.map(UsagePointMetrologyConfigurationRequirementRoleReference.class);
+
+            Column metrologyConfigColumn = table.column(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.METROLOGY_CONFIGURATION.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column meterRoleColumn = table.column(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.METER_ROLE.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .add();
+            Column requirementColumn = table
+                    .column(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.READING_TYPE_REQUIREMENT.name())
+                    .number()
+                    .notNull()
+                    .add();
+
+            table.primaryKey("MTR_PK_CONF_ROLE_REQ_USAGE").on(metrologyConfigColumn, meterRoleColumn, requirementColumn).add();
+            table.foreignKey("FK_CONF_ROLE_REQ_TO_CONFIG")
+                    .references(UPMetrologyConfiguration.class)
+                    .on(metrologyConfigColumn)
+                    .onDelete(CASCADE)
+                    .map(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .reverseMap(MetrologyConfigurationImpl.Fields.REQUIREMENT_TO_ROLE_REFERENCES.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_CONF_ROLE_REQ_TO_ROLE")
+                    .references(MeterRole.class)
+                    .on(meterRoleColumn)
+                    .map(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.METER_ROLE.fieldName())
+                    .add();
+            table.foreignKey("FK_CONF_ROLE_REQ_TO_REQ")
+                    .references(ReadingTypeRequirement.class)
+                    .on(requirementColumn)
+                    .map(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.READING_TYPE_REQUIREMENT.fieldName())
                     .add();
         }
     },
