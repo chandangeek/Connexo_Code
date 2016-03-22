@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Map;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,44 +29,34 @@ public class CreateLocationMemberTableOperation {
 
     public void execute() {
         try (Connection conn = dataModel.getConnection(false)) {
-           locationTemplate.getMandatoryFieldsNames().stream().forEach(columnName -> {
-                try {
-                    buildStatement(conn, setNontNullableColumnsSQL(columnName)).execute();
-                } catch (SQLException sqlEx) {
-                    LOG.log(Level.SEVERE, "Unable to set mandatory fields for MTR_LOCATIONMEMBER table", sqlEx);
-                }
-            });
-
-            locationTemplate.parseTemplate(locationTemplate.getTemplateFields(),locationTemplate.getMandatoryFields());
-            Map<String, Integer> columns = locationTemplate.getRankings();
-            columns.remove("locale");
-            columns.entrySet().stream().sorted(Map.Entry.comparingByValue())
-                    .map(Map.Entry::getKey).limit(columns.size()/2).forEach(columnName -> {
-                try {
-                    buildStatement(conn, setIndexesSQL(columnName)).execute();
-                } catch (SQLException sqlEx) {
-                    LOG.log(Level.SEVERE, "Unable to create indexes for MTR_LOCATIONMEMBER table", sqlEx);
-                }
-            });
+            locationTemplate.parseTemplate(locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields());
+            locationTemplate.getTemplateMembers().stream().filter(f -> !f.getName().equalsIgnoreCase("locale"))
+                    .forEach(column -> {
+                        if (column.getRanking() < locationTemplate.getTemplateMembers().size() / 2) {
+                            try {
+                                buildStatement(conn, setIndexesSQL(column.getName())).execute();
+                                buildStatement(conn, setIndexesSQL("upper" + column.getName())).execute();
+                            } catch (SQLException sqlEx) {
+                                LOG.log(Level.SEVERE, "Unable to create indexes for MTR_LOCATIONMEMBER table", sqlEx);
+                            }
+                        }
+                    });
         } catch (SQLException sqlEx) {
             LOG.log(Level.SEVERE, "Unable to set MTR_LOCATIONMEMBER table", sqlEx);
         }
     }
 
-    protected SqlBuilder setNontNullableColumnsSQL(String columnName) {
-        SqlBuilder builder = new SqlBuilder();
-        builder.append("ALTER TABLE " + TableSpecs.MTR_LOCATIONMEMBER.name() + " MODIFY ( "
-                + columnName.toUpperCase() + " NOT NULL)");
-        return builder;
-    }
 
     protected SqlBuilder setIndexesSQL(String columnName) {
         SqlBuilder builder = new SqlBuilder();
         builder.append("CREATE INDEX MTR_IDX_"
-                + columnName.toUpperCase() + " ON "
+                + columnName.toUpperCase().substring(0,columnName.length()>30?30:columnName.length()-1)
+                + " ON "
                 + TableSpecs.MTR_LOCATIONMEMBER.name()
-                + " ( " + columnName.toUpperCase() + ", UPPER( " + columnName.toUpperCase() + " )"
-                + " )");
+                + "("
+                + columnName.toUpperCase()
+                + ")"
+        );
         return builder;
     }
 
@@ -76,5 +66,6 @@ public class CreateLocationMemberTableOperation {
         }
         return sql.prepare(connection);
     }
+
 }
 

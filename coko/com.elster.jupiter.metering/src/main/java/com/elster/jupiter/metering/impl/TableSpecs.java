@@ -23,6 +23,8 @@ import com.elster.jupiter.parties.PartyRole;
 
 import java.util.List;
 
+import com.elster.jupiter.metering.LocationTemplate.TemplateField;
+
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
@@ -34,6 +36,7 @@ import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+
 
 public enum TableSpecs {
     MTR_SERVICECATEGORY {
@@ -164,29 +167,9 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<LocationMember> table = dataModel.addTable(name(), LocationMember.class);
             table.map(LocationMemberImpl.class);
+
+            TableBuilder.buildLocationMemberTable(table, MeteringServiceImpl.getLocationTemplateMembers());
             //table.setJournalTableName("MTR_LOCATIONMEMBERJRNL");
-            Column locationIdColumn = table.column("LOCATIONID").notNull().number().map("locationId").add();
-            Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
-            Column countryCodeColumn = table.column("COUNTRYCODE").varChar(Table.NAME_LENGTH).map("countryCode").add();
-            Column countryNameColumn = table.column("COUNTRYNAME").varChar(Table.NAME_LENGTH).map("countryName").add();
-            Column administrativeAreaColumn = table.column("ADMINISTRATIVEAREA").varChar(Table.NAME_LENGTH).map("administrativeArea").add();
-            Column localityColumn = table.column("LOCALITY").varChar(Table.NAME_LENGTH).map("locality").add();
-            Column subLocalityColumn = table.column("SUBLOCALITY").varChar(Table.NAME_LENGTH).map("subLocality").add();
-            Column streetType = table.column("STREETTYPE").varChar(Table.NAME_LENGTH).map("streetType").add();
-            Column streetNameColumn = table.column("STREETNAME").varChar(Table.NAME_LENGTH).map("streetName").add();
-            Column streetNumberColumn = table.column("STREETNUMBER").varChar(Table.NAME_LENGTH).map("streetNumber").add();
-            Column establishmentTypeColumn = table.column("ESTABLISHMENTTYPE").varChar(Table.NAME_LENGTH).map("establishmentType").add();
-            Column establishmentNameColumn = table.column("ESTABLISHMENTNAME").varChar(Table.NAME_LENGTH).map("establishmentName").add();
-            Column establishmentNumber =table.column("ESTABLISHMENTNUMBER").varChar(Table.NAME_LENGTH).map("establishmentNumber").add();
-            Column addressDetailColumn = table.column("ADDRESSDETAIL").varChar(Table.NAME_LENGTH).map("addressDetail").add();
-            Column zipcodeColumn = table.column("ZIPCODE").varChar(Table.NAME_LENGTH).map("zipCode").add();
-            table.column("DEFAULTLOCATION").bool().map("defaultLocation").add();
-            table.primaryKey("MTR_PK_LOCATION_MEMBER").on(locationIdColumn, localeColumn).add();
-            table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn)
-                    .references(MTR_LOCATION.name())
-                    .onDelete(RESTRICT)
-                    .map("locationId")
-                    .add();
         }
     },
 
@@ -912,5 +895,38 @@ public enum TableSpecs {
 
     private static class Constants {
         public static final String JOURNAL_TABLE_SUFFIX = "JRNL";
+    }
+
+
+    private static class TableBuilder {
+        static void buildLocationMemberTable(Table<?> table, List<TemplateField> templateMembers) {
+
+            Column locationIdColumn = table.column("LOCATIONID").notNull().number().map("locationId").add();
+            Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
+
+            if (templateMembers != null && !templateMembers.isEmpty()) {
+                templateMembers.stream().filter(f->!f.getName().equalsIgnoreCase("locale")).forEach(column -> {
+                            if (column.isMandatory()) {
+                                table.column(column.getName().toUpperCase()).varChar(Table.NAME_LENGTH).notNull().map(column.getName()).add();
+                                table.column("UPPER" + column.getName().toUpperCase()).varChar(NAME_LENGTH).as("UPPER(" + column.getName().toUpperCase() + ")")
+                                        .alias("upper" + column.getName().substring(0, 1).toUpperCase() + column.getName().substring(1)).add();
+                            } else {
+                                table.column(column.getName().toUpperCase()).varChar(Table.NAME_LENGTH).map(column.getName()).add();
+                                table.column("UPPER" + column.getName().toUpperCase()).varChar(NAME_LENGTH).notNull().as("UPPER(" + column.getName().toUpperCase() + ")")
+                                        .alias("upper" + column.getName().substring(0, 1).toUpperCase() + column.getName().substring(1)).add();
+                            }
+                        }
+                );
+
+            }
+            table.column("DEFAULTLOCATION").bool().map("defaultLocation").add();
+            table.primaryKey("MTR_PK_LOCATION_MEMBER").on(locationIdColumn, localeColumn).add();
+            table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn)
+                    .references(MTR_LOCATION.name())
+                    .onDelete(RESTRICT)
+                    .map("locationId")
+                    .add();
+
+        }
     }
 }

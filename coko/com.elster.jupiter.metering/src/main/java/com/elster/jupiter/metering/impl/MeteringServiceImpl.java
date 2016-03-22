@@ -57,13 +57,11 @@ import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -89,6 +87,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
     private volatile LocationTemplate locationTemplate;
+    private static List<TemplateField> locationTemplateMembers;
+
     public MeteringServiceImpl() {
         this.createAllReadingTypes = true;
     }
@@ -101,6 +101,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
         setOrmService(ormService);
+        this.locationTemplate = createLocationTemplateDefaultData();
         setIdsService(idsService);
         setEventService(eventService);
         setPartyService(partyService);
@@ -313,9 +314,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Reference
     public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
     }
 
     @Reference
@@ -362,8 +360,22 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Activate
     public final void activate(BundleContext context) {
 
-        String fields = LocationTemplateImpl.ALLOWED_LOCATION_TEMPLATE_ELEMENTS.stream().
-                reduce((s, t) -> s + "," + t).get();
+        if (dataModel != null && context != null) {
+            String locationTemplateFields = context.getProperty(LOCATION_TEMPLATE).trim();
+            String locationTemplateMandatoryFields = context.getProperty(LOCATION_TEMPLATE_MANDATORY_FIELDS).trim();
+            locationTemplate = new LocationTemplateImpl(dataModel).init(locationTemplateFields, locationTemplateMandatoryFields);
+            locationTemplate
+                    .parseTemplate(locationTemplateFields, locationTemplateMandatoryFields);
+        } else if (dataModel.isInstalled() && getLocationTemplateFromDB().isPresent()) {
+            locationTemplate = getLocationTemplateFromDB().get();
+            locationTemplate
+                    .parseTemplate(locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields());
+        }
+        locationTemplateMembers = locationTemplate.getTemplateMembers();
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
+
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -383,16 +395,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             }
         });
 
-        locationTemplate = LocationTemplateImpl.from(dataModel,fields,fields);
-        if (!dataModel.isInstalled() && context != null && locationTemplate !=null) {
-            locationTemplate
-                    .parseTemplate(context.getProperty(LOCATION_TEMPLATE).trim(),
-                            context.getProperty(LOCATION_TEMPLATE_MANDATORY_FIELDS).trim());
-        }else if(dataModel.isInstalled() && getLocationTemplateFromDB().isPresent()){
-                locationTemplate = getLocationTemplateFromDB().get();
-                locationTemplate
-                        .parseTemplate(locationTemplate.getTemplateFields(),locationTemplate.getMandatoryFields());
-        }
     }
 
     @Deactivate
@@ -707,12 +709,12 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
-    public void createLocationTemplate(){
-        LocationTemplateImpl.from(dataModel,locationTemplate.getTemplateFields(),locationTemplate.getMandatoryFields() ).doSave();
+    public void createLocationTemplate() {
+        LocationTemplateImpl.from(dataModel, locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields()).doSave();
     }
 
     @Override
-    public LocationTemplate getLocationTemplate(){
+    public LocationTemplate getLocationTemplate() {
         return locationTemplate;
     }
 
@@ -722,6 +724,19 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             return Optional.of(template.get(0));
         }
         return Optional.empty();
+    }
+
+
+    public static List<TemplateField> getLocationTemplateMembers() {
+        return locationTemplateMembers;
+    }
+
+    public LocationTemplate createLocationTemplateDefaultData() {
+        String fields = LocationTemplate.ALLOWED_LOCATION_TEMPLATE_ELEMENTS.stream().
+                reduce((s, t) -> s + "," + t).get();
+        LocationTemplate defaultlocationTemplate = new LocationTemplateImpl(dataModel).init(fields, fields);
+        defaultlocationTemplate.parseTemplate(fields, fields);
+        return defaultlocationTemplate;
     }
 
 }
