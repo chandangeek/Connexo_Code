@@ -79,7 +79,7 @@ public class ConsoleCommands {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).get();
+                        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(id).get();
                         metrologyConfiguration.updateName(name);
                     });
         } catch (Exception e) {
