@@ -113,7 +113,7 @@ public class ServiceCallResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.CHANGE_SERVICE_CALL_STATE)
     public Response cancelServiceCall(@PathParam("id") long id, ServiceCallInfo info) {
-        if(info.state.equals("Cancelled")) {
+        if(info.state.id.equals("sclc.default.cancelled")) {
             serviceCallService.getServiceCall(id).ifPresent(ServiceCall::cancel);
             return Response.status(Response.Status.ACCEPTED).build();
         }
