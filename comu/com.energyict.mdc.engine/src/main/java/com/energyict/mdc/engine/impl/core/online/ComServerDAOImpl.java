@@ -695,7 +695,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         LogBook refreshedLogBook = device.getLogBooks().stream().filter(each -> each.getId() == logBook.getId()).findAny().get();
         LogBook.LogBookUpdater logBookUpdater = device.getLogBookUpdaterFor(refreshedLogBook);
         logBookUpdater.setLastLogBookIfLater(lastLogBook);
-        logBookUpdater.setLastReadingIfLater(getClock().instant()); // We assume the event will be persisted with a time difference of only a few milliseconds
+        logBookUpdater.setLastReadingIfLater(lastLogBook); // We assume the event will be persisted with a time difference of only a few milliseconds
         logBookUpdater.update();
     }
 
