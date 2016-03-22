@@ -63,16 +63,13 @@ abstract class AbstractBreakdownSqlExecutor {
     }
 
     List<BreakdownResult> breakdowns() {
-        try (PreparedStatement statement = this.statement()) {
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = this.statement(connection)) {
             return this.fetchBreakdowns(statement);
         }
         catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
-    }
-
-    private PreparedStatement statement() throws SQLException {
-        return this.statement(this.dataModel.getConnection(true));
     }
 
     private PreparedStatement statement(Connection connection) throws SQLException {
