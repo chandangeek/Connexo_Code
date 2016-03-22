@@ -48,9 +48,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
 import org.osgi.service.event.EventConstants;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -147,24 +149,25 @@ public class DeviceServiceImpl implements ServerDeviceService {
             sqlBuilder.append(" and (todate is null or todate >");
             sqlBuilder.addLong(now.getEpochSecond());
             sqlBuilder.append("))");
-        }
-        else {
+        } else {
             sqlBuilder.append(" from dual where 1 = 0");
         }
     }
 
     private Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet(DeviceProtocol deviceProtocol, String name) {
         return deviceProtocol
-                    .getDeviceProtocolDialects()
-                    .stream()
-                    .filter(dialect -> dialect.getDeviceProtocolDialectName().equals(name))
-                    .map(DeviceProtocolDialect::getCustomPropertySet)
-                    .flatMap(Functions.asStream())
-                    .findAny();
+                .getDeviceProtocolDialects()
+                .stream()
+                .filter(dialect -> dialect.getDeviceProtocolDialectName().equals(name))
+                .map(DeviceProtocolDialect::getCustomPropertySet)
+                .flatMap(Functions.asStream())
+                .findAny();
     }
 
     private long count(SqlBuilder sqlBuilder) {
-        try (PreparedStatement statement = sqlBuilder.prepare(this.deviceDataModelService.dataModel().getConnection(false))) {
+
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(false);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             try (ResultSet counter = statement.executeQuery()) {
                 counter.next();
                 return counter.getLong(1);
@@ -271,7 +274,10 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
         Device modifiedDevice = null;
         try {
-            modifiedDevice = deviceDataModelService.getTransactionService().execute(() -> new DeviceConfigChangeExecutor(this, deviceDataModelService.clock()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get()));
+            modifiedDevice = deviceDataModelService.getTransactionService()
+                    .execute(() -> new DeviceConfigChangeExecutor(this, deviceDataModelService.clock()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService()
+                            .findDeviceConfiguration(destinationDeviceConfigId)
+                            .get()));
         } finally {
             deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved));
         }
@@ -282,9 +288,12 @@ public class DeviceServiceImpl implements ServerDeviceService {
     public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs) {
         final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(destinationDeviceConfiguration);
         deviceConfigChangeRequest.save();
-        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceMRIDs), devicesForConfigChangeSearch, deviceConfigChangeRequest.getId());
+        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceMRIDs), devicesForConfigChangeSearch, deviceConfigChangeRequest
+                .getId());
 
-        DestinationSpec destinationSpec = deviceDataModelService.messageService().getDestinationSpec(ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION).orElseThrow(new NoDestinationSpecFound(thesaurus, ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION));
+        DestinationSpec destinationSpec = deviceDataModelService.messageService()
+                .getDestinationSpec(ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION)
+                .orElseThrow(new NoDestinationSpecFound(thesaurus, ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION));
         Map<String, Object> message = createConfigChangeQueueMessage(itemizeConfigChangeQueueMessage);
         destinationSpec.message(deviceDataModelService.jsonService().serialize(message)).send();
     }

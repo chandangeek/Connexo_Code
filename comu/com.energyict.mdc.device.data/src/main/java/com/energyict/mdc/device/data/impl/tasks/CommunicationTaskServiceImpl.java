@@ -46,6 +46,7 @@ import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -168,8 +169,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     @Override
     public List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTask(Device device) {
         Condition query = where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true)
-                     .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device))
-                     .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+                .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device))
+                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).select(query);
     }
 
@@ -363,7 +364,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append("and cte.comschedule in (select comschedule from sch_comtaskincomschedule where comtask = ");
         sqlBuilder.addLong(comTaskEnablement.getComTask().getId());
         sqlBuilder.append(")))) and cte.obsolete_date is null");
-        try (PreparedStatement statement = sqlBuilder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
+
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     int count = resultSet.getInt(1);
@@ -385,7 +388,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public Optional<ScheduledComTaskExecutionIdRange> getScheduledComTaskExecutionIdRange(long comScheduleId) {
-        try (PreparedStatement preparedStatement = this.getMinMaxComTaskExecutionIdPreparedStatement()) {
+
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
+             PreparedStatement preparedStatement = connection.prepareStatement(this.getMinMaxComTaskExecutionIdStatement())) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 resultSet.first();  // There is always at least one row since we are counting
                 long minId = resultSet.getLong(0);
@@ -402,17 +407,15 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         }
     }
 
-    private PreparedStatement getMinMaxComTaskExecutionIdPreparedStatement() throws SQLException {
-        return this.deviceDataModelService.dataModel().getConnection(true).prepareStatement(this.getMinMaxComTaskExecutionIdStatement());
-    }
-
     private String getMinMaxComTaskExecutionIdStatement() {
         return "SELECT MIN(id), MAX(id) FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " WHERE comschedule = ? AND obsolete_date IS NULL";
     }
 
     @Override
     public void obsoleteComTaskExecutionsInRange(ScheduledComTaskExecutionIdRange idRange) {
-        try (PreparedStatement preparedStatement = this.getObsoleteComTaskExecutionInRangePreparedStatement()) {
+
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
+             PreparedStatement preparedStatement = connection.prepareStatement(this.getObsoleteComTaskExecutionInRangeStatement())) {
             preparedStatement.setDate(1, this.nowAsSqlDate());
             preparedStatement.setLong(2, idRange.comScheduleId);
             preparedStatement.setLong(3, idRange.minId);
@@ -425,10 +428,6 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private java.sql.Date nowAsSqlDate() {
         return new java.sql.Date(this.deviceDataModelService.clock().instant().toEpochMilli());
-    }
-
-    private PreparedStatement getObsoleteComTaskExecutionInRangePreparedStatement() throws SQLException {
-        return this.deviceDataModelService.dataModel().getConnection(true).prepareStatement(this.getObsoleteComTaskExecutionInRangeStatement());
     }
 
     private String getObsoleteComTaskExecutionInRangeStatement() {
@@ -546,7 +545,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public Finder<ComTaskExecution> findComTaskExecutionsByConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        return DefaultFinder.of(ComTaskExecution.class, where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(connectionTask), this.deviceDataModelService.dataModel()).sorted("executionStart", false);
+        return DefaultFinder.of(ComTaskExecution.class, where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(connectionTask), this.deviceDataModelService.dataModel())
+                .sorted("executionStart", false);
     }
 
     @Override
@@ -619,7 +619,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public List<ComTaskExecution> getPlannedComTaskExecutionsFor(InboundComPort comPort, Device device) {
         if (comPort.isActive()) {
             InboundComPortPool inboundComPortPool = comPort.getComPortPool();
-            if (!inboundComPortPool.isActive()){
+            if (!inboundComPortPool.isActive()) {
                 return Collections.emptyList();
             }
             Instant now = this.deviceDataModelService.clock().instant();
@@ -703,7 +703,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         return DefaultFinder.of(ComTaskExecutionSession.class,
                 Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).isEqualTo(comTaskExecution).
                         and(Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK.fieldName()).isEqualTo(comTask)),
-                                this.deviceDataModelService.dataModel()).sorted(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName(), false);
+                this.deviceDataModelService.dataModel()).sorted(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName(), false);
     }
 
     @Override
@@ -718,7 +718,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             conditions.add(where(ComTaskExecutionSessionImpl.Fields.SESSION.fieldName() + "." + ComSessionImpl.Fields.STOP_DATE.fieldName()).isLessThanOrEqual(range.upperEndpoint()));
         }
         Condition execSessionCondition = this.andAll(conditions);
-        List<ComTaskExecutionSession> comTaskExecutionSessions = this.deviceDataModelService.dataModel().query(ComTaskExecutionSession.class, ComSession.class, Device.class).select(execSessionCondition);
+        List<ComTaskExecutionSession> comTaskExecutionSessions = this.deviceDataModelService.dataModel()
+                .query(ComTaskExecutionSession.class, ComSession.class, Device.class)
+                .select(execSessionCondition);
         Set<Long> uniqueDeviceIds = new HashSet<>();
         for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
             uniqueDeviceIds.add(comTaskExecutionSession.getDevice().getId());
