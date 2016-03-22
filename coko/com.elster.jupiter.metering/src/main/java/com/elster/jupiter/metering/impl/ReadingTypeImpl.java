@@ -142,6 +142,11 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 	}
 
 	@Override
+	public String getmRID() {
+		return mRID;
+	}
+
+	@Override
 	public String getAliasName() {
 		return aliasName;
 	}
@@ -523,4 +528,8 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 	    return fullAliasName;
     }
 
+	@Override
+	public String toString() {
+		return getMRID();
+	}
 }
