@@ -33,7 +33,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     private final IntervalLength intervalLength;
     private final MetricMultiplier unitMultiplier;
     private final ReadingTypeUnit unit;
-    private Marker marker;
+    private final Marker marker;
 
     static VirtualReadingType from(ReadingType readingType) {
         return from(IntervalLength.from(readingType), readingType.getMultiplier(), readingType.getUnit());

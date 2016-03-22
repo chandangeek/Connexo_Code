@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -85,12 +84,13 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
     }
 
     private VirtualReadingType visitChildren(List<ServerExpressionNode> children, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
-        Set<VirtualReadingType> preferredReadingTypes =
+        List<VirtualReadingType> preferredReadingTypes =
                 children
                     .stream()
                     .map(this::getPreferredReadingType)
                     .filter(Predicates.not(VirtualReadingType::isDontCare))
-                    .collect(Collectors.toSet());
+                    .distinct()
+                    .collect(Collectors.toList());
         if (preferredReadingTypes.isEmpty()) {
             /* All child nodes have indicated not to care about the reading type
              * so we should be able to enforce the target onto each. */
@@ -130,7 +130,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
      * @param unsupportedOperationExceptionSupplier The supplier of the UnsupportedOperationException that will be thrown when no compromise can be found
      * @return The compromising VirtualReadingType
      */
-    private VirtualReadingType searchCompromise(List<ServerExpressionNode> nodes, Set<VirtualReadingType> preferredReadingTypes, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
+    private VirtualReadingType searchCompromise(List<ServerExpressionNode> nodes, List<VirtualReadingType> preferredReadingTypes, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
         List<VirtualReadingType> smallestToBiggest = new ArrayList<>(preferredReadingTypes);
         Collections.sort(smallestToBiggest, new VirtualReadingTypeRelativeComparator(this.requestedReadingType));
         Optional<VirtualReadingType> compromise =
