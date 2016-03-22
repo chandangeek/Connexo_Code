@@ -97,7 +97,17 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
 
     @Test
     public void testUsagePointRemoving() {
-        Response response = target("usagepoints/MRID").request().delete();
+        when(meteringService.findUsagePoint(1L)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
+        UsagePointInfo info = new UsagePointInfo();
+
+        info.id = 1L;
+        info.mRID = "dlt";
+        info.name = "dlt";
+        info.installationTime = Instant.EPOCH.toEpochMilli();
+        info.version = 1L;
+
+        Response response = target("usagepoints/dlt").request().method("DELETE", Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
     }
 

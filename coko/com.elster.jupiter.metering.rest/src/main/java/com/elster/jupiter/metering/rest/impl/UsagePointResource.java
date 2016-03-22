@@ -107,8 +107,10 @@ public class UsagePointResource {
                         .supplier());
         if (usagePoint != null) {
             usagePoint.delete();
+            return Response.status(Response.Status.OK).entity(info).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-        return Response.status(Response.Status.OK).entity(info).build();
     }
 
     @POST
