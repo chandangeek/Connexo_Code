@@ -331,5 +331,8 @@ public class ServiceCallImpl implements ServiceCall {
         serviceCallQueue.purgeCorrelationId(this.getNumber());
     }
 
-
+    @Override
+    public boolean canTransitionTo(DefaultState targetState) {
+        return getType().getServiceCallLifeCycle().canTransition(getState(), targetState);
+    }
 }

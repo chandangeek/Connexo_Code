@@ -75,4 +75,6 @@ public interface ServiceCall extends HasId {
      * Service call will be deleted from the system, together with all logs, children en logs on children.
      */
     void delete();
+
+    boolean canTransitionTo(DefaultState targetState);
 }

@@ -456,6 +456,36 @@ public class ServiceCallTransitionIT {
 
     }
 
+    @Test
+    public void canCancelServiceCall() {
+        when(serviceCallHandler.allowStateChange(any(), any(), any())).thenReturn(true);
+
+        MyExtension extension = new MyExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+
+        ServiceCall serviceCall;
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .targetObject(importSchedule)
+                    .extendedWith(extension)
+                    .create();
+            context.commit();
+        }
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        assertThat(serviceCall.canTransitionTo(DefaultState.CANCELLED)).isFalse();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall.requestTransition(DefaultState.PENDING);
+            context.commit();
+        }
+
+        assertThat(serviceCall.canTransitionTo(DefaultState.CANCELLED)).isTrue();
+    }
+
     static class MyExtension implements PersistentDomainExtension<ServiceCall> {
 
         private Reference<ServiceCall> serviceCall = ValueReference.absent();
