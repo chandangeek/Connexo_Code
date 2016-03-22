@@ -45,6 +45,7 @@ public class RknProxyResource {
         return Response.ok().entity("{\"status\":\"ok\"}").build();
     }
 
+    @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("usagepoints/{mrid}/contactor")
