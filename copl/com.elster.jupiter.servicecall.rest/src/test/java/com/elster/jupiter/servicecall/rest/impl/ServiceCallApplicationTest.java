@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 public abstract class ServiceCallApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     public ServiceCallService serviceCallService;
+    @Mock
+    ReferenceResolver refResolver;
 
     @Mock
     public ReferenceResolver referenceResolver;

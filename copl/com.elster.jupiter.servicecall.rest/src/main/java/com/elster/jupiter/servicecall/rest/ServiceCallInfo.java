@@ -1,6 +1,8 @@
-package com.elster.jupiter.servicecall.rest.impl;
+package com.elster.jupiter.servicecall.rest;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.servicecall.rest.impl.ServiceCallChildrenInfo;
+import com.elster.jupiter.servicecall.rest.impl.ServiceCallCustomPropertySetInfo;
 import com.elster.jupiter.rest.whiteboard.ReferenceInfo;
 
 import java.util.List;
@@ -12,7 +14,7 @@ public class ServiceCallInfo {
     public long creationTime;
     public long lastModificationTime;
     public long lastCompletedTime;
-    public String state;
+    public IdWithDisplayValueInfo<String> state;
     public String origin;
     public String externalReference;
     public ReferenceInfo targetObject;

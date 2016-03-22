@@ -3,11 +3,13 @@ package com.elster.jupiter.servicecall.rest.impl;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.whiteboard.ReferenceInfo;
 import com.elster.jupiter.rest.whiteboard.ReferenceResolver;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -38,6 +40,7 @@ public class ServiceCallInfoFactory {
         if (lastCompletedOptional.isPresent()) {
             serviceCallInfo.lastCompletedTime = lastCompletedOptional.get().toEpochMilli();
         }
+        serviceCallInfo.state = toInfo(serviceCall.getState());
         serviceCallInfo.origin = serviceCall.getOrigin().isPresent() ? serviceCall.getOrigin().get() : null;
         Optional<ReferenceInfo> referenceInfo = serviceCall.getTargetObject().isPresent() ? referenceResolver.resolve(serviceCall.getTargetObject().get()) : Optional.empty();
         serviceCallInfo.targetObject = referenceInfo.isPresent() ? referenceInfo.get() : null;
@@ -54,7 +57,7 @@ public class ServiceCallInfoFactory {
         serviceCallInfo.version = serviceCall.getVersion();
         serviceCallInfo.creationTime = serviceCall.getCreationTime().toEpochMilli();
         serviceCallInfo.lastModificationTime = serviceCall.getLastModificationTime().toEpochMilli();
-        serviceCallInfo.state = serviceCall.getState().getDisplayName(thesaurus);
+        serviceCallInfo.state = toInfo(serviceCall.getState());
         serviceCallInfo.externalReference = serviceCall.getExternalReference()
                 .isPresent() ? serviceCall.getExternalReference().get() : null;
         serviceCallInfo.type = serviceCall.getType().getName();
@@ -127,4 +130,7 @@ public class ServiceCallInfoFactory {
         return new ServiceCallCustomPropertySetInfo(propertySet, propertyUtils.convertPropertySpecsToPropertyInfos(propertySet.getCustomPropertySet().getPropertySpecs(), values));
     }
 
+    private IdWithDisplayValueInfo<String> toInfo(DefaultState state) {
+        return new IdWithDisplayValueInfo<>(state.getKey(), state.getDisplayName(thesaurus));
+    }
 }
