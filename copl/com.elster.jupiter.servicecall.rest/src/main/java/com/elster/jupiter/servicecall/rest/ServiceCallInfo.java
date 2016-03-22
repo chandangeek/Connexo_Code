@@ -1,5 +1,6 @@
 package com.elster.jupiter.servicecall.rest;
 
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.rest.impl.ServiceCallChildrenInfo;
 import com.elster.jupiter.servicecall.rest.impl.ServiceCallCustomPropertySetInfo;
