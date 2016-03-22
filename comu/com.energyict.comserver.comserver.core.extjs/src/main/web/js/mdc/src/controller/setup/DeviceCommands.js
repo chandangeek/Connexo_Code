@@ -298,10 +298,12 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             previewPanel.setTitle(title);
             if(record.get('trackingCategory').id ==='trackingCategory.serviceCall'){
                 previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('deviceCommands.view.serviceCall', 'MDC', 'Service call'));
-                previewForm.down('#tracking').renderer = function (val) {
-                    return '<a style="text-decoration: underline" href="'+
-                        me.getController('Uni.controller.history.Router').getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: val})
-                        +'">' + val + '</a>';
+                if (record.get('trackingCategory').activeLink != undefined && record.get('trackingCategory').activeLink) {
+                    previewForm.down('#tracking').renderer = function (val) {
+                        return '<a style="text-decoration: underline" href="' +
+                            me.getController('Uni.controller.history.Router').getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: val})
+                            + '">' + val + '</a>';
+                    }
                 }
             } else {
                 previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('deviceCommands.view.trackingSource', 'MDC', 'Tracking source'));
