@@ -9,9 +9,10 @@ package com.energyict.protocolimpl.iec1107.abba230;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.iec1107.abba230.eventlogs.EndOfBillingEventLog;
 
 import java.io.IOException;
@@ -23,8 +24,6 @@ import java.util.logging.Logger;
 /** @author Koen */
 
 public class ObisCodeMapper {
-
-	SystemStatus systemStatus=null;
 
     private ABBA230RegisterFactory rFactory;
 
