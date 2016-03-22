@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
-import com.elster.jupiter.util.units.Quantity;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -69,19 +68,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         infos.add(createDescription(TranslationSeeds.MRID, String.class));
         infos.add(createDescription(TranslationSeeds.SERVICE_CATEGORY_DISPLAY, String.class));
         infos.add(createDescription(TranslationSeeds.NAME, String.class));
-        infos.add(createDescription(TranslationSeeds.ESTIMATED_LOAD, Quantity.class));
-        infos.add(createDescription(TranslationSeeds.GROUNDED, Boolean.class));
-        infos.add(createDescription(TranslationSeeds.DSP, Boolean.class));
-        infos.add(createDescription(TranslationSeeds.VIRTUAL, Boolean.class));
-        infos.add(createDescription(TranslationSeeds.SERVICE_VOLTAGE, Quantity.class));
-        infos.add(createDescription(TranslationSeeds.OUTAGE_REGION, String.class));
-        infos.add(createDescription(TranslationSeeds.PHASE_CODE, String.class));
-        infos.add(createDescription(TranslationSeeds.RATED_CURRENT, Quantity.class));
-        infos.add(createDescription(TranslationSeeds.RATED_POWER, Quantity.class));
-        infos.add(createDescription(TranslationSeeds.READ_ROUTE, String.class));
-        infos.add(createDescription(TranslationSeeds.REMARK, String.class));
-        infos.add(createDescription(TranslationSeeds.PRIORITY, String.class));
-        infos.add(createDescription(TranslationSeeds.ISSUES, String.class));
         return infos;
     }
 

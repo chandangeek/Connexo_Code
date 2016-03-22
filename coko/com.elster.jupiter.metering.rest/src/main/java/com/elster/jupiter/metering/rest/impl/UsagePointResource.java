@@ -99,6 +99,7 @@ public class UsagePointResource {
     @DELETE
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{mRID}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response deleteUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo info) {
         UsagePoint usagePoint = meteringService.findAndLockUsagePointByIdAndVersion(info.id, info.version)
