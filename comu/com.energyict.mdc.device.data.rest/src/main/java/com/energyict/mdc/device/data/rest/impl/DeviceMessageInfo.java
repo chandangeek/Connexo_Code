@@ -14,7 +14,7 @@ public class DeviceMessageInfo {
 
     public long id;
     public String trackingId;
-    public IdWithNameInfo trackingCategory;
+    public TrackingCategoryInfo trackingCategory;
     public DeviceMessageSpecInfo messageSpecification;
     public String category;
     public StatusInfo status;
@@ -36,6 +36,12 @@ public class DeviceMessageInfo {
     static class StatusInfo {
         public String displayValue;
         public String value;
+    }
+
+    static class TrackingCategoryInfo {
+        public String id;
+        public String name;
+        public boolean activeLink;
     }
 }
 
