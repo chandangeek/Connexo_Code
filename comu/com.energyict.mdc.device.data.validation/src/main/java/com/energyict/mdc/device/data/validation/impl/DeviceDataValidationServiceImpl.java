@@ -11,6 +11,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -60,7 +61,8 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
             validationOverviewBuilder.append(" WHERE DEV.id IN (");
             validationOverviewBuilder.add(found.get());
             validationOverviewBuilder.append(")");
-            try (PreparedStatement statement = validationOverviewBuilder.prepare(dataModel.getConnection(false))) {
+            try (Connection connection = dataModel.getConnection(false);
+                 PreparedStatement statement = validationOverviewBuilder.prepare(connection)) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         list.add(new ValidationOverview(
