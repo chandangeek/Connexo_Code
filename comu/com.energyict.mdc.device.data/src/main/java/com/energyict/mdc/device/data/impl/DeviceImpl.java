@@ -19,24 +19,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.LifecycleDates;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeterConfiguration;
-import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.MultiplierType;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -261,6 +244,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private transient Optional<MeterActivation> currentMeterActivation = Optional.empty();
     private transient MultiplierType multiplierType;
     private transient BigDecimal multiplier;
+    private Location location;
 
     @Inject
     public DeviceImpl(
@@ -344,17 +328,34 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public Location getLocation(){
+        return this.location;
+    }
+
+    @Override
+    public void setLocation(Location location){
+        this.location = location;
+    }
+
+    @Override
     public void save() {
         boolean alreadyPersistent = this.id > 0;
         if (alreadyPersistent) {
             Save.UPDATE.save(dataModel, this);
-            findKoreMeter(getMdcAmrSystem())
-                    .filter(meter -> !Objects.equals(meter.getMRID(), this.getmRID()))
-                    .ifPresent(meter -> {
-                        meter.setMRID(getmRID());
-                        meter.update();
-                    });
-
+            Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
+            if(meter.isPresent()){
+                if(!meter.get().getMRID().equals(this.getmRID())){
+                    if(this.location != null) {
+                        meter.get().setLocation(location);
+                    }
+                    meter.get().update();
+                }else{
+                    if(this.location != null){
+                        meter.get().setLocation(location);
+                        meter.get().update();
+                    }
+                }
+            }
             this.saveDirtySecurityProperties();
             this.saveDirtyConnectionProperties();
             this.saveNewAndDirtyDialectProperties();
@@ -362,6 +363,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             Save.CREATE.save(dataModel, this);
             Meter meter = this.createKoreMeter();
+            if(this.location != null){
+                meter.setLocation(location);
+            }
             this.createMeterConfiguration(meter, this.clock.instant(), false);
             this.saveNewDialectProperties();
             this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
