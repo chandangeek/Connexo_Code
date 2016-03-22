@@ -35,6 +35,14 @@ Ext.define('Scs.controller.ServiceCalls', {
             selector: '#service-call-overview-tab'
         },
         {
+            ref: 'landingPage',
+            selector: 'scs-landing-page'
+        },
+        {
+            ref: 'serviceCallGrid',
+            selector: 'servicecalls-grid'
+        },
+        {
             ref: 'previewActionButton',
             selector: '#previewMenuButton'
         }
@@ -257,8 +265,14 @@ Ext.define('Scs.controller.ServiceCalls', {
                             record.set('targetObject', null)
                         }
                         record.save({
-                            success: function(){
-                                store.load();
+                            success: function(newRecord){
+                                if(me.getLandingPage()) {
+                                    me.getLandingPage().updateLandingPage(newRecord);
+                                    me.getLandingPage().down('#scAtionButton').disable();
+                                }
+                                if(me.getServiceCallGrid()) {
+                                    store.load();
+                                }
                             }
                         });
                     }

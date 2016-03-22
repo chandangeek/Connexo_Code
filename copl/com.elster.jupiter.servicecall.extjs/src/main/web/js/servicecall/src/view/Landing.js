@@ -25,6 +25,7 @@ Ext.define('Scs.view.Landing', {
                             text: Uni.I18n.translate('general.actions', 'SCS', 'Actions'),
                             iconCls: 'x-uni-action-iconD',
                             disabled: !me.record.get('canCancel'),
+                            itemId: 'scAtionButton',
                             margin: '20 0 0 0',
                             menu: {
                                 xtype: 'scs-action-menu',
