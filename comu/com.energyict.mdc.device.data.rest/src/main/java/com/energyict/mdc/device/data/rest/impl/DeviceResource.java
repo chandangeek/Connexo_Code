@@ -7,6 +7,9 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
@@ -45,6 +48,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -100,6 +104,7 @@ public class DeviceResource {
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
     private final DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
     private final TransactionService transactionService;
+    private final ServiceCallService serviceCallService;
 
     @Inject
     public DeviceResource(
@@ -132,7 +137,8 @@ public class DeviceResource {
             DeviceInfoFactory deviceInfoFactory,
             DeviceAttributesInfoFactory deviceAttributesInfoFactory,
             DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory,
-            TransactionService transactionService) {
+            TransactionService transactionService,
+            ServiceCallService serviceCallService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -163,6 +169,7 @@ public class DeviceResource {
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
         this.devicesForConfigChangeSearchFactory = devicesForConfigChangeSearchFactory;
         this.transactionService = transactionService;
+        this.serviceCallService = serviceCallService;
     }
 
     @GET @Transactional
@@ -618,6 +625,21 @@ public class DeviceResource {
     @Path("/{mRID}/transitions")
     public DeviceLifeCycleActionResource getDeviceLifeCycleActionsResource() {
         return deviceLifeCycleActionResourceProvider.get();
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{mRID}/servicecalls")
+    public Response cancelServiceCallsFor(@PathParam("mRID") String mrid, ServiceCallInfo serviceCallInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        if (serviceCallInfo.state == null) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        if (DefaultState.CANCELLED.getKey().equals(serviceCallInfo.state.id)) {
+            serviceCallService.cancelServiceCallsFor(device);
+            return Response.accepted().build();
+        }
+        throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
     @GET @Transactional
