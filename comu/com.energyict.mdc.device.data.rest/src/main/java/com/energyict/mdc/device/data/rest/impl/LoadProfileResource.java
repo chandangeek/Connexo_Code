@@ -147,7 +147,11 @@ public class LoadProfileResource {
     }
 
     private Optional<Instant> getLastChecked(Channel channel) {
-        return channel.getDevice().forValidation().getLastChecked(channel);
+        Optional<Instant> lastChecked = Optional.empty();
+        if(channel.getDevice().forValidation().getLastChecked(channel).isPresent()){
+            lastChecked = channel.getDevice().forValidation().getLastChecked(channel).equals(Optional.of(channel.getDevice().getMeterActivationsMostRecentFirst().get(0).getStart())) ? Optional.empty() : channel.getDevice().forValidation().getLastChecked(channel);
+        }
+        return lastChecked;
     }
 
     private Range<Instant> lastMonth() {
