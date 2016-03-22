@@ -3,6 +3,7 @@ package com.elster.jupiter.prepayment.impl;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.Transactional;
@@ -47,6 +48,7 @@ import java.util.stream.Stream;
 @Path("usagepoints/{mrid}")
 public class UsagePointResource {
 
+    private static final String UNDEFINED = "undefined";
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final Clock clock;
@@ -68,6 +70,7 @@ public class UsagePointResource {
     @Path("/contactor")
     @Transactional
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context UriInfo uriInfo) {
+        validateContactorInfo(contactorInfo);
         Device device = findDeviceThroughUsagePoint(mRID);
         List<DeviceMessageId> deviceMessageIds = getMessageIdsOfAllRequiredMessages(contactorInfo);
         List<DeviceMessage<Device>> deviceMessages = createDeviceMessagesOnDevice(contactorInfo, device, deviceMessageIds);
@@ -88,13 +91,39 @@ public class UsagePointResource {
         return Response.accepted().location(uri).build();
     }
 
+    /**
+     * Validate the specified ContactorInfo contains valid data
+     */
+    private void validateContactorInfo(ContactorInfo contactorInfo) {
+        if (contactorInfo.loadLimit != null) {
+            if (contactorInfo.loadLimit.limit == null || (contactorInfo.loadLimit.limit != null && contactorInfo.loadLimit.unit == null)) {
+                throw exceptionFactory.newException(MessageSeeds.INCOMPLETE_LOADLIMIT, "");
+            } else if (!contactorInfo.loadLimit.getUnit().isPresent()) {
+                throw exceptionFactory.newException(MessageSeeds.UNKNOWN_UNIT_CODE, "");
+            }
+        }
+
+        if (contactorInfo.readingType != null &&
+                !this.meteringService.getReadingType(contactorInfo.readingType).isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.UNKNOWN_READING_TYPE);
+        }
+
+        if (contactorInfo.loadTolerance != null && contactorInfo.loadTolerance < 0) {
+            contactorInfo.loadTolerance = null; // If tolerance is negative, then ignore it
+        }
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/messages/{messageId}")
     @Transactional
     public Response getDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long id) {
         Device device = findDeviceThroughUsagePoint(mRID);
-        DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == id).findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
+        DeviceMessage<Device> deviceMessage = device.getMessages()
+                .stream()
+                .filter(msg -> msg.getId() == id)
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.status = deviceMessage.getStatus();
         info.sentDate = deviceMessage.getSentDate().orElse(null);
@@ -102,17 +131,22 @@ public class UsagePointResource {
     }
 
     private Device findDeviceThroughUsagePoint(String mRID) {
-        UsagePoint usagePoint = meteringService.findUsagePoint(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_USAGE_POINT));
-        MeterActivation meterActivation = usagePoint.getCurrentMeterActivation().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CURRENT_METER_ACTIVATION));
-        Meter meter = meterActivation.getMeter().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METER_IN_ACTIVATION));
-        return deviceService.findByUniqueMrid(meter.getMRID()).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_FOR_METER, meter.getMRID()));
+        UsagePoint usagePoint = meteringService.findUsagePoint(mRID)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_USAGE_POINT));
+        MeterActivation meterActivation = usagePoint.getCurrentMeterActivation()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CURRENT_METER_ACTIVATION));
+        Meter meter = meterActivation.getMeter()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METER_IN_ACTIVATION));
+        return deviceService.findByUniqueMrid(meter.getMRID())
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_FOR_METER, meter.getMRID()));
     }
 
     private ManuallyScheduledComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
         if (comTaskEnablement.hasPartialConnectionTask()) {
             device.getConnectionTasks().stream()
-                    .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
+                    .filter(connectionTask -> connectionTask.getPartialConnectionTask()
+                            .getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
                     .findFirst()
                     .ifPresent(comTaskExecutionBuilder::connectionTask);
         }
@@ -133,7 +167,8 @@ public class UsagePointResource {
                 deviceMessageBuilder.addProperty(DeviceMessageConstants.contactorActivationDateAttributeName, Date.from(contactorInfo.activationDate));
             }
             if (contactorInfo.loadLimit != null && deviceMessageSpecHasPropertySpec(deviceMessageSpec, DeviceMessageConstants.normalThresholdAttributeName)) {
-                deviceMessageBuilder.addProperty(DeviceMessageConstants.normalThresholdAttributeName, contactorInfo.loadLimit);
+                deviceMessageBuilder.addProperty(DeviceMessageConstants.normalThresholdAttributeName, contactorInfo.loadLimit.limit);
+                deviceMessageBuilder.addProperty(DeviceMessageConstants.unitAttributeName, contactorInfo.loadLimit.unit.isEmpty() ? UNDEFINED : contactorInfo.loadLimit.unit);
             }
             if (contactorInfo.loadTolerance != null && deviceMessageSpecHasPropertySpec(deviceMessageSpec, DeviceMessageConstants.overThresholdDurationAttributeName)) {
                 deviceMessageBuilder.addProperty(DeviceMessageConstants.overThresholdDurationAttributeName, new TimeDuration(contactorInfo.loadTolerance));
@@ -146,7 +181,8 @@ public class UsagePointResource {
                 deviceMessageBuilder.addProperty(DeviceMessageConstants.tariffsAttributeName, tariffs);
             }
             if (contactorInfo.readingType != null && deviceMessageSpecHasPropertySpec(deviceMessageSpec, DeviceMessageConstants.readingTypeAttributeName)) {
-                deviceMessageBuilder.addProperty(DeviceMessageConstants.readingTypeAttributeName, contactorInfo.readingType);
+                ReadingType readingType = this.meteringService.getReadingType(contactorInfo.readingType).get();
+                deviceMessageBuilder.addProperty(DeviceMessageConstants.readingTypeAttributeName, readingType);
             }
 
             deviceMessages.add(deviceMessageBuilder.add());
@@ -165,16 +201,14 @@ public class UsagePointResource {
                 .forEach(deviceMessageId -> comTaskEnablements.add(device.getDeviceConfiguration()
                         .getComTaskEnablements()
                         .stream()
-                        .
-                                filter(cte -> cte.getComTask().getProtocolTasks().stream().
-                                        filter(task -> task instanceof MessagesTask).
-                                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                                        flatMap(category -> category.getMessageSpecifications().stream()).
-                                        filter(dms -> dms.getId().equals(deviceMessageId)).
-                                        findFirst().
-                                        isPresent())
-                        .
-                                findAny()
+                        .filter(cte -> cte.getComTask().getProtocolTasks().stream().
+                                filter(task -> task instanceof MessagesTask).
+                                flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
+                                flatMap(category -> category.getMessageSpecifications().stream()).
+                                filter(dms -> dms.getId().equals(deviceMessageId)).
+                                findFirst().
+                                isPresent())
+                        .findAny()
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_COMTASK_FOR_COMMAND))));
 
         return comTaskEnablements.stream().distinct();
@@ -199,12 +233,14 @@ public class UsagePointResource {
             }
         }
 
-        if (contactorInfo.loadLimit != null && contactorInfo.loadTolerance != null) {
+        if (contactorInfo.loadLimit != null && contactorInfo.loadLimit.shouldDisableLoadLimit()) {
+            deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_DISABLE_LOAD_LIMITING);
+        } else if (contactorInfo.loadLimit != null && contactorInfo.loadTolerance != null) {
             deviceMessageIds.add(contactorInfo.tariffs != null ? DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION_WITH_TARIFFS : DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION);
-        } else if (contactorInfo.loadTolerance != null) {
-            deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_DURATION);
         } else if (contactorInfo.loadLimit != null) {
             deviceMessageIds.add(contactorInfo.tariffs != null ? DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS : DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD);
+        } else if (contactorInfo.loadTolerance != null) {
+            deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_DURATION);
         }
 
         if (contactorInfo.readingType != null) {

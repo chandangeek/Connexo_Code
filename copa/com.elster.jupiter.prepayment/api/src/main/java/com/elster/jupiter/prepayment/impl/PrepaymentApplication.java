@@ -8,6 +8,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.prepayment.impl.installer.InstallerImpl;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
@@ -31,10 +33,10 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.prepayment.rest",
-        service = {Application.class, TranslationKeyProvider.class},
+        service = {Application.class, InstallService.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"alias=/rkn", "app=MDC", "name=" + PrepaymentApplication.COMPONENT_NAME, "version=v1.0"})
-public class PrepaymentApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
+public class PrepaymentApplication extends Application implements InstallService, TranslationKeyProvider, MessageSeedProvider {
 
     private final Logger logger = Logger.getLogger(PrepaymentApplication.class.getName());
 
@@ -118,6 +120,16 @@ public class PrepaymentApplication extends Application implements TranslationKey
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Override
+    public void install() {
+        new InstallerImpl(meteringService).install();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "IDS", "PRT", "USR", "EVT", "NLS", "FSM", "CPS", "MTR");
     }
 
     class HK2Binder extends AbstractBinder {

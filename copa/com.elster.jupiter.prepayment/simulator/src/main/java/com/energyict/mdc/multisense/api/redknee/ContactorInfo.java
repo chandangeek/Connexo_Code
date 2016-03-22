@@ -10,11 +10,16 @@ import java.time.Instant;
 public class ContactorInfo {
 
     public Status status;
-    public BigDecimal loadLimit;
+    public LoadLimit loadLimit;
     @XmlJavaTypeAdapter(JsonInstantAdapter.class)
     public Instant activationDate;
     public Integer loadTolerance;
     public Integer[] tariffs;
     public String readingType;
     public String callback;
+
+    public class LoadLimit {
+        public BigDecimal limit;
+        public String unit;
+    }
 }
