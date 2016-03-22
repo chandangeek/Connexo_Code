@@ -20,6 +20,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -132,6 +133,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static FavoritesService favoritesService;
     private static DeviceLifeCycleService deviceLifecycleService;
     private static TopologyService topologyService;
+    private static ServiceCallService serviceCallService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -150,6 +152,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         favoritesService = mock(FavoritesService.class);
         deviceLifecycleService = mock(DeviceLifeCycleService.class);
         topologyService = mock(TopologyService.class);
+        serviceCallService = mock(ServiceCallService.class);
 
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();

@@ -121,7 +121,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DeviceMessageService deviceMessageService;
     private volatile DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
     private volatile CustomPropertySetService customPropertySetService;
-    private ServiceCallService serviceCallService;
+    private volatile ServiceCallService serviceCallService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -243,6 +243,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
@@ -398,11 +403,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
-    }
-
-    @Reference
-    public void setServiceCallService(ServiceCallService serviceCallService) {
-        this.serviceCallService = serviceCallService;
     }
 
     class HK2Binder extends AbstractBinder {
