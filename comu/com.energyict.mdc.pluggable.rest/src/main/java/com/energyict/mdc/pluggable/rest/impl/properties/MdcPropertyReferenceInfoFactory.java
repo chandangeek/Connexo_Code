@@ -1,25 +1,35 @@
 package com.energyict.mdc.pluggable.rest.impl.properties;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.Password;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TimeOfDay;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.pluggable.rest.impl.*;
+import com.energyict.mdc.pluggable.rest.impl.CodeTableInfo;
+import com.energyict.mdc.pluggable.rest.impl.CodeTableResource;
+import com.energyict.mdc.pluggable.rest.impl.LoadProfileInfo;
+import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeInfo;
+import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeResource;
+import com.energyict.mdc.pluggable.rest.impl.LogBookInfo;
+import com.energyict.mdc.pluggable.rest.impl.ReadingTypeInfo;
+import com.energyict.mdc.pluggable.rest.impl.RegisterInfo;
+import com.energyict.mdc.pluggable.rest.impl.TimeZoneInUseInfo;
+import com.energyict.mdc.pluggable.rest.impl.UserFileReferenceInfo;
+import com.energyict.mdc.pluggable.rest.impl.UserFileReferenceResource;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 
-import java.net.URI;
-
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 
 /**
  * Provides functionality for property 'Reference' objects
@@ -63,6 +73,8 @@ public class MdcPropertyReferenceInfoFactory {
                 info = new LogBookInfo((LogBook) property);
             } else if (FirmwareVersion.class.isAssignableFrom(property.getClass())){
                 info = asInfoObject((FirmwareVersion) property);
+            } else if (ReadingType.class.isAssignableFrom(property.getClass())) {
+                info = new ReadingTypeInfo(((ReadingType) property));
             }
         }
         return info;
