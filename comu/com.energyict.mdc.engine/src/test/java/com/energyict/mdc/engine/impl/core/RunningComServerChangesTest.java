@@ -22,12 +22,13 @@ import com.energyict.mdc.engine.impl.core.mocks.MockOutboundComPort;
 import com.energyict.mdc.engine.impl.core.mocks.MockTCPInboundComPort;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.impl.monitor.*;
-import com.energyict.mdc.engine.monitor.ComServerMonitor;
-import com.energyict.mdc.engine.monitor.ComServerOperationalStatistics;
-import com.energyict.mdc.engine.monitor.EventAPIStatistics;
+import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ComServerOperationalStatisticsImpl;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
+import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.sql.SQLException;
@@ -35,12 +36,13 @@ import java.time.Clock;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
@@ -75,7 +77,7 @@ public class RunningComServerChangesTest {
     @Mock
     private ServerEventAPIStatistics eventApiStatistics;
     @Mock
-    private ComServerOperationalStatistics comServerOperationalStatistics;
+    private ComServerOperationalStatisticsImpl comServerOperationalStatistics;
     @Mock
     private IdentificationService identificationService;
     @Mock
