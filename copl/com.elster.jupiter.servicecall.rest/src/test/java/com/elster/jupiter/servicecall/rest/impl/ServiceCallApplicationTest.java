@@ -3,11 +3,13 @@ package com.elster.jupiter.servicecall.rest.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.rest.whiteboard.ReferenceResolver;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.util.List;
+
+import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -22,6 +24,8 @@ import static org.mockito.Mockito.when;
 public abstract class ServiceCallApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     public ServiceCallService serviceCallService;
+    @Mock
+    ReferenceResolver refResolver;
 
     @Override
     protected Application getApplication() {
@@ -29,6 +33,7 @@ public abstract class ServiceCallApplicationTest extends FelixRestApplicationJer
         serviceCallApplication.setServiceCallService(serviceCallService);
         serviceCallApplication.setNlsService(nlsService);
         serviceCallApplication.setTransactionService(transactionService);
+        serviceCallApplication.setReferenceResolver(refResolver);
         return serviceCallApplication;
     }
 

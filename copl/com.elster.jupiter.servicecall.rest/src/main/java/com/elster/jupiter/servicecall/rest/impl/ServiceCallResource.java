@@ -16,7 +16,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -105,14 +104,4 @@ public class ServiceCallResource {
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
-
-    @PUT
-    @Path("/{id}/cancel")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.CHANGE_SERVICE_CALL_STATE)
-    public Response cancelServiceCall(@PathParam("id") long number) {
-        serviceCallService.getServiceCall(number).ifPresent(ServiceCall::cancel);
-        return Response.status(Response.Status.OK).build();
-    }
-
 }
