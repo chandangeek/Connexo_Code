@@ -37,9 +37,10 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.verification.CounterVerifierFactory;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.impl.monitor.*;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ServerScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
-import com.energyict.mdc.engine.monitor.ScheduledComPortOperationalStatistics;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -73,16 +74,17 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.LogManager;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import static com.elster.jupiter.util.Checks.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyList;
@@ -105,7 +107,10 @@ import static org.mockito.Mockito.withSettings;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-10 (12:49)
  */
-@RunWith(MockitoJUnitRunner.class)
+
+// TODO fix this
+@Ignore // pwe agreed to ignore this test since it is causing random failures in the nightly build
+//@RunWith(MockitoJUnitRunner.class)
 public class MultiThreadedScheduledComPortTest {
 
     private static final int NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 3;
