@@ -269,8 +269,12 @@ Ext.define('Scs.controller.ServiceCalls', {
                         record.save({
                             success: function(newRecord){
                                 if(me.getLandingPage()) {
-                                    me.getLandingPage().updateLandingPage(newRecord);
-                                    me.getLandingPage().down('#scAtionButton').disable();
+                                    me.getModel('Scs.model.ServiceCall').load(newRecord.get('id'), {
+                                        success: function (record) {
+                                            me.getLandingPage().updateLandingPage(record);
+                                            me.getLandingPage().down('#scAtionButton').disable();
+                                        }
+                                    });
                                 }
                                 if(me.getServiceCallGrid()) {
                                     store.load();
