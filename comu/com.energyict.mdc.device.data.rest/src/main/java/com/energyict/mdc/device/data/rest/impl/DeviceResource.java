@@ -628,6 +628,7 @@ public class DeviceResource {
     }
 
     @PUT
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{mRID}/servicecalls")
     public Response cancelServiceCallsFor(@PathParam("mRID") String mrid, ServiceCallInfo serviceCallInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
