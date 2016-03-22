@@ -127,7 +127,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         if (usagePointOptional.isPresent()) {
             usagePoint = usagePointOptional.get();
             if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
-                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, data.getLineNumber(), serviceKindString);
+                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, data.getLineNumber(), serviceKindString);
             }
             return updateUsagePoint(usagePoint, data, logger);
         } else {
@@ -207,6 +207,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             usagePoint.setVirtual(false);
             usagePoint.setServiceLocationString(data.getServiceLocationString().get());
         }
+        usagePoint.setName(data.getName().orElse(null));
         usagePoint.setOutageRegion(data.getOutageRegion().orElse(null));
         usagePoint.setReadRoute(data.getReadRoute().orElse(null));
         usagePoint.setServicePriority(data.getServicePriority().orElse(null));

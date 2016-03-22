@@ -56,7 +56,7 @@ public class UsagePointsImportProcessorForMultisense implements FileImportProces
         if (usagePointOptional.isPresent()) {
             usagePoint = usagePointOptional.get();
             if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
-                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, data.getLineNumber(), serviceKindString);
+                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, data.getLineNumber(), serviceKindString);
             }
             return updateUsagePointForMdc(usagePoint, data, logger);
         } else {
