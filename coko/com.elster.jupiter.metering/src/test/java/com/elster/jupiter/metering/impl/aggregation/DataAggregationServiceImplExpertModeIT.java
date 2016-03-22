@@ -396,7 +396,7 @@ public class DataAggregationServiceImplExpertModeIT {
         when(energy.getReadingType()).thenReturn(ENERGY_daily);
         FormulaBuilder formulaBuilder = newFormulaBuilder();
         ExpressionNode node =
-                formulaBuilder.aggregate(   // Note how the expert is required to define whenn the aggregation is done
+                formulaBuilder.aggregate(   // Note how the expert is required to define when the aggregation is done
                     formulaBuilder.multiply(
                         formulaBuilder.constant(BigDecimal.valueOf(40L)),   // calorific value
                         formulaBuilder.multiply(
