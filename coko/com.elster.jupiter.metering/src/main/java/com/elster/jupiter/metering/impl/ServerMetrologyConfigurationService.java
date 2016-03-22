@@ -1,0 +1,22 @@
+package com.elster.jupiter.metering.impl;
+
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Adds behavior to the {@link MetrologyConfigurationService} interface
+ * that is specific to server side components.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2016-03-22 (08:48)
+ */
+public interface ServerMetrologyConfigurationService extends MetrologyConfigurationService {
+
+    Optional<Formula> findFormula(long id);
+
+    List<Formula> findFormulas();
+
+}

@@ -32,6 +32,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -110,8 +111,8 @@ public class MeteringInMemoryBootstrapModule {
         inMemoryBootstrapModule.deactivate();
     }
 
-    public MetrologyConfigurationService getMetrologyConfigurationService() {
-        return injector.getInstance(MetrologyConfigurationService.class);
+    public ServerMetrologyConfigurationService getMetrologyConfigurationService() {
+        return injector.getInstance(ServerMetrologyConfigurationService.class);
     }
 
     public TransactionService getTransactionService() {

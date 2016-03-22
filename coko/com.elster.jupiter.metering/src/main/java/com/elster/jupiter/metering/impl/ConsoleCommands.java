@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
@@ -63,7 +62,7 @@ public class ConsoleCommands {
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
 
     public void printDdl() {
         try {
@@ -289,7 +288,7 @@ public class ConsoleCommands {
     }
 
     @Reference
-    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+    public void setMetrologyConfigurationService(ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
@@ -321,6 +320,5 @@ public class ConsoleCommands {
         builder.append("Currency                 : ").append(readingType.getCurrency().toString()).append('\n');
         return builder.toString();
     }
-
 
 }

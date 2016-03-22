@@ -6,11 +6,11 @@ import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.metering.impl.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -50,7 +50,7 @@ public class FormulaCrudTest {
         inMemoryBootstrapModule.deactivate();
     }
 
-    private MetrologyConfigurationService getMetrologyConfigurationService() {
+    private ServerMetrologyConfigurationService getMetrologyConfigurationService() {
         return inMemoryBootstrapModule.getMetrologyConfigurationService();
     }
 
@@ -64,7 +64,7 @@ public class FormulaCrudTest {
     public void test1LevelNodeStructureCrud() {
         Formula.Mode myMode = Formula.Mode.EXPERT;
         try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
             ServerFormulaBuilder builder = (ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -92,7 +92,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.EXPERT;
         Function myFunction = Function.MAX;
         try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
             ServerFormulaBuilder builder = (ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -135,7 +135,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.EXPERT;
         Function myFunction = Function.MAX;
         try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
             ServerFormulaBuilder builder = (ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -180,7 +180,7 @@ public class FormulaCrudTest {
     public void test1LevelNodeStructureCrudUsingParser() {
         Formula.Mode myMode = Formula.Mode.EXPERT;
         try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse("constant(10)");
 
@@ -206,7 +206,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.EXPERT;
         Function myFunction = Function.MAX;
         try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse("max(constant(10), constant(0))");
 
@@ -244,7 +244,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.EXPERT;
         Function myFunction = Function.MAX;
         try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse("max(constant(1), plus(constant(2), constant(3)))");
 
@@ -283,7 +283,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.EXPERT;
         Function myFunction = Function.MAX;
         try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
             String formulaString = "max(constant(1), min(constant(2), constant(3), constant(4)))";
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse("max(constant(1), min(constant(2), constant(3), constant(4)))");
@@ -307,7 +307,7 @@ public class FormulaCrudTest {
     @Test
     public void testParser()  {
         try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
             String formulaString = "multiply(sum(max(constant(10), constant(0)), constant(5), constant(3)), constant(2))";
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse(formulaString);
             Formula formula = ((ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT)).init(node).build();
@@ -316,8 +316,6 @@ public class FormulaCrudTest {
             for (Formula f : formulas) {
                 System.out.println(f.toString());
             }
-
-
         }
     }
 
@@ -325,7 +323,7 @@ public class FormulaCrudTest {
     // formula = 10 (constant)
     public void testDelete() {
         try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
             ServerFormulaBuilder builder = (ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -346,7 +344,7 @@ public class FormulaCrudTest {
     // formula = 10 (constant)
     public void testUpdate() {
         try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
             ServerFormulaBuilder builder = (ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
 
