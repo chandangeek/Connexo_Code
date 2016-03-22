@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.SecurityContext;
 import java.time.Clock;
 
 import org.mockito.Mock;
@@ -15,6 +16,8 @@ import static org.mockito.Mockito.when;
 
 public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
+    @Mock
+    static SecurityContext securityContext;
     @Mock
     MeteringService meteringService;
     @Mock

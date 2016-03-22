@@ -1,18 +1,22 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.elster.jupiter.util.units.Quantity;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Factory class to create Info objects. This class will register on the InfoFactoryWhiteboard and is used by DynamicSearch.
@@ -24,10 +28,26 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
     private volatile Thesaurus valueThesaurus;
+    private volatile MeteringService meteringService;
+
+    @Inject
+    public UsagePointInfoFactory(Clock clock, Thesaurus thesaurus, MeteringService meteringService) {
+        this.clock = clock;
+        this.thesaurus = thesaurus;
+        this.meteringService = meteringService;
+    }
+
+    public UsagePointInfoFactory() {
+    }
 
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Reference
@@ -37,9 +57,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Override
-    public Object from(UsagePoint usagePoint) {
+    public UsagePointTranslatedInfo from(UsagePoint usagePoint) {
         UsagePointTranslatedInfo info = new UsagePointTranslatedInfo(usagePoint, clock);
-        info.displayServiceCategory = usagePoint.getServiceCategory().getKind().getDisplayName(valueThesaurus);
+        info.displayServiceCategory = usagePoint.getServiceCategory().getKind().getDisplayName(thesaurus);
         return info;
     }
 
@@ -73,5 +93,14 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     @Override
     public Class<UsagePoint> getDomainClass() {
         return UsagePoint.class;
+    }
+
+    public UsagePointBuilder newUsagePointBuilder(UsagePointInfo usagePointInfo) {
+        return meteringService.getServiceCategory(usagePointInfo.serviceCategory)
+                .orElseThrow(IllegalArgumentException::new)
+                .newUsagePoint(
+                        usagePointInfo.mRID,
+                        usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant())
+                .withName(usagePointInfo.name);
     }
 }
