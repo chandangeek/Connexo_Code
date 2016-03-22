@@ -12618,7 +12618,11 @@ a:hover, a.x-btn:hover {
 *[class*='x-btn-menuitem-'] .x-btn-button .uni-icon-settings {
   background-image: url("images/container/menu/settings.png");
 }
-/* line 49, ../../sass/src/button/MenuItemButton.scss */
+/* line 4, ../../sass/src/button/MenuItemButton.scss */
+*[class*='x-btn-menuitem-'] .x-btn-button .uni-icon-usagepoints {
+  background-image: url("images/container/menu/usagepoints.png");
+}
+/* line 50, ../../sass/src/button/MenuItemButton.scss */
 *[class*='x-btn-menuitem-'] .x-btn-button .uni-icon-none {
   background-image: url("images/container/menu/settings.png");
 }
@@ -12639,7 +12643,11 @@ a:hover, a.x-btn:hover {
 .x-pressed .uni-icon-settings {
   background-image: url("images/container/menu/settingsSelected.png") !important;
 }
-/* line 62, ../../sass/src/button/MenuItemButton.scss */
+/* line 10, ../../sass/src/button/MenuItemButton.scss */
+.x-pressed .uni-icon-usagepoints {
+  background-image: url("images/container/menu/usagepointsSelected.png") !important;
+}
+/* line 64, ../../sass/src/button/MenuItemButton.scss */
 .x-pressed .uni-icon-none {
   background-image: url("images/container/menu/settingsSelected.png") !important;
 }
@@ -16303,14 +16311,4 @@ a:hover, a.x-btn:hover {
 .x-nlg .x-btn-tag-medium-menu-active,
 .x-nlg .x-btn-tag-medium-pressed {
   background-image: url(images/btn/btn-tag-medium-pressed-bg.gif);
-}
-
-/* line 699, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-nlg .x-btn-tag-medium-disabled {
-  background-image: url(images/btn/btn-tag-medium-disabled-bg.gif);
-}
-
-/* line 707, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-nbr .x-btn-tag-medium {
-  background-image: none;
 }

@@ -44,6 +44,7 @@
             @include uni-icon('workspace');
             @include uni-icon('devices');
             @include uni-icon('settings');
+            @include uni-icon('usagepoints');
 
             // TODO Use a default fallback icon when there is none.
             .uni-icon-none {
@@ -57,6 +58,7 @@
         @include uni-icon-pressed('workspace');
         @include uni-icon-pressed('devices');
         @include uni-icon-pressed('settings');
+        @include uni-icon-pressed('usagepoints');
 
         // TODO Use a default fallback icon when there is none.
         .uni-icon-none {
