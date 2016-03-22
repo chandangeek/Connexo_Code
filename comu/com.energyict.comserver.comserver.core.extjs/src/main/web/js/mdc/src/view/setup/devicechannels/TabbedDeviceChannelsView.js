@@ -67,7 +67,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                         text: Uni.I18n.translate('general.startDate', 'MDC', 'Start date'),
                                         durationStore: me.filterDefault.durationStore,
                                         loadStore: false,
-                                        hideDateTtimeSelect: me.filterDefault.hideDateTtimeSelect
+                                        hideDateTtimeSelect: me.filterDefault.hideDateTtimeSelect,
+                                        itemId: 'devicechannels-topfilter-duration'
                                     },
                                     {
                                         type: 'checkbox',
@@ -75,7 +76,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                         layout: 'hbox',
                                         defaults: {margin: '0 10 0 0'},
                                         emptyText: Uni.I18n.translate('communications.widget.topfilter.validationResult', 'MDC', 'Validation result'),
-                                        options: me.filterDefault.options
+                                        options: me.filterDefault.options,
+                                        itemId: 'devicechannels-topfilter-checkbox'
                                     }
                                 ]
                             },

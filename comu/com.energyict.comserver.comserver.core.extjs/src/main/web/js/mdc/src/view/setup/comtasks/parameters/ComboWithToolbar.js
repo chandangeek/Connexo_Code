@@ -43,15 +43,6 @@ Ext.define('Mdc.view.setup.comtasks.parameters.ComboWithToolbar', {
                     selType: 'checkboxmodel',
                     mode: 'SIMPLE',
                     showHeaderCheckbox: true,
-                    toggleUiHeader: function() {
-                        if (picker.getSelectionModel().getSelection().length == me.getStore().getRange().length) {
-                            picker.down('#select-all').setText(Uni.I18n.translate('general.deselectAll', 'MDC', 'Deselect all'));
-                            picker.down('#select-all').allSelected = true;
-                        } else {
-                            picker.down('#select-all').setText(Uni.I18n.translate('general.selectAll', 'MDC', 'Select all'));
-                            picker.down('#select-all').allSelected = false;
-                        }
-                    },
                     listeners: {
                         beforeselect: function(s, record) {
                             selection.add(record);
@@ -82,34 +73,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.ComboWithToolbar', {
                 },
                 defaults: {
                     margin: 0
-                },
-                dockedItems: {
-                    defaults: {
-                        xtype: 'toolbar',
-                        dock: 'top',
-                        margin: 0,
-                        padding: 0
-                    },
-                    padding: 5,
-                    items: [
-                        {
-                            xtype: 'button',
-                            itemId: 'select-all',
-                            text: Uni.I18n.translate('general.selectAll', 'MDC', 'Select all'),
-                            handler: function(btn) {
-                                var sel = me.picker.getSelectionModel();
-                                sel.preventFocus = true;
-                                if (btn.allSelected) {
-                                    sel.deselectAll();
-                                } else {
-                                    sel.selectAll();
-                                }
-                                delete sel.preventFocus;
-                            }
-                        }
-                    ]
                 }
-
             }, me.listConfig, me.defaultListConfig);
 
         picker = me.picker = Ext.create('Ext.grid.Panel', opts);

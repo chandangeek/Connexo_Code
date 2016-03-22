@@ -17,7 +17,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.LoadProfileTopFilter', {
                 defaultDuration: me.filterDefault.duration,
                 text: Uni.I18n.translate('communications.widget.topfilter.startedDate', 'MDC', 'Start date'),
                 durationStore: me.filterDefault.durationStore,
-                loadStore: false
+                loadStore: false,
+                itemId: 'loadprofiles-topfilter-duration'
             },
             {
                 type: 'checkbox',
@@ -28,11 +29,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.LoadProfileTopFilter', {
                 options: [
                     {
                         display: Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect'),
-                        value: 'suspect'
+                        value: 'suspect',
+                        itemId: 'loadprofiles-topfilter-suspect'
                     },
                     {
                         display: Uni.I18n.translate('validationStatus.ok', 'MDC', 'Not suspect'),
-                        value: 'nonSuspect'
+                        value: 'nonSuspect',
+                        itemId: 'loadprofiles-topfilter-notsuspect'
                     }
                 ]
             }

@@ -953,19 +953,66 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.Comtasks',
                             action: 'showCommunicationTasksCreateEdit'
                         },
-                        edit: {
-                            title: Uni.I18n.translate('general.editCommunicationTask', 'MDC', 'Edit communication task'),
-                            route: '{id}/edit',
-                            privileges: Mdc.privileges.Communication.admin,
+                        view: {
+                            title: Uni.I18n.translate('general.Overview', 'MDC', 'Overview'),
+                            route: '{id}',
+                            privileges: Mdc.privileges.Communication.view,
                             controller: 'Mdc.controller.setup.Comtasks',
-                            action: 'showCommunicationTasksCreateEdit',
+                            action: 'showCommunicationTaskOverview',
                             callback: function (route) {
                                 this.getApplication().on('loadCommunicationTask', function (record) {
-                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
+                                    route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
-
                                 return this;
+                            },
+                            items: {
+                                edit: {
+                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    route: 'edit',
+                                    privileges: Mdc.privileges.Communication.admin,
+                                    controller: 'Mdc.controller.setup.Comtasks',
+                                    action: 'showCommunicationTasksCreateEdit'
+                                },
+                                actions: {
+                                    title: Uni.I18n.translate('comtask.actions', 'MDC', 'Actions'),
+                                    route: 'actions',
+                                    privileges: Mdc.privileges.Communication.view,
+                                    controller: 'Mdc.controller.setup.Comtasks',
+                                    action: 'showCommunicationTaskActions',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('general.addAction', 'MDC', 'Add action'),
+                                            route: 'add',
+                                            privileges: Mdc.privileges.Communication.admin,
+                                            controller: 'Mdc.controller.setup.Comtasks',
+                                            action: 'showCommunicationTaskActionAdd'
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('general.editAction', 'MDC', 'Edit action'),
+                                            route: '{actionId}/edit',
+                                            privileges: Mdc.privileges.Communication.admin,
+                                            controller: 'Mdc.controller.setup.Comtasks',
+                                            action: 'editAction'
+                                        }
+                                    }
+                                },
+                                commandcategories: {
+                                    title: Uni.I18n.translate('comtask.message.categories', 'MDC', 'Command categories'),
+                                    route: 'commandcategories',
+                                    privileges: Mdc.privileges.Communication.view,
+                                    controller: 'Mdc.controller.setup.Comtasks',
+                                    action: 'showCommunicationTaskCommandCategories',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                            route: 'add',
+                                            privileges: Mdc.privileges.Communication.admin,
+                                            controller: 'Mdc.controller.setup.Comtasks',
+                                            action: 'showCommunicationTaskCommandCategoriesAdd'
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

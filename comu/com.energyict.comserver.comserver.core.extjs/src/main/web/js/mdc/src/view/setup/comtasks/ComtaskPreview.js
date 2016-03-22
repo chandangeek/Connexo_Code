@@ -5,12 +5,13 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreview', {
     title: Uni.I18n.translate('general.details','MDC','Details'),
     frame: true,
     requires: [
-        'Mdc.view.setup.comtasks.ComtaskActionMenu'
+        'Mdc.view.setup.comtasks.ComtaskActionMenu',
+        'Mdc.view.setup.comtasks.ComtaskPreviewForm'
     ],
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('genral.actions','MDC','Actions'),
+            text: Uni.I18n.translate('general.actions','MDC','Actions'),
             privileges: Mdc.privileges.Communication.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {
@@ -19,55 +20,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreview', {
         }
     ],
     items: {
-        xtype: 'form',
-        border: false,
-        itemId: 'comtaskPreviewFieldsPanel',
-        layout: {
-            type: 'vbox',
-            align: 'stretch'
-        },
-
-        defaults: {
-            xtype: 'displayfield',
-            labelWidth: 200
-        },
-
-        items: [
-            {
-                itemId: 'comtaskName',
-                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                name: 'name'
-            },
-            {
-                itemId: 'comtaskCommands',
-                fieldLabel: Uni.I18n.translate('comtask.actions', 'MDC', 'Actions'),
-                name: 'commands',
-                renderer: function (value) {
-                    var str = '';
-                    if (value) {
-                        Ext.Array.each(value, function (command) {
-                            str += command.category + ' - ' + command.action + '<br />';
-                        });
-                    }
-                    return str;
-                }
-            },
-            {
-                itemId: 'comtaskMessages',
-                fieldLabel: Uni.I18n.translate('comtask.message.categories', 'MDC', 'Command categories'),
-                name: 'messages',
-                renderer: function (value) {
-                    var str = '';
-                    if (value) {
-                        Ext.Array.each(value, function (message) {
-                            str += Ext.String.htmlEncode(message.name) + '<br />';
-                        });
-                    }else{
-                        str = '-';
-                    }
-                    return str;
-                }
-            }
-        ]
+        xtype: 'comtaskpreviewform',
+        itemId: 'comtaskPreviewFieldsPanel'
     }
 });

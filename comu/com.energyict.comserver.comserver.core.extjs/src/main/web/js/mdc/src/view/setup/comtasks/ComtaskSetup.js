@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.comtaskSetup',
     itemId: 'comtaskSetup',
+    router: null,
 
     requires: [
         'Mdc.view.setup.comtasks.ComtaskGrid',
@@ -10,8 +11,10 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskSetup', {
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
-    content: [
-        {
+    initComponent: function () {
+        var me = this;
+
+        me.content = {
             xtype: 'panel',
             ui: 'large',
             title: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
@@ -20,7 +23,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskSetup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'comtaskGrid',
-                        itemId: 'communication-task-grid'
+                        itemId: 'communication-task-grid',
+                        router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
@@ -44,9 +48,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskSetup', {
                     }
                 }
             ]
-        }
-    ],
-    initComponent: function () {
+        };
         this.callParent(arguments);
     }
 });

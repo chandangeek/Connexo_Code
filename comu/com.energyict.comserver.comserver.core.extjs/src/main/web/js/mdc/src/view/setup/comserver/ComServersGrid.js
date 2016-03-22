@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
     itemId: 'comservergrid',
 
     requires: [
+        'Mdc.store.ComServers',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.grid.column.Action',
