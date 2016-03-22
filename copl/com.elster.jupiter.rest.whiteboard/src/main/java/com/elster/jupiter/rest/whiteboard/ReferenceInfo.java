@@ -8,4 +8,8 @@ public class ReferenceInfo {
         this.type = type;
         this.key = key;
     }
+
+    public ReferenceInfo() {
+
+    }
 }
