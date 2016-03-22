@@ -86,3 +86,6 @@ public interface ReadingType extends IdentifiedObject {
 	 */
 	String getFullAliasName();
 }
+
+	String getmRID();
+}
