@@ -1,12 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
@@ -24,9 +19,7 @@ import java.io.FileNotFoundException;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.metering.console", service = ConsoleCommands.class, property = {
@@ -45,7 +38,10 @@ import java.util.stream.Collectors;
         "osgi.command.function=endCurrentMeterActivation",
         "osgi.command.function=advanceStartDate",
         "osgi.command.function=explain",
-        "osgi.command.function=addEvents"
+        "osgi.command.function=addEvents",
+        "osgi.command.function=locationTemplate",
+        "osgi.command.function=addLocation"
+
 }, immediate = true)
 public class ConsoleCommands {
 
@@ -223,6 +219,70 @@ public class ConsoleCommands {
         } finally {
             threadPrincipalService.clear();
         }
+    }
+
+    public void locationTemplate() {
+        meteringService.getLocationTemplate().getTemplateElementsNames().stream()
+                .forEach(System.out::println);
+    }
+
+    public void addLocation(String mRID, String... args){
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            EndDevice endDevice = meteringService.findEndDevice(mRID).orElseThrow(() -> new RuntimeException("No device with mRID " + mRID + "!"));
+            List<String> templateElements = meteringService.getLocationTemplate().getTemplateElementsNames();
+            Map<String, String> location = new HashMap<>();
+            if (templateElements.size() != args.length) {
+                for (String arg : args) {
+                    System.out.println(arg);
+                }
+            } else {
+                int i = 0;
+                for (String arg : args) {
+                    location.put(templateElements.get(i), arg);
+                    i++;
+                }
+                LocationBuilder builder = meteringService.newLocationBuilder();
+                Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(location.get("locale"));
+                if (memberBuilder.isPresent()) {
+                    setLocationAttributes(memberBuilder.get(), location);
+                    endDevice.setLocation(builder.create());
+                } else {
+                    setLocationAttributes(builder.member(), location).add();
+                    endDevice.setLocation(builder.create());
+                }
+                endDevice.update();
+            }
+            context.commit();
+        }
+    }
+
+    public void addlocation(){
+        List<String> templateElements = meteringService.getLocationTemplate().getTemplateElementsNames();
+        System.out.print("Example : addlocation Device_mRID ");
+        templateElements.stream()
+                .forEach(element -> System.out.print(element + " "));
+        System.out.println();
+
+    }
+
+    private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, Map<String, String> location){
+        builder.setCountryCode(location.get("countryCode"))
+                .setCountryName(location.get("countryName"))
+                .setAdministrativeArea(location.get("administrativeArea"))
+                .setLocality(location.get("locality"))
+                .setSubLocality(location.get("subLocality"))
+                .setStreetType(location.get("streetType"))
+                .setStreetName(location.get("streetName"))
+                .setStreetNumber(location.get("streetNumber"))
+                .setEstablishmentType(location.get("establishmentType"))
+                .setEstablishmentName(location.get("establishmentName"))
+                .setEstablishmentNumber(location.get("establishmentNumber"))
+                .setAddressDetail(location.get("addressDetail"))
+                .setZipCode(location.get("zipCode"))
+                .isDaultLocation(true)
+                .setLocale(location.get("locale"));
+        return builder;
     }
 
     @Reference
