@@ -37,7 +37,7 @@ public class SearchCriterionInfoFactory {
         return uriInfo.
                 getBaseUriBuilder().
                 path(DynamicSearchResource.class).
-                path(DynamicSearchResource.class, "getFullCriteriaInfo").
+                path(DynamicSearchResource.class, property.getName().equals("location") ? "getFullCriteriaInfo2" : "getFullCriteriaInfo").
                 resolveTemplate("domain", property.getDomain().getId()).
                 resolveTemplate("property", property.getName()).
                 build();

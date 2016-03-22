@@ -201,6 +201,29 @@ public class DynamicSearchResource {
         return Response.ok().entity(propertyInfo).build();
     }
 
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{domain}/findcriteria/{property}")
+    public Response getFullCriteriaInfo2(@PathParam("domain") String domainId,
+                                         @PathParam("property") String property,
+                                         @BeanParam JsonQueryParameters jsonQueryParameters,
+                                         @BeanParam JsonQueryFilter jsonQueryFilter,
+                                         @BeanParam UriInfo uriInfo) {
+        SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
+        SearchableProperty searchableProperty = getSearchableProperties(searchDomain, jsonQueryFilter)
+                .filter(prop -> property.equals(prop.getName()))
+                .findFirst()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_PROPERTY, property));
+        List<SearchablePropertyConstriction> searchablePropertyConstrictions =
+                searchableProperty.getConstraints().stream().
+                        map(constrainingProperty -> SearchablePropertyValueConverter.convert(constrainingProperty, jsonQueryFilter).asConstriction()).
+                        collect(toList());
+        searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
+        PropertyInfo propertyInfo = searchCriterionInfoFactory.asSingleObject(searchableProperty, uriInfo, jsonQueryFilter.getString("displayValue"));
+        return Response.ok().entity(propertyInfo).build();
+    }
+
 
     class SearchDomainInfo {
         public String id;
