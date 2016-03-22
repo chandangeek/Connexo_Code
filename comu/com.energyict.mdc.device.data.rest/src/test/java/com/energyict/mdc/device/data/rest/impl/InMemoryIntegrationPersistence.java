@@ -451,14 +451,14 @@ public class InMemoryIntegrationPersistence {
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {
-        try (PreparedStatement statement = sqlBuilder.getStatement(this.dataModel.getConnection(true))) {
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.getStatement(connection)) {
             return statement.executeUpdate();
         }
     }
 
     public String update(String sql) {
-        try {
-            Connection connection = this.dataModel.getConnection(true);
+        try (Connection connection = this.dataModel.getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 int numberOfRows = statement.executeUpdate();
                 return "Updated " + numberOfRows + " row(s).";
