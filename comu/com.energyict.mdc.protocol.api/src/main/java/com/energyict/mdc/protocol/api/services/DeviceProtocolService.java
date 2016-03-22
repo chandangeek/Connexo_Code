@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
  */
 public interface DeviceProtocolService {
 
-    public static String COMPONENT_NAME = "PR1"; // Stands for PRotocol bundle 1 (as more protocol bundles can follow)
+    public static String COMPONENT_NAME = "PR1"; // Stands for Protocol bundle 1 (as more protocol bundles can follow)
 
     /**
      * Creates an instance of the protocol of the specified className
