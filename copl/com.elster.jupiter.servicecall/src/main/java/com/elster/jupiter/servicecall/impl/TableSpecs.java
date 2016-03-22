@@ -175,6 +175,7 @@ public enum TableSpecs {
             table.foreignKey("FK_SCS_SERVICECALL_LOG")
                     .references(SCS_SERVICE_CALL.name())
                     .on(serviceCall)
+                    .onDelete(DeleteRule.CASCADE)
                     .map(ServiceCallLogImpl.Fields.serviceCall.fieldName())
                     .add();
             table.column("LOGLEVEL")

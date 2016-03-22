@@ -19,4 +19,9 @@ public interface ServiceCallLog {
     String getMessage();
 
     String getStackTrace();
+
+    /**
+     * Removes a log entry from the system
+     */
+    void delete();
 }
