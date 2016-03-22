@@ -55,14 +55,14 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                             return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                         }
                     },
-                    {
-                        name: 'location',
-                        itemId: 'fld-device-location',
-                        fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
-                        renderer: function (value) {
-                            return value ? value : '-';
-                        }
-                    }
+                    //{
+                    //    name: 'location',
+                    //    itemId: 'fld-device-location',
+                    //    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
+                    //    renderer: function (value) {
+                    //        return value ? value : '-';
+                    //    }
+                    //}
                 ]
             }
         ];
