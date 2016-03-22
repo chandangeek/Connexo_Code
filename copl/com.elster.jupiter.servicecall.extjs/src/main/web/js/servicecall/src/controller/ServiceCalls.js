@@ -33,6 +33,10 @@ Ext.define('Scs.controller.ServiceCalls', {
         {
             ref: 'overviewTabPanel',
             selector: '#service-call-overview-tab'
+        },
+        {
+            ref: 'previewActionButton',
+            selector: '#previewMenuButton'
         }
     ],
 
@@ -123,7 +127,8 @@ Ext.define('Scs.controller.ServiceCalls', {
                             serviceCallParam: servicecallId,
                             store: store,
                             tab: tab,
-                            breadcrumbs: parents
+                            breadcrumbs: parents,
+                            record: record
                         });
                         me.setBreadcrumb(parents, tab === 'specs');
                         view.down('scs-landing-page').updateLandingPage(record);
@@ -131,7 +136,8 @@ Ext.define('Scs.controller.ServiceCalls', {
                     } else {
                         view = Ext.widget('scs-landing-page', {
                             router: me.getController('Uni.controller.history.Router'),
-                            serviceCallId: record.get('name')
+                            serviceCallId: record.get('name'),
+                            record: record
                         });
                         view.updateLandingPage(record);
                         me.setBreadcrumb(parents, false);
@@ -205,6 +211,9 @@ Ext.define('Scs.controller.ServiceCalls', {
             serviceCallName = record.get('name'),
             previewForm = preview.down('#servicecall-grid-preview-form');
 
+
+        me.getPreviewActionButton().setDisabled(!record.get('canCancel'));
+        me.getPreviewActionButton().down('scs-action-menu').record = record;
         me.getModel('Scs.model.ServiceCall').load(record.get('id'), {
             success: function (record) {
                 previewForm.updatePreview(record);

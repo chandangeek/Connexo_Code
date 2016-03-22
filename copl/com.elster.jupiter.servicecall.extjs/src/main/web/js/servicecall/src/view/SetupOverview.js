@@ -7,6 +7,7 @@ Ext.define('Scs.view.SetupOverview', {
     store: null,
     tab: null,
     breadcrumbs: null,
+    record: null,
 
     requires: [
         'Scs.view.ServiceCallPreviewContainer',
@@ -35,6 +36,7 @@ Ext.define('Scs.view.SetupOverview', {
                                 {
                                     xtype: 'scs-landing-page',
                                     router: me.router,
+                                    record: me.record,
                                     title: 'none'
                                 }
                             ]

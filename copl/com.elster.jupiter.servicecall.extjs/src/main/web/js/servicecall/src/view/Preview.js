@@ -15,6 +15,7 @@ Ext.define('Scs.view.Preview', {
                 text: Uni.I18n.translate('general.actions', 'SCS', 'Actions'),
                 privileges: Scs.privileges.ServiceCall.admin,
                 iconCls: 'x-uni-action-iconD',
+                itemId: 'previewMenuButton',
                 menu: {
                     xtype: 'scs-action-menu'
                 }
