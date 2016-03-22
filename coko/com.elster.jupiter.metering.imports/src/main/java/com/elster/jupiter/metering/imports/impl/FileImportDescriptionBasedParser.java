@@ -104,7 +104,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
             CustomPropertySet set = rset.getCustomPropertySet();
             CustomPropertySetRecord customPropertySetRecord = new CustomPropertySetRecord();
             CustomPropertySetValues values = CustomPropertySetValues.empty();
-
+            try {
             if (dateParser instanceof DateParser) {
                 csvRecordMap.entrySet()
                         .stream()
@@ -122,6 +122,11 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                         .findFirst()
                         .ifPresent(r -> customPropertySetRecord.setEndTime(((DateParser) dateParser).parse(r.getValue())));
             }
+            } catch (ValueParserException ex) {
+                throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(),
+                        set.getId(), ex.getExpected());
+            }
+
 
             Map<Class, FieldParser> parsers = descriptor.getParsers();
             for (Object spec : set.getPropertySpecs()) {

@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.imports.impl.DataImporterProperty;
 import com.elster.jupiter.metering.imports.impl.FileImportDescriptionBasedParser;
 import com.elster.jupiter.metering.imports.impl.FileImportLogger;
 import com.elster.jupiter.metering.imports.impl.FileImportParser;
+import com.elster.jupiter.metering.imports.impl.FileImportProcessor;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 
@@ -57,7 +58,11 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
 
         FileImportParser<UsagePointImportRecord> parser = new FileImportDescriptionBasedParser(
                 new UsagePointImportDescription(dateFormat, timeZone, numberFormat, context), context);
-        UsagePointsImportProcessor processor = new UsagePointsImportProcessor(getContext());
+
+        FileImportProcessor<UsagePointImportRecord> processor = context.getLicenseService().getLicenseForApplication("INS").isPresent()
+                ? new UsagePointsImportProcessor(getContext())
+                : new UsagePointsImportProcessorForMultisense(getContext());
+
         FileImportLogger logger = new UsagePointsImportLogger(getContext());
         return CsvImporter.withParser(parser)
                 .withProcessor(processor)

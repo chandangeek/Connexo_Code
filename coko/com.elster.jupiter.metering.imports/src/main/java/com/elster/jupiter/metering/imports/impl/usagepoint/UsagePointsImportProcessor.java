@@ -48,8 +48,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
     @Override
     public void process(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
         try {
-            if (context.getLicenseService().getLicenseForApplication("INS").isPresent()) {
-
                 validate(data, logger);
                 validateQuanitities(data, logger);
 
@@ -63,9 +61,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
 
                 addCustomPropertySetValues(usagePoint, data, logger);
 
-            } else {
-                getUsagePointForMdc(data, logger);
-            }
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
                 logger.warning(MessageSeeds.IMPORT_USAGEPOINT_CONSTRAINT_VOLATION, data.getLineNumber(), violation.getPropertyPath(), violation
@@ -115,30 +110,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             if (quantity.isPresent() && (quantity.get().getMultiplier() > 24 || quantity.get().getMultiplier() < -24)) {
                 throw new ProcessorException(MessageSeeds.IMPORT_QUANITITY_OUT_OF_BOUNDS, data.getLineNumber());
             }
-        }
-    }
-
-    private UsagePoint getUsagePointForMdc(UsagePointImportRecord data, FileImportLogger logger) {
-        UsagePoint usagePoint;
-        String mRID = data.getmRID()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID, data.getLineNumber()));
-        String serviceKindString = data.getServiceKind()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_SUCH_SERVICEKIND, data.getLineNumber()));
-        ServiceKind serviceKind =  Arrays.stream(ServiceKind.values()).filter(candidate -> candidate.name().equalsIgnoreCase(serviceKindString)).findFirst()
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICEKIND_INVALID, data.getLineNumber(), serviceKindString));
-        Optional<UsagePoint> usagePointOptional = context.getMeteringService().findUsagePoint(mRID);
-        Optional<ServiceCategory> serviceCategory = context.getMeteringService().getServiceCategory(serviceKind);
-
-        if (usagePointOptional.isPresent()) {
-            usagePoint = usagePointOptional.get();
-            if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
-                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, data.getLineNumber(), serviceKindString);
-            }
-            return updateUsagePointForMdc(usagePoint, data, logger);
-        } else {
-            return createUsagePointForMdc(serviceCategory.get()
-                    .newUsagePoint(mRID, data.getInstallationTime()
-                            .orElse(context.getClock().instant())), data, logger);
         }
     }
 
@@ -240,23 +211,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         usagePoint.setReadRoute(data.getReadRoute().orElse(null));
         usagePoint.setServicePriority(data.getServicePriority().orElse(null));
         usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark().orElse(null));
-        usagePoint.update();
-        return usagePoint;
-    }
-
-    private UsagePoint createUsagePointForMdc(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data, FileImportLogger logger) {
-        usagePointBuilder.withIsSdp(false);
-        usagePointBuilder.withIsVirtual(true);
-        usagePointBuilder.withName(data.getName().orElse(null));
-        UsagePoint usagePoint = usagePointBuilder.create();
-        usagePoint.addDetail(usagePoint.getServiceCategory()
-                .newUsagePointDetail(usagePoint, context.getClock().instant()));
-        usagePoint.update();
-        return usagePoint;
-    }
-
-    private UsagePoint updateUsagePointForMdc(UsagePoint usagePoint, UsagePointImportRecord data, FileImportLogger logger) {
-        usagePoint.setName(data.getName().orElse(null));
         usagePoint.update();
         return usagePoint;
     }

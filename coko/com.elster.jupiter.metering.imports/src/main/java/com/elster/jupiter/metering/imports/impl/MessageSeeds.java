@@ -31,7 +31,8 @@ public enum MessageSeeds implements MessageSeed {
     IMPORT_USAGEPOINT_NOT_FOUND(1019, Constants.IMPORT_USAGEPOINT_NOT_FOUND, "Can''t process line {0}: No usage point found with MRID: {1}", Level.SEVERE),
     IMPORT_USAGEPOINT_CONSTRAINT_VOLATION(1020, Constants.IMPORT_USAGEPOINT_CONSTRAINT_VOLATION, " Can''t process line {0}: {1} - {2}", Level.SEVERE),
     IMPORT_QUANITITY_OUT_OF_BOUNDS(1021, Constants.IMPORT_QUANITITY_OUT_OF_BOUNDS, " Can''t process line {0}: Invalid data. Multiplier out of bounds", Level.SEVERE),
-    IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID(1015, Constants.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, " Can''t process line {0}: No service category found with name: {1}", Level.SEVERE),
+    IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID(1022, Constants.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, " Can''t process line {0}: No service category found with name: {1}", Level.SEVERE),
+    IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE(1023, Constants.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, " Can''t process line {0}: It''s not possible to change service category on usage point", Level.SEVERE),
 
     IMPORT_VERSIONED_VALUES_NOT_FOUND(2001, Constants.IMPORT_VERSIONED_VALUES_NOT_FOUND, "Can''t process line {0}: No such active versions for {1}", Level.SEVERE);
 
@@ -102,5 +103,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String IMPORT_USAGEPOINT_NOT_FOUND = "up.not.found";
         public static final String IMPORT_USAGEPOINT_CONSTRAINT_VOLATION = "up.constraint.violation";
         public static final String IMPORT_QUANITITY_OUT_OF_BOUNDS = "quantity.out.of.bounds";
+        public static final String IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE = "up.service.category.cannot.change";
     }
 }
