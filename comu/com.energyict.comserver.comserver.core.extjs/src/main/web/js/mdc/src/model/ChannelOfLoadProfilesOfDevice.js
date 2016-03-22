@@ -79,7 +79,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
                     var date = new Date(data.lastValueTimestamp);
                     return Uni.DateTime.formatDateLong(date) + ' - ' + Uni.DateTime.formatTimeShort(date)
                 }
-                return '';
+                return '-';
             }
         }
     ],
