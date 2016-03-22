@@ -170,7 +170,8 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(TransitionShipmentDateSearchableProperty.class).init(this, transitionGroup),
                 injector.getInstance(TransitionInstallationDateSearchableProperty.class).init(this, transitionGroup),
                 injector.getInstance(TransitionDeactivationDateSearchableProperty.class).init(this, transitionGroup),
-                injector.getInstance(TransitionDecommissioningDateSearchableProperty.class).init(this, transitionGroup)
+                injector.getInstance(TransitionDecommissioningDateSearchableProperty.class).init(this, transitionGroup),
+                injector.getInstance(LocationSearchableProperty.class).init(this)
         );
     }
 

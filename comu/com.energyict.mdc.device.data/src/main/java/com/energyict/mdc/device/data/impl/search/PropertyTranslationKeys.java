@@ -87,7 +87,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CONNECTION_TASK_STATUS_INACTIVE("device.connection.status.INACTIVE", "Inactive"),
 
     CONNECTION_TASK_DIRECTION_INBOUND("device.connection.direction.inbound", "Inbound"),
-    CONNECTION_TASK_DIRECTION_OUTBOUND("device.connection.direction.outbound", "Outbound")
+    CONNECTION_TASK_DIRECTION_OUTBOUND("device.connection.direction.outbound", "Outbound"),
+    DEVICE_LOCATION("device.location", "Location")
     ;
 
     private String key;
