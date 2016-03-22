@@ -1,6 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.config;
 
-import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -12,27 +11,18 @@ import java.util.Optional;
 
 @ProviderType
 public interface UsagePointConfigurationService {
+
     String COMPONENTNAME = "UPC";
 
-    MetrologyConfiguration newMetrologyConfiguration(String name, ServiceCategory serviceCategory);
-
-    Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
-
-    Optional<MetrologyConfiguration> findMetrologyConfiguration(String name);
-
-    List<MetrologyConfiguration> findAllMetrologyConfigurations();
-
     void link(UsagePoint up, MetrologyConfiguration mc);
+
+    Boolean unlink(UsagePoint up, MetrologyConfiguration mc);
 
     Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up);
 
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
     List<MetrologyConfiguration> findMetrologyConfigurationsForValidationRuleSet(ValidationRuleSet rs);
-
-    Boolean unlink(UsagePoint up, MetrologyConfiguration mc);
-
-    Optional<MetrologyConfiguration> findAndLockMetrologyConfiguration(long id, long version);
 
     /**
      * Gets the {@link ValidationRuleSet}s that are being used by the specified {@link MetrologyConfiguration}.
