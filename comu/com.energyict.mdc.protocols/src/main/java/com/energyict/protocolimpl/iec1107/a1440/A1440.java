@@ -604,7 +604,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             }
             if ("1.1.0.0.13.255".equals(obis.toString())) {
                 try {
-                    LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantity(
+                    LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantityForQuantityCode(
                             (String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER)
                     );
                     return new RegisterValue(obis, measurementQuantity.getDescription());
@@ -757,10 +757,10 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     private RegisterValue readLoadControlThresholdRegister(ObisCode obis, int tariff) throws IOException {
         try {
-            LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantity(
+            LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantityForQuantityCode(
                     (String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER)
             );
-            BigDecimal loadControlThreshold = new BigDecimal((String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_THRESHOLD_REGISTER, getTariffCode(tariff)));
+            float loadControlThreshold = measurementQuantity.format((String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_THRESHOLD_REGISTER, getTariffCode(tariff)));
             return new RegisterValue(obis, new Quantity(loadControlThreshold, measurementQuantity.getUnit()));
         } catch (NumberFormatException e) {
             throw new NoSuchRegisterException(e.getMessage());
