@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
+import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
@@ -38,6 +39,7 @@ import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationMeterRoleUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
 import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeAttributeValueImpl;
@@ -932,7 +934,6 @@ public enum TableSpecs {
                     .add();
         }
     },
-    /*
     MTR_M_CONFIG_ROLE_USAGE {
         @Override
         public void addTo(DataModel dataModel) {
@@ -950,7 +951,7 @@ public enum TableSpecs {
 
             table.primaryKey("MTR_PK_CONF_ROLE_USAGE").on(metrologyConfigColumn, meterRoleColumn).add();
             table.foreignKey("FK_USAGE_MCMR_TO_CONFIG")
-                    .references(MetrologyConfiguration.class)
+                    .references(UPMetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
                     .onDelete(CASCADE)
                     .map(MetrologyConfigurationMeterRoleUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
@@ -965,7 +966,6 @@ public enum TableSpecs {
                     .add();
         }
     },
-    */
     MTR_RT_TEMPLATE {
         @Override
         void addTo(DataModel dataModel) {

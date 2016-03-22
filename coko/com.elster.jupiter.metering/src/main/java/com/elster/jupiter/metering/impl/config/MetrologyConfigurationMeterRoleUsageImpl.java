@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -25,17 +25,17 @@ public class MetrologyConfigurationMeterRoleUsageImpl {
     }
 
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private Reference<MetrologyConfiguration> metrologyConfiguartion = ValueReference.absent();
+    private Reference<UPMetrologyConfiguration> metrologyConfiguartion = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<MeterRole> meterRole = ValueReference.absent();
 
-    public MetrologyConfigurationMeterRoleUsageImpl init(MetrologyConfiguration metrologyConfiguartion, MeterRole meterRole) {
+    public MetrologyConfigurationMeterRoleUsageImpl init(UPMetrologyConfiguration metrologyConfiguartion, MeterRole meterRole) {
         this.metrologyConfiguartion.set(metrologyConfiguartion);
         this.meterRole.set(meterRole);
         return this;
     }
 
-    public MetrologyConfiguration getMetrologyConfiguration() {
+    public UPMetrologyConfiguration getMetrologyConfiguration() {
         return this.metrologyConfiguartion.get();
     }
 

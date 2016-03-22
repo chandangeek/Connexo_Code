@@ -103,6 +103,10 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
         this.eventService = eventService;
     }
 
+    protected ServerMetrologyConfigurationService getMetrologyConfigurationService() {
+        return metrologyConfigurationService;
+    }
+
     @Override
     public long getId() {
         return id;
