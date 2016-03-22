@@ -265,6 +265,7 @@ Ext.define('Uni.view.search.field.Selection', {
                 store: me.store,
                 selType: 'checkboxmodel',
                 mode: me.multiSelect ? 'SIMPLE' : 'SINGLE',
+                allowDeselect: true,
                 toggleUiHeader: function (isChecked) {
                     me.grid.down('#select-all').setRawValue(isChecked);
                 },
