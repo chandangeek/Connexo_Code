@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 public class FirmwareVersionSearchablePropertyGroup implements SearchablePropertyGroup {
 
-    static final String GROUP_NAME =  DeviceTypeSearchableProperty.PROPERTY_NAME + "firmware.version";
+    static final String GROUP_NAME =  "device.firmware";
 
     private final Thesaurus thesaurus;
 
@@ -23,6 +23,6 @@ public class FirmwareVersionSearchablePropertyGroup implements SearchablePropert
 
     @Override
     public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.FIRMWARE_VERSION).format();
+        return this.thesaurus.getFormat(PropertyTranslationKeys.FIRMWARE).format();
     }
 }

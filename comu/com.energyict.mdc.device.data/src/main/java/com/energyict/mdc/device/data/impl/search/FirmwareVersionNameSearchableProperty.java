@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.*;
 
 public class FirmwareVersionNameSearchableProperty extends AbstractSearchableDeviceProperty {
-    static final String PROPERTY_NAME =  DeviceTypeSearchableProperty.PROPERTY_NAME + ".firmware.version.name";
+    static final String PROPERTY_NAME =  "device.firmware.version.name";
 
     private final PropertySpecService propertySpecService;
     private SearchDomain searchDomain;
@@ -94,7 +94,7 @@ public class FirmwareVersionNameSearchableProperty extends AbstractSearchableDev
 
     @Override
     protected TranslationKey getNameTranslationKey() {
-        return PropertyTranslationKeys.FIRMWARE_VERSION_VERSION;
+        return PropertyTranslationKeys.FIRMWARE_VERSION;
     }
 
     @Override
