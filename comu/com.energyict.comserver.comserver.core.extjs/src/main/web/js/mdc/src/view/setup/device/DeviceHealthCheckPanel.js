@@ -115,39 +115,71 @@ Ext.define('Mdc.view.setup.device.DeviceHealthCheckPanel', {
             labelField: ' ',
             value: item.get('displayValue'),
             renderer: function (value) {
-                var icon, iconColor;
+                var fillColor,borderColor,textColor;
+                if(value.severity === undefined && value.assignee === undefined){
+                    fillColor = "#FFFFFF";
+                    borderColor = "#1E7D9E";
+                }
+                else if(value.severity === undefined && value.assignee !== undefined){
+                    switch (value.assignee){
+                        case 'currentuser':
+                            fillColor = "#1E7D9E";
+                            borderColor = "#1E7D9E";
+                            textColor = "#686868";
+                            break;
+                        case 'unassigned':
+                            fillColor = "#FFFFFF";
+                            borderColor = "#1E7D9E";
+                            textColor = "#686868";
+                            break;
+                        default:
+                            fillColor = "#A0A0A0";
+                            borderColor = "#A0A0A0";
+                            textColor = "#A0A0A0";
+
+                    }
+                } else if (value.severity !== undefined && value.assignee === undefined){
+
+                }
                 switch (value.severity) {
                     case 'info':
-                        icon = 'icon-circle';
-                        iconColor = '#686868';
+                        fillColor = '#FFFFFF';
+                        borderColor = '#1E7D9E';
                         break;
                     case 'warning':
-                        icon = 'icon-circle2';
-                        iconColor = '#F7941E';
+                        fillColor = '#F7941E';
+                        borderColor = '#A0A0A0';
                         break;
                     case 'severe':
-                        icon = 'icon-circle2';
-                        iconColor = '#EB5541';
+                        fillColor = '#EB5541';
+                        borderColor = '#1E7D9E';
                         break;
                 }
+
+
                 switch (value.type) {
                     case 'issue':
-                        return me.getHtml(icon, iconColor, 'I', '#686868') + '<a class="a-underline">' + value.name + '</a>';
+                        return me.getHtml(fillColor, borderColor, 'I', '#686868') + '<a class="a-underline">' + value.description + '</a>';
                     case 'servicecall':
-                        return me.getHtml(icon, iconColor, 'S', '#686868') + '<a class="a-underline">' + value.name + '</a>';
+                        return me.getHtml(fillColor, borderColor, 'S', '#686868') + '<a class="a-underline">' + value.description + '</a>';
                     case 'alarm':
-                        return me.getHtml(icon, iconColor, 'A', '#686868') + '<a class="a-underline">' + value.name + '</a>';
+                        return me.getHtml(fillColor, borderColor, 'A', '#686868') + '<a class="a-underline">' + value.description + '</a>';
                     case 'process':
-                        return me.getHtml(icon, iconColor, 'P', '#686868') + '<a class="a-underline">' + value.name + '</a>';
+                        return me.getHtml(fillColor, borderColor, 'P', '#686868') + '<a class="a-underline">' + value.description + '</a>';
                 }
             }
         });
     },
 
-    getHtml: function (icon, iconColor, text, textColor) {
+    iconLinkRenderer: function(){
+
+    },
+
+    getHtml: function (fillColor, borderColor, text, textColor) {
         return '<span class="stacked-icon-container">'
-            + '<i class="' + icon + ' stacked-icon" style="color:' + iconColor + ';"></i>'
-            + '<span class="stacked-text" style="color:' + textColor + '">' + text + '</span>'
+            + '<i class="' + 'icon-circle2' + ' stacked-icon" style="color:' + fillColor + ';"></i>'
+            + '<i class="' + 'icon-circle' + ' stacked-icon" style="color:' + borderColor + ';"></i>'
+            + '<span class="stacked-text" style="color:' + textColor + '" data-qtip="probeer">' + text + '</span>'
             + '</span>';
     }
 });
