@@ -71,6 +71,8 @@ public interface ServiceCall extends HasId {
 
     <T extends PersistentDomainExtension<ServiceCall>> Optional<T> getExtension(Class<T> extensionClass, Object... additionalPrimaryKeyValues);
 
+    void update(PersistentDomainExtension<ServiceCall> extension, Object... additionalPrimaryKeyValues);
+
     /**
      * Service call will be deleted from the system, together with all logs, children en logs on children.
      */
