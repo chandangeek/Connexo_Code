@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
@@ -329,6 +330,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.unitAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS, "Set load limit threshold with tariffs") {
@@ -339,6 +347,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                     propertySpecService
                             .bigDecimalSpec()
                             .named(DeviceMessageAttributes.normalThresholdAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.unitAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
@@ -357,7 +372,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .stringSpec()
+                            .referenceSpec(ReadingType.class)
                             .named(DeviceMessageAttributes.readingTypeAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -377,6 +392,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
             propertySpecs.add(
                     propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.unitAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
                             .timeDurationSpec()
                             .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
                             .fromThesaurus(thesaurus)
@@ -391,6 +413,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                     propertySpecService
                             .bigDecimalSpec()
                             .named(DeviceMessageAttributes.normalThresholdAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.unitAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
