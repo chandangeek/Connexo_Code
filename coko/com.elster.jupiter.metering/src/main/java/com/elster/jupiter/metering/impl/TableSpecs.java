@@ -694,7 +694,7 @@ public enum TableSpecs {
             table.map(MultiplierValueImpl.class);
 
             Column meterActivationIdColumn = table.column("METERACTIVATIONID").number().notNull().add();
-            Column typeColumn = table.column("MULITPLIERTYPE").varChar(NAME_LENGTH).notNull().add();
+            Column typeColumn = table.column("MULITPLIERTYPE").number().notNull().add();
             table.column("VALUE").number().map("value").notNull().add();
 
             table.primaryKey("MTR_PK_MULTIPLIERVALUE").on(meterActivationIdColumn, typeColumn).add();
@@ -746,7 +746,7 @@ public enum TableSpecs {
             Column meterConfig = table.column("METER_CONFIG").number().notNull().add();
             Column measured = table.column("MEASURED").varChar(NAME_LENGTH).notNull().add();
             Column calculated = table.column("CALCULATED").varChar(NAME_LENGTH).add();
-            Column multiplierType = table.column("MULTIPLIERTYPE").varChar(NAME_LENGTH).add();
+            Column multiplierType = table.column("MULTIPLIERTYPE").number().add();
             table.addAuditColumns();
             table.column("OVERFLOW").number().map("overflowValue").add();
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INTWRAPPER).map("numberOfFractionDigits").add();
@@ -810,7 +810,7 @@ public enum TableSpecs {
             Column usagePointConfig = table.column("USAGEPOINT_CONFIG").number().notNull().add();
             Column measured = table.column("MEASURED").varChar(NAME_LENGTH).notNull().add();
             Column calculated = table.column("CALCULATED").varChar(NAME_LENGTH).add();
-            Column multiplierType = table.column("MULTIPLIERTYPE").varChar(NAME_LENGTH).add();
+            Column multiplierType = table.column("MULTIPLIERTYPE").number().add();
             table.addAuditColumns();
 
             table.primaryKey("MTR_PK_RT_UP_CONFIG").on(usagePointConfig, measured).add();
