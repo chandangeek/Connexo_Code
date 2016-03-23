@@ -47,7 +47,7 @@ Dir.glob(folder + "/src/main/java/**/*UiInstaller.java", File::FNM_CASEFOLD) do 
 	print "Current component: " + current_component + "\n"
 end
 
-Dir.glob(folder + "/src/**/*.js") do |file|
+Dir.glob(folder + "/src/**/*.js").reject{ |f| f =~ /^#{folder}\/src\/.*\/build\/.*\.js/ }.each do |file|
 	contents = File.read(file)
 
 	doAbort = false
@@ -199,7 +199,9 @@ translations.each do |component, keys|
 	end
 	
 	translationsBlob += componentBlob + "\n\n"
-	print componentBlob
+	if "#{just_checking}" != '' then
+        print componentBlob
+    end
 	if just_checking != '' then
         File.open(folder + "/src/main/resources/" + propertiesFile, 'w') { |file| file.write(componentBlob) }
     end
