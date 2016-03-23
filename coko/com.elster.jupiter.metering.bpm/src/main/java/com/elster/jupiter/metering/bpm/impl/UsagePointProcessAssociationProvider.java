@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.bpm.impl;
 
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
@@ -27,12 +28,14 @@ import java.util.List;
         service = {ProcessAssociationProvider.class, TranslationKeyProvider.class},
         property = "name=UsagePointProcessAssociationProvider", immediate = true)
 public class UsagePointProcessAssociationProvider implements ProcessAssociationProvider, TranslationKeyProvider {
+    public static final String APP_KEY = "INS";
     public static final String COMPONENT_NAME = "MBP";
     public static final String ASSOCIATION_TYPE = "usagepoint";
 
     private volatile PropertySpecService propertySpecService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile Thesaurus thesaurus;
+    private volatile License license;
 
     @SuppressWarnings(value = "unused")//for osgi needs
     public UsagePointProcessAssociationProvider() {
@@ -58,6 +61,11 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override
