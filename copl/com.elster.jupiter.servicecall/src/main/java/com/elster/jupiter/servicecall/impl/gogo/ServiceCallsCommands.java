@@ -111,7 +111,6 @@ public class ServiceCallsCommands {
             serviceCallService.createServiceCallType(name, versionName)
                     .customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
                             .get(0))
-                    .handler("DisconnectHandler1")
                     .create();
             context.commit();
         }
@@ -314,7 +313,7 @@ public class ServiceCallsCommands {
     }
 
     public void log() {
-        System.out.println("usage: log <service call id> <log level> <message>");
+        System.out.println("Usage: log <service call id> <log level> <message>");
         System.out.println("e.g.   log 7231 FINE That looks good to me");
     }
 
