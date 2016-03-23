@@ -1,26 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.favorites.FavoritesService;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.impl.SystemComTask;
-
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
@@ -54,12 +33,16 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -75,8 +58,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.SystemComTask;
-import org.junit.Before;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
@@ -87,6 +68,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import org.junit.Before;
+import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;

@@ -58,6 +58,8 @@ import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.elster.jupiter.util.time.ExecutionTimerService;
+import com.elster.jupiter.util.time.impl.ExecutionTimerServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.SqlBuilder;
@@ -161,7 +163,6 @@ public class InMemoryIntegrationPersistence {
     private DeviceProtocolService deviceProtocolService;
     private ValidationService validationService;
     private EstimationService estimationService;
-    private ServiceCallService serviceCallService;
     private ServiceCallInfoFactory serviceCallInfoFactory;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private UserService userService;
@@ -173,6 +174,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceSearchDomain deviceSearchDomain;
     private DataCollectionKpiService dataCollectionKpiService;
     private FiniteStateMachineService finiteStateMachineService;
+    private ServiceCallService serviceCallService;
     private Injector injector;
 
     public InMemoryIntegrationPersistence() {
@@ -296,6 +298,7 @@ public class InMemoryIntegrationPersistence {
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
+            this.serviceCallService = injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
             initializePrivileges();
             ctx.commit();
@@ -493,6 +496,7 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(ExecutionTimerService.class).to(ExecutionTimerServiceImpl.class);
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(Clock.class).toInstance(clock);
