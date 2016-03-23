@@ -1,5 +1,14 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ComSessionSuccessIndicatorTranslationKeys;
 import com.energyict.mdc.device.data.impl.TableSpecs;
@@ -19,18 +28,10 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -206,7 +207,8 @@ public class ComSessionImpl implements ComSession {
         sqlBuilder.append(") order by timestamp desc");
         sqlBuilder.asPageBuilder(start, start + pageSize - 1);
         List<CombinedLogEntry> logEntries = new ArrayList<>();
-        try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     int discriminator = resultSet.getInt(1);
