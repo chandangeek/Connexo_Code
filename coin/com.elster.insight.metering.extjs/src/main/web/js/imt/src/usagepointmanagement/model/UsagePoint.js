@@ -72,7 +72,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
     associations: [
         {
             name: 'customPropertySets',
-            associationKey: 'customProperties',
+            associationKey: 'customPropertySets',
             type: 'hasMany',
             model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'
         }

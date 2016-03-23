@@ -33,7 +33,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         text: Uni.I18n.translate('general.refresh', 'IMT', 'Refresh'),
                         iconCls: 'icon-spinner12',
                         iconAlign: 'left',
-                        margin: 0,
+                        margin: '0 5 0 0',
                         handler: function () {
                             me.router.getRoute().forward();
                         }
@@ -90,7 +90,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                 itemId: 'usage-point-summary',
                                 title: Uni.I18n.translate('general.summary', 'IMT', 'Summary'),
                                 ui: 'tile',
-                                margin: 0,
+                                margin: '0 5 0 0',
                                 flex: 1,
                                 router: me.router
                             }
@@ -100,7 +100,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         itemId: 'usage-point-activity-line',
                         title: Uni.I18n.translate('general.activityLine', 'IMT', 'Activity line'),
                         ui: 'tile',
-                        margin: '16 0 0 0',
+                        margin: '16 5 0 0',
                         minHeight: 150 // todo: remove after implementation of content for this panel
                     }
                 ]

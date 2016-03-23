@@ -39,6 +39,27 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
                 editForm = Ext.applyIf(me.editForm, {itemId: 'edit-form'});
             }
 
+            editForm.buttons = [
+                {
+                    itemId: 'edit-form-save-button',
+                    text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
+                    ui: 'action',
+                    action: 'save',
+                    handler: function () {
+                        me.fireEvent('save', me);
+                    }
+                },
+                {
+                    itemId: 'edit-form-cancel-button',
+                    text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
+                    ui: 'link',
+                    action: 'cancel',
+                    handler: function () {
+                        me.switchDisplayMode('view');
+                    }
+                }
+            ];
+
             me.items = [viewForm, editForm];
             me.activeItem = me.displayMode === 'view' ? 0 : 1;
             me.tools = [{
@@ -60,33 +81,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
         }
 
         me.callParent(arguments);
-
-        me.getEditForm().add({
-            xtype: 'fieldcontainer',
-            itemId: 'edit-form-buttons',
-            fieldLabel: ' ',
-            defaultType: 'button',
-            items: [
-                {
-                    itemId: 'edit-form-save-button',
-                    text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
-                    ui: 'action',
-                    action: 'save',
-                    handler: function () {
-                        me.fireEvent('save', me);
-                    }
-                },
-                {
-                    itemId: 'edit-form-cancel-button',
-                    text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
-                    ui: 'link',
-                    action: 'cancel',
-                    handler: function () {
-                        me.switchDisplayMode('view');
-                    }
-                }
-            ]
-        });
 
         if (me.record) {
             me.loadRecord(me.record);

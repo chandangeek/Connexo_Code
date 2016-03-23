@@ -2,22 +2,27 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usage-point-attributes',
     requires: [
+        'Imt.usagepointmanagement.model.technicalinfo.Electricity',
+        'Imt.usagepointmanagement.model.technicalinfo.Gas',
+        'Imt.usagepointmanagement.model.technicalinfo.Water',
+        'Imt.usagepointmanagement.model.technicalinfo.Thermal',
         'Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm',
         'Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFormElectricity',
         'Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFormGas',
         'Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFormWater',
-        'Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFormThermal'
+        'Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFormThermal',
+        'Imt.usagepointmanagement.view.forms.attributes.CustomAttributeSetForm'
     ],
 
     router: null,
     usagePoint: null,
     viewDefaults: {
         xtype: 'displayfield',
-        labelWidth: 250
+        labelWidth: 150
     },
     editDefaults: {
-        labelWidth: 250,
-        width: 520
+        labelWidth: 150,
+        width: 380
     },
 
     serviceCategoryMap: {
@@ -40,7 +45,8 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
     },
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            customPropertySets = me.usagePoint.customPropertySets();
 
         me.content = [
             {
@@ -86,7 +92,15 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                                 editDefaults: me.editDefaults
                             }
                         ]
-                    }
+                    },
+                    customPropertySets && customPropertySets.getCount() ? {
+                        xtype: 'container',
+                        defaults: {
+                            ui: 'tile',
+                            margin: '16 5 0 0'
+                        },
+                        items: me.prepareCpsForms(customPropertySets)
+                    } : null
                 ]
             }
         ];
@@ -107,5 +121,22 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
         ];
 
         me.callParent(arguments);
+    },
+
+    prepareCpsForms: function (customPropertySets) {
+        var me = this,
+            forms = [];
+
+        customPropertySets.each(function (cps) {
+            forms.push({
+                xtype: 'custom-attribute-set-form',
+                itemId: 'custom-attribute-set-form-' + cps.getId(),
+                title: cps.get('name'),
+                viewDefaults: me.viewDefaults,
+                record: cps
+            });
+        });
+
+        return forms;
     }
 });
