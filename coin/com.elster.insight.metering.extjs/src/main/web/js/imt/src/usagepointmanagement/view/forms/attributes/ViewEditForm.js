@@ -2,6 +2,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.view-edit-form',
     layout: 'card',
+    deferredRender: true,
 
     displayMode: 'view',
     viewForm: null,
@@ -49,6 +50,15 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
                         me.fireEvent('save', me);
                     }
                 },
+                me.editForm.xtype === 'property-form' ? {
+                    itemId: 'edit-form-restore-default-values-button',
+                    text: Uni.I18n.translate('general.restoreToDefault', 'IMT', 'Restore to default'),
+                    iconCls: 'icon-spinner12',
+                    iconAlign: 'left',
+                    handler: function () {
+                        me.getEditForm().restoreAll();
+                    }
+                } : null,
                 {
                     itemId: 'edit-form-cancel-button',
                     text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
@@ -75,25 +85,21 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
                     padding: '5px 0 0 0'
                 },
                 handler: function () {
-                    me.switchDisplayMode('edit');
+                    me.fireEvent('edit', me);
                 }
             }];
         }
+
+        // workaround to set pencil icon directly after title text
+        me.on('render', function () {
+            me.down('header').titleCmp.flex = undefined;
+        }, me, {single: true});
 
         me.callParent(arguments);
 
         if (me.record) {
             me.loadRecord(me.record);
         }
-
-        // workaround to set pencil icon directly after title text
-        // setTimeout() is needed because in this place panel isn't rendered
-        setTimeout(function () {
-            if (me.rendered) {
-                me.down('header').titleCmp.flex = undefined;
-                me.updateLayout();
-            }
-        }, 0);
     },
 
     getViewForm: function () {
@@ -107,17 +113,46 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
     loadRecord: function (record) {
         var me = this;
 
+        Ext.suspendLayouts();
         me.getViewForm().loadRecord(record);
         me.getEditForm().loadRecord(record);
+        Ext.resumeLayouts(true);
+    },
+
+    getRecord: function () {
+        var me = this,
+            editForm = me.getEditForm();
+
+        editForm.updateRecord();
+        return editForm.getRecord();
+    },
+
+    markInvalid: function () {
+        var me = this,
+            editForm = me.getEditForm();
+
+        editForm.markInvalid.apply(editForm, arguments);
+    },
+
+    clearInvalid: function () {
+        var me = this,
+            editForm = me.getEditForm();
+
+        editForm.getForm().clearInvalid();
     },
 
     switchDisplayMode: function (mode) {
-        var me = this;
+        var me = this,
+            editForm;
 
         if (mode !== me.displayMode && (mode === 'view' || mode === 'edit')) {
             Ext.suspendLayouts();
             me.down('#view-edit-form-edit-button').setVisible(mode === 'view');
             me.getLayout().setActiveItem(mode === 'view' ? 0 : 1);
+            if (mode === 'view') {
+                editForm = me.getEditForm();
+                editForm.loadRecord(editForm.getRecord());
+            }
             Ext.resumeLayouts(true);
             me.displayMode = mode;
         }

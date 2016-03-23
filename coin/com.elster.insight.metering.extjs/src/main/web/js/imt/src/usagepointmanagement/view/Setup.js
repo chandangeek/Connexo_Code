@@ -33,7 +33,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         text: Uni.I18n.translate('general.refresh', 'IMT', 'Refresh'),
                         iconCls: 'icon-spinner12',
                         iconAlign: 'left',
-                        margin: '0 5 0 0',
+                        margin: '0 16 0 0',
                         handler: function () {
                             me.router.getRoute().forward();
                         }
@@ -55,7 +55,10 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                         itemId: 'usage-point-going-on',
                                         title: Uni.I18n.translate('general.whatsGoingOn', 'IMT', "What's going on"),
                                         ui: 'tile',
-                                        margin: '0 16 0 0',
+                                        style: {
+                                            marginRight: '16px',
+                                            padding: '16px'
+                                        },
                                         flex: 1,
                                         minHeight: 150 // todo: remove after implementation of content for this panel
                                     },
@@ -68,7 +71,10 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                         defaults: {
                                             ui: 'tile',
                                             flex: 1,
-                                            margin: '16 16 0 0'
+                                            style: {
+                                                marginRight: '16px',
+                                                padding: '16px'
+                                            }
                                         },
                                         items: [
                                             {
@@ -90,7 +96,10 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                 itemId: 'usage-point-summary',
                                 title: Uni.I18n.translate('general.usagePointSummary', 'IMT', 'Usage point summary'),
                                 ui: 'tile',
-                                margin: '0 5 0 0',
+                                style: {
+                                    marginRight: '16px',
+                                    padding: '16px'
+                                },
                                 flex: 1,
                                 router: me.router
                             }
@@ -100,7 +109,10 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         itemId: 'usage-point-activity-line',
                         title: Uni.I18n.translate('general.activityLine', 'IMT', 'Activity line'),
                         ui: 'tile',
-                        margin: '16 5 0 0',
+                        style: {
+                            marginRight: '16px',
+                            padding: '16px'
+                        },
                         minHeight: 150 // todo: remove after implementation of content for this panel
                     }
                 ]

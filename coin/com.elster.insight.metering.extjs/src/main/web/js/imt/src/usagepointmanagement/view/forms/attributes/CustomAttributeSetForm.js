@@ -11,12 +11,19 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.CustomAttributeSetFor
         me.viewForm = {
             xtype: 'property-form',
             itemId: 'view-form',
-            isEdit: false
+            isEdit: false,
+            defaults: {
+                labelWidth: me.viewDefaults.labelWidth
+            }
         };
 
         me.editForm = {
             xtype: 'property-form',
-            itemId: 'edit-form'
+            itemId: 'edit-form',
+            defaults: {
+                labelWidth: me.editDefaults.labelWidth,
+                width: 128
+            }
         };
 
         me.callParent();
