@@ -901,7 +901,7 @@ public enum TableSpecs {
     private static class TableBuilder {
         static void buildLocationMemberTable(Table<?> table, List<TemplateField> templateMembers) {
 
-            Column locationIdColumn = table.column("LOCATIONID").notNull().number().map("locationId").add();
+            Column locationIdColumn = table.column("LOCATIONID").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map("locationId").add();
             Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
 
             if (templateMembers != null && !templateMembers.isEmpty()) {
