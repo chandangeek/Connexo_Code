@@ -5,21 +5,23 @@ Ext.define('Scs.view.Preview', {
     router: null,
     requires: [
         'Scs.view.PreviewForm',
+        'Scs.view.ActionMenu'
     ],
 
     initComponent: function () {
         var me = this;
-       /* me.tools = [
+        me.tools = [
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('general.actions', 'SCS', 'Actions'),
                 privileges: Scs.privileges.ServiceCall.admin,
                 iconCls: 'x-uni-action-iconD',
+                itemId: 'previewMenuButton',
                 menu: {
                     xtype: 'scs-action-menu'
                 }
             }
-        ];*/
+        ];
 
         me.items = {
             xtype: 'servicecalls-preview-form',

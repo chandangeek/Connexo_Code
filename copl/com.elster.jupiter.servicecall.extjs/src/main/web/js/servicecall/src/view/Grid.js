@@ -4,9 +4,10 @@ Ext.define('Scs.view.Grid', {
     store: 'Scs.store.ServiceCalls',
     router: null,
     requires: [
-        //'Uni.grid.column.Action',
+        'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Scs.view.ActionMenu'
     ],
 
     initComponent: function () {
@@ -53,15 +54,16 @@ Ext.define('Scs.view.Grid', {
                 header: Uni.I18n.translate('general.modificationDate', 'SCS', 'Modification date'),
                 dataIndex: 'lastModificationTimeDisplayShort',
                 flex: 1
-            }/*,
+            },
             {
                 xtype: 'uni-actioncolumn',
-               // privileges: Scs.privileges.ServiceCall.admin,
+                privileges: Scs.privileges.ServiceCall.admin,
                 menu: {
                     xtype: 'scs-action-menu',
                     itemId: 'scs-action-menu'
-                }
-            }*/
+                },
+                isDisabled: me.fnIsDisabled
+            }
         ];
 
         me.dockedItems = [
@@ -82,5 +84,9 @@ Ext.define('Scs.view.Grid', {
         ]
 
         me.callParent(arguments);
+    },
+
+    fnIsDisabled: function (view, rowIndex, colIndex, item, record) {
+        return !record.get('canCancel')
     }
 });

@@ -4,10 +4,26 @@ Ext.define('Scs.model.ServiceCall', {
         'Scs.model.AttributeSetOnServiceCall'
     ],
     fields: [
-        'name', 'externalReference', 'state', 'type', 'parents', 'children', 'origin', 'targetObject',
+        'name', 'externalReference', 'state', 'type', 'origin',
         {
             name: 'version',
             defaultValue: 0
+        },
+        {
+            name: 'parents',
+            type: 'auto'
+        },
+        {
+            name: 'children',
+            type: 'auto'
+        },
+        {
+            name: 'targetObject',
+            type: 'auto'
+        },
+        {
+            name: 'canCancel',
+            type: 'boolean'
         },
         {
             name: 'creationTime',

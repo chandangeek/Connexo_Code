@@ -6,7 +6,8 @@ Ext.define('Scs.controller.ServiceCalls', {
         'Scs.view.Landing',
         'Scs.view.SetupOverview',
         'Scs.view.ServiceCallPreviewContainer',
-        'Scs.view.PreviewForm'
+        'Scs.view.PreviewForm',
+        'Uni.view.window.Confirmation'
     ],
     stores: [
         'Scs.store.ServiceCalls',
@@ -32,6 +33,18 @@ Ext.define('Scs.controller.ServiceCalls', {
         {
             ref: 'overviewTabPanel',
             selector: '#service-call-overview-tab'
+        },
+        {
+            ref: 'landingPage',
+            selector: 'scs-landing-page'
+        },
+        {
+            ref: 'serviceCallGrid',
+            selector: 'servicecalls-grid'
+        },
+        {
+            ref: 'previewActionButton',
+            selector: '#previewMenuButton'
         }
     ],
 
@@ -122,7 +135,8 @@ Ext.define('Scs.controller.ServiceCalls', {
                             serviceCallParam: servicecallId,
                             store: store,
                             tab: tab,
-                            breadcrumbs: parents
+                            breadcrumbs: parents,
+                            record: record
                         });
                         me.setBreadcrumb(parents, tab === 'specs');
                         view.down('scs-landing-page').updateLandingPage(record);
@@ -130,7 +144,8 @@ Ext.define('Scs.controller.ServiceCalls', {
                     } else {
                         view = Ext.widget('scs-landing-page', {
                             router: me.getController('Uni.controller.history.Router'),
-                            serviceCallId: record.get('name')
+                            serviceCallId: record.get('name'),
+                            record: record
                         });
                         view.updateLandingPage(record);
                         me.setBreadcrumb(parents, false);
@@ -204,6 +219,9 @@ Ext.define('Scs.controller.ServiceCalls', {
             serviceCallName = record.get('name'),
             previewForm = preview.down('#servicecall-grid-preview-form');
 
+
+        me.getPreviewActionButton().setDisabled(!record.get('canCancel'));
+        me.getPreviewActionButton().down('scs-action-menu').record = record;
         me.getModel('Scs.model.ServiceCall').load(record.get('id'), {
             success: function (record) {
                 previewForm.updatePreview(record);
@@ -219,13 +237,52 @@ Ext.define('Scs.controller.ServiceCalls', {
 
         switch (item.action) {
             case 'cancel':
-                break;
-            case 'pause':
-                break;
-            case 'resume':
-                break;
-            case 'retry':
-                break;
+                me.cancelServiceCall(menu.record);
         }
+    },
+
+    cancelServiceCall: function (record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.yes', 'SCS', 'Yes'),
+                cancelText: Uni.I18n.translate('general.no', 'SCS', 'No')
+            }),
+            store = Ext.getStore('Scs.store.ServiceCalls'),
+            serviceCallState = record.get('state');
+        confirmationWindow.show(
+            {
+                msg: Uni.I18n.translate('servicecall.remove.msg', 'SCS', 'This service call will be canceled and no longer be running. Do you wish to continue?'),
+                title: Uni.I18n.translate('general.cancelX', 'SCS', "Cancel '{0}'?", [record.data.name]),
+                fn: function (state) {
+                    if (state === 'confirm') {
+                        serviceCallState.id = "sclc.default.cancelled";
+                        record.set('state', serviceCallState);
+                        if(record.get('parents') === '') {
+                            record.set('parents', [])
+                        }
+                        if(record.get('children') === '') {
+                            record.set('children', [])
+                        }
+                        if(record.get('targetObject') === '') {
+                            record.set('targetObject', null)
+                        }
+                        record.save({
+                            success: function(newRecord){
+                                if(me.getLandingPage()) {
+                                    me.getModel('Scs.model.ServiceCall').load(newRecord.get('id'), {
+                                        success: function (record) {
+                                            me.getLandingPage().updateLandingPage(record);
+                                            me.getLandingPage().down('#scAtionButton').disable();
+                                        }
+                                    });
+                                }
+                                if(me.getServiceCallGrid()) {
+                                    store.load();
+                                }
+                            }
+                        });
+                    }
+                }
+            });
     }
 });

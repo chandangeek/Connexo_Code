@@ -8,6 +8,7 @@ Ext.define('Scs.view.Landing', {
     ],
     serviceCallId: null,
     router: null,
+    record: null,
 
     initComponent: function () {
         var me = this;
@@ -17,19 +18,22 @@ Ext.define('Scs.view.Landing', {
             title: me.serviceCallId,
             items: [
                 {
-                   /* tools: [
+                    tools: [
                         {
                             xtype: 'button',
                             privileges: Scs.privileges.ServiceCall.admin,
                             text: Uni.I18n.translate('general.actions', 'SCS', 'Actions'),
                             iconCls: 'x-uni-action-iconD',
+                            disabled: !me.record.get('canCancel'),
+                            itemId: 'scAtionButton',
                             margin: '20 0 0 0',
                             menu: {
-                                xtype: 'scs-action-menu'
+                                xtype: 'scs-action-menu',
+                                record: me.record,
                             }
                         }
                     ],
-                    flex: 1,*/
+                    flex: 1,
                     items: [
                         {
                             xtype: 'servicecalls-preview-form',

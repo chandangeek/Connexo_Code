@@ -147,7 +147,7 @@ Ext.define('Scs.view.PreviewForm', {
             {
                 xtype: 'container',
                 columnWidth: 0.5,
-                itemId: 'serviceCallPreviewColumnTwo',
+                itemId: 'serviceCallPreviewColumnTwo'
             }
 
         ];

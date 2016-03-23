@@ -5,6 +5,11 @@ Ext.define('Scs.view.ServiceCallFilter', {
     modDateHidden: false,
     filterDefault: {},
 
+    stores: [
+        'Scs.store.ServiceCallTypes',
+        'Scs.store.States'
+    ],
+
     initComponent: function () {
         var me = this;
 
