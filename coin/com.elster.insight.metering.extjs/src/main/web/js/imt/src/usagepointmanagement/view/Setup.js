@@ -88,7 +88,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                             {
                                 xtype: 'usage-point-summary',
                                 itemId: 'usage-point-summary',
-                                title: Uni.I18n.translate('general.summary', 'IMT', 'Summary'),
+                                title: Uni.I18n.translate('general.usagePointSummary', 'IMT', 'Usage point summary'),
                                 ui: 'tile',
                                 margin: '0 5 0 0',
                                 flex: 1,
