@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -15,6 +16,7 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
     private MeteringService meteringService;
     private String mRID;
     private ServiceKind serviceKind = ServiceKind.ELECTRICITY;
+    private Instant installationTime;
 
     public UsagePointBuilder(MeteringService meteringService){
         super(UsagePointBuilder.class);
@@ -26,6 +28,11 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
         return this;
     }
 
+    public UsagePointBuilder withInstallationTime(Instant installationTime){
+        this.installationTime = installationTime;
+        return this;
+    }
+
     public UsagePointBuilder withServiceKind(ServiceKind serviceKind){
         this.serviceKind = serviceKind;
         return this;
@@ -33,13 +40,14 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
 
     @Override
     public Optional<UsagePoint> find() {
-        if (this.mRID == null)
+        if (this.mRID == null) {
             throw new IllegalStateException("mRID cannot be null");
+        }
         return meteringService.findUsagePoint(this.mRID);
     }
 
     @Override
     public UsagePoint create() {
-        return meteringService.getServiceCategory(serviceKind).get().newUsagePoint(mRID).withName(getName()).create();
+        return meteringService.getServiceCategory(serviceKind).get().newUsagePoint(mRID, installationTime).withName(getName()).create();
     }
 }
