@@ -25,8 +25,9 @@ public class LGZ extends AbstractManufacturer {
 
     public String getMeterProtocolClass() throws IOException {
 
-        if ((getSignOnString()==null) || (getSignOnString().indexOf("\\2")>=0) || (getSignOnString().indexOf("\2")>=0))
-           return "com.energyict.protocolimpl.dlms.DLMSZMD";
+        if ((getSignOnString() == null) || (getSignOnString().indexOf("\\2") >= 0) || (getSignOnString().indexOf("\2") >= 0)) {
+            return "com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD";
+        }
 
         throw new IOException("Unknown metertype for signonstring "+getSignOnString());
     }
