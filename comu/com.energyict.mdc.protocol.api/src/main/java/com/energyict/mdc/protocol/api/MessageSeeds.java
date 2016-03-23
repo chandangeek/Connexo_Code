@@ -39,7 +39,9 @@ public enum MessageSeeds implements MessageSeed {
     COMMAND_NOT_SUPPORTED(123, "issue.commandNotSupported", "The command is rejected by the device. It is probably unsupported by this device type"),
     PROTOCOL_DEPLOY_NOT_SUPPORTED(124, "issue.protocol.deploynotsupported", "Received deploy information for meter with serial number {0}, but this action is currently not supported (yet) by the platform"),
     PROTOCOL_DEVICE_NOT_FOUND(125, "issue.protocol.devicenotfound", "Received meter data for RTU with serial number {0}, but this RTU was not found uniquely in the database"),
-    PROTOCOL_REGISTER_NOT_FOUND(126, "issue.protocol.registernotfound", "Received register data (with OBIS code = {0}) for device with serial number {1}, but this register is not defined on the device");
+    PROTOCOL_REGISTER_NOT_FOUND(126, "issue.protocol.registernotfound", "Received register data (with OBIS code = {0}) for device with serial number {1}, but this register is not defined on the device"),
+    COULD_NOT_READOUT_FIRMWARE_VERSION(127, "issue.protocol.readingOfFirmwareFailed", "Could not correctly read the firmware version");
+    ;
 
     private final int number;
     private final String key;
