@@ -41,6 +41,7 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPrope
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationMeterRoleUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyContractReadingTypeDeliverableMapping;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
 import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeAttributeValueImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableImpl;
@@ -627,7 +628,12 @@ public enum TableSpecs {
             table.map(MetrologyConfigurationCustomPropertySetUsageImpl.class);
             Column metrologyConfig = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.METROLOGY_CONFIG.name()).number().notNull().add();
             Column customPropertySet = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.CUSTOM_PROPERTY_SET.name()).number().notNull().add();
-            table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.name()).number().notNull().conversion(NUMBER2INT).map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.fieldName()).add();
+            table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.name())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INT)
+                    .map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.fieldName())
+                    .add();
             table.primaryKey("PK_M_CONFIG_CPS_USAGE").on(metrologyConfig, customPropertySet).add();
             table.foreignKey("FK_MCPS_USAGE_TO_CONFIG")
                     .references(MTR_METROLOGYCONFIG.name())
@@ -840,7 +846,12 @@ public enum TableSpecs {
             Column serviceCategory = table.column("SERVICECATEGORY").number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
             Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().notNull().add();
             table.primaryKey("PK_MTR_CPSSERVICECATUSAGE").on(serviceCategory, customPropertySet).add();
-            table.column(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.name()).number().notNull().conversion(NUMBER2INT).map(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.fieldName()).add();
+            table.column(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.name())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INT)
+                    .map(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.fieldName())
+                    .add();
             table.foreignKey("FK_MTR_CPSSERVICECATEGORY")
                     .references(MTR_SERVICECATEGORY.name())
                     .on(serviceCategory)
@@ -1257,8 +1268,8 @@ public enum TableSpecs {
                     .notNull()
                     .map(ReadingTypeDeliverableImpl.Fields.NAME.fieldName())
                     .add();
-            Column metrologyContractColumn = table
-                    .column(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.name())
+            Column metrologyConfigColumn = table
+                    .column(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.name())
                     .number()
                     .notNull()
                     .add();
@@ -1275,12 +1286,14 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey("MTR_DELIVERABLE_PK").on(idColumn).add();
-            table.unique("MTR_DELIVERABLE_NAME_UQ").on(nameColumn, metrologyContractColumn).add();
-            table.foreignKey("MTR_DELIVERABLE_TO_CONTRACT")
-                    .references(MetrologyContract.class)
-                    .on(metrologyContractColumn)
+            table.unique("MTR_DELIVERABLE_NAME_UQ").on(nameColumn, metrologyConfigColumn).add();
+            table.foreignKey("MTR_DELIVERABLE_TO_CONFIG")
+                    .references(MetrologyConfiguration.class)
+                    .on(metrologyConfigColumn)
                     .onDelete(CASCADE)
-                    .map(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                    .map(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .reverseMap(MetrologyConfigurationImpl.Fields.DELIVERABLES.fieldName())
+                    .composition()
                     .add();
             table.foreignKey("MTR_DELIVERABLE_TO_RT")
                     .references(ReadingType.class)
@@ -1291,6 +1304,36 @@ public enum TableSpecs {
                     .references(Formula.class)
                     .on(formulaColumn)
                     .map(ReadingTypeDeliverableImpl.Fields.FORMULA.fieldName())
+                    .add();
+        }
+    },
+    MTR_CONTRACT_TO_DELIVERABLE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), MetrologyContractReadingTypeDeliverableMapping.class);
+            table.map(MetrologyContractReadingTypeDeliverableMapping.class);
+
+            Column metrologyContractColumn = table.column(MetrologyContractReadingTypeDeliverableMapping.Fields.METROLOGY_CONTRACT.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column deliverableColumn = table.column(MetrologyContractReadingTypeDeliverableMapping.Fields.DELIVERABLE.name())
+                    .number()
+                    .notNull()
+                    .add();
+
+            table.primaryKey("MTR_PK_CONTRACT_DELIVERABLE").on(metrologyContractColumn, deliverableColumn).add();
+            table.foreignKey("FK_CONTR_DELIVER_TO_CONTR")
+                    .references(MetrologyContract.class)
+                    .on(metrologyContractColumn)
+                    .map(MetrologyContractReadingTypeDeliverableMapping.Fields.METROLOGY_CONTRACT.fieldName())
+                    .reverseMap(MetrologyContractImpl.Fields.DELIVERABLES.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_CONTR_DELIVER_TO_DELIVER")
+                    .references(ReadingTypeDeliverable.class)
+                    .on(deliverableColumn)
+                    .map(MetrologyContractReadingTypeDeliverableMapping.Fields.DELIVERABLE.fieldName())
                     .add();
         }
     },
@@ -1313,8 +1356,7 @@ public enum TableSpecs {
                     .map("readingTypeRequirement")
                     .add();
         }
-    }
-    ;
+    };
 
     abstract void addTo(DataModel dataModel);
 

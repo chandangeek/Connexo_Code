@@ -6,7 +6,9 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -53,6 +55,7 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
         RT_REQUIREMENTS("readingTypeRequirements"),
         METROLOGY_CONTRACTS("metrologyContracts"),
         METER_ROLES("meterRoles"),
+        DELIVERABLES("deliverables"),
         REQUIREMENT_TO_ROLE_REFERENCES("requirementToRoleReferences"),;
 
         private final String javaFieldName;
@@ -84,6 +87,7 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
     private List<MetrologyConfigurationCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     private List<ReadingTypeRequirement> readingTypeRequirements = new ArrayList<>();
     private List<MetrologyContract> metrologyContracts = new ArrayList<>();
+    private List<ReadingTypeDeliverable> deliverables = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private long version;
@@ -254,11 +258,25 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
     }
 
     @Override
+    public ReadingTypeDeliverable addReadingTypeDeliverable(String name, ReadingType readingType, Formula formula) {
+        ReadingTypeDeliverableImpl deliverable = this.metrologyConfigurationService.getDataModel().getInstance(ReadingTypeDeliverableImpl.class)
+                .init(this, name, readingType, formula);
+        Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverable);
+        this.deliverables.add(deliverable);
+        touch();
+        return deliverable;
+    }
+
+    @Override
+    public void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
+        if (this.deliverables.remove(deliverable)) {
+            touch();
+        }
+    }
+
+    @Override
     public List<ReadingTypeDeliverable> getDeliverables() {
-        return getContracts()
-                .stream()
-                .flatMap(metrologyContract -> metrologyContract.getDeliverables().stream())
-                .collect(Collectors.toList());
+        return Collections.unmodifiableList(this.deliverables);
     }
 
     void create() {

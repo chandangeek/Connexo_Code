@@ -47,6 +47,10 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     void removeReadingTypeRequirement(ReadingTypeRequirement readingTypeRequirement);
 
+    ReadingTypeDeliverable addReadingTypeDeliverable(String name, ReadingType readingType, Formula formula);
+
+    void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable);
+
     List<ReadingTypeDeliverable> getDeliverables();
 
     @ProviderType
