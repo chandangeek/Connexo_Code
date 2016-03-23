@@ -104,38 +104,38 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
         assertThat(reloadedLogBook.getLastLogBook().isPresent()).isFalse();
     }
 
-    private void tryToUpdateLastReading(Device simpleDeviceWithLogBook, Instant newLastReading, LogBook reloadedLogBook) {
+    private void tryToUpdateLastLogBook(Device simpleDeviceWithLogBook, Instant newLastLogBook, LogBook reloadedLogBook) {
         LogBook.LogBookUpdater logBookUpdater = simpleDeviceWithLogBook.getLogBookUpdaterFor(reloadedLogBook);
-        logBookUpdater.setLastLogBookIfLater(newLastReading);
+        logBookUpdater.setLastLogBookIfLater(newLastLogBook);
         logBookUpdater.update();
     }
 
     @Test
     @Transactional
-    public void updateLastReadingIfLastReadingWasNullTest() {
+    public void updateLastLogBookIfLastLogBookWasNullTest() {
         Device simpleDeviceWithLogBook = createSimpleDeviceWithLogBook();
-        Instant newLastReading = Instant.ofEpochMilli(123546);
+        Instant lastLogbook = Instant.ofEpochMilli(123546);
 
         LogBook reloadedLogBook = getReloadedLogBook(simpleDeviceWithLogBook);
-        tryToUpdateLastReading(simpleDeviceWithLogBook, newLastReading, reloadedLogBook);
+        tryToUpdateLastLogBook(simpleDeviceWithLogBook, lastLogbook, reloadedLogBook);
 
         LogBook updatedLogBook = getReloadedLogBook(simpleDeviceWithLogBook);
         assertThat(updatedLogBook.getLastLogBook()).isNotNull();
         assertThat(updatedLogBook.getLastLogBook().isPresent()).isTrue();
-        assertThat(updatedLogBook.getLastLogBook().get()).isEqualTo(newLastReading);
+        assertThat(updatedLogBook.getLastLogBook().get()).isEqualTo(lastLogbook);
     }
 
     @Test
     @Transactional
-    public void updateLastReadingIfLastReadingIsBeforeOldLastReadingTest() {
+    public void updateLastLogBookIfLastLogBookIsBeforeOldLastReadingTest() {
         Device simpleDeviceWithLogBook = createSimpleDeviceWithLogBook();
         Instant originalLastReading = Instant.ofEpochMilli(123546);
         Instant newLastReading = Instant.ofEpochMilli(1);
 
         LogBook reloadedLogBook = getReloadedLogBook(simpleDeviceWithLogBook);
-        tryToUpdateLastReading(simpleDeviceWithLogBook, originalLastReading, reloadedLogBook);
+        tryToUpdateLastLogBook(simpleDeviceWithLogBook, originalLastReading, reloadedLogBook);
         LogBook updatedLogBook = getReloadedLogBook(simpleDeviceWithLogBook);
-        tryToUpdateLastReading(simpleDeviceWithLogBook, newLastReading, updatedLogBook);
+        tryToUpdateLastLogBook(simpleDeviceWithLogBook, newLastReading, updatedLogBook);
 
         LogBook logBook = getReloadedLogBook(simpleDeviceWithLogBook);
         assertThat(logBook.getLastLogBook()).isNotNull();
@@ -145,15 +145,15 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void updateLastReadingIfLastReadingIsAfterOldLastReadingTest() {
+    public void updateLastLogBookIfLastLogBookIsAfterOldLastLogBookTest() {
         Device simpleDeviceWithLogBook = createSimpleDeviceWithLogBook();
         Instant originalLastReading = Instant.ofEpochMilli(123546);
         Instant newLastReading = Instant.ofEpochMilli(999999);
 
         LogBook reloadedLogBook = getReloadedLogBook(simpleDeviceWithLogBook);
-        tryToUpdateLastReading(simpleDeviceWithLogBook, originalLastReading, reloadedLogBook);
+        tryToUpdateLastLogBook(simpleDeviceWithLogBook, originalLastReading, reloadedLogBook);
         LogBook updatedLogBook = getReloadedLogBook(simpleDeviceWithLogBook);
-        tryToUpdateLastReading(simpleDeviceWithLogBook, newLastReading, updatedLogBook);
+        tryToUpdateLastLogBook(simpleDeviceWithLogBook, newLastReading, updatedLogBook);
 
         LogBook logBook = getReloadedLogBook(simpleDeviceWithLogBook);
         assertThat(logBook.getLastLogBook()).isNotNull();
