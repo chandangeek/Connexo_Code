@@ -8,9 +8,9 @@ Ext.define('Mdc.model.LoadProfileOfDevice', {
         {name: 'name', type: 'string'},
         {name: 'obisCode', type: 'string'},
         {name: 'interval', type: 'auto'},
-        {name: 'lastReading', dateFormat: 'time', type: 'date'},
+        {name: 'lastReading', type: 'long', useNull: true},
         {name: 'channels', type: 'auto'},
-        {name: 'lastChecked', dateFormat: 'time', type: 'date'},
+        //{name: 'lastChecked', type: 'long', useNull: true},
         {name: 'validationInfo', type: 'auto'},
         {
             name: 'loadProfile',
@@ -71,6 +71,22 @@ Ext.define('Mdc.model.LoadProfileOfDevice', {
                 return (data.validationInfo && data.validationInfo.lastChecked)
                     ? Uni.DateTime.formatDateTimeLong(new Date(data.validationInfo.lastChecked))
                     : '';
+            }
+        },
+        {
+            name: 'dataUntil',
+            persist: false,
+            mapping: function (data) {
+                var mostRecentLastValueTimestamp = 0;
+                if (data.channels) {
+                    Ext.Array.each(data.channels, function(channel) {
+                        if (channel.lastValueTimestamp && channel.lastValueTimestamp > mostRecentLastValueTimestamp) {
+                            mostRecentLastValueTimestamp = channel.lastValueTimestamp;
+                        }
+                    });
+                    return mostRecentLastValueTimestamp>0 ? mostRecentLastValueTimestamp : undefined;
+                }
+                return undefined;
             }
         }
     ],

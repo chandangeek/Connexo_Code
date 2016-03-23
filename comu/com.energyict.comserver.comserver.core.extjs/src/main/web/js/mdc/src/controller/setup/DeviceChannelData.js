@@ -154,16 +154,20 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             channel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
             router = me.getController('Uni.controller.history.Router'),
-            prevNextstore = contentName == 'block' ? 'Mdc.store.ValidationBlocks' : 'Mdc.store.ChannelsOfLoadProfilesOfDevice',
-            prevNextListLink = contentName == 'block' ? me.makeLinkToIssue(router, issueId) : me.makeLinkToChannels(router),
-            indexLocation = contentName == 'block' ? 'queryParams' : 'arguments',
-            routerIdArgument = contentName == 'block' ? 'validationBlock' : 'channelId',
+            prevNextstore = contentName === 'block' ? 'Mdc.store.ValidationBlocks' : 'Mdc.store.ChannelsOfLoadProfilesOfDevice',
+            prevNextListLink = contentName === 'block' ? me.makeLinkToIssue(router, issueId) : me.makeLinkToChannels(router),
+            indexLocation = contentName === 'block' ? 'queryParams' : 'arguments',
+            routerIdArgument = contentName === 'block' ? 'validationBlock' : 'channelId',
             isFullTotalCount = contentName === 'block',
-            activeTab = contentName == 'spec' ? 0 : 1;
-
-        viewport.setLoading(true);
-        device.load(mRID, {
-            success: function (device) {
+            activeTab = contentName === 'spec' ? 0 : 1,
+            timeUnitsStore = Ext.getStore('Mdc.store.TimeUnits'),
+            loadDevice = function() {
+                device.load(mRID, {
+                    scope: me,
+                    success: onDeviceLoad
+                });
+            },
+            onDeviceLoad = function(device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 channel.getProxy().setUrl({
                     mRID: mRID
@@ -194,9 +198,17 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             me.setupSpecificationsTab(device, channel, widget);
                         }
                     }
-                })
-            }
-        })
+                });
+            };
+
+        viewport.setLoading(true);
+        if (contentName === 'spec') {
+            timeUnitsStore.load(function() {
+                loadDevice();
+            });
+        } else {
+            loadDevice();
+        }
     },
 
     setupSpecificationsTab: function (device, channel, widget) {
@@ -268,7 +280,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         filter.options = [
             {
                 display: Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect'),
-                value: 'suspect'
+                value: 'suspect',
+                itemId: 'devicechannels-topfilter-suspect'
             }
         ];
         if (contentName === 'block') {
@@ -277,7 +290,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         } else {
             filter.options.push({
                 display: Uni.I18n.translate('validationStatus.ok', 'MDC', 'Not suspect'),
-                value: 'nonSuspect'
+                value: 'nonSuspect',
+                itemId: 'devicechannels-topfilter-notsuspect'
             });
             filter.fromDate = dataIntervalAndZoomLevels.getIntervalStart((channel.get('lastReading') || new Date()));
         }
