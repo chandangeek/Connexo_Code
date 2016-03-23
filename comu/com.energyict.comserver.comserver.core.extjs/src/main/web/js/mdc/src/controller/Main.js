@@ -302,7 +302,7 @@ Ext.define('Mdc.controller.Main', {
                 route: 'usagepoints',
                 items: [
                     {
-                        text: Uni.I18n.translate('usagePointAdd.title', 'MDC', 'Add Usage point'),
+                        text: Uni.I18n.translate('usagePointAdd.title', 'MDC', 'Add usage point'),
                         itemId: 'lnk-add-usagepoints',
                         href: '#/usagepoints/add',
                         route: 'add'
