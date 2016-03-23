@@ -78,7 +78,9 @@ public class ServiceCallResourceTest extends ServiceCallApplicationTest {
 
     private void mockSetup() {
         ServiceCall serviceCall = mockServiceCall(1L);
+        when(serviceCall.getTargetObject()).thenReturn(Optional.empty());
         ServiceCall child = mockServiceCall(2L);
+        when(child.getTargetObject()).thenReturn(Optional.empty());
         when(child.getParent()).thenReturn(Optional.of(serviceCall));
         List<ServiceCall> list = new ArrayList<>();
         list.add(serviceCall);

@@ -44,10 +44,10 @@ public class ServiceCallFieldResource {
     @Path("/states")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
-    public PagedInfoList getStates(@BeanParam JsonQueryParameters queryParameters) {
+    public List<IdWithDisplayValueInfo<String>> getStates(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithDisplayValueInfo<String>> states = Arrays.stream(DefaultState.values())
                 .map(state -> new IdWithDisplayValueInfo<>(state.name(), state.getDisplayName(this.thesaurus)))
                 .collect(toList());
-        return PagedInfoList.fromCompleteList("states", states, queryParameters);
+        return states;
     }
 }

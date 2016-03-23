@@ -6,6 +6,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -17,8 +18,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -78,5 +79,18 @@ public class ServiceCallResource {
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.CHANGE_SERVICE_CALL_STATE)
+    public Response cancelServiceCall(@PathParam("id") long id, ServiceCallInfo info) {
+        if(info.state.id.equals("sclc.default.cancelled")) {
+            serviceCallService.getServiceCall(id).ifPresent(ServiceCall::cancel);
+            return Response.status(Response.Status.ACCEPTED).build();
+        }
+        return Response.status(Response.Status.BAD_REQUEST).build();
     }
 }

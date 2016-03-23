@@ -23,6 +23,7 @@ public class ServiceCallInfo {
     public String type;
     public long numberOfChildren;
     public List<ServiceCallCustomPropertySetInfo> customPropertySets;
+    public boolean canCancel;
 
     public ServiceCallInfo() {
 
