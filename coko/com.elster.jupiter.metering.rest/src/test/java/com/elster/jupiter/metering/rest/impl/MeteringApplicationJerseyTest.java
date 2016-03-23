@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
@@ -24,6 +25,8 @@ public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTes
     RestQueryService restQueryService;
     @Mock
     Clock clock;
+    @Mock
+    private ServiceCallService serviceCallService;
 
     @Override
     protected Application getApplication() {
@@ -34,6 +37,7 @@ public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTes
         app.setRestQueryService(restQueryService);
         app.setMeteringService(meteringService);
         app.setNlsService(nlsService);
+        app.setServiceCallService(serviceCallService);
         return app;
     }
 

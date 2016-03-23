@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.users.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +36,7 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
     private ServiceCategory serviceCategory;
     @Mock
     private UsagePointBuilder usagePointBuilder;
+
 
 
     @Before

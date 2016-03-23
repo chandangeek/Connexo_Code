@@ -5,6 +5,9 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
@@ -30,10 +33,12 @@ public class UsagePointResource {
     private final Clock clock;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final UsagePointInfoFactory usagePointInfoFactory;
+    private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
 
     @Inject
     public UsagePointResource(MeteringService meteringService,
+                              ServiceCallService serviceCallService,
                               TransactionService transactionService,
                               Clock clock,
                               ConcurrentModificationExceptionFactory conflictFactory,
@@ -44,6 +49,7 @@ public class UsagePointResource {
         this.clock = clock;
         this.conflictFactory = conflictFactory;
         this.usagePointInfoFactory = usagePointInfoFactory;
+        this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
     }
 
@@ -91,7 +97,7 @@ public class UsagePointResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UsagePointInfo getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
+        UsagePoint usagePoint = fetchUsagePoint(id);
         UsagePointInfo result = new UsagePointInfo(usagePoint, clock);
         return result;
     }
@@ -135,7 +141,7 @@ public class UsagePointResource {
     @Path("/{id}/meteractivations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public MeterActivationInfos getMeterActivations(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
+        UsagePoint usagePoint = fetchUsagePoint(id);
         return new MeterActivationInfos(usagePoint.getMeterActivations());
     }
 
@@ -144,7 +150,7 @@ public class UsagePointResource {
     @Path("/{id}/meteractivations/{activationId}/channels")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ChannelInfos getChannels(@PathParam("id") long id, @PathParam("activationId") long activationId, @Context SecurityContext securityContext) {
-        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
+        UsagePoint usagePoint = fetchUsagePoint(id);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
         return new ChannelInfos(meterActivation.getChannels());
     }
@@ -171,7 +177,7 @@ public class UsagePointResource {
     }
 
     private ReadingInfos doGetIntervalreadings(long id, long activationId, long channelId, SecurityContext securityContext, Range<Instant> range) {
-        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
+        UsagePoint usagePoint = fetchUsagePoint(id);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
         for (Channel channel : meterActivation.getChannels()) {
             if (channel.getId() == channelId) {
@@ -187,7 +193,7 @@ public class UsagePointResource {
     @Path("/{id}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ReadingTypeInfos getReadingTypes(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
+        UsagePoint usagePoint = fetchUsagePoint(id);
         return new ReadingTypeInfos(collectReadingTypes(usagePoint));
     }
 
@@ -211,6 +217,21 @@ public class UsagePointResource {
         return doGetReadingTypeReadings(id, mRID, range, securityContext);
     }
 
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Path("/{id}/servicecalls")
+    public Response cancelServiceCallsFor(@PathParam("id") long id, ServiceCallInfo serviceCallInfo) {
+        UsagePoint usagePoint = fetchUsagePoint(id);
+        if (serviceCallInfo.state == null) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        if (DefaultState.CANCELLED.getKey().equals(serviceCallInfo.state.id)) {
+            serviceCallService.cancelServiceCallsFor(usagePoint);
+            return Response.accepted().build();
+        }
+        throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+
     private ReadingInfos doGetReadingTypeReadings(long id, String mRID, Range<Instant> range, SecurityContext securityContext) {
         ReadingType readingType = null;
         List<IntervalReadingRecord> readings = new ArrayList<>();
@@ -226,7 +247,7 @@ public class UsagePointResource {
     }
 
     private FluentIterable<? extends MeterActivation> meterActivationsForReadingTypeWithMRID(long id, String mRID, SecurityContext securityContext) {
-        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
+        UsagePoint usagePoint = fetchUsagePoint(id);
         return FluentIterable.from(usagePoint.getMeterActivations()).filter(new HasReadingType(mRID));
     }
 
@@ -239,7 +260,7 @@ public class UsagePointResource {
         return readingTypes;
     }
 
-    private UsagePoint fetchUsagePoint(long id, SecurityContext securityContext) {
+    private UsagePoint fetchUsagePoint(long id) {
         return meteringService.findUsagePoint(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
