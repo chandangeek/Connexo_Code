@@ -9,7 +9,7 @@ Ext.define('Isu.view.issues.bulk.Step2', {
 
     initComponent: function () {
         var me = this,
-            icon = '<span class="icon-question3" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; margin-left: 5px" data-qtip="' +
+            icon = '<span class="uni-icon-info-small" style="cursor: pointer;display: inline-block;width: 16px;height: 16px;margin-left: 5px;float: none;vertical-align: bottom;" data-qtip="' +
                 Uni.I18n.translate('general.helpTooltip', 'ISU', 'Click for more information') + '"></span>';
 
         me.items = [
@@ -89,7 +89,7 @@ Ext.define('Isu.view.issues.bulk.Step2', {
             iconEl;
 
         parent = field.getEl();
-        iconEl = parent.down('.icon-question3');
+        iconEl = parent.down('.uni-icon-info-small');
         iconEl.clearListeners();
         iconEl.on('click', function () {
             var widget,
