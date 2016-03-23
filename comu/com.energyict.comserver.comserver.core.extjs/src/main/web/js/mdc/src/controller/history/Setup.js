@@ -44,7 +44,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showEditUsagePoint',
                             callback: function (route) {
                                 this.getApplication().on('editUsagePointLoaded', function (record) {
-                                    route.setTitle(Uni.I18n.translate('general.editUsagePoint', 'MDC', "Edit '{0}'", record.get('mRID')));
+                                    route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('mRID')));
                                     return true;
                                 }, {single: true});
 
