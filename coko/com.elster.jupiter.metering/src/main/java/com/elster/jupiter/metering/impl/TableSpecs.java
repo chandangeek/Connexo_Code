@@ -240,7 +240,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("MTR_FK_USAGEPOINTLOCATION")
                     .on(locationIdColumn)
-                    .references(UsagePoint.class)
+                    .references(Location.class)
                     .onDelete(RESTRICT)
                     .map("upLocation")
                     .add();
