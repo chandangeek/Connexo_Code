@@ -3,6 +3,11 @@ Ext.define('Scs.view.ServiceCallFilter', {
     store: 'Scs.store.ServiceCalls',
     alias: 'widget.service-call-filter',
 
+    stores: [
+        'Scs.store.ServiceCallTypes',
+        'Scs.store.States'
+    ],
+
     initComponent: function () {
         var me = this;
 
