@@ -61,6 +61,7 @@ public class ServiceCallInfoFactory {
         serviceCallInfo.externalReference = serviceCall.getExternalReference()
                 .isPresent() ? serviceCall.getExternalReference().get() : null;
         serviceCallInfo.type = serviceCall.getType().getName();
+        serviceCallInfo.typeVersionName = serviceCall.getType().getVersionName();
         serviceCallInfo.canCancel = serviceCall.canTransitionTo(DefaultState.CANCELLED);
         return serviceCallInfo;
     }

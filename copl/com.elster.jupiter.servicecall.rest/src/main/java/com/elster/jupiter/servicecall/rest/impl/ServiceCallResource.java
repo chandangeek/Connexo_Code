@@ -2,25 +2,23 @@ package com.elster.jupiter.servicecall.rest.impl;
 
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.rest.whiteboard.ReferenceResolver;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.servicecall.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PUT;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -32,13 +30,17 @@ public class ServiceCallResource {
     private final ExceptionFactory exceptionFactory;
     private final ServiceCallInfoFactory serviceCallInfoFactory;
     private final PropertyUtils propertyUtils;
+    private final Thesaurus thesaurus;
+    private final ReferenceResolver referenceResolver;
 
     @Inject
-    public ServiceCallResource(ServiceCallService serviceCallService, ExceptionFactory exceptionFactory, ServiceCallInfoFactory serviceCallInfoFactory, PropertyUtils propertyUtils) {
+    public ServiceCallResource(ServiceCallService serviceCallService, ExceptionFactory exceptionFactory, ServiceCallInfoFactory serviceCallInfoFactory, PropertyUtils propertyUtils, Thesaurus thesaurus, ReferenceResolver referenceResolver) {
         this.serviceCallService = serviceCallService;
         this.exceptionFactory = exceptionFactory;
         this.serviceCallInfoFactory = serviceCallInfoFactory;
         this.propertyUtils = propertyUtils;
+        this.thesaurus = thesaurus;
+        this.referenceResolver = referenceResolver;
     }
 
     @GET
@@ -118,5 +120,37 @@ public class ServiceCallResource {
             return Response.status(Response.Status.ACCEPTED).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    @POST
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.CHANGE_SERVICE_CALL_STATE)
+    public ServiceCallInfo postServiceCall(ServiceCallInfo info) {
+        ServiceCallType serviceCallType = serviceCallService.getServiceCallTypes().stream()
+                .filter(type -> type.getName().equals(info.type))
+                .filter(type -> type.getVersionName().equals(info.typeVersionName))
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL_TYPE));
+
+        ServiceCall serviceCall = serviceCallType.newServiceCall()
+                .externalReference(info.externalReference)
+                .origin(info.origin)
+                .targetObject(info.targetObject)
+                .create();
+
+        return new ServiceCallInfoFactory(thesaurus, propertyUtils, referenceResolver).summarized(serviceCall);
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.CHANGE_SERVICE_CALL_STATE)
+    public Response deleteServiceCall(@PathParam("id") long id) {
+        serviceCallService.getServiceCall(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL))
+                .delete();
+        return Response.status(Response.Status.OK).build();
     }
 }

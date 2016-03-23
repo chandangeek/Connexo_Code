@@ -6,7 +6,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    NO_SUCH_SERVICE_CALL(1, "NoSuchServiceCall", "Service call does not exist");
+    NO_SUCH_SERVICE_CALL(1, "NoSuchServiceCall", "Service call does not exist"),
+    NO_SUCH_SERVICE_CALL_TYPE(2, "NoSuchServiceCallType", "Service call type does not exist");
 
     private final int number;
     private final String key;
