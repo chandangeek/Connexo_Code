@@ -3,8 +3,8 @@ package com.elster.jupiter.servicecall;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
@@ -70,4 +70,13 @@ public interface ServiceCall extends HasId {
     <T extends PersistentDomainExtension<ServiceCall>> CustomPropertySetValues getValuesFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues);
 
     <T extends PersistentDomainExtension<ServiceCall>> Optional<T> getExtension(Class<T> extensionClass, Object... additionalPrimaryKeyValues);
+
+    void update(PersistentDomainExtension<ServiceCall> extension, Object... additionalPrimaryKeyValues);
+
+    /**
+     * Service call will be deleted from the system, together with all logs, children en logs on children.
+     */
+    void delete();
+
+    boolean canTransitionTo(DefaultState targetState);
 }

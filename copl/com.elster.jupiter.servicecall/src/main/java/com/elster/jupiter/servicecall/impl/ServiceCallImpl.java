@@ -9,6 +9,8 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
@@ -21,7 +23,6 @@ import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -40,6 +41,7 @@ import static java.util.Arrays.fill;
 public class ServiceCallImpl implements ServiceCall {
     static final int ZEROFILL_SIZE = 8;
     private static final NumberFormat NUMBER_PREFIX = createFormat();
+    private final Thesaurus thesaurus;
 
     private static NumberFormat createFormat() {
         char[] zeroFillChars = new char[ZEROFILL_SIZE];
@@ -47,7 +49,6 @@ public class ServiceCallImpl implements ServiceCall {
         return new DecimalFormat("SC_" + new String(zeroFillChars));
     }
     private final IServiceCallService serviceCallService;
-    private final JsonService jsonService;
 
     private long id;
     private Instant lastCompletedTime;
@@ -96,14 +97,13 @@ public class ServiceCallImpl implements ServiceCall {
         }
     }
 
-
     @Inject
-    ServiceCallImpl(DataModel dataModel, IServiceCallService serviceCallService, Clock clock, CustomPropertySetService customPropertySetService, JsonService jsonService) {
+    ServiceCallImpl(DataModel dataModel, IServiceCallService serviceCallService, Clock clock, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.serviceCallService = serviceCallService;
         this.clock = clock;
         this.customPropertySetService = customPropertySetService;
-        this.jsonService = jsonService;
+        this.thesaurus = thesaurus;
     }
 
     static ServiceCallImpl from(DataModel dataModel, IServiceCallType type) {
@@ -286,7 +286,8 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public Finder<ServiceCall> findChildren() {
-        return DefaultFinder.of(ServiceCall.class, where(ServiceCallImpl.Fields.parent.fieldName()).isEqualTo(this), dataModel);
+        return DefaultFinder.of(ServiceCall.class, Where.where(Fields.parent.fieldName()).isEqualTo(this), dataModel)
+                .maxPageSize(thesaurus, 1000);
     }
 
     @Override
@@ -312,5 +313,40 @@ public class ServiceCallImpl implements ServiceCall {
                 .flatMap(customPropertySet -> getExtensionFor(customPropertySet, additionalPrimaryKeyValues));
     }
 
+    @Override
+    public void update(PersistentDomainExtension<ServiceCall> extension, Object... additionalPrimaryKeyValues) {
+        CustomPropertySet customPropertySet = getType().getCustomPropertySets()
+                .stream()
+                .map(registeredCustomPropertySet -> registeredCustomPropertySet.getCustomPropertySet())
+                .filter(customSet -> customSet.getPersistenceSupport()
+                        .persistenceClass()
+                        .isAssignableFrom(extension.getClass()))
+                .findAny()
+                .orElseThrow(IllegalArgumentException::new);
+        customPropertySetService.setValuesFor(customPropertySet, this, extension, additionalPrimaryKeyValues);
+    }
 
+    @Override
+    public void delete() {
+        deleteQueuedTransitions();
+        deleteCustomPropertySetsRecursive();
+        this.dataModel.remove(this);
+    }
+
+    void deleteCustomPropertySetsRecursive() {
+        for (RegisteredCustomPropertySet registeredCustomPropertySet : customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)) {
+            customPropertySetService.removeValuesFor(registeredCustomPropertySet.getCustomPropertySet(), this);
+        }
+        this.findChildren().stream().forEach(sc -> ((ServiceCallImpl) sc).deleteCustomPropertySetsRecursive());
+    }
+
+    private void deleteQueuedTransitions() {
+        DestinationSpec serviceCallQueue = serviceCallService.getServiceCallQueue();
+        serviceCallQueue.purgeCorrelationId(this.getNumber());
+    }
+
+    @Override
+    public boolean canTransitionTo(DefaultState targetState) {
+        return getType().getServiceCallLifeCycle().canTransition(getState(), targetState);
+    }
 }
