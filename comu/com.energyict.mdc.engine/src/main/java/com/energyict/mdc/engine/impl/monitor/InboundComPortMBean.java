@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.energyict.mdc.engine.monitor.InboundComPortOperationalStatistics;
+
 /**
  * Exposes the information that is gathered by the process
  * that monitors a ComPortListener.
@@ -9,6 +11,6 @@ package com.energyict.mdc.engine.impl.monitor;
  */
 public interface InboundComPortMBean {
 
-    public InboundComPortOperationalStatistics getOperationalStatistics ();
+    InboundComPortOperationalStatistics getOperationalStatistics ();
 
 }

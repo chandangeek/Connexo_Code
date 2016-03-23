@@ -27,8 +27,8 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
-import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.*;
+import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
@@ -401,9 +401,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private void startOutboundComPorts() {
-        for (ScheduledComPort scheduledComPort : this.scheduledComPorts) {
-            scheduledComPort.start();
-        }
+        this.scheduledComPorts.forEach(ScheduledComPort:: start);
     }
 
     private void startInboundComPorts() {
@@ -594,6 +592,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         for (ComPortListener comPort : this.comPortListeners) {
             comPort.schedulingInterpollDelayChanged(schedulingInterPollDelay);
         }
+        ComServerMonitor monitor = this.getOperationalMonitor();
+        ((ComServerOperationalStatisticsImpl) monitor.getOperationalStatistics()).setSchedulingInterpollDelay(schedulingInterPollDelay);
     }
 
     private void notifyChangesInterPollDelayChange(TimeDuration changesInterPollDelay) {
@@ -603,6 +603,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         for (ComPortListener comPort : this.comPortListeners) {
             comPort.changesInterpollDelayChanged(changesInterPollDelay);
         }
+        ComServerMonitor monitor = this.getOperationalMonitor();
+        ((ComServerOperationalStatisticsImpl) monitor.getOperationalStatistics()).setChangesInterpollDelay(changesInterPollDelay);
     }
 
     private void applyChanges(InboundCapable newVersion) {
@@ -675,13 +677,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private boolean hasChanged(InboundComPort existingComPort, InboundComPort newVersion) {
-        if (existingComPort instanceof ModemBasedInboundComPort) {
-            // Any change will need a restart of the ModemBasedInboundComPort
-            return true;
-        }
-        else {
-            return this.hasChanged((IPBasedInboundComPort) existingComPort, (IPBasedInboundComPort) newVersion);
-        }
+        return (existingComPort instanceof  ModemBasedInboundComPort)
+                || this.hasChanged((IPBasedInboundComPort) existingComPort, (IPBasedInboundComPort) newVersion);
     }
 
     private boolean hasChanged(IPBasedInboundComPort existingComPort, IPBasedInboundComPort newVersion) {
@@ -939,7 +936,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     @Override
     public void eventWasPublished() {
         ComServerMonitor monitor = this.getOperationalMonitor();
-        monitor.getEventApiStatistics().eventWasPublished();
+        ((ServerEventAPIStatistics) monitor.getEventApiStatistics()).eventWasPublished();
     }
 
     private ComServerLogger getLogger () {
@@ -1152,6 +1149,11 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                     serviceProvider.hexService(),
                     eventMechanism.eventPublisher,
                     serviceProvider.clock());
+        }
+
+        @Override
+        public ManagementBeanFactory managementBeanFactory() {
+            return serviceProvider.managementBeanFactory();
         }
     }
 

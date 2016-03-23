@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,6 +54,7 @@ public class CollectedMessageListDeviceCommandTest {
         when(deviceMessage1.getId()).thenReturn(MESSAGE_ID1);
         when(deviceMessage2.getId()).thenReturn(MESSAGE_ID2);
         when(serviceProvider.issueService()).thenReturn(issueService);
+        when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
     }
 
     @Test

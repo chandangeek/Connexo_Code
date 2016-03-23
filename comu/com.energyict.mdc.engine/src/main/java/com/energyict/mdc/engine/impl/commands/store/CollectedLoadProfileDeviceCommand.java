@@ -9,6 +9,8 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedLoadProfileEvent;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -25,7 +27,9 @@ import java.util.Optional;
  * Date: 29/08/12
  * Time: 14:52
  */
-public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
+public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<CollectedLoadProfileEvent> {
+
+    public final static String DESCRIPTION_TITLE = "Collected load profile data";
 
     private final CollectedLoadProfile collectedLoadProfile;
     private final MeterDataStoreCommand meterDataStoreCommand;
@@ -44,21 +48,25 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
             updateMeterDataStorer(preStoredLoadProfile.getDeviceIdentifier(), preStoredLoadProfile.getIntervalBlocks(), preStoredLoadProfile.getLastReading());
         } else if(preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED)){
             final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
-            this.addIssue(
-                    CompletionCode.Ok,
-                    this.getIssueService().newWarning(
-                            this,
-                            MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED.getKey(),
-                            optionalLoadProfile.get().getObisCode().toString(),
-                            optionalLoadProfile.get().getLastReading().map(instant -> instant).orElse(Instant.EPOCH)));
+            if (getExecutionLogger() != null) {
+                getExecutionLogger().addIssue( CompletionCode.Ok
+                        ,this.getIssueService().newWarning(
+                                            this,
+                                            MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED.getKey(),
+                                            optionalLoadProfile.get().getObisCode().toString(),
+                                            optionalLoadProfile.get().getLastReading().map(instant -> instant).orElse(Instant.EPOCH))
+                        , this.getComTaskExecution());
+            }
         }
         else {
-            this.addIssue(
-                    CompletionCode.ConfigurationWarning,
-                    this.getIssueService().newWarning(
-                            this,
-                            MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE.getKey(),
-                            comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier()).map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString()).orElse("")));
+            if (getExecutionLogger() != null) {
+                getExecutionLogger().addIssue(CompletionCode.ConfigurationWarning
+                        , this.getIssueService().newWarning(
+                                this,
+                                MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE.getKey(),
+                                comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier()).map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString()).orElse(""))
+                        , this.getComTaskExecution());
+            }
         }
     }
 
@@ -86,9 +94,17 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
         }
     }
 
+    protected Optional<CollectedLoadProfileEvent> newEvent(Issue issue) {
+        CollectedLoadProfileEvent event  =  new CollectedLoadProfileEvent(new ComServerEventServiceProvider(), collectedLoadProfile);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
+
     @Override
     public String getDescriptionTitle() {
-        return "Collected load profile data";
+        return DESCRIPTION_TITLE;
     }
 
 }

@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +17,7 @@ public abstract class IdBusinessObjectRequestType implements RequestType {
 
     @Override
     public boolean canParse (String name) {
-        return name.equalsIgnoreCase(this.getBusinessObjectTypeName());
+        return this.getBusinessObjectTypeName().equalsIgnoreCase(name);
     }
 
     protected abstract String getBusinessObjectTypeName ();
@@ -26,19 +25,20 @@ public abstract class IdBusinessObjectRequestType implements RequestType {
     @Override
     public Request parse (String parameterString) throws BusinessObjectIdParseException {
         try {
-            Set<Long> ids = this.parseIds(parameterString);
-            if (ids.isEmpty()) {
-                return this.newRequestForAll();
-            }
-            else {
-                return this.newRequestFor(ids);
-            }
+            return newRequestAccording(parameterString);
         }
         catch (NotFoundException e) {
             throw new BusinessObjectIdParseException(parameterString, this.getBusinessObjectTypeName(), e);
         }
-        catch (CanNotFindForIdentifier e) {
-            throw new BusinessObjectIdParseException(parameterString, this.getBusinessObjectTypeName(), e);
+    }
+
+    protected Request newRequestAccording(String parameterString) throws BusinessObjectIdParseException{
+        Set<Long> ids = this.parseIds(parameterString);
+        if (ids.isEmpty()) {
+            return this.newRequestForAll();
+        }
+        else {
+            return this.newRequestFor(ids);
         }
     }
 
@@ -57,7 +57,7 @@ public abstract class IdBusinessObjectRequestType implements RequestType {
 
     private Set<Long> parseIds (String commaSeparatedListOfIds) throws BusinessObjectIdParseException {
         Set<Long> ids = new HashSet<>();
-        StringTokenizer tokenizer = new StringTokenizer(commaSeparatedListOfIds, ",", false);
+        StringTokenizer tokenizer = new StringTokenizer(commaSeparatedListOfIds, ", ", false);
         while (tokenizer.hasMoreTokens()) {
             ids.add(this.parseId(tokenizer.nextToken()));
         }

@@ -37,10 +37,9 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortOperationalStatistics;
+import com.energyict.mdc.engine.impl.monitor.*;
+import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.monitor.ScheduledComPortOperationalStatistics;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -188,7 +187,7 @@ public class SingleThreadedScheduledComPortTest {
     @Mock(extraInterfaces = ScheduledComPortMonitor.class)
     private ScheduledComPortMonitorImplMBean scheduledComPortMonitor;
     @Mock
-    private ScheduledComPortOperationalStatistics operationalStatistics;
+    private ServerScheduledComPortOperationalStatistics operationalStatistics;
     @Mock
     private IdentificationService identificationService;
     @Mock

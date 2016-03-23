@@ -13,6 +13,8 @@ import com.energyict.mdc.engine.impl.core.ScheduledJob;
  */
 public class RescheduleToNextComWindow extends RescheduleExecutionDeviceCommand {
 
+    private final static String DESCRIPTION_TITLE = "Reschedule to next communication window";
+
     public RescheduleToNextComWindow(ScheduledJob scheduledJob) {
         super(scheduledJob);
     }
@@ -24,7 +26,7 @@ public class RescheduleToNextComWindow extends RescheduleExecutionDeviceCommand 
 
     @Override
     public String getDescriptionTitle() {
-        return "Reschedule to next communication window";
+        return DESCRIPTION_TITLE ;
     }
 
 }

@@ -23,7 +23,9 @@ public class ComPortFilterTest {
     @Test
     public void testMatchExpected () {
         ComPort interestedPort = mock(ComPort.class);
+        when(interestedPort.getId()).thenReturn(99l);
         ComPort otherPort = mock(ComPort.class);
+        when(otherPort.getId()).thenReturn(1099l);
         ComPortFilter filter = new ComPortFilter(Arrays.asList(interestedPort));
         ComPortRelatedEvent event = mock(ComPortRelatedEvent.class);
         when(event.isComPortRelated()).thenReturn(true);

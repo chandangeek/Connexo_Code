@@ -5,6 +5,7 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
@@ -92,7 +93,7 @@ public class DeviceCommandImplExecutionLoggingTest {
 
         @Override
         public Clock clock() {
-            return null;
+            return Clock.systemDefaultZone();
         }
 
         @Override
@@ -112,6 +113,11 @@ public class DeviceCommandImplExecutionLoggingTest {
 
         @Override
         public EventService eventService() {
+            return null;
+        }
+
+        @Override
+        public EventPublisher eventPublisher() {
             return null;
         }
     }

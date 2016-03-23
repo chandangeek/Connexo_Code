@@ -1,8 +1,12 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.monitor.ScheduledComPortOperationalStatistics;
+
 import java.time.Clock;
 
 import javax.management.openmbean.CompositeData;
@@ -26,6 +30,11 @@ public class ScheduledComPortMonitorImpl implements ScheduledComPortMonitorImplM
 
     public ScheduledComPort getComPort () {
         return this.comPort;
+    }
+
+    @Override
+    public boolean isMonitoring(ComPort comport) {
+        return this.comPort.getComPort().getId() == comport.getId();
     }
 
     @Override

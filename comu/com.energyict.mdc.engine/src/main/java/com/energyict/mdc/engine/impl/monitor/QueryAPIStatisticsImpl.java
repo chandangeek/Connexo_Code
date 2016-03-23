@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.tools.JmxStatistics;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
 import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.OpenDataException;
@@ -17,7 +18,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-05 (13:16)
  */
-public class QueryAPIStatisticsImpl extends CanConvertToCompositeDataSupport implements QueryAPIStatistics {
+public class QueryAPIStatisticsImpl extends CanConvertToCompositeDataSupport implements ServerQueryAPIStatistics {
 
     public static final String NUMBER_OF_CLIENTS_ITEM_NAME = "numberOfClients";
     private static final String NUMBER_OF_CLIENTS_ITEM_DESCRIPTION = "number of clients";
@@ -117,24 +118,11 @@ public class QueryAPIStatisticsImpl extends CanConvertToCompositeDataSupport imp
 
     @Override
     protected void initializeAccessors (List<CompositeDataItemAccessor> accessors) {
+        accessors.add(new CompositeDataItemAccessor(NUMBER_OF_CLIENTS_ITEM_NAME, this::getNumberOfClients));
+        accessors.add(new CompositeDataItemAccessor(NUMBER_OF_FAILURES_ITEM_NAME, this::getNumberOfFailures));
         accessors.add(
-                new CompositeDataItemAccessor(NUMBER_OF_CLIENTS_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getNumberOfClients();
-                    }
-                }));
-        accessors.add(
-                new CompositeDataItemAccessor(NUMBER_OF_FAILURES_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getNumberOfFailures();
-                    }
-                }));
-        accessors.add(
-                new CompositeDataItemAccessor(CALL_STATISTICS_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
+                new CompositeDataItemAccessor(CALL_STATISTICS_ITEM_NAME, () ->  {
+                     {
                         try {
                             return getCallStatistics().getSupport();
                         }

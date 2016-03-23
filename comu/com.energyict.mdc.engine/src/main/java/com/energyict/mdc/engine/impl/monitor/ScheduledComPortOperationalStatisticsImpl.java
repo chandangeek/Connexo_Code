@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.monitor;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
+import com.energyict.mdc.engine.monitor.ScheduledComPortOperationalStatistics;
 
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
@@ -17,7 +18,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-17 (10:13)
  */
-public class ScheduledComPortOperationalStatisticsImpl extends OperationalStatisticsImpl implements ScheduledComPortOperationalStatistics {
+public class ScheduledComPortOperationalStatisticsImpl extends OperationalStatisticsImpl implements ServerScheduledComPortOperationalStatistics {
 
     public static final String LAST_CHECK_FOR_WORK_ITEM_NAME = "lastCheckForWorkTimestamp";
     private static final String LAST_CHECK_FOR_WORK_ITEM_DESCRIPTION = "last check for work timestamp";

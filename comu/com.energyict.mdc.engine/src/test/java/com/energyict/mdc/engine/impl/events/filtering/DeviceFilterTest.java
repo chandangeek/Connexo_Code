@@ -24,7 +24,9 @@ public class DeviceFilterTest {
     @Test
     public void testMatchExpected () {
         Device interestedDevice = mock(Device.class);
+        when(interestedDevice.getId()).thenReturn(12l);
         Device otherDevice = mock(Device.class);
+        when(otherDevice.getId()).thenReturn(121l);
         DeviceFilter filter = new DeviceFilter(Arrays.asList(interestedDevice));
         DeviceRelatedEvent event = mock(DeviceRelatedEvent.class);
         when(event.isDeviceRelated()).thenReturn(true);
@@ -61,7 +63,9 @@ public class DeviceFilterTest {
     @Test
     public void testMatchExpectedForComTaskEventOfOtherDevices () {
         Device interestedDevice = mock(Device.class);
+        when(interestedDevice.getId()).thenReturn(12l);
         Device otherDevice = mock(Device.class);
+        when(otherDevice.getId()).thenReturn(121l);
         DeviceFilter filter = new DeviceFilter(Arrays.asList(interestedDevice));
         ComTaskExecutionEvent event = mock(ComTaskExecutionEvent.class);
         when(event.isDeviceRelated()).thenReturn(true);

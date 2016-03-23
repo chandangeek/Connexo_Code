@@ -23,7 +23,9 @@ public class ComTaskExecutionFilterTest {
     @Test
     public void testMatchExpected () {
         ComTaskExecution interestedTask = mock(ComTaskExecution.class);
+        when(interestedTask.getId()).thenReturn(44l);
         ComTaskExecution otherTask = mock(ComTaskExecution.class);
+        when(otherTask.getId()).thenReturn(55l);
         ComTaskExecutionFilter filter = new ComTaskExecutionFilter(Arrays.asList(interestedTask));
         ComTaskExecutionEvent event = mock(ComTaskExecutionEvent.class);
         when(event.getComTaskExecution()).thenReturn(otherTask);

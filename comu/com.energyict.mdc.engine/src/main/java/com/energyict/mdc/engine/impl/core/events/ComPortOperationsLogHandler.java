@@ -15,11 +15,11 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (14:05)
  */
-public class ComPortLogHandler extends EventPublishingLogHandler {
+public class ComPortOperationsLogHandler extends EventPublishingLogHandler {
 
     private final ComPort comPort;
 
-    public ComPortLogHandler(ComPort comPort, EventPublisher eventPublisher, AbstractComServerEventImpl.ServiceProvider serviceProvider) {
+    public ComPortOperationsLogHandler(ComPort comPort, EventPublisher eventPublisher, AbstractComServerEventImpl.ServiceProvider serviceProvider) {
         super(eventPublisher, serviceProvider);
         this.comPort = comPort;
     }

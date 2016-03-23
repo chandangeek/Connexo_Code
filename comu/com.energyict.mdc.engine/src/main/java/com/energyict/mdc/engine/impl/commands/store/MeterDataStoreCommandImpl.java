@@ -8,25 +8,23 @@ import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.engine.impl.events.datastorage.MeterDataStorageEvent;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
  * Date: 7/31/14
  * Time: 3:44 PM
  */
-public class MeterDataStoreCommandImpl extends DeviceCommandImpl implements MeterDataStoreCommand {
+public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorageEvent> implements MeterDataStoreCommand {
 
     private final Map<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> meterReadings = new HashMap<>();
     private final Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
@@ -113,9 +111,29 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl implements Mete
         }
     }
 
+    public Map<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> getMeterReadings(){
+        return this.meterReadings;
+    }
+
+    public Map<LoadProfileIdentifier, Instant> getLastReadings(){
+        return  this.lastReadings;
+    }
+
+    public Map<LogBookIdentifier, Instant> getLastLogBooks(){
+        return this.lastLogBooks;
+    }
+
+    protected Optional<MeterDataStorageEvent> newEvent(Issue issue) {
+        MeterDataStorageEvent event  =  new MeterDataStorageEvent(new ComServerEventServiceProvider(), this);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
+
     @Override
     public String getDescriptionTitle() {
-        return "Store meter data";
+        return DESCRIPTION_TITLE;
     }
 
 }
