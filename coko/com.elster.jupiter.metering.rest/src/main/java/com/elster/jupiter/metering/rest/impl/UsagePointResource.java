@@ -203,6 +203,7 @@ public class UsagePointResource {
     }
 
     @PUT
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}/servicecalls")
     public Response cancelServiceCallsFor(@PathParam("id") long id, ServiceCallInfo serviceCallInfo) {
         UsagePoint usagePoint = fetchUsagePoint(id);
