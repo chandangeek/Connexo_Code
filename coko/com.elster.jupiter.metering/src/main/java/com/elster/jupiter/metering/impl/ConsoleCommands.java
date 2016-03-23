@@ -5,10 +5,19 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -55,7 +64,10 @@ import java.util.stream.Collectors;
         "osgi.command.function=addFormula",
         "osgi.command.function=formulas",
         "osgi.command.function=deleteFormula",
-        "osgi.command.function=updateFormula"
+        "osgi.command.function=updateFormula",
+        "osgi.command.function=addMetrologyConfig",
+        "osgi.command.function=addRequirement",
+        "osgi.command.function=addDeliverable"
 }, immediate = true)
 public class ConsoleCommands {
 
@@ -267,6 +279,67 @@ public class ConsoleCommands {
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
             ServerFormulaBuilder formulaBuilder = (ServerFormulaBuilder) metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
             Formula formula = formulaBuilder.init(node).build();
+            context.commit();
+        }
+    }
+
+    public void addMetrologyConfig(String name) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<ServiceCategory> serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY);
+            if (!serviceCategory.isPresent()) {
+                throw new RuntimeException("no service category found for ELECTRICITY");
+            }
+            MetrologyConfigurationBuilder builder =
+                    metrologyConfigurationService.newMetrologyConfiguration(name, serviceCategory.get());
+            builder.create();
+            context.commit();
+        }
+
+    }
+
+    public void addRequirement(String name, String readingTypeString, long metrologyConfigId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+            Optional<MetrologyConfiguration> config = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId);
+            Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeString);
+            if (!readingType.isPresent()) {
+                throw new RuntimeException("ReadingType does not exist");
+            }
+            if (!config.isPresent()) {
+                throw new RuntimeException("no metrology config found with id " + metrologyConfigId);
+            }
+            config.get().addReadingTypeRequirement(name)
+                        .withMeterRole(meterRole)
+                        .withReadingType(readingType.get());
+            context.commit();
+        }
+    }
+
+    public void addDeliverable(String name, String readingTypeString, long metrologyConfigId, long formulaId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+            Optional<MetrologyConfiguration> config = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId);
+            Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeString);
+            if (!readingType.isPresent()) {
+                throw new RuntimeException("ReadingType does not exist");
+            }
+            if (!config.isPresent()) {
+                throw new RuntimeException("no metrology config found with id " + metrologyConfigId);
+            }
+
+            MetrologyContract newMetrologyContract = config.get().addMetrologyContract(
+                    metrologyConfigurationService.createMetrologyPurpose()
+                            .fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION));
+
+            Optional<Formula> formula = metrologyConfigurationService.findFormula(formulaId);
+            if (!formula.isPresent()) {
+                throw new RuntimeException("no formula found with id " + formulaId);
+            }
+            metrologyConfigurationService.createReadingTypeDeliverable("name", newMetrologyContract, readingType.get(), formula.get());
+
             context.commit();
         }
     }

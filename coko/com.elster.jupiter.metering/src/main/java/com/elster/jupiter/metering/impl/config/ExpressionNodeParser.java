@@ -63,11 +63,11 @@ public class ExpressionNodeParser {
         String last = stack.pop();
         if ("constant".equals(last)) {
             handleConstantNode(value);
-        } /*else if (last.equals("D")) {
+        } else if (last.equals("D")) {
             handleDeliverableNode(value);
         } else if (last.equals("R")) {
             handleRequirementNode(value);
-        } */else if (Function.names().contains(last)) {
+        } else if (Function.names().contains(last)) {
             handleFunctionNode(last);
         } else if (Operator.names().contains(last)) {
             handleOperationNode(last);
