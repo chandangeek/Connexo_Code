@@ -115,11 +115,11 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
 
     @Override
     public Optional<? extends IssueDataValidation> findAndLockIssueDataValidationByIdAndVersion(long id, long version) {
-        Optional<? extends IssueDataValidation> issue = findOpenIssue(id);
+        Optional<? extends Issue> issue = issueService.findAndLockIssueByIdAndVersion(id, version);
         if (issue.isPresent()) {
-            return dataModel.mapper(OpenIssueDataValidation.class).lockObjectIfVersion(version, id);
+            return findOpenIssue(id);
         }
-        return dataModel.mapper(HistoricalIssueDataValidation.class).lockObjectIfVersion(version, id);
+        return findHistoricalIssue(id);
     }
 
     @Override

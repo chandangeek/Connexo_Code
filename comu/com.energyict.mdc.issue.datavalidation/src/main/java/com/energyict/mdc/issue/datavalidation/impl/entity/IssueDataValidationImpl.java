@@ -165,7 +165,7 @@ public class IssueDataValidationImpl implements IssueDataValidation {
 
     @Override
     public long getVersion() {
-        return version;
+        return getBaseIssue().getVersion();
     }
 
     @Override
