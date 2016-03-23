@@ -58,7 +58,6 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
         assertThat(model.<List>get("$.deviceLifeCycles[0].deviceTypes")).hasSize(1);
         assertThat(model.<Number>get("$.deviceLifeCycles[0].deviceTypes[0].id")).isEqualTo(1);
         assertThat(model.<String>get("$.deviceLifeCycles[0].deviceTypes[0].name")).isEqualTo("Device Type");
-        assertThat(model.<Boolean>get("$.deviceLifeCycles[0].containsCommunicationActions")).isEqualTo(true);
     }
 
     @Test
@@ -80,7 +79,6 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
         JsonModel model = JsonModel.create(stringResponse);
 
         assertThat(model.<Number>get("$.total")).isEqualTo(1);
-        assertThat(model.<Boolean>get("$.deviceLifeCycles[0].containsCommunicationActions")).isEqualTo(false);
     }
 
     @Test
@@ -102,7 +100,6 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
         JsonModel model = JsonModel.create(stringResponse);
 
         assertThat(model.<Number>get("$.total")).isEqualTo(1);
-        assertThat(model.<Boolean>get("$.deviceLifeCycles[0].containsCommunicationActions")).isEqualTo(true);
     }
 
     @Test
@@ -124,7 +121,6 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
         JsonModel model = JsonModel.create(stringResponse);
 
         assertThat(model.<Number>get("$.total")).isEqualTo(1);
-        assertThat(model.<Boolean>get("$.deviceLifeCycles[0].containsCommunicationActions")).isEqualTo(true);
     }
 
     @Test
