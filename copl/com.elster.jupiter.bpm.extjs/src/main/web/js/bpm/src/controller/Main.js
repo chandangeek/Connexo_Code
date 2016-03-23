@@ -7,10 +7,10 @@ Ext.define('Bpm.controller.Main', {
         'Uni.store.MenuItems',
         'Bpm.controller.Task',
         'Bpm.controller.TaskBulk',
-        //'Bpm.controller.history.BpmManagement',
         'Bpm.privileges.BpmManagement',
         'Bpm.monitorprocesses.controller.MonitorProcesses',
-        'Bpm.startprocess.controller.StartProcess'
+        'Bpm.startprocess.controller.StartProcess',
+        'Bpm.processes.controller.Processes'
     ],
 
     controllers: [
@@ -18,7 +18,8 @@ Ext.define('Bpm.controller.Main', {
         'Bpm.controller.Task',
         'Bpm.controller.TaskBulk',
         'Bpm.monitorprocesses.controller.MonitorProcesses',
-        'Bpm.startprocess.controller.StartProcess'
+        'Bpm.startprocess.controller.StartProcess',
+        'Bpm.processes.controller.Processes'
     ],
 
     refs: [
