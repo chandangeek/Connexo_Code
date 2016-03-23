@@ -21,6 +21,7 @@ public enum DeviceSearchModelTranslationKeys implements TranslationKey {
     DECOMMISSION_DATE("decommissionDate", "Decommissioning date"),
     VALIDATION_ACTIVE("validationActive", "Validation is active"),
     HAS_OPEN_DATA_VALIDATION_ISSUES("hasOpenDataValidationIssues", "Has open validation issues"),
+    LOCATION("location", "Location"),
     ;
 
     private String key;

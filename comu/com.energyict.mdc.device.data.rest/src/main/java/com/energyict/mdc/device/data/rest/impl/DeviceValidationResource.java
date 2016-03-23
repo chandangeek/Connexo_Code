@@ -128,6 +128,17 @@ public class DeviceValidationResource {
         return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
     }
 
+    @Path("/validationstatusactivation")
+    @GET @Transactional
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response getValidationFeatureStatus2(@PathParam("mRID") String mRID) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+
+        DeviceValidationStatusInfo deviceValidationStatusInfo = determineStatusForActivation(device);
+        return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
+    }
+
     @Path("/validationmonitoring/configurationview")
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -258,12 +269,34 @@ public class DeviceValidationResource {
 
     private DeviceValidationStatusInfo determineStatus(Device device) {
         DeviceValidation deviceValidation = device.forValidation();
+        Optional<Instant> lastChecked = Optional.empty();
+        if(deviceValidation.getLastChecked().isPresent()){
+            lastChecked = deviceValidation.getLastChecked().equals(Optional.of(device.getMeterActivationsMostRecentFirst().get(0).getStart())) ? Optional.empty() : deviceValidation.getLastChecked();
+        }
         DeviceValidationStatusInfo deviceValidationStatusInfo =
                 new DeviceValidationStatusInfo(
-                deviceValidation.isValidationActive(),
-                deviceValidation.isValidationOnStorage(),
-                deviceValidation.getLastChecked(),
-                device.hasData());
+                        deviceValidation.isValidationActive(),
+                        deviceValidation.isValidationOnStorage(),
+                        lastChecked,
+                        device.hasData());
+
+        ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
+
+        collectRegisterData(device, deviceValidationStatusInfo, end);
+        collectLoadProfileData(device, deviceValidationStatusInfo, end);
+        deviceValidationStatusInfo.device = DeviceInfo.from(device);
+
+        return deviceValidationStatusInfo;
+    }
+
+    private DeviceValidationStatusInfo determineStatusForActivation(Device device) {
+        DeviceValidation deviceValidation = device.forValidation();
+        DeviceValidationStatusInfo deviceValidationStatusInfo =
+                new DeviceValidationStatusInfo(
+                        deviceValidation.isValidationActive(),
+                        deviceValidation.isValidationOnStorage(),
+                        deviceValidation.getLastChecked(),
+                        device.hasData());
 
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 
