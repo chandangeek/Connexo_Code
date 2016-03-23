@@ -4,10 +4,8 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointActionMenu', {
     plain: true,
     border: false,
     shadow: false,
-    items: [],
 
-
-    setProcessMenu: function (usagepointID, router) {
+    setProcessMenu: function (usagePointID, router) {
         var me = this;
         if (Mdc.privileges.Device.canViewProcessMenu()) {
 
@@ -15,8 +13,8 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointActionMenu', {
                 itemId: 'action-menu-item-start-proc',
                 privileges: Mdc.privileges.Device.deviceProcesses && Mdc.privileges.Device.deviceExecuteProcesses,
                 text: Uni.I18n.translate('deviceconfiguration.process.startProcess', 'MDC', 'Start process'),
-                href: '#/usagepoints/' + encodeURIComponent(usagepointID) + '/processes/start'
-            })
+                href: '#/usagepoints/' + encodeURIComponent(usagePointID) + '/processes/start'
+            });
 
             me.up('#usage-point-landing-actions-btn').show();
         }
@@ -24,6 +22,13 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointActionMenu', {
 
     initComponent: function () {
         var me = this;
+
+        me.items = [
+            {
+                text: Uni.I18n.translate('general.addUsagePoint.edit', 'MDC', "Edit '{0}'", Ext.String.htmlEncode(me.mRID)),
+                href: me.router.getRoute('usagepoints/usagepoint/edit').buildUrl()
+            }
+        ];
 
         me.callParent(arguments);
     }
