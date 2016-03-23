@@ -40,13 +40,19 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.verification.Calls;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.calls;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -110,6 +116,9 @@ public class UsagePointProcessorForMultisenseTest {
     @Mock
     private FileImportOccurrence fileImportOccurrenceIncorrect;
 
+    @Mock
+    private FileImportOccurrence fileImportOccurrenceFail;
+
 
     private MeteringDataImporterContext context;
 
@@ -120,7 +129,9 @@ public class UsagePointProcessorForMultisenseTest {
         when(meteringService.getServiceCategory(Matchers.any(ServiceKind.class))).thenReturn(Optional.ofNullable(serviceCategoryTwo));
         when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);
         when(meteringService.findServiceLocation(anyLong())).thenReturn(Optional.ofNullable(servicelocation));
+        when(usagePointBuilder.create()).thenReturn(usagePoint);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategoryTwo);
+        when(serviceCategoryTwo.newUsagePointDetail(any(),any())).thenReturn(usagePointDetail);
         when(serviceCategoryTwo.newUsagePoint(anyString(), any(Instant.class))).thenReturn(usagePointBuilder);
         when(serviceCategoryTwo.getKind()).thenReturn(ServiceKind.ELECTRICITY);
         when(usagePointBuilder.validate()).thenReturn(usagePoint);
@@ -133,41 +144,65 @@ public class UsagePointProcessorForMultisenseTest {
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
         when(nlsMessageFormat.format()).thenReturn("message");
+        when(nlsMessageFormat.format(anyInt(),anyInt())).thenReturn("message");
 
 
         try {
-            when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
-            when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);
-            when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader()
-                    .getResource("usagepoint_correct.csv")
+        when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
+        when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);
+        when(fileImportOccurrenceFail.getLogger()).thenReturn(logger);
+        when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader()
+                .getResource("usagepoint_correct.csv")
+                .getPath()));
+        when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader()
+                .getResource("usagepoint_incorrect.csv")
+                .getPath()));
+         when(fileImportOccurrenceFail.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader()
+                    .getResource("usagepoint_fail.csv")
                     .getPath()));
-            when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader()
-                    .getResource("usagepoint_incorrect.csv")
-                    .getPath()));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        context = spy(new MeteringDataImporterContext());
-        context.setMeteringService(meteringService);
-        context.setCustomPropertySetService(customPropertySetService);
-        context.setLicenseService(licenseService);
-        context.setPropertySpecService(propertySpecService);
-        context.setThreadPrincipalService(threadPrincipalService);
-        context.setClock(clock);
-        when(context.getThesaurus()).thenReturn(thesaurus);
+    } catch (FileNotFoundException e) {
+        e.printStackTrace();
     }
+
+    context = spy(new MeteringDataImporterContext());
+    context.setMeteringService(meteringService);
+    context.setCustomPropertySetService(customPropertySetService);
+    context.setLicenseService(licenseService);
+    context.setPropertySpecService(propertySpecService);
+    context.setThreadPrincipalService(threadPrincipalService);
+    context.setClock(clock);
+    when(context.getThesaurus()).thenReturn(thesaurus);
+}
 
     @Test
     public void testProcessCorrectInfo() throws IOException {
         FileImporter importer = createUsagePointImporter();
         importer.process(fileImportOccurrenceCorrect);
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, never()).severe(Matchers.anyString());
     }
 
     @Test
     public void testProcessIncorrectInfo() throws IOException {
-
+        FileImporter importer = createUsagePointImporter();
+        importer.process(fileImportOccurrenceIncorrect);
+        verify(fileImportOccurrenceIncorrect).markSuccessWithFailures("message");
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, times(1)).warning(Matchers.anyString());
+        verify(logger, never()).severe(Matchers.anyString());
     }
+
+    @Test
+    public void testProcessFail() throws IOException {
+        FileImporter importer = createUsagePointImporter();
+        importer.process(fileImportOccurrenceFail);
+        verify(fileImportOccurrenceFail).markFailure("message");
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, never()).warning(Matchers.anyString());
+        verify(logger, times(1)).severe(Matchers.anyString());
+    }
+
 
     private FileImporter createUsagePointImporter() {
         UsagePointsImporterFactory factory = new UsagePointsImporterFactory(context);
