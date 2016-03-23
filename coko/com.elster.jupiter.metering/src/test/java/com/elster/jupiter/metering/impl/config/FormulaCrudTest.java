@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -95,8 +96,8 @@ public class FormulaCrudTest {
             assertThat(config.getRequirements().size() == 1);
             ReadingTypeRequirement req = service.findReadingTypeRequirement(
                     config.getRequirements().get(0).getId()).get();
-            FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
+            ServerFormulaBuilder builder = (ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
             ExpressionNodeBuilder nodeBuilder = builder.requirement(req);
             Formula formula = builder.init(nodeBuilder).build();
             context.commit();
