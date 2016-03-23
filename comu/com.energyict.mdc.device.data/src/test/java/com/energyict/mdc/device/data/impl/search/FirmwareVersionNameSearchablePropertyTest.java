@@ -29,8 +29,8 @@ public class FirmwareVersionNameSearchablePropertyTest  extends AbstractNameSear
     public void initializeMocks() {
         super.initializeMocks();
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.FIRMWARE_VERSION_VERSION.getDefaultFormat());
-        when(thesaurus.getFormat(PropertyTranslationKeys.FIRMWARE_VERSION_VERSION)).thenReturn(messageFormat);
+        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.FIRMWARE_VERSION.getDefaultFormat());
+        when(thesaurus.getFormat(PropertyTranslationKeys.FIRMWARE_VERSION)).thenReturn(messageFormat);
 
         this.parentGroup = new FirmwareVersionSearchablePropertyGroup(thesaurus);
     }
@@ -55,7 +55,7 @@ public class FirmwareVersionNameSearchablePropertyTest  extends AbstractNameSear
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getFormat(PropertyTranslationKeys.FIRMWARE_VERSION_VERSION);
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.FIRMWARE_VERSION);
     }
 
     protected SearchableProperty getTestInstance() {
