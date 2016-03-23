@@ -3,73 +3,87 @@ package com.elster.jupiter.metering.cps.impl.metrology;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-public class UsagePointSimplePersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
+import javax.validation.constraints.Size;
+
+public class UsagePointMeterTechInfAllDomExt implements PersistentDomainExtension<UsagePoint> {
+
     public enum Fields {
-        USAGE_POINT {
+        DOMAIN {
             @Override
             public String javaName() {
                 return "usagePoint";
             }
         },
-        NAME {
+        METER_MECHANISM {
             @Override
             public String javaName() {
-                return "name";
+                return "meterMechanism";
             }
         },
-        COMBOBOX {
+        METER_TYPE {
             @Override
             public String javaName() {
-                return "combobox";
+                return "meterType";
             }
-        },
-        ENHANCED_SUPPORT {
-            @Override
-            public String javaName() {
-                return "enhancedSupport";
-            }
-        },;
+        };
 
         public abstract String javaName();
 
         public String databaseName() {
             return name();
         }
-
     }
 
-    @IsPresent
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
-    @NotEmpty(message = "{CanNotBeEmpty}")
-    private String name;
-    private String combobox;
-    private boolean enhancedSupport;
+
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
+    private String meterMechanism;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
+    private String meterType;
+
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
+    }
+
+    public String getMeterType() {
+        return meterType;
+    }
+
+    public String getMeterMechanism() {
+        return meterMechanism;
+    }
+
+    public void setMeterMechanism(String meterMechanism) {
+        this.meterMechanism = meterMechanism;
+    }
+
+    public void setMeterType(String meterType) {
+        this.meterType = meterType;
+    }
 
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.name = (String) propertyValues.getProperty(Fields.NAME.javaName());
-        this.enhancedSupport = (Boolean) propertyValues.getProperty(Fields.ENHANCED_SUPPORT.javaName());
-        this.combobox = (String) propertyValues.getProperty(Fields.COMBOBOX.javaName());
+        this.setMeterMechanism((String) propertyValues.getProperty(Fields.METER_MECHANISM.javaName()));
+        this.setMeterType((String) propertyValues.getProperty(Fields.METER_TYPE.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(Fields.NAME.javaName(), this.name);
-        propertySetValues.setProperty(Fields.ENHANCED_SUPPORT.javaName(), this.enhancedSupport);
-        propertySetValues.setProperty(Fields.COMBOBOX.javaName(), this.combobox);
+        propertySetValues.setProperty(Fields.METER_MECHANISM.javaName(), this.getMeterMechanism());
+        propertySetValues.setProperty(Fields.METER_TYPE.javaName(), this.getMeterType());
     }
 
     @Override
     public void validateDelete() {
-        // it always ok to delete these values
+
     }
 }

@@ -1,63 +1,70 @@
-package com.elster.jupiter.metering.cps.impl.metrology;
+package com.elster.jupiter.metering.cps.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
 
-public class UsagePointVersionedPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointContrElectrDomExt implements PersistentDomainExtension<UsagePoint> {
     public enum Fields {
-        USAGE_POINT {
+        DOMAIN {
             @Override
             public String javaName() {
                 return "usagePoint";
             }
         },
-        NAME {
+        CONTRACTED_POWER {
             @Override
             public String javaName() {
-                return "name";
+                return "contractedPower";
             }
-        },
-        ENHANCED_SUPPORT {
-            @Override
-            public String javaName() {
-                return "enhancedSupport";
-            }
-        },;
+        };
 
         public abstract String javaName();
+
+        public String databaseName() {
+            return name();
+        }
     }
 
-    @IsPresent
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
+
+    private Quantity contractedPower;
+
     private Interval interval;
-    @NotEmpty(message = "{CanNotBeEmpty}")
-    private String name;
-    private boolean enhancedSupport;
+
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
+    }
+
+    public Quantity getContractedPower() {
+        return contractedPower;
+    }
+
+    public void setContractedPower(Quantity contractedPower) {
+        this.contractedPower = contractedPower;
+    }
 
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.name = (String) propertyValues.getProperty(Fields.NAME.javaName());
-        this.enhancedSupport = (Boolean) propertyValues.getProperty(Fields.ENHANCED_SUPPORT.javaName());
+        this.setContractedPower((Quantity) propertyValues.getProperty(Fields.CONTRACTED_POWER.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(Fields.NAME.javaName(), this.name);
-        propertySetValues.setProperty(Fields.ENHANCED_SUPPORT.javaName(), this.enhancedSupport);
+        propertySetValues.setProperty(Fields.CONTRACTED_POWER.javaName(), this.getContractedPower());
     }
 
     @Override
     public void validateDelete() {
-        // it always ok to delete these values
+
     }
 }
