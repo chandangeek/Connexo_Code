@@ -13,7 +13,7 @@ use Sys::Hostname;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20160122";
+my $INSTALL_VERSION="v20160323";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -668,9 +668,11 @@ sub activate_sso {
             print $FH "\n";
             print $FH "   ProxyPass /flow/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/flow/\n";
             print $FH "   ProxyPassReverse /flow/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/flow/\n";
+            print $FH "   ProxyPassReverse /flow/ http://\${HOSTNAME}/flow/\n";
             print $FH "   ProxyPass /facts/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts/\n";
             print $FH "   ProxyPassReverse /facts/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts/\n";
-            print $FH "\n";
+            print $FH "   ProxyPassReverse /facts/ http://\${HOSTNAME}/facts/\n";
+	    print $FH "\n";
             print $FH "   ProxyPassReverse / http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/\n";
             print $FH "   DirectoryIndex index.html\n";
             print $FH "\n";
