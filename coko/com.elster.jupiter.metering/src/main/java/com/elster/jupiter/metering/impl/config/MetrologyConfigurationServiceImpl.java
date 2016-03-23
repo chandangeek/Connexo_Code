@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
@@ -35,7 +36,9 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
@@ -126,6 +129,13 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     @Override
     public MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory) {
         MetrologyConfigurationBuilderImpl builder = new MetrologyConfigurationBuilderImpl(getDataModel());
+        builder.init(name, serviceCategory);
+        return builder;
+    }
+
+    @Override
+    public UsagePointMetrologyConfigurationBuilder newUsagePointMetrologyConfiguration(String name, ServiceCategory serviceCategory) {
+        UsagePointMetrologyConfigurationBuilderImpl builder = new UsagePointMetrologyConfigurationBuilderImpl(getDataModel());
         builder.init(name, serviceCategory);
         return builder;
     }
@@ -241,21 +251,13 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     }
 
     @Override
-    public ReadingTypeDeliverable createReadingTypeDeliverable(String name, MetrologyContract contract, ReadingType readingType, Formula formula) {
-        ReadingTypeDeliverableImpl deliverable = getDataModel().getInstance(ReadingTypeDeliverableImpl.class)
-                .init(name, contract, readingType, formula);
-        deliverable.save();
-        return deliverable;
+    public ReadingTypeDeliverable createReadingTypeDeliverable(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula formula) {
+        return metrologyConfiguration.addReadingTypeDeliverable(name, readingType, formula);
     }
 
     @Override
     public Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id) {
         return getDataModel().mapper(ReadingTypeDeliverable.class).getOptional(id);
-    }
-
-    @Override
-    public Optional<ReadingTypeDeliverable> findAndLockReadingTypeDeliverableByIdAndVersion(long id, long version) {
-        return getDataModel().mapper(ReadingTypeDeliverable.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -268,12 +270,15 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
             condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.READING_TYPE.fieldName()).in(filter.getReadingTypes()));
         }
         if (!filter.getMetrologyContracts().isEmpty()) {
-            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName()).in(filter.getMetrologyContracts()));
+            Condition mappingCondition = where(MetrologyContractReadingTypeDeliverableMapping.Fields.METROLOGY_CONTRACT.fieldName())
+                    .in(filter.getMetrologyContracts());
+            Subquery subquery = getDataModel().query(MetrologyContractReadingTypeDeliverableMapping.class)
+                    .asSubquery(mappingCondition, MetrologyContractReadingTypeDeliverableMapping.Fields.DELIVERABLE.fieldName());
+            condition = condition.and(ListOperator.IN.contains(subquery, "id"));
         }
         if (!filter.getMetrologyConfigurations().isEmpty()) {
-            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName()
-                    + "." + MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName()).in(filter.getMetrologyConfigurations()));
+            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.fieldName()).in(filter.getMetrologyConfigurations()));
         }
-        return getDataModel().query(ReadingTypeDeliverable.class, MetrologyContract.class).select(condition);
+        return getDataModel().query(ReadingTypeDeliverable.class, MetrologyConfiguration.class).select(condition);
     }
 }

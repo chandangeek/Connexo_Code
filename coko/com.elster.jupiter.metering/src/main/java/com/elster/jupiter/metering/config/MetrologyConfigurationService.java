@@ -1,9 +1,10 @@
 package com.elster.jupiter.metering.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.nls.TranslationKey;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,8 @@ public interface MetrologyConfigurationService {
     String COMPONENT_NAME = "MCF";
 
     MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory);
+
+    UsagePointMetrologyConfigurationBuilder newUsagePointMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
 
@@ -58,11 +61,10 @@ public interface MetrologyConfigurationService {
 
     List<MetrologyPurpose> getMetrologyPurposes();
 
-    ReadingTypeDeliverable createReadingTypeDeliverable(String name, MetrologyContract contract, ReadingType readingType, Formula formula);
-
-    Optional<ReadingTypeDeliverable> findAndLockReadingTypeDeliverableByIdAndVersion(long id, long version);
+    ReadingTypeDeliverable createReadingTypeDeliverable(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula formula);
 
     List<ReadingTypeDeliverable> findReadingTypeDeliverable(ReadingTypeDeliverableFilter filter);
+
     Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
 
     Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id);

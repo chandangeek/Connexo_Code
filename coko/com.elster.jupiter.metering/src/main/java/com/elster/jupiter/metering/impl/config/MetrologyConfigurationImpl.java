@@ -8,23 +8,19 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
-import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeTemplate;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -34,6 +30,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,7 +39,13 @@ import static com.elster.jupiter.domain.util.Save.CREATE;
 import static com.elster.jupiter.domain.util.Save.UPDATE;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
-public final class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUniqueName {
+public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUniqueName {
+    public static final String TYPE_IDENTIFIER = "B";
+
+    public static final Map<String, Class<? extends MetrologyConfiguration>> IMPLEMENTERS = ImmutableMap.of(
+            MetrologyConfigurationImpl.TYPE_IDENTIFIER, MetrologyConfigurationImpl.class,
+            UPMetrologyConfigurationImpl.TYPE_IDENTIFIER, UPMetrologyConfigurationImpl.class);
+
     public enum Fields {
         NAME("name"),
         DESCRIPTION("description"),
@@ -51,7 +54,9 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
         CUSTOM_PROPERTY_SETS("customPropertySets"),
         RT_REQUIREMENTS("readingTypeRequirements"),
         METROLOGY_CONTRACTS("metrologyContracts"),
-        METER_ROLES("meterRoles"),;
+        METER_ROLES("meterRoles"),
+        DELIVERABLES("deliverables"),
+        REQUIREMENT_TO_ROLE_REFERENCES("requirementToRoleReferences"),;
 
         private final String javaFieldName;
 
@@ -64,10 +69,8 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
         }
     }
 
-    private final DataModel dataModel;
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private final EventService eventService;
-    private final Thesaurus thesaurus;
-    private final MetrologyConfigurationService metrologyConfigurationService;
 
     @SuppressWarnings("unused")
     private long id;
@@ -84,7 +87,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     private List<MetrologyConfigurationCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     private List<ReadingTypeRequirement> readingTypeRequirements = new ArrayList<>();
     private List<MetrologyContract> metrologyContracts = new ArrayList<>();
-    private List<MetrologyConfigurationMeterRoleUsageImpl> meterRoles = new ArrayList<>();
+    private List<ReadingTypeDeliverable> deliverables = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private long version;
@@ -96,11 +99,13 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     private String userName;
 
     @Inject
-    MetrologyConfigurationImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService) {
-        this.dataModel = dataModel;
-        this.eventService = eventService;
-        this.thesaurus = thesaurus;
+    MetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.eventService = eventService;
+    }
+
+    protected ServerMetrologyConfigurationService getMetrologyConfigurationService() {
+        return metrologyConfigurationService;
     }
 
     @Override
@@ -163,7 +168,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
 
     private void checkCanManageCps() {
         if (isActive()) {
-            throw new CannotManageCustomPropertySetOnActiveMetrologyConfiguration(this.thesaurus);
+            throw new CannotManageCustomPropertySetOnActiveMetrologyConfiguration(this.metrologyConfigurationService.getThesaurus());
         }
     }
 
@@ -174,7 +179,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
                 .noneMatch(cpsUsage -> cpsUsage.getRegisteredCustomPropertySet()
                         .getId() == registeredCustomPropertySet.getId())) {
             MetrologyConfigurationCustomPropertySetUsageImpl newCpsUsage =
-                    dataModel
+                    this.metrologyConfigurationService.getDataModel()
                             .getInstance(MetrologyConfigurationCustomPropertySetUsageImpl.class)
                             .init(this, registeredCustomPropertySet);
             customPropertySets.add(newCpsUsage);
@@ -219,10 +224,10 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     }
 
     private MetrologyContract createMetrologyContract(MetrologyPurpose metrologyPurpose, boolean mandatory) {
-        MetrologyContractImpl metrologyContract = dataModel.getInstance(MetrologyContractImpl.class)
+        MetrologyContractImpl metrologyContract = this.metrologyConfigurationService.getDataModel().getInstance(MetrologyContractImpl.class)
                 .init(this, metrologyPurpose);
         metrologyContract.setMandatory(mandatory);
-        Save.CREATE.validate(dataModel, metrologyContract);
+        Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), metrologyContract);
         this.metrologyContracts.add(metrologyContract);
         touch();
         return metrologyContract;
@@ -242,7 +247,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
 
     @Override
     public MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name) {
-        return new MetrologyConfigurationReadingTypeRequirementBuilderImpl(this).withName(name);
+        return new MetrologyConfigurationReadingTypeRequirementBuilderImpl(this.metrologyConfigurationService, this).withName(name);
     }
 
     @Override
@@ -253,75 +258,55 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     }
 
     @Override
+    public ReadingTypeDeliverable addReadingTypeDeliverable(String name, ReadingType readingType, Formula formula) {
+        ReadingTypeDeliverableImpl deliverable = this.metrologyConfigurationService.getDataModel().getInstance(ReadingTypeDeliverableImpl.class)
+                .init(this, name, readingType, formula);
+        Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverable);
+        this.deliverables.add(deliverable);
+        touch();
+        return deliverable;
+    }
+
+    @Override
+    public void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
+        if (this.deliverables.remove(deliverable)) {
+            touch();
+        }
+    }
+
+    @Override
     public List<ReadingTypeDeliverable> getDeliverables() {
-        return getContracts()
-                .stream()
-                .flatMap(metrologyContract -> metrologyContract.getDeliverables().stream())
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public void addMeterRole(MeterRole meterRole) {
-        if (!getMeterRoles().contains(meterRole)) {
-            if (!getServiceCategory().getMeterRoles().contains(meterRole)) {
-                throw CannotManageMeterRoleOnMetrologyConfigurationException.canNotAddMeterRoleWhichIsNotAssignedToServiceCategory(this.thesaurus,
-                        meterRole.getDisplayName(), getServiceCategory().getDisplayName());
-            }
-            MetrologyConfigurationMeterRoleUsageImpl usage = this.dataModel.getInstance(MetrologyConfigurationMeterRoleUsageImpl.class)
-                    .init(this, meterRole);
-            this.meterRoles.add(usage);
-            touch();
-        }
-    }
-
-    @Override
-    public void removeMeterRole(MeterRole meterRole) {
-        Optional<MetrologyConfigurationMeterRoleUsageImpl> meterRoleUsage = this.meterRoles
-                .stream()
-                .filter(usage -> usage.getMeterRole().equals(meterRole))
-                .findAny();
-        if (meterRoleUsage.isPresent()) {
-            if (this.readingTypeRequirements
-                    .stream()
-                    .map(ReadingTypeRequirement::getMeterRole)
-                    .anyMatch(meterRole::equals)) {
-                throw CannotManageMeterRoleOnMetrologyConfigurationException.canNotDeleteMeterRoleFromMetrologyConfiguration(this.thesaurus, meterRole.getDisplayName(), getName());
-            }
-            this.meterRoles.remove(meterRoleUsage.get());
-            touch();
-        }
-    }
-
-    @Override
-    public List<MeterRole> getMeterRoles() {
-        return this.meterRoles
-                .stream()
-                .map(MetrologyConfigurationMeterRoleUsageImpl::getMeterRole)
-                .collect(Collectors.toList());
+        return Collections.unmodifiableList(this.deliverables);
     }
 
     void create() {
-        CREATE.save(dataModel, this);
+        CREATE.save(this.metrologyConfigurationService.getDataModel(), this);
         eventService.postEvent(EventType.METROLOGYCONFIGURATION_CREATED.topic(), this);
     }
 
     void update() {
-        UPDATE.save(dataModel, this);
+        UPDATE.save(this.metrologyConfigurationService.getDataModel(), this);
         eventService.postEvent(EventType.METROLOGYCONFIGURATION_UPDATED.topic(), this);
     }
 
     void touch() {
-        this.dataModel.touch(this);
+        this.metrologyConfigurationService.getDataModel().touch(this);
+    }
+
+    void addReadingTypeRequirement(ReadingTypeRequirement readingTypeRequirement) {
+        Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), readingTypeRequirement);
+        this.readingTypeRequirements.add(readingTypeRequirement);
+        touch();
     }
 
     @Override
     public void delete() {
-        dataModel.remove(this);
+        this.metrologyConfigurationService.getDataModel().remove(this);
         eventService.postEvent(EventType.METROLOGYCONFIGURATION_DELETED.topic(), this);
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -333,7 +318,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hash(id);
     }
 
@@ -348,55 +333,4 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
         return !other.isPresent() || other.get().getId() == getId();
     }
 
-    private static class MetrologyConfigurationReadingTypeRequirementBuilderImpl implements MetrologyConfigurationReadingTypeRequirementBuilder {
-        private final MetrologyConfigurationImpl metrologyConfiguration;
-
-        private String name;
-        private MeterRole meterRole;
-
-        private MetrologyConfigurationReadingTypeRequirementBuilderImpl(MetrologyConfigurationImpl metrologyConfiguration) {
-            this.metrologyConfiguration = metrologyConfiguration;
-        }
-
-        @Override
-        public MetrologyConfigurationReadingTypeRequirementBuilder withName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        @Override
-        public MetrologyConfigurationReadingTypeRequirementBuilder withMeterRole(MeterRole meterRole) {
-            this.meterRole = meterRole;
-            return this;
-        }
-
-        private void checkThatMeterRoleIsAssignedToMetrologyConfiguration() {
-            if (this.meterRole != null && !this.metrologyConfiguration.getMeterRoles().contains(this.meterRole)) {
-                throw CannotManageMeterRoleOnMetrologyConfigurationException.canNotAddRequirementWithThatMeterRole(this.metrologyConfiguration.thesaurus,
-                        this.meterRole.getDisplayName(), this.metrologyConfiguration.getName());
-            }
-        }
-
-        @Override
-        public FullySpecifiedReadingType withReadingType(ReadingType readingType) {
-            checkThatMeterRoleIsAssignedToMetrologyConfiguration();
-            FullySpecifiedReadingTypeImpl fullySpecifiedReadingType = this.metrologyConfiguration.dataModel.getInstance(FullySpecifiedReadingTypeImpl.class)
-                    .init(this.metrologyConfiguration, this.meterRole, this.name, readingType);
-            Save.CREATE.validate(this.metrologyConfiguration.dataModel, fullySpecifiedReadingType);
-            this.metrologyConfiguration.readingTypeRequirements.add(fullySpecifiedReadingType);
-            this.metrologyConfiguration.touch();
-            return fullySpecifiedReadingType;
-        }
-
-        @Override
-        public PartiallySpecifiedReadingType withReadingTypeTemplate(ReadingTypeTemplate readingTypeTemplate) {
-            checkThatMeterRoleIsAssignedToMetrologyConfiguration();
-            PartiallySpecifiedReadingType partiallySpecifiedReadingType = this.metrologyConfiguration.dataModel.getInstance(PartiallySpecifiedReadingTypeImpl.class)
-                    .init(this.metrologyConfiguration, this.meterRole, this.name, readingTypeTemplate);
-            Save.CREATE.validate(this.metrologyConfiguration.dataModel, partiallySpecifiedReadingType);
-            this.metrologyConfiguration.readingTypeRequirements.add(partiallySpecifiedReadingType);
-            metrologyConfiguration.touch();
-            return partiallySpecifiedReadingType;
-        }
-    }
 }
