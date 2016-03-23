@@ -2,7 +2,7 @@ Ext.define('Bpm.processes.model.EditProcess', {
     extend: 'Ext.data.Model',
     requires: [
         'Bpm.processes.model.Privilege',
-
+        'Uni.property.model.Property'
     ],
     fields: [
         {
