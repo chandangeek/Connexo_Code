@@ -428,9 +428,10 @@ Ext.define('Uni.grid.FilterPanelTop', {
             } else {
                 var dataIndex = filter.dataIndex,
                     paramValue = filter.getParamValue();
-                if (!includeUndefined && Ext.isDefined(paramValue) && !Ext.isEmpty(paramValue)) {
+
+                if(includeUndefined) {
                     params[dataIndex] = paramValue;
-                } else {
+                } else if (Ext.isDefined(paramValue) && !Ext.isEmpty(paramValue)) {
                     params[dataIndex] = paramValue;
                 }
 
