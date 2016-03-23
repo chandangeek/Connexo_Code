@@ -377,7 +377,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             staticGrid = step2.down('dynamic-group-devices-grid');
             staticGrid.down('pagingtoolbartop').resetPaging();
             staticGrid.down('pagingtoolbarbottom').resetPaging();
-            me.service.excludedCriteria = 'deviceGroup';
         }
         if (domainsStore.isLoading()) {
 
