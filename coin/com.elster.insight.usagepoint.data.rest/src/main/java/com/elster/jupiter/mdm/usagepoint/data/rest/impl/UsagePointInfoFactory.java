@@ -1,7 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
-import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfo;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
@@ -15,8 +14,10 @@ import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 
@@ -84,6 +85,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.version = usagePoint.getVersion();
         info.createTime = usagePoint.getCreateDate().toEpochMilli();
         info.modTime = usagePoint.getModificationDate().toEpochMilli();
+        info.connectionState = new IdWithNameInfo(usagePoint.getConnectionState(), thesaurus.getFormat(ConnectionStateTranslationKeys
+                .getTranslatedKeys(usagePoint.getConnectionState())).format());
         Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(clock.instant());
         if(detailHolder.isPresent()) {
             if (detailHolder.get() instanceof ElectricityDetail) {
@@ -97,7 +100,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             }
         }
         usagePoint.getMetrologyConfiguration()
-                .ifPresent(mc ->  info.metrologyConfiguration = new MetrologyConfigurationInfo(mc));
+                .ifPresent(mc -> info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint));
 
         UsagePointCustomPropertySetExtension customPropertySetExtension = usagePoint.forCustomProperties();
 
