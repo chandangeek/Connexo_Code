@@ -5,7 +5,6 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.cps.impl.QuantityValueFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -13,6 +12,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.QuantityValueFactory;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.Module;
@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-//@Component(name = "c.e.j.m.cps.impl.mtr.UsagePointDecentProdCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointDecentProdDomExt> {
 
     public PropertySpecService propertySpecService;

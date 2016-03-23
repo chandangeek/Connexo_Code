@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-//@Component(name = "c.e.j.m.cps.impl.metrology.UsagePointMeterTechInfAllCPS", service = CustomPropertySet.class, immediate = true)
 public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoint, UsagePointMeterTechInfAllDomExt> {
 
     public PropertySpecService propertySpecService;

@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.QuantityValueFactory;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.Module;

@@ -14,7 +14,6 @@ import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentProdDomExt
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMeterGnrCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMeterGnrDomainExtension;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMeterTechInfAllCPS;
-import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMeterTechInfAllDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMeterTechInfGTWCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMeterTechInfGTWDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMetrologyGeneralCPS;
@@ -103,8 +102,9 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
                 .ifPresent(this::addAllSets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointContDomainExtension.class.getName())
                 .ifPresent(this::addAllSets);
-        customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInfAllDomExt.class.getName())
-                .ifPresent(this::addAllSets);
+        //binded for metrology configuration
+//        customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInfAllDomExt.class.getName())
+//                .ifPresent(this::addAllSets);
 
         electricity = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         customPropertySetService.findActiveCustomPropertySet(UsagePointContrElectrDomExt.class.getName())
