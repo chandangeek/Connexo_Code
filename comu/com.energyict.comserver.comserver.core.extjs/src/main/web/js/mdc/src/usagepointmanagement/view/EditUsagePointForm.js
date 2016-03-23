@@ -53,7 +53,7 @@ Ext.define('Mdc.usagepointmanagement.view.EditUsagePointForm', {
                     width: 149
                 },
                 dateTimeSeparatorConfig: {
-                    html: Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase(),
+                    html: Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase(),
                     style: 'color: #686868'
                 },
                 hoursConfig: {

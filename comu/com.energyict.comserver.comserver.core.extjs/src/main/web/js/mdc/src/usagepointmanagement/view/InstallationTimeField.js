@@ -26,7 +26,7 @@ Ext.define('Mdc.usagepointmanagement.view.InstallationTimeField', {
             {
                 xtype: 'radiofield',
                 itemId: 'installation-time-now',
-                boxLabel: Uni.I18n.translate('general.now', 'IMT', 'Now'),
+                boxLabel: Uni.I18n.translate('general.now', 'MDC', 'Now'),
                 name: 'installation-time',
                 inputValue: true,
                 submitValue: false
@@ -54,7 +54,7 @@ Ext.define('Mdc.usagepointmanagement.view.InstallationTimeField', {
                             width: 148
                         },
                         dateTimeSeparatorConfig: {
-                            html: Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase(),
+                            html: Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase(),
                             style: 'color: #686868'
                         },
                         hoursConfig: {

@@ -173,7 +173,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
             backUrl: isEdit ? router.getRoute('usagepoints/usagepoint').buildUrl() : null,
             success: function (record) {
                 if (isEdit) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.added', 'MDC', "Usage point '{0}' saved.", record.get('mRID')));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.saved', 'MDC', "Usage point '{0}' saved.", record.get('mRID')));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.added', 'MDC', "Usage point '{0}' added.", record.get('mRID')));
                 }
