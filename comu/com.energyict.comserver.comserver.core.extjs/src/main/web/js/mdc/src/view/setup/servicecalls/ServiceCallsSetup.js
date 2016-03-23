@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
     alias: 'widget.service-calls-setup',
     itemId: 'serviceCallsSetup',
     device: null,
-    store: null,
     activeTab: 0,
     filterDefault: {},
 
@@ -12,6 +11,11 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
         'Mdc.view.setup.servicecalls.RunningServiceCallsPreviewContainer',
         'Mdc.view.setup.servicecalls.HistoryServiceCallsPreviewContainer',
         'Scs.view.ServiceCallFilter'
+    ],
+
+    stores: [
+        'Mdc.store.servicecalls.ServiceCallHistory',
+        'Mdc.store.servicecalls.RunningServiceCalls'
     ],
 
     initComponent: function () {
@@ -44,24 +48,13 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
                         items: [
                             {
                                 xtype: 'running-service-call-preview-container',
-                                store: me.store
+                                store: 'Mdc.store.servicecalls.RunningServiceCalls'
                             }
                         ]
                     },
                     {
                         title: Uni.I18n.translate('general.history', 'MDC', 'History'),
                         itemId: 'history-service-calls-tab',
-                        items: [
-                            {
-                                xtype: 'service-call-filter',
-                                modDateHidden: true,
-                                filterDefault: me.filterDefault
-                            },
-                            {
-                                xtype: 'history-service-call-preview-container',
-                                store: me.store
-                            }
-                        ]
                     }
                 ]
             }
@@ -70,6 +63,27 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
         me.doLayout();
 
         me.callParent(arguments);
+    },
+
+    addHistoryGrid: function (filterDefault) {
+        var me = this;
+
+        me.suspendLayouts();
+        me.down('#history-service-calls-tab').add(
+            {
+                xtype: 'service-call-filter',
+                store: 'Mdc.store.servicecalls.ServiceCallHistory',
+                modDateHidden: true,
+                filterDefault: filterDefault
+            },
+            {
+                xtype: 'history-service-call-preview-container',
+                store: 'Mdc.store.servicecalls.ServiceCallHistory'
+            });
+
+        me.resumeLayouts(true);
+
+        me.doLayout();
     }
 });
 
