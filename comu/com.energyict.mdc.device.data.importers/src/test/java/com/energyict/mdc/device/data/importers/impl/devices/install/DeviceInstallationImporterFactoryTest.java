@@ -380,7 +380,7 @@ public class DeviceInstallationImporterFactoryTest {
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(serviceCategory.newUsagePoint("Usage MRID")).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
+        when(serviceCategory.newUsagePoint(eq("Usage MRID"), any(Instant.class))).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
         AmrSystem amrSystem = mock(AmrSystem.class);
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         Meter meter = mock(Meter.class);
@@ -422,7 +422,7 @@ public class DeviceInstallationImporterFactoryTest {
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(serviceCategory.newUsagePoint("Usage MRID")).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
+        when(serviceCategory.newUsagePoint(eq("Usage MRID"), any(Instant.class))).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
 
         importer.process(importOccurrence);
 
@@ -461,7 +461,7 @@ public class DeviceInstallationImporterFactoryTest {
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(serviceCategory.newUsagePoint("Usage MRID")).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
+        when(serviceCategory.newUsagePoint(eq("Usage MRID"), any(Instant.class))).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
 
         importer.process(importOccurrence);
 
