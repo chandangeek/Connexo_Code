@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -40,8 +41,12 @@ public class CollectedLoadProfileEvent extends AbstractCollectedDataProcessingEv
         writer.endObject();
         writer.key("collectedIntervalDataRange");
         writer.object();
-        writer.key("start").value(loadProfile.getCollectedIntervalDataRange().lowerEndpoint());
-        writer.key("end").value(loadProfile.getCollectedIntervalDataRange().upperEndpoint());
+        writer.key("start").value(loadProfile.getCollectedIntervalDataRange().hasLowerBound()
+                ? loadProfile.getCollectedIntervalDataRange().lowerEndpoint()
+                : "-∞");
+        writer.key("end").value(loadProfile.getCollectedIntervalDataRange().hasUpperBound()
+                ? loadProfile.getCollectedIntervalDataRange().upperEndpoint()
+                : "+∞");
         writer.endObject();
         writer.endObject();
     }
