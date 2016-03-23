@@ -4,9 +4,10 @@ Ext.define('Scs.view.Grid', {
     store: 'Scs.store.ServiceCalls',
     router: null,
     requires: [
-        //'Uni.grid.column.Action',
+        'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Scs.view.ActionMenu'
     ],
 
     initComponent: function () {

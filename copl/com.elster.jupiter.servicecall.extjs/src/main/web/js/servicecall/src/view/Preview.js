@@ -5,6 +5,7 @@ Ext.define('Scs.view.Preview', {
     router: null,
     requires: [
         'Scs.view.PreviewForm',
+        'Scs.view.ActionMenu'
     ],
 
     initComponent: function () {
