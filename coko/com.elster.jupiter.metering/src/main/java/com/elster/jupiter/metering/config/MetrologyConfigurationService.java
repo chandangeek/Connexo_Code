@@ -52,6 +52,7 @@ public interface MetrologyConfigurationService {
 
     List<MetrologyPurpose> getMetrologyPurposes();
 
+    //todo ReadingTypeDeliverable createReadingTypeDeliverable(String name, MetrologyContract contract, ReadingType readingType, FormulaBuilder formulaBuilder);//newFormulaBuilder to remove
     ReadingTypeDeliverable createReadingTypeDeliverable(String name, MetrologyContract contract, ReadingType readingType, Formula formula);
 
     Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
