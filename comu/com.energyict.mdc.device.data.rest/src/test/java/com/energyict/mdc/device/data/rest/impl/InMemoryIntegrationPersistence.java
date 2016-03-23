@@ -38,6 +38,8 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -168,6 +170,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceSearchDomain deviceSearchDomain;
     private DataCollectionKpiService dataCollectionKpiService;
     private FiniteStateMachineService finiteStateMachineService;
+    private ServiceCallService serviceCallService;
     private Injector injector;
 
     public InMemoryIntegrationPersistence() {
@@ -244,6 +247,7 @@ public class InMemoryIntegrationPersistence {
                 new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
+                new ServiceCallModule(),
                 new SchedulingModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
@@ -286,6 +290,7 @@ public class InMemoryIntegrationPersistence {
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
+            this.serviceCallService = injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
             initializePrivileges();
             ctx.commit();
@@ -440,6 +445,10 @@ public class InMemoryIntegrationPersistence {
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    public ServiceCallService getServiceCallService() {
+        return serviceCallService;
     }
 
     public MeteringGroupsService getMeteringGroupsService() {
