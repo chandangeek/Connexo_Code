@@ -41,8 +41,8 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
                 text: Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssuesOnMeter', device.get('nbrOfDataCollectionIssues'), 'MDC',
                     'No data collection issues', '{0} data collection issue', '{0} data collection issues'),
                 ui: 'link',
-                href: typeof me.router.getRoute('workspace/datacollectionissues') !== 'undefined'
-                    ? me.router.getRoute('workspace/datacollectionissues').buildUrl(null, assignedFilter) : null
+                href: typeof me.router.getRoute('workspace/issues') !== 'undefined'
+                    ? me.router.getRoute('workspace/issues').buildUrl(null, assignedFilter) : null
             });
 
         if (!Ext.isEmpty(openDataValidationIssueId)) {
@@ -51,8 +51,8 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
                     xtype: 'button',
                     text: Uni.I18n.translate('deviceOpenIssues.dataValidationIssuesOnMeter', 'MDC', 'open data validation issue'),
                     ui: 'link',
-                    href: typeof me.router.getRoute('workspace/datavalidationissues/view') !== 'undefined'
-                        ? me.router.getRoute('workspace/datavalidationissues/view').buildUrl({issueId: openDataValidationIssueId})
+                    href: typeof me.router.getRoute('workspace/issues/view') !== 'undefined'
+                        ? me.router.getRoute('workspace/issues/view').buildUrl({issueId: openDataValidationIssueId}, {issueType: 'datavalidation'})
                         : null
                 });
         }

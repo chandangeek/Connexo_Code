@@ -18,7 +18,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     stores: [
         'Mdc.store.LogLevels',
         'Mdc.store.TimeUnitsWithoutMilliseconds',
-        'Mdc.store.DeviceTypePurposes'
+        'Mdc.store.DeviceTypePurposes',
+        'Mdc.store.ComServers'
     ],
 
     init: function () {
@@ -35,18 +36,18 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
             widget = Ext.widget('comServersSetup'),
             logLevelsStore = me.getStore('Mdc.store.LogLevels'),
             timeUnitsStore = me.getStore('Mdc.store.TimeUnitsWithoutMilliseconds'),
+            comServerStore = me.getStore('Mdc.store.ComServers'),
             counter = 0,
-            callback;
-
-        callback = function() {
-            counter += 1;
-            if (counter === 2) {
-                me.getApplication().fireEvent('changecontentevent', widget);
-            }
-        };
+            callback = function() {
+                counter += 1;
+                if (counter === 3) {
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                }
+            };
 
         logLevelsStore.load(callback);
         timeUnitsStore.load(callback);
+        comServerStore.load(callback);
     },
     showDeviceCommunicationProtocols: function () {
         var widget = Ext.widget('deviceCommunicationProtocolSetup');
