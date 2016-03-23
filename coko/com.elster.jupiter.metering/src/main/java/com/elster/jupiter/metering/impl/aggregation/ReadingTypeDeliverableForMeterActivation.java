@@ -204,7 +204,7 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendAggregatedProcessStatus(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(AggregationFunction.BIT_OR.sqlName());
+        sqlBuilder.append(AggregationFunction.AGGREGATE_FLAGS.sqlName());
         sqlBuilder.append("(");
         this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS, sqlBuilder, this.sqlName());
         sqlBuilder.append(")");

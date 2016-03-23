@@ -37,7 +37,28 @@ enum AggregationFunction {
     /**
      * Aggregates flags that are bitwise encoded in long values.
      */
-    BIT_OR;
+    AGGREGATE_FLAGS {
+        @Override
+        String sqlName() {
+            return "aggFlags";
+        }
+
+        @Override
+        public void appendTo(SqlBuilder sqlBuilder, List<SqlFragment> arguments) {
+            sqlBuilder.append(this.sqlName());
+            sqlBuilder.append("(cast(collect(distinct ");
+            this.appendSqlFragments(sqlBuilder, arguments);
+            sqlBuilder.append(") as Flags_Array))");
+        }
+
+        @Override
+        public void appendTo(StringBuilder stringBuilder, List<String> arguments) {
+            stringBuilder.append(this.sqlName());
+            stringBuilder.append("(cast(collect(distinct ");
+            this.appendStringArguments(stringBuilder, arguments);
+            stringBuilder.append(") as Flags_Array))");
+        }
+    };
 
     String sqlName() {
         return this.name();
@@ -46,6 +67,11 @@ enum AggregationFunction {
     public void appendTo(SqlBuilder sqlBuilder, List<SqlFragment> arguments) {
         sqlBuilder.append(this.sqlName());
         sqlBuilder.append("(");
+        this.appendSqlFragments(sqlBuilder, arguments);
+        sqlBuilder.append(")");
+    }
+
+    protected void appendSqlFragments(SqlBuilder sqlBuilder, List<SqlFragment> arguments) {
         Iterator<SqlFragment> iterator = arguments.iterator();
         while (iterator.hasNext()) {
             SqlFragment sqlFragment = iterator.next();
@@ -54,14 +80,17 @@ enum AggregationFunction {
                 sqlBuilder.append(", ");
             }
         }
-        sqlBuilder.append(")");
     }
 
-    public void appendTo(StringBuilder sqlBuilder, List<String> arguments) {
-        sqlBuilder.append(this.sqlName());
-        sqlBuilder.append("(");
-        sqlBuilder.append(arguments.stream().collect(Collectors.joining(", ")));
-        sqlBuilder.append(")");
+    public void appendTo(StringBuilder stringBuilder, List<String> arguments) {
+        stringBuilder.append(this.sqlName());
+        stringBuilder.append("(");
+        this.appendStringArguments(stringBuilder, arguments);
+        stringBuilder.append(")");
+    }
+
+    protected void appendStringArguments(StringBuilder stringBuilder, List<String> arguments) {
+        stringBuilder.append(arguments.stream().collect(Collectors.joining(", ")));
     }
 
 }

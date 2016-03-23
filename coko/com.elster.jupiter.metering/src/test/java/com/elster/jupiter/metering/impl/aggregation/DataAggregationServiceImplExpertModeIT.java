@@ -458,7 +458,7 @@ public class DataAggregationServiceImplExpertModeIT {
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[max|MAX]\\(rid99_100_1\\.timestamp\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
-                    .matches("SELECT.*BIT_OR\\(rid99_100_1\\.processStatus\\).*FROM.*");
+                    .matches("SELECT.*aggFlags\\(.*rid99_100_1\\.processStatus.*\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[trunc|TRUNC]\\(rid99_100_1\\.localdate, 'DDD'\\)\\s*FROM.*");
             // Assert that the formula and the aggregation function is applied to the requirements' value in the select clause

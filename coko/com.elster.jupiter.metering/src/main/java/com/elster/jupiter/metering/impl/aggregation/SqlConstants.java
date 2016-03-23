@@ -145,7 +145,7 @@ final class SqlConstants {
                 if (value == null) {
                     sqlBuilder.append("0");
                 } else if (withAggregation) {
-                    sqlBuilder.append(AggregationFunction.BIT_OR.sqlName());
+                    sqlBuilder.append(AggregationFunction.AGGREGATE_FLAGS.sqlName());
                     sqlBuilder.append("(");
                     sqlBuilder.append(value);
                     sqlBuilder.append(")");
@@ -156,7 +156,7 @@ final class SqlConstants {
 
             @Override
             AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
-                return AggregationFunction.BIT_OR;
+                return AggregationFunction.AGGREGATE_FLAGS;
             }
         },
 

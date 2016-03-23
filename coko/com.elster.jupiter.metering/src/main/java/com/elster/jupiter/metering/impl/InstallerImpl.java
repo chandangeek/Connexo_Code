@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
@@ -73,7 +74,7 @@ public class InstallerImpl {
         this.clock = clock;
     }
 
-    public void install() {
+    void install() {
         createVaults();
         createRecordSpecs();
         createServiceCategories();
@@ -84,6 +85,7 @@ public class InstallerImpl {
         createEndDeviceEventTypes();
         createEventTypes();
         createQueues();
+        createSqlAggregationComponents();
     }
 
     private void createEventTypes() {
@@ -259,5 +261,16 @@ public class InstallerImpl {
             LOGGER.log(Level.WARNING, e.getMessage(), e);
         }
     }
+
+    private void createSqlAggregationComponents() {
+        if (!SqlDialect.H2.equals(this.meteringService.getDataModel().getSqlDialect())) {
+            SqlExecuteFromResourceFile
+                    .executeAll(
+                            this.meteringService.getDataModel(),
+                            "type.Flags_Array.sql",
+                            "function.aggFlags.sql");
+        }
+    }
+
 }
 
