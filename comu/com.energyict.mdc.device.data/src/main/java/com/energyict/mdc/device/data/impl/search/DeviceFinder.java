@@ -91,10 +91,11 @@ public class DeviceFinder implements Finder<Device> {
     @Override
     public int count() {
         try (Connection conn = dataModel.getConnection(false)) {
-            PreparedStatement statement = asFragment("count(*)").prepare(conn);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                resultSet.next();
-                return resultSet.getInt(1);
+            try (PreparedStatement statement = asFragment("count(*)").prepare(conn)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    resultSet.next();
+                    return resultSet.getInt(1);
+                }
             }
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);

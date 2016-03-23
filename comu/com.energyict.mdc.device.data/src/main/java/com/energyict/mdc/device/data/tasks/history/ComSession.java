@@ -116,6 +116,8 @@ public interface ComSession extends HasId, TaskExecutionSummary {
 
     SuccessIndicator getSuccessIndicator();
 
+    String getSuccessIndicatorDisplayName();
+
     /**
      * Gets the {@link TaskExecutionSummary} that provides
      * an overview of the tasks that have executed in this ComSession.

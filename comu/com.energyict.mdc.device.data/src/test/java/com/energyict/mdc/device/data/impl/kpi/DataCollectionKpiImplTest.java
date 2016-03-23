@@ -47,6 +47,8 @@ import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.elster.jupiter.util.time.ExecutionTimerService;
+import com.elster.jupiter.util.time.impl.ExecutionTimerServiceImpl;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
@@ -100,9 +102,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -167,6 +172,7 @@ public class DataCollectionKpiImplTest {
             bind(Clock.class).toInstance(clock);
             bind(JsonService.class).to(JsonServiceImpl.class).in(Scopes.SINGLETON);
             bind(BeanService.class).to(BeanServiceImpl.class).in(Scopes.SINGLETON);
+            bind(ExecutionTimerService.class).to(ExecutionTimerServiceImpl.class).in(Scopes.SINGLETON);
         }
     }
 
