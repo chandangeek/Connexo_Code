@@ -171,6 +171,7 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
                 serviceCall.requestTransition(DefaultState.WAITING);
             } else {
                 serviceCall.log(LogLevel.SEVERE, "Could not locate required service call type for children");
+                serviceCall.requestTransition(DefaultState.FAILED);
             }
         } else {
             serviceCall.log(LogLevel.SEVERE, "No end device group with id " + extensionFor.getDeviceGroupId());
