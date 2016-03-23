@@ -18,6 +18,8 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_VALIDATION_RULE_SET(101, Constants.DUPLICATE_VALIDATION_RULE_SET, "Name must be unique", Level.SEVERE),
     DUPLICATE_VALIDATION_RULE(102, Constants.DUPLICATE_VALIDATION_RULE, "Name must be unique", Level.SEVERE),
 
+    VETO_DEVICEGROUP_DELETION(1013, Constants.DEVICE_GROUP_STILL_IN_USE, "Device group {0} is still in use by a data validation task.", Level.SEVERE),
+
     DUPLICATE_VALIDATION_TASK(104, Constants.DUPLICATE_VALIDATION_TASK, "Name must be unique", Level.SEVERE),
     CANNOT_DELETE_WHILE_RUNNING(105, Constants.CANNOT_DELETE_WHILE_RUNNING, "Cannot delete a validation task ''{0}'' while it is running.", Level.SEVERE),
     TASK_VALIDATED_SUCCESFULLY(107, Constants.TASK_VALIDATED_SUCCESFULLY, "Device {0} validated successfully on {1}", Level.INFO),
@@ -95,5 +97,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_DELETE_WHILE_RUNNING = "CannotDeleteValidationTask";
         public static final String TASK_VALIDATED_SUCCESFULLY = "TaskValidatedSuccesfully";
         public static final String OVERLAPPED_PERIOD = "OverlappedPeriod";
+        public static final String DEVICE_GROUP_STILL_IN_USE = "DeviceGroupStillInUse";
+
     }
 }
