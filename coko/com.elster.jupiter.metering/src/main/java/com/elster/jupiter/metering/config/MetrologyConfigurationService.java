@@ -68,6 +68,4 @@ public interface MetrologyConfigurationService {
     Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
 
     Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id);
-
-
 }
