@@ -11,7 +11,9 @@ Ext.define('Scs.controller.ServiceCalls', {
     ],
     stores: [
         'Scs.store.ServiceCalls',
-        'Scs.store.Logs'
+        'Scs.store.Logs',
+        'Scs.store.ServiceCallTypes',
+        'Scs.store.States'
     ],
     models: [
         'Scs.model.ServiceCall'
