@@ -152,5 +152,6 @@ public interface MeteringService {
     Query<LocationMember> getLocationMemberQuery();
     void createLocationTemplate();
     LocationTemplate getLocationTemplate();
+    Optional<List<String>> getFormattedLocationMembers(long id);
 
 }

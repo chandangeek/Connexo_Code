@@ -681,6 +681,35 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
+    public Optional<List<String>> getFormattedLocationMembers(long id){
+        List<LocationMember> members = dataModel.query(LocationMember.class).select(Operator.EQUAL.compare("locationId", id));
+        List<String> formattedLocation = new ArrayList<>();
+        if(!members.isEmpty()){
+            LocationMember member = members.get(0);
+            Map<String, String> memberValues = new HashMap<>();
+            memberValues.put("countryCode", member.getCountryCode());
+            memberValues.put("countryName", member.getCountryName());
+            memberValues.put("administrativeArea", member.getAdministrativeArea());
+            memberValues.put("locality", member.getLocality());
+            memberValues.put("subLocality", member.getSubLocality());
+            memberValues.put("streetType", member.getStreetType());
+            memberValues.put("streetName", member.getStreetName());
+            memberValues.put("streetNumber", member.getStreetNumber());
+            memberValues.put("establishmentType", member.getEstablishmentType());
+            memberValues.put("establishmentName", member.getEstablishmentName());
+            memberValues.put("establishmentNumber", member.getEstablishmentNumber());
+            memberValues.put("addressDetail", member.getAddressDetail());
+            memberValues.put("zipCode", member.getZipCode());
+            memberValues.put("locale", member.getLocale());
+            locationTemplate.getTemplateElementsNames().stream()
+                    .forEach(element -> {
+                        formattedLocation.add(memberValues.get(element));
+                    });
+        }
+        return formattedLocation.isEmpty() ? Optional.empty() : Optional.of(formattedLocation);
+    }
+
+    @Override
     public Optional<Location> findDeviceLocation(String mRID) {
         return findMeter(mRID).isPresent() ? findMeter(mRID).get().getLocation() : Optional.empty();
     }
