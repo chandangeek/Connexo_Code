@@ -14,12 +14,11 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
@@ -54,7 +53,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-15 (13:20)
  */
-public class MetrologyConfigurationServiceImpl implements MetrologyConfigurationService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
+public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile ServerMeteringService meteringService;
     private volatile EventService eventService;
@@ -174,7 +173,6 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         return new FormulaBuilderImpl(mode, getDataModel(), getThesaurus());
     }
 
-    @Override
     public Optional<Formula> findFormula(long id) {
         return getDataModel().mapper(Formula.class).getOptional(id);
     }

@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,6 +66,13 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
     public SqlFragment visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         SqlBuilder fragment = new SqlBuilder();
         deliverable.appendTo(fragment);
+        return fragment;
+    }
+
+    @Override
+    public SqlFragment visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+        SqlBuilder fragment = new SqlBuilder();
+        aggregationNode.getFunction().appendTo(fragment, Collections.singletonList(aggregationNode.getAggregatedExpression().accept(this)));
         return fragment;
     }
 

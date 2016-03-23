@@ -2,6 +2,11 @@ package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * Models the supported mathematical operators that can be used in {@link com.elster.jupiter.metering.config.Formula}'s
  * of {@link com.elster.jupiter.metering.config.ReadingTypeDeliverable}s.
@@ -10,53 +15,43 @@ import com.elster.jupiter.util.sql.SqlBuilder;
  * @since 2016-02-04
  */
 public enum Operator {
-    PLUS(1) {
+    PLUS {
         @Override
         public void appendTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(" + ");
         }
     },
-    MINUS(2) {
+    MINUS {
         @Override
         public void appendTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(" - ");
         }
     },
-    MULTIPLY(3) {
+    MULTIPLY {
         @Override
         public void appendTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(" * ");
         }
     },
-    DIVIDE(4) {
+    DIVIDE {
         @Override
         public void appendTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(" / ");
         }
     };
 
-    private final int id;
-
-    Operator(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
-
     public abstract void appendTo(SqlBuilder sqlBuilder);
 
     public String toString() {
-        if (this.equals(PLUS)) {
-            return "plus";
-        } else if (this.equals(MINUS)) {
-            return "minus";
-        } else if (this.equals(MULTIPLY)) {
-            return "multiply";
-        } else {
-            return "divide";
-        }
+        return this.name().toLowerCase();
+    }
+
+    public static Set<String> names() {
+        return Stream.of(values()).map(Operator::toString).collect(Collectors.toSet());
+    }
+
+    public static Optional<Operator> from(String name) {
+        return Stream.of(values()).filter(each -> each.toString().equals(name)).findFirst();
     }
 
 }

@@ -15,7 +15,10 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
+import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
@@ -69,7 +72,7 @@ public class ConsoleCommands {
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
 
     public void printDdl() {
         try {
@@ -271,7 +274,8 @@ public class ConsoleCommands {
     public void addFormula(String formulaString) {
         try (TransactionContext context = transactionService.getContext()) {
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
-            Formula formula = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+            ServerFormulaBuilder formulaBuilder = (ServerFormulaBuilder) metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
+            Formula formula = formulaBuilder.init(node).build();
             context.commit();
         }
     }
@@ -328,7 +332,7 @@ public class ConsoleCommands {
     }
 
     @Reference
-    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+    public void setMetrologyConfigurationService(ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
@@ -360,6 +364,5 @@ public class ConsoleCommands {
         builder.append("Currency                 : ").append(readingType.getCurrency().toString()).append('\n');
         return builder.toString();
     }
-
 
 }

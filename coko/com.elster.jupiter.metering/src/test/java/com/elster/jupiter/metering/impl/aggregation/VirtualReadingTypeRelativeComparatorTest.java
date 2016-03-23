@@ -183,4 +183,16 @@ public class VirtualReadingTypeRelativeComparatorTest {
             .isGreaterThan(0);
     }
 
+    @Test
+    public void temperature() {
+        VirtualReadingType kelvin = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.KELVIN);
+        VirtualReadingTypeRelativeComparator comparator = new VirtualReadingTypeRelativeComparator(kelvin);
+
+        // Business methods & asserts
+        assertThat(comparator.compare(
+                VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESCELSIUS),
+                VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESFAHRENHEIT)))
+            .isEqualTo(0);
+    }
+
 }

@@ -14,9 +14,11 @@ import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactory;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactoryImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
@@ -62,6 +64,7 @@ public class MeteringModule extends AbstractModule {
         bindConstant().annotatedWith(Names.named("requiredReadingTypes")).to(readingTypes);
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);
         bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(ServerMetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class).in(Scopes.SINGLETON);
         bind(MeteringService.class).to(MeteringServiceImpl.class).in(Scopes.SINGLETON);
         bind(ServerMeteringService.class).to(MeteringServiceImpl.class).in(Scopes.SINGLETON);
         bind(VirtualFactory.class).to(VirtualFactoryImpl.class).in(Scopes.SINGLETON);

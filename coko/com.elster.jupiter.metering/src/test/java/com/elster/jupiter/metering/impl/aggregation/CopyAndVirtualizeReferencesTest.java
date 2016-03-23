@@ -67,6 +67,7 @@ public class CopyAndVirtualizeReferencesTest {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(this.deliverable.getReadingType()).thenReturn(readingType);
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.eventService, this.userService);
     }
@@ -227,6 +228,28 @@ public class CopyAndVirtualizeReferencesTest {
     }
 
     @Test
+    public void copyAggregationNode() {
+        CopyAndVirtualizeReferences visitor = getTestInstance(Formula.Mode.EXPERT);
+        FormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
+        FunctionCallNodeImpl node =
+                (FunctionCallNodeImpl) formulaBuilder.aggregate(
+                        formulaBuilder.plus(
+                            formulaBuilder.constant(BigDecimal.TEN),
+                            formulaBuilder.constant(BigDecimal.ZERO))).create();
+
+        // Business method
+        ServerExpressionNode copied = node.accept(visitor);
+
+        // Asserts
+        assertThat(copied).isNotNull();
+        assertThat(copied).isInstanceOf(TimeBasedAggregationNode.class);
+        TimeBasedAggregationNode copiedTimeBasedAggregationNode = (TimeBasedAggregationNode) copied;
+        assertThat(copiedTimeBasedAggregationNode.getFunction()).isEqualTo(AggregationFunction.SUM);
+        ServerExpressionNode aggregatedExpression = copiedTimeBasedAggregationNode.getAggregatedExpression();
+        assertThat(aggregatedExpression).isNotNull();
+    }
+
+    @Test
     public void copyComplexTree() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
         ReadingTypeDeliverable readingTypeDeliverable = mock(ReadingTypeDeliverable.class);
@@ -275,7 +298,11 @@ public class CopyAndVirtualizeReferencesTest {
     }
 
     private CopyAndVirtualizeReferences getTestInstance() {
-        return new CopyAndVirtualizeReferences(Formula.Mode.AUTO, this.virtualFactory, this.readingTypeDeliverableForMeterActivationProvider, this.deliverable, this.meterActivation);
+        return this.getTestInstance(Formula.Mode.AUTO);
+    }
+
+    private CopyAndVirtualizeReferences getTestInstance(Formula.Mode mode) {
+        return new CopyAndVirtualizeReferences(mode, this.virtualFactory, this.readingTypeDeliverableForMeterActivationProvider, this.deliverable, this.meterActivation);
     }
 
 }

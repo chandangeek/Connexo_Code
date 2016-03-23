@@ -41,6 +41,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.aggregation.AggregatedReadingRecordFactory;
 import com.elster.jupiter.metering.impl.aggregation.AggregatedReadingRecordFactoryImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
@@ -411,6 +412,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(Clock.class).toInstance(clock);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
+                bind(ServerMetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(AggregatedReadingRecordFactory.class).to(AggregatedReadingRecordFactoryImpl.class);
             }
         });
@@ -421,7 +423,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             Dictionary<String, Object> properties = new Hashtable<>(1);
             properties.put("name", MetrologyConfigurationService.COMPONENT_NAME);
             this.serviceRegistrations.add(bundleContext.registerService(
-                    new String[]{MetrologyConfigurationService.class.getName(),
+                    new String[]{
+                            MetrologyConfigurationService.class.getName(),
+                            ServerMetrologyConfigurationService.class.getName(),
                             InstallService.class.getName(),
                             PrivilegesProvider.class.getName(),
                             MessageSeedProvider.class.getName(),
