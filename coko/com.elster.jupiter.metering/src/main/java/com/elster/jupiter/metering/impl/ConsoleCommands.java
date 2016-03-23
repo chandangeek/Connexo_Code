@@ -5,9 +5,14 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
@@ -54,7 +59,9 @@ import java.util.stream.Collectors;
         "osgi.command.function=addFormula",
         "osgi.command.function=formulas",
         "osgi.command.function=deleteFormula",
-        "osgi.command.function=updateFormula"
+        "osgi.command.function=updateFormula",
+        "osgi.command.function=addMetrologyConfig",
+        "osgi.command.function=addRequirement"
 }, immediate = true)
 public class ConsoleCommands {
 
@@ -265,6 +272,40 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
             Formula formula = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+            context.commit();
+        }
+    }
+
+    public void addMetrologyConfig(String name) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<ServiceCategory> serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY);
+            if (!serviceCategory.isPresent()) {
+                throw new RuntimeException("no service category found for ELECTRICITY");
+            }
+            MetrologyConfigurationBuilder builder =
+                    metrologyConfigurationService.newMetrologyConfiguration(name, serviceCategory.get());
+            builder.create();
+            context.commit();
+        }
+
+    }
+
+    public void addRequirement(String name, String readingTypeString, long metrologyConfigId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+            Optional<MetrologyConfiguration> config = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId);
+            Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeString);
+            if (!readingType.isPresent()) {
+                throw new RuntimeException("ReadingType does not exist");
+            }
+            if (!config.isPresent()) {
+                throw new RuntimeException("no metrology config found with id " + metrologyConfigId);
+            }
+            config.get().addReadingTypeRequirement(name)
+                        .withMeterRole(meterRole)
+                        .withReadingType(readingType.get());
             context.commit();
         }
     }

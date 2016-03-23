@@ -15,6 +15,9 @@ public class ReadingTypeRequirementNodeImpl extends AbstractNode implements Read
 
     private Reference<ReadingTypeRequirement> readingTypeRequirement = ValueReference.absent();
 
+
+    public ReadingTypeRequirementNodeImpl() {}
+
     public ReadingTypeRequirementNodeImpl(ReadingTypeRequirement readingTypeRequirement) {
         super();
         this.readingTypeRequirement.set(readingTypeRequirement);
@@ -32,5 +35,9 @@ public class ReadingTypeRequirementNodeImpl extends AbstractNode implements Read
 
     public Dimension getDimension() {
         return readingTypeRequirement.get().getDimension();
+    }
+
+    public String toString() {
+        return "R(" + readingTypeRequirement.get().getId() + ")";
     }
 }

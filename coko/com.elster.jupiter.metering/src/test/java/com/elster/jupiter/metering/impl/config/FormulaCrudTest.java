@@ -1,11 +1,18 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
 import com.elster.jupiter.metering.config.OperationNode;
@@ -26,6 +33,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.validation.constraints.AssertTrue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,6 +68,40 @@ public class FormulaCrudTest {
         return inMemoryBootstrapModule.getTransactionService();
     }
 
+    @Test
+    // formula = Requirement
+    public void testRequirementNodeCrud() {
+        Formula.Mode myMode = Formula.Mode.EXPERT;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+
+            Optional<ServiceCategory> serviceCategory =
+                    inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+            assertThat(serviceCategory.isPresent());
+            MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                    service.newMetrologyConfiguration("test", serviceCategory.get());
+            MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+            assertThat(config != null);
+            MeterRole meterRole = service.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+            ReadingType readingType =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
+            assertThat(readingType != null);
+            config.addReadingTypeRequirement("Aplus")
+                    .withMeterRole(meterRole)
+                    .withReadingType(readingType);
+
+            assertThat(config.getRequirements().size() == 1);
+            ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                    config.getRequirements().get(0).getId()).get();
+            FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+
+            ExpressionNodeBuilder nodeBuilder = builder.requirement(req);
+            Formula formula = builder.init(nodeBuilder).build();
+            context.commit();
+        }
+    }
 
     @Test
     // formula = 10 (constant)

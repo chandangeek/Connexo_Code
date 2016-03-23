@@ -877,6 +877,14 @@ public enum TableSpecs {
             //ConstantNodeImpl constantValue
             table.column("CONSTANTVALUE").number().map("constantValue").add();
 
+
+
+            // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
+            Column readingTypeDeliverableColumn = table.column("READINGTYPE_DELIVERABLE").number().add();
+            // ReadingTypeRequirementNodeImpl readingTypeRequirement value
+            Column readingTypeRequirementColumn = table.column("READINGTYPE_REQUIREMENT").number().add();
+
+
             table.primaryKey("MTR_PK_FORMULA_NODE").on(idColumn).add();
             table.foreignKey("MTR_VALIDCHILD").references(MTR_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
                     .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").add();
@@ -1021,6 +1029,9 @@ public enum TableSpecs {
             table.map(ReadingTypeRequirementImpl.IMPLEMENTERS);
 
             Column idColumn = table.addAutoIdColumn();
+
+            table.addDiscriminatorColumn("REQTYPE", "char(3)");
+
             table.column(ReadingTypeRequirementImpl.Fields.NAME.name())
                     .varChar(NAME_LENGTH)
                     .notNull()
@@ -1226,9 +1237,9 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<?> table = dataModel.getTable(MTR_FORMULA_NODE.name());
             // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
-            Column readingTypeDeliverableColumn = table.column("READINGTYPE_DELIVERABLE").number().map("readingTypeDeliverable").add();
+            Column readingTypeDeliverableColumn = table.getColumn("READINGTYPE_DELIVERABLE").get();
             // ReadingTypeRequirementNodeImpl readingTypeRequirement value
-            Column readingTypeRequirementColumn = table.column("READINGTYPE_REQUIREMENT").number().map("readingTypeRequirement").add();
+            Column readingTypeRequirementColumn = table.getColumn("READINGTYPE_REQUIREMENT").get();
             table.foreignKey("MTR_FORMULA_TO_DELIVERABLE")
                     .references(MTR_RT_DELIVERABLE.name())
                     .on(readingTypeDeliverableColumn)
@@ -1242,6 +1253,7 @@ public enum TableSpecs {
         }
     }
     ;
+
 
     abstract void addTo(DataModel dataModel);
 

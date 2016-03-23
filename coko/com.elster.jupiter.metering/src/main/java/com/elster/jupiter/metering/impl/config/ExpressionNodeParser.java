@@ -62,11 +62,11 @@ public class ExpressionNodeParser {
         String last = stack.pop();
         if (last.equals("constant")) {
             handleConstantNode(value);
-        } /*else if (last.equals("D")) {
+        } else if (last.equals("D")) {
             handleDeliverableNode(value);
         } else if (last.equals("R")) {
             handleRequirementNode(value);
-        } */else if ((last.equals("sum")) || (last.equals("avg")) || (last.equals("max")) || (last.equals("min"))) {
+        } else if ((last.equals("sum")) || (last.equals("avg")) || (last.equals("max")) || (last.equals("min"))) {
             handleFunctionNode(last);
         } else if ((last.equals("plus")) || (last.equals("minus")) || (last.equals("multiply")) || (last.equals("divide"))) {
             handleOperationNode(last);
