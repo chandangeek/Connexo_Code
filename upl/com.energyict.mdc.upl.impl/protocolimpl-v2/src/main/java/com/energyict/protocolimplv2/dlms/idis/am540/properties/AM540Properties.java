@@ -6,7 +6,6 @@ import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvider;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
@@ -37,9 +36,12 @@ public class AM540Properties extends IDISProperties {
         return true;
     }
 
+    /**
+     * The AM540 protocol will also run embedded in the Beacon3100, so by default: avoid polling on the inputstream
+     */
     @Override
-    public boolean isUsePolling() {
-        return false;   //The AM540 protocol will run embedded in the Beacon3100, so avoid polling on the inputstream
+    public TimeDuration getPollingDelay() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.POLLING_DELAY, new TimeDuration(0));
     }
 
     @Override

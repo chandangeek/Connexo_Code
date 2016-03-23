@@ -344,7 +344,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-01-25 15:02:12 +0100 (Mon, 25 Jan 2016)$";
+        return "$Date: 2016-03-23 10:22:20 +0100 (Wed, 23 Mar 2016)$";
     }
 
     @Override
@@ -383,4 +383,5 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         }
         return dlmsConfigurationSupport;
     }
+
 }

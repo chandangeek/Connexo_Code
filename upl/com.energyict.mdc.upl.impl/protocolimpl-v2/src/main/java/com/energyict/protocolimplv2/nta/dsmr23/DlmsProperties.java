@@ -305,9 +305,12 @@ public class DlmsProperties implements DlmsSessionProperties {
         return properties.getTypedProperty(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE).intValue();
     }
 
+    /**
+     * Return the default value, 100 ms.
+     */
     @Override
-    public boolean isUsePolling() {
-        return true;
+    public TimeDuration getPollingDelay() {
+        return new TimeDuration(100, TimeDuration.MILLISECONDS);
     }
 
     public GeneralCipheringKeyType getGeneralCipheringKeyType() {
