@@ -207,7 +207,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     // DeviceProtocols
     ELSTER_MBUS(185, "com.energyict.protocolimplv2.nta.elster.MbusDevice", ProtocolFamily.ELSTER_AM100),
     RTU_PLUS_G3(186, "com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer", ProtocolFamily.G3_LINKY_DLMS),
-    GATE_WAY_Z3(187, "com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3", ProtocolFamily.EICT_Z3),
     AM100(188, "com.energyict.protocolimplv2.nta.elster.AM100", ProtocolFamily.ELSTER_AM100),
 //    MTU155(189, "com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155"),
 //    WEB_RTU_WAVENIS_GATEWAY(190, "com.energyict.protocolimplv2.coronis.muc.WebRTUWavenisGateway", ProtocolFamily.CORONIS),
