@@ -36,6 +36,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -54,6 +55,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -194,12 +196,13 @@ public class DataAggregationServiceImplCalculateTest {
 
         // Asserts
         verify(this.virtualFactory).nextMeterActivation(meterActivation, aggregationPeriod);
-        ArgumentCaptor<VirtualReadingType> readingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), readingTypeArgumentCaptor.capture());
-        VirtualReadingType capturedConsumptionReadingType = readingTypeArgumentCaptor.getValue();
+        ArgumentCaptor<VirtualReadingType> consumptionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
+        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), consumptionReadingTypeArgumentCaptor.capture());
+        VirtualReadingType capturedConsumptionReadingType = consumptionReadingTypeArgumentCaptor.getValue();
         assertThat(capturedConsumptionReadingType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
-        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), readingTypeArgumentCaptor.capture());
-        VirtualReadingType capturedProductionReadngType = readingTypeArgumentCaptor.getValue();
+        ArgumentCaptor<VirtualReadingType> productionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
+        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), productionReadingTypeArgumentCaptor.capture());
+        VirtualReadingType capturedProductionReadngType = productionReadingTypeArgumentCaptor.getValue();
         assertThat(capturedProductionReadngType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         // Formula does not contain a reference to the deliverable
         verify(this.virtualFactory, never()).deliverableFor(any(ReadingTypeDeliverableForMeterActivation.class), any(VirtualReadingType.class));
@@ -298,12 +301,13 @@ public class DataAggregationServiceImplCalculateTest {
 
         // Asserts
         verify(this.virtualFactory).nextMeterActivation(meterActivation, aggregationPeriod);
-        ArgumentCaptor<VirtualReadingType> readingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), readingTypeArgumentCaptor.capture());
-        VirtualReadingType capturedConsumptionReadingType = readingTypeArgumentCaptor.getValue();
+        ArgumentCaptor<VirtualReadingType> consumptionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
+        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), consumptionReadingTypeArgumentCaptor.capture());
+        VirtualReadingType capturedConsumptionReadingType = consumptionReadingTypeArgumentCaptor.getValue();
         assertThat(capturedConsumptionReadingType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
-        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), readingTypeArgumentCaptor.capture());
-        VirtualReadingType capturedProductionReadngType = readingTypeArgumentCaptor.getValue();
+        ArgumentCaptor<VirtualReadingType> productionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
+        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), productionReadingTypeArgumentCaptor.capture());
+        VirtualReadingType capturedProductionReadngType = productionReadingTypeArgumentCaptor.getValue();
         assertThat(capturedProductionReadngType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         // Formula does not contain a reference to the deliverable
         verify(this.virtualFactory, never()).deliverableFor(any(ReadingTypeDeliverableForMeterActivation.class), any(VirtualReadingType.class));
@@ -321,8 +325,149 @@ public class DataAggregationServiceImplCalculateTest {
         verify(this.connection).close();
     }
 
+    /**
+     * Tests the simplest case with multiple meter activations:
+     * Metrology configuration
+     *    requirements:
+     *       A- ::= any Wh with flow = forward (aka consumption)
+     *       A+ ::= any Wh with flow = reverse (aka production)
+     *    deliverables:
+     *       netConsumption (15m kWh) ::= A- + A+
+     * Device:
+     *    meter activations:
+     *       Jan 1st 2015 -> forever
+     *           A- -> 15 min kWh
+     *           A+ -> 15 min kWh
+     *       Feb 1st 2015 -> forever
+     *           A- -> 15 min kWh
+     *           A+ -> 15 min kWh
+     * In other words, simple sum of 2 requirements that are provided
+     * by exactly one matching channel for all meter activations.
+     */
+    @Test
+    public void simplestNetConsumptionOfProsumerWithMultipleMeterActivations() throws SQLException {
+        DataAggregationServiceImpl service = this.testInstance();
+        Range<Instant> aggregationPeriod = year2016();
+        // Setup configuration requirements
+        ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
+        when(consumption.getName()).thenReturn("A-");
+        ReadingTypeRequirement production = mock(ReadingTypeRequirement.class);
+        when(production.getName()).thenReturn("A+");
+        when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
+        // Setup configuration deliverables
+        ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
+        when(netConsumption.getName()).thenReturn("consumption");
+        ReadingType netConsumptionReadingType = this.mock15minReadingType("0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
+        FormulaBuilder formulaBuilder = this.newFormulaBuilder();
+        ExpressionNode node = formulaBuilder.plus(
+                formulaBuilder.requirement(production),
+                formulaBuilder.requirement(consumption)).create();
+        ServerFormula formula = mock(ServerFormula.class);
+        when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
+        doReturn(node).when(formula).getExpressionNode();
+        when(netConsumption.getFormula()).thenReturn(formula);
+        VirtualReadingTypeRequirement virtualConsumptionJan = mock(VirtualReadingTypeRequirement.class);
+        when(virtualConsumptionJan.sqlName()).thenReturn("vrt-consumption-jan");
+        VirtualReadingTypeRequirement virtualConsumptionFeb = mock(VirtualReadingTypeRequirement.class);
+        when(virtualConsumptionFeb.sqlName()).thenReturn("vrt-consumption-feb");
+        VirtualReadingTypeRequirement virtualProductionJan = mock(VirtualReadingTypeRequirement.class);
+        when(virtualProductionJan.sqlName()).thenReturn("vrt-production-jan");
+        VirtualReadingTypeRequirement virtualProductionFeb = mock(VirtualReadingTypeRequirement.class);
+        when(virtualProductionFeb.sqlName()).thenReturn("vrt-production-feb");
+        when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualConsumptionJan, virtualConsumptionFeb);
+        when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualProductionJan, virtualProductionFeb);
+
+        // Setup contract deliverables
+        VirtualReadingTypeDeliverable virtualNetConsumptionJan = mock(VirtualReadingTypeDeliverable.class);
+        when(virtualNetConsumptionJan.sqlName()).thenReturn("vrt-netConsumption-jan");
+        VirtualReadingTypeDeliverable virtualNetConsumptionFeb = mock(VirtualReadingTypeDeliverable.class);
+        when(virtualNetConsumptionFeb.sqlName()).thenReturn("vrt-netConsumption-feb");
+        when(this.virtualFactory.deliverableFor(any(ReadingTypeDeliverableForMeterActivation.class), any(VirtualReadingType.class))).thenReturn(virtualNetConsumptionJan, virtualNetConsumptionFeb);
+        when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
+        // Setup meter activations
+        Interval year2015 = Interval.startAt(jan1st2015());
+        MeterActivation meterActivation1 = mock(MeterActivation.class);
+        when(meterActivation1.getUsagePoint()).thenReturn(Optional.of(this.usagePoint));
+        when(meterActivation1.getMultiplier(any(MultiplierType.class))).thenReturn(Optional.empty());
+        when(meterActivation1.getInterval()).thenReturn(Interval.of(jan1st2015(), feb1st2015()));
+        when(meterActivation1.getRange()).thenReturn(Interval.of(jan1st2015(), feb1st2015()).toClosedOpenRange());
+        when(meterActivation1.overlaps(aggregationPeriod)).thenReturn(true);
+        MeterActivation meterActivation2 = mock(MeterActivation.class);
+        when(meterActivation2.getUsagePoint()).thenReturn(Optional.of(this.usagePoint));
+        when(meterActivation2.getMultiplier(any(MultiplierType.class))).thenReturn(Optional.empty());
+        when(meterActivation2.getInterval()).thenReturn(Interval.startAt(feb1st2015()));
+        when(meterActivation2.getRange()).thenReturn(Interval.startAt(feb1st2015()).toClosedOpenRange());
+        when(meterActivation2.overlaps(aggregationPeriod)).thenReturn(true);
+        doReturn(Arrays.asList(meterActivation1, meterActivation2)).when(this.usagePoint).getMeterActivations();
+        ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        ReadingType productionReadingType15min = this.mock15minReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        ChannelContract chnJan1 = mock(ChannelContract.class);
+        when(chnJan1.getMainReadingType()).thenReturn(consumptionReadingType15min);
+        when(virtualConsumptionJan.getPreferredChannel()).thenReturn(chnJan1);
+        ChannelContract chnJan2 = mock(ChannelContract.class);
+        when(chnJan2.getMainReadingType()).thenReturn(productionReadingType15min);
+        when(virtualProductionJan.getPreferredChannel()).thenReturn(chnJan2);
+        ChannelContract chnFeb1 = mock(ChannelContract.class);
+        when(chnFeb1.getMainReadingType()).thenReturn(consumptionReadingType15min);
+        when(virtualConsumptionFeb.getPreferredChannel()).thenReturn(chnFeb1);
+        ChannelContract chnFeb2 = mock(ChannelContract.class);
+        when(chnFeb2.getMainReadingType()).thenReturn(productionReadingType15min);
+        when(virtualProductionFeb.getPreferredChannel()).thenReturn(chnFeb2);
+        when(consumption.getMatchesFor(meterActivation1)).thenReturn(Collections.singletonList(productionReadingType15min));
+        when(consumption.getMatchingChannelsFor(meterActivation1)).thenReturn(Collections.singletonList(chnJan1));
+        when(production.getMatchingChannelsFor(meterActivation1)).thenReturn(Collections.singletonList(chnJan2));
+        when(consumption.getMatchesFor(meterActivation2)).thenReturn(Collections.singletonList(productionReadingType15min));
+        when(consumption.getMatchingChannelsFor(meterActivation2)).thenReturn(Collections.singletonList(chnJan1));
+        when(production.getMatchingChannelsFor(meterActivation2)).thenReturn(Collections.singletonList(chnJan2));
+        when(this.virtualFactory.allRequirements()).thenReturn(Arrays.asList(virtualConsumptionJan, virtualProductionJan, virtualConsumptionFeb, virtualProductionFeb));
+        when(this.virtualFactory.allDeliverables()).thenReturn(Arrays.asList(virtualNetConsumptionJan, virtualNetConsumptionFeb));
+
+        // Business method
+        service.calculate(this.usagePoint, this.contract, aggregationPeriod);
+
+        // Asserts
+        verify(this.virtualFactory).nextMeterActivation(meterActivation1, aggregationPeriod);
+        verify(this.virtualFactory).nextMeterActivation(meterActivation2, aggregationPeriod);
+        ArgumentCaptor<VirtualReadingType> consumptionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
+        verify(this.virtualFactory, times(2)).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), consumptionReadingTypeArgumentCaptor.capture());
+        List<VirtualReadingType> capturedConsumptionReadingTypes = consumptionReadingTypeArgumentCaptor.getAllValues();
+        assertThat(capturedConsumptionReadingTypes).hasSize(2);
+        assertThat(capturedConsumptionReadingTypes.get(0).getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
+        assertThat(capturedConsumptionReadingTypes.get(1).getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
+        ArgumentCaptor<VirtualReadingType> productionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
+        verify(this.virtualFactory, times(2)).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), productionReadingTypeArgumentCaptor.capture());
+        List<VirtualReadingType> capturedProductionReadingTypes = productionReadingTypeArgumentCaptor.getAllValues();
+        assertThat(capturedProductionReadingTypes).hasSize(2);
+        assertThat(capturedProductionReadingTypes.get(0).getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
+        assertThat(capturedProductionReadingTypes.get(1).getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
+        // Formula does not contain a reference to the deliverable
+        verify(this.virtualFactory, never()).deliverableFor(any(ReadingTypeDeliverableForMeterActivation.class), any(VirtualReadingType.class));
+        verify(this.virtualFactory).allRequirements();
+        verify(this.virtualFactory).allDeliverables();
+        verify(virtualConsumptionJan, atLeastOnce()).sqlName();
+        verify(virtualConsumptionJan).appendDefinitionTo(this.sqlBuilder);
+        verify(virtualProductionJan, atLeastOnce()).sqlName();
+        verify(virtualProductionJan).appendDefinitionTo(this.sqlBuilder);
+        verify(virtualNetConsumptionJan).appendDefinitionTo(this.sqlBuilder);
+        verify(virtualConsumptionFeb, atLeastOnce()).sqlName();
+        verify(virtualConsumptionFeb).appendDefinitionTo(this.sqlBuilder);
+        verify(virtualProductionFeb, atLeastOnce()).sqlName();
+        verify(virtualProductionFeb).appendDefinitionTo(this.sqlBuilder);
+        verify(virtualNetConsumptionFeb).appendDefinitionTo(this.sqlBuilder);
+        verify(this.dataModel).getConnection(true);
+        verify(this.resultSet).next();
+        verify(this.resultSet).close();
+        verify(this.preparedStatement).close();
+        verify(this.connection).close();
+    }
+
     private Instant jan1st2015() {
         return Instant.ofEpochMilli(1420070400000L);
+    }
+
+    private Instant feb1st2015() {
+        return Instant.ofEpochMilli(1454284800000L);
     }
 
     private Range<Instant> year2016() {
