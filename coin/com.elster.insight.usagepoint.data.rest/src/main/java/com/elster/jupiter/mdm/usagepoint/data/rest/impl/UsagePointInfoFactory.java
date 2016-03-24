@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -26,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component(name = "insight.usagepoint.info.factory", service = {InfoFactory.class}, immediate = true)
 public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     private volatile Clock clock;
@@ -37,11 +37,15 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Inject
-    public UsagePointInfoFactory(Clock clock, MeteringService meteringService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
-        this();
-        this.setClock(clock);
-        this.setMeteringService(meteringService);
-        this.setCustomPropertySetInfoFactory(customPropertySetInfoFactory);
+    public UsagePointInfoFactory(Clock clock, Thesaurus thesaurus, MeteringService meteringService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+        this.clock = clock;
+        this.meteringService = meteringService;
+        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+    }
+
+    @Activate
+    public void activate() {
+        customPropertySetInfoFactory = new CustomPropertySetInfoFactory(thesaurus, clock);
     }
 
     @Reference
@@ -55,8 +59,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Reference
-    public void setCustomPropertySetInfoFactory(CustomPropertySetInfoFactory customPropertySetInfoFactory) {
-        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(UsagePointApplication.COMPONENT_NAME, Layer.REST);
     }
 
     @Override
@@ -127,5 +131,4 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
                 .withServiceLocationString(usagePointInfo.location);
     }
-
 }
