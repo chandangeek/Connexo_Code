@@ -18,12 +18,10 @@ import java.util.*;
 public class IDISStoredValues implements StoredValues {
 
     public static final ObisCode OBISCODE_BILLING_PROFILE = ObisCode.fromString("0.0.98.1.0.255");
-
-    private final CosemObjectFactory cosemObjectFactory;
     protected final AM500 am500;
-
-    private ProfileGeneric profileGeneric = null;
+    private final CosemObjectFactory cosemObjectFactory;
     protected DataContainer buffer = null;
+    private ProfileGeneric profileGeneric = null;
 
     public IDISStoredValues(AM500 am500) {
         this.cosemObjectFactory = am500.getDlmsSession().getCosemObjectFactory();
@@ -96,7 +94,7 @@ public class IDISStoredValues implements StoredValues {
     }
 
     private Unit getUnit(ObisCode baseObisCode) throws IOException {
-        Map<ObisCode, Unit> unitMap = am500.getIDISProfileDataReader().readUnits(Arrays.asList(baseObisCode));
+        Map<ObisCode, Unit> unitMap = am500.getIDISProfileDataReader().readUnits(null, Arrays.asList(baseObisCode));
         return unitMap.get(baseObisCode);
     }
 

@@ -90,7 +90,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
 
         int count = createComposedObjectMap(registers, composedObjectMap, dlmsAttributes);
-        ComposedCosemObject composedCosemObject = new ComposedCosemObject(getMeterProtocol().getDlmsSession(), true, dlmsAttributes);
+        ComposedCosemObject composedCosemObject = new ComposedCosemObject(getMeterProtocol().getDlmsSession(), getMeterProtocol().getDlmsSessionProperties().isBulkRequest(), dlmsAttributes);
         return createCollectedRegisterListFromComposedCosemObject(registers.subList(0, count), composedObjectMap, composedCosemObject);
     }
 

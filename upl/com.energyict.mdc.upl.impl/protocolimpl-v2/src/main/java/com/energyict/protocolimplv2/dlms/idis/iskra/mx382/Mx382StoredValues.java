@@ -21,9 +21,9 @@ import java.util.*;
 public class Mx382StoredValues extends IDISStoredValues{
 
     public static final ObisCode OBISCODE_DAILY_BILLING = ObisCode.fromString("0.0.98.2.0.255");
-    private ProfileGeneric profileGeneric = null;
     public ObisCode profileGenericObisCode = ObisCode.fromString("0.0.98.1.0.255");
     boolean profileGenericObisCodeChanged = true;
+    private ProfileGeneric profileGeneric = null;
 
     public Mx382StoredValues(Mx382 mx382) {
         super(mx382);
@@ -45,7 +45,7 @@ public class Mx382StoredValues extends IDISStoredValues{
     }
 
     private Unit getUnit(ObisCode baseObisCode) throws IOException {
-        Map<ObisCode, Unit> unitMap = ((Mx382)getProtocol()).getIDISProfileDataReader().readUnits(Arrays.asList(baseObisCode));
+        Map<ObisCode, Unit> unitMap = ((Mx382)getProtocol()).getIDISProfileDataReader().readUnits(null, Arrays.asList(baseObisCode));
         return unitMap.get(baseObisCode);
     }
 

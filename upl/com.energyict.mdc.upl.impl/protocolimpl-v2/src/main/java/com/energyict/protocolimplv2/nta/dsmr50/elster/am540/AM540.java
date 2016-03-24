@@ -239,6 +239,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         return "Elster AM540 DLMS (NTA DSMR5.0) V2";
     }
 
+
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
         return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfileReaders);
@@ -366,7 +367,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-26 15:25:12 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2016-03-23 10:22:20 +0100 (Wed, 23 Mar 2016)$";
     }
 
     @Override

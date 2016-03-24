@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.CipheringType;
@@ -22,6 +23,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String DLMS_METER_KEK = "DlmsMeterKEK";
     public static final String PSK_ENCRYPTION_KEY = "PSKEncryptionKey";
     public static final String DLMS_WAN_KEK = "DlmsWanKEK";
+    public static final String POLLING_DELAY = "PollingDelay";
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
@@ -32,12 +34,17 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(pskEncryptionKeyPropertySpec());
         optionalProperties.add(cipheringTypePropertySpec());
         optionalProperties.add(generalCipheringKeyTypePropertySpec());
+        optionalProperties.add(pollingDelayPropertySpec());
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
         optionalProperties.remove(fixMbusHexShortIdPropertySpec());
         optionalProperties.remove(serverLowerMacAddressPropertySpec()); //Only TCP connection is supported, so no use for server lower mac address
         optionalProperties.remove(deviceId());
         return optionalProperties;
+    }
+
+    private PropertySpec pollingDelayPropertySpec() {
+        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(POLLING_DELAY, new TimeDuration(0));
     }
 
     protected PropertySpec cipheringTypePropertySpec() {

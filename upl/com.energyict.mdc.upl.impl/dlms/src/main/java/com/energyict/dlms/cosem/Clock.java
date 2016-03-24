@@ -115,12 +115,12 @@ public class Clock extends AbstractCosemObject {
         }
     }
 
-    public void setDateTime(Date dateTime) throws IOException {
-        setAXDRDateTimeAttr(new AXDRDateTime(dateTime));
-    }
-
     public void setDateTime(Calendar dateTime) throws IOException {
         setDateTime(dateTime.getTime());
+    }
+
+    public void setDateTime(Date dateTime) throws IOException {
+        setAXDRDateTimeAttr(new AXDRDateTime(dateTime));
     }
 
     public AXDRDateTime getAXDRDateTime() throws IOException {
@@ -140,7 +140,7 @@ public class Clock extends AbstractCosemObject {
         return getDateTime(responseData,-1);
     }
 
-    private Date getDateTime(byte[] responseData,int roundtripCorrection) throws IOException {
+    public Date getDateTime(byte[] responseData, int roundtripCorrection) throws IOException {
         Calendar gcalendarMeter=null;
 
         if ((responseData[13]&(byte)0x80)==(byte)0x80) {

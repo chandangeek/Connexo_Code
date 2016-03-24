@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
@@ -54,10 +55,10 @@ public class Beacon3100Properties extends DlmsProperties {
     }
 
     /**
-     * Optimize the reading of responses from the Beacon device
+     * PollingDelay is 0 ms by default, to disable polling. This will optimize the reading of responses from the Beacon device
      */
     @Override
-    public boolean isUsePolling() {
-        return false;
+    public TimeDuration getPollingDelay() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.POLLING_DELAY, new TimeDuration(0));
     }
 }
