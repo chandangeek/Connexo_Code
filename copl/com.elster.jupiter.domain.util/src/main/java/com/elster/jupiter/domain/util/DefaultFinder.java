@@ -166,19 +166,18 @@ public final class DefaultFinder<T> implements Finder<T> {
         }
     }
 
-}
+    static class MaxPageSizeExceeded extends LocalizedException {
 
-
-class MaxPageSizeExceeded extends LocalizedException {
-
-    protected MaxPageSizeExceeded(Thesaurus thesaurus, int size) {
-        super(thesaurus, MessageSeeds.MAX_PAGE_SIZE_EXCEEDED, size);
+        protected MaxPageSizeExceeded(Thesaurus thesaurus, int size) {
+            super(thesaurus, MessageSeeds.MAX_PAGE_SIZE_EXCEEDED, size);
+        }
     }
-}
 
-class UnpagedNotAllowed extends LocalizedException {
+    static class UnpagedNotAllowed extends LocalizedException {
 
-    protected UnpagedNotAllowed(Thesaurus thesaurus, int size) {
-        super(thesaurus, MessageSeeds.UNPAGED_NOT_ALLOWED, size);
+        protected UnpagedNotAllowed(Thesaurus thesaurus, int size) {
+            super(thesaurus, MessageSeeds.UNPAGED_NOT_ALLOWED, size);
+        }
     }
+
 }
