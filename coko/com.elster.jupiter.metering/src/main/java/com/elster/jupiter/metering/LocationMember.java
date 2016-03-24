@@ -2,7 +2,7 @@ package com.elster.jupiter.metering;
 
 public interface LocationMember {
 
-    //Location getLocation();
+    long getLocationId();
     String getLocale();
     String getCountryCode();
     String getCountryName();

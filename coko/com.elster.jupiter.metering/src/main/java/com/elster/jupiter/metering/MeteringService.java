@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -153,5 +154,11 @@ public interface MeteringService {
     void createLocationTemplate();
     LocationTemplate getLocationTemplate();
     Optional<List<String>> getFormattedLocationMembers(long id);
-
+    GeoCoordinates createGeoCoordinates(String coordinates);
+    Optional<GeoCoordinates> findGeoCoordinates(long id);
+    Optional<GeoCoordinates> findDeviceGeoCoordinates(String mRID);
+    Optional<GeoCoordinates> findDeviceGeoCoordinates(long id);
+    Optional<GeoCoordinates> findUsagePointGeoCoordinates(String mRID);
+    Optional<GeoCoordinates> findUsagePointGeoCoordinates(long id);
+    Query<GeoCoordinates> getGeoCoordinatesQuery();
 }

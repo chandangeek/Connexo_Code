@@ -36,6 +36,7 @@ import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.ColumnConversion.SDOGEOMETRY2SPATIALGEOOBJ;
 
 
 public enum TableSpecs {
@@ -180,7 +181,7 @@ public enum TableSpecs {
             table.map(GeoCoordinatesImpl.class);
             //table.setJournalTableName("MTR_GEOCOORDINATESJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column coordinatesColumn = table.column("GEOCOORDINATES").sdoGeometry().notNull().map("coordinates").add();
+            Column coordinatesColumn = table.column("GEOCOORDINATES").sdoGeometry().notNull().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("coordinates").add();
             table.primaryKey("MTR_PK_GEOCOORDS").on(idColumn).add();
 
         }

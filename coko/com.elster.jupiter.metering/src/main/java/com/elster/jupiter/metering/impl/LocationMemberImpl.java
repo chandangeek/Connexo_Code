@@ -96,6 +96,9 @@ public class LocationMemberImpl implements LocationMember {
 
 
     @Override
+    public long getLocationId() {return locationId;}
+
+    @Override
     public String getCountryCode() {
         return countryCode;
     }

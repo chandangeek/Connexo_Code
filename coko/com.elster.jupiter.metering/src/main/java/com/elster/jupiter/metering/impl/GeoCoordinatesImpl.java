@@ -1,23 +1,22 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.GeoCoordinates;
-import com.elster.jupiter.metering.LocationMember;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.geo.SpatialGeometryObject;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.inject.Inject;
 
-import java.util.HashMap;
-import java.util.Map;
 
-public class GeoCoordinatesImpl implements GeoCoordinates{
+public class GeoCoordinatesImpl implements GeoCoordinates {
 
 
     private long id;
     private final DataModel dataModel;
-    private SpatialGeometryObject coordinates;
-  //  private String coordLat;
-  //  private String coordLong;
+    private SpatialCoordinates coordinates;
+
+    //  private String coordLat;
+    //  private String coordLong;
     /*private final String getSDOCoordinatesFunction=
             "create or replace function get_coordinates(longitude in number, \n" +
                     "                                           latitude in number)\n" +
@@ -36,12 +35,12 @@ public class GeoCoordinatesImpl implements GeoCoordinates{
         this.dataModel = dataModel;
     }
 
-    GeoCoordinatesImpl init(SpatialGeometryObject coordinates) {
-        this.coordinates=coordinates;
+    GeoCoordinatesImpl init(SpatialCoordinates coordinates) {
+        this.coordinates = coordinates;
         return this;
     }
 
-    static GeoCoordinates from(DataModel dataModel, SpatialGeometryObject coordinates) {
+    static GeoCoordinatesImpl from(DataModel dataModel, SpatialCoordinates coordinates) {
         return dataModel.getInstance(GeoCoordinatesImpl.class).init(coordinates);
     }
 
@@ -51,8 +50,32 @@ public class GeoCoordinatesImpl implements GeoCoordinates{
     }
 
 
+    @Override
+    public SpatialCoordinates getCoordinates() {
+        return coordinates;
+    }
 
     @Override
-    public SpatialGeometryObject getCoordinates() { return coordinates; }
+    public void setCoordinates(SpatialCoordinates coordinates) {
+        this.coordinates = coordinates;
+    }
+
+    void doSave() {
+        if (hasId()) {
+            dataModel.mapper(GeoCoordinates.class).update(this);
+            return;
+        }
+        dataModel.mapper(GeoCoordinates.class).persist(this);
+    }
+
+    private boolean hasId() {
+        return id != 0L;
+    }
+
+    public void remove() {
+        if (hasId()) {
+            dataModel.mapper(GeoCoordinates.class).remove(this);
+        }
+    }
 
 }

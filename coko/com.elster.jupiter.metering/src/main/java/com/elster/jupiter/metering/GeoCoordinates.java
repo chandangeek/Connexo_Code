@@ -2,16 +2,12 @@ package com.elster.jupiter.metering;
 
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.util.geo.SpatialGeometryObject;
-
-import java.util.Map;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 @ProviderType
 public interface GeoCoordinates {
 
     long getId();
-    SpatialGeometryObject getCoordinates();
-
-    //String getLat();
-    //String getLong();
+    SpatialCoordinates getCoordinates();
+    void setCoordinates(SpatialCoordinates coordinates);
 }

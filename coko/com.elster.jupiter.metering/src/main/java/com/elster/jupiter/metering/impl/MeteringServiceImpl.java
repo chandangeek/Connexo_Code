@@ -41,6 +41,8 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.google.inject.AbstractModule;
@@ -709,6 +711,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         return formattedLocation.isEmpty() ? Optional.empty() : Optional.of(formattedLocation);
     }
 
+
     @Override
     public Optional<Location> findDeviceLocation(String mRID) {
         return findMeter(mRID).isPresent() ? findMeter(mRID).get().getLocation() : Optional.empty();
@@ -768,4 +771,45 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         return defaultlocationTemplate;
     }
 
+    @Override
+    public GeoCoordinates createGeoCoordinates(String coordinates) {
+        GeoCoordinatesImpl geoCoordinates = GeoCoordinatesImpl
+                .from(dataModel,new SpatialCoordinatesFactory().fromStringValue(coordinates));
+        geoCoordinates.doSave();
+        return geoCoordinates;
+    }
+
+    @Override
+    public Optional<GeoCoordinates> findGeoCoordinates(long id){
+        return dataModel.mapper(GeoCoordinates.class).getOptional(id);
+    }
+
+
+    @Override
+    public Optional<GeoCoordinates> findDeviceGeoCoordinates(String mRID) {
+        return findMeter(mRID).isPresent() ? findMeter(mRID).get().getGeoCoordinates() : Optional.empty();
+    }
+
+
+    @Override
+    public Optional<GeoCoordinates> findDeviceGeoCoordinates(long id) {
+        return findMeter(id).isPresent() ? findMeter(id).get().getGeoCoordinates() : Optional.empty();
+    }
+
+    @Override
+    public Optional<GeoCoordinates> findUsagePointGeoCoordinates(String mRID) {
+        return findUsagePoint(mRID).isPresent() ? findUsagePoint(mRID).get().getGeoCoordinates() : Optional.empty();
+    }
+
+    @Override
+    public Optional<GeoCoordinates> findUsagePointGeoCoordinates(long id) {
+        return findUsagePoint(id).isPresent() ? findUsagePoint(id).get().getGeoCoordinates(): Optional.empty();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Query<GeoCoordinates> getGeoCoordinatesQuery() {
+        QueryExecutor<?> executor = dataModel.query(GeoCoordinates.class);
+        return queryService.wrap((QueryExecutor<GeoCoordinates>) executor);
+    }
 }
