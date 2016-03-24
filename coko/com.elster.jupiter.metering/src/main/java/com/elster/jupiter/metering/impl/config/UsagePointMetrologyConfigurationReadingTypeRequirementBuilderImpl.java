@@ -14,16 +14,10 @@ class UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl extends 
 
     private MeterRole meterRole;
 
-    UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(ServerMetrologyConfigurationService metrologyConfigurationService, UsagePointMetrologyConfigurationImpl metrologyConfiguration) {
-        super(metrologyConfigurationService, metrologyConfiguration);
+    UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(ServerMetrologyConfigurationService metrologyConfigurationService, UsagePointMetrologyConfigurationImpl metrologyConfiguration, String name) {
+        super(metrologyConfigurationService, metrologyConfiguration, name);
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.metrologyConfiguration = metrologyConfiguration;
-    }
-
-    @Override
-    public UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder withName(String name) {
-        super.withName(name);
-        return this;
     }
 
     @Override

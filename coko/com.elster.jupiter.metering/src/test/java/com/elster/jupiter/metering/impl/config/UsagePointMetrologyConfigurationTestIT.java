@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -196,5 +197,22 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addReadingTypeRequirement("Reading type requirement")
                 .withMeterRole(meterRole)
                 .withReadingType(readingType);
+    }
+
+    @Test
+    @Transactional
+    public void testCanCreateReadingTypeRequirementWithMeterRole() {
+        ServiceCategory serviceCategory = getServiceCategory();
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
+        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+        serviceCategory.addMeterRole(meterRole);
+        metrologyConfiguration.addMeterRole(meterRole);
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
+        String name = "Reading type requirement";
+        FullySpecifiedReadingType readingTypeRequirement = metrologyConfiguration.addReadingTypeRequirement(name)
+                .withMeterRole(meterRole)
+                .withReadingType(readingType);
+        assertThat(readingTypeRequirement.getName()).isEqualTo(name);
+        assertThat(readingTypeRequirement.getMetrologyConfiguration()).isEqualTo(metrologyConfiguration);
     }
 }

@@ -17,9 +17,6 @@ public interface UsagePointMetrologyConfiguration extends MetrologyConfiguration
     @ProviderType
     interface MetrologyConfigurationReadingTypeRequirementBuilder extends MetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder {
 
-        @Override
-        MetrologyConfigurationReadingTypeRequirementBuilder withName(String name);
-
         MetrologyConfigurationReadingTypeRequirementBuilder withMeterRole(MeterRole meterRole);
     }
 }

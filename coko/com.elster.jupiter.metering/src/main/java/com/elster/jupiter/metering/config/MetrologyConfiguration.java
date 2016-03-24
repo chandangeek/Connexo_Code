@@ -67,8 +67,6 @@ public interface MetrologyConfiguration extends HasId, HasName {
     @ProviderType
     interface MetrologyConfigurationReadingTypeRequirementBuilder {
 
-        MetrologyConfigurationReadingTypeRequirementBuilder withName(String name);
-
         FullySpecifiedReadingType withReadingType(ReadingType readingType);
 
         PartiallySpecifiedReadingType withReadingTypeTemplate(ReadingTypeTemplate readingTypeTemplate);

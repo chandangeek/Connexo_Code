@@ -276,7 +276,7 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
 
     @Override
     public MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name) {
-        return new MetrologyConfigurationReadingTypeRequirementBuilderImpl(this.metrologyConfigurationService, this).withName(name);
+        return new MetrologyConfigurationReadingTypeRequirementBuilderImpl(this.metrologyConfigurationService, this, name);
     }
 
     @Override
