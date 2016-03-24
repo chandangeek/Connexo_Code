@@ -55,15 +55,6 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
-import org.assertj.core.api.Condition;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
@@ -76,6 +67,16 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.assertj.core.api.Condition;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -300,7 +301,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
             firstDeviceConfiguration.activate();
             final DeviceType otherDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("OtherDeviceType", deviceProtocolPluggableClass);
-            otherDeviceType.save();
             configOfOtherDeviceType = otherDeviceType.newConfiguration("ConfigOfOtherDeviceType").add();
             configOfOtherDeviceType.activate();
 
@@ -795,7 +795,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
             final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
             deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsMap(mySecondConnectionTask);
-            deviceType.save();
             device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
             device.save();
             final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask)
@@ -1260,17 +1259,14 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
     private void enhanceDeviceTypeWithRegisterTypes(DeviceType deviceType, RegisterType... registerType) {
         Stream.of(registerType).forEach(deviceType::addRegisterType);
-        deviceType.save();
     }
 
     private void enhanceDeviceTypeWithLogBookTypes(DeviceType deviceType, LogBookType... logBookTypes) {
         Stream.of(logBookTypes).forEach(deviceType::addLogBookType);
-        deviceType.save();
     }
 
     private void enhanceDeviceTypeWithLoadProfileTypes(DeviceType deviceType, LoadProfileType... loadProfileTypes) {
         Stream.of(loadProfileTypes).forEach(deviceType::addLoadProfileType);
-        deviceType.save();
     }
 
     private void enhanceConfigBuilderWithRegisterTypes(DeviceType.DeviceConfigurationBuilder deviceConfigBuilder, RegisterType... registerType) {

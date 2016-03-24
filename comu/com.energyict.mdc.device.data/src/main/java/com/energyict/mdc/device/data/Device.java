@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -15,17 +14,40 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -337,7 +359,15 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     GatewayType getConfigurationGatewayType();
 
+    /**
+     * Build a new device message with the default tracking category 'manual'
+     *
+     * @param deviceMessageId message id to create a device message with
+     * @return device message builder
+     */
     DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId);
+
+    DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId, TrackingCategory trackingCategory);
 
     /**
      * Tests if there are open issues against this Device.
@@ -404,6 +434,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
      */
+    @ProviderType
     interface ScheduledConnectionTaskBuilder {
 
         ScheduledConnectionTaskBuilder setCommunicationWindow(ComWindow communicationWindow);
@@ -433,6 +464,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     /**
      * Builder that supports basic value setters for an InboundConnectionTask.
      */
+    @ProviderType
     interface InboundConnectionTaskBuilder {
 
         InboundConnectionTaskBuilder setComPortPool(InboundComPortPool comPortPool);
@@ -449,6 +481,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
         InboundConnectionTask add();
     }
 
+    @ProviderType
     interface ConnectionInitiationTaskBuilder {
 
         ConnectionInitiationTaskBuilder setComPortPool(OutboundComPortPool comPortPool);
@@ -466,6 +499,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
         ConnectionInitiationTask add();
     }
 
+    @ProviderType
     interface DeviceMessageBuilder {
 
         /**
@@ -487,7 +521,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
         DeviceMessageBuilder setReleaseDate(Instant releaseDate);
 
         /**
-         * Set a trackingId for the currently building DeviceMessage.
+         * Set a tracking id information for the currently building DeviceMessage
          * <br/>
          * (a TrackingID should be a business process 'item', most probably it will not be set by the User)
          *

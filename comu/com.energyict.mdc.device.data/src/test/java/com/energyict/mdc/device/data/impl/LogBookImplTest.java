@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.ObisCode;
@@ -9,12 +10,12 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.masterdata.LogBookType;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-
 import java.time.Instant;
 import java.util.Optional;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -57,7 +58,6 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
         DeviceType.DeviceConfigurationBuilder configWithLogBookSpec = deviceType.newConfiguration("ConfigurationWithLogBookSpec");
         configWithLogBookSpec.newLogBookSpec(logBookType);
         DeviceConfiguration deviceConfiguration = configWithLogBookSpec.add();
-        deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
     }

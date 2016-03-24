@@ -48,9 +48,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
 import org.osgi.service.event.EventConstants;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -164,7 +166,8 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     private long count(SqlBuilder sqlBuilder) {
-        try (PreparedStatement statement = sqlBuilder.prepare(this.deviceDataModelService.dataModel().getConnection(false))) {
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(false);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             try (ResultSet counter = statement.executeQuery()) {
                 counter.next();
                 return counter.getLong(1);
