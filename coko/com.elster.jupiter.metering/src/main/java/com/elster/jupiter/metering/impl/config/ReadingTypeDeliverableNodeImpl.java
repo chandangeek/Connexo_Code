@@ -13,6 +13,8 @@ public class ReadingTypeDeliverableNodeImpl extends AbstractNode implements Read
 
     static final String TYPE_IDENTIFIER = "DEL";
 
+    public ReadingTypeDeliverableNodeImpl() {}
+
     private Reference<ReadingTypeDeliverable> readingTypeDeliverable = ValueReference.absent();
 
     public ReadingTypeDeliverableNodeImpl(ReadingTypeDeliverable readingTypeDeliverable) {
@@ -33,5 +35,9 @@ public class ReadingTypeDeliverableNodeImpl extends AbstractNode implements Read
     @Override
     public Dimension getDimension() {
         return readingTypeDeliverable.get().getReadingType().getUnit().getUnit().getDimension();
+    }
+
+    public String toString() {
+        return "D(" + readingTypeDeliverable.get().getId() + ")";
     }
 }

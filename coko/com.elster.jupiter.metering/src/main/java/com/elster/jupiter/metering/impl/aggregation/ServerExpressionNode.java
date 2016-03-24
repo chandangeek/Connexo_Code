@@ -19,6 +19,7 @@ public interface ServerExpressionNode {
         T visitVirtualDeliverable(VirtualDeliverableNode deliverable);
         T visitOperation(OperationNode operationNode);
         T visitFunctionCall(FunctionCallNode functionCall);
+        T visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode);
     }
 
     <T> T accept(Visitor<T> visitor);

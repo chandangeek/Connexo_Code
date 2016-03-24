@@ -13,6 +13,7 @@ import com.elster.jupiter.util.Counters;
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +30,7 @@ public class ExpressionNodeParser {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
-    private ArrayDeque<String> stack = new ArrayDeque<>();
+    private Deque<String> stack = new ArrayDeque<>();
 
     private List<ExpressionNode> nodes = new ArrayList<>();
 
@@ -60,15 +61,15 @@ public class ExpressionNodeParser {
 
     private void constructNode(String value) {
         String last = stack.pop();
-        if (last.equals("constant")) {
+        if ("constant".equals(last)) {
             handleConstantNode(value);
-        } /*else if (last.equals("D")) {
+        } else if (last.equals("D")) {
             handleDeliverableNode(value);
         } else if (last.equals("R")) {
             handleRequirementNode(value);
-        } */else if ((last.equals("sum")) || (last.equals("avg")) || (last.equals("max")) || (last.equals("min"))) {
+        } else if (Function.names().contains(last)) {
             handleFunctionNode(last);
-        } else if ((last.equals("plus")) || (last.equals("minus")) || (last.equals("multiply")) || (last.equals("divide"))) {
+        } else if (Operator.names().contains(last)) {
             handleOperationNode(last);
         }
         removeArgumentCounter();
@@ -135,27 +136,11 @@ public class ExpressionNodeParser {
     }
 
     private Operator getOperator(String operator) {
-        if ("plus".equals(operator)) {
-            return Operator.PLUS;
-        } else if ("minus".equals(operator)) {
-            return Operator.MINUS;
-        } else if ("multiply".equals(operator)) {
-            return Operator.MULTIPLY;
-        } else {
-            return Operator.DIVIDE;
-        }
+        return Operator.from(operator).get();
     }
 
     private Function getFunction(String function) {
-        if ("sum".equals(function)) {
-            return Function.SUM;
-        } else if ("avg".equals(function)) {
-            return Function.AVG;
-        } else if ("max".equals(function)) {
-            return Function.MAX;
-        } else {
-            return Function.MIN;
-        }
+        return Function.from(function).get();
     }
 
     private void newArgumentCounter() {
@@ -167,15 +152,13 @@ public class ExpressionNodeParser {
     }
 
     private void incrementArgumentCounter() {
-        if (argumentCounters.size() > 0) {
+        if (!argumentCounters.isEmpty()) {
             argumentCounters.get(argumentCounters.size() - 1).increment();
         }
     }
 
-
     private int getNumberOfArguments() {
         return argumentCounters.get(argumentCounters.size() - 1).getValue();
     }
-
 
 }

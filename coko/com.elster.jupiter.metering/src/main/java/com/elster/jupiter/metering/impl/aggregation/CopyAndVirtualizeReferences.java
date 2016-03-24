@@ -77,7 +77,14 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
     public ServerExpressionNode visitFunctionCall(com.elster.jupiter.metering.config.FunctionCallNode functionCall) {
         List<ServerExpressionNode> arguments = functionCall.getChildren().stream().map(child -> child.accept(this)).collect(Collectors.toList());
         Function function = Function.from(functionCall.getFunction());
-        return new FunctionCallNode(function, arguments);
+        if (Function.AGG_TIME.equals(function)) {
+            if (arguments.size() != 1) {
+                throw new IllegalArgumentException("Time based aggregation only supports 1 argument");
+            }
+            return new TimeBasedAggregationNode(arguments.get(0), VirtualReadingType.from(this.deliverable.getReadingType()));
+        } else {
+            return new FunctionCallNode(function, arguments);
+        }
     }
 
 }

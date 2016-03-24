@@ -40,13 +40,6 @@ public interface MetrologyConfigurationService {
 
     FormulaBuilder newFormulaBuilder(Formula.Mode mode);
 
-    /**
-     * Good for now but will need to be facaded with another API before final release.
-     */
-    Optional<Formula> findFormula(long id);
-
-    List<Formula> findFormulas();
-
     ReadingTypeTemplate createReadingTypeTemplate(String name);
 
     Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id);
@@ -68,4 +61,5 @@ public interface MetrologyConfigurationService {
     Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
 
     Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id);
+
 }

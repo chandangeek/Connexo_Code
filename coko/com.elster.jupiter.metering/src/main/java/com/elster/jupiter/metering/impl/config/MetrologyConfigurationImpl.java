@@ -123,6 +123,27 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
     }
 
     @Override
+    public void updateName(String name) {
+        this.setName(name);
+        this.update();
+    }
+
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public Instant getModTime() {
+        return modTime;
+    }
+
+    @Override
+    public String getUserName() {
+        return userName;
+    }
+
+    @Override
     public String getDescription() {
         return description;
     }
@@ -145,7 +166,15 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
     public void activate() {
         if (MetrologyConfigurationStatus.INACTIVE == status) {
             this.status = MetrologyConfigurationStatus.ACTIVE;
-            update();
+            this.update();
+        }
+    }
+
+    @Override
+    public void deactivate() {
+        if (MetrologyConfigurationStatus.ACTIVE == status) {
+            this.status = MetrologyConfigurationStatus.INACTIVE;
+            this.update();
         }
     }
 

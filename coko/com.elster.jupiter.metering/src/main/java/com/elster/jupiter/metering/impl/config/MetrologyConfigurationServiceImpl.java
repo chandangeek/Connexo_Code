@@ -53,7 +53,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-15 (13:20)
  */
-public class MetrologyConfigurationServiceImpl implements MetrologyConfigurationService, ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, TranslationKeyProvider {
+public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
     private volatile ServerMeteringService meteringService;
     private volatile EventService eventService;
@@ -145,7 +145,7 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
 
     @Override
     public Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id) {
-        return this.getDataModel().mapper(ReadingTypeRequirement.class).getUnique("id", id);
+        return getDataModel().mapper(ReadingTypeRequirement.class).getOptional(id);
     }
 
 
@@ -177,7 +177,6 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         return new FormulaBuilderImpl(mode, getDataModel(), getThesaurus());
     }
 
-    @Override
     public Optional<Formula> findFormula(long id) {
         return getDataModel().mapper(Formula.class).getOptional(id);
     }

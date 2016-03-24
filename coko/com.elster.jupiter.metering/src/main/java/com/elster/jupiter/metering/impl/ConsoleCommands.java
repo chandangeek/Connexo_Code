@@ -5,12 +5,16 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
+import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
@@ -54,7 +58,10 @@ import java.util.stream.Collectors;
         "osgi.command.function=addFormula",
         "osgi.command.function=formulas",
         "osgi.command.function=deleteFormula",
-        "osgi.command.function=updateFormula"
+        "osgi.command.function=updateFormula",
+        "osgi.command.function=addMetrologyConfig",
+        "osgi.command.function=addRequirement",
+        "osgi.command.function=addDeliverable"
 }, immediate = true)
 public class ConsoleCommands {
 
@@ -62,7 +69,7 @@ public class ConsoleCommands {
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
 
     public void printDdl() {
         try {
@@ -264,7 +271,62 @@ public class ConsoleCommands {
     public void addFormula(String formulaString) {
         try (TransactionContext context = transactionService.getContext()) {
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
-            Formula formula = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+            ServerFormulaBuilder formulaBuilder = (ServerFormulaBuilder) metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
+            Formula formula = formulaBuilder.init(node).build();
+            context.commit();
+        }
+    }
+
+    public void addMetrologyConfig(String name) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<ServiceCategory> serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY);
+            if (!serviceCategory.isPresent()) {
+                throw new RuntimeException("no service category found for ELECTRICITY");
+            }
+            MetrologyConfigurationBuilder builder =
+                    metrologyConfigurationService.newMetrologyConfiguration(name, serviceCategory.get());
+            builder.create();
+            context.commit();
+        }
+
+    }
+
+    public void addRequirement(String name, String readingTypeString, long metrologyConfigId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<MetrologyConfiguration> config = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId);
+            Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeString);
+            if (!readingType.isPresent()) {
+                throw new RuntimeException("ReadingType does not exist");
+            }
+            if (!config.isPresent()) {
+                throw new RuntimeException("no metrology config found with id " + metrologyConfigId);
+            }
+            config.get().addReadingTypeRequirement(name)
+                        .withReadingType(readingType.get());
+            context.commit();
+        }
+    }
+
+    public void addDeliverable(String name, String readingTypeString, long metrologyConfigId, long formulaId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<MetrologyConfiguration> config = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId);
+            Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeString);
+            if (!readingType.isPresent()) {
+                throw new RuntimeException("ReadingType does not exist");
+            }
+            if (!config.isPresent()) {
+                throw new RuntimeException("no metrology config found with id " + metrologyConfigId);
+            }
+
+            Optional<Formula> formula = metrologyConfigurationService.findFormula(formulaId);
+            if (!formula.isPresent()) {
+                throw new RuntimeException("no formula found with id " + formulaId);
+            }
+            metrologyConfigurationService.createReadingTypeDeliverable(config.get(), name, readingType.get(), formula.get());
+
             context.commit();
         }
     }
@@ -287,7 +349,7 @@ public class ConsoleCommands {
     }
 
     @Reference
-    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+    public void setMetrologyConfigurationService(ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
@@ -319,6 +381,5 @@ public class ConsoleCommands {
         builder.append("Currency                 : ").append(readingType.getCurrency().toString()).append('\n');
         return builder.toString();
     }
-
 
 }

@@ -64,4 +64,9 @@ public class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor
                 .orElse(null);
     }
 
+    @Override
+    public String visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+        return aggregationNode.getAggregatedExpression().accept(this);
+    }
+
 }

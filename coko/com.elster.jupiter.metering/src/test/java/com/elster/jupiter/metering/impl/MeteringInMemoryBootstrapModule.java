@@ -15,6 +15,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeDeletionVetoEventHandler;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -32,6 +33,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -110,8 +112,8 @@ public class MeteringInMemoryBootstrapModule {
         inMemoryBootstrapModule.deactivate();
     }
 
-    public MetrologyConfigurationService getMetrologyConfigurationService() {
-        return injector.getInstance(MetrologyConfigurationService.class);
+    public ServerMetrologyConfigurationService getMetrologyConfigurationService() {
+        return injector.getInstance(ServerMetrologyConfigurationService.class);
     }
 
     public TransactionService getTransactionService() {

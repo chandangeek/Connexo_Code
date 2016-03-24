@@ -13,6 +13,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
+
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,10 +25,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -47,7 +48,13 @@ public class MeteringServiceImplTest {
     @Mock
     private ReadingType readingType;
     @Mock
-    private Column column1, column2;
+    private Column startTimeColumn;
+    @Mock
+    private Column endTimeColumn;
+    @Mock
+    private Column deliverableColumn;
+    @Mock
+    private Column requirementColumn;
     @Mock
     private DataMapper<ServiceLocation> serviceLocationFactory;
     @Mock
@@ -67,12 +74,13 @@ public class MeteringServiceImplTest {
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.getTable(anyString())).thenReturn(table);
         when(dataModel.getInstance(ServiceLocationImpl.class)).thenReturn(new ServiceLocationImpl(dataModel, eventService));
-        when(table.addIntervalColumns(anyString())).thenReturn(Arrays.asList(column1, column2));
+        when(table.addIntervalColumns(anyString())).thenReturn(Arrays.asList(startTimeColumn, endTimeColumn));
+        when(table.getColumn("READINGTYPE_DELIVERABLE")).thenReturn(Optional.of(deliverableColumn));
+        when(table.getColumn("READINGTYPE_REQUIREMENT")).thenReturn(Optional.of(requirementColumn));
         when(dataModel.mapper(ReadingType.class)).thenReturn(readingTypeFactory);
         when(dataModel.mapper(ServiceLocation.class)).thenReturn(serviceLocationFactory);
         when(dataModel.mapper(ServiceCategory.class)).thenReturn(serviceCategoryTypeCache);
         meteringService = new MeteringServiceImpl();
-
         meteringService.setOrmService(ormService);
         meteringService.setIdsService(idsService);
     }

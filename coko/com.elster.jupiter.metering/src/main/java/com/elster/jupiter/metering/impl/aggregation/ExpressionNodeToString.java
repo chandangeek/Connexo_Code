@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,6 +62,13 @@ public class ExpressionNodeToString implements ServerExpressionNode.Visitor<Stri
         SqlBuilder fragment = new SqlBuilder();
         deliverable.appendTo(fragment);
         return fragment.getText();
+    }
+
+    @Override
+    public String visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+        StringBuilder fragment = new StringBuilder();
+        aggregationNode.getFunction().appendTo(fragment, Collections.singletonList(aggregationNode.getAggregatedExpression().accept(this)));
+        return fragment.toString();
     }
 
 }

@@ -46,7 +46,7 @@ final class SqlConstants {
          */
         ID("id", "TIMESERIESID") {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 sqlBuilder.append(VIRTUAL_TIMESERIES_ID);
             }
 
@@ -67,10 +67,15 @@ final class SqlConstants {
          */
         TIMESTAMP("timestamp", "UTCSTAMP") {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 String value = expressionNode.accept(new TimeStampFromExpressionNode());
                 if (value == null) {
                     sqlBuilder.append("0");
+                } else if (withAggregation) {
+                    sqlBuilder.append(AggregationFunction.MAX.sqlName());
+                    sqlBuilder.append("(");
+                    sqlBuilder.append(value);
+                    sqlBuilder.append(")");
                 } else {
                     sqlBuilder.append(value);
                 }
@@ -93,7 +98,7 @@ final class SqlConstants {
          */
         VERSIONCOUNT("versioncount", "VERSIONCOUNT") {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 sqlBuilder.append(VIRTUAL_VERSION_COUNT);
             }
 
@@ -114,7 +119,7 @@ final class SqlConstants {
          */
         RECORDTIME("recordtime", "RECORDTIME") {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 sqlBuilder.append(VIRTUAL_RECORD_TIME);
             }
 
@@ -135,12 +140,12 @@ final class SqlConstants {
          */
         PROCESSSTATUS("processStatus", RecordSpecs.PROCESS_STATUS) {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 String value = expressionNode.accept(new ProcessStatusFromExpressionNode());
                 if (value == null) {
                     sqlBuilder.append("0");
                 } else if (withAggregation) {
-                    sqlBuilder.append(AggregationFunction.BIT_OR.sqlName());
+                    sqlBuilder.append(AggregationFunction.AGGREGATE_FLAGS.sqlName());
                     sqlBuilder.append("(");
                     sqlBuilder.append(value);
                     sqlBuilder.append(")");
@@ -151,7 +156,7 @@ final class SqlConstants {
 
             @Override
             AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
-                return AggregationFunction.BIT_OR;
+                return AggregationFunction.AGGREGATE_FLAGS;
             }
         },
 
@@ -161,7 +166,7 @@ final class SqlConstants {
          */
         VALUE("value", RecordSpecs.VALUE) {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 sqlBuilder.add(expressionNode.accept(new ExpressionNodeToSql()));
             }
 
@@ -177,10 +182,18 @@ final class SqlConstants {
          */
         LOCALDATE("localdate", "LOCALDATE") {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 String value = expressionNode.accept(new LocalDateFromExpressionNode());
                 if (value == null) {
                     sqlBuilder.append("sysdate");
+                } else if (withAggregation) {
+                    sqlBuilder.append(AggregationFunction.TRUNC.sqlName());
+                    sqlBuilder.append("(");
+                    sqlBuilder.append(value);
+                    sqlBuilder.append(", '");
+                    sqlBuilder.append(targetReadingType.getIntervalLength().toOracleTruncFormatModel());
+                    sqlBuilder.append("'");
+                    sqlBuilder.append(")");
                 } else {
                     sqlBuilder.append(value);
                 }
@@ -219,18 +232,19 @@ final class SqlConstants {
          *
          * @param expressionNode The ServerExpressionNode
          * @param withAggregation A flag that indicates if aggregation is involved
+         * @param targetReadingType The target VirtualReadingType
          * @param sqlBuilder The SqlBuilder
          */
-        static void appendAllDeliverableSelectValues(ServerExpressionNode expressionNode, boolean withAggregation, SqlBuilder sqlBuilder) {
+        static void appendAllDeliverableSelectValues(ServerExpressionNode expressionNode, boolean withAggregation, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
             for (TimeSeriesColumnNames columnName : values()) {
-                columnName.appendAsDeliverableSelectValue(expressionNode, withAggregation, sqlBuilder);
+                columnName.appendAsDeliverableSelectValue(expressionNode, withAggregation, targetReadingType, sqlBuilder);
                 if (columnName != LOCALDATE) {
                     sqlBuilder.append(", ");
                 }
             }
         }
 
-        abstract void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, SqlBuilder sqlBuilder);
+        abstract void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, boolean withAggregation, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder);
 
         /**
          * Append the appropriate select value to (if necessary) convert values

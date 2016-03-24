@@ -423,7 +423,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             Dictionary<String, Object> properties = new Hashtable<>(1);
             properties.put("name", MetrologyConfigurationService.COMPONENT_NAME);
             this.serviceRegistrations.add(bundleContext.registerService(
-                    new String[]{MetrologyConfigurationService.class.getName(),
+                    new String[]{
+                            MetrologyConfigurationService.class.getName(),
                             ServerMetrologyConfigurationService.class.getName(),
                             InstallService.class.getName(),
                             PrivilegesProvider.class.getName(),

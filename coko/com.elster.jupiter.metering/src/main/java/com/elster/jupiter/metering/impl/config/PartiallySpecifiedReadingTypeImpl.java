@@ -26,7 +26,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl implements PartiallySpecifiedReadingType {
-    public static final String TYPE_IDENTIFIER = "P";
+    public static final String TYPE_IDENTIFIER = "PRT";
 
     private final DataModel dataModel;
 
