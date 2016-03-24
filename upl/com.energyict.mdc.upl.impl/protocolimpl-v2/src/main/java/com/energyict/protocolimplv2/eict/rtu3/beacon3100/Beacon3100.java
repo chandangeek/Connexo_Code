@@ -244,35 +244,31 @@ public class Beacon3100 extends AbstractDlmsProtocol {
                 final G3Topology.G3Node g3Node = findG3Node(macAddress, g3Nodes);
                 if (g3Node != null) {
 
-                    long configuredLastSeenDate = getConfiguredLastSeenDate(macAddress);
-
-                    //G3 node that was read out has a newer link to a DC, update allowed.
-                    //Else: this device is no longer considered a slave device of the gateway.
-                    if (hasNewerLastSeenDate(g3Node, configuredLastSeenDate)) {
-                        DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
-                        deviceTopology.addSlaveDevice(slaveDeviceIdentifier);   //Using callHomeId as a general property
-                        deviceTopology.addAdditionalCollectedDeviceInfo(
-                                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                        slaveDeviceIdentifier,
-                                        AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID,
-                                        BigDecimal.valueOf(sapAssignmentItem.getSap())
-                                )
-                        );
-                        deviceTopology.addAdditionalCollectedDeviceInfo(
-                                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                        slaveDeviceIdentifier,
-                                        AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID,
-                                        BigDecimal.valueOf(findMatchingMirrorLogicalDevice(macAddress, sapAssignmentList))
-                                )
-                        );
-                        deviceTopology.addAdditionalCollectedDeviceInfo(
-                                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                        slaveDeviceIdentifier,
-                                        G3Properties.PROP_LASTSEENDATE,
-                                        BigDecimal.valueOf(g3Node.getLastSeenDate().getTime())
-                                )
-                        );
-                    }
+                    //Always include the slave information if it is present in the SAP assignment list and the G3 node list.
+                    //It is the ComServer framework that will then do a smart update in EIServer, taking the readout LastSeenDate into account.
+                    DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
+                    deviceTopology.addSlaveDevice(slaveDeviceIdentifier);   //Using callHomeId as a general property
+                    deviceTopology.addAdditionalCollectedDeviceInfo(
+                            MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                    slaveDeviceIdentifier,
+                                    AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID,
+                                    BigDecimal.valueOf(sapAssignmentItem.getSap())
+                            )
+                    );
+                    deviceTopology.addAdditionalCollectedDeviceInfo(
+                            MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                    slaveDeviceIdentifier,
+                                    AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID,
+                                    BigDecimal.valueOf(findMatchingMirrorLogicalDevice(macAddress, sapAssignmentList))
+                            )
+                    );
+                    deviceTopology.addAdditionalCollectedDeviceInfo(
+                            MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                    slaveDeviceIdentifier,
+                                    G3Properties.PROP_LASTSEENDATE,
+                                    BigDecimal.valueOf(g3Node.getLastSeenDate().getTime())
+                            )
+                    );
                 }
             }
         }
@@ -344,7 +340,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-23 10:22:20 +0100 (Wed, 23 Mar 2016)$";
+        return "$Date: 2016-03-24 17:55:37 +0100 (Thu, 24 Mar 2016)$";
     }
 
     @Override
