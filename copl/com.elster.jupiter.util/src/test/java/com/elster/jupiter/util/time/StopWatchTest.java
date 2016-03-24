@@ -11,7 +11,9 @@ public class StopWatchTest {
         StopWatch stopWatch = new StopWatch();
 
         long elapsed = stopWatch.getElapsed();
-        assertThat(stopWatch.getElapsed()).isGreaterThan(elapsed);
+        // although it might seem that it is very unlikely to happen that previous instruction and the next one happens
+        // in the same nano second it actually happened on 18/03/2016 10:56:42 (see https://build.eict.vpdc/browse/CON-CDB-JOB1-89) !!!
+        assertThat(stopWatch.getElapsed()).isGreaterThanOrEqualTo(elapsed);
     }
 
     @Test
