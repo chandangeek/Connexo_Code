@@ -15,7 +15,7 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
     public static final String TYPE_IDENTIFIER = "U";
 
     private List<MetrologyConfigurationMeterRoleUsageImpl> meterRoles = new ArrayList<>();
-    private List<UsagePointMetrologyConfigurationRequirementRoleReference> requirementToRoleReferences = new ArrayList<>();
+    private List<ReadingTypeRequirementMeterRoleUsage> requirementToRoleUsages = new ArrayList<>();
 
     @Inject
     UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
@@ -45,9 +45,9 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
                 .filter(usage -> usage.getMeterRole().equals(meterRole))
                 .findAny();
         if (meterRoleUsage.isPresent()) {
-            if (this.requirementToRoleReferences
+            if (this.requirementToRoleUsages
                     .stream()
-                    .map(UsagePointMetrologyConfigurationRequirementRoleReference::getMeterRole)
+                    .map(ReadingTypeRequirementMeterRoleUsage::getMeterRole)
                     .anyMatch(meterRole::equals)) {
                 throw CannotManageMeterRoleOnMetrologyConfigurationException.canNotDeleteMeterRoleFromMetrologyConfiguration(
                         getMetrologyConfigurationService().getThesaurus(), meterRole.getDisplayName(), getName());
@@ -65,9 +65,9 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
                 .collect(Collectors.toList());
     }
 
-    void addReadingTypeRequirementToMeterRoleReference(UsagePointMetrologyConfigurationRequirementRoleReference reference) {
-        Save.CREATE.validate(getMetrologyConfigurationService().getDataModel(), reference);
-        this.requirementToRoleReferences.add(reference);
+    void addReadingTypeRequirementMeterRoleUsage(ReadingTypeRequirementMeterRoleUsage usage) {
+        Save.CREATE.validate(getMetrologyConfigurationService().getDataModel(), usage);
+        this.requirementToRoleUsages.add(usage);
     }
 
     @Override

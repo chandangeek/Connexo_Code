@@ -43,10 +43,10 @@ class UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl extends 
     }
 
     private <T extends ReadingTypeRequirement> T addReadingTypeRequirementToMeterRoleReference(T readingTypeRequirement) {
-        UsagePointMetrologyConfigurationRequirementRoleReference reference = this.metrologyConfigurationService.getDataModel()
-                .getInstance(UsagePointMetrologyConfigurationRequirementRoleReference.class)
-                .init(this.metrologyConfiguration, this.meterRole, readingTypeRequirement);
-        this.metrologyConfiguration.addReadingTypeRequirementToMeterRoleReference(reference);
+        ReadingTypeRequirementMeterRoleUsage reference = this.metrologyConfigurationService.getDataModel()
+                .getInstance(ReadingTypeRequirementMeterRoleUsage.class)
+                .init(this.meterRole, readingTypeRequirement);
+        this.metrologyConfiguration.addReadingTypeRequirementMeterRoleUsage(reference);
         return readingTypeRequirement;
     }
 }
