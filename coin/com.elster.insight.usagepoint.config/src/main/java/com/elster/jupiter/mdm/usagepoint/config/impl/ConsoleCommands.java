@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component(name = "com.elster.insight.usagepoint.config.console",
         service = ConsoleCommands.class,
@@ -58,11 +59,29 @@ public class ConsoleCommands {
     private volatile ValidationService validationService;
     private volatile Clock clock;
 
-    public void createMetrologyConfiguration(String name) {
+    public void createMetrologyConfiguration(String name, String serviceKindName) {
+        try {
+            Optional<ServiceCategory> serviceCategory = meteringService.getServiceCategory(ServiceKind.valueOf(serviceKindName));
+            if (serviceCategory.isPresent()) {
+                transactionService.builder()
+                        .principal(() -> "console")
+                        .run(() -> metrologyConfigurationService.newMetrologyConfiguration(name, serviceCategory.get()));
+            } else {
+                System.out.println("No ServiceCategory for: " + serviceKindName);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void renameMetrologyConfiguration(long id, String name) {
         try {
             transactionService.builder()
                     .principal(() -> "console")
-                    .run(() -> metrologyConfigurationService.newMetrologyConfiguration(name, meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get()).create());
+                    .run(() -> {
+                        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(id).get();
+                        metrologyConfiguration.updateName(name);
+                    });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -326,4 +345,5 @@ public class ConsoleCommands {
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
+
 }
