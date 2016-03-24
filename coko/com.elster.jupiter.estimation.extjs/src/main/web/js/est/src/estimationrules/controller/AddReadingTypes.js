@@ -19,7 +19,9 @@ Ext.define('Est.estimationrules.controller.AddReadingTypes', {
         'Est.main.store.ReadingTypes',
         'Est.main.store.UnitsOfMeasure',
         'Est.main.store.TimeOfUse',
-        'Est.main.store.Intervals'
+        'Est.main.store.Intervals',
+        'Est.main.store.SelectedReadingTypes',
+        'Est.main.view.AddReadingTypesNoItemsFoundPanel'
     ],
 
     refs: [
@@ -37,6 +39,11 @@ Ext.define('Est.estimationrules.controller.AddReadingTypes', {
         this.control({
             'add-reading-types [action=addReadingTypes]': {
                 click: this.addSelectedReadingTypes
+            },
+            'add-reading-types addReadingTypesNoItemsFoundPanel': {
+                openInfoWindow: this.showSelectedReadingTypes,
+                showNoFoundPanel: this.showNoFoundPanel,
+                uncheckAll: this.uncheckAll
             }
         });
     },
@@ -121,5 +128,38 @@ Ext.define('Est.estimationrules.controller.AddReadingTypes', {
 
         me.getStore('Est.main.store.Clipboard').get('estimationRule').readingTypes().add(me.getGrid().getSelectedRecords());
         window.location.href = me.getPage().returnLink;
+    },
+
+    showSelectedReadingTypes: function(){
+        var me = this;
+        var widget = Ext.widget('estimationSelectedReadingTypes');
+        widget.setTitle(me.setCountOfSelectedReadingTypes());
+        widget.show();
+    },
+
+    showNoFoundPanel: function (cmp) {
+        var me = this,
+            grid = me.getGrid();
+        cmp.getSelectionCounter().setText(me.setCountOfSelectedReadingTypes());
+        console.log((grid.hiddenSelection.length));
+        if(grid.hiddenSelection.length){
+            cmp.getuncheckAllBtn().setDisabled(false);
+            cmp.getInfoBtn().show();
+        } else {
+            cmp.getuncheckAllBtn().setDisabled(true);
+            cmp.getInfoBtn().hide();
+        }
+    },
+
+    setCountOfSelectedReadingTypes: function(){
+        var me = this,
+            grid = me.getGrid();
+        return grid.counterTextFn(grid.hiddenSelection.length)
+    },
+
+    uncheckAll: function(){
+        var me = this,
+            grid = me.getGrid();
+        grid.getUncheckAllButton().fireEvent('click',grid.getUncheckAllButton());
     }
 });

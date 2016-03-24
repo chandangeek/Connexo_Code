@@ -4,7 +4,9 @@ Ext.define('Est.main.view.ReadingTypesGrid', {
     store: 'Est.main.store.ReadingTypes',
 
     requires: [
-        'Uni.grid.column.ReadingType'
+        'Uni.grid.column.ReadingType',
+        'Est.main.store.SelectedReadingTypes',
+        'Est.main.view.SelectedReadingTypesWindow'
     ],
 
     counterTextFn: function (count) {
@@ -38,11 +40,37 @@ Ext.define('Est.main.view.ReadingTypesGrid', {
                 me.popRecord(record);
             }
         });
+
+
+
         me.getStore().on('prefetch', function () {
             me.selectRecords();
         });
         me.getStore().on('beforeload', function () {
             me.deselectGrid();
+        });
+
+        me.getTopToolbarContainer().add(1,{
+            xtype: 'button',
+            hidden: true,
+            itemId: 'list-of-reading-types-info-btn',
+            tooltip: Uni.I18n.translate('readingType.tooltip', 'EST', 'Click for more information'),
+            iconCls: 'uni-icon-info-small',
+            cls: 'uni-btn-transparent',
+            width: 15,
+            style: {
+                display: 'inline-block',
+                textDecoration: 'none !important',
+                position: 'absolute',
+                top: '5px'
+            },
+            handler: function () {
+                var widget = Ext.widget('estimationSelectedReadingTypes');
+                widget.setTitle(me.counterTextFn(me.hiddenSelection.length));
+                console.log(Ext.getStore('Est.main.store.SelectedReadingTypes'));
+
+                widget.show();
+            }
         });
     },
 
@@ -107,6 +135,7 @@ Ext.define('Est.main.view.ReadingTypesGrid', {
         me.clearSelection();
         me.blockSelectEvent = false;
         me.overriddenOnSelectionChange();
+        this.down('#list-of-reading-types-info-btn').hide();
         button.setDisabled(true);
     },
 
@@ -128,5 +157,13 @@ Ext.define('Est.main.view.ReadingTypesGrid', {
 
 
     onSelectionChange: function () {
+        var me =this,
+            btn = this.down('#list-of-reading-types-info-btn'),
+            selectedStore =  Ext.getStore('Est.main.store.SelectedReadingTypes');
+        console.log(me.hiddenSelection);
+        selectedStore.removeAll();
+        selectedStore.add(me.hiddenSelection);
+        console.log(selectedStore);
+        me.hiddenSelection.length ? btn.show() : btn.hide();
     }
 });
