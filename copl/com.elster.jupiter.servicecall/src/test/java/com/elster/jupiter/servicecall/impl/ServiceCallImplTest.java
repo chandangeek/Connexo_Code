@@ -6,7 +6,6 @@ import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.util.json.JsonService;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -43,15 +42,13 @@ public class ServiceCallImplTest {
     @Mock
     private IServiceCallService serviceCallService;
     @Mock
-    private JsonService jsonService;
-    @Mock
     private State state;
 
     @Before
     public void setUp() {
         clock = new ProgrammableClock(TimeZoneNeutral.getMcMurdo(), () -> TIME_BASE.plusMinutes(tickCounter++)
                 .toInstant());
-        when(dataModel.getInstance(ServiceCallImpl.class)).thenAnswer(invocation -> new ServiceCallImpl(dataModel, serviceCallService, clock, customPropertySetService, jsonService));
+        when(dataModel.getInstance(ServiceCallImpl.class)).thenAnswer(invocation -> new ServiceCallImpl(dataModel, serviceCallService, clock, customPropertySetService, null));
         when(serviceCallType.getServiceCallLifeCycle()).thenReturn(serviceCallLifeCycle);
         when(serviceCallLifeCycle.getState(DefaultState.CREATED)).thenReturn(Optional.of(state));
         when(state.getName()).thenReturn(DefaultState.CREATED.getKey());
