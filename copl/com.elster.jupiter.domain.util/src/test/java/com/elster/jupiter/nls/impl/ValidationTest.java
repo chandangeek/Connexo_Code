@@ -60,25 +60,13 @@ public class ValidationTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(NlsService.class);
             ctx.commit();
-            new MockModule(),
-                    inMemoryBootstrapModule,
-                    new OrmModule(),
-                    new UtilModule(),
-                    new ThreadSecurityModule(),
-                    new PubSubModule(),
-                    new TransactionModule(printSql),
-                    new NlsModule()
-            );
-            try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-                injector.getInstance(NlsService.class);
-                ctx.commit();
-            }
         }
+    }
 
-        @AfterClass
-        public static void tearDown () {
-            inMemoryBootstrapModule.deactivate();
-        }
+    @AfterClass
+    public static void tearDown() {
+        inMemoryBootstrapModule.deactivate();
+    }
 
     private NlsService getNlsService() {
         return injector.getInstance(NlsService.class);
