@@ -1,5 +1,6 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.rest.util.BinderProvider;
@@ -48,92 +49,98 @@ import java.util.logging.Logger;
 
 @Component (name = "com.elster.jupiter.rest.whiteboard.implementation" , immediate = true , service = {}  )
 public class WhiteBoard {
-	
-	private static final Logger LOGGER = Logger.getLogger(WhiteBoard.class.getName());
-	
-	private volatile HttpContextImpl httpContext;
-	private volatile HttpService httpService;
-	private volatile UserService userService;
+
+    private static final Logger LOGGER = Logger.getLogger(WhiteBoard.class.getName());
+
+    private volatile HttpContextImpl httpContext;
+    private volatile HttpService httpService;
+    private volatile UserService userService;
     private volatile LicenseService licenseService;
-	private volatile ThreadPrincipalService threadPrincipalService;
-	private volatile Publisher publisher;
-	private volatile TransactionService transactionService;
-	private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
-	private volatile WhiteBoardConfiguration configuration;
+    private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile Publisher publisher;
+    private volatile TransactionService transactionService;
+    private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
+    private volatile WhiteBoardConfiguration configuration;
+    private volatile HttpAuthenticationService authenticationService;
 
     private final UrlRewriteFilter urlRewriteFilter = new UrlRewriteFilter();
 
-	UserService getUserService() {
-		return userService;
-	}
-
-
-	ThreadPrincipalService getThreadPrincipalService() {
-		return threadPrincipalService;
-	}
-
-	@Reference
-	public void setUserService(UserService userService) {
-		this.userService = userService;
-	}
-
-	@Reference
-	public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-		this.threadPrincipalService = threadPrincipalService;
-	}
-
-	@Reference
-    public void setHttpService(HttpService httpService) {
-    	this.httpService = httpService;
+    UserService getUserService() {
+        return userService;
     }
-	
-	@Reference
-	public void setPublisher(Publisher publisher) {
-		this.publisher = publisher;
-	}
 
-	@Reference
-	public void setTransactionService(TransactionService transactionService) {
-		this.transactionService = transactionService;
-	}
 
-	@Reference
+    ThreadPrincipalService getThreadPrincipalService() {
+        return threadPrincipalService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setHttpService(HttpService httpService) {
+        this.httpService = httpService;
+    }
+
+    @Reference
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Reference
     public void setLicenseService(LicenseService licenseService) {
         this.licenseService = licenseService;
     }
-	
-	Publisher getPublisher() {
-		return publisher;
-	}
-	
-	@Reference(cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC)
-	public void setEventAdmin(EventAdmin eventAdmin) {
-		eventAdminHolder.set(eventAdmin);
-	}
-	    
-	public void unsetEventAdmin(EventAdmin eventAdmin) {
-	    eventAdminHolder.compareAndSet(eventAdmin, null);
-	}
-    
-    @Reference(name="YServiceLocator")
+
+    @Reference
+    public void setAuthenticationService(HttpAuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
+
+    Publisher getPublisher() {
+        return publisher;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void setEventAdmin(EventAdmin eventAdmin) {
+        eventAdminHolder.set(eventAdmin);
+    }
+
+    public void unsetEventAdmin(EventAdmin eventAdmin) {
+        eventAdminHolder.compareAndSet(eventAdmin, null);
+    }
+
+    @Reference(name = "YServiceLocator")
     public void setConfiguration(WhiteBoardConfigurationProvider provider) {
-    	this.configuration = provider.getConfiguration();
-		this.httpContext = new HttpContextImpl(new BasicAuthentication(userService));
-	}
-    
+        this.configuration = provider.getConfiguration();
+        this.httpContext = new HttpContextImpl(authenticationService);
+    }
+
 	void fire(RestCallExecutedEvent event) {
 		publisher.publish(event);
 		if (configuration.log()) {
 			Logger.getLogger("com.elster.jupiter.rest.whiteboard").info(event.toString());
 		}
-		if (configuration.throwEvents()) {			
+		if (configuration.throwEvents()) {
 			EventAdmin eventAdmin = eventAdminHolder.get();
 			if (eventAdmin != null) {
 				eventAdmin.postEvent(event.toOsgiEvent());
 			}
 		}
 	}
-    
+
     @Reference(name="ZApplication",cardinality=ReferenceCardinality.MULTIPLE,policy=ReferencePolicy.DYNAMIC)
     public void addResource(Application application, Map<String,Object> properties) {
     	Optional<String> alias = getAlias(properties);
@@ -153,14 +160,14 @@ public class WhiteBoard {
         secureConfig.register(new TransactionWrapper(transactionService));
         secureConfig.register(ConcurrentModificationExceptionMapper.class);
         secureConfig.register(urlRewriteFilter);
-		secureConfig.register(new AbstractBinder() {
-			@Override
-			protected void configure() {
-				bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-				bind(ConcurrentModificationInfo.class).to(ConcurrentModificationInfo.class);
-				bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
-			}
-		});
+        secureConfig.register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+                bind(ConcurrentModificationInfo.class).to(ConcurrentModificationInfo.class);
+                bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
+            }
+        });
         if (application instanceof BinderProvider) {
             secureConfig.register(((BinderProvider) application).getBinder());
         }
@@ -170,39 +177,39 @@ public class WhiteBoard {
         EncodingFilter.enableFor(secureConfig, GZipEncoder.class);
         try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
             ServletContainer container = new ServletContainer(secureConfig);
-            HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container,threadPrincipalService),this);
+            HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container, threadPrincipalService), this);
             httpService.registerServlet(alias.get(), wrapper, null, httpContext);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error while registering " + alias.get() + ": " + e.getMessage() , e);
+            LOGGER.log(Level.SEVERE, "Error while registering " + alias.get() + ": " + e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
 
 
-    public void removeResource(Application application,Map<String,Object> properties) {
-    	Optional<String> alias = getAlias(properties);
-    	if (alias.isPresent()) {
-    		httpService.unregister(alias.get());
-    	}
+    public void removeResource(Application application, Map<String, Object> properties) {
+        Optional<String> alias = getAlias(properties);
+        if (alias.isPresent()) {
+            httpService.unregister(alias.get());
+        }
     }
-    
-    private Optional<String> getAlias(Map<String,Object> properties) {
-		String version = Optional.ofNullable(properties.get("version")).map(v -> "/" + v).orElse("");
-		String published = Optional.ofNullable(properties.get("version")).map(p -> "/public").orElse("");
-		return Optional.ofNullable(properties.get("alias")).map(alias -> published + "/api" + alias + version);
+
+    private Optional<String> getAlias(Map<String, Object> properties) {
+        String version = Optional.ofNullable(properties.get("version")).map(v -> "/" + v).orElse("");
+        String published = Optional.ofNullable(properties.get("version")).map(p -> "/public").orElse("");
+        return Optional.ofNullable(properties.get("alias")).map(alias -> published + "/api" + alias + version);
     }
 
     @Activate
-    public void activate(BundleContext bundleContext){
-        if(bundleContext != null){
+    public void activate(BundleContext bundleContext) {
+        if (bundleContext != null) {
 
             urlRewriteFilter.setHost(bundleContext.getProperty("com.elster.jupiter.url.rewrite.host"));
             String portString = bundleContext.getProperty("com.elster.jupiter.url.rewrite.port");
             if (!Strings.isNullOrEmpty(portString)) {
-                try{
+                try {
                     urlRewriteFilter.setPort(Integer.valueOf(portString));
-                } catch(NumberFormatException e){
-                    LOGGER.warning("Failed to read property com.elster.jupiter.url.rewrite.port:"+ e);
+                } catch (NumberFormatException e) {
+                    LOGGER.warning("Failed to read property com.elster.jupiter.url.rewrite.port:" + e);
                 }
             }
             urlRewriteFilter.setScheme(bundleContext.getProperty("com.elster.jupiter.url.rewrite.scheme"));
