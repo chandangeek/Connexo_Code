@@ -39,69 +39,66 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         }
                     }
                 ],
+                layout: {
+                    type: 'hbox',
+                    align: 'stretchmax'
+                },
                 items: [
                     {
                         xtype: 'container',
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretchmax'
-                        },
+                        flex: 2,
                         items: [
                             {
-                                xtype: 'container',
-                                flex: 2,
-                                items: [
-                                    {
-                                        itemId: 'usage-point-going-on',
-                                        title: Uni.I18n.translate('general.whatsGoingOn', 'IMT', "What's going on"),
-                                        ui: 'tile',
-                                        margin: '0 16 0 0',
-                                        flex: 1,
-                                        minHeight: 150 // todo: remove after implementation of content for this panel
-                                    },
-                                    {
-                                        xtype: 'container',
-                                        layout: {
-                                            type: 'hbox',
-                                            align: 'stretchmax'
-                                        },
-                                        defaults: {
-                                            ui: 'tile',
-                                            flex: 1,
-                                            margin: '16 16 0 0'
-                                        },
-                                        items: [
-                                            {
-                                                xtype: 'usage-point-metrology-config',
-                                                itemId: 'usage-point-metrology-config',
-                                                title: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
-                                                router: me.router
-                                            },
-                                            {
-                                                itemId: 'usage-point-validation-configuration',
-                                                title: Uni.I18n.translate('general.validationConfiguration', 'IMT', 'Validation configuration')
-                                            }
-                                        ]
-                                    }
-                                ]
+                                itemId: 'usage-point-going-on',
+                                title: Uni.I18n.translate('general.whatsGoingOn', 'IMT', "What's going on"),
+                                ui: 'tile',
+                                style: {
+                                    marginRight: '16px',
+                                    padding: '8px'
+                                },
+                                flex: 1,
+                                minHeight: 150 // todo: remove after implementation of content for this panel
                             },
                             {
-                                xtype: 'usage-point-summary',
-                                itemId: 'usage-point-summary',
-                                title: Uni.I18n.translate('general.usagePointSummary', 'IMT', 'Usage point summary'),
-                                ui: 'tile',
-                                margin: 0,
-                                flex: 1,
-                                router: me.router
+                                xtype: 'container',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretchmax'
+                                },
+                                defaults: {
+                                    ui: 'tile',
+                                    flex: 1,
+                                    style: {
+                                        marginRight: '16px',
+                                        padding: '8px'
+                                    }
+                                },
+                                items: [
+                                    {
+                                        xtype: 'usage-point-metrology-config',
+                                        itemId: 'usage-point-metrology-config',
+                                        title: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
+                                        router: me.router
+                                    },
+                                    {
+                                        itemId: 'usage-point-validation-configuration',
+                                        title: Uni.I18n.translate('general.validationConfiguration', 'IMT', 'Validation configuration')
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        itemId: 'usage-point-activity-line',
-                        title: Uni.I18n.translate('general.activityLine', 'IMT', 'Activity line'),
+                        xtype: 'usage-point-summary',
+                        itemId: 'usage-point-summary',
+                        title: Uni.I18n.translate('general.usagePointSummary', 'IMT', 'Usage point summary'),
                         ui: 'tile',
-                        margin: '16 0 0 0',
-                        minHeight: 150 // todo: remove after implementation of content for this panel
+                        style: {
+                            marginRight: '16px',
+                            padding: '8px'
+                        },
+                        flex: 1,
+                        router: me.router
                     }
                 ]
             }
@@ -111,6 +108,9 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
             {
                 xtype: 'panel',
                 ui: 'medium',
+                style: {
+                    paddingRight: 0
+                },
                 items: [
                     {
                         xtype: 'usage-point-management-side-menu',
