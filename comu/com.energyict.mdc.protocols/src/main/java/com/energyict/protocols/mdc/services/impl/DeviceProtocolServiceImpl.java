@@ -47,7 +47,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155TranslationKeys;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.AbstractSMSServletBasedInboundDeviceProtocol;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol;
 import com.energyict.protocolimplv2.elster.garnet.GarnetTranslationKeys;
-import com.energyict.protocolimplv2.sdksample.SDKTranslationKeys;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -333,7 +332,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     @Override
     public String getComponentName() {
-        return DeviceProtocolServiceImpl.COMPONENT_NAME;
+        return DeviceProtocolService.COMPONENT_NAME;
     }
 
     @Override
@@ -341,7 +340,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         return Stream.of(
                 Arrays.stream(CtrInboundDeviceProtocol.TranslationKeys.values()),
                 Arrays.stream(EiWebPlusDialectProperties.TranslationKeys.values()),
-                Arrays.stream(SDKTranslationKeys.values()),
                 Arrays.stream(SecurityPropertySpecName.values()),
                 Arrays.stream(DeviceProtocolDialectName.values()),
                 Arrays.stream(DlmsProperties.TranslationKeys.values()),

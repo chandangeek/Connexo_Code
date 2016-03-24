@@ -8,14 +8,11 @@ package com.energyict.protocolimpl.meteridentification;
 
 import java.io.IOException;
 
-
 /**
  *
  * @author  Koen
  */
 public class SLB extends AbstractManufacturer {
-
-
 
     /** Creates a new instance of SLB */
     public SLB() {
@@ -26,10 +23,11 @@ public class SLB extends AbstractManufacturer {
     }
 
     public String getMeterProtocolClass() throws IOException {
-        if ((getSignOnString()==null) || (getSignOnString().indexOf("MINICOR") >= 0))
-           return "com.energyict.protocolimpl.actarissevc.SEVC";
-        else
-           return "com.energyict.protocolimpl.dlms.DLMSLNSL7000";
+        if ((getSignOnString() == null) || (getSignOnString().indexOf("MINICOR") >= 0)) {
+            return "com.energyict.protocolimpl.actarissevc.SEVC";
+        } else {
+            return "com.energyict.smartmeterprotocolimpl.actaris.sl7000.ActarisSl7000";
+        }
     }
 
     public String[] getMeterSerialNumberRegisters() throws IOException {
