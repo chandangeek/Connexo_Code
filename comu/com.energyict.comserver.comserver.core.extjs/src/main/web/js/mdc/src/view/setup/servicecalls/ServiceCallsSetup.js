@@ -15,7 +15,9 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
 
     stores: [
         'Mdc.store.servicecalls.ServiceCallHistory',
-        'Mdc.store.servicecalls.RunningServiceCalls'
+        'Mdc.store.servicecalls.RunningServiceCalls',
+        'Scs.store.ServiceCallTypes',
+        'Scs.store.States'
     ],
 
     initComponent: function () {
