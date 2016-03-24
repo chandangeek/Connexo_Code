@@ -1,24 +1,26 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MetrologyContractImpl implements MetrologyContract {
     public enum Fields {
         METROLOGY_CONFIG("metrologyConfiguration"),
         METROLOGY_PURPOSE("metrologyPurpose"),
-        MANDATORY("mandatory"),;
+        MANDATORY("mandatory"),
+        DELIVERABLES("deliverables"),;
 
         private String javaFieldName;
 
@@ -31,7 +33,7 @@ public class MetrologyContractImpl implements MetrologyContract {
         }
     }
 
-    private final MetrologyConfigurationService metrologyConfigurationService;
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -39,11 +41,10 @@ public class MetrologyContractImpl implements MetrologyContract {
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private final Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
     private boolean mandatory;
-
-    private List<ReadingTypeDeliverable> readingTypeDeliverables;
+    private List<MetrologyContractReadingTypeDeliverableMapping> deliverables = new ArrayList<>();
 
     @Inject
-    public MetrologyContractImpl(MetrologyConfigurationService metrologyConfigurationService) {
+    public MetrologyContractImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
@@ -53,6 +54,9 @@ public class MetrologyContractImpl implements MetrologyContract {
         return this;
     }
 
+    private void touch() {
+        this.metrologyConfigurationService.getDataModel().touch(this.getMetrologyConfiguration());
+    }
 
     @Override
     public MetrologyConfiguration getMetrologyConfiguration() {
@@ -60,8 +64,27 @@ public class MetrologyContractImpl implements MetrologyContract {
     }
 
     @Override
+    public MetrologyContract addDeliverable(ReadingTypeDeliverable deliverable) {
+        MetrologyContractReadingTypeDeliverableMapping deliverableMapping = this.metrologyConfigurationService.getDataModel().getInstance(MetrologyContractReadingTypeDeliverableMapping.class)
+                .init(this, deliverable);
+        Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverableMapping);
+        this.deliverables.add(deliverableMapping);
+        touch();
+        return this;
+    }
+
+    @Override
+    public void removeDeliverable(ReadingTypeDeliverable deliverable) {
+        if (this.deliverables.remove(deliverable)) {
+            touch();
+        }
+    }
+
+    @Override
     public List<ReadingTypeDeliverable> getDeliverables() {
-        return this.metrologyConfigurationService.findReadingTypeDeliverable(new ReadingTypeDeliverableFilter().withMetrologyContracts(this));
+        return this.deliverables.stream()
+                .map(MetrologyContractReadingTypeDeliverableMapping::getDeliverable)
+                .collect(Collectors.toList());
     }
 
     @Override

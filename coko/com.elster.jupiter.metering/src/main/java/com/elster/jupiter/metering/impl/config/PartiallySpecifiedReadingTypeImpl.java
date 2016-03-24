@@ -4,7 +4,6 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
@@ -44,8 +43,8 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
         this.dataModel = dataModel;
     }
 
-    public PartiallySpecifiedReadingTypeImpl init(MetrologyConfiguration metrologyConfiguration, MeterRole meterRole, String name, ReadingTypeTemplate template) {
-        super.init(metrologyConfiguration, meterRole, name);
+    public PartiallySpecifiedReadingTypeImpl init(MetrologyConfiguration metrologyConfiguration, String name, ReadingTypeTemplate template) {
+        super.init(metrologyConfiguration, name);
         this.readingTypeTemplate.set(template);
         return this;
     }

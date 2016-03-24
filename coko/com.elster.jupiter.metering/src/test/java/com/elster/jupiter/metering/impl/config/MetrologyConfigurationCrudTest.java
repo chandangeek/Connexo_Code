@@ -14,15 +14,16 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.List;
-import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,7 +92,9 @@ public class MetrologyConfigurationCrudTest {
     @Test
     @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     public void testCreateMetrologyConfigurationWithTooLongName() {
-        getMetrologyConfigurationService().newMetrologyConfiguration("naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaame", getServiceCategory()).withDescription("Long description").create();
+        getMetrologyConfigurationService().newMetrologyConfiguration("naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaame", getServiceCategory())
+                .withDescription("Long description")
+                .create();
     }
 
     @Test

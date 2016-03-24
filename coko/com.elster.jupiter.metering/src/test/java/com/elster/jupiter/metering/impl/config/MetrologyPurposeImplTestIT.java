@@ -11,17 +11,18 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.orm.Table;
+
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -140,7 +141,7 @@ public class MetrologyPurposeImplTestIT {
         assertThat(inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(metrologyPurpose.getId()).isPresent()).isFalse();
     }
 
-    @Test(expected = MetrologyPurposeDeletionFail.class)
+    @Test(expected = CannotDeleteMetrologyPurposeException.class)
     @Transactional
     public void testCanNotDeleteMetrologyPurposeInUse() {
         MetrologyPurpose metrologyPurpose = inMemoryBootstrapModule.getMetrologyConfigurationService().createMetrologyPurpose()

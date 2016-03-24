@@ -1,12 +1,13 @@
 package com.elster.jupiter.metering.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.units.Dimension;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -90,8 +91,6 @@ public interface ReadingTypeRequirement extends HasId, HasName {
      * @return <code>true</code> if all attributes are within limits
      */
     boolean matches(ReadingType candidate);
-
-    MeterRole getMeterRole();
 
     long getVersion();
 }

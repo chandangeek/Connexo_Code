@@ -15,10 +15,10 @@ import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 
 public class ReadingTypeTemplateInstaller {
 
-    private final MetrologyConfigurationService metrologyConfigurationService;
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
     public ReadingTypeTemplateInstaller(MetrologyConfigurationService metrologyConfigurationService) {
-        this.metrologyConfigurationService = metrologyConfigurationService;
+        this.metrologyConfigurationService = (ServerMetrologyConfigurationService) metrologyConfigurationService;
     }
 
     public void install() {
@@ -28,63 +28,63 @@ public class ReadingTypeTemplateInstaller {
     }
 
     private void installElectricityTemplates() {
-        new Template(metrologyConfigurationService, "A+")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.A_PLUS)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR)
                 .done();
-        new Template(metrologyConfigurationService, "A-")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.A_MINUS)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.REVERSE)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR)
                 .done();
-        new Template(metrologyConfigurationService, "Inductive energy Q1")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.INDUCTIVE_ENERGY_Q1)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.Q1)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)
                 .done();
-        new Template(metrologyConfigurationService, "Inductive energy Q2")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.INDUCTIVE_ENERGY_Q2)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.Q2)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)
                 .done();
-        new Template(metrologyConfigurationService, "Inductive energy Q3")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.INDUCTIVE_ENERGY_Q3)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.Q3)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)
                 .done();
-        new Template(metrologyConfigurationService, "Inductive energy Q4")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.INDUCTIVE_ENERGY_Q4)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.Q4)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)
                 .done();
-        new Template(metrologyConfigurationService, "Reactive energy+")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.REACTIVE_ENERGY_PLUS)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.LAGGING)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)
                 .done();
-        new Template(metrologyConfigurationService, "Reactive energy-")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.Reactive_ENERGY_MINUS)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.LEADING)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)
                 .done();
-        new Template(metrologyConfigurationService, "Active Power Factor")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.ACTIVE_POWER_FACTOR)
                 .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
@@ -95,7 +95,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER, MetricMultiplier.ZERO)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.NOTAPPLICABLE)
                 .done();
-        new Template(metrologyConfigurationService, "Average Power Factor")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.AVERAGE_POWER_FACTOR)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD, FlowDirection.REVERSE)
@@ -104,7 +104,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER, MetricMultiplier.ZERO)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.NOTAPPLICABLE)
                 .done();
-        new Template(metrologyConfigurationService, "Active Power")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.ACTIVE_POWER)
                 .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
@@ -114,7 +114,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.POWER)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATT)
                 .done();
-        new Template(metrologyConfigurationService, "Average Power")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.AVERAGE_POWER)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD, FlowDirection.REVERSE)
@@ -122,7 +122,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.POWER)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATT)
                 .done();
-        new Template(metrologyConfigurationService, "Active Current")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.ACTIVE_CURRENT)
                 .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
@@ -134,7 +134,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.CRITICAL_PEAK_PERIOD, 0)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.AMPERE)
                 .done();
-        new Template(metrologyConfigurationService, "Average Current")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.AVERAGE_CURRENT)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD, FlowDirection.REVERSE)
@@ -144,7 +144,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.CRITICAL_PEAK_PERIOD, 0)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.AMPERE)
                 .done();
-        new Template(metrologyConfigurationService, "Active Voltage")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.ACTIVE_VOLTAGE)
                 .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
@@ -156,7 +156,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.CRITICAL_PEAK_PERIOD, 0)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLT)
                 .done();
-        new Template(metrologyConfigurationService, "Average Voltage")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.AVERAGE_VOLTAGE)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD, FlowDirection.REVERSE)
@@ -166,7 +166,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.CRITICAL_PEAK_PERIOD, 0)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLT)
                 .done();
-        new Template(metrologyConfigurationService, "Active energy max demand")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.ACTIVE_ENERGY_MAX_DEMAND)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.MAXIMUM)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.LATCHINGQUANTITY)
@@ -175,7 +175,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.DEMAND)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATT)
                 .done();
-        new Template(metrologyConfigurationService, "Active energy max supply")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.ACTIVE_ENERGY_MAX_SUPPLY)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.MAXIMUM)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.LATCHINGQUANTITY)
@@ -184,7 +184,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.DEMAND)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATT)
                 .done();
-        new Template(metrologyConfigurationService, "Reactive energy max demand")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.REACTIVE_ENERGY_MAX_DEMAND)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.MAXIMUM)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.LATCHINGQUANTITY)
@@ -193,7 +193,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.DEMAND)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLTAMPEREREACTIVE)
                 .done();
-        new Template(metrologyConfigurationService, "Active energy cum. max demand")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.ACTIVE_ENERGY_CUM_MAX_DEMAND)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.MAXIMUM)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.CUMULATIVE)
@@ -205,21 +205,21 @@ public class ReadingTypeTemplateInstaller {
     }
 
     private void installGasTemplates() {
-        new Template(metrologyConfigurationService, "Gas volume")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_VOLUME)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.NATURALGAS)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.VOLUME)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETER, ReadingTypeUnit.LITRE)
                 .done();
-        new Template(metrologyConfigurationService, "Gas volume norm")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_VOLUME_NORM)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.NATURALGAS)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.VOLUME)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.LITRECOMPENSATED, ReadingTypeUnit.CUBICMETERCOMPENSATED)
                 .done();
-        new Template(metrologyConfigurationService, "Gas temperature")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_TEMPERATURE)
                 .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
@@ -229,7 +229,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER, MetricMultiplier.ZERO)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.KELVIN, ReadingTypeUnit.DEGREESCELSIUS, ReadingTypeUnit.DEGREESFAHRENHEIT)
                 .done();
-        new Template(metrologyConfigurationService, "Gas pressure")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_PRESSURE)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
@@ -237,7 +237,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.VOLUME)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.PASCAL, ReadingTypeUnit.BAR)
                 .done();
-        new Template(metrologyConfigurationService, "Gas flow")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_FLOW)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
@@ -245,7 +245,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.VOLUME)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETERPERHOUR)
                 .done();
-        new Template(metrologyConfigurationService, "Gas normalized flow")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_NORMALIZED_FLOW)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
@@ -253,7 +253,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.VOLUME)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETERPERHOURCOMPENSATED)
                 .done();
-        new Template(metrologyConfigurationService, "Gas conversion factor")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_CONVERSION_FACTOR)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
@@ -264,21 +264,21 @@ public class ReadingTypeTemplateInstaller {
     }
 
     private void installWaterTemplates() {
-        new Template(metrologyConfigurationService, "Water volume")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.WATER_VOLUME)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.POTABLEWATER)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.VOLUME)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETER, ReadingTypeUnit.LITRE)
                 .done();
-        new Template(metrologyConfigurationService, "Water volume backflow")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.WATER_VOLUME_BACKFLOW)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.REVERSE)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.POTABLEWATER)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.VOLUME)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETER, ReadingTypeUnit.LITRE)
                 .done();
-        new Template(metrologyConfigurationService, "Water flow")
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.WATER_FLOW)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
@@ -293,8 +293,8 @@ public class ReadingTypeTemplateInstaller {
         private final ReadingTypeTemplate template;
         private ReadingTypeTemplate.ReadingTypeTemplateUpdater updater;
 
-        Template(MetrologyConfigurationService metrologyConfigurationService, String name) {
-            this.template = metrologyConfigurationService.createReadingTypeTemplate(name);
+        Template(ServerMetrologyConfigurationService metrologyConfigurationService, DefaultReadingTypeTemplate deaultTemplate) {
+            this.template = metrologyConfigurationService.createReadingTypeTemplate(deaultTemplate);
             this.updater = this.template.startUpdate();
         }
 

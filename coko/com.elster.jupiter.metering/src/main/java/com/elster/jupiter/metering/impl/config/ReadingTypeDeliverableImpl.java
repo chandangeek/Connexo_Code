@@ -7,8 +7,8 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.orm.DataModel;
@@ -27,7 +27,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     public enum Fields {
         ID("id"),
         NAME("name"),
-        METROLOGY_CONTRACT("metrologyContract"),
+        METROLOGY_CONFIGURATION("metrologyConfiguration"),
         READING_TYPE("readingType"),
         FORMULA("formula"),;
 
@@ -51,7 +51,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
+    private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -69,9 +69,9 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
-    public ReadingTypeDeliverableImpl init(String name, MetrologyContract metrologyContract, ReadingType readingType, Formula formula) {
+    public ReadingTypeDeliverableImpl init(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula formula) {
         this.name = name;
-        this.metrologyContract.set(metrologyContract);
+        this.metrologyConfiguration.set(metrologyConfiguration);
         this.readingType.set(readingType);
         this.formula.set(formula);
         return this;
@@ -88,8 +88,8 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     }
 
     @Override
-    public MetrologyContract getMetrologyContract() {
-        return this.metrologyContract.orNull();
+    public MetrologyConfiguration getMetrologyConfiguration() {
+        return this.metrologyConfiguration.orNull();
     }
 
     @Override
@@ -136,9 +136,9 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     @Override
     public boolean validateName() {
-        ReadingTypeDeliverableFilter filter = new ReadingTypeDeliverableFilter().withMetrologyContracts(getMetrologyContract());
+        ReadingTypeDeliverableFilter filter = new ReadingTypeDeliverableFilter().withMetrologyConfigurations(getMetrologyConfiguration());
         List<ReadingTypeDeliverable> deliverables = this.metrologyConfigurationService.findReadingTypeDeliverable(filter);
-        return deliverables.isEmpty() || deliverables.get(0).getId() == getId();
+        return deliverables.isEmpty() || deliverables.size() == 1 && deliverables.get(0).getId() == getId();
     }
 
     @Override

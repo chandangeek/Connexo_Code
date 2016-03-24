@@ -22,6 +22,8 @@ public interface MetrologyConfigurationService {
 
     MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
+    UsagePointMetrologyConfigurationBuilder newUsagePointMetrologyConfiguration(String name, ServiceCategory serviceCategory);
+
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
 
     Optional<MetrologyConfiguration> findAndLockMetrologyConfiguration(long id, long version);
@@ -52,14 +54,11 @@ public interface MetrologyConfigurationService {
 
     List<MetrologyPurpose> getMetrologyPurposes();
 
-    //todo ReadingTypeDeliverable createReadingTypeDeliverable(String name, MetrologyContract contract, ReadingType readingType, FormulaBuilder formulaBuilder);//newFormulaBuilder to remove
-    ReadingTypeDeliverable createReadingTypeDeliverable(String name, MetrologyContract contract, ReadingType readingType, Formula formula);
-
-    Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
-
-    Optional<ReadingTypeDeliverable> findAndLockReadingTypeDeliverableByIdAndVersion(long id, long version);
+    ReadingTypeDeliverable createReadingTypeDeliverable(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula formula);
 
     List<ReadingTypeDeliverable> findReadingTypeDeliverable(ReadingTypeDeliverableFilter filter);
+
+    Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
 
     Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id);
 

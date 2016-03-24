@@ -26,6 +26,9 @@ public interface MetrologyContract {
      */
     MetrologyConfiguration getMetrologyConfiguration();
 
+    MetrologyContract addDeliverable(ReadingTypeDeliverable deliverable);
+
+    void removeDeliverable(ReadingTypeDeliverable deliverable);
     /**
      * Returns the List of {@link ReadingTypeDeliverable} that is being used by this MetrologyContract.
      *

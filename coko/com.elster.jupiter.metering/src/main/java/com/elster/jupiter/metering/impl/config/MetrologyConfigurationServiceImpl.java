@@ -4,7 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
@@ -14,17 +14,16 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -35,9 +34,10 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -53,12 +53,11 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-15 (13:20)
  */
-public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
+public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
     private volatile ServerMeteringService meteringService;
     private volatile EventService eventService;
     private volatile UserService userService;
-    private volatile Thesaurus thesaurus;
 
     @Inject
     public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, EventService eventService, UserService userService) {
@@ -98,7 +97,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     @Override
     public String getComponentName() {
-        return COMPONENT_NAME;
+        return MeteringService.COMPONENTNAME;
     }
 
     @Override
@@ -111,25 +110,30 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         List<TranslationKey> translationKeys = new ArrayList<>();
         translationKeys.addAll(Arrays.asList(Privileges.values()));
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
+        translationKeys.addAll(Arrays.asList(DefaultReadingTypeTemplate.TemplateTranslation.values()));
         return translationKeys;
     }
 
     @Override
-    public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
-    }
-
-    DataModel getDataModel() {
+    public DataModel getDataModel() {
         return this.meteringService.getDataModel();
     }
 
-    Thesaurus getThesaurus() {
+    @Override
+    public Thesaurus getThesaurus() {
         return this.meteringService.getThesaurus();
     }
 
     @Override
     public MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory) {
         MetrologyConfigurationBuilderImpl builder = new MetrologyConfigurationBuilderImpl(getDataModel());
+        builder.init(name, serviceCategory);
+        return builder;
+    }
+
+    @Override
+    public UsagePointMetrologyConfigurationBuilder newUsagePointMetrologyConfiguration(String name, ServiceCategory serviceCategory) {
+        UsagePointMetrologyConfigurationBuilderImpl builder = new UsagePointMetrologyConfigurationBuilderImpl(getDataModel());
         builder.init(name, serviceCategory);
         return builder;
     }
@@ -191,6 +195,14 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
+    public ReadingTypeTemplate createReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate) {
+        ReadingTypeTemplateImpl template = getDataModel().getInstance(ReadingTypeTemplateImpl.class)
+                .init(defaultTemplate);
+        template.save();
+        return template;
+    }
+
+    @Override
     public Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id) {
         return getDataModel().mapper(ReadingTypeTemplate.class).getOptional(id);
     }
@@ -236,21 +248,13 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public ReadingTypeDeliverable createReadingTypeDeliverable(String name, MetrologyContract contract, ReadingType readingType, Formula formula) {
-        ReadingTypeDeliverableImpl deliverable = getDataModel().getInstance(ReadingTypeDeliverableImpl.class)
-                .init(name, contract, readingType, formula);
-        deliverable.save();
-        return deliverable;
+    public ReadingTypeDeliverable createReadingTypeDeliverable(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula formula) {
+        return metrologyConfiguration.addReadingTypeDeliverable(name, readingType, formula);
     }
 
     @Override
     public Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id) {
         return getDataModel().mapper(ReadingTypeDeliverable.class).getOptional(id);
-    }
-
-    @Override
-    public Optional<ReadingTypeDeliverable> findAndLockReadingTypeDeliverableByIdAndVersion(long id, long version) {
-        return getDataModel().mapper(ReadingTypeDeliverable.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -263,12 +267,15 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
             condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.READING_TYPE.fieldName()).in(filter.getReadingTypes()));
         }
         if (!filter.getMetrologyContracts().isEmpty()) {
-            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName()).in(filter.getMetrologyContracts()));
+            Condition mappingCondition = where(MetrologyContractReadingTypeDeliverableMapping.Fields.METROLOGY_CONTRACT.fieldName())
+                    .in(filter.getMetrologyContracts());
+            Subquery subquery = getDataModel().query(MetrologyContractReadingTypeDeliverableMapping.class)
+                    .asSubquery(mappingCondition, MetrologyContractReadingTypeDeliverableMapping.Fields.DELIVERABLE.fieldName());
+            condition = condition.and(ListOperator.IN.contains(subquery, "id"));
         }
         if (!filter.getMetrologyConfigurations().isEmpty()) {
-            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName()
-                    + "." + MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName()).in(filter.getMetrologyConfigurations()));
+            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.fieldName()).in(filter.getMetrologyConfigurations()));
         }
-        return getDataModel().query(ReadingTypeDeliverable.class, MetrologyContract.class).select(condition);
+        return getDataModel().query(ReadingTypeDeliverable.class, MetrologyConfiguration.class).select(condition);
     }
 }

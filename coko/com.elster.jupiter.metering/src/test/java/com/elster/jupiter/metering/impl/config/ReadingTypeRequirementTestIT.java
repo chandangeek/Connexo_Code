@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
@@ -18,6 +19,7 @@ import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.transaction.TransactionContext;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -38,8 +40,9 @@ public class ReadingTypeRequirementTestIT {
     public static void beforeClass() {
         inMemoryBootstrapModule.activate();
         try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
+            ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
             metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newMetrologyConfiguration("Test",
-                    inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get()).create();
+                    serviceCategory).create();
             meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
             context.commit();
         }
@@ -67,7 +70,6 @@ public class ReadingTypeRequirementTestIT {
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Fully specified";
         FullySpecifiedReadingType fullySpecifiedReadingType = metrologyConfiguration.addReadingTypeRequirement(name)
-                .withMeterRole(meterRole)
                 .withReadingType(readingType);
         assertThat(fullySpecifiedReadingType.getId()).isGreaterThan(0);
         assertThat(fullySpecifiedReadingType.getName()).isEqualTo(name);
@@ -82,7 +84,6 @@ public class ReadingTypeRequirementTestIT {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Zero reading type template");
         String name = "Partially specified";
         PartiallySpecifiedReadingType partiallySpecifiedReadingType = metrologyConfiguration.addReadingTypeRequirement(name)
-                .withMeterRole(meterRole)
                 .withReadingTypeTemplate(readingTypeTemplate);
         assertThat(partiallySpecifiedReadingType.getId()).isGreaterThan(0);
         assertThat(partiallySpecifiedReadingType.getName()).isEqualTo(name);
@@ -97,7 +98,6 @@ public class ReadingTypeRequirementTestIT {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Zero reading type template");
         String name = "Partially specified";
         PartiallySpecifiedReadingType partiallySpecifiedReadingType = metrologyConfiguration.addReadingTypeRequirement(name)
-                .withMeterRole(meterRole)
                 .withReadingTypeTemplate(readingTypeTemplate);
         partiallySpecifiedReadingType.overrideAttribute(ReadingTypeTemplateAttributeName.COMMODITY, 50);
         assertThat(partiallySpecifiedReadingType.getId()).isGreaterThan(0);
@@ -110,7 +110,6 @@ public class ReadingTypeRequirementTestIT {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Zero reading type template");
         readingTypeTemplate.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, null, 4, 10);
         PartiallySpecifiedReadingType partiallySpecifiedReadingType = metrologyConfiguration.addReadingTypeRequirement("Partially specified")
-                .withMeterRole(meterRole)
                 .withReadingTypeTemplate(readingTypeTemplate);
         partiallySpecifiedReadingType.overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 4);
         // assert no exception
@@ -123,7 +122,6 @@ public class ReadingTypeRequirementTestIT {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Zero reading type template");
         readingTypeTemplate.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, null, 4, 10).done();
         PartiallySpecifiedReadingType partiallySpecifiedReadingType = metrologyConfiguration.addReadingTypeRequirement("Partially specified")
-                .withMeterRole(meterRole)
                 .withReadingTypeTemplate(readingTypeTemplate);
         partiallySpecifiedReadingType.overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 6);
     }
@@ -133,7 +131,6 @@ public class ReadingTypeRequirementTestIT {
     public void validCorrectCodeFromSystemValuesForPartiallySpecified() {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Zero reading type template");
         PartiallySpecifiedReadingType partiallySpecifiedReadingType = metrologyConfiguration.addReadingTypeRequirement("Partially specified")
-                .withMeterRole(meterRole)
                 .withReadingTypeTemplate(readingTypeTemplate);
         partiallySpecifiedReadingType.overrideAttribute(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.DAILY.getId());
         // assert no exception
@@ -145,7 +142,6 @@ public class ReadingTypeRequirementTestIT {
     public void validBadCodeFromSystemValuesForPartiallySpecified() {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Zero reading type template");
         PartiallySpecifiedReadingType partiallySpecifiedReadingType = metrologyConfiguration.addReadingTypeRequirement("Partially specified")
-                .withMeterRole(meterRole)
                 .withReadingTypeTemplate(readingTypeTemplate);
         partiallySpecifiedReadingType.overrideAttribute(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.WEEKLYS.getId());
     }
@@ -156,25 +152,15 @@ public class ReadingTypeRequirementTestIT {
     public void validNameForPartiallySpecified() {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Zero reading type template");
         metrologyConfiguration.addReadingTypeRequirement(null)
-                .withMeterRole(meterRole)
                 .withReadingTypeTemplate(readingTypeTemplate);
     }
 
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "meterRole", strict = true)
-    public void validMeterRoleForPartiallySpecified() {
-        ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Zero reading type template");
-        metrologyConfiguration.addReadingTypeRequirement("name")
-                .withMeterRole(null)
-                .withReadingTypeTemplate(readingTypeTemplate);
-    }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "readingTypeTemplate", strict = true)
     public void validReadingTypeTemplateTemplateForPartiallySpecified() {
-        metrologyConfiguration.addReadingTypeRequirement("Some name").withMeterRole(meterRole).withReadingTypeTemplate(null);
+        metrologyConfiguration.addReadingTypeRequirement("Some name").withReadingTypeTemplate(null);
     }
 
     @Test
@@ -182,22 +168,14 @@ public class ReadingTypeRequirementTestIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "name", strict = true)
     public void validNameForFullySpecified() {
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
-        metrologyConfiguration.addReadingTypeRequirement(null).withMeterRole(meterRole).withReadingType(readingType);
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "meterRole", strict = true)
-    public void validMeterRoleForFullySpecified() {
-        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
-        metrologyConfiguration.addReadingTypeRequirement("name").withMeterRole(null).withReadingType(readingType);
+        metrologyConfiguration.addReadingTypeRequirement(null).withReadingType(readingType);
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "readingType", strict = true)
     public void validReadingTypeForFullySpecified() {
-        metrologyConfiguration.addReadingTypeRequirement("Some name").withMeterRole(meterRole).withReadingType(null);
+        metrologyConfiguration.addReadingTypeRequirement("Some name").withReadingType(null);
     }
 
     @Test
@@ -205,7 +183,6 @@ public class ReadingTypeRequirementTestIT {
     public void testMatchFullySpecifiedReadingType() {
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         FullySpecifiedReadingType fullySpecifiedReadingType = metrologyConfiguration.addReadingTypeRequirement("Zero fully specified")
-                .withMeterRole(meterRole)
                 .withReadingType(readingType);
         assertThat(fullySpecifiedReadingType.matches(readingType)).isTrue();
     }
@@ -217,7 +194,6 @@ public class ReadingTypeRequirementTestIT {
         ReadingType readingTypeWithToU = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.20.0.0.0.0.0", "ToU reading type");
         FullySpecifiedReadingType fullySpecifiedReadingType = metrologyConfiguration
                 .addReadingTypeRequirement("Zero fully specified")
-                .withMeterRole(meterRole)
                 .withReadingType(readingType);
         assertThat(fullySpecifiedReadingType.matches(readingTypeWithToU)).isFalse();
     }
@@ -228,7 +204,6 @@ public class ReadingTypeRequirementTestIT {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Zero reading type template");
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.4.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "DeltaDelta reading type");
         PartiallySpecifiedReadingType partiallySpecifiedReadingType = metrologyConfiguration.addReadingTypeRequirement("Zero partially specified")
-                .withMeterRole(meterRole)
                 .withReadingTypeTemplate(readingTypeTemplate);
         assertThat(partiallySpecifiedReadingType.matches(readingType)).isTrue();
     }
@@ -240,7 +215,6 @@ public class ReadingTypeRequirementTestIT {
         readingTypeTemplate.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.DELTADELTA.getId());
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.9.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "DeltaDelta reading type");
         PartiallySpecifiedReadingType partiallySpecifiedReadingType = metrologyConfiguration.addReadingTypeRequirement("Zero partially specified")
-                .withMeterRole(meterRole)
                 .withReadingTypeTemplate(readingTypeTemplate);
         partiallySpecifiedReadingType.overrideAttribute(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.SUMMATION.getId());
         assertThat(partiallySpecifiedReadingType.matches(readingType)).isTrue();
@@ -252,7 +226,6 @@ public class ReadingTypeRequirementTestIT {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate("Zero reading type template");
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("24.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Weekly reading type");
         PartiallySpecifiedReadingType partiallySpecifiedReadingType = metrologyConfiguration.addReadingTypeRequirement("Zero partially specified")
-                .withMeterRole(meterRole)
                 .withReadingTypeTemplate(readingTypeTemplate);
         // System possible values for macro period should be applied
         assertThat(partiallySpecifiedReadingType.matches(readingType)).isFalse();
