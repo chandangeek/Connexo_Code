@@ -17,7 +17,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.validation.controller.UsagePointDataValidation',
         'Imt.metrologyconfiguration.controller.ValidationRuleSets',
         'Imt.dynamicprivileges.UsagePoint',
-        'Imt.dynamicprivileges.Stores'
+        'Imt.dynamicprivileges.Stores',
+        'Imt.processes.controller.MonitorProcesses'
     ],
 
     privileges: [],
@@ -44,7 +45,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.servicecategories.controller.ServiceCategories',
         'Imt.usagepointhistory.controller.History',
         'Imt.usagepointhistory.controller.CasVersionEdit',
-        'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersions'
+        'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersions',
+        'Imt.processes.controller.MonitorProcesses'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',

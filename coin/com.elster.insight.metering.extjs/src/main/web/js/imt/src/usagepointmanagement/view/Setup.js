@@ -45,7 +45,8 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         menu: {
                             xtype: 'usage-point-setup-action-menu',
                             itemId: 'usage-point-setup-action-menu-id',
-                            router: me.router
+                            router: me.router,
+                            mRID: me.mRID
                         }
 
                     }
@@ -71,7 +72,6 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         this.callParent(arguments);
 
         me.down('#usagePointSetupPanel').add(
-
             {
                 xtype: 'container',
                 padding: 5,
