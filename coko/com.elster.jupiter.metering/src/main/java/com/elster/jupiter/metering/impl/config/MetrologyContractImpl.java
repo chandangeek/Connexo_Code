@@ -109,17 +109,12 @@ public class MetrologyContractImpl implements MetrologyContract {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         MetrologyContractImpl that = (MetrologyContractImpl) o;
-        return metrologyConfiguration.equals(that.metrologyConfiguration)
-                && metrologyPurpose.equals(that.metrologyPurpose);
-
+        return id == that.id;
     }
 
     @Override
     public int hashCode() {
-        int result = metrologyConfiguration.hashCode();
-        result = 31 * result + metrologyPurpose.hashCode();
-        return result;
+        return Long.hashCode(this.id);
     }
 }
