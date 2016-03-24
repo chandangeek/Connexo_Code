@@ -1,6 +1,7 @@
 package com.energyict.mdc.servicecall.example;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -34,6 +35,7 @@ public class CaptainHookHandler implements ServiceCallHandler {
     private volatile ServiceCallService serviceCallService;
 
     private volatile TransactionService transactionService;
+    private volatile ThreadPrincipalService threadPrincipleService;
 
     public CaptainHookHandler() {
     }
@@ -51,6 +53,11 @@ public class CaptainHookHandler implements ServiceCallHandler {
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setThreadPrincipleService(ThreadPrincipalService threadPrincipleService) {
+        this.threadPrincipleService = threadPrincipleService;
     }
 
     @Activate
@@ -97,6 +104,7 @@ public class CaptainHookHandler implements ServiceCallHandler {
 
         @Override
         public void run() {
+            threadPrincipleService.set(() -> "Console");
             try (TransactionContext context = transactionService.getContext()) {
                 ServiceCall serviceCall = serviceCallService.getServiceCall(serviceCallId)
                         .get(); // we need a fresh copy to read the latest state
