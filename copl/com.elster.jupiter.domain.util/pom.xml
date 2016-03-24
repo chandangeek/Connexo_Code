@@ -11,7 +11,6 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.domain.util</name>
 
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -52,6 +51,10 @@
             <version>3.0.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>javax.el</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -73,12 +76,11 @@
             <artifactId>pubsub</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.web</groupId>
-            <artifactId>javax.el</artifactId>
-        </dependency>
-
+        <!--<dependency>-->
+            <!--<groupId>com.google.inject</groupId>-->
+            <!--<artifactId>guice</artifactId>-->
+            <!--<version>4.0-beta5</version>-->
+        <!--</dependency>-->
 
     </dependencies>
 </project>
