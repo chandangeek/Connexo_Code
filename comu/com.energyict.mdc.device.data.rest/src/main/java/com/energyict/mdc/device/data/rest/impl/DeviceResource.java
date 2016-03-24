@@ -100,6 +100,7 @@ public class DeviceResource {
     private final Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider;
     private final Provider<DeviceHistoryResource> deviceHistoryResourceProvider;
     private final Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider;
+    private final Provider<GoingOnResource> goingOnResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
     private final DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
@@ -134,7 +135,7 @@ public class DeviceResource {
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider,
             Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
             Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider,
-            DeviceInfoFactory deviceInfoFactory,
+            Provider<GoingOnResource> goingOnResourceProvider, DeviceInfoFactory deviceInfoFactory,
             DeviceAttributesInfoFactory deviceAttributesInfoFactory,
             DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory,
             TransactionService transactionService,
@@ -165,6 +166,7 @@ public class DeviceResource {
         this.devicePropertyResourceProvider = devicePropertyResourceProvider;
         this.deviceHistoryResourceProvider = deviceHistoryResourceProvider;
         this.deviceLifeCycleActionResourceProvider = deviceLifeCycleActionResourceProvider;
+        this.goingOnResourceProvider = goingOnResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
         this.devicesForConfigChangeSearchFactory = devicesForConfigChangeSearchFactory;
@@ -574,6 +576,11 @@ public class DeviceResource {
     @Path("/{mRID}/logbooks")
     public LogBookResource getLogBookResource() {
         return logBookResourceProvider.get();
+    }
+
+    @Path("/{mRID}/whatsgoingon")
+    public GoingOnResource getGoingOnResource() {
+        return goingOnResourceProvider.get();
     }
 
     @Path("/schedules")

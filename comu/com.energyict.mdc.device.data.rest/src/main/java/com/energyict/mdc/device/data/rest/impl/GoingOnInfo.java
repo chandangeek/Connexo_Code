@@ -13,7 +13,7 @@ public class GoingOnInfo {
     public Boolean assigneeIsCurrentUser;
     public String status;
 
-    Comparator<GoingOnInfo> order() {
+    static Comparator<GoingOnInfo> order() {
         return Comparator
                 .comparing(GoingOnInfo::getSeverity)
                 .thenComparing(GoingOnInfo::getDueDate, Comparator.<Instant>naturalOrder().reversed());
