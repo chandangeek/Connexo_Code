@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component(name = "insight.usagepoint.info.factory", service = {InfoFactory.class}, immediate = true)
 public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     private volatile Clock clock;
@@ -42,6 +41,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.setClock(clock);
         this.setMeteringService(meteringService);
         this.setCustomPropertySetInfoFactory(customPropertySetInfoFactory);
+    }
+
+    @Activate
+    public void activate() {
+        customPropertySetInfoFactory = new CustomPropertySetInfoFactory(thesaurus, clock);
     }
 
     @Reference
@@ -127,5 +131,4 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
                 .withServiceLocationString(usagePointInfo.location);
     }
-
 }
