@@ -1,3 +1,8 @@
+.x-btn-action-toolbar-small-over .x-frame-mc {
+  background-color: #5aa43b;
+  background-image: url(images/btn/btn-action-toolbar-small-over-fbg.gif);
+}
+
 /* line 633, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-toolbar-small-menu-active .x-frame-tl,
 .x-btn-action-toolbar-small-menu-active .x-frame-bl,
@@ -14768,13 +14773,4 @@
 .x-btn-icon-toolbar-small-icon-text-top .x-btn-icon-el {
   height: 17px;
   bottom: auto;
-}
-/* line 480, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-ie6 .x-btn-icon-toolbar-small-icon-text-top .x-btn-icon-el, .x-quirks .x-ie .x-btn-icon-toolbar-small-icon-text-top .x-btn-icon-el {
-  width: 100%;
-}
-
-/* line 488, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-icon-toolbar-small-icon-text-bottom .x-btn-inner {
-  padding-bottom: 22px;
 }
