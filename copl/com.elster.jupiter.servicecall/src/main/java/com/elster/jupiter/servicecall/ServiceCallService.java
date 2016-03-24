@@ -110,6 +110,8 @@ public interface ServiceCallService {
 
     ServiceCallFilter newServiceCallFilter();
 
+    String getDisplayName(DefaultState state);
+
     Set<ServiceCall> findServiceCalls(Object targetObject, Set<DefaultState> inState);
 
     void cancelServiceCallsFor(Object target);
