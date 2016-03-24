@@ -12,11 +12,14 @@ import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     private volatile Clock clock;
+    private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
     private volatile CustomPropertySetInfoFactory customPropertySetInfoFactory;
 
@@ -39,6 +43,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     @Inject
     public UsagePointInfoFactory(Clock clock, Thesaurus thesaurus, MeteringService meteringService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.meteringService = meteringService;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
     }
@@ -82,7 +87,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.createTime = usagePoint.getCreateDate().toEpochMilli();
         info.modTime = usagePoint.getModificationDate().toEpochMilli();
         Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(clock.instant());
-        if(detailHolder.isPresent()) {
+        if (detailHolder.isPresent()) {
             if (detailHolder.get() instanceof ElectricityDetail) {
                 info.techInfo = new ElectricityUsagePointDetailsInfo((ElectricityDetail) detailHolder.get());
             } else if (detailHolder.get() instanceof GasDetail) {
@@ -94,7 +99,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             }
         }
         usagePoint.getMetrologyConfiguration()
-                .ifPresent(mc ->  info.metrologyConfiguration = new IdWithNameInfo(mc.getId(), mc.getName()));
+                .ifPresent(mc -> info.metrologyConfiguration = new IdWithNameInfo(mc.getId(), mc.getName()));
 
         UsagePointCustomPropertySetExtension customPropertySetExtension = usagePoint.forCustomProperties();
 
