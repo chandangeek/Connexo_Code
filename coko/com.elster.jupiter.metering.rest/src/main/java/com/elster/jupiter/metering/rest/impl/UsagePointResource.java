@@ -1,52 +1,27 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -57,15 +32,25 @@ public class UsagePointResource {
     private final TransactionService transactionService;
     private final Clock clock;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final UsagePointInfoFactory usagePointInfoFactory;
     private final ServiceCallService serviceCallService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public UsagePointResource(MeteringService meteringService, TransactionService transactionService, Clock clock, ConcurrentModificationExceptionFactory conflictFactory, ServiceCallService serviceCallService) {
+    public UsagePointResource(MeteringService meteringService,
+                              ServiceCallService serviceCallService,
+                              TransactionService transactionService,
+                              Clock clock,
+                              ConcurrentModificationExceptionFactory conflictFactory,
+                              UsagePointInfoFactory usagePointInfoFactory,
+                              Thesaurus thesaurus) {
         this.meteringService = meteringService;
         this.transactionService = transactionService;
         this.clock = clock;
         this.conflictFactory = conflictFactory;
+        this.usagePointInfoFactory = usagePointInfoFactory;
         this.serviceCallService = serviceCallService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -73,8 +58,8 @@ public class UsagePointResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getUsagePoints(@Context SecurityContext securityContext,
-                                          @BeanParam JsonQueryParameters queryParameters,
-                                          @QueryParam("like") String like) {
+                                        @BeanParam JsonQueryParameters queryParameters,
+                                        @QueryParam("like") String like) {
         UsagePointFilter usagePointFilter = new UsagePointFilter();
         if (!Checks.is(like).emptyOrOnlyWhiteSpace()){
             usagePointFilter.setMrid("*"+like+"*");
@@ -91,13 +76,19 @@ public class UsagePointResource {
         return securityContext.isUserInRole(Privileges.Constants.VIEW_ANY_USAGEPOINT);
     }
 
+
     @PUT
+    @Path("/{mRID}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
-        info.id = id;
-        throw new UnsupportedOperationException("not implemented yet");
+    @Transactional
+    public UsagePointInfo updateUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo info) {
+        UsagePoint usagePoint = meteringService.findAndLockUsagePointByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
+                        .withActualVersion(() -> meteringService.findUsagePoint(mRID).map(UsagePoint::getVersion).orElse(Long.valueOf(0)))
+                        .supplier());
+        info.writeTo(usagePoint);
+        return usagePointInfoFactory.from(usagePoint);
     }
 
     @GET
@@ -105,20 +96,44 @@ public class UsagePointResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public UsagePointInfos getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
+    public UsagePointInfo getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id);
-        UsagePointInfos result = new UsagePointInfos(usagePoint, clock);
-        result.addServiceLocationInfo();
+        UsagePointInfo result = new UsagePointInfo(usagePoint, clock);
         return result;
+    }
+
+    @DELETE
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Path("/{mRID}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public Response deleteUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo info) {
+        UsagePoint usagePoint = meteringService.findAndLockUsagePointByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> meteringService.findUsagePoint(mRID).map(UsagePoint::getVersion).orElse(Long.valueOf(0)))
+                        .supplier());
+            usagePoint.delete();
+            return Response.status(Response.Status.OK).entity(info).build();
     }
 
     @POST
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public UsagePointInfos createUsagePoint(UsagePointInfo info) {
-        UsagePointInfos result = new UsagePointInfos();
-        throw new UnsupportedOperationException("not implemented yet");
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public Response createUsagePoint(UsagePointInfo info) {
+        new RestValidationBuilder()
+                .notEmpty(info.mRID, "mRID")
+                .notEmpty(info.serviceCategory, "serviceCategory")
+                .validate();
+        if (info.installationTime == null) {
+            info.installationTime = clock.instant().toEpochMilli();
+        }
+        UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
+        usagePoint.addDetail(usagePoint.getServiceCategory()
+                .newUsagePointDetail(usagePoint, clock.instant()));
+        usagePoint.update();
+        return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
     }
 
     @GET
