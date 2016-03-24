@@ -25,105 +25,106 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T> {
-	
-	// contains relevant content from select keyword from v$reserved_words where length(keyword) < 4 order by keyword 
-	private final static String[] RESERVED_WORDS = {
-		"A",                                                                    
+
+	/* contains relevant content from: select keyword from v$reserved_words where length(keyword) < 4 order by keyword
+	 * that will be used to generate correct table alias names from the name of the API class. */
+	private static final String[] RESERVED_ALIAS_WORDS = {
+		"A",
 		"ABS",
 		"ACL",
-		"ACL",                                                                             
-		"ADD",                                                                             
-		"ALL",                                                                             
-		"AND",                                                                             
-		"ANY",                                                                             
-		"AS",                                                                              
-		"ASC",                                                                             
-		"AT",                                                                              
-		"AVG",                                                                             
-		"BY",                                                                              
-		"CHR",                                                                             
-		"COS",                                                                             
-		"CV",                                                                              
-		"D",                                                                               
-		"DAY",                                                                             
-		"DBA",                                                                             
-		"DDL",                                                                             
-		"DEC",                                                                             
-		"DML",                                                                             
-		"DV",                                                                              
-		"E",                                                                               
-		"EM",                                                                              
-		"END",                                                                             
-		"EXP",                                                                             
-		"FAR",                                                                             
-		"FOR",                                                                             
-		"G",                                                                               
-		"GET",                                                                             
-		"H",                                                                               
-		"HOT",                                                                             
-		"ID",                                                                              
-		"IF",                                                                              
-		"ILM",                                                                             
-		"IN",                                                                              
-		"INT",                                                                             
-		"IS",                                                                              
-		"JOB",                                                                             
-		"K",                                                                               
-		"KEY",                                                                             
-		"LAG",                                                                             
-		"LN",                                                                              
-		"LOB",                                                                             
-		"LOG",                                                                             
-		"LOW",                                                                             
-		"M",                                                                               
-		"MAX",                                                                             
-		"MIN",                                                                             
-		"MOD",                                                                             
-		"NAN",                                                                             
-		"NAV",                                                                             
-		"NEG",                                                                             
-		"NEW",                                                                             
-		"NO",                                                                              
-		"NOT",                                                                             
-		"NVL",                                                                             
-		"OF",                                                                              
-		"OFF",                                                                             
-		"OID",                                                                             
-		"OLD",                                                                             
-		"OLS",                                                                             
-		"ON",                                                                              
-		"ONE",                                                                             
-		"OR",                                                                              
-		"OWN",                                                                             
-		"P",                                                                               
-		"PER",                                                                             
-		"RAW",                                                                             
-		"RBA",                                                                             
-		"REF",                                                                             
-		"ROW",                                                                             
-		"SB4",                                                                             
-		"SCN",                                                                             
-		"SET",                                                                             
-		"SID",                                                                             
-		"SIN",                                                                             
-		"SQL",                                                                             
-		"SUM",                                                                             
-		"T",                                                                               
-		"TAG",                                                                             
-		"TAN",                                                                             
-		"THE",                                                                            
-		"TO",                                                                              
-		"TX",                                                                              
-		"U",                                                                               
-		"UB2",                                                                             
-		"UBA",                                                                             
-		"UID",                                                                             
-		"USE",                                                                             
-		"V1",                                                                              
-		"V2",                                                                              
-		"XID",                                                                             
-		"XML",                                                                             
-		"XS",                                                                              
+		"ACL",
+		"ADD",
+		"ALL",
+		"AND",
+		"ANY",
+		"AS",
+		"ASC",
+		"AT",
+		"AVG",
+		"BY",
+		"CHR",
+		"COS",
+		"CV",
+		"D",
+		"DAY",
+		"DBA",
+		"DDL",
+		"DEC",
+		"DML",
+		"DV",
+		"E",
+		"EM",
+		"END",
+		"EXP",
+		"FAR",
+		"FOR",
+		"G",
+		"GET",
+		"H",
+		"HOT",
+		"ID",
+		"IF",
+		"ILM",
+		"IN",
+		"INT",
+		"IS",
+		"JOB",
+		"K",
+		"KEY",
+		"LAG",
+		"LN",
+		"LOB",
+		"LOG",
+		"LOW",
+		"M",
+		"MAX",
+		"MIN",
+		"MOD",
+		"NAN",
+		"NAV",
+		"NEG",
+		"NEW",
+		"NO",
+		"NOT",
+		"NVL",
+		"OF",
+		"OFF",
+		"OID",
+		"OLD",
+		"OLS",
+		"ON",
+		"ONE",
+		"OR",
+		"OWN",
+		"P",
+		"PER",
+		"RAW",
+		"RBA",
+		"REF",
+		"ROW",
+		"SB4",
+		"SCN",
+		"SET",
+		"SID",
+		"SIN",
+		"SQL",
+		"SUM",
+		"T",
+		"TAG",
+		"TAN",
+		"THE",
+		"TO",
+		"TX",
+		"U",
+		"UB2",
+		"UBA",
+		"UID",
+		"USE",
+		"V1",
+		"V2",
+		"XID",
+		"XML",
+		"XS",
 		"YES",
 		"FILE"};
 	private final Class<T> api;
@@ -132,16 +133,16 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	private final String alias;
 	private final DataMapperReader<T> reader;
 	private final DataMapperWriter<T> writer;
-	
+
 	DataMapperImpl(Class<T> api, TableImpl<? super T> table) {
 		this.api = api;
 		this.table = table;
 		this.sqlGenerator = new TableSqlGenerator(table);
 		this.alias = createAlias(api.getName());
 		this.reader = new DataMapperReader<>(this);
-		this.writer = new DataMapperWriter<>(this);		
-	}	
-	
+		this.writer = new DataMapperWriter<>(this);
+	}
+
 	private String createAlias(String apiName) {
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0 ; i < apiName.length() ; i++) {
@@ -154,29 +155,29 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
             builder.append('X');
         }
         String result = builder.toString().toUpperCase();
-        if (Arrays.binarySearch(RESERVED_WORDS,result) >= 0) {
+        if (Arrays.binarySearch(RESERVED_ALIAS_WORDS,result) >= 0) {
         	return result + "1";
         } else {
-        	return result;      
+        	return result;
         }
 	}
-	
+
 	public String getAlias() {
 		return alias;
 	}
-	
+
 	public Class<T> getApi() {
 		return api;
 	}
-	
+
 	public TableImpl<? super T> getTable() {
 		return table;
 	}
-	
+
 	public TableSqlGenerator getSqlGenerator() {
 		return sqlGenerator;
 	}
-	
+
 	private TableCache<? super T> getCache() {
 		return getTable().getCache();
 	}
@@ -188,7 +189,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		Object cacheVersion = cache.get(keyValue);
 		if (cacheVersion != null) {
 			if (api.isInstance(cacheVersion)) {
-				return Optional.of(api.cast(cacheVersion)); 
+				return Optional.of(api.cast(cacheVersion));
 			} else {
 				return Optional.empty();
 			}
@@ -206,12 +207,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
-	
+
 	@Override
 	int getPrimaryKeyLength() {
 		return getTable().getPrimaryKeyColumns().size();
 	}
-	
+
 	@Override
 	public T lock(Object... values)  {
 		try {
@@ -238,7 +239,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
-	
+
 	@Override
 	public List<T> find(String[] fieldNames, Object[] values, Order... orders) {
 		try {
@@ -262,19 +263,19 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
     	if (!table.hasJournal() || !table.getColumn(TableImpl.MODTIMECOLUMNAME).isPresent()) {
     		throw new IllegalStateException();
     	}
-    	return new JournalFinderImpl(Objects.requireNonNull(instant));        
+    	return new JournalFinderImpl(Objects.requireNonNull(instant));
     }
-    
+
     public T construct(ResultSet rs, int startIndex) throws SQLException {
 		return reader.construct(rs,startIndex);
 	}
-	
+
 	private void preventIfChild() {
 		if (getTable().isChild()) {
 			throw new UnsupportedOperationException();
 		}
 	}
-	
+
 	@Override
 	public void persist(T object)  {
 		preventIfChild();
@@ -285,7 +286,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
-		
+
 	@Override
 	// note that this will not fill back auto increment columns.
 	public void persist(List<T> objects)  {
@@ -304,24 +305,24 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
-	
+
 	@Override
 	public void update(T object , String... fieldNames)  {
 		update(object, getUpdateColumns(fieldNames));
 	}
-	
+
 	public void touch(T object) {
-		if (table.getAutoUpdateColumns().isEmpty()) { 
+		if (table.getAutoUpdateColumns().isEmpty()) {
 			throw new IllegalStateException("Nothing to touch");
 		} else {
 			update(object, Collections.<ColumnImpl>emptyList());
 		}
 	}
-	
+
 	private List<ColumnImpl> getUpdateColumns(String[] fieldNames) {
 		if (fieldNames.length == 0) {
 			return table.getStandardColumns();
-		} 
+		}
 		List<ColumnImpl> columns = new ArrayList<>(fieldNames.length);
 		for (String fieldName : fieldNames) {
 			FieldMapping mapping = getTable().getFieldMapping(fieldName);
@@ -342,7 +343,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 		return columns;
 	}
-	
+
 	private void update(T object, List<ColumnImpl> columns) {
 		try {
 			writer.update(object,columns);
@@ -353,7 +354,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			getCache().remove(object);
 		}
 	}
-	
+
 	@Override
 	public void update(List<T> objects , String... fieldNames)  {
 		if (objects.isEmpty()) {
@@ -378,7 +379,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			}
 		}
 	}
-	
+
 	@Override
 	public void remove(T object )  {
 		preventIfChild();
@@ -390,7 +391,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			getCache().remove(object);
 		}
 	}
-	
+
 	@Override
 	public void remove(List<? extends T> objects )  {
 		preventIfChild();
@@ -407,7 +408,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			}
 		}
 	}
-	
+
 	QueryExecutorImpl<T> with(DataMapper<?>... dataMappers) {
 		QueryExecutorImpl <T> result = new QueryExecutorImpl<>(this);
 		for (DataMapper<?> each : dataMappers) {
@@ -421,19 +422,19 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		result.setRestriction(getMapperType().condition(getApi()));
 		return result;
 	}
-	
+
 	public QueryExecutorImpl<T> query(Class<?>... eagers) {
 		return getDataModel().query(this, eagers);
 	}
-	
+
 	public Object convert(ColumnImpl column , String value) {
 		return column.convert(value);
 	}
-	
+
 	private List<ColumnImpl> getColumns() {
 		return getTable().getColumns();
 	}
-		
+
 	private int getIndex(ColumnImpl column) {
 		int i = getColumns().indexOf(column);
 		if (i < 0) {
@@ -441,12 +442,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 		return i;
 	}
-	
+
 	private Object getValue(ColumnImpl column , ResultSet rs , int startIndex ) throws SQLException {
 		int offset = getIndex(column);
 		return column.convertFromDb(rs, startIndex + offset);
 	}
-	
+
 	public KeyValue getPrimaryKey(ResultSet rs , int index) throws SQLException {
 		List<ColumnImpl> primaryKeyColumns = getTable().getPrimaryKeyColumns();
 		if  (primaryKeyColumns.isEmpty()) {
@@ -459,41 +460,41 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 					return null;
 				}
 			}
-			return KeyValue.of(values);				
+			return KeyValue.of(values);
 		}
 	}
-	
+
 	public Class<?> getType(String fieldName) {
 		return getMapperType().getType(fieldName);
 	}
-	
+
 	@Override
 	public List<T> select(Condition condition, Order ... orders) {
 		return with().select(condition, orders);
 	}
-	
+
 	DataMapperType <? super T> getMapperType() {
 		return table.getMapperType();
 	}
-	
+
 	public DataMapperWriter<T> getWriter() {
 		return writer;
 	}
-	
+
 	@Override
 	public Optional<T> getEager(Object ... key) {
-		return (Optional<T>) getTable().getQuery(getApi()).getOptional(key);
+		return getTable().getQuery(getApi()).getOptional(key);
 	}
 
 	@Override
 	public Object getAttribute(Object target, String fieldName) {
 		return DomainMapper.FIELDSTRICT.get(target, fieldName);
 	}
-	
+
 	private boolean needsRestriction() {
 		return getMapperType().needsRestriction(api);
 	}
-	
+
 	public T cast (Object object) {
 		return api.cast(object);
 	}
@@ -535,22 +536,22 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	public SqlBuilder builder(String alias, String... hints) {
 		return new SqlBuilder(getSqlGenerator().getSelectFromClause(alias, hints));
 	}
-	
+
 	public DataModelImpl getDataModel() {
 		return getTable().getDataModel();
 	}
-	
+
 	@Override
-	public Optional<JournalEntry<T>> getJournalEntry (Instant instant, Object... values)  {		
+	public Optional<JournalEntry<T>> getJournalEntry (Instant instant, Object... values)  {
 		return getJournal(values).stream()
 			.filter(journalEntry -> instant.isBefore(journalEntry.getJournalTime()))
-			.reduce( (previous, current) -> current);					
+			.reduce( (previous, current) -> current);
 	}
-	
+
 	class JournalFinderImpl implements Finder.JournalFinder<T> {
-		
+
 		private final Instant instant;
-		
+
 		JournalFinderImpl(Instant instant) {
 			this.instant = instant;
 		}
@@ -558,13 +559,14 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		@Override
 		public List<JournalEntry<T>> find(Map<String, Object> valueMap) {
 	        try {
-	        	Stream<JournalEntry<T>> current = reader.find(instant, valueMap).stream().map(tuple -> new JournalEntry<>(tuple));
+	        	Stream<JournalEntry<T>> current = reader.find(instant, valueMap).stream().map(JournalEntry::new);
 	        	Stream<JournalEntry<T>> old = reader.findJournals(instant, valueMap).stream();
 	        	return Stream.concat(current, old).collect(Collectors.toList());
 	        } catch (SQLException e) {
 	            throw new UnderlyingSQLFailedException(e);
 	        }
 		}
-		
+
 	}
+
 }
