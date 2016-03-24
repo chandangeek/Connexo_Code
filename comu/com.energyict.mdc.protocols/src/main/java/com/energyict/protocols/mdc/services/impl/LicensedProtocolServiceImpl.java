@@ -2,15 +2,14 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.util.Checks;
-import com.energyict.license.LicensedProtocolRule;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.ProtocolFamily;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.api.LicensedProtocol;
+
+import com.energyict.license.LicensedProtocolRule;
 import org.osgi.service.component.annotations.Component;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -82,7 +81,6 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
         boolean hasProtocol(String name) {
             ProtocolCheckComposite checker =
                     new ProtocolCheckComposite(
-                            new EIWebChecker(),
                             new AllProtocolsAreCoveredChecker(),
                             new FamilyChecker(),
                             new ProtocolClassChecker());
@@ -159,15 +157,6 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
                     }
                 }
                 return false;
-            }
-        }
-
-
-        private class EIWebChecker implements ProtocolCheck {
-
-            @Override
-            public boolean isCovered(String className) {
-                return "com.energyict.rtuprotocol.EIWeb".equals(className);
             }
         }
 

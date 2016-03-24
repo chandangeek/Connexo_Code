@@ -245,13 +245,14 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * logbook. Messages with level below INFO are only displayed in diagnostic mode
      * </p>
      *
-     * @param inputStream  byte stream to read data from the device
+     * @param inputStream byte stream to read data from the device
      * @param outputStream byte stream to send data to the device
-     * @param timeZone     the device's timezone
-     * @param logger       used to provide feedback to the collection system
+     * @param timeZone the device's timezone
+     * @param logger used to provide feedback to the collection system
      * @throws java.io.IOException Thrown when an exception happens
      */
-    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
+    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws
+            IOException {
         this.timeZone = timeZone;
         this.logger = logger;
 
@@ -267,7 +268,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     /**
      * Initialize DLMS specific objects
      *
-     * @param inputStream  - the inputStream form the dialer
+     * @param inputStream - the inputStream form the dialer
      * @param outputStream - the outputStream from the dialer
      * @throws IOException if initializing the connection failed of the connectionMode is invalid
      */
@@ -470,7 +471,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
 
     public int requestConfigurationProgramChanges() throws IOException {
         if (iConfigProgramChange == -1) {
-            iConfigProgramChange = (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
+            iConfigProgramChange = (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject()
+                    .getObisCode()).getValue();
         }
         return iConfigProgramChange;
     }
@@ -619,7 +621,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * setting based on the returned ProfileData
      *
      * @param includeEvents indicates whether events need to be included
-     * @param lastReading   retrieve all data younger than lastReading
+     * @param lastReading retrieve all data younger than lastReading
      * @return profile data containing interval records and optional meter events
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -639,8 +641,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * setting based on the returned ProfileData
      *
      * @param includeEvents indicates whether events need to be included
-     * @param from          retrieve all data starting with from date
-     * @param to            retrieve all data until to date
+     * @param from retrieve all data starting with from date
+     * @param to retrieve all data until to date
      * @return profile data containing interval records and optional meter events between from and to
      * @throws UnsupportedException if meter does not support a to date to request the profile data
      */
@@ -699,12 +701,12 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * <p></p>
      *
      * @param name Register name. Devices supporting OBIS codes,
-     *             should use the OBIS code as register name
-     *             </p>
+     * should use the OBIS code as register name
+     * </p>
      * @return the value for the specified register
      * </p><p>
-     * @throws java.io.IOException     <br>
-     * @throws UnsupportedException    if the device does not support this operation
+     * @throws java.io.IOException <br>
+     * @throws UnsupportedException if the device does not support this operation
      * @throws NoSuchRegisterException if the device does not support the specified register
      */
     public String getRegister(String name) throws IOException {
@@ -730,7 +732,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
                 final String from = name.substring(name.indexOf("-") + 1, name.indexOf("-", name.indexOf("-") + 1));
                 final String to = name.substring(name.indexOf(from) + from.length() + 1);
                 if (ln2.getDLMSClass() == 7) {
-                    return getCosemObjectFactory().getProfileGeneric(getMeterConfig().getObject(ln2).getObisCode()).getBuffer(convertStringToCalendar(from), convertStringToCalendar(to)).print2strDataContainer();
+                    return getCosemObjectFactory().getProfileGeneric(getMeterConfig().getObject(ln2).getObisCode())
+                            .getBuffer(convertStringToCalendar(from), convertStringToCalendar(to))
+                            .print2strDataContainer();
                 } else {
                     throw new NoSuchRegisterException("GenericGetSet,getRegister, register " + name + " is not a profile.");
                 }
@@ -747,12 +751,17 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     }
 
     private DataContainer doRequestAttribute(final int classId, final byte[] ln, final int lnAttr) throws IOException {
-        return getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
+        return getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId)
+                .getDataContainer();
     }
 
     private Calendar convertStringToCalendar(final String strDate) {
         final Calendar cal = Calendar.getInstance(getTimeZone());
-        cal.set(Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))) & 0xFFFF, (Integer.parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/"))) & 0xFF) - 1, Integer.parseInt(strDate.substring(0, strDate.indexOf("/"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate.indexOf(":"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())) & 0xFF);
+        cal.set(Integer.parseInt(strDate.substring(strDate.lastIndexOf("/") + 1, strDate.indexOf(" "))) & 0xFFFF, (Integer
+                .parseInt(strDate.substring(strDate.indexOf("/") + 1, strDate.lastIndexOf("/"))) & 0xFF) - 1, Integer.parseInt(strDate
+                .substring(0, strDate.indexOf("/"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.indexOf(" ") + 1, strDate
+                .indexOf(":"))) & 0xFF, Integer.parseInt(strDate.substring(strDate.indexOf(":") + 1, strDate.lastIndexOf(":"))) & 0xFF, Integer
+                .parseInt(strDate.substring(strDate.lastIndexOf(":") + 1, strDate.length())) & 0xFF);
         return cal;
     }
 
@@ -761,12 +770,12 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * sets the specified register to value
      * </p>
      *
-     * @param name  Register name. Devices supporting OBIS codes,
-     *              should use the OBIS code as register name
+     * @param name Register name. Devices supporting OBIS codes,
+     * should use the OBIS code as register name
      * @param value to set the register.
-     *              </p>
-     * @throws java.io.IOException     <br>
-     * @throws UnsupportedException    if the device does not support this operation
+     * </p>
+     * @throws java.io.IOException <br>
+     * @throws UnsupportedException if the device does not support this operation
      * @throws NoSuchRegisterException if the device does not support the specified register
      */
     public void setRegister(String name, String value) throws IOException {
@@ -776,7 +785,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         }
         final DLMSObis ln = new DLMSObis(name);
         if ((ln.isLogicalName()) && (classSpecified)) {
-            getCosemObjectFactory().getGenericWrite(ObisCode.fromByteArray(ln.getLN()), ln.getOffset(), ln.getDLMSClass()).write(convert(value));
+            getCosemObjectFactory().getGenericWrite(ObisCode.fromByteArray(ln.getLN()), ln.getOffset(), ln.getDLMSClass())
+                    .write(convert(value));
         } else {
             throw new NoSuchRegisterException("GenericGetSet, setRegister, register " + name + " does not exist.");
         }
@@ -857,7 +867,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     /**
      * Update the protocol specific cach object information in the database.
      *
-     * @param rtuid       Database ID of the RTU
+     * @param rtuid Database ID of the RTU
      * @param cacheObject the protocol specific cach object
      * @throws java.sql.SQLException Thrown in case of an SQLException
      */
@@ -912,37 +922,38 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      */
     public List<String> getOptionalKeys() {
         return Arrays.asList(
-                    "ForceDelay",
-                    "TimeOut",
-                    "Retries",
-                    "Connection",
-                    "SecurityLevel",
-                    "ClientMacAddress",
-                    "ServerUpperMacAddress",
-                    "ServerLowerMacAddress",
-                    "InformationFieldSize",
-                    "LoadProfileId",
-                    "AddressingMode",
-                    "MaxMbusDevices",
-                    "IIAPInvokeId",
-                    "IIAPPriority",
-                    "IIAPServiceClass",
-                    "Manufacturer",
-                    "InformationFieldSize",
-                    "RoundTripCorrection",
-                    "IpPortNumber",
-                    "WakeUp",
-                    "CipheringType",
-                    NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY,
-                    NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY,
-                    NTASecurityProvider.MASTERKEY);
+                "ForceDelay",
+                "TimeOut",
+                "Retries",
+                "Connection",
+                "SecurityLevel",
+                "ClientMacAddress",
+                "ServerUpperMacAddress",
+                "ServerLowerMacAddress",
+                "InformationFieldSize",
+                "LoadProfileId",
+                "AddressingMode",
+                "MaxMbusDevices",
+                "IIAPInvokeId",
+                "IIAPPriority",
+                "IIAPServiceClass",
+                "Manufacturer",
+                "InformationFieldSize",
+                "RoundTripCorrection",
+                "IpPortNumber",
+                "WakeUp",
+                "CipheringType",
+                NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY,
+                NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY,
+                NTASecurityProvider.MASTERKEY);
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, false);
     }
 
-    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws
+            ConnectionException {
         HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, this.timeOut, this.retries, 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
