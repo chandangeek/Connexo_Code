@@ -33,18 +33,38 @@ Ext.define('Mdc.view.setup.devicegroup.DevicesOfDeviceGroupGrid', {
                 displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
                 emptyMsg: Uni.I18n.translate('devices.pagingtoolbartop.emptyMsg', 'MDC', 'There are no devices to display'),
-                items: {
-                    xtype: 'uni-search-column-picker',
-                    itemId: 'column-picker',
-                    grid: me
-                }
+                items: [
+                    {
+                        text: Uni.I18n.translate('deviceGroup.count', 'MDC', 'Count'),
+                        privileges:Mdc.privileges.DeviceGroup.adminDeviceGroup,
+                        itemId: 'countButton',
+                        xtype: 'button',
+                        action: 'countDevicesOfGroup'
+                    },
+                    {
+                        xtype: 'uni-search-column-picker',
+                        itemId: 'column-picker',
+                        grid: me
+                    }
+                ]
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page'),
                 dock: 'bottom',
-                deferLoading: true
+                deferLoading: true,
+                pageSizeStore: Ext.create('Ext.data.Store', {
+                    fields: ['value'],
+                    data: [
+                        {value: '10'},
+                        {value: '20'},
+                        {value: '50'},
+                        {value: '100'},
+                        {value: '200'},
+                        {value: '1000'}
+                    ]
+                })
             }
         ];
 

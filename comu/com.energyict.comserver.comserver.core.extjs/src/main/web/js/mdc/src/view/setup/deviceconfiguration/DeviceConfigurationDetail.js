@@ -89,7 +89,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
                                     name: 'isDirectlyAddressable',
                                     renderer: function (value) {
-                                        return value === true ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                        return value === true
+                                            ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                                            : Uni.I18n.translate('general.no', 'MDC', 'No');
                                     }
                                 },
                                 {
@@ -110,6 +112,16 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                             text = Uni.I18n.translate('general.no', 'MDC', 'No');
                                         }
                                         return text;
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    fieldLabel: Uni.I18n.translate('deviceconfiguration.dataLoggerFunctionality', 'MDC', 'Data logger functionality'),
+                                    name: 'dataloggerEnabled',
+                                    renderer: function (value) {
+                                        return value === true
+                                            ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                                            : Uni.I18n.translate('general.no', 'MDC', 'No');
                                     }
                                 }
                             ]

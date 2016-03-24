@@ -87,9 +87,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         itemId: 'device-configuration-logbooks-empty-msg',
-                        title: Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.title', 'MDC', 'No logbook configuration found'),
+                        title: Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.title', 'MDC', 'No logbook configurations found'),
                         reasons: [
-                            Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.list.item1', 'MDC', 'No logbook configuration have been defined yet.'),
+                            Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.list.item1', 'MDC', 'No logbook configurations have been defined yet.'),
                         ],
                         stepItems: [
                             {
@@ -161,7 +161,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
     ],
 
     initComponent: function () {
-        this.side = [
+        var me = this;
+        me.side = [
             {
                 xtype: 'panel',
                 ui: 'medium',
@@ -169,14 +170,23 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                     {
                         xtype: 'device-configuration-menu',
                         itemId: 'stepsMenu',
-                        deviceTypeId: this.deviceTypeId,
-                        deviceConfigurationId: this.deviceConfigurationId
+                        deviceTypeId: me.deviceTypeId,
+                        deviceConfigurationId: me.deviceConfigurationId
                     }
                 ]
             }
         ];
-        this.callParent(arguments);
+        me.callParent(arguments);
         Ext.data.StoreManager.lookup('LogbookConfigurations').load();
+
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+            success: function (deviceType) {
+                if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                    me.down('#empty-msg-add-logbook-configuration-to-device-configuration-btn').setDisabled(true);
+                }
+            }
+        });
+
     }
 });
 

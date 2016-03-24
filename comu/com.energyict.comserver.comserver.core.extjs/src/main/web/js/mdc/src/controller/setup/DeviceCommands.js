@@ -296,6 +296,23 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 actionClmn = me.getDeviceCommandsGrid().down('uni-actioncolumn');
 
             previewPanel.setTitle(title);
+            if(record.get('trackingCategory').id ==='trackingCategory.serviceCall'){
+                previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('deviceCommands.view.serviceCall', 'MDC', 'Service call'));
+                previewForm.down('#tracking').renderer = function (val) {
+                    if (record.get('trackingCategory').activeLink != undefined && record.get('trackingCategory').activeLink) {
+                        return '<a style="text-decoration: underline" href="' +
+                            me.getController('Uni.controller.history.Router').getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: val})
+                            + '">' + val + '</a>';
+                    } else {
+                        return val ? Ext.String.htmlEncode(val) : '-';
+                    }
+                }
+            } else {
+                previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('deviceCommands.view.trackingSource', 'MDC', 'Tracking source'));
+                previewForm.down('#tracking').renderer = function (val) {
+                    return val ? Ext.String.htmlEncode(val) : '';
+                }
+            }
             previewForm.loadRecord(record);
             previewPropertiesForm.loadRecord(record);
             if (status == 'CommandWaiting' || status == 'CommandPending') {
@@ -378,6 +395,9 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             releaseDate && record.set('releaseDate', releaseDate);
             messageSpecification && record.set('messageSpecification', messageSpecification);
             record.set('status', null);
+            if (commandForm.getValues().trackingCategory === "" || commandForm.getValues().trackingCategory === undefined) {
+                record.set('trackingCategory', null);
+            }
             record.endEdit();
             record.save({
                 url: '/api/ddr/devices/' + encodeURIComponent(btn.mRID) + '/devicemessages',
