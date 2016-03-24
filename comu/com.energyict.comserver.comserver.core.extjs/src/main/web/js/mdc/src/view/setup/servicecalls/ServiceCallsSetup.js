@@ -54,13 +54,11 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
                     },
                     {
                         title: Uni.I18n.translate('general.history', 'MDC', 'History'),
-                        itemId: 'history-service-calls-tab',
+                        itemId: 'history-service-calls-tab'
                     }
                 ]
             }
         ];
-
-        me.doLayout();
 
         me.callParent(arguments);
     },

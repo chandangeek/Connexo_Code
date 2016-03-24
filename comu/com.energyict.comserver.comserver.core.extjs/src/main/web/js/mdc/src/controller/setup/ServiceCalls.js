@@ -37,6 +37,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
     ],
 
     historyAdded: false,
+    skip: false,
 
     init: function () {
         this.control({
@@ -57,8 +58,15 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
 
     showServiceCallHistory: function (mRID) {
         var me = this;
-        if (!Uni.util.History.isSuspended()) {
+        if (!Uni.util.History.isSuspended() && !me.skip) {
             me.showTabbedView(mRID, 1);
+        } else if (!me.historyAdded) {
+            me.skip = true;
+            Ext.getStore('Mdc.store.servicecalls.ServiceCallHistory').getProxy().setUrl(mRID);
+            me.getServiceCallsSetup().addHistoryGrid(me.getSixtyDaysFilter());
+            me.historyAdded = true;
+        } else {
+            me.skip = false;
         }
 
     },
@@ -68,9 +76,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
             router = me.getController('Uni.controller.history.Router'),
             widget,
             historyStore = Ext.getStore('Mdc.store.servicecalls.ServiceCallHistory'),
-            runningStore = Ext.getStore('Mdc.store.servicecalls.RunningServiceCalls'),
-            date,
-            filter = {};
+            runningStore = Ext.getStore('Mdc.store.servicecalls.RunningServiceCalls');
 
         me.historyAdded = false;
         runningStore.getProxy().setUrl(mRID);
@@ -101,12 +107,9 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
         router.arguments.mRID = tabPanel.mRID;
         Uni.util.History.suspendEventsForNextCall(true);
         if (newTab.itemId === 'history-service-calls-tab') {
-            if (!me.historyAdded) {
-                Ext.getStore('Mdc.store.servicecalls.ServiceCallHistory').getProxy().setUrl(tabPanel.mRID);
-                me.getServiceCallsSetup().addHistoryGrid(me.getSixtyDaysFilter());
-                me.historyAdded = true;
+            if(me.getFilter()) {
+                filter = me.getFilter().getFilterParams(false, true);
             }
-            filter = me.getFilter().getFilterParams(false, true);
             route = router.getRoute('devices/device/servicecalls/history');
         } else if (newTab.itemId === 'running-service-calls-tab') {
             route = router.getRoute('devices/device/servicecalls');
@@ -115,8 +118,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
     },
 
     getSixtyDaysFilter: function() {
-        var me = this,
-            date,
+        var date,
             filter = {};
 
         date = new Date();
