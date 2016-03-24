@@ -93,7 +93,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
 
         if (!editedForm) {
             form.switchDisplayMode('edit');
-        } else {
+        } else if (editedForm.itemId !== form.itemId) {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.editGeneralInformation.discard', 'IMT', 'Discard'),
                 confirmation: function () {
