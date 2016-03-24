@@ -1,6 +1,8 @@
 package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -9,25 +11,28 @@ import java.util.stream.Stream;
  * Models the {@link State}s
  * that are part of the default {@link ServiceCallLifeCycle}.
  */
-public enum DefaultState {
-    CREATED("sclc.default.created"),
-    PENDING("sclc.default.pending"),
-    SCHEDULED("sclc.default.scheduled"),
-    ONGOING("sclc.default.ongoing"),
-    PAUSED("sclc.default.paused"),
-    WAITING("sclc.default.waiting"),
-    PARTIAL_SUCCESS("sclc.default.partialSuccess"),
-    SUCCESSFUL("sclc.default.successful"),
-    FAILED("sclc.default.failed"),
-    REJECTED("sclc.default.rejected"),
-    CANCELLED("sclc.default.cancelled");
+public enum DefaultState implements TranslationKey {
+    CREATED("sclc.default.created", "Created"),
+    PENDING("sclc.default.pending", "Pending"),
+    SCHEDULED("sclc.default.scheduled", "Scheduled"),
+    ONGOING("sclc.default.ongoing", "Ongoing"),
+    PAUSED("sclc.default.paused", "Paused"),
+    WAITING("sclc.default.waiting", "Waiting"),
+    PARTIAL_SUCCESS("sclc.default.partialSuccess", "Partial success"),
+    SUCCESSFUL("sclc.default.successful", "Successful"),
+    FAILED("sclc.default.failed", "Failed"),
+    REJECTED("sclc.default.rejected", "Rejected"),
+    CANCELLED("sclc.default.cancelled", "Cancelled");
 
     private final String key;
+    private final String defaultFormat;
 
-    DefaultState(String key) {
+    DefaultState(String key, String defaultFormat) {
         this.key = key;
+        this.defaultFormat = defaultFormat;
     }
 
+    @Override
     public String getKey() {
         return key;
     }
@@ -51,6 +56,25 @@ public enum DefaultState {
         } else {
             return Optional.empty();
         }
+    }
+
+    public boolean matches(State state) {
+        return getKey().equals(state.getName());
+    }
+    public static Optional<DefaultState> from(String key) {
+        return Stream
+                .of(DefaultState.values())
+                .filter(d -> d.getKey().equals(key))
+                .findFirst();
+    }
+
+    @Override
+    public String getDefaultFormat() {
+        return defaultFormat;
+    }
+
+    public String getDisplayName(Thesaurus thesaurus) {
+        return thesaurus.getString(getKey(), this.getDefaultFormat());
     }
 
 }

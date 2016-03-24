@@ -1,4 +1,4 @@
-package com.elster.jupiter.servicecall.impl;
+package com.elster.jupiter.servicecall.impl.example;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -11,7 +11,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeDomainExtension;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;

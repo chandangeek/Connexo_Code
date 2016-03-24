@@ -10,7 +10,7 @@ public interface ServiceCallTypeBuilder {
 
     ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet);
 
-    ServiceCallTypeBuilder handler(String serviceCallHandler);
-
     ServiceCallType create();
+
+    ServiceCallTypeBuilder handler(String serviceCallHandler);
 }
