@@ -6,7 +6,8 @@ Ext.define('Cfg.view.validation.AddReadingTypesToRuleSetup', {
 
     requires: [
         'Cfg.view.validation.ReadingTypeTopFilter',
-        'Cfg.store.ReadingTypesToAddForRule'
+        'Cfg.store.ReadingTypesToAddForRule',
+        'Cfg.view.validation.AddReadingTypesNoItemsFoundPanel'
     ],
     content: [
         {
@@ -33,15 +34,8 @@ Ext.define('Cfg.view.validation.AddReadingTypesToRuleSetup', {
                             ptype: 'bufferedrenderer'
                         }
                     },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        margin: '0 0 20 0',
-                        title: Uni.I18n.translate('validation.readingType.empty.title', 'CFG', 'No reading types found.'),
-                        reasons: [
-                            Uni.I18n.translate('validation.readingType.empty.list.item1', 'CFG', 'No reading types have been added yet.'),
-                            Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply to the filter.'),
-                            Uni.I18n.translate('validation.readingType.empty.list.item3', 'CFG', 'All reading types have been already added to rule.')
-                        ]
+                    emptyComponent:{
+                        xtype: 'addReadingTypesNoItemsFoundPanel'
                     }
                 },
                 {

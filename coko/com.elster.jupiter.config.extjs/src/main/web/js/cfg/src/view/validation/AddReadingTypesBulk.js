@@ -4,7 +4,9 @@ Ext.define('Cfg.view.validation.AddReadingTypesBulk', {
     store: 'Cfg.store.ReadingTypesToAddForRule',
 
     requires: [
-        'Uni.grid.column.ReadingType'
+        'Uni.grid.column.ReadingType',
+        'Cfg.view.validation.SelectedReadingTypesWindow',
+        'Cfg.store.SelectedReadingTypes'
     ],
 
     plugins: {
@@ -44,6 +46,28 @@ Ext.define('Cfg.view.validation.AddReadingTypesBulk', {
                 me.popRecord(record);
             }
         });
+
+        me.getTopToolbarContainer().add(1,{
+            xtype: 'button',
+            hidden: true,
+            itemId: 'list-of-reading-types-info-btn',
+            tooltip: Uni.I18n.translate('readingType.tooltip', 'CFG', 'Click for more information'),
+            iconCls: 'uni-icon-info-small',
+            cls: 'uni-btn-transparent',
+            width: 15,
+            style: {
+                display: 'inline-block',
+                textDecoration: 'none !important',
+                position: 'absolute',
+                top: '5px'
+            },
+            handler: function () {
+                var widget = Ext.widget('validationSelectedReadingTypes');
+                widget.setTitle(me.counterTextFn(me.hiddenSelection.length));
+                widget.show();
+            }
+        });
+
         me.getStore().on('prefetch', function () {
             me.selectRecords();
         })
@@ -102,6 +126,7 @@ Ext.define('Cfg.view.validation.AddReadingTypesBulk', {
         me.clearSelection();
         me.blockSelectEvent = false;
         me.overriddenOnSelectionChange();
+        this.down('#list-of-reading-types-info-btn').hide();
         button.setDisabled(true);
     },
 
@@ -123,5 +148,12 @@ Ext.define('Cfg.view.validation.AddReadingTypesBulk', {
 
 
     onSelectionChange: function () {
+        var me =this,
+            btn = this.down('#list-of-reading-types-info-btn'),
+            selectedStore =  Ext.getStore('Cfg.store.SelectedReadingTypes');
+        console.log(me.hiddenSelection);
+        selectedStore.removeAll();
+        selectedStore.add(me.hiddenSelection);
+        me.hiddenSelection.length ? btn.show() : btn.hide();
     }
 });

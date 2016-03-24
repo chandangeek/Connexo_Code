@@ -11,7 +11,8 @@ Ext.define('Cfg.controller.Validation', {
         'ReadingTypesForRule',
         'AdaptedReadingTypes',
         'Cfg.store.ReadingTypesToAddForRule',
-        'ValidationRuleSetVersions'
+        'ValidationRuleSetVersions',
+        'Cfg.store.SelectedReadingTypes'
     ],
 
     requires: [
@@ -92,7 +93,8 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'addVersion', selector: 'addVersion'},
         {ref: 'versionOverview', selector: 'versionOverview'},
         {ref: 'versionRulePreviewContainer', selector: 'versionRulePreviewContainer'},
-        {ref: 'versionsGrid', selector: 'versionsList'}
+        {ref: 'versionsGrid', selector: 'versionsList'},
+        {ref: 'addReadingTypesBulk', selector: 'addReadingTypesBulk'}
 
 
     ],
@@ -102,6 +104,8 @@ Ext.define('Cfg.controller.Validation', {
     ruleSetId: null,
     ruleModel: null,
     ruleSetModel: null,
+
+
 
     init: function () {
         this.control({
@@ -166,6 +170,11 @@ Ext.define('Cfg.controller.Validation', {
             'versions-action-menu': {
                 click: this.chooseRuleSetVersionAction,
                 show: this.onVersionMenuShow
+            },
+            'AddReadingTypesToRuleSetup addReadingTypesNoItemsFoundPanel': {
+                openInfoWindow: this.showSelectedReadingTypes,
+                showNoFoundPanel: this.showNoFoundPanel,
+                uncheckAll: this.uncheckAll
             }
         });
     },
@@ -1472,5 +1481,37 @@ Ext.define('Cfg.controller.Validation', {
                 });
             }
         });
+    },
+
+    showSelectedReadingTypes: function(){
+        var me = this;
+        var widget = Ext.widget('validationSelectedReadingTypes');
+        widget.setTitle(me.setCountOfSelectedReadingTypes());
+        widget.show();
+    },
+
+    showNoFoundPanel: function (cmp) {
+        var me = this,
+            bulk = me.getAddReadingTypesBulk();
+        cmp.getSelectionCounter().setText(me.setCountOfSelectedReadingTypes());
+        if(bulk.hiddenSelection.length){
+            cmp.getuncheckAllBtn().setDisabled(false);
+            cmp.getInfoBtn().show();
+        } else {
+            cmp.getuncheckAllBtn().setDisabled(true);
+            cmp.getInfoBtn().hide();
+        }
+    },
+
+    setCountOfSelectedReadingTypes: function(){
+        var me = this,
+            bulk = me.getAddReadingTypesBulk();
+        return bulk.counterTextFn(bulk.hiddenSelection.length)
+    },
+
+    uncheckAll: function(cmp){
+        var me = this,
+            bulk = me.getAddReadingTypesBulk();
+        bulk.getUncheckAllButton().fireEvent('click',bulk.getUncheckAllButton());
     }
 });
