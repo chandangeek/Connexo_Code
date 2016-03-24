@@ -56,7 +56,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                     padding: '8px'
                                 },
                                 flex: 1,
-                                minHeight: 150 // todo: remove after implementation of content for this panel
+                                minHeight: 185 // todo: remove after implementation of content for this panel
                             },
                             {
                                 xtype: 'container',
