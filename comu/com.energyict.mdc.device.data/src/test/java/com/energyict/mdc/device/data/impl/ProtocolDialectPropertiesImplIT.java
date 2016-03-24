@@ -49,8 +49,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -98,7 +101,6 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
                 registerDeviceProtocol();
                 deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(ProtocolDialectPropertiesImplIT.class.getSimpleName(), deviceProtocolPluggableClass);
                 deviceType.setDeviceUsageType(DeviceUsageType.METER);
-                deviceType.save();
                 DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(ProtocolDialectPropertiesImplIT.class.getName());
                 deviceConfiguration = deviceConfigurationBuilder.add();
                 deviceConfiguration.activate();

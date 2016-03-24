@@ -1,5 +1,15 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -17,18 +27,8 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.sql.SqlBuilder;
-
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -313,7 +313,8 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
     }
 
     private Map<Long, Map<CompletionCode, Long>> fetchComTaskHeatMapCounters(SqlBuilder builder) {
-        try (PreparedStatement stmnt = builder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
+             PreparedStatement stmnt = builder.prepare(connection)) {
             return this.fetchComTaskHeatMapCounters(stmnt);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
@@ -386,7 +387,8 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
 
     private Map<CompletionCode, Long> fetchCompletionCodeCounters(SqlBuilder builder) {
         Map<CompletionCode, Long> counters = new HashMap<>();
-        try (PreparedStatement stmnt = builder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
+             PreparedStatement stmnt = builder.prepare(connection)) {
             this.fetchCompletionCodeCounters(stmnt, counters);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
