@@ -68,5 +68,20 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
             name: 'connectionState',
             fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state')
         }
-    ]
+    ],
+
+    initComponent: function () {
+        var me = this;
+
+        me.bbar = [
+            {
+                itemId: 'up-summary-more-attributes-link',
+                ui: 'link',
+                text: Uni.I18n.translate('general.moreAttributes', 'IMT', 'More attributes'),
+                href: me.router.getRoute('usagepoints/view/attributes').buildUrl()
+            }
+        ];
+
+        me.callParent(arguments);
+    }
 });
