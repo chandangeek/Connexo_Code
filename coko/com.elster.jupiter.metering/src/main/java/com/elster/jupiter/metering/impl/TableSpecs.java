@@ -930,7 +930,7 @@ public enum TableSpecs {
     MTR_SERVICECAT_METERROLE_USAGE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ServiceCategoryMeterRoleUsage.class);
+            Table<ServiceCategoryMeterRoleUsage> table = dataModel.addTable(name(), ServiceCategoryMeterRoleUsage.class);
             table.map(ServiceCategoryMeterRoleUsage.class);
             Column serviceCategory = table.column(ServiceCategoryMeterRoleUsage.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
             Column meterRole = table.column(ServiceCategoryMeterRoleUsage.Fields.METERROLE.name()).varChar(NAME_LENGTH).notNull().add();
@@ -955,7 +955,7 @@ public enum TableSpecs {
     MTR_M_CONFIG_ROLE_USAGE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), MetrologyConfigurationMeterRoleUsageImpl.class);
+            Table<MetrologyConfigurationMeterRoleUsageImpl> table = dataModel.addTable(name(), MetrologyConfigurationMeterRoleUsageImpl.class);
             table.map(MetrologyConfigurationMeterRoleUsageImpl.class);
 
             Column metrologyConfigColumn = table.column(MetrologyConfigurationMeterRoleUsageImpl.Fields.METROLOGY_CONFIGURATION.name())
@@ -987,7 +987,7 @@ public enum TableSpecs {
     MTR_RT_TEMPLATE {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ReadingTypeTemplate.class);
+            Table<ReadingTypeTemplate> table = dataModel.addTable(name(), ReadingTypeTemplate.class);
             table.map(ReadingTypeTemplateImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
@@ -1009,7 +1009,7 @@ public enum TableSpecs {
     MTR_RT_TEMPLATE_ATTR {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ReadingTypeTemplateAttribute.class);
+            Table<ReadingTypeTemplateAttribute> table = dataModel.addTable(name(), ReadingTypeTemplateAttribute.class);
             table.map(ReadingTypeTemplateAttributeImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
@@ -1045,7 +1045,7 @@ public enum TableSpecs {
     MTR_RT_TEMPLATE_ATTR_VALUE {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ReadingTypeTemplateAttributeValueImpl.class);
+            Table<ReadingTypeTemplateAttributeValueImpl> table = dataModel.addTable(name(), ReadingTypeTemplateAttributeValueImpl.class);
             table.map(ReadingTypeTemplateAttributeValueImpl.class);
 
             Column attrColumn = table
@@ -1074,7 +1074,7 @@ public enum TableSpecs {
     MTR_RT_REQUIREMENT {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ReadingTypeRequirement.class);
+            Table<ReadingTypeRequirement> table = dataModel.addTable(name(), ReadingTypeRequirement.class);
             table.map(ReadingTypeRequirementImpl.IMPLEMENTERS);
 
             Column idColumn = table.addAutoIdColumn();
@@ -1122,7 +1122,7 @@ public enum TableSpecs {
     MTR_RT_REQUIREMENT_ATTR_VALUE {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), PartiallySpecifiedReadingTypeAttributeValueImpl.class);
+            Table<PartiallySpecifiedReadingTypeAttributeValueImpl> table = dataModel.addTable(name(), PartiallySpecifiedReadingTypeAttributeValueImpl.class);
             table.map(PartiallySpecifiedReadingTypeAttributeValueImpl.class);
 
             Column requirementColumn = table
@@ -1157,7 +1157,7 @@ public enum TableSpecs {
     MTR_CONFIG_ROLE_REQ_USAGE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), UsagePointMetrologyConfigurationRequirementRoleReference.class);
+            Table<UsagePointMetrologyConfigurationRequirementRoleReference> table = dataModel.addTable(name(), UsagePointMetrologyConfigurationRequirementRoleReference.class);
             table.map(UsagePointMetrologyConfigurationRequirementRoleReference.class);
 
             Column metrologyConfigColumn = table.column(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.METROLOGY_CONFIGURATION.name())
@@ -1198,7 +1198,7 @@ public enum TableSpecs {
     MTR_METROLOGY_PURPOSE {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), MetrologyPurpose.class);
+            Table<MetrologyPurpose> table = dataModel.addTable(name(), MetrologyPurpose.class);
             table.map(MetrologyPurposeImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
@@ -1224,7 +1224,7 @@ public enum TableSpecs {
     MTR_METROLOGY_CONTRACT {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), MetrologyContract.class);
+            Table<MetrologyContract> table = dataModel.addTable(name(), MetrologyContract.class);
             table.map(MetrologyContractImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
@@ -1264,7 +1264,7 @@ public enum TableSpecs {
     MTR_RT_DELIVERABLE {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ReadingTypeDeliverable.class);
+            Table<ReadingTypeDeliverable> table = dataModel.addTable(name(), ReadingTypeDeliverable.class);
             table.map(ReadingTypeDeliverableImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
@@ -1315,7 +1315,7 @@ public enum TableSpecs {
     MTR_CONTRACT_TO_DELIVERABLE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), MetrologyContractReadingTypeDeliverableMapping.class);
+            Table<MetrologyContractReadingTypeDeliverableMapping> table = dataModel.addTable(name(), MetrologyContractReadingTypeDeliverableMapping.class);
             table.map(MetrologyContractReadingTypeDeliverableMapping.class);
 
             Column metrologyContractColumn = table.column(MetrologyContractReadingTypeDeliverableMapping.Fields.METROLOGY_CONTRACT.name())

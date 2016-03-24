@@ -29,6 +29,7 @@ public interface MetrologyContract {
     MetrologyContract addDeliverable(ReadingTypeDeliverable deliverable);
 
     void removeDeliverable(ReadingTypeDeliverable deliverable);
+
     /**
      * Returns the List of {@link ReadingTypeDeliverable} that is being used by this MetrologyContract.
      *
@@ -39,4 +40,5 @@ public interface MetrologyContract {
     MetrologyPurpose getMetrologyPurpose();
 
     boolean isMandatory();
+
 }

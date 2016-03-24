@@ -22,7 +22,11 @@ public interface DataAggregationService {
     /**
      * Calculates the measurement data of the specified {@link MetrologyContract}
      * using the measurement data that is provided by the meters that have been
-     * activated on the specified {@link UsagePoint}.
+     * activated on the specified {@link UsagePoint}.<br>
+     * Note that the requested period is clipped to the period during which
+     * the MetrologyContract was active on the UsagePoint and will throw
+     * a {@link MetrologyContractDoesNotApplyToUsagePointException}
+     * when the MetrologyContract does not apply to the UsagePoint.
      *
      * @param usagePoint The UsagePoint
      * @param contract The MetrologyContract

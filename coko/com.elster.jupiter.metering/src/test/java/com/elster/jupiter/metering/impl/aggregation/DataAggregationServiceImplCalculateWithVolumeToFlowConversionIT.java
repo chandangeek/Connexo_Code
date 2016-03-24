@@ -35,6 +35,7 @@ import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -68,6 +69,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -117,6 +119,8 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
 
     @Mock
     private MetrologyConfiguration configuration;
+    @Mock
+    private MetrologyPurpose metrologyPurpose;
     @Mock
     private MetrologyContract contract;
     private SqlBuilder consumptionWithClauseBuilder;
@@ -215,9 +219,10 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
     }
 
     @Before
-    public void resetSqlBuilder() {
-        reset(sqlBuilderFactory);
-        reset(clauseAwareSqlBuilder);
+    public void initializeMocks() {
+        when(this.usagePoint.getName()).thenReturn("DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT");
+        when(this.metrologyPurpose.getName()).thenReturn("DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT");
+        when(this.contract.getMetrologyPurpose()).thenReturn(this.metrologyPurpose);
         this.consumptionWithClauseBuilder = new SqlBuilder();
         this.productionWithClauseBuilder = new SqlBuilder();
         this.netConsumptionWithClauseBuilder = new SqlBuilder();
@@ -229,6 +234,12 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         when(clauseAwareSqlBuilder.with(matches("rod" + NET_CONSUMPTION_DELIVERABLE_ID + ".*"), any(Optional.class), anyVararg())).thenReturn(this.netConsumptionWithClauseBuilder);
         when(clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseBuilder);
         when(clauseAwareSqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
+    }
+
+    @After
+    public void resetSqlBuilder() {
+        reset(sqlBuilderFactory);
+        reset(clauseAwareSqlBuilder);
     }
 
     /**
