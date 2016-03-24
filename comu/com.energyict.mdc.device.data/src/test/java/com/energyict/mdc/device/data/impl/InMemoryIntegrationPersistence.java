@@ -53,6 +53,8 @@ import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.elster.jupiter.util.time.ExecutionTimerService;
+import com.elster.jupiter.util.time.impl.ExecutionTimerServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.SqlBuilder;
@@ -468,14 +470,14 @@ public class InMemoryIntegrationPersistence {
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {
-        try (PreparedStatement statement = sqlBuilder.getStatement(this.dataModel.getConnection(true))) {
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.getStatement(connection)) {
             return statement.executeUpdate();
         }
     }
 
     public String update(String sql) {
-        try {
-            Connection connection = this.dataModel.getConnection(true);
+        try (Connection connection = this.dataModel.getConnection(true);) {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 int numberOfRows = statement.executeUpdate();
                 return "Updated " + numberOfRows + " row(s).";
@@ -492,6 +494,7 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(ExecutionTimerService.class).to(ExecutionTimerServiceImpl.class);
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(Clock.class).toInstance(clock);

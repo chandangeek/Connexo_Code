@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.data.impl.DeviceMessageImpl;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.User;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -33,7 +32,7 @@ public class UserHasTheMessagePrivilegeValidator implements ConstraintValidator<
 
     @Override
     public boolean isValid(DeviceMessageImpl deviceMessage, ConstraintValidatorContext context) {
-        if (threadPrincipalService != null) {
+        if (threadPrincipalService != null && (threadPrincipalService.getPrincipal() instanceof User)) {
             User currentUser = (User) threadPrincipalService.getPrincipal();
             if (currentUser != null) {
                 Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceMessage.getDevice().getDeviceConfiguration().getDeviceMessageEnablements().stream().filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessage.getDeviceMessageId())).findFirst();
