@@ -4,6 +4,8 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
+import com.elster.jupiter.nls.Thesaurus;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,5 +23,10 @@ public class ServiceCategoryInfo {
 
     private IdWithNameInfo asInfo(MeterRole meterRole) {
         return new IdWithNameInfo(meterRole.getKey(), meterRole.getDisplayName());
+    }
+
+    public ServiceCategoryInfo(ServiceCategory category, Thesaurus thesaurus) {
+        this.name = category.getKind().name();
+        this.displayName = thesaurus.getString(category.getTranslationKey(), category.getName());
     }
 }

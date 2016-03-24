@@ -64,6 +64,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>rest.whiteboard</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>transaction</artifactId>
         </dependency>
         <dependency>
@@ -122,6 +126,14 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cps.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall.rest</artifactId>
         </dependency>
     </dependencies>
 </project>
