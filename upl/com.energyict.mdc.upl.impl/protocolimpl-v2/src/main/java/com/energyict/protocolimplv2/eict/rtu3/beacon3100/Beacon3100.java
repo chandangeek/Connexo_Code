@@ -62,7 +62,17 @@ import java.util.Random;
 public class Beacon3100 extends AbstractDlmsProtocol {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
-    private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
+
+    // https://confluence.eict.vpdc/display/G3IntBeacon3100/DLMS+management
+    // https://jira.eict.vpdc/browse/COMMUNICATION-1552
+    private static final ObisCode FRAMECOUNTER_OBISCODE_1_MNG = ObisCode.fromString("0.0.43.1.1.255");
+    private static final ObisCode FRAMECOUNTER_OBISCODE_32_RW = ObisCode.fromString("0.0.43.1.2.255");
+    private static final ObisCode FRAMECOUNTER_OBISCODE_64_FW = ObisCode.fromString("0.0.43.1.3.255");
+
+    private static final int CLIENT_1_MNG = 1;
+    private static final int CLIENT_32_RW = 32;
+    private static final int CLIENT_64_MNG = 64;
+
     private static final String MIRROR_LOGICAL_DEVICE_PREFIX = "ELS-MIR-";
     private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
     private static final String UTF_8 = "UTF-8";
@@ -78,6 +88,28 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
         readFrameCounter(comChannel);
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
+    }
+
+    /**
+     * Will return the correct frame counter obis code, for each client ID.
+     *    Management Client (1): 0 0 43 1 1 255 -> With a pre-established framecounter association.
+     *    R/W Client (32): 0 0 43 1 2 255 -> With a pre-established framecounter association.
+     *    Firmware Client (64): 0 0 43 1 3 255 255 -> With a pre-established framecounter association.
+     * https://jira.eict.vpdc/browse/COMMUNICATION-1552
+     *
+     * @param clientId - DLMS Client ID used in association
+     * @return - the correct obis code for this client
+     */
+    protected ObisCode getFrameCounterObisCode(int clientId) {
+        switch (clientId) {
+            case CLIENT_32_RW:
+                return FRAMECOUNTER_OBISCODE_32_RW;
+
+            case CLIENT_64_MNG:
+                return FRAMECOUNTER_OBISCODE_64_FW;
+        }
+
+        return FRAMECOUNTER_OBISCODE_1_MNG;
     }
 
     /**
@@ -100,7 +132,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
         long frameCounter;
         try {
-            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
+            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(getFrameCounterObisCode(getDlmsSessionProperties().getClientMacAddress())).getValueAttr().longValue();
         } catch (DataAccessResultException | ProtocolException e) {
             frameCounter = new Random().nextInt();
         } catch (IOException e) {
@@ -340,7 +372,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-24 17:55:37 +0100 (Thu, 24 Mar 2016)$";
+        return "$Date: 2016-03-24 18:08:49 +0100 (Thu, 24 Mar 2016)$";
     }
 
     @Override
