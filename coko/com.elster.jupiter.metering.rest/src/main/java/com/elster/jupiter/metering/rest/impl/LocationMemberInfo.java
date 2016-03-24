@@ -24,7 +24,7 @@ public class LocationMemberInfo {
     }
 
     public LocationMemberInfo(LocationMember locationMember) {
-        locationId = locationMember.getLocation().getId();
+        locationId = locationMember.getLocationId();
         countryCode = locationMember.getCountryCode();
         countryName = locationMember.getCountryName();
         administrativeArea = locationMember.getAdministrativeArea();
