@@ -51,6 +51,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         var activate = menu.down('#activate'),
             deactivate = menu.down('#deactivate'),
             active = menu.record.data.active;
+
         if (active) {
             deactivate.show();
             activate.hide();
@@ -58,6 +59,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             activate.show();
             deactivate.hide();
         }
+
     },
 
     chooseAction: function (menu, item) {
@@ -91,6 +93,9 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                 break;
             case 'deactivate':
                 activeChange = false;
+                break;
+            case 'monitor':
+                me.openComserverMonitor(record);
                 break;
         }
 
@@ -214,6 +219,11 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                 }
             }
         });
+    },
+
+    openComserverMonitor: function (record) {
+        var monitorUri = Ext.create('Mdc.util.UriParser').parse(record.get('statusUri')).withPort(record.get('monitorPort')).withPath('/apps/comservermonitor/index.html').buildUrl();
+        window.open(monitorUri);
     },
 
     deleteComserver: function (record) {

@@ -3,11 +3,14 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
     alias: 'widget.deviceTypeSideMenu',
     title: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
     deviceTypeId: null,
+    isDataLoggerSlave: undefined,
     initComponent: function () {
-        this.menuItems = [
+        var me = this;
+
+        me.menuItems = [
             {
                 itemId: 'overviewLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId
+                href: '#/administration/devicetypes/' + me.deviceTypeId
             },
             {
                 title: Uni.I18n.translate('devicetypemenu.datasources', 'MDC', 'Data sources'),
@@ -15,17 +18,17 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                     {
                         text: Uni.I18n.translate('general.loadProfileTypes', 'MDC', 'Load profile types'),
                         itemId: 'loadProfilesLink',
-                        href: '#/administration/devicetypes/' + this.deviceTypeId + '/loadprofiles'
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/loadprofiles'
                     },
                     {
                         text: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
                         itemId: 'logbooksLink',
-                        href: '#/administration/devicetypes/' + this.deviceTypeId + '/logbooktypes'
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/logbooktypes'
                     },
                     {
                         text: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
                         itemId: 'registerConfigsLink',
-                        href: '#/administration/devicetypes/' + this.deviceTypeId + '/registertypes'
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/registertypes'
                     }
                 ]
             },
@@ -35,12 +38,12 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                     {
                         text: Uni.I18n.translate('devicetypemenu.configurations', 'MDC', 'Configurations'),
                         itemId: 'configurationsLink',
-                        href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations'
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations'
                     },
                     {
                         text: Uni.I18n.translate('devicetypemenu.conflictingMappings', 'MDC', 'Conflicting mappings'),
                         itemId: 'conflictingMappingLink',
-                        href: '#/administration/devicetypes/' + this.deviceTypeId + '/conflictmappings'
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/conflictmappings'
                     }
                 ]
             },
@@ -50,12 +53,49 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                     {
                         text: Uni.I18n.translate('devicetypemenu.customattribute.sets', 'MDC', 'Custom attribute sets'),
                         itemId: 'configurationsLink',
-                        href: '#/administration/devicetypes/' + this.deviceTypeId + '/customattributesets'
+                        href: '#/administration/devicetypes/' + me.deviceTypeId + '/customattributesets'
                     }
                 ]
             }
         ];
-        this.callParent(this);
+
+        me.executeIfDataLoggerSlave(function() {
+            me.down('#logbooksLink').hide();
+        });
+
+        me.callParent(arguments);
+    },
+
+    executeIfDataLoggerSlave: function(executeWhenDetermined) {
+        var me = this;
+        if (me.isDataLoggerSlave === undefined) {
+            Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+                success: function (deviceType) {
+                    me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
+                    if (me.isDataLoggerSlave) {
+                        executeWhenDetermined();
+                    }
+                }
+            });
+        } else if (me.isDataLoggerSlave) {
+            executeWhenDetermined();
+        }
+    },
+
+    executeIfNoDataLoggerSlave: function(executeWhenDetermined) {
+        var me = this;
+        if (me.isDataLoggerSlave === undefined) {
+            Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+                success: function (deviceType) {
+                    me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
+                    if (!me.isDataLoggerSlave) {
+                        executeWhenDetermined();
+                    }
+                }
+            });
+        } else if (!me.isDataLoggerSlave) {
+            executeWhenDetermined();
+        }
     }
 });
 

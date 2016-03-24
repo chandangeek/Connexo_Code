@@ -8,6 +8,9 @@ Ext.define('Mdc.store.TimeUnits',{
     proxy: {
         type: 'rest',
         url: '/api/mdc/field/timeUnit',
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
         reader: {
             type: 'json',
             root: 'timeUnits'

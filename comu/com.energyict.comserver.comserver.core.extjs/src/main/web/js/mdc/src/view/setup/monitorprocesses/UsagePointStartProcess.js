@@ -1,6 +1,6 @@
-Ext.define('Mdc.usagepointmanagement.view.StartProcess', {
+Ext.define('Mdc.view.setup.monitorprocesses.UsagePointStartProcess', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.mdc-usage-point-start-process-view',
+    alias: 'widget.usage-point-processes-start',
     requires: [
         'Bpm.startprocess.view.StartProcess'
     ],
