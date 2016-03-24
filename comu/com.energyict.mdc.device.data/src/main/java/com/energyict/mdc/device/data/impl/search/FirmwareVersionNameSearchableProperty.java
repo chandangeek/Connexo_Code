@@ -3,7 +3,10 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.search.*;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -12,7 +15,9 @@ import com.energyict.mdc.tasks.ComTask;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class FirmwareVersionNameSearchableProperty extends AbstractSearchableDeviceProperty {
     static final String PROPERTY_NAME =  "device.firmware.version.name";
@@ -50,10 +55,13 @@ public class FirmwareVersionNameSearchableProperty extends AbstractSearchableDev
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICETYPE IN ");
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
         sqlBuilder.openBracket();
-        sqlBuilder.append("select DEVICETYPE from FWC_FIRMWAREVERSION firmwareVersion where ");
+        sqlBuilder.append("select DEVICEID from FWC_ACTIVATEDFIRMWAREVERSION firmwareVersion where firmwareversion IN ");
+        sqlBuilder.openBracket();
+        sqlBuilder.append("select ID from fwc_firmwareversion where ");
         sqlBuilder.add(toSqlFragment("FIRMWAREVERSION", condition, now));
+        sqlBuilder.closeBracket();
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }
