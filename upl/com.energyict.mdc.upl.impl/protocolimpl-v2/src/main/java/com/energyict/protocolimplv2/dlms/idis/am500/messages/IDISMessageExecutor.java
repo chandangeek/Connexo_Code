@@ -272,7 +272,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         Date emergencyProfileActivationDate = new Date(new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileActivationDateAttributeName).getDeviceMessageAttributeValue()).longValue());
         int emergencyProfileDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileDurationAttributeName).getDeviceMessageAttributeValue());
         String emergencyProfileGroupIdList = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileGroupIdListAttributeName).getDeviceMessageAttributeValue();
-        int actionWhenUnderThreshold = LoadControlActions.fromDescription(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, actionWhenUnderThresholdAttributeName).getDeviceMessageAttributeValue());
+        int actionWhenUnderThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, actionWhenUnderThresholdAttributeName).getDeviceMessageAttributeValue());
 
         Limiter limiter = getCosemObjectFactory().getLimiter();
         setMonitoredValue(limiter, monitoredValue);
