@@ -1,19 +1,8 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.cbo.PhaseCode;
-import com.elster.jupiter.metering.AmiBillingReadyKind;
-import com.elster.jupiter.metering.BypassStatus;
-import com.elster.jupiter.metering.ElectricityDetail;
-import com.elster.jupiter.metering.GasDetail;
-import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
-import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.WaterDetail;
-import com.elster.jupiter.metering.rest.impl.ServiceLocationInfo;
-import com.elster.jupiter.util.YesNoAnswer;
-import com.elster.jupiter.util.units.Quantity;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
