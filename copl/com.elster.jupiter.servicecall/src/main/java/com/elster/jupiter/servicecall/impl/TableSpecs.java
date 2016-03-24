@@ -10,8 +10,11 @@ import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
+import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 /**
@@ -134,6 +137,11 @@ public enum TableSpecs {
                     .varChar(NAME_LENGTH)
                     .map(ServiceCallImpl.Fields.externalReference.fieldName())
                     .add();
+            table.column("REFERENCE")
+                    .varChar(NAME_LENGTH)
+                    .as("'SC_' || lpad(ID," + ServiceCallImpl.ZEROFILL_SIZE + ",'0')")
+                    .alias("internalReference")
+                    .add();
             table.addRefAnyColumns("TARGET", false, ServiceCallImpl.Fields.targetObject.fieldName());
             Column serviceCallType = table.column("SERVICECALLTYPE").number().notNull().add();
             table.addAuditColumns();
@@ -155,6 +163,45 @@ public enum TableSpecs {
                     .references(State.class)
                     .map(ServiceCallImpl.Fields.state.fieldName())
                     .add();
+        }
+    },
+    SCS_SERVICE_CALL_LOG {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ServiceCallLog> table = dataModel.addTable(name(), ServiceCallLog.class);
+            table.map(ServiceCallLogImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column serviceCall = table.column("SERVICECALL").number().notNull().add();
+            table.foreignKey("FK_SCS_SERVICECALL_LOG")
+                    .references(SCS_SERVICE_CALL.name())
+                    .on(serviceCall)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(ServiceCallLogImpl.Fields.serviceCall.fieldName())
+                    .add();
+            table.column("LOGLEVEL")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .notNull()
+                    .map(ServiceCallLogImpl.Fields.logLevel.fieldName())
+                    .add();
+            table.column("TIMESTAMP")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .notNull()
+                    .map(ServiceCallLogImpl.Fields.timestamp.fieldName())
+                    .add();
+            table.column("STACKTRACE")
+                    .type("CLOB")
+                    .conversion(CLOB2STRING)
+                    .map(ServiceCallLogImpl.Fields.stackTrace.fieldName())
+                    .add();
+            table.column("MESSAGE")
+                    .number()
+                    .varChar(MAX_STRING_LENGTH)
+                    .map(ServiceCallLogImpl.Fields.message.fieldName())
+                    .add();
+            table.primaryKey("SCS_PK_SERVICECALLLOG").on(idColumn).add();
+
         }
     };
 

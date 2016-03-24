@@ -12,7 +12,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.NoPathLeftToSuccessFromStateException;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
-import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.UnreachableStateException;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.graph.DiGraph;
@@ -47,15 +46,15 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
     private final DiGraph<DefaultState> graph = buildGraph();
     private final Map<Pair<DefaultState, DefaultState>, TranslationKey> translations = transitionTranslations();
     private final FiniteStateMachineService finiteStateMachineService;
-    private final ServiceCallService serviceCallService;
-    private final Set<DefaultState> criticalStates = EnumSet.of(CREATED, PENDING, ONGOING, SUCCESSFUL);
+    private final IServiceCallService serviceCallService;
+    private final Set<DefaultState> criticalStates = EnumSet.of(CREATED, PENDING, ONGOING, SUCCESSFUL, FAILED);
     private final Provider<ServiceCallLifeCycleImpl> serviceCallLifeCycleFactory;
     private final Thesaurus thesaurus;
 
     private String name;
 
     @Inject
-    ServiceCallLifeCycleBuilderImpl(FiniteStateMachineService finiteStateMachineService, ServiceCallService serviceCallService, Provider<ServiceCallLifeCycleImpl> serviceCallLifeCycleFactory, Thesaurus thesaurus) {
+    ServiceCallLifeCycleBuilderImpl(FiniteStateMachineService finiteStateMachineService, IServiceCallService serviceCallService, Provider<ServiceCallLifeCycleImpl> serviceCallLifeCycleFactory, Thesaurus thesaurus) {
         this.finiteStateMachineService = finiteStateMachineService;
         this.serviceCallService = serviceCallService;
         this.serviceCallLifeCycleFactory = serviceCallLifeCycleFactory;

@@ -19,7 +19,7 @@ class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
     private final List<RegisteredCustomPropertySet> toBeRegisteredCustomPropertySets = new ArrayList<>();
     private final Thesaurus thesaurus;
 
-    public ServiceCallTypeBuilderImpl(ServiceCallServiceImpl serviceCallService, String name, String versionName, IServiceCallLifeCycle serviceCallLifeCycle, DataModel dataModel, Thesaurus thesaurus) {
+    public ServiceCallTypeBuilderImpl(IServiceCallService serviceCallService, String name, String versionName, IServiceCallLifeCycle serviceCallLifeCycle, DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         instance = dataModel.getInstance(ServiceCallTypeImpl.class);
@@ -61,4 +61,5 @@ class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
 
         return instance;
     }
+
 }

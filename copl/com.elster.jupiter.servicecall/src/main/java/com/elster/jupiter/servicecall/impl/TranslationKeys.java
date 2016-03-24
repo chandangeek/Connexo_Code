@@ -8,6 +8,8 @@ import com.elster.jupiter.servicecall.DefaultState;
  */
 public enum TranslationKeys implements TranslationKey {
 
+    SERVICE_CALL_SUBSCRIBER(ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME, "Handle service calls"),
+
     DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME("scs.standard.service.call.life.cycle", "Default service call life cycle"),
 
     TRANSITION_FROM_PENDING_TO_ONGOING(DefaultState.PENDING.getKey()+DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Activate handler"),
@@ -29,7 +31,9 @@ public enum TranslationKeys implements TranslationKey {
     TRANSITION_FROM_CREATED_TO_REJECTED(DefaultState.CREATED.getKey()+DefaultCustomStateTransitionEventType.REJECTED.getSymbol(), "Reject"),
     TRANSITION_FROM_FAILED_TO_SCHEDULED(DefaultState.FAILED.getKey()+DefaultCustomStateTransitionEventType.SCHEDULED.getSymbol(), "Reschedule"),
     TRANSITION_FROM_PARTIAL_SUCCESS_TO_SCHEDULED(DefaultState.PARTIAL_SUCCESS.getKey()+DefaultCustomStateTransitionEventType.SCHEDULED.getSymbol(), "Reschedule"),
-    TRANSITION_FROM_ONGOING_TO_CANCELLED(DefaultState.ONGOING.getKey()+DefaultCustomStateTransitionEventType.CANCELLED.getSymbol(), "Cancel");
+    TRANSITION_FROM_ONGOING_TO_CANCELLED(DefaultState.ONGOING.getKey()+DefaultCustomStateTransitionEventType.CANCELLED.getSymbol(), "Cancel"),
+
+    SERVICE_CALL_DOMAIN_NAME("com.elster.jupiter.servicecall.ServiceCall", "Service call");
 
     private final String key;
     private final String defaultFormat;

@@ -40,13 +40,15 @@ public class ServiceCallImplTest {
     @Mock
     private IServiceCallLifeCycle serviceCallLifeCycle;
     @Mock
+    private IServiceCallService serviceCallService;
+    @Mock
     private State state;
 
     @Before
     public void setUp() {
         clock = new ProgrammableClock(TimeZoneNeutral.getMcMurdo(), () -> TIME_BASE.plusMinutes(tickCounter++)
                 .toInstant());
-        when(dataModel.getInstance(ServiceCallImpl.class)).thenAnswer(invocation -> new ServiceCallImpl(dataModel, clock, customPropertySetService));
+        when(dataModel.getInstance(ServiceCallImpl.class)).thenAnswer(invocation -> new ServiceCallImpl(dataModel, serviceCallService, clock, customPropertySetService, null));
         when(serviceCallType.getServiceCallLifeCycle()).thenReturn(serviceCallLifeCycle);
         when(serviceCallLifeCycle.getState(DefaultState.CREATED)).thenReturn(Optional.of(state));
         when(state.getName()).thenReturn(DefaultState.CREATED.getKey());
