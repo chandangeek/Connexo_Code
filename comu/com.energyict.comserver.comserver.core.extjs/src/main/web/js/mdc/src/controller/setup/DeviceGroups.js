@@ -38,7 +38,8 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         {ref: 'devicesOfDeviceGroupGrid', selector: '#allDevicesOfDeviceGroupGrid'},
         {ref: 'deviceGroupDetailsActionMenu', selector: '#deviceGroupDetailsActionMenu'},
         {ref: 'removeDeviceGroupMenuItem', selector: '#remove-device-group'},
-        {ref: 'editDeviceGroupMenuItem', selector: '#edit-device-group'}
+        {ref: 'editDeviceGroupMenuItem', selector: '#edit-device-group'},
+        {ref: 'countButton', selector: 'group-details button[action=countDevicesOfGroup]'}
     ],
 
     init: function () {
@@ -57,6 +58,9 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             },
             'group-details #generate-report': {
                 click: this.onGenerateReport
+            },
+            'group-details button[action=countDevicesOfGroup]': {
+                click: this.getDeviceCount
             }
         });
     },
@@ -174,6 +178,56 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                 me.getApplication().fireEvent('loadDeviceGroup', record);
                 me.updateCriteria(record);
                 me.updateActionMenuVisibility(record);
+            }
+        });
+    },
+
+    getDeviceCount: function(){
+        var me = this;
+        me.fireEvent('loadingcount');
+        Ext.Ajax.suspendEvent('requestexception');
+        me.getCountButton().up('panel').setLoading(true);
+        Ext.Ajax.request({
+            url: this.getDevicesOfDeviceGroupStore().getProxy().url.replace('{id}', this.getDevicesOfDeviceGroupStore().getProxy().extraParams.id) + '/count',
+            timeout: 120000,
+            method: 'GET',
+            success: function (response) {
+                me.getCountButton().setText(JSON.parse(response.responseText).numberOfSearchResults);
+                me.getCountButton().setDisabled(true);
+                me.getCountButton().up('panel').setLoading(false);
+            },
+            failure: function (response, request) {
+                var box = Ext.create('Ext.window.MessageBox', {
+                    buttons: [
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.close', 'MDC', 'Close'),
+                            action: 'close',
+                            name: 'close',
+                            ui: 'remove',
+                            handler: function () {
+                                box.close();
+                            }
+                        }
+                    ],
+                    listeners: {
+                        beforeclose: {
+                            fn: function(){
+                                me.getCountButton().setDisabled(true);
+                                me.getCountButton().up('panel').setLoading(false);
+                            }
+                        }
+                    }
+                });
+
+                box.show({
+                    title: Uni.I18n.translate('general.timeOut', 'MDC', 'Time out'),
+                    msg: Uni.I18n.translate('general.timeOutMessageGroups', 'MDC', 'Counting the device group members took too long.'),
+                    modal: false,
+                    ui: 'message-error',
+                    icon: 'icon-warning2',
+                    style: 'font-size: 34px;'
+                });
             }
         });
     },

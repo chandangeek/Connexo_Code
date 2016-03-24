@@ -18,6 +18,7 @@ Ext.define('Mdc.model.DeviceType', {
         {name: 'registerTypes'},
         {name: 'deviceLifeCycleId'},
         {name: 'deviceLifeCycleName'},
+        {name: 'deviceTypePurpose'},
         {name: 'version', type: 'number', useNull: true}
     ],
     associations: [

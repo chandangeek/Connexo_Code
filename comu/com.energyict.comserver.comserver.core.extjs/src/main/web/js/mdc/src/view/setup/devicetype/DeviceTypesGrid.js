@@ -6,12 +6,15 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.DeviceTypes',
+        'Mdc.store.DeviceTypePurposes',
         'Mdc.view.setup.devicetype.DeviceTypeActionMenu',
         'Ext.ux.exporter.ExporterButton'
     ],
     store: 'Mdc.store.DeviceTypes',
+    purposeStore: null,
     initComponent: function () {
         var me = this;
+
         me.store = Ext.getStore(me.store) || Ext.create(me.store);
         me.columns = [
             {
@@ -19,6 +22,14 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
                     return '<a href="#/administration/devicetypes/' + record.get('id') + '">' + Ext.String.htmlEncode(value) + '</a>';
+                },
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
+                dataIndex: 'deviceTypePurpose',
+                renderer: function (value) {
+                    return me.purposeStore ? me.purposeStore.findRecord('deviceTypePurpose', value).get('localizedValue') : value;
                 },
                 flex: 1
             },
