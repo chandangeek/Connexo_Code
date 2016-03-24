@@ -34,6 +34,8 @@ import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
 import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
@@ -50,8 +52,6 @@ import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateAttributeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateAttributeValueImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
-import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationRequirementRoleReference;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -654,8 +654,8 @@ public enum TableSpecs {
     },
     MTR_USAGEPOINTMTRCONFIG {
         void addTo(DataModel dataModel) {
-            Table<UsagePointMetrologyConfiguration> table = dataModel.addTable(name(), UsagePointMetrologyConfiguration.class);
-            table.map(UsagePointMetrologyConfigurationImpl.class);
+            Table<EffectiveMetrologyConfigurationOnUsagePoint> table = dataModel.addTable(name(), EffectiveMetrologyConfigurationOnUsagePoint.class);
+            table.map(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
             Column usagePoint = table.column("USAGEPOINT").type("number").notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();

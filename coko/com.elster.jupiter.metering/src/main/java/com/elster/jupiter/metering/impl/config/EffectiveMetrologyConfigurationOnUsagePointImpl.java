@@ -13,9 +13,9 @@ import java.time.Instant;
 import static com.google.common.base.MoreObjects.toStringHelper;
 
 /**
- * Provides an implementation for the {@link UsagePointMetrologyConfiguration} interface.
+ * Provides an implementation for the {@link EffectiveMetrologyConfigurationOnUsagePoint} interface.
  */
-public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
+public class EffectiveMetrologyConfigurationOnUsagePointImpl implements EffectiveMetrologyConfigurationOnUsagePoint {
 
     private final DataModel dataModel;
 
@@ -25,12 +25,12 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
     private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
 
     @Inject
-    public UsagePointMetrologyConfigurationImpl(DataModel dataModel) {
+    public EffectiveMetrologyConfigurationOnUsagePointImpl(DataModel dataModel) {
         super();
         this.dataModel = dataModel;
     }
 
-    public UsagePointMetrologyConfigurationImpl initAndSave(UsagePoint usagePoint, MetrologyConfiguration metrologyConfiguration, Instant start) {
+    public EffectiveMetrologyConfigurationOnUsagePointImpl initAndSave(UsagePoint usagePoint, MetrologyConfiguration metrologyConfiguration, Instant start) {
         this.usagePoint.set(usagePoint);
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.interval = Interval.startAt(start);

@@ -167,7 +167,9 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public boolean isInUse(MetrologyConfiguration metrologyConfiguration) {
         Condition condition = Where.where("metrologyConfiguration").isEqualTo(metrologyConfiguration);
-        List<UsagePointMetrologyConfiguration> atLeastOneUsagePoint = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(condition, new Order[0], false, new String[0], 1, 1);
+        List<EffectiveMetrologyConfigurationOnUsagePoint> atLeastOneUsagePoint = this.getDataModel()
+                .query(EffectiveMetrologyConfigurationOnUsagePoint.class)
+                .select(condition, new Order[0], false, new String[0], 1, 1);
         return !atLeastOneUsagePoint.isEmpty();
     }
 
