@@ -100,8 +100,8 @@ public class Beacon3100 extends AbstractDlmsProtocol {
      * @param clientId - DLMS Client ID used in association
      * @return - the correct obis code for this client
      */
-    protected ObisCode getFrameCounterObisCode(int clientId) {
-        switch (clientId) {
+    protected ObisCode getFrameCounterObisCode(int clientId){
+        switch (clientId){
             case CLIENT_32_RW:
                 return FRAMECOUNTER_OBISCODE_32_RW;
 
@@ -111,7 +111,6 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
         return FRAMECOUNTER_OBISCODE_1_MNG;
     }
-
     /**
      * First read out the frame counter for the management client, using the public client. It has a pre-established association.
      * Note that this happens without setting up an association, since the it's pre-established for the public client.
@@ -372,7 +371,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-24 18:08:49 +0100 (Thu, 24 Mar 2016)$";
+        return "$Date: 2016-03-24 18:11:11 +0100 (Thu, 24 Mar 2016)$";
     }
 
     @Override
