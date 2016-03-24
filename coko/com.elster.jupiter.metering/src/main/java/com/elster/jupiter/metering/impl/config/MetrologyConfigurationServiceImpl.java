@@ -269,10 +269,10 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
             condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.READING_TYPE.fieldName()).in(filter.getReadingTypes()));
         }
         if (!filter.getMetrologyContracts().isEmpty()) {
-            Condition mappingCondition = where(MetrologyContractReadingTypeDeliverableMapping.Fields.METROLOGY_CONTRACT.fieldName())
+            Condition mappingCondition = where(MetrologyContractReadingTypeDeliverableUsage.Fields.METROLOGY_CONTRACT.fieldName())
                     .in(filter.getMetrologyContracts());
-            Subquery subquery = getDataModel().query(MetrologyContractReadingTypeDeliverableMapping.class)
-                    .asSubquery(mappingCondition, MetrologyContractReadingTypeDeliverableMapping.Fields.DELIVERABLE.fieldName());
+            Subquery subquery = getDataModel().query(MetrologyContractReadingTypeDeliverableUsage.class)
+                    .asSubquery(mappingCondition, MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName());
             condition = condition.and(ListOperator.IN.contains(subquery, "id"));
         }
         if (!filter.getMetrologyConfigurations().isEmpty()) {

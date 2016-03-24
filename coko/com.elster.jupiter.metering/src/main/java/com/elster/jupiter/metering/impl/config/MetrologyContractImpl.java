@@ -41,7 +41,7 @@ public class MetrologyContractImpl implements MetrologyContract {
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private final Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
     private boolean mandatory;
-    private List<MetrologyContractReadingTypeDeliverableMapping> deliverables = new ArrayList<>();
+    private List<MetrologyContractReadingTypeDeliverableUsage> deliverables = new ArrayList<>();
 
     @Inject
     public MetrologyContractImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
@@ -65,7 +65,7 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     @Override
     public MetrologyContract addDeliverable(ReadingTypeDeliverable deliverable) {
-        MetrologyContractReadingTypeDeliverableMapping deliverableMapping = this.metrologyConfigurationService.getDataModel().getInstance(MetrologyContractReadingTypeDeliverableMapping.class)
+        MetrologyContractReadingTypeDeliverableUsage deliverableMapping = this.metrologyConfigurationService.getDataModel().getInstance(MetrologyContractReadingTypeDeliverableUsage.class)
                 .init(this, deliverable);
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverableMapping);
         this.deliverables.add(deliverableMapping);
@@ -83,7 +83,7 @@ public class MetrologyContractImpl implements MetrologyContract {
     @Override
     public List<ReadingTypeDeliverable> getDeliverables() {
         return this.deliverables.stream()
-                .map(MetrologyContractReadingTypeDeliverableMapping::getDeliverable)
+                .map(MetrologyContractReadingTypeDeliverableUsage::getDeliverable)
                 .collect(Collectors.toList());
     }
 
