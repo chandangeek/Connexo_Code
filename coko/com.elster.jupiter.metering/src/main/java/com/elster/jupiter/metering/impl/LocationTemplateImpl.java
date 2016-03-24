@@ -167,7 +167,7 @@ public class LocationTemplateImpl implements LocationTemplate {
         this.templateMembers = templateMembers;
     }
 
-    public class TemplateFieldImpl implements TemplateField{
+    private static class TemplateFieldImpl implements TemplateField{
 
 
         int ranking;
