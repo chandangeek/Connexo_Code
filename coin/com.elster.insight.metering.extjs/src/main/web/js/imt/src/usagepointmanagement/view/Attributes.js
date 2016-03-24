@@ -82,7 +82,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                             ui: 'tile',
                             style: {
                                 marginRight: '16px',
-                                padding: '16px'
+                                padding: '8px'
                             }
                         },
                         items: [
@@ -110,7 +110,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                             ui: 'tile',
                             style: {
                                 marginRight: '16px',
-                                padding: '16px'
+                                padding: '8px'
                             }
                         },
                         items: dynamicElements.forms
@@ -123,6 +123,9 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
             {
                 xtype: 'panel',
                 ui: 'medium',
+                style: {
+                    paddingRight: 0
+                },
                 items: [
                     {
                         xtype: 'usage-point-management-side-menu',
