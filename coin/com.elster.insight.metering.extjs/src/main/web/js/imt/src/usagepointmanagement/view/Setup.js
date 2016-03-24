@@ -24,7 +24,6 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         xtype: 'displayfield',
                         itemId: 'usage-point-last-updated-date',
                         value: Uni.I18n.translate('general.lastUpdatedAt', 'IMT', 'Last updated at {0}', [Uni.DateTime.formatDateTimeShort(new Date())], false),
-                        margin: '0 10 0 0',
                         height: 27 // just for aligning
                     },
                     {
@@ -33,7 +32,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         text: Uni.I18n.translate('general.refresh', 'IMT', 'Refresh'),
                         iconCls: 'icon-spinner12',
                         iconAlign: 'left',
-                        margin: 0,
+                        margin: '0 16 0 10',
                         handler: function () {
                             me.router.getRoute().forward();
                         }
