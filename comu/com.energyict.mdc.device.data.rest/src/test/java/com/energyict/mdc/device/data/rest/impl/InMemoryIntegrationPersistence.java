@@ -38,6 +38,8 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -168,6 +170,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceSearchDomain deviceSearchDomain;
     private DataCollectionKpiService dataCollectionKpiService;
     private FiniteStateMachineService finiteStateMachineService;
+    private ServiceCallService serviceCallService;
     private Injector injector;
 
     public InMemoryIntegrationPersistence() {
@@ -244,6 +247,7 @@ public class InMemoryIntegrationPersistence {
                 new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
+                new ServiceCallModule(),
                 new SchedulingModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
@@ -286,6 +290,7 @@ public class InMemoryIntegrationPersistence {
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
+            this.serviceCallService = injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
             initializePrivileges();
             ctx.commit();
@@ -442,6 +447,10 @@ public class InMemoryIntegrationPersistence {
         return propertySpecService;
     }
 
+    public ServiceCallService getServiceCallService() {
+        return serviceCallService;
+    }
+
     public MeteringGroupsService getMeteringGroupsService() {
         return meteringGroupsService;
     }
@@ -451,14 +460,14 @@ public class InMemoryIntegrationPersistence {
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {
-        try (PreparedStatement statement = sqlBuilder.getStatement(this.dataModel.getConnection(true))) {
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.getStatement(connection)) {
             return statement.executeUpdate();
         }
     }
 
     public String update(String sql) {
-        try {
-            Connection connection = this.dataModel.getConnection(true);
+        try (Connection connection = this.dataModel.getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 int numberOfRows = statement.executeUpdate();
                 return "Updated " + numberOfRows + " row(s).";

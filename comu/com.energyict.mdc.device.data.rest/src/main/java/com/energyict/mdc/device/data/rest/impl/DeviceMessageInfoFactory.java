@@ -1,14 +1,17 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.common.TypedProperties;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
@@ -30,17 +33,26 @@ public class DeviceMessageInfoFactory {
 
     private final Thesaurus thesaurus;
     private final MdcPropertyUtils mdcPropertyUtils;
+    private final ServiceCallService serviceCallService;
 
     @Inject
-    public DeviceMessageInfoFactory(Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils) {
+    public DeviceMessageInfoFactory(Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils, ServiceCallService serviceCallService) {
         this.thesaurus = thesaurus;
         this.mdcPropertyUtils = mdcPropertyUtils;
+        this.serviceCallService = serviceCallService;
     }
 
     public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
         info.trackingId = deviceMessage.getTrackingId();
+        if (deviceMessage.getTrackingCategory() != null) {
+            info.trackingCategory = new DeviceMessageInfo.TrackingCategoryInfo();
+            info.trackingCategory.id = deviceMessage.getTrackingCategory().getKey();
+            info.trackingCategory.name = thesaurus.getFormat(deviceMessage.getTrackingCategory()).format();
+            info.trackingCategory.activeLink = isActive(deviceMessage.getTrackingId(), deviceMessage.getTrackingCategory());
+        }
+
         info.messageSpecification = new DeviceMessageSpecInfo();
         info.messageSpecification.id = deviceMessage.getSpecification().getId().name();
         info.messageSpecification.name = deviceMessage.getSpecification().getName();
@@ -95,6 +107,21 @@ public class DeviceMessageInfoFactory {
         info.version = deviceMessage.getVersion();
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return info;
+    }
+
+    private boolean isActive(String trackingId, TrackingCategory trackingCategory) {
+        switch (trackingCategory) {
+            case serviceCall:
+                try {
+                    long id = Long.parseLong(trackingId);
+                    return serviceCallService.getServiceCall(id).isPresent();
+                } catch (Exception e) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TRACKING_ID, "trackingId");
+                }
+            case manual:
+            default:
+                return false;
+        }
     }
 
     private ComTask getPreferredComTask(Device device, DeviceMessage<?> deviceMessage) {

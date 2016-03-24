@@ -257,11 +257,11 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>bpm</artifactId>
+            <artifactId>servicecall.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>issue</artifactId>
+            <artifactId>bpm</artifactId>
         </dependency>
 
         <!--INTEGRATION TESTS-->
