@@ -8,16 +8,10 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.DefaultMeterRole;
-import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
-import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -301,7 +295,6 @@ public class ConsoleCommands {
     public void addRequirement(String name, String readingTypeString, long metrologyConfigId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
             Optional<MetrologyConfiguration> config = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId);
             Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeString);
             if (!readingType.isPresent()) {
@@ -311,7 +304,6 @@ public class ConsoleCommands {
                 throw new RuntimeException("no metrology config found with id " + metrologyConfigId);
             }
             config.get().addReadingTypeRequirement(name)
-                        .withMeterRole(meterRole)
                         .withReadingType(readingType.get());
             context.commit();
         }
@@ -320,7 +312,6 @@ public class ConsoleCommands {
     public void addDeliverable(String name, String readingTypeString, long metrologyConfigId, long formulaId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
             Optional<MetrologyConfiguration> config = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId);
             Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeString);
             if (!readingType.isPresent()) {
@@ -330,15 +321,11 @@ public class ConsoleCommands {
                 throw new RuntimeException("no metrology config found with id " + metrologyConfigId);
             }
 
-            MetrologyContract newMetrologyContract = config.get().addMetrologyContract(
-                    metrologyConfigurationService.createMetrologyPurpose()
-                            .fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION));
-
             Optional<Formula> formula = metrologyConfigurationService.findFormula(formulaId);
             if (!formula.isPresent()) {
                 throw new RuntimeException("no formula found with id " + formulaId);
             }
-            metrologyConfigurationService.createReadingTypeDeliverable("name", newMetrologyContract, readingType.get(), formula.get());
+            metrologyConfigurationService.createReadingTypeDeliverable(config.get(), name, readingType.get(), formula.get());
 
             context.commit();
         }
