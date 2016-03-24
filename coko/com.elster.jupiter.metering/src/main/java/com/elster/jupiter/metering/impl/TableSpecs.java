@@ -30,7 +30,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
-import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
@@ -969,7 +969,7 @@ public enum TableSpecs {
 
             table.primaryKey("MTR_PK_CONF_ROLE_USAGE").on(metrologyConfigColumn, meterRoleColumn).add();
             table.foreignKey("FK_USAGE_MCMR_TO_CONFIG")
-                    .references(UPMetrologyConfiguration.class)
+                    .references(UsagePointMetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
                     .onDelete(CASCADE)
                     .map(MetrologyConfigurationMeterRoleUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
@@ -1176,7 +1176,7 @@ public enum TableSpecs {
 
             table.primaryKey("MTR_PK_CONF_ROLE_REQ_USAGE").on(metrologyConfigColumn, meterRoleColumn, requirementColumn).add();
             table.foreignKey("FK_CONF_ROLE_REQ_TO_CONFIG")
-                    .references(UPMetrologyConfiguration.class)
+                    .references(UsagePointMetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
                     .onDelete(CASCADE)
                     .map(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.METROLOGY_CONFIGURATION.fieldName())

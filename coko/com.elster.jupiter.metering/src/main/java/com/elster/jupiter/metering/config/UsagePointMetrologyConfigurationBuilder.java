@@ -7,6 +7,6 @@ public interface UsagePointMetrologyConfigurationBuilder {
 
     UsagePointMetrologyConfigurationBuilder withDescription(String description);
 
-    UPMetrologyConfiguration create();
+    UsagePointMetrologyConfiguration create();
 
 }

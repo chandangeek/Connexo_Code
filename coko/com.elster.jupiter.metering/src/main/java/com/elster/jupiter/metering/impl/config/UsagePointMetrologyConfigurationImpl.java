@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class UPMetrologyConfigurationImpl extends MetrologyConfigurationImpl implements UPMetrologyConfiguration {
+public class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
     public static final String TYPE_IDENTIFIER = "U";
 
     private List<MetrologyConfigurationMeterRoleUsageImpl> meterRoles = new ArrayList<>();
     private List<UsagePointMetrologyConfigurationRequirementRoleReference> requirementToRoleReferences = new ArrayList<>();
 
     @Inject
-    UPMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
+    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
         super(metrologyConfigurationService, eventService);
     }
 
@@ -71,7 +71,7 @@ public class UPMetrologyConfigurationImpl extends MetrologyConfigurationImpl imp
     }
 
     @Override
-    public UPMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name) {
+    public UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name) {
         return new UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(getMetrologyConfigurationService(), this).withName(name);
     }
 

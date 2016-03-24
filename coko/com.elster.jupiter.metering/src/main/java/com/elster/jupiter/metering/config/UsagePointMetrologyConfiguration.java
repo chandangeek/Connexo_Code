@@ -4,7 +4,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 
-public interface UPMetrologyConfiguration extends MetrologyConfiguration {
+public interface UsagePointMetrologyConfiguration extends MetrologyConfiguration {
 
     void addMeterRole(MeterRole meterRole);
 

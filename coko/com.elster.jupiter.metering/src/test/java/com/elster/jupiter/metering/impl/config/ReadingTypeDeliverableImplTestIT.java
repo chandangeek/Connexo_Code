@@ -13,7 +13,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
-import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -130,7 +130,7 @@ public class ReadingTypeDeliverableImplTestIT {
     public void testCreateReadingTypeDeliverableWithTheSameNameOnDifferentMetrologyConfiguration() {
         inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .createReadingTypeDeliverable(metrologyConfiguration, "name", readingType, formula);
-        UPMetrologyConfiguration nwMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("new",
+        UsagePointMetrologyConfiguration nwMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("new",
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get()).create();
         inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .createReadingTypeDeliverable(nwMetrologyConfiguration, "name", readingType, formula);

@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -30,20 +30,20 @@ public class UsagePointMetrologyConfigurationRequirementRoleReference implements
     }
 
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private Reference<UPMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
+    private Reference<UsagePointMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<MeterRole> meterRole = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeRequirement> readingTypeRequirement = ValueReference.absent();
 
-    public UsagePointMetrologyConfigurationRequirementRoleReference init(UPMetrologyConfiguration metrologyConfiguration, MeterRole meterRole, ReadingTypeRequirement readingTypeRequirement) {
+    public UsagePointMetrologyConfigurationRequirementRoleReference init(UsagePointMetrologyConfiguration metrologyConfiguration, MeterRole meterRole, ReadingTypeRequirement readingTypeRequirement) {
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.meterRole.set(meterRole);
         this.readingTypeRequirement.set(readingTypeRequirement);
         return this;
     }
 
-    public UPMetrologyConfiguration getMetrologyConfiguration() {
+    public UsagePointMetrologyConfiguration getMetrologyConfiguration() {
         return this.metrologyConfiguration.orNull();
     }
 
