@@ -55,8 +55,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
 
     onActionMenuClicked: function (menu, item) {
         switch (item.action) {
-            case 'skipDevice':
-                console.log('To do: skip the device');
+            case 'cancelDevice':
+                console.log('To do: cancel the device');
                 break;
             case 'retryDevice':
                 console.log('To do: retry the device');

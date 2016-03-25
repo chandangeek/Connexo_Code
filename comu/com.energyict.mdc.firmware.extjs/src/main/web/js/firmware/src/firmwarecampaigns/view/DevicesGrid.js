@@ -52,7 +52,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                             iconCls = 'icon-blocked';
                             break;
                     }
-                    return value ? '<span class="' + iconCls + '"></span>' + value.name : '';
+                    return value ? '<span class="' + iconCls + '"></span>' + value.name : '-';
                 }
             },
             {
@@ -60,7 +60,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 dataIndex: 'startedOn',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 }
             },
             {
@@ -68,7 +68,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 dataIndex: 'finishedOn',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 }
             },
             {
@@ -82,7 +82,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                         case 'pending':
                         case 'ongoing':
                             return false; // because the device can be skipped
-                        case 'skipped':
+                        case 'cancelled':
                         case 'failed':
                         case 'configurationError':
                             return false; // because the device can be retried

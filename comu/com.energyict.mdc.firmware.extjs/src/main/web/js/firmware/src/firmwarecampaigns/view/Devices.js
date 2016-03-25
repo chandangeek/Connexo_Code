@@ -46,7 +46,8 @@ Ext.define('Fwc.firmwarecampaigns.view.Devices', {
                         grid: {
                             xtype: 'firmware-campaign-devices-grid',
                             itemId: 'firmware-campaign-devices-grid',
-                            router: me.router
+                            router: me.router,
+                            campaignIsOngoing: me.campaignIsOngoing
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',

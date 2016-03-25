@@ -7,61 +7,49 @@ Ext.define('Fwc.firmwarecampaigns.view.DeviceActionMenu', {
     plain: true,
     border: false,
     shadow: false,
+    cancelMenuItem: {
+        text: Uni.I18n.translate('general.cancel', 'FWC', 'Cancel'),
+        action: 'cancelDevice',
+        itemId: 'fwc-device-action-cancel',
+        privileges: Fwc.privileges.FirmwareCampaign.administrate
+    },
+    retryMenuItem: {
+        text: Uni.I18n.translate('device.firmware.failed.retry', 'FWC', 'Retry'),
+        action: 'retryDevice',
+        itemId: 'fwc-device-action-retry',
+        privileges: Fwc.privileges.FirmwareCampaign.administrate
+    },
 
     initComponent: function () {
         var me = this;
 
-        me.items = [
-            {
-                text: Uni.I18n.translate('firmware.campaigns.skip', 'FWC', 'Skip'),
-                action: 'skipDevice',
-                itemId: 'fwc-device-action-skip',
-                privileges: Fwc.privileges.FirmwareCampaign.administrate
-            },
-            {
-                text: Uni.I18n.translate('device.firmware.failed.retry', 'FWC', 'Retry'),
-                action: 'retryDevice',
-                itemId: 'fwc-device-action-retry',
-                privileges: Fwc.privileges.FirmwareCampaign.administrate
-            }
-        ];
+        me.items = [ me.cancelMenuItem, me.retryMenuItem ];
         me.callParent(arguments);
-
         me.mon(me, 'beforeshow', me.onBeforeShow, me);
     },
 
     onBeforeShow: function() {
         var me = this,
             currentDeviceStatus = me.record.get('status').id,
-            skipAllowed = currentDeviceStatus === 'pending' || currentDeviceStatus === 'ongoing',
-            retryAllowed = currentDeviceStatus === 'skipped' || currentDeviceStatus === 'failed' || currentDeviceStatus === 'configurationError',
-            skipMenuItem = me.down('#fwc-device-action-skip'),
-            retryMenuItem = me.down('#fwc-device-action-retry');
+            cancelAllowed = currentDeviceStatus === 'pending' || currentDeviceStatus === 'ongoing',
+            retryAllowed = currentDeviceStatus === 'cancelled' || currentDeviceStatus === 'failed' || currentDeviceStatus === 'configurationError',
+            currentCancelMenuItem = me.down('#fwc-device-action-cancel'),
+            currentRetryMenuItem = me.down('#fwc-device-action-retry');
 
-        if (skipAllowed) {
-            if (!skipMenuItem) {
-                me.insert(0, {
-                    text: Uni.I18n.translate('firmware.campaigns.skip', 'FWC', 'Skip'),
-                    action: 'skipDevice',
-                    itemId: 'fwc-device-action-skip',
-                    privileges: Fwc.privileges.FirmwareCampaign.administrate
-                });
+        if (cancelAllowed) {
+            if (!currentCancelMenuItem) {
+                me.insert(0, me.cancelMenuItem);
             }
-        } else if (skipMenuItem) {
-            me.remove(skipMenuItem);
+        } else if (currentCancelMenuItem) {
+            me.remove(currentCancelMenuItem);
         }
 
         if (retryAllowed) {
-            if (!retryMenuItem) {
-                me.add({
-                    text: Uni.I18n.translate('device.firmware.failed.retry', 'FWC', 'Retry'),
-                    action: 'retryDevice',
-                    itemId: 'fwc-device-action-retry',
-                    privileges: Fwc.privileges.FirmwareCampaign.administrate
-                });
+            if (!currentRetryMenuItem) {
+                me.add(me.retryMenuItem);
             }
-        } else if (retryMenuItem) {
-            me.remove(retryMenuItem);
+        } else if (currentRetryMenuItem) {
+            me.remove(currentRetryMenuItem);
         }
     }
 });

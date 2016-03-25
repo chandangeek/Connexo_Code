@@ -89,6 +89,32 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 ]
             },
             {
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary'),
+                required: true,
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
+                items: [
+                    {
+                        xtype: 'timeInHoursAndMinutes',
+                        name: 'timeBoundaryStart',
+                        itemId: 'timeBoundaryStart'
+                    },
+                    {
+                        xtype: 'displayfield',
+                        value: ' - ',
+                        margin: '0 5 0 0'
+                    },
+                    {
+                        xtype: 'timeInHoursAndMinutes',
+                        name: 'timeBoundaryEnd',
+                        itemId: 'timeBoundaryEnd'
+                    }
+                ]
+            },
+            {
                 xtype: 'dynamic-radiogroup',
                 itemId: 'firmware-management-option',
                 name: 'managementOption',
@@ -124,32 +150,6 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                     resetButtonHidden: true
                 },
                 width: 1000
-            },
-            {
-                xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary'),
-                required: true,
-                layout: {
-                    type: 'hbox',
-                    align: 'stretch'
-                },
-                items: [
-                    {
-                        xtype: 'timeInHoursAndMinutes',
-                        name: 'timeBoundaryStart',
-                        itemId: 'timeBoundaryStart'
-                    },
-                    {
-                        xtype: 'displayfield',
-                        value: ' - ',
-                        margin: '0 5 0 0'
-                    },
-                    {
-                        xtype: 'timeInHoursAndMinutes',
-                        name: 'timeBoundaryEnd',
-                        itemId: 'timeBoundaryEnd'
-                    }
-                ]
             },
             {
                 xtype: 'fieldcontainer',
