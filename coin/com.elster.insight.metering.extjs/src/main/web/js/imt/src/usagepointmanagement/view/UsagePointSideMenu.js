@@ -6,7 +6,6 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
     ],
     alias: 'widget.usage-point-management-side-menu',
     router: null,
-    title: Uni.I18n.translate('usagepoint.label.usagepoint', 'IMT', 'Usage point'),
     usagePoint: null,
     
     initComponent: function () {
@@ -15,9 +14,11 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
             serviceCategory,
             connectionState;
 
+        me.title = Ext.htmlEncode(me.usagePoint ? me.usagePoint.get('mRID') : me.router.arguments.mRID);
+
         me.menuItems = [
             {
-                text: me.usagePoint ? me.usagePoint.get('mRID') : me.router.arguments.mRID,
+                text: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
                 itemId: 'usage-point-overview-link',
                 href: me.router.getRoute('usagepoints/view').buildUrl()
             },
