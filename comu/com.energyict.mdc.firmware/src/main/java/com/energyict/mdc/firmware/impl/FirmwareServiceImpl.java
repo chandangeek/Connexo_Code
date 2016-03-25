@@ -32,19 +32,7 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaignStatus;
-import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
-import com.energyict.mdc.firmware.FirmwareManagementOptions;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareVersionBuilder;
-import com.energyict.mdc.firmware.FirmwareVersionFilter;
-import com.energyict.mdc.firmware.PassiveFirmwareVersion;
+import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -306,6 +294,11 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
     public Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign) {
         Condition condition = where(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName()).isEqualTo(firmwareCampaign);
         return DefaultFinder.of(DeviceInFirmwareCampaign.class, condition, dataModel);
+    }
+
+    @Override
+    public Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter) {
+        return DefaultFinder.of(DeviceInFirmwareCampaign.class, filter.usingFirmwareService(this).usingDeviceService(deviceService).getCondition(), dataModel);
     }
 
     public List<DeviceInFirmwareCampaignImpl> getDeviceInFirmwareCampaignsFor(Device device) {

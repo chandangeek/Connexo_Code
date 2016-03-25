@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -90,7 +90,6 @@ public class FirmwareCampaignTest extends PersistenceTest {
         when(deviceProtocol.getSupportedMessages()).thenReturn(supportedMessages);
         DeviceConfigurationService deviceConfigurationService = inMemoryPersistence.getInjector().getInstance(DeviceConfigurationService.class);
         DeviceType deviceType = deviceConfigurationService.newDeviceType("FirwareCampaignTest", deviceProtocolPluggableClass);
-        deviceType.save();
         return deviceType;
     }
 
