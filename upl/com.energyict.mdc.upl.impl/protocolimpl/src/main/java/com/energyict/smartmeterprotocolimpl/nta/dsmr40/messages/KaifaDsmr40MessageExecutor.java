@@ -5,12 +5,14 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 
 import java.io.IOException;
+import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -48,10 +50,13 @@ public class KaifaDsmr40MessageExecutor extends Dsmr40MessageExecutor {
 
         ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);
         MBusClient mbusClient = getProtocol().getDlmsSession().getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION9);
-
-        mbusClient.setIdentificationNumber(new Unsigned32(0));
-        mbusClient.setManufacturerID(new Unsigned16(0));
-        mbusClient.setVersion(0);
-        mbusClient.setDeviceType(0);
+        try{
+            mbusClient.setIdentificationNumber(new Unsigned32(0));
+            mbusClient.setManufacturerID(new Unsigned16(0));
+            mbusClient.setVersion(0);
+            mbusClient.setDeviceType(0);
+        }catch(ProtocolException e){
+            log(Level.SEVERE,"Invalid short id value.");
+        }
     }
 }
