@@ -105,7 +105,8 @@ public class DataAggregationServiceImplExpertModeIT {
     private static ReadingType VOLUME_15min;
     private static ReadingType ENERGY_15min;
     private static ReadingType ENERGY_daily;
-    private static Instant jan1st2015 = Instant.ofEpochMilli(1420070400000L);
+    private static ServiceCategory ELECTRICITY;
+    private static MetrologyPurpose METROLOGY_PURPOSE;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
@@ -150,6 +151,8 @@ public class DataAggregationServiceImplExpertModeIT {
     public static void setUp() {
         setupServices();
         setupReadingTypes();
+        setupMetrologyPurpose();
+        ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
     }
 
     private static void setupServices() {
@@ -213,6 +216,13 @@ public class DataAggregationServiceImplExpertModeIT {
         }
     }
 
+    private static void setupMetrologyPurpose() {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose().withName(DataAggregationServiceImplExpertModeIT.class.getSimpleName()).create();
+            ctx.commit();
+        }
+    }
+
     @AfterClass
     public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
@@ -257,7 +267,7 @@ public class DataAggregationServiceImplExpertModeIT {
      *       Energy (15min °C) ::= V * (T / P * 1013.25 / 288.15)
      * Device:
      *    meter activations:
-     *       Jan 1st 2015 -> forever
+     *       Jan 1st 2016 -> forever
      *           T -> 15 min °C
      *           P -> 15 min millibar
      *           V -> 15 min m3
@@ -374,7 +384,7 @@ public class DataAggregationServiceImplExpertModeIT {
      *       Energy (daily °C) ::= V * (T / P * 1013.25 / 288.15)
      * Device:
      *    meter activations:
-     *       Jan 1st 2015 -> forever
+     *       Jan 1st 2016 -> forever
      *           T -> 15 min °C
      *           P -> 15 min millibar
      *           V -> 15 min m3
@@ -508,7 +518,7 @@ public class DataAggregationServiceImplExpertModeIT {
 
     private void setupUsagePoint(String mRID) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.GAS).get();
-        this.usagePoint = electricity.newUsagePoint(mRID, jan1st2015).create();
+        this.usagePoint = electricity.newUsagePoint(mRID, jan1st2016).create();
     }
 
     private void activateMeterWithCelcius() {
@@ -516,7 +526,7 @@ public class DataAggregationServiceImplExpertModeIT {
     }
 
     private void activateMeter(ReadingType readingType) {
-        this.meterActivation = this.usagePoint.activate(this.meter, jan1st2015);
+        this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
         this.temperatureChannel = this.meterActivation.createChannel(readingType);
         this.pressureChannel = this.meterActivation.createChannel(PRESSURE_15min);
         this.volumeChannel = this.meterActivation.createChannel(VOLUME_15min);

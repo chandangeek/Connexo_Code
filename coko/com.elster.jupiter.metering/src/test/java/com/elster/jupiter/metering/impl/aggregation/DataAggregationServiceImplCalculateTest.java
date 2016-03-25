@@ -190,7 +190,7 @@ public class DataAggregationServiceImplCalculateTest {
      *       netConsumption (15m kWh) ::= A- + A+
      * Device:
      *    meter activations:
-     *       Jan 1st 2015 -> forever
+     *       Jan 1st 2016 -> forever
      *           A- -> 15 min kWh
      *           A+ -> 15 min kWh
      * In other words, simple sum of 2 requirements that are provided
