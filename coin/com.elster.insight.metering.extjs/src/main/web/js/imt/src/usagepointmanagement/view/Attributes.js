@@ -47,7 +47,8 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
 
     initComponent: function () {
         var me = this,
-            dynamicElements = me.prepareDynamicElements();
+            canManageUsagePoint = Imt.privileges.UsagePoint.canAdministrate(),
+            dynamicElements = me.prepareDynamicElements(canManageUsagePoint);
 
         me.content = [
             {
@@ -88,7 +89,8 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                                 title: Uni.I18n.translate('general.generalInformation', 'IMT', 'General information'),
                                 record: me.usagePoint,
                                 viewDefaults: me.viewDefaults,
-                                editDefaults: me.editDefaults
+                                editDefaults: me.editDefaults,
+                                hasEditMode: canManageUsagePoint
                             },
                             {
                                 xtype: me.serviceCategoryMap[me.usagePoint.get('serviceCategory')].form,
@@ -96,7 +98,8 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                                 title: Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information'),
                                 record: Ext.create(me.serviceCategoryMap[me.usagePoint.get('serviceCategory')].model, me.usagePoint.get('techInfo')),
                                 viewDefaults: me.viewDefaults,
-                                editDefaults: me.editDefaults
+                                editDefaults: me.editDefaults,
+                                hasEditMode: canManageUsagePoint
                             }
                         ]
                     },
@@ -132,10 +135,10 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
         me.callParent(arguments);
     },
 
-    prepareDynamicElements: function () {
+    prepareDynamicElements: function (canManageUsagePoint) {
         var me = this,
             forms = [],
-            menuItems = [
+            menuItems = canManageUsagePoint ? [
                 {
                     text: Uni.I18n.translate('general.editGeneralInformation', 'IMT', "Edit 'General information'"),
                     itemId: 'edit-general-attributes',
@@ -146,7 +149,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                     itemId: 'edit-technical-attributes',
                     linkedForm: 'technical-attributes-form'
                 }
-            ];
+            ] : [];
 
         me.usagePoint.customPropertySets().each(function (cps) {
             var id = cps.getId(),
@@ -165,7 +168,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                 router: me.router
             });
 
-            if (hasEditMode) {
+            if (hasEditMode && canManageUsagePoint) {
                 menuItems.push({
                     text: Uni.I18n.translate('general.editX', 'IMT', "Edit '{0}'", [name]),
                     itemId: 'edit-custom-attribute-set-' + id,
