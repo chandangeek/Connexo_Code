@@ -24,6 +24,7 @@ public class MetrologyConfigurationInfo {
     public IdWithNameInfo serviceCategory;
     public List<IdWithNameInfo> meterRoles;
     public List<IdWithNameInfo> purposes;
+    public List<MetrologyContractInfo> metrologyContracts;
     public String usagePointCriteria;
     public List<CustomPropertySetInfo> customPropertySets;
     public long version;
