@@ -121,4 +121,19 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
                         function, thesaurus);
     }
 
+    public void setNodebuilder(ExpressionNodeBuilder nodebuilder) {
+        this.nodebuilder = nodebuilder;
+    }
+
+    public void setNode(ExpressionNode node) {
+        this.node = node;
+    }
+
+    public Formula.Mode getMode() {
+        return mode;
+    }
+
+    public DataModel getDataModel() {
+        return dataModel;
+    }
 }

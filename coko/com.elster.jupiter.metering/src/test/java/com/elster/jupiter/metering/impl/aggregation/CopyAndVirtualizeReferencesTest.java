@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.Range;
@@ -60,7 +61,7 @@ public class CopyAndVirtualizeReferencesTest {
     @Mock
     private UserService userService;
 
-    private MetrologyConfigurationService metrologyConfigurationService;
+    private ServerMetrologyConfigurationService metrologyConfigurationService;
 
     @Before
     public void initializeMocks() {

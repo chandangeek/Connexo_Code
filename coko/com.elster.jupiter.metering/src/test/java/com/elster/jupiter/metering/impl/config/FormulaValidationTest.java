@@ -57,7 +57,7 @@ public class FormulaValidationTest {
         inMemoryBootstrapModule.deactivate();
     }
 
-    private MetrologyConfigurationService getMetrologyConfigurationService() {
+    private ServerMetrologyConfigurationService getMetrologyConfigurationService() {
         return inMemoryBootstrapModule.getMetrologyConfigurationService();
     }
 
@@ -71,7 +71,7 @@ public class FormulaValidationTest {
     public void testSubstractionOfSameDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.POWER);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.POWER);
-        MetrologyConfigurationService service = getMetrologyConfigurationService();
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -91,7 +91,7 @@ public class FormulaValidationTest {
     public void testSumOfSameDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.POWER);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.POWER);
-        MetrologyConfigurationService service = getMetrologyConfigurationService();
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -111,7 +111,7 @@ public class FormulaValidationTest {
     public void testSubstractionOfIncompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.POWER);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.CURRENCY);
-        MetrologyConfigurationService service = getMetrologyConfigurationService();
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -132,7 +132,7 @@ public class FormulaValidationTest {
     public void testSumOfIncompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.POWER);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.CURRENCY);
-        MetrologyConfigurationService service = getMetrologyConfigurationService();
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -153,7 +153,7 @@ public class FormulaValidationTest {
      public void testMultiplicationOfIncompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.POWER);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.ELECTRIC_CURRENT);
-        MetrologyConfigurationService service = getMetrologyConfigurationService();
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -174,7 +174,7 @@ public class FormulaValidationTest {
     public void testMultiplicationOfCompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.LENGTH);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
-        MetrologyConfigurationService service = getMetrologyConfigurationService();
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -195,7 +195,7 @@ public class FormulaValidationTest {
     public void testDivisionOfCompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
-        MetrologyConfigurationService service = getMetrologyConfigurationService();
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -216,7 +216,7 @@ public class FormulaValidationTest {
     public void testDivisionOfIncompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.ELECTRIC_CURRENT);
-        MetrologyConfigurationService service = getMetrologyConfigurationService();
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -237,7 +237,7 @@ public class FormulaValidationTest {
     public void testPlusOfFlowAndVolumeDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.VOLUME);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.POWER);
-        MetrologyConfigurationService service = getMetrologyConfigurationService();
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -259,7 +259,7 @@ public class FormulaValidationTest {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.VOLUME);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.POWER);
         when(readingTypeRequirement3.getDimension()).thenReturn(Dimension.POWER);
-        MetrologyConfigurationService service = getMetrologyConfigurationService();
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -282,7 +282,7 @@ public class FormulaValidationTest {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.VOLUME);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.POWER);
         when(readingTypeRequirement3.getDimension()).thenReturn(Dimension.ELECTRIC_CHARGE);
-        MetrologyConfigurationService service = getMetrologyConfigurationService();
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
@@ -308,7 +308,7 @@ public class FormulaValidationTest {
         when(temperature2.getDimension()).thenReturn(Dimension.TEMPERATURE);
         when(volume1.getDimension()).thenReturn(Dimension.VOLUME);
         when(volume2.getDimension()).thenReturn(Dimension.VOLUME);
-        MetrologyConfigurationService service = getMetrologyConfigurationService();
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 

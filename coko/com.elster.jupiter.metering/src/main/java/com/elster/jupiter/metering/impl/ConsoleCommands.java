@@ -12,7 +12,9 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
@@ -61,7 +63,8 @@ import java.util.stream.Collectors;
         "osgi.command.function=updateFormula",
         "osgi.command.function=addMetrologyConfig",
         "osgi.command.function=addRequirement",
-        "osgi.command.function=addDeliverable"
+        "osgi.command.function=addDeliverable",
+        "osgi.command.function=metrologyConfigs"
 }, immediate = true)
 public class ConsoleCommands {
 
@@ -304,12 +307,12 @@ public class ConsoleCommands {
                 throw new RuntimeException("no metrology config found with id " + metrologyConfigId);
             }
             config.get().addReadingTypeRequirement(name)
-                        .withReadingType(readingType.get());
+                    .withReadingType(readingType.get());
             context.commit();
         }
     }
 
-    public void addDeliverable(String name, String readingTypeString, long metrologyConfigId, long formulaId) {
+    public void addDeliverable(String name, String readingTypeString, long metrologyConfigId, String formulaString) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             Optional<MetrologyConfiguration> config = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId);
@@ -321,11 +324,12 @@ public class ConsoleCommands {
                 throw new RuntimeException("no metrology config found with id " + metrologyConfigId);
             }
 
-            Optional<Formula> formula = metrologyConfigurationService.findFormula(formulaId);
-            if (!formula.isPresent()) {
-                throw new RuntimeException("no formula found with id " + formulaId);
-            }
-            metrologyConfigurationService.createReadingTypeDeliverable(config.get(), name, readingType.get(), formula.get());
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
+
+
+            ReadingTypeDeliverableBuilder builder =
+                    metrologyConfigurationService.newReadingTypeDeliverableBuilder(name, config.get(), readingType.get(), Formula.Mode.EXPERT);
+            ReadingTypeDeliverable deliverable = builder.build(node);
 
             context.commit();
         }
@@ -336,6 +340,13 @@ public class ConsoleCommands {
                 .map(Formula::toString)
                 .forEach(System.out::println);
     }
+
+    public void metrologyConfigs() {
+        for (MetrologyConfiguration config: metrologyConfigurationService.findAllMetrologyConfigurations()) {
+            System.out.println(config.getId() + ": " + config.getName());
+        }
+    }
+
 
     @Reference
     public void setMeteringService(ServerMeteringService meteringService) {

@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.nls.Thesaurus;
@@ -67,7 +68,7 @@ public class FormulaCrudTest {
     // formula = Requirement
     public void testRequirementNodeCrud() {
         try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
 
             Optional<ServiceCategory> serviceCategory =
@@ -403,6 +404,33 @@ public class FormulaCrudTest {
             assertThat(myNode).isInstanceOf(ConstantNodeImpl.class);
             ConstantNode constantNode = (ConstantNode) myNode;
             assertThat(constantNode.getValue().equals(new BigDecimal(99)));
+        }
+    }
+
+    @Test
+    public void testDeliverableCrud() {
+        Formula.Mode myMode = Formula.Mode.EXPERT;
+        String name = "deliverable";
+        try (TransactionContext context = getTransactionService().getContext()) {
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+            Optional<ServiceCategory> serviceCategory =
+                    inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+            assertThat(serviceCategory.isPresent());
+            MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                    service.newMetrologyConfiguration("test", serviceCategory.get());
+            MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+            assertThat(config != null);
+            ReadingType readingType =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
+            assertThat(readingType != null);
+
+            ReadingTypeDeliverableBuilder builder =
+                service.newReadingTypeDeliverableBuilder(name, config, readingType, myMode);
+
+            ReadingTypeDeliverable deliverable = builder.build(builder.maximum(builder.constant(10), builder.constant(20)));
+            System.out.println(deliverable.getFormula());
         }
     }
 
