@@ -591,7 +591,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
     }
 
     private static ServerFormulaBuilder newFormulaBuilder() {
-        return (ServerFormulaBuilder) getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
+        return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
     }
 
     private void setupMeter(String amrIdBase) {

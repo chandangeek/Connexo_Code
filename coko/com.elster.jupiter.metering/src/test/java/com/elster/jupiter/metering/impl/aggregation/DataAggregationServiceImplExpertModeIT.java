@@ -28,7 +28,6 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -36,6 +35,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
+import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -508,7 +508,7 @@ public class DataAggregationServiceImplExpertModeIT {
         return injector.getInstance(ServerMetrologyConfigurationService.class);
     }
 
-    private static FormulaBuilder newFormulaBuilder() {
+    private static ServerFormulaBuilder newFormulaBuilder() {
         return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.EXPERT);
     }
 

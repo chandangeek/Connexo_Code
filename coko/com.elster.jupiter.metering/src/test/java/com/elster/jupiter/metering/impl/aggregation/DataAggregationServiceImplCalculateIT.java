@@ -31,9 +31,6 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.OperationNodeImpl;
-import com.elster.jupiter.metering.impl.config.ServerFormula;
-import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -199,7 +196,7 @@ public class DataAggregationServiceImplCalculateIT {
     }
 
     private static ServerFormulaBuilder newFormulaBuilder() {
-        return (ServerFormulaBuilder) getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
+        return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
     }
 
     private static DataAggregationService getDataAggregationService() {

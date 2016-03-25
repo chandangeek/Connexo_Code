@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
@@ -33,5 +32,6 @@ public interface ServerMetrologyConfigurationService extends MetrologyConfigurat
 
     ReadingTypeDeliverableBuilder newReadingTypeDeliverableBuilder(String name, MetrologyConfiguration metrologyConfiguration, ReadingType readingType, Formula.Mode mode);
 
-    FormulaBuilder newFormulaBuilder(Formula.Mode mode);
+    ServerFormulaBuilder newFormulaBuilder(Formula.Mode mode);
+
 }
