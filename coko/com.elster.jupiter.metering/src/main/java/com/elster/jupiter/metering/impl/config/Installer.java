@@ -29,11 +29,11 @@ public class Installer {
     }
 
     private void createMeterRoles() {
-        metrologyConfigurationService.newMeterRole(DefaultMeterRole.DEFAULT);//available to all service categories, so no need to attach
-        MeterRole production = metrologyConfigurationService.newMeterRole(DefaultMeterRole.PRODUCTION);
-        MeterRole consumption = metrologyConfigurationService.newMeterRole(DefaultMeterRole.CONSUMPTION);
-        MeterRole main = metrologyConfigurationService.newMeterRole(DefaultMeterRole.MAIN);
-        MeterRole check = metrologyConfigurationService.newMeterRole(DefaultMeterRole.CHECK);
+        metrologyConfigurationService.newMeterRole(DefaultMeterRole.DEFAULT.getNlsKey());//available to all service categories, so no need to attach
+        MeterRole production = metrologyConfigurationService.newMeterRole(DefaultMeterRole.PRODUCTION.getNlsKey());
+        MeterRole consumption = metrologyConfigurationService.newMeterRole(DefaultMeterRole.CONSUMPTION.getNlsKey());
+        MeterRole main = metrologyConfigurationService.newMeterRole(DefaultMeterRole.MAIN.getNlsKey());
+        MeterRole check = metrologyConfigurationService.newMeterRole(DefaultMeterRole.CHECK.getNlsKey());
 
         attachMeterRolesToServiceCategory(meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get(), production, consumption, main, check);
         attachMeterRolesToServiceCategory(meteringService.getServiceCategory(ServiceKind.GAS).get(), consumption, main, check);

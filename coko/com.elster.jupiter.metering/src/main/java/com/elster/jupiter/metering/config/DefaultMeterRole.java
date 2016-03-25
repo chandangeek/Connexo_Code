@@ -1,11 +1,13 @@
 package com.elster.jupiter.metering.config;
 
-import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.SimpleNlsKey;
 
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public enum DefaultMeterRole implements TranslationKey {
+public enum DefaultMeterRole {
 
     DEFAULT("meter.role.default", "Default"),
     CONSUMPTION("meter.role.consumption", "Consumption"),
@@ -25,14 +27,18 @@ public enum DefaultMeterRole implements TranslationKey {
         return key;
     }
 
-    @Override
     public String getDefaultFormat() {
         return defaultFormat;
     }
 
+    public NlsKey getNlsKey() {
+        return SimpleNlsKey.key(MetrologyConfigurationService.COMPONENT_NAME, Layer.DOMAIN, getKey())
+                .defaultMessage(this.defaultFormat);
+    }
+
     public static Optional<DefaultMeterRole> from(String role) {
         return Stream.of(values())
-                .filter(d -> d.getKey().equals(role))
+                .filter(d -> ("MeterRole.custom." + d.key).equals(role))
                 .findFirst();
     }
 }

@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.Range;
@@ -59,6 +60,8 @@ public class CopyAndVirtualizeReferencesTest {
     private EventService eventService;
     @Mock
     private UserService userService;
+    @Mock
+    private NlsService nlsService;
 
     private MetrologyConfigurationService metrologyConfigurationService;
 
@@ -69,7 +72,7 @@ public class CopyAndVirtualizeReferencesTest {
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(this.deliverable.getReadingType()).thenReturn(readingType);
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.eventService, this.userService);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.eventService, this.userService, this.nlsService);
     }
 
     @Test

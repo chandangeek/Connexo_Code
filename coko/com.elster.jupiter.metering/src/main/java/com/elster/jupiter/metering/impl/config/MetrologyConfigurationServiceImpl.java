@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -55,15 +56,19 @@ import static com.elster.jupiter.util.conditions.Where.where;
  */
 public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
+    private static final String METER_ROLE_KEY_PREFIX = "MeterRole.custom.";
+
     private volatile ServerMeteringService meteringService;
     private volatile EventService eventService;
     private volatile UserService userService;
+    private volatile NlsService nlsService;
 
     @Inject
-    public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, EventService eventService, UserService userService) {
+    public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, EventService eventService, UserService userService, NlsService nlsService) {
         this.meteringService = meteringService;
         this.eventService = eventService;
         this.userService = userService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -215,15 +220,23 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public MeterRole newMeterRole(TranslationKey key) {
-        MeterRoleImpl meterRole = getDataModel().getInstance(MeterRoleImpl.class).init(key.getKey());
+    public MeterRole newMeterRole(NlsKey name) {
+        String localKey = METER_ROLE_KEY_PREFIX + name.getKey();
+        this.copyKeyIfMissing(name, localKey);
+        MeterRoleImpl meterRole = getDataModel().getInstance(MeterRoleImpl.class).init(localKey);
         Save.CREATE.save(getDataModel(), meterRole);
         return meterRole;
     }
 
+    private void copyKeyIfMissing(NlsKey name, String localKey) {
+        if (getThesaurus().getTranslations().get(localKey) == null) {
+            this.nlsService.copy(name, MeteringService.COMPONENTNAME, Layer.DOMAIN, key -> localKey);
+        }
+    }
+
     @Override
     public Optional<MeterRole> findMeterRole(String key) {
-        return getDataModel().mapper(MeterRole.class).getUnique(MeterRoleImpl.Fields.KEY.fieldName(), key);
+        return getDataModel().mapper(MeterRole.class).getUnique(MeterRoleImpl.Fields.KEY.fieldName(), METER_ROLE_KEY_PREFIX + key);
     }
 
     @Override
