@@ -11,7 +11,7 @@ Ext.define('Scs.view.log.Grid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.timestamp', 'SCS', 'Timestamp'),
-                dataIndex: 'timestampDisplayShort',
+                dataIndex: 'timestampDisplay',
                 flex: 2
             },
             {
