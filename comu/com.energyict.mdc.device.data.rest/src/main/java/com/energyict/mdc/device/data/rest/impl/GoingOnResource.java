@@ -86,7 +86,7 @@ public class GoingOnResource {
                 .sorted(GoingOnInfo.order())
                 .collect(Collectors.toList());
 
-        return Response.ok(PagedInfoList.fromPagedList("loadProfiles", goingOnInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("goingsOn", goingOnInfos, queryParameters)).build();
     }
 
     private EnumSet<DefaultState> nonFinalStates() {
