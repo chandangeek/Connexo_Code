@@ -7,7 +7,7 @@ Ext.define('Est.main.view.SelectedReadingTypesWindow', {
         'Est.main.store.SelectedReadingTypes'
     ],
     width: 800,
-    height: 550,
+    height: 425,
     autoShow: true,
     modal: true,
     layout: 'fit',
