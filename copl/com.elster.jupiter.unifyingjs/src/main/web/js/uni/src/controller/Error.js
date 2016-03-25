@@ -202,7 +202,7 @@ Ext.define('Uni.controller.Error', {
                 Ext.Ajax.request(requestOptions);
             },
             refreshPage = function () {
-                router.getRoute().forward(router.arguments, router.queryParams);
+                Ext.util.History.fireEvent('change', Ext.util.History.getToken());
             };
 
         if (requestOptions.isNotEdit || (requestOptions.operation && requestOptions.operation.isNotEdit)) {

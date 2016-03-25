@@ -34,18 +34,35 @@ Ext.define('Uni.view.search.Results', {
                 displayMsg: Uni.I18n.translate('search.results.paging.displayMsg', 'UNI', '{0} - {1} of {2} search results'),
                 displayMoreMsg: Uni.I18n.translate('search.results.paging.displayMoreMsg', 'UNI', '{0} - {1} of more than {2} search results'),
                 emptyMsg: Uni.I18n.translate('search.results.paging.emptyMsg', 'UNI', 'There are no search results to display'),
-                items: {
-                    xtype: 'uni-search-column-picker',
-                    itemId: 'column-picker',
-                    grid: me
-                }
+                items: [
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.count', 'UNI', 'Count'),
+                        action: 'count'
+                    },
+                    {
+                        xtype: 'uni-search-column-picker',
+                        itemId: 'column-picker',
+                        grid: me
+                    }
+                ]
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('search.overview.paging.itemsPerPageMsg', 'UNI', 'Search results per page'),
                 dock: 'bottom',
-                deferLoading: true
+                deferLoading: true,
+                pageSizeStore: Ext.create('Ext.data.Store', {
+                    fields: ['value'],
+                    data: [
+                        {value: '10'},
+                        {value: '20'},
+                        {value: '50'},
+                        {value: '100'},
+                        {value: '1000'}
+                    ]
+                })
             }
         ];
 
@@ -57,18 +74,75 @@ Ext.define('Uni.view.search.Results', {
             destroyable: true
         });
 
-        var serviceListeners = service.on('applyFilters', function() {
+        var serviceListeners = [];
+        serviceListeners.push(service.on('applyFilters', function() {
             me.down('pagingtoolbartop').resetPaging();
             me.down('pagingtoolbarbottom').resetPaging();
+            me.down('button[action=count]').setText(Uni.I18n.translate('general.count', 'UNI', 'Count'));
+            me.down('button[action=count]').setDisabled(false);
         }, me, {
             destroyable: true
-        });
+        }));
+
+        serviceListeners.push(service.on('count', function(count){
+            me.down('button[action=count]').setText(count.numberOfSearchResults);
+            me.down('button[action=count]').setDisabled(true);
+            me.setLoading(false);
+        }, me, {
+            destroyable: true
+        }));
+
+        serviceListeners.push(service.on('loadingcount', function(){
+            me.setLoading(true);
+        }, me, {
+            destroyable: true
+        }));
+
+        serviceListeners.push(service.on('loadingcountfailed', function(){
+            var box = Ext.create('Ext.window.MessageBox', {
+                buttons: [
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
+                        action: 'close',
+                        name: 'close',
+                        ui: 'remove',
+                        handler: function () {
+                            box.close();
+                        }
+                    }
+                ],
+                listeners: {
+                    beforeclose: {
+                        fn: function(){
+                            me.setLoading(false)
+                        }
+                    }
+                }
+            });
+
+            box.show({
+                title: Uni.I18n.translate('general.timeOut', 'UNI', 'Time out'),
+                msg: Uni.I18n.translate('general.timeOutMessage', 'UNI', 'Counting the search results took too long.'),
+                modal: false,
+                ui: 'message-error',
+                icon: 'icon-warning2',
+                style: 'font-size: 34px;'
+            });
+
+        }, me, {
+            destroyable: true
+        }));
 
         me.callParent(arguments);
         me.on('destroy', function(){
             storeListeners.destroy();
-            serviceListeners.destroy();
+            Ext.Array.each(serviceListeners,function(serviceListener){
+                serviceListener.destroy();
+            });
         });
+
+
     }
 });
 
