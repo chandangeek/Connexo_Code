@@ -14,11 +14,6 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
 
     items: [
         {
-            itemId: 'up-summary-mRID',
-            name: 'mRID',
-            fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID')
-        },
-        {
             xtype: 'displayfieldwithicon',
             itemId: 'up-summary-serviceCategory',
             name: 'serviceCategory',
