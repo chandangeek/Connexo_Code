@@ -8,11 +8,12 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
         'Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
         'Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAttributesPanel',
-        'Imt.usagepointmanagement.view.SetupActionMenu'
+        'Imt.usagepointmanagement.view.SetupActionMenu',
+        'Uni.view.widget.WhatsGoingOn'
     ],
     parent: null,
     router: null,
-    minWidth: 1600,
+    //minWidth: 1600,
     content: [
         {
             xtype: 'panel',
@@ -77,28 +78,45 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                 padding: 5,
                 layout: {
                     type: 'hbox',
+                    align: 'stretch'
                 },
                 defaults: {
                     flex: 1
                 },
                 items: [
                     {
-                        style: {
-                            marginRight: '20px',
-                            padding: '20px'
-                        },
-                        ui: 'tile',
-                        parent: me.parent,
-                        title: Uni.I18n.translate('usagepoint.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-                        xtype: 'associated-metrology-configuration',
-                        router: me.router,
+                        xtype: 'container',
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
                         },
-                        defaults: {
-                            flex: 1
-                        }
+                        items: [
+                            {
+                                xtype: 'whatsgoingon',
+                                mrId: 'test',
+                                type: 'usagepoint',
+                                router: me.router,
+                                style: 'margin-bottom: 20px'
+                            },
+                            {
+                                //style: {
+                                //    marginRight: '20px',
+                                //    padding: '20px'
+                                //},
+                                ui: 'tile',
+                                parent: me.parent,
+                                title: Uni.I18n.translate('usagepoint.metrologyconfiguration', 'IMT', 'Metrology configuration'),
+                                xtype: 'associated-metrology-configuration',
+                                router: me.router,
+                                layout: {
+                                    type: 'vbox',
+                                    align: 'stretch'
+                                },
+                                defaults: {
+                                    flex: 1
+                                }
+                            }
+                        ]
                     },
                     {
                         xtype: 'panel',
