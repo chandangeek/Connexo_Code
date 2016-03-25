@@ -38,8 +38,6 @@ public interface MetrologyConfigurationService {
 
     Optional<MeterRole> findMeterRole(String key);
 
-    FormulaBuilder newFormulaBuilder(Formula.Mode mode);
-
     ReadingTypeTemplate createReadingTypeTemplate(String name);
 
     Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id);

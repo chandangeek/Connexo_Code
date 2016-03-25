@@ -177,6 +177,11 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         return new FormulaBuilderImpl(mode, getDataModel(), getThesaurus());
     }
 
+    public ReadingTypeDeliverableBuilder newReadingTypeDeliverableBuilder(String name, MetrologyConfiguration metrologyConfiguration, ReadingType readingType, Formula.Mode mode) {
+        return new ReadingTypeDeliverableBuilder(metrologyConfiguration, name, readingType, mode, getDataModel(), this.getThesaurus());
+    }
+
+
     public Optional<Formula> findFormula(long id) {
         return getDataModel().mapper(Formula.class).getOptional(id);
     }
@@ -247,7 +252,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         return getDataModel().mapper(MetrologyPurpose.class).find();
     }
 
-    @Override
+    //@Override
     public ReadingTypeDeliverable createReadingTypeDeliverable(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula formula) {
         return metrologyConfiguration.addReadingTypeDeliverable(name, readingType, formula);
     }
