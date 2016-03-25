@@ -5,7 +5,9 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
     fullInfo: false,
 
     requires: [
-        'Mdc.view.setup.device.form.DeviceDateField'
+        'Mdc.view.setup.device.form.DeviceDateField',
+        'Uni.Auth',
+        'Uni.store.Apps'
     ],
 
     layout: {
@@ -38,7 +40,6 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                         this.hide();
                         return null;
                     }
-
                 }
             },
             {
@@ -112,7 +113,10 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                             return '-'
                         } else {
                             if (Mdc.privileges.DeviceType.canView()) {
-                                return '<a href="' + me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({deviceTypeId: value.deviceTypeId, deviceConfigurationId: value.attributeId}) + '">' + Ext.String.htmlEncode(value.displayValue) + '</a>'
+                                return '<a href="' + me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({
+                                        deviceTypeId: value.deviceTypeId,
+                                        deviceConfigurationId: value.attributeId
+                                    }) + '">' + Ext.String.htmlEncode(value.displayValue) + '</a>'
                             } else {
                                 return value.displayValue
                             }
@@ -128,19 +132,30 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 name: 'usagePoint',
                 itemId: 'fld-usage-point',
                 fieldLabel: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
+                usagePointLink: null,
                 renderer: function (value) {
+                    var appName = 'Insight',
+                        url;
                     if (value && (value.available || me.fullInfo)) {
                         this.show();
                         if (Ext.isEmpty(value.displayValue)) {
                             return '-'
                         } else {
-                            return '<a href="' + me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.attributeId}) + '">' + Ext.String.htmlEncode(value.displayValue) + '</a>'
+                            if (Uni.store.Apps.checkApp(appName)) {
+                                if (Mdc.privileges.UsagePoint.canViewInInsight()) {
+                                    url = Ext.String.format('{0}/usagepoints/{1}', Uni.store.Apps.getAppUrl(appName), encodeURIComponent(value.displayValue));
+                                    return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
+                                }
+                            } else if (Mdc.privileges.UsagePoint.canView()) {
+                                url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.attributeId});
+                                return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
+                            }
+                            return Ext.String.htmlEncode(value.displayValue);
                         }
                     } else {
                         this.hide();
                         return null;
                     }
-
                 }
             },
             {
@@ -208,9 +223,20 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                         return '-'
                     }
                 }
+            },
+            {
+                name: 'location',
+                itemId: 'fld-device-location',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
+                renderer: function (value) {
+                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue)) {
+                        return value.displayValue
+                    } else {
+                        return '-'
+                    }
+                }
             }
         ];
-
         me.callParent(arguments);
     }
 });

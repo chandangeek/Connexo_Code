@@ -161,7 +161,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
     ],
 
     initComponent: function () {
-        this.side = [
+        var me = this;
+        me.side = [
             {
                 xtype: 'panel',
                 ui: 'medium',
@@ -174,6 +175,15 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                 ]
             }
         ];
-        this.callParent(arguments);
+        me.callParent(arguments);
+
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+            success: function (deviceType) {
+                if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                    me.down('#empty-msg-add-logbook-types-btn').setDisabled(true);
+                }
+            }
+        });
+
     }
 });

@@ -96,6 +96,18 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         model.set('storeTaskQueueSize', 50);
         model.set('numberOfStoreTaskThreads', 1);
         model.set('storeTaskThreadPriority', 5);
+
+        model.set('statusUri', 'http://localhost:8080/api/dsr/comserverstatus');
+        model.set('usesDefaultStatusUri', true);
+        model.set('monitorPort', 8080);
+
+        model.set('eventRegistrationUri', 'ws://localhost:8888/event/registration');
+        model.set('usesDefaultEventRegistrationUri', true);
+        model.set('eventRegistrationPort', 8888);
+
+        model.set('usesDefaultQueryAPIPostUri', true);
+
+
         model.endEdit();
         me.comServerModel = model;
         me.modelToForm(model, form);
@@ -108,25 +120,28 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             formErrorsPanel = form.down('uni-form-error-message'),
             model;
 
-        model = me.formToModel();
+        try {
+            model = me.formToModel();
+            button.setDisabled(true);
+            page.setLoading('Saving...');
+            formErrorsPanel.hide();
+            form.getForm().clearInvalid();
+            model.save({
+                backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/comservers').buildUrl(),
+                callback: function (model, operation, success) {
+                    page.setLoading(false);
+                    button.setDisabled(false);
 
-        button.setDisabled(true);
-        page.setLoading('Saving...');
-        formErrorsPanel.hide();
-        form.getForm().clearInvalid();
-        model.save({
-            backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/comservers').buildUrl(),
-            callback: function (model, operation, success) {
-                page.setLoading(false);
-                button.setDisabled(false);
-
-                if (success) {
-                    me.onSuccessSaving(operation.action, model.get('comServerType'));
-                } else {
-                    me.onFailureSaving(operation.response);
+                    if (success) {
+                        me.onSuccessSaving(operation.action, model.get('comServerType'));
+                    } else {
+                        me.onFailureSaving(operation.response);
+                    }
                 }
-            }
-        });
+            });
+        }catch(err){
+            formErrorsPanel.show();
+        }
     },
 
     modelToForm: function (model, form) {
@@ -159,10 +174,16 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             queryString = Ext.Object.toQueryString(form.getValues()),
             values = Ext.Object.fromQueryString(queryString, true),
             model = this.comServerModel;
-        model.beginEdit();
-        model.set(values);
-        model.endEdit();
-
+        if (form.isValid()){
+            model.beginEdit();
+            model.set(values);
+            model.updateHostNameOfUrisIfNeeded();
+            model.updateMonitorAndStatusPortIfNeeded();
+            model.updateEventRegistrationPortIfNeeded();
+            model.endEdit();
+        }else{
+            throw Uni.I18n.translate('comServer.form.invalid', 'MDC', 'Form contains invalid values.')
+        }
         return model;
     },
 

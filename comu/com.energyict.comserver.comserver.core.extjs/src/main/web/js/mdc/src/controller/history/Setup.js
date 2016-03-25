@@ -7,12 +7,23 @@ Ext.define('Mdc.controller.history.Setup', {
 
     routeConfig: {
         usagepoints: {
-            title: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points'),
+            disabled: true,
+            title: Uni.I18n.translate('general.usagePointsManagement', 'MDC', 'Usage points management'),
             route: 'usagepoints',
             items: {
+                add: {
+                    title: Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
+                    route: 'add',
+                    controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
+                    privileges: Mdc.privileges.UsagePoint.admin,
+                    disabled: Mdc.privileges.UsagePoint.checkApp('Insight'),
+                    action: 'showAddUsagePoint'
+                },
                 usagepoint: {
                     title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
+                    privileges: Mdc.privileges.UsagePoint.view,
                     route: '{usagePointId}',
+                    disabled: Mdc.privileges.UsagePoint.checkApp('Insight'),
                     controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                     action: 'showUsagePoint',
                     callback: function (route) {
@@ -24,12 +35,50 @@ Ext.define('Mdc.controller.history.Setup', {
                         return this;
                     },
                     items: {
+                        edit: {
+                            title: Uni.I18n.translate('general.editUsagePoint', 'MDC', 'Edit usage point'),
+                            route: 'edit',
+                            controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
+                            privileges: Mdc.privileges.UsagePoint.admin,
+                            disabled: Mdc.privileges.UsagePoint.checkApp('Insight'),
+                            action: 'showEditUsagePoint',
+                            callback: function (route) {
+                                this.getApplication().on('editUsagePointLoaded', function (record) {
+                                    route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('mRID')));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
+                        },
+                        'processes': {
+                            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
+                            route: 'processes',
+                            controller: 'Mdc.controller.setup.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showUsagePointProcesses'
+                        },
+                        'processesrunning': {
+                            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
+                            route: 'processes/running',
+                            controller: 'Mdc.controller.setup.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showUsagePointProcesses'
+                        },
+                        'processeshistory': {
+                            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
+                            route: 'processes/history',
+                            controller: 'Mdc.controller.setup.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
+                            action: 'showUsagePointProcesses'
+                        },
                         startprocess: {
                             title: Uni.I18n.translate('usagePoint.startProcess', 'MDC', 'Start process'),
                             route: 'processes/start',
                             privileges: Mdc.privileges.Device.deviceProcesses,
-                            controller: 'Mdc.usagepointmanagement.controller.StartProcess',
-                            action: 'showStartProcess'
+                            controller: 'Mdc.controller.setup.MonitorProcesses',
+                            action: 'showUsagePointStartProcess'
                         }
                     }
                 }
@@ -962,19 +1011,66 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.Comtasks',
                             action: 'showCommunicationTasksCreateEdit'
                         },
-                        edit: {
-                            title: Uni.I18n.translate('general.editCommunicationTask', 'MDC', 'Edit communication task'),
-                            route: '{id}/edit',
-                            privileges: Mdc.privileges.Communication.admin,
+                        view: {
+                            title: Uni.I18n.translate('general.Overview', 'MDC', 'Overview'),
+                            route: '{id}',
+                            privileges: Mdc.privileges.Communication.view,
                             controller: 'Mdc.controller.setup.Comtasks',
-                            action: 'showCommunicationTasksCreateEdit',
+                            action: 'showCommunicationTaskOverview',
                             callback: function (route) {
                                 this.getApplication().on('loadCommunicationTask', function (record) {
-                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
+                                    route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
-
                                 return this;
+                            },
+                            items: {
+                                edit: {
+                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    route: 'edit',
+                                    privileges: Mdc.privileges.Communication.admin,
+                                    controller: 'Mdc.controller.setup.Comtasks',
+                                    action: 'showCommunicationTasksCreateEdit'
+                                },
+                                actions: {
+                                    title: Uni.I18n.translate('comtask.actions', 'MDC', 'Actions'),
+                                    route: 'actions',
+                                    privileges: Mdc.privileges.Communication.view,
+                                    controller: 'Mdc.controller.setup.Comtasks',
+                                    action: 'showCommunicationTaskActions',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('general.addAction', 'MDC', 'Add action'),
+                                            route: 'add',
+                                            privileges: Mdc.privileges.Communication.admin,
+                                            controller: 'Mdc.controller.setup.Comtasks',
+                                            action: 'showCommunicationTaskActionAdd'
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('general.editAction', 'MDC', 'Edit action'),
+                                            route: '{actionId}/edit',
+                                            privileges: Mdc.privileges.Communication.admin,
+                                            controller: 'Mdc.controller.setup.Comtasks',
+                                            action: 'editAction'
+                                        }
+                                    }
+                                },
+                                commandcategories: {
+                                    title: Uni.I18n.translate('comtask.message.categories', 'MDC', 'Command categories'),
+                                    route: 'commandcategories',
+                                    privileges: Mdc.privileges.Communication.view,
+                                    controller: 'Mdc.controller.setup.Comtasks',
+                                    action: 'showCommunicationTaskCommandCategories',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                            route: 'add',
+                                            privileges: Mdc.privileges.Communication.admin,
+                                            controller: 'Mdc.controller.setup.Comtasks',
+                                            action: 'showCommunicationTaskCommandCategoriesAdd'
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -1928,6 +2024,35 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 }
                             }
+                        },
+                        'processes': {
+                            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
+                            route: 'processes',
+                            controller: 'Mdc.controller.setup.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showDeviceProcesses'
+                        },
+                        'processesrunning': {
+                            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
+                            route: 'processes/running',
+                            controller: 'Mdc.controller.setup.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showDeviceProcesses'
+                        },
+                        'processeshistory': {
+                            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
+                            route: 'processes/history',
+                            controller: 'Mdc.controller.setup.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
+                            action: 'showDeviceProcesses'
+                        },
+                        'processstart': {
+                            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
+                            route: 'processes/start',
+                            controller: 'Mdc.controller.setup.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showDeviceStartProcess'
                         }
                     }
                 }

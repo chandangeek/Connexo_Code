@@ -6,7 +6,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
     ],
     alias: 'widget.comServerEdit',
     itemId: 'comServerEdit',
-
     edit: false,
 
     content: [
@@ -208,6 +207,45 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     width: 415
                 },
                 {
+                    xtype: 'textfield',
+                    itemId: 'txt-communication-server-server-name',
+                    fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.server.serverName', 'MDC', 'Server name'),
+                    name: 'serverName',
+                    width: 600,
+                    required: true,
+                    allowBlank: false,
+                    blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
+                },
+                {
+                    xtype: 'numberfield',
+                    itemId: 'num-monitor-port',
+                    fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.monitor.port', 'MDC', 'Monitor port'),
+                    name: 'monitorPort',
+                    required: true,
+                    allowBlank: false,
+                    blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
+                    minValue: 0,
+                    // Remove spinner buttons, and arrow key and mouse wheel listeners
+                    hideTrigger: true,
+                    keyNavEnabled: false,
+                    mouseWheelEnabled: false,
+                    width: 415
+                },
+                {
+                    xtype: 'numberfield',
+                    itemId: 'num-event-uri-port',
+                    fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.event.registration.port', 'MDC', 'Event registration port'),
+                    name: 'eventRegistrationPort',
+                    required: true,
+                    allowBlank: false,
+                    blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
+                    minValue: 0,
+                    hideTrigger: true,
+                    keyNavEnabled: false,
+                    mouseWheelEnabled: false,
+                    width: 415
+                },
+                {
                     xtype: 'fieldcontainer',
                     ui: 'actions',
                     fieldLabel: '&nbsp',
@@ -232,6 +270,14 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
         }
     ],
 
+    initComponent: function() {
+        this.callParent(arguments);
+        var nameField = this.down('#comServerEditForm').getForm().findField('name');
+        nameField.on({
+            change: {fn: this.setServerName, scope: this}}
+        );
+    },
+
     isEdit: function () {
         return this.edit;
     },
@@ -245,5 +291,15 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
         }
         this.down('#cancelLink').href = returnLink;
+    },
+
+    setServerName: function(){
+        if (!this.isEdit()){
+            var nameField = this.down('#comServerEditForm').getForm().findField('name'),
+                serverNameField = this.down('#comServerEditForm').getForm().findField('serverName'),
+                name = nameField.getValue();
+            serverNameField.setValue(name);
+        }
     }
+
 });

@@ -34,8 +34,9 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdTrackingId', 'MDC', 'Tracking ID'),
+                    fieldLabel: Uni.I18n.translate('deviceCommands.view.serviceCall', 'MDC', 'Service call'),
                     name: 'trackingId',
+                    itemId: 'tracking',
                     renderer: function (val) {
                         return val ? Ext.String.htmlEncode(val) : ''
                     }

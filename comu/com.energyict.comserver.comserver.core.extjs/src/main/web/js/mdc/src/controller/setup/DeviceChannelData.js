@@ -618,21 +618,23 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
                 } else {
                     me.getReadingEstimationWindow().setLoading(false);
-                    if (responseText.message) {
-                        me.getReadingEstimationWindow().down('#error-label').show();
-                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
-                    } else if (responseText.readings) {
-                        me.getReadingEstimationWindow().down('#error-label').show();
-                        var listOfFailedReadings = [];
-                        Ext.Array.each(responseText.readings, function (readingTimestamp) {
-                            listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
-                        });
-                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' +
-                            Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
-                                [listOfFailedReadings.join(', '), me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
-                    } else if (responseText.errors) {
-                        me.getReadingEstimationWindow().down('#form-errors').show();
-                        me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
+                    if (responseText) {
+                        if (responseText.message) {
+                            me.getReadingEstimationWindow().down('#error-label').show();
+                            me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
+                        } else if (responseText.readings) {
+                            me.getReadingEstimationWindow().down('#error-label').show();
+                            var listOfFailedReadings = [];
+                            Ext.Array.each(responseText.readings, function (readingTimestamp) {
+                                listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
+                            });
+                            me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' +
+                                Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
+                                    [listOfFailedReadings.join(', '), me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                        } else if (responseText.errors) {
+                            me.getReadingEstimationWindow().down('#form-errors').show();
+                            me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
+                        }
                     }
 
                 }
