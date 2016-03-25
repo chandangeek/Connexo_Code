@@ -21,6 +21,16 @@ Ext.define('Uni.Auth', {
         return false;
     },
 
+    hasPrivilegeInApp: function (privilege, app) {
+        for (var i = 0; i < Ldr.store.Privileges.getCount(); i++) {
+            if ((privilege === Ldr.store.Privileges.getAt(i).get('name')) && (app === Ldr.store.Privileges.getAt(i).get('applicationName')))
+            {
+                return true;
+            }
+        }
+        return false;
+    },
+
     hasNoPrivilege: function (privilege) {
         return !this.hasPrivilege(privilege);
     },
