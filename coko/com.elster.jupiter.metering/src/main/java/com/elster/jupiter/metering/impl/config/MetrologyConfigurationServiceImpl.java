@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
@@ -173,7 +172,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
 
     @Override
-    public FormulaBuilder newFormulaBuilder(Formula.Mode mode) {
+    public ServerFormulaBuilder newFormulaBuilder(Formula.Mode mode) {
         return new FormulaBuilderImpl(mode, getDataModel(), getThesaurus());
     }
 
