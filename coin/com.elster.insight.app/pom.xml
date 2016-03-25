@@ -100,6 +100,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.usagepoint.config</artifactId>
         </dependency>
         <dependency>
@@ -112,11 +116,7 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall.extjs</artifactId>
+            <artifactId>bpm</artifactId>
         </dependency>
     </dependencies>
 

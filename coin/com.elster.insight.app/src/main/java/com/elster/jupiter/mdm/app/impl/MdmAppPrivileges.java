@@ -26,9 +26,16 @@ class MdmAppPrivileges {
                 //service category
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
 
-                //com.elster.jupiter.servicecall
-                com.elster.jupiter.servicecall.security.Privileges.Constants.VIEW_SERVICE_CALLS,
-                com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE
+                //com.elster.jupiter.bpm.security
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_TASK,
+                com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_TASK,
+                com.elster.jupiter.bpm.security.Privileges.Constants.ASSIGN_TASK,
+                com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_BPM,
+                com.elster.jupiter.bpm.security.Privileges.Constants.ADMINISTRATE_BPM,
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_PROCESSES_LVL_1,
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_PROCESSES_LVL_2,
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_PROCESSES_LVL_3,
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_PROCESSES_LVL_4
         );
     }
 }
