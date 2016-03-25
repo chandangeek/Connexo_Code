@@ -50,11 +50,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                             {
                                 itemId: 'usage-point-going-on',
                                 title: Uni.I18n.translate('general.whatsGoingOn', 'IMT', "What's going on"),
-                                ui: 'tile',
-                                style: {
-                                    marginRight: '16px',
-                                    padding: '8px'
-                                },
+                                ui: 'tile2',
                                 flex: 1,
                                 minHeight: 185 // todo: remove after implementation of content for this panel
                             },
@@ -65,12 +61,8 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                     align: 'stretchmax'
                                 },
                                 defaults: {
-                                    ui: 'tile',
-                                    flex: 1,
-                                    style: {
-                                        marginRight: '16px',
-                                        padding: '8px'
-                                    }
+                                    ui: 'tile2',
+                                    flex: 1
                                 },
                                 items: [
                                     {
@@ -91,11 +83,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         xtype: 'usage-point-summary',
                         itemId: 'usage-point-summary',
                         title: Uni.I18n.translate('general.usagePointSummary', 'IMT', 'Usage point summary'),
-                        ui: 'tile',
-                        style: {
-                            marginRight: '16px',
-                            padding: '8px'
-                        },
+                        ui: 'tile2',
                         flex: 1,
                         router: me.router
                     }

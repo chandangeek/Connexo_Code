@@ -79,11 +79,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                     {
                         xtype: 'container',
                         defaults: {
-                            ui: 'tile',
-                            style: {
-                                marginRight: '16px',
-                                padding: '8px'
-                            }
+                            ui: 'tile2'
                         },
                         items: [
                             {
@@ -107,11 +103,7 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                     dynamicElements.forms.length ? {
                         xtype: 'container',
                         defaults: {
-                            ui: 'tile',
-                            style: {
-                                marginRight: '16px',
-                                padding: '8px'
-                            }
+                            ui: 'tile2'
                         },
                         items: dynamicElements.forms
                     } : null
