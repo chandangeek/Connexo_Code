@@ -167,7 +167,8 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                 title: name,
                 viewDefaults: me.viewDefaults,
                 editDefaults: me.editDefaults,
-                record: cps
+                record: cps,
+                router: me.router
             });
 
             menuItems.push({

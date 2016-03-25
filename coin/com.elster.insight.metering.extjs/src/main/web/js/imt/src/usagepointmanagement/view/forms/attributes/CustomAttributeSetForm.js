@@ -1,20 +1,22 @@
 Ext.define('Imt.usagepointmanagement.view.forms.attributes.CustomAttributeSetForm', {
     extend: 'Imt.usagepointmanagement.view.forms.attributes.ViewEditForm',
     requires: [
-        'Uni.property.form.Property'
+        'Uni.property.form.Property',
+        'Imt.usagepointmanagement.view.forms.attributes.CustomAttributeSetDisplayForm'
     ],
     alias: 'widget.custom-attribute-set-form',
+
+    editDefaults: {},
 
     initComponent: function () {
         var me = this;
 
         me.viewForm = {
-            xtype: 'property-form',
+            xtype: 'custom-attribute-set-display-form',
             itemId: 'view-form',
             isEdit: false,
-            defaults: {
-                labelWidth: me.viewDefaults.labelWidth
-            }
+            viewDefaults: me.viewDefaults,
+            router: me.router
         };
 
         me.editForm = {

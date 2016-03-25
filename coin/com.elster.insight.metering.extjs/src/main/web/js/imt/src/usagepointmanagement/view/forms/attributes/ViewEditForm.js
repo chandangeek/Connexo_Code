@@ -10,6 +10,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
     viewDefaults: null,
     editDefaults: null,
     record: null,
+    router: null,
 
     initComponent: function () {
         var me = this,
