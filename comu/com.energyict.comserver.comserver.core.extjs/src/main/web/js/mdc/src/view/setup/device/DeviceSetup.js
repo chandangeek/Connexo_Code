@@ -16,7 +16,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         'Mdc.view.setup.device.DeviceCommunications',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Mdc.view.setup.device.DeviceHealthCheckPanel'
+        'Uni.view.widget.WhatsGoingOn',
+        //'Mdc.view.setup.device.DeviceHealthCheckPanel'
     ],
 
     content: [
@@ -286,7 +287,9 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         },
                         items: [
                             {
-                                xtype: 'deviceHealthCheckPanel',
+                                xtype: 'whatsgoingon',
+                                mrId: me.device.get('mRID'),
+                                type: 'device',
                                 router: me.router,
                                 style: 'margin-bottom: 20px'
                             },
