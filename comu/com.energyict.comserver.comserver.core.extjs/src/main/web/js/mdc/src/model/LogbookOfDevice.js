@@ -5,9 +5,9 @@ Ext.define('Mdc.model.LogbookOfDevice', {
         {name: 'name', type: 'string'},
         {name: 'obisCode', type: 'string'},
         {name: 'overruledObisCode', type: 'string'},
-        {name: 'lastEventDate', dateFormat: 'time', type: 'date'},
+        {name: 'lastEventDate', type: 'long', useNull: true},
         {name: 'lastEventType', type: 'auto'},
-        {name: 'lastReading', dateFormat: 'time', type: 'date'}
+        {name: 'lastReading', type: 'long', useNull: true}
     ],
     proxy: {
         type: 'rest',

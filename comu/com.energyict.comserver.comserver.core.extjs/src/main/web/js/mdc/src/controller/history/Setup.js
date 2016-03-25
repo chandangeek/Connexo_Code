@@ -1810,7 +1810,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showSpecifications',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
-                                            route.setTitle(record.get('name'));
+                                            route.setTitle(record.get('readingType').fullAliasName);
                                             return true;
                                         }, {single: true});
                                         return this;
@@ -1918,7 +1918,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showValidationBlocks',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
-                                            route.setTitle(record.get('name'));
+                                            route.setTitle(record.get('readingType').fullAliasName);
                                             return true;
                                         }, {single: true});
                                         return this;
@@ -1929,7 +1929,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: '{channelId}/validation',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
-                                            route.setTitle(record.get('name'));
+                                            route.setTitle(record.get('readingType').fullAliasName);
                                             return true;
                                         }, {single: true});
                                         return this;

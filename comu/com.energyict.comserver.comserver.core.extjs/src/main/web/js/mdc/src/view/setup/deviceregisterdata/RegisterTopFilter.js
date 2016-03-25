@@ -10,7 +10,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.RegisterTopFilter', {
             dataIndexTo: 'intervalEnd',
             defaultFromDate: moment().startOf('day').subtract(1,'years').toDate(),
             defaultDuration: '1years',
-            text: Uni.I18n.translate('communications.widget.topfilter.startedDate', 'MDC', 'Start date')
+            text: Uni.I18n.translate('communications.widget.topfilter.startedDate', 'MDC', 'Start date'),
+            itemId: 'deviceregister-topfilter-duration'
         },
         {
             type: 'checkbox',
@@ -21,11 +22,13 @@ Ext.define('Mdc.view.setup.deviceregisterdata.RegisterTopFilter', {
             options: [
                 {
                     display: Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect'),
-                    value: 'suspect'
+                    value: 'suspect',
+                    itemId: 'deviceregister-topfilter-suspect'
                 },
                 {
                     display: Uni.I18n.translate('validationStatus.ok', 'MDC', 'Not suspect'),
-                    value: 'nonSuspect'
+                    value: 'nonSuspect',
+                    itemId: 'deviceregister-topfilter-notsuspect'
                 }
             ]
         }

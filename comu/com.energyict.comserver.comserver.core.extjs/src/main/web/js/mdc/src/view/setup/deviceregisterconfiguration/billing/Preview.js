@@ -42,47 +42,18 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                                 name: 'obisCode'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.timestampLastValue', 'MDC', 'Timestamp last value'),
+                                fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                                 name: 'timeStamp',
                                 renderer: function (value) {
-                                    if (!Ext.isEmpty(value)) {
-                                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))])
+                                    if (value) {
+                                        var date = new Date(value);
+                                        return Uni.DateTime.formatDateLong(date) + ' - ' + Uni.DateTime.formatTimeShort(date);
                                     }
                                     return '-';
                                 }
                             },
                             {
-                                xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading'),
-                                layout: 'hbox',
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'reportedDateTime',
-                                        renderer: function (value) {
-                                            if (!Ext.isEmpty(value)) {
-                                                return Uni.DateTime.formatDateLong(new Date(value))
-                                                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                                                    + Uni.DateTime.formatTimeLong(new Date(value));
-                                            }
-
-                                            return '-';
-                                        }
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        tooltip: Uni.I18n.translate('deviceregisterconfiguration.tooltip.latestReading', 'MDC', 'The moment when the data was read out for the last time'),
-                                        iconCls: 'icon-info-small',
-                                        ui: 'blank',
-                                        itemId: 'latestReadingHelp',
-                                        shadow: false,
-                                        margin: '6 0 0 10',
-                                        width: 16
-                                    }
-                                ]
-                            },
-                            {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastValue', 'MDC', 'Last value'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
                                 name: 'value'
                             },
                             {
@@ -104,6 +75,15 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                             {
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
                                 name: 'numberOfFractionDigits'
+                            },
+                            {
+                                fieldLabel: Uni.I18n.translate('channelConfig.useMultiplier', 'MDC', 'Use multiplier'),
+                                name: 'useMultiplier',
+                                renderer: function(value) {
+                                    return value
+                                        ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                                        : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                }
                             }
                         ]
                     },

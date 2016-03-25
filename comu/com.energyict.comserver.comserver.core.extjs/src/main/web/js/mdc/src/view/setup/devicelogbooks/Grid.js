@@ -10,7 +10,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
         'Uni.grid.column.LastEventType',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.view.setup.devicelogbooks.ActionMenu'
+        'Mdc.view.setup.devicelogbooks.ActionMenu',
+        'Mdc.privileges.Device'
     ],
     initComponent: function () {
         var me = this;
@@ -35,14 +36,27 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('devicelogbooks.timestampLastEvent', 'MDC', 'Timestamp last event'),
+                header: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                 dataIndex: 'lastEventDate',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    if (value) {
+                        var date = new Date(value);
+                        return Uni.DateTime.formatDateShort(date) + ' - ' + Uni.DateTime.formatTimeLong(date);
+                    }
+                    return '';
                 },
                 flex: 1
             }
         ];
+
+        if (Mdc.privileges.Device.canAdministrateDeviceData()) {
+            me.columns.push({
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'deviceLogbooksActionMenu'
+                }
+            });
+        }
 
         me.dockedItems = [
             {
