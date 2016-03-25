@@ -27,7 +27,7 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                     {
                         name: 'mRID',
                         itemId: 'fld-up-mRID',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.mrid', 'MDC', 'mRID')
+                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.mrid', 'MDC', 'MRID')
                     },
                     {
                         name: 'name',
@@ -41,57 +41,28 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                         name: 'serviceCategory',
                         itemId: 'fld-up-serviceCategory',
                         fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.serviceCategory', 'MDC', 'Service category'),
-                    },
-                    {
-                        name: 'isSdp',
-                        itemId: 'fld-up-sdp',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.sdp', 'MDC', 'SDP'),
                         renderer: function (value) {
-                            return value ? Uni.I18n.translate('usagePointManagement.yes', 'MDC', 'Yes') : Uni.I18n.translate('usagePointManagement.no', 'MDC', 'No');
+                            var store = Ext.getStore('Mdc.usagepointmanagement.store.ServiceCategories'),
+                                record = store.findRecord('name', value);
+                            return record ? record.get('displayName') : value;
                         }
                     },
                     {
-                        name: 'isVirtual',
-                        itemId: 'fld-up-virtual',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.virtual', 'MDC', 'Virtual'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('usagePointManagement.yes', 'MDC', 'Yes') : Uni.I18n.translate('usagePointManagement.no', 'MDC', 'No');
-                        }
-                    },
-                    {
-                        name: 'version',
-                        itemId: 'fld-up-version',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.version', 'MDC', 'Version')
-                    },
-                    {
-                        name: 'readCycle',
-                        itemId: 'fld-up-version',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.readCycle', 'MDC', 'Read cycle'),
-                        renderer: function (value) {
-                            return value ? value : '-';
-                        }
-                    },
-                    {
-                        name: 'created',
+                        name: 'installationTime',
                         itemId: 'fld-up-created',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.created', 'MDC', 'Created')
-                    },
-                    {
-                        name: 'updated',
-                        itemId: 'fld-up-updated',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.lastUpdate', 'MDC', 'Last update'),
+                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.created', 'MDC', 'Created'),
                         renderer: function (value) {
-                            return value ? value : '-';
+                            return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                         }
                     },
-                    {
-                        name: 'location',
-                        itemId: 'fld-device-location',
-                        fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
-                        renderer: function (value) {
-                            return value ? value : '-';
-                        }
-                    }
+                    //{
+                    //    name: 'location',
+                    //    itemId: 'fld-device-location',
+                    //    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
+                    //    renderer: function (value) {
+                    //        return value ? value : '-';
+                    //    }
+                    //}
                 ]
             }
         ];

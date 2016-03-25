@@ -40,6 +40,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
             {
                 title: Uni.I18n.translate('devicemenu.communication', 'MDC', 'Communication'),
                 xtype: 'menu',
+                itemId: 'mdc-deviceConfiguration-communication-menu',
                 items: [
                     {
                         text: Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes'),
@@ -95,5 +96,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
         ];
 
         me.callParent(arguments);
+
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+            success: function (deviceType) {
+                if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                    me.down('#logbooksLink').hide();
+                    me.down('#mdc-deviceConfiguration-communication-menu').hide();
+                }
+            }
+        });
+
     }
 });

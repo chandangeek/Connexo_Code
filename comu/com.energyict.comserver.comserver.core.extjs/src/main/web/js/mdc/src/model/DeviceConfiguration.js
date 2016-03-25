@@ -10,8 +10,8 @@ Ext.define('Mdc.model.DeviceConfiguration', {
         {name: 'logBookCount', type: 'number', useNull: true},
         {name: 'canBeGateway', type: 'boolean', useNull: true},
         {name: 'isDirectlyAddressable', type: 'boolean', useNull: true},
-        {name: 'gatewayType', type: 'string', useNull: true}
-
+        {name: 'gatewayType', type: 'string', useNull: true},
+        {name: 'dataloggerEnabled', type: 'boolean', useNull: true}
     ],
     proxy: {
         timeout: 100000,
