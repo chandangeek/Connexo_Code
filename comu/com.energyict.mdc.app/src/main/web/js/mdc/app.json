@@ -20,7 +20,8 @@
         "com.elster.jupiter.fileimport.extjs",
         "com.elster.jupiter.bpm.extjs",
         "com.elster.jupiter.systemadmin.extjs",
-        "com.energyict.mdc.bpm.extjs"
+        "com.energyict.mdc.bpm.extjs",
+        "com.elster.jupiter.servicecall.extjs"
     ],
 
     "id": "28c552c9-436e-4d93-8f74-038373138820"

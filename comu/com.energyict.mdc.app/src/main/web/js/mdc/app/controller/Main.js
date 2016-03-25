@@ -26,8 +26,9 @@ Ext.define('MdcApp.controller.Main', {
         'Fwc.privileges.FirmwareCampaign',
         'Bpm.privileges.BpmManagement',
         'Dbp.privileges.DeviceProcesses',
-        'Mdc.privileges.Monitor'
-        //'Scs.privileges.ServiceCall'
+        'Mdc.privileges.Monitor',
+        'Mdc.privileges.UsagePoint',
+        'Scs.privileges.ServiceCall'
 
     ],
     applicationTitle: 'Connexo MultiSense',
@@ -58,8 +59,9 @@ Ext.define('MdcApp.controller.Main', {
         Fim.privileges.DataImport.all(),
         Fwc.privileges.FirmwareCampaign.all(),
         Bpm.privileges.BpmManagement.all(),
-        Dbp.privileges.DeviceProcesses.all()
-        //Scs.privileges.ServiceCall.all()
+        Dbp.privileges.DeviceProcesses.all(),
+        Mdc.privileges.UsagePoint.all(),
+        Scs.privileges.ServiceCall.all()
 
     ),
     controllers: [
@@ -78,8 +80,8 @@ Ext.define('MdcApp.controller.Main', {
         'Dxp.controller.Main',
         'Est.main.controller.Main',
         'Fim.controller.Main',
-        'Dbp.controller.Main'
-        //'Scs.controller.Main'
+        'Dbp.controller.Main',
+        'Scs.controller.Main'
     ],
 
     init: function () {
