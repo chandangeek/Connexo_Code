@@ -56,7 +56,7 @@ public class ReadingTypeDeliverableImplTestIT {
             metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newMetrologyConfiguration("Test",
                     inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get()).create();
             metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(
-                    inMemoryBootstrapModule.getMetrologyConfigurationService().createMetrologyPurpose().fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.BILLING));
+                    inMemoryBootstrapModule.getMetrologyConfigurationService().createMetrologyPurpose(DefaultMetrologyPurpose.BILLING));
             ServerFormulaBuilder formulaBuilder = (ServerFormulaBuilder) inMemoryBootstrapModule.getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
             formula = formulaBuilder.init(formulaBuilder.constant(10)).build();
             readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "zero reading type");

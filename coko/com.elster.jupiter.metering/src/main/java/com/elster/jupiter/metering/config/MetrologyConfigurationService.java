@@ -46,7 +46,7 @@ public interface MetrologyConfigurationService {
 
     Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version);
 
-    MetrologyPurpose.MetrologyPurposeBuilder createMetrologyPurpose();
+    MetrologyPurpose createMetrologyPurpose(NlsKey name, NlsKey description);
 
     Optional<MetrologyPurpose> findMetrologyPurpose(long id);
 

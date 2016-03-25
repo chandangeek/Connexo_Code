@@ -34,6 +34,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
@@ -56,7 +57,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  */
 public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
-    private static final String METER_ROLE_KEY_PREFIX = "MeterRole.custom.";
+    private static final String METER_ROLE_KEY_PREFIX = "meter.role.";
+    private static final String METER_PURPOSE_KEY_PREFIX = "metrology.purpose.";
 
     private volatile ServerMeteringService meteringService;
     private volatile EventService eventService;
@@ -222,16 +224,10 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public MeterRole newMeterRole(NlsKey name) {
         String localKey = METER_ROLE_KEY_PREFIX + name.getKey();
-        this.copyKeyIfMissing(name, localKey);
+        this.meteringService.copyKeyIfMissing(name, localKey);
         MeterRoleImpl meterRole = getDataModel().getInstance(MeterRoleImpl.class).init(localKey);
         Save.CREATE.save(getDataModel(), meterRole);
         return meterRole;
-    }
-
-    private void copyKeyIfMissing(NlsKey name, String localKey) {
-        if (getThesaurus().getTranslations().get(localKey) == null) {
-            this.nlsService.copy(name, MeteringService.COMPONENTNAME, Layer.DOMAIN, key -> localKey);
-        }
     }
 
     @Override
@@ -240,8 +236,31 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public MetrologyPurpose.MetrologyPurposeBuilder createMetrologyPurpose() {
-        return new MetrologyPurposeBuilderImpl(getDataModel());
+    public MetrologyPurpose createMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose) {
+        return this.getDataModel().query(MetrologyPurpose.class)
+                .select(where(MetrologyPurposeImpl.Fields.DEFAULT_PURPOSE.fieldName()).isNotNull())
+                .stream()
+                .map(MetrologyPurposeImpl.class::cast)
+                .filter(candidate -> candidate.getDefaultMetrologyPurpose().get() == defaultMetrologyPurpose)
+                .findAny()
+                .orElseGet(() -> {
+                            MetrologyPurposeImpl purpose = this.getDataModel().getInstance(MetrologyPurposeImpl.class).init(defaultMetrologyPurpose);
+                            Save.CREATE.save(this.getDataModel(), purpose);
+                            return purpose;
+                        }
+                );
+    }
+
+    @Override
+    public MetrologyPurpose createMetrologyPurpose(NlsKey name, NlsKey description) {
+        String nameKey = Checks.is(name.getKey()).emptyOrOnlyWhiteSpace() ? name.getKey() : METER_PURPOSE_KEY_PREFIX + name.getKey();
+        String descriptionKey = Checks.is(name.getKey()).emptyOrOnlyWhiteSpace() ? description.getKey() : METER_PURPOSE_KEY_PREFIX + description.getKey();
+        MetrologyPurposeImpl metrologyPurpose = getDataModel().getInstance(MetrologyPurposeImpl.class)
+                .init(nameKey, descriptionKey, true);
+        metrologyPurpose.save();
+        this.meteringService.copyKeyIfMissing(name, nameKey);
+        this.meteringService.copyKeyIfMissing(description, descriptionKey);
+        return metrologyPurpose;
     }
 
     @Override

@@ -1,7 +1,9 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -28,4 +30,5 @@ public interface ServerMetrologyConfigurationService extends MetrologyConfigurat
 
     List<Formula> findFormulas();
 
+    MetrologyPurpose createMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
 }

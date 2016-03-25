@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -48,7 +47,7 @@ public class MetrologyConfigurationCrudTest {
         inMemoryBootstrapModule.deactivate();
     }
 
-    private MetrologyConfigurationService getMetrologyConfigurationService() {
+    private ServerMetrologyConfigurationService getMetrologyConfigurationService() {
         return inMemoryBootstrapModule.getMetrologyConfigurationService();
     }
 
@@ -109,9 +108,7 @@ public class MetrologyConfigurationCrudTest {
     @Transactional
     public void testCanAddMetrologyContract() {
         MetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newMetrologyConfiguration("config", getServiceCategory()).create();
-        MetrologyPurpose metrologyPurpose = getMetrologyConfigurationService()
-                .createMetrologyPurpose()
-                .fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
+        MetrologyPurpose metrologyPurpose = getMetrologyConfigurationService().createMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
         MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(metrologyPurpose);
 
         assertThat(metrologyContract.isMandatory()).isFalse();
@@ -128,9 +125,7 @@ public class MetrologyConfigurationCrudTest {
     @Transactional
     public void testDoNotAddTheSameMetrologyContractTwice() {
         MetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newMetrologyConfiguration("config", getServiceCategory()).create();
-        MetrologyPurpose metrologyPurpose = getMetrologyConfigurationService()
-                .createMetrologyPurpose()
-                .fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
+        MetrologyPurpose metrologyPurpose = getMetrologyConfigurationService().createMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
         metrologyConfiguration.addMetrologyContract(metrologyPurpose);
         metrologyConfiguration.addMetrologyContract(metrologyPurpose);
 
@@ -141,9 +136,7 @@ public class MetrologyConfigurationCrudTest {
     @Transactional
     public void testCanRemoveMetrologyContract() {
         MetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newMetrologyConfiguration("config", getServiceCategory()).create();
-        MetrologyPurpose metrologyPurpose = getMetrologyConfigurationService()
-                .createMetrologyPurpose()
-                .fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
+        MetrologyPurpose metrologyPurpose = getMetrologyConfigurationService().createMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
         MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(metrologyPurpose);
         assertThat(metrologyConfiguration.getContracts()).hasSize(1);
 

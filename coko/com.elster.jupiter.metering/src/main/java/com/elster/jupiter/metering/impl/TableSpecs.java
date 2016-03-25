@@ -1204,6 +1204,11 @@ public enum TableSpecs {
                     .conversion(NUMBER2ENUM)
                     .map(MetrologyPurposeImpl.Fields.DEFAULT_PURPOSE.fieldName())
                     .add();
+            table.column(MetrologyPurposeImpl.Fields.TRANSLATABLE.name())
+                    .bool()
+                    .conversion(CHAR2BOOLEAN)
+                    .map(MetrologyPurposeImpl.Fields.TRANSLATABLE.fieldName())
+                    .add();
 
             table.primaryKey("MTR_METROLOGY_PURPOSE_PK").on(idColumn).add();
             table.unique("MTR_METROLOGY_PURPOSE_NAME_UQ").on(nameColumn).add();

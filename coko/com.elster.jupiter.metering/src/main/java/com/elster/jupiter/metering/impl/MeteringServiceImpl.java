@@ -708,7 +708,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         return multiplierType;
     }
 
-    private void copyKeyIfMissing(NlsKey name, String localKey) {
+    @Override
+    public void copyKeyIfMissing(NlsKey name, String localKey) {
         if (this.thesaurus.getTranslations().get(localKey) == null) {
             this.nlsService.copy(name, COMPONENTNAME, Layer.DOMAIN, key -> localKey);
         }
