@@ -42,7 +42,7 @@ public class SetLastReading extends TranslatableServerMicroAction {
     }
 
     private void setLastReading(Device device, LogBook logBook, Instant commissioningTimestamp) {
-        device.getLogBookUpdaterFor(logBook).setLastLogBookIfLater(commissioningTimestamp).update();
+        device.getLogBookUpdaterFor(logBook).setLastReadingIfLater(commissioningTimestamp).update();
     }
 
     private void setLastReading(Device device, LoadProfile loadProfile, Instant commissioningTimestamp) {

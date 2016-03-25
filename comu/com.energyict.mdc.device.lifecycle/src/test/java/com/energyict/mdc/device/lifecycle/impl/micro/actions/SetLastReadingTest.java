@@ -60,11 +60,11 @@ public class SetLastReadingTest {
         SetLastReading microAction = this.getTestInstance();
         LogBook logBook1 = mock(LogBook.class);
         LogBook.LogBookUpdater updater1 = mock(LogBook.LogBookUpdater.class);
-        when(updater1.setLastLogBookIfLater(any(Instant.class))).thenReturn(updater1);
+        when(updater1.setLastReadingIfLater(any(Instant.class))).thenReturn(updater1);
         when(this.device.getLogBookUpdaterFor(logBook1)).thenReturn(updater1);
         LogBook logBook2 = mock(LogBook.class);
         LogBook.LogBookUpdater updater2 = mock(LogBook.LogBookUpdater.class);
-        when(updater2.setLastLogBookIfLater(any(Instant.class))).thenReturn(updater2);
+        when(updater2.setLastReadingIfLater(any(Instant.class))).thenReturn(updater2);
         when(this.device.getLogBookUpdaterFor(logBook2)).thenReturn(updater2);
         when(this.device.getLogBooks()).thenReturn(Arrays.asList(logBook1, logBook2));
         when(this.device.getLoadProfiles()).thenReturn(Collections.emptyList());
@@ -73,9 +73,9 @@ public class SetLastReadingTest {
         microAction.execute(this.device, now, Collections.emptyList());
 
         // Asserts
-        verify(updater1).setLastLogBookIfLater(now);
+        verify(updater1).setLastReadingIfLater(now);
         verify(updater1).update();
-        verify(updater2).setLastLogBookIfLater(now);
+        verify(updater2).setLastReadingIfLater(now);
         verify(updater2).update();
     }
 
