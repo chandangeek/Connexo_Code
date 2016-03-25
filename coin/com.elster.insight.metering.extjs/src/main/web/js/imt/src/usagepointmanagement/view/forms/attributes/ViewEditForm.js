@@ -1,8 +1,10 @@
 Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.view-edit-form',
-    layout: 'card',
-    deferredRender: true,
+    layout: {
+        type: 'card',
+        deferredRender: true
+    },
 
     displayMode: 'view',
     hasEditMode: true,
