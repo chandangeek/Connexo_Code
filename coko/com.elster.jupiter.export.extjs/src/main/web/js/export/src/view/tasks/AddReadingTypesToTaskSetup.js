@@ -10,7 +10,8 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
         'Dxp.store.LoadedReadingTypes',
         'Dxp.store.UnitsOfMeasure',
         'Dxp.store.TimeOfUse',
-        'Dxp.store.Intervals'
+        'Dxp.store.Intervals',
+        'Dxp.view.tasks.AddReadingTypesNoItemsFoundPanel'
     ],
 
     content: [
@@ -36,14 +37,15 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
                         }
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        margin: '15 0 20 0',
-                        title: Uni.I18n.translate('validation.readingType.empty.title', 'DES', 'No reading types found.'),
-                        reasons: [
-                            Uni.I18n.translate('validation.readingType.empty.list.item1', 'DES', 'No reading types have been added yet.'),
-                            Uni.I18n.translate('validation.readingType.empty.list.item2', 'DES', 'No reading types comply to the filter.'),
-                            Uni.I18n.translate('dataExportTasks.readingType.empty.list.item3', 'DES', 'All reading types have already been added to the data export task.')
-                        ]
+                        xtype: 'addReadingTypesNoItemsFoundPanel'
+                        //xtype: 'no-items-found-panel',
+                        //margin: '15 0 20 0',
+                        //title: Uni.I18n.translate('validation.readingType.empty.title', 'DES', 'No reading types found.'),
+                        //reasons: [
+                        //    Uni.I18n.translate('validation.readingType.empty.list.item1', 'DES', 'No reading types have been added yet.'),
+                        //    Uni.I18n.translate('validation.readingType.empty.list.item2', 'DES', 'No reading types comply to the filter.'),
+                        //    Uni.I18n.translate('dataExportTasks.readingType.empty.list.item3', 'DES', 'All reading types have already been added to the data export task.')
+                        //]
                     }
                 },
                 {
@@ -57,6 +59,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
                             text: Uni.I18n.translate('general.add', 'DES', 'Add'),
                             name: 'add',
                             itemId: 'btn-add-reading-types',
+                            action: 'addReadingTypes',
                             ui: 'action'
                         },
                         {

@@ -18,5 +18,14 @@ Ext.define('Dxp.store.LoadedReadingTypes', {
             type: 'json',
             root: 'readingTypes'
         }
+    },
+
+    getCount: function () {
+        if (this.lastRequestEnd < 0) {
+            return 0
+        } else {
+            return this.data.getCount();
+
+        }
     }
 });

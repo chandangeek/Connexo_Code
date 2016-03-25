@@ -45,7 +45,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.Clipboard',
         'Dxp.store.DataSelectors',
         'Dxp.store.UpdateWindows',
-        'Dxp.store.UpdateTimeframes'
+        'Dxp.store.UpdateTimeframes',
+        'Dxp.store.SelectedReadingTypes'
     ],
 
     models: [
@@ -117,6 +118,10 @@ Ext.define('Dxp.controller.Tasks', {
         {
             ref: 'eventTypeWindow',
             selector: '#eventTypeWindow'
+        },
+        {
+            ref: 'addReadingTypesToTaskBulk',
+            selector: 'AddReadingTypesToTaskBulk'
         }
     ],
 
@@ -224,6 +229,11 @@ Ext.define('Dxp.controller.Tasks', {
             },
             '#addEventTypeToTask': {
                 click: this.addEventTypeToTask
+            },
+            'AddReadingTypesToTaskSetup addReadingTypesNoItemsFoundPanel': {
+                openInfoWindow: this.showSelectedReadingTypes,
+                showNoFoundPanel: this.showNoFoundPanel,
+                uncheckAll: this.uncheckAll
             }
         });
     },
@@ -1436,7 +1446,7 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             widget = this.getAddReadingTypesSetup(),
             grid = widget.down('#addReadingTypesGrid'),
-            selection = grid.getView().getSelectionModel().getSelection();
+            selection = grid.getSelectedRecords();
 
         if (selection.length > 0) {
             Ext.each(selection, function (record) {
@@ -2327,5 +2337,37 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this;
         me.updatedDataEnableDisable();
         me.fillScheduleGridOrNot();
+    },
+
+    showSelectedReadingTypes: function(){
+        var me = this;
+        var widget = Ext.widget('dataExportSelectedReadingTypes');
+        widget.setTitle(me.setCountOfSelectedReadingTypes());
+        widget.show();
+    },
+
+    showNoFoundPanel: function (cmp) {
+        var me = this,
+            grid = me.getAddReadingTypesToTaskBulk();
+        cmp.getSelectionCounter().setText(me.setCountOfSelectedReadingTypes());
+        if(grid.hiddenSelection.length){
+            cmp.getuncheckAllBtn().setDisabled(false);
+            cmp.getInfoBtn().show();
+        } else {
+            cmp.getuncheckAllBtn().setDisabled(true);
+            cmp.getInfoBtn().hide();
+        }
+    },
+
+    setCountOfSelectedReadingTypes: function(){
+        var me = this,
+            grid = me.getAddReadingTypesToTaskBulk();
+        return grid.counterTextFn(grid.hiddenSelection.length)
+    },
+
+    uncheckAll: function(){
+        var me = this,
+            grid = me.getAddReadingTypesToTaskBulk();
+        grid.getUncheckAllButton().fireEvent('click',grid.getUncheckAllButton());
     }
 });
