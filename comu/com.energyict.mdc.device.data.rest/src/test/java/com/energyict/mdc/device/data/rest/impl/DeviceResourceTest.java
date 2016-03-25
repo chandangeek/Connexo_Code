@@ -1403,6 +1403,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(mock.getCalculatedReadingType(clock.instant())).thenReturn(Optional.empty());
         Unit unit = Unit.get("kWh");
         when(mock.getLastReading()).thenReturn(Optional.empty());
+        when(mock.getLastDateTime()).thenReturn(Optional.empty());
         when(mock.getUnit()).thenReturn(unit);
         return mock;
     }

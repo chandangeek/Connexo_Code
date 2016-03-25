@@ -25,6 +25,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
+
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -141,8 +142,8 @@ public class ValidationInfoFactory {
                 });
         registerStatus.entrySet().stream()
                 .sorted((regs1, regs2) -> regs1.getKey().getRegisterSpec().getReadingType().getFullAliasName().compareTo(regs2.getKey().getRegisterSpec().getReadingType().getFullAliasName()))
-                .forEach( reg -> {
-                    monitorValidationInfo.detailedValidationRegister.add(new DetailedValidationRegisterInfo(reg.getKey(),new Long(reg.getValue().size())));
+                .forEach(reg -> {
+                    monitorValidationInfo.detailedValidationRegister.add(new DetailedValidationRegisterInfo(reg.getKey(), new Long(reg.getValue().size())));
                 });
         return monitorValidationInfo;
     }
@@ -239,7 +240,7 @@ public class ValidationInfoFactory {
         if (intervalReadingRecord == null) {
             return Collections.emptyList();
         }
-        return  intervalReadingRecord.getReadingQualities().stream()
+        return intervalReadingRecord.getReadingQualities().stream()
                 .filter(ReadingQualityRecord::isActual)
                 .map(ReadingQuality::getType)
                 .distinct()
@@ -306,7 +307,11 @@ public class ValidationInfoFactory {
     DetailedValidationInfo createDetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Optional<Instant> lastChecked) {
         DetailedValidationInfo detailedValidationInfo = createMinimalValidationInfo(active);
         detailedValidationInfo.dataValidated = isDataCompletelyValidated(dataValidationStatuses);
-        detailedValidationInfo.suspectReason = getSuspectReasonMap(dataValidationStatuses).entrySet();
+        detailedValidationInfo.suspectReason = getSuspectReasonMap(dataValidationStatuses)
+                .entrySet()
+                .stream()
+                .map(validationRuleInfoLongEntry -> new ValidationRuleInfoWithNumber(validationRuleInfoLongEntry.getKey(), validationRuleInfoLongEntry.getValue()))
+                .collect(Collectors.toSet());
         if (lastChecked.isPresent()) {
             detailedValidationInfo.lastChecked = lastChecked.get().toEpochMilli();
         } else {
