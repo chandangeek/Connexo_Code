@@ -5838,6 +5838,27 @@
   margin-right: 48px;
 }
 
+/* line 1, ../../sass/src/panel/TilePanel2.scss */
+.x-panel-tile2 {
+  margin-top: 16px;
+  margin-right: 16px;
+  border-color: #cbcbcb;
+  border-radius: 10px;
+  border-width: 1px;
+  border-style: solid;
+  padding: 8px;
+}
+
+/* line 15, ../../sass/src/panel/TilePanel2.scss */
+.x-panel-header-tile2 {
+  padding: 8px;
+  color: #74af74;
+  font-family: "Open Sans Condensed", helvetica, arial, verdana, sans-serif;
+  font-size: 25px;
+  font-weight: normal;
+  line-height: 31px;
+}
+
 /* line 1, ../../sass/src/panel/Detail.scss */
 .license-details-toolbar {
   font-weight: bold;
@@ -5907,7 +5928,7 @@
   color: #686868;
 }
 
-/* line 195, ../../sass/src/panel/Panel.scss */
+/* line 196, ../../sass/src/panel/Panel.scss */
 .error-border .x-panel-body {
   border-color: #eb5642 !important;
 }
@@ -18183,13 +18204,4 @@ a.x-datepicker-date:hover {
 /* line 427, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-rtl.x-tab-bar-small .x-tabbar-scroll-right {
   background-image: url(images/tab-bar/small-scroll-left.png);
-}
-
-/* line 435, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
-.x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-left {
-  background-image: url(images/tab-bar/small-plain-scroll-left.png);
-}
-/* line 439, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
-.x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-right {
-  background-image: url(images/tab-bar/small-plain-scroll-right.png);
 }

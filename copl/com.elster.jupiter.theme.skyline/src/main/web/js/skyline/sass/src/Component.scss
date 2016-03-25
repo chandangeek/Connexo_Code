@@ -23,3 +23,8 @@
 .force-no-border *[class*='#{$prefix}grid-'] {
     border: none !important;
 }
+
+.instructional-note {
+    color: $color-grey;
+    font-style: italic;
+}

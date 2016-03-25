@@ -5571,6 +5571,12 @@ h6 {
   border: none !important;
 }
 
+/* line 27, ../../sass/src/Component.scss */
+.instructional-note {
+  color: #686868;
+  font-style: italic;
+}
+
 /* line 1, ../../sass/src/container/ActionsContainer.scss */
 .x-container-actions {
   margin-top: 32px;
