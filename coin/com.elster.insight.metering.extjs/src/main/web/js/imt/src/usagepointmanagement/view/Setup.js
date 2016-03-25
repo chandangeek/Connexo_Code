@@ -17,7 +17,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         me.content = [
             {
                 itemId: 'usage-point-content',
-                title: me.usagePoint ? me.usagePoint.get('mRID') :' ',
+                title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
                 ui: 'large',
                 tools: [
                     {
