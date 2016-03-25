@@ -48,6 +48,7 @@ import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -207,6 +208,20 @@ public class DeviceGroupResource {
             devices = fetchDevicesOfEnumEndDeviceGroup((EnumeratedEndDeviceGroup) endDeviceGroup, queryParameters);
         }
         return PagedInfoList.fromPagedList("devices", DeviceGroupMemberInfo.from(devices), queryParameters);
+    }
+
+
+    @GET @Transactional
+    @Path("/{id}/devices/count")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
+    public Response getDeviceGroupCount(@PathParam("id") long deviceGroupId, @BeanParam JsonQueryParameters queryParameters) {
+        EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
+        long numberOfSearchResults = endDeviceGroup.getMemberCount(Instant.now());
+        Map<String, Object> jsonResponse = new HashMap<>();
+        jsonResponse.put("numberOfSearchResults", numberOfSearchResults);
+        return Response.ok().entity(jsonResponse).build();
     }
 
     private List<Device> fetchDevicesOfEnumEndDeviceGroup(EnumeratedEndDeviceGroup endDeviceGroup, JsonQueryParameters queryParameters) {

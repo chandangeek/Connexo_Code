@@ -25,6 +25,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -120,6 +121,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DeviceMessageService deviceMessageService;
     private volatile DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile ServiceCallService serviceCallService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -241,6 +243,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
@@ -472,6 +479,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(deviceMessageService).to(DeviceMessageService.class);
             bind(DevicesForConfigChangeSearchFactory.class).to(DevicesForConfigChangeSearchFactory.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
+            bind(serviceCallService).to(ServiceCallService.class);
         }
     }
 }

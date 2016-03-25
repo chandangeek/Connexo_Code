@@ -20,6 +20,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -82,8 +83,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.junit.*;
-import org.junit.rules.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,8 +96,8 @@ import static org.mockito.Mockito.when;
 
 /**
  * Alright, this is a JerseyTest coupled with the real-deal back end service (or at least most of them), running in in-memory h2
- * Setup is crappy, but it couldn't find a way to avoid it.
- * We really needed end2end testing for connection method properties, as bugs keep piling up.
+ * Setup is crappy, but I couldn't find a way to avoid it.
+ * We really needed end2end testing for connection method properties, as bugs kept piling up.
  */
 public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
 
@@ -114,7 +118,6 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static PartialScheduledConnectionTaskImpl as1440WithProperties;
     private static OutboundComPortPool whirlpool;
 
-    Instant comSessionStart = Instant.now();
     private static DeviceType deviceType;
     private static DeviceConfiguration deviceConfiguration;
 
@@ -130,6 +133,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static FavoritesService favoritesService;
     private static DeviceLifeCycleService deviceLifecycleService;
     private static TopologyService topologyService;
+    private static ServiceCallService serviceCallService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -148,6 +152,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         favoritesService = mock(FavoritesService.class);
         deviceLifecycleService = mock(DeviceLifeCycleService.class);
         topologyService = mock(TopologyService.class);
+        serviceCallService = mock(ServiceCallService.class);
 
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
@@ -198,7 +203,6 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
             when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
             freezeClock(2014, Calendar.JANUARY, 1); // Experiencing timing issues in tests that set clock back in time and the respective devices need their device life cycle
             deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
-            deviceType.save();
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
             deviceConfigurationBuilder.isDirectlyAddressable(true);
             deviceConfiguration = deviceConfigurationBuilder.add();
@@ -335,6 +339,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setLoadProfileService(loadProfileService);
         application.setDeviceMessageService(deviceMessageService);
         application.setCustomPropertySetService(inMemoryPersistence.getCustomPropertySetService());
+        application.setServiceCallService(inMemoryPersistence.getServiceCallService());
         return application;
     }
 
