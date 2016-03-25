@@ -55,9 +55,9 @@ public class GoingOnResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getGoingOn(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
+    public Response getGoingOn(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
 
-        UsagePoint usagePoint = resourceHelper.findUsagePointByIdOrThrowException(id);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
 
         GoingOnInfoFactory goingOnInfoFactory = new GoingOnInfoFactory(null);
         if (securityContext.getUserPrincipal() instanceof User) {
