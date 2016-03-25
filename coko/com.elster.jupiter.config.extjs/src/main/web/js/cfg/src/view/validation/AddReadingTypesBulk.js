@@ -151,7 +151,6 @@ Ext.define('Cfg.view.validation.AddReadingTypesBulk', {
         var me =this,
             btn = this.down('#list-of-reading-types-info-btn'),
             selectedStore =  Ext.getStore('Cfg.store.SelectedReadingTypes');
-        console.log(me.hiddenSelection);
         selectedStore.removeAll();
         selectedStore.add(me.hiddenSelection);
         me.hiddenSelection.length ? btn.show() : btn.hide();
