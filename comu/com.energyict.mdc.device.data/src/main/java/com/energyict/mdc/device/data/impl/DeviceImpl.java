@@ -1375,13 +1375,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             ZonedDateTime.ofInstant(
                                     this.lastReadingClipped(loadProfile, requestedInterval),
                                     affectedMeterActivation.getZoneId());
-                    Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
-                    while (meterActivationInterval.contains(requestStart.toInstant())) {
-                        ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
-                        LoadProfileReadingImpl value = new LoadProfileReadingImpl();
-                        value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
-                        loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
-                        requestStart = readingTimestamp;
+                    if (!requestEnd.isBefore(requestStart)) {
+                        Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
+                        while (meterActivationInterval.contains(requestStart.toInstant())) {
+                            ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
+                            LoadProfileReadingImpl value = new LoadProfileReadingImpl();
+                            value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
+                            loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
+                            requestStart = readingTimestamp;
+                        }
                     }
                 });
         return loadProfileReadingMap;
@@ -1533,10 +1535,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private Instant lastReadingClipped(LoadProfile loadProfile, Range<Instant> interval) {
-        if (loadProfile.getLastReading().isPresent()) {
-            if (interval.contains(loadProfile.getLastReading().get())) {
-                return loadProfile.getLastReading().get();
-            } else if (interval.upperEndpoint().isBefore(loadProfile.getLastReading().get())) {
+        Instant dataUntil = Instant.EPOCH;
+        for (Channel channel : loadProfile.getChannels()) {
+            if (channel.getLastDateTime().isPresent() && channel.getLastDateTime().get().isAfter(dataUntil)) {
+                dataUntil = channel.getLastDateTime().get();
+            }
+        }
+        if (!dataUntil.equals(Instant.EPOCH)) {
+            if (interval.contains(dataUntil)) {
+                return dataUntil;
+            } else if (interval.upperEndpoint().isBefore(dataUntil)) {
                 return interval.upperEndpoint();
             } else {
                 return interval.lowerEndpoint(); // empty interval: interval is completely after last reading
