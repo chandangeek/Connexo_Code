@@ -50,7 +50,6 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
                 dependenciesCounter--;
                 if (!dependenciesCounter) {
                     mainView.setLoading(false);
-                    var t = new Date().getTime();
                     Ext.suspendLayouts();
                     app.fireEvent('usagePointLoaded', usagePoint);
                     app.fireEvent('changecontentevent', Ext.widget('usage-point-attributes', {
@@ -59,7 +58,6 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
                         usagePoint: usagePoint
                     }));
                     Ext.resumeLayouts(true);
-                    console.info(new Date().getTime() - t);
                 }
             },
             usagePoint = isDependenciesLoaded ? mRID : undefined;
