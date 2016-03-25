@@ -55,7 +55,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         getEventPushNotificationParser().parseInboundFrame();
         collectedLogBook = getEventPushNotificationParser().getCollectedLogBook();
 
-        context.logOnAllLoggerHandlers("Received inbound event notification. Message: '" + getMeterProtocolEvent().getMessage() + "', protocol code: '" + getMeterProtocolEvent().getProtocolCode() + "'", Level.INFO);
+        context.logOnAllLoggerHandlers(getLoggingMessage(), Level.INFO);
 
         if (isJoinAttempt()) {
             G3GatewayPSKProvider pskProvider = getPskProvider();
@@ -65,6 +65,28 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         }
 
         return DiscoverResultType.DATA;
+    }
+
+    protected String getLoggingMessage(){
+        StringBuilder logMessage = new StringBuilder();
+
+        logMessage.append("Received inbound event notification from [");
+        if (getDeviceIdentifier()!=null) {
+            logMessage.append(getDeviceIdentifier().getIdentifier());
+        } else {
+            logMessage.append("unknown");
+        }
+        logMessage.append("].  Message: '");
+        if (getMeterProtocolEvent() != null) {
+            logMessage.append(getMeterProtocolEvent().getMessage());
+            logMessage.append("', protocol code: '");
+            logMessage.append(getMeterProtocolEvent().getProtocolCode());
+            logMessage.append("'");
+        } else {
+            logMessage.append("NULL.'");
+        }
+
+        return logMessage.toString();
     }
 
     private boolean isJoinAttempt() {
