@@ -151,7 +151,8 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
         me.usagePoint.customPropertySets().each(function (cps) {
             var id = cps.getId(),
                 itemId = 'custom-attribute-set-form-' + id,
-                name = cps.get('name');
+                name = cps.get('name'),
+                hasEditMode = !cps.get('isVersioned') || cps.get('isActive');
 
             forms.push({
                 xtype: 'custom-attribute-set-form',
@@ -160,14 +161,17 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                 viewDefaults: me.viewDefaults,
                 editDefaults: me.editDefaults,
                 record: cps,
+                hasEditMode: hasEditMode,
                 router: me.router
             });
 
-            menuItems.push({
-                text: Uni.I18n.translate('general.editX', 'IMT', "Edit '{0}'", [name]),
-                itemId: 'edit-custom-attribute-set-' + id,
-                linkedForm: itemId
-            });
+            if (hasEditMode) {
+                menuItems.push({
+                    text: Uni.I18n.translate('general.editX', 'IMT', "Edit '{0}'", [name]),
+                    itemId: 'edit-custom-attribute-set-' + id,
+                    linkedForm: itemId
+                });
+            }
         });
 
         return {

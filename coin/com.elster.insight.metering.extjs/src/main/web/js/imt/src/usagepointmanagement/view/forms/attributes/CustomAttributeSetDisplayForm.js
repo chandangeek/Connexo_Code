@@ -29,30 +29,47 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.CustomAttributeSetDis
         var me = this,
             startTime,
             endTime,
+            isActive,
             period;
 
         Ext.suspendLayouts();
         if (record.get('isVersioned')) {
             startTime = record.get('startTime');
             endTime = record.get('endTime');
+            isActive = record.get('isActive');
 
-            if (startTime && endTime) {
-                if (!endTime) {
-                    period = Uni.I18n.translate('general.fromX', 'IMT', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(startTime))], false);
-                } else if (!startTime) {
-                    period = Uni.I18n.translate('general.untilX', 'IMT', 'Until {0}', [Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
+            if (isActive) {
+                if (startTime && endTime) {
+                    if (!endTime) {
+                        period = Uni.I18n.translate('general.fromX', 'IMT', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(startTime))], false);
+                    } else if (!startTime) {
+                        period = Uni.I18n.translate('general.untilX', 'IMT', 'Until {0}', [Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
+                    } else {
+                        period = Uni.I18n.translate('general.fromUntilX', 'IMT', 'From {0} - Until {1}', [Uni.DateTime.formatDateTimeShort(new Date(startTime)), Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
+                    }
                 } else {
-                    period = Uni.I18n.translate('general.fromUntilX', 'IMT', 'From {0} - Until {1}', [Uni.DateTime.formatDateTimeShort(new Date(startTime)), Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
+                    period = Uni.I18n.translate('general.infinite', 'IMT', 'Infinite');
                 }
-            } else {
-                period = Uni.I18n.translate('general.infinite', 'IMT', 'Infinite');
-            }
 
-            me.insert(0, {
-                xtype: 'displayfield',
-                itemId: 'custom-attribute-set-version-period',
-                value: period
-            });
+                me.insert(0, {
+                    xtype: 'component',
+                    itemId: 'custom-attribute-set-version-period',
+                    cls: 'instructional-note',
+                    margin: '0 0 15 9',
+                    html: period
+                });
+
+                me.down('#property-form').loadRecord(record);
+            } else {
+                me.removeAll();
+                me.add({
+                    xtype: 'component',
+                    itemId: 'custom-attribute-set-no-active-version',
+                    cls: 'instructional-note',
+                    margin: '5 0 15 9',
+                    html: '(' + Uni.I18n.translate('general.noActiveVersion', 'IMT', 'No active version') + ')'
+                });
+            }
 
             me.add({
                 xtype: 'button',
@@ -61,8 +78,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.CustomAttributeSetDis
                 ui: 'link',
                 href: me.router.getRoute('usagepoints/view/history').buildUrl(me.router.arguments, {customAttributeSetId: record.getId()})
             });
+        } else {
+            me.down('#property-form').loadRecord(record);
         }
-        me.down('#property-form').loadRecord(record);
         Ext.resumeLayouts(true);
 
         me.callParent(arguments);

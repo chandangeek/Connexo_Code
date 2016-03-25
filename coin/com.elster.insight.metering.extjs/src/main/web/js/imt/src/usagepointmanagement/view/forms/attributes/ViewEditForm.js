@@ -5,6 +5,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
     deferredRender: true,
 
     displayMode: 'view',
+    hasEditMode: true,
     viewForm: null,
     editForm: null,
     viewDefaults: null,
@@ -17,19 +18,20 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
             viewForm,
             editForm;
 
-        if (me.viewForm && me.editForm) {
-            me.addEvents('save');
-            if (Ext.isArray(me.viewForm)) {
-                viewForm = {
-                    xtype: 'form',
-                    itemId: 'view-form',
-                    defaults: me.viewDefaults,
-                    items: me.viewForm
-                }
-            } else {
-                viewForm = Ext.applyIf(me.viewForm, {itemId: 'view-form'});
-            }
+        me.addEvents('save');
 
+        if (Ext.isArray(me.viewForm)) {
+            viewForm = {
+                xtype: 'form',
+                itemId: 'view-form',
+                defaults: me.viewDefaults,
+                items: me.viewForm
+            }
+        } else {
+            viewForm = Ext.applyIf(me.viewForm, {itemId: 'view-form'});
+        }
+
+        if (me.hasEditMode) {
             if (Ext.isArray(me.editForm)) {
                 editForm = {
                     xtype: 'form',
@@ -79,6 +81,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
 
             me.items = [viewForm, editForm];
             me.activeItem = me.displayMode === 'view' ? 0 : 1;
+
             me.tools = [{
                 xtype: 'button',
                 itemId: 'view-edit-form-edit-button',
@@ -89,18 +92,20 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
                 style: {
                     fontSize: '16px',
                     margin: '0 0 0 10px',
-                    padding: '5px 0 0 0'
+                    padding: '4px 0 0 0'
                 },
                 handler: function () {
                     me.fireEvent('edit', me);
                 }
             }];
-        }
 
-        // workaround to set pencil icon directly after title text
-        me.on('render', function () {
-            me.down('header').titleCmp.flex = undefined;
-        }, me, {single: true});
+            // workaround to set pencil icon directly after title text
+            me.on('render', function () {
+                me.down('header').titleCmp.flex = undefined;
+            }, me, {single: true});
+        } else {
+            me.items = viewForm;
+        }
 
         me.callParent(arguments);
 
@@ -118,11 +123,28 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
     },
 
     loadRecord: function (record) {
-        var me = this;
+        var me = this,
+            viewForm = me.getViewForm(),
+            editForm;
 
         Ext.suspendLayouts();
-        me.getViewForm().loadRecord(record);
-        me.getEditForm().loadRecord(record);
+        if (me.displayMode === 'view') {
+            viewForm.loadRecord(record);
+        } else {
+            viewForm.on('beforeshow', function () {
+                viewForm.loadRecord(record);
+            }, me, {single: true});
+        }
+        if (me.hasEditMode) {
+            editForm = me.getEditForm();
+            if (me.displayMode === 'edit') {
+                editForm.on('beforeshow', function () {
+                    editForm.loadRecord(record);
+                }, me, {single: true});
+            } else {
+                editForm.loadRecord(record);
+            }
+        }
         Ext.resumeLayouts(true);
     },
 
@@ -152,7 +174,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
         var me = this,
             editForm;
 
-        if (mode !== me.displayMode && (mode === 'view' || mode === 'edit')) {
+        if (me.hasEditMode && mode !== me.displayMode && (mode === 'view' || mode === 'edit')) {
             Ext.suspendLayouts();
             me.down('#view-edit-form-edit-button').setVisible(mode === 'view');
             me.getLayout().setActiveItem(mode === 'view' ? 0 : 1);
