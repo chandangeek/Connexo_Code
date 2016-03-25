@@ -114,9 +114,24 @@ public class FirmwareCampaignResource {
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN})
-    public Response getDevicesForFirmwareCampaign(@PathParam("id") long firmwareCampaignId, @BeanParam JsonQueryParameters queryParameters){
-        FirmwareCampaign firmwareCampaign = resourceHelper.findFirmwareCampaignOrThrowException(firmwareCampaignId);
-        List<DeviceInFirmwareCampaign> devices = firmwareService.getDevicesForFirmwareCampaign(firmwareCampaign).from(queryParameters).find();
+    public Response getDevicesForFirmwareCampaign(@PathParam("id") long firmwareCampaignId, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters){
+        DevicesInFirmwareCampaignFilter filter = buildFilterFromJsonQuery(jsonQueryFilter).withFirmwareCampaignId(firmwareCampaignId);
+        List<DeviceInFirmwareCampaign> devices = firmwareService.getDevicesForFirmwareCampaign(filter).from(queryParameters).find();
         return Response.ok(PagedInfoList.fromPagedList("devices", deviceInCampaignInfoFactory.from(devices), queryParameters)).build();
     }
+
+    private DevicesInFirmwareCampaignFilter buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter){
+        DevicesInFirmwareCampaignFilter filter = new DevicesInFirmwareCampaignFilter();
+        if (jsonQueryFilter.hasProperty(FilterOption.status.name())) {
+            filter.withStatus(jsonQueryFilter.getStringList(FilterOption.status.name()));
+        }
+        return filter;
+    }
+
+    enum FilterOption {
+        campaign,
+        status
+    }
+
+
 }
