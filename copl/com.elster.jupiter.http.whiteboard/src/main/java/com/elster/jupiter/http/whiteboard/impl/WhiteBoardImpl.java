@@ -57,6 +57,8 @@ public class WhiteBoardImpl extends Application implements BinderProvider, Trans
     private volatile QueryService queryService;
     private volatile HttpAuthenticationService httpAuthenticationService;
 
+    private final Object registrationLock = new Object();
+
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
 
     private List<HttpResource> resources = new CopyOnWriteArrayList<>();
@@ -122,18 +124,22 @@ public class WhiteBoardImpl extends Application implements BinderProvider, Trans
     public void addResource(HttpResource resource) {
         String alias = getAlias(resource.getAlias());
         HttpContext httpContext = new HttpContextImpl(resource.getResolver(), eventAdminHolder, httpAuthenticationService);
-        try {
-            httpService.registerResources(alias, resource.getLocalName(), httpContext);
-            resources.add(resource);
-        } catch (NamespaceException e) {
-            LOGGER.log(Level.SEVERE, "Error while registering " + alias + ": " + e.getMessage(), e);
-            throw new UnderlyingNetworkException(e);
+        synchronized (registrationLock) {
+            try {
+                httpService.registerResources(alias, resource.getLocalName(), httpContext);
+                resources.add(resource);
+            } catch (NamespaceException e) {
+                LOGGER.log(Level.SEVERE, "Error while registering " + alias + ": " + e.getMessage(), e);
+                throw new UnderlyingNetworkException(e);
+            }
         }
     }
 
     public void removeResource(HttpResource resource) {
-        httpService.unregister(getAlias(resource.getAlias()));
-        resources.remove(resource);
+        synchronized (registrationLock) {
+            httpService.unregister(getAlias(resource.getAlias()));
+            resources.remove(resource);
+        }
     }
 
     @Reference(name = "ZApplication", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
