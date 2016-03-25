@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -31,6 +32,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.management.modelmbean.RequiredModelMBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -90,7 +93,10 @@ public class FormulaCrudTest {
 
             ServerFormulaBuilder builder = (ServerFormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
             ExpressionNodeBuilder nodeBuilder = builder.requirement(req);
-            builder.init(nodeBuilder).build();
+            Formula formula = builder.init(nodeBuilder).build();
+            assertThat(formula.getExpressionNode() instanceof ReadingTypeRequirementNode);
+            ReadingTypeRequirementNode reqNode = (ReadingTypeRequirementNode) formula.getExpressionNode();
+            assertThat(reqNode.getReadingTypeRequirement().equals(req));
             context.commit();
         }
     }
