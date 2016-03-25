@@ -41,35 +41,41 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
                 editForm = Ext.applyIf(me.editForm, {itemId: 'edit-form'});
             }
 
-            editForm.buttons = [
-                {
-                    itemId: 'edit-form-save-button',
-                    text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
-                    ui: 'action',
-                    action: 'save',
-                    handler: function () {
-                        me.fireEvent('save', me);
+            editForm.bbar = {
+                xtype: 'container',
+                layout: 'column',
+                defaultType: 'button',
+                padding: '0 0 0 165',
+                items: [
+                    {
+                        itemId: 'edit-form-save-button',
+                        text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
+                        ui: 'action',
+                        action: 'save',
+                        handler: function () {
+                            me.fireEvent('save', me);
+                        }
+                    },
+                    me.editForm.xtype === 'property-form' ? {
+                        itemId: 'edit-form-restore-default-values-button',
+                        text: Uni.I18n.translate('general.restoreToDefault', 'IMT', 'Restore to default'),
+                        iconCls: 'icon-spinner12',
+                        iconAlign: 'left',
+                        handler: function () {
+                            me.getEditForm().restoreAll();
+                        }
+                    } : null,
+                    {
+                        itemId: 'edit-form-cancel-button',
+                        text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
+                        ui: 'link',
+                        action: 'cancel',
+                        handler: function () {
+                            me.switchDisplayMode('view');
+                        }
                     }
-                },
-                me.editForm.xtype === 'property-form' ? {
-                    itemId: 'edit-form-restore-default-values-button',
-                    text: Uni.I18n.translate('general.restoreToDefault', 'IMT', 'Restore to default'),
-                    iconCls: 'icon-spinner12',
-                    iconAlign: 'left',
-                    handler: function () {
-                        me.getEditForm().restoreAll();
-                    }
-                } : null,
-                {
-                    itemId: 'edit-form-cancel-button',
-                    text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
-                    ui: 'link',
-                    action: 'cancel',
-                    handler: function () {
-                        me.switchDisplayMode('view');
-                    }
-                }
-            ];
+                ]
+            };
 
             me.items = [viewForm, editForm];
             me.activeItem = me.displayMode === 'view' ? 0 : 1;
