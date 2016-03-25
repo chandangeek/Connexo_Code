@@ -30,7 +30,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
                 items: me.viewForm
             }
         } else {
-            viewForm = Ext.applyIf(me.viewForm, {itemId: 'view-form'});
+            viewForm = Ext.applyIf(me.viewForm, {itemId: 'view-form', defaults: me.viewDefaults});
         }
 
         if (me.hasEditMode) {
@@ -42,7 +42,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
                     items: me.editForm
                 }
             } else {
-                editForm = Ext.applyIf(me.editForm, {itemId: 'edit-form'});
+                editForm = Ext.applyIf(me.editForm, {itemId: 'edit-form', defaults: me.editDefaults});
             }
 
             editForm.bbar = {
