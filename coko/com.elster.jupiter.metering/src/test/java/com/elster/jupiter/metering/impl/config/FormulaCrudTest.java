@@ -436,7 +436,7 @@ public class FormulaCrudTest {
                 service.newReadingTypeDeliverableBuilder(name, config, readingType, myMode);
 
             ReadingTypeDeliverable deliverable = builder.build(builder.maximum(builder.constant(10), builder.constant(20)));
-            System.out.println(deliverable.getFormula());
+            assertThat(deliverable.getFormula().getExpressionNode().toString().equals("max(constant(10), constant(20))"));
         }
     }
 
