@@ -1,9 +1,11 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
@@ -13,6 +15,7 @@ import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -45,6 +48,9 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile UsagePointDataService usagePointDataService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile License license;
+    private volatile IssueService issueService;
+    private volatile BpmService bpmService;
+    private volatile ServiceCallService serviceCallService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -145,6 +151,21 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.license = license;
     }
 
+    @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -160,6 +181,9 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(estimationService).to(EstimationService.class);
             bind(usagePointDataService).to(UsagePointDataService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
+            bind(issueService).to(IssueService.class);
+            bind(bpmService).to(BpmService.class);
+            bind(serviceCallService).to(ServiceCallService.class);
 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
@@ -174,6 +198,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
+            bind(GoingOnResource.class).to(GoingOnResource.class);
         }
     }
 }
