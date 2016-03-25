@@ -32,6 +32,6 @@ public interface ServerMetrologyConfigurationService extends MetrologyConfigurat
 
     ReadingTypeDeliverableBuilder newReadingTypeDeliverableBuilder(String name, MetrologyConfiguration metrologyConfiguration, ReadingType readingType, Formula.Mode mode);
 
-    ServerFormulaBuilder newFormulaBuilder(Formula.Mode mode);
+    FormulaBuilder newFormulaBuilder(Formula.Mode mode);
 
 }

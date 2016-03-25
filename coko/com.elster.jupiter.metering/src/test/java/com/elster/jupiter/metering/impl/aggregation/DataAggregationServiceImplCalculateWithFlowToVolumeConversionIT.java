@@ -32,7 +32,8 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
+import com.elster.jupiter.metering.impl.config.FormulaBuilder;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -195,7 +196,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         return injector.getInstance(ServerMetrologyConfigurationService.class);
     }
 
-    private static ServerFormulaBuilder newFormulaBuilder() {
+    private static FormulaBuilder newFormulaBuilder() {
         return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
     }
 
@@ -284,16 +285,14 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         System.out.println("simplestNetConsumptionOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ServerFormulaBuilder formulaBuilder = newFormulaBuilder();
-        formulaBuilder.init(
-                formulaBuilder.plus(
-                        formulaBuilder.requirement(production),
-                        formulaBuilder.requirement(consumption)));
+        ReadingTypeDeliverableBuilder builder =
+                getMetrologyConfigurationService().newReadingTypeDeliverableBuilder("consumption", configuration, fifteenMinutesNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
-                this.configuration.addReadingTypeDeliverable(
-                        "consumption",
-                        fifteenMinutesNetConsumption,
-                        formulaBuilder.build());
+                builder.build(builder.plus(
+                        builder.requirement(production),
+                        builder.requirement(consumption)));
+
+
         this.netConsumptionDeliverableId = netConsumption.getId();
         System.out.println("simplestNetConsumptionOfProsumer::NET_CONSUMPTION_DELIVERABLE_ID = " + this.netConsumptionDeliverableId);
 
@@ -389,16 +388,14 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ServerFormulaBuilder formulaBuilder = newFormulaBuilder();
-        formulaBuilder.init(
-                formulaBuilder.plus(
-                        formulaBuilder.requirement(production),
-                        formulaBuilder.requirement(consumption)));
+        ReadingTypeDeliverableBuilder builder =
+                getMetrologyConfigurationService().newReadingTypeDeliverableBuilder("consumption", configuration, monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
-                this.configuration.addReadingTypeDeliverable(
-                        "consumption",
-                        monthlyNetConsumption,
-                        formulaBuilder.build());
+                builder.build(builder.plus(
+                        builder.requirement(production),
+                        builder.requirement(consumption)));
+
+
         this.netConsumptionDeliverableId = netConsumption.getId();
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::NET_CONSUMPTION_DELIVERABLE_ID = " + this.netConsumptionDeliverableId);
 
@@ -503,18 +500,16 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ServerFormulaBuilder formulaBuilder = newFormulaBuilder();
-        formulaBuilder.init(
-                formulaBuilder.plus(
-                        formulaBuilder.requirement(consumption),
-                        formulaBuilder.multiply(
-                                formulaBuilder.requirement(production),
-                                formulaBuilder.constant(BigDecimal.valueOf(2L)))));
+        ReadingTypeDeliverableBuilder builder =
+                getMetrologyConfigurationService().newReadingTypeDeliverableBuilder("consumption", configuration, monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
-                this.configuration.addReadingTypeDeliverable(
-                        "consumption",
-                        monthlyNetConsumption,
-                        formulaBuilder.build());
+                builder.build(builder.plus(
+                        builder.requirement(consumption),
+                        builder.multiply(
+                                builder.requirement(production),
+                                builder.constant(BigDecimal.valueOf(2L)))));
+
+
         this.netConsumptionDeliverableId = netConsumption.getId();
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::NET_CONSUMPTION_DELIVERABLE_ID = " + this.netConsumptionDeliverableId);
 

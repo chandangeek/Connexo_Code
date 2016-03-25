@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Created by igh on 26/02/2016.
  */
-public class FormulaBuilderImpl implements ServerFormulaBuilder {
+public class FormulaBuilderImpl implements FormulaBuilder {
 
     private Formula.Mode mode;
     private DataModel dataModel;

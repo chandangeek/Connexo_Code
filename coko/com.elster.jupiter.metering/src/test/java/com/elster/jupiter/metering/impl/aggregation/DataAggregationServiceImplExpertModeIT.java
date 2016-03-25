@@ -32,7 +32,8 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
+import com.elster.jupiter.metering.impl.config.FormulaBuilder;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -285,7 +286,7 @@ public class DataAggregationServiceImplExpertModeIT {
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
-        ServerFormulaBuilder formulaBuilder = newFormulaBuilder();
+        FormulaBuilder formulaBuilder = newFormulaBuilder();
         formulaBuilder.init(
                 formulaBuilder.multiply(
                         formulaBuilder.constant(BigDecimal.valueOf(40L)),   // calorific value
@@ -399,7 +400,7 @@ public class DataAggregationServiceImplExpertModeIT {
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
-        ServerFormulaBuilder formulaBuilder = newFormulaBuilder();
+        FormulaBuilder formulaBuilder = newFormulaBuilder();
         formulaBuilder.init(
                 formulaBuilder.aggregate(   // Note how the expert is required to define when the aggregation is done
                     formulaBuilder.multiply(
@@ -492,7 +493,7 @@ public class DataAggregationServiceImplExpertModeIT {
         return injector.getInstance(ServerMetrologyConfigurationService.class);
     }
 
-    private static ServerFormulaBuilder newFormulaBuilder() {
+    private static FormulaBuilder newFormulaBuilder() {
         return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.EXPERT);
     }
 
@@ -515,6 +516,12 @@ public class DataAggregationServiceImplExpertModeIT {
 
     private String mRID2GrepPattern(String mRID) {
         return mRID.replace(".", "\\.");
+    }
+
+    private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyConfiguration configuration, ReadingType readingType) {
+        return
+                getMetrologyConfigurationService().newReadingTypeDeliverableBuilder(name, configuration, readingType, Formula.Mode.AUTO);
+
     }
 
 }

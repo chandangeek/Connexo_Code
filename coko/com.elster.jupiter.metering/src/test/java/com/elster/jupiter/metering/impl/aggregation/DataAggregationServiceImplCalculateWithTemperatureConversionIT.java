@@ -32,7 +32,8 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
+import com.elster.jupiter.metering.impl.config.FormulaBuilder;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -273,16 +274,13 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
-        ServerFormulaBuilder formulaBuilder = newFormulaBuilder();
-        formulaBuilder.init(
-                formulaBuilder.plus(
-                        formulaBuilder.requirement(temperature),
-                        formulaBuilder.constant(BigDecimal.TEN)));
+        ReadingTypeDeliverableBuilder builder =
+                newDeliveryBuilder("averageT", configuration, C_daily);
         ReadingTypeDeliverable avgTemperature =
-                this.configuration.addReadingTypeDeliverable(
-                        "averageT",
-                        C_daily,
-                        formulaBuilder.build());
+                builder.build(builder.plus(
+                        builder.requirement(temperature),
+                        builder.constant(BigDecimal.TEN)));
+
         this.deliverableId = avgTemperature.getId();
 
         // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
@@ -361,16 +359,14 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
-        ServerFormulaBuilder formulaBuilder = newFormulaBuilder();
-        formulaBuilder.init(
-                formulaBuilder.plus(
-                        formulaBuilder.requirement(temperature),
-                        formulaBuilder.constant(BigDecimal.TEN)));
+        ReadingTypeDeliverableBuilder builder =
+                newDeliveryBuilder("averageT", configuration, F_daily);
         ReadingTypeDeliverable avgTemperature =
-                this.configuration.addReadingTypeDeliverable(
-                        "averageT",
-                        F_daily,
-                        formulaBuilder.build());
+                builder.build(builder.plus(
+                        builder.requirement(temperature),
+                        builder.constant(BigDecimal.TEN)));
+
+
         this.deliverableId = avgTemperature.getId();
 
         // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
@@ -455,18 +451,15 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.temperature2RequirementId = maxTemperature.getId();
 
         // Setup configuration deliverables
-        ServerFormulaBuilder formulaBuilder = newFormulaBuilder();
-        formulaBuilder.init(
-                formulaBuilder.divide(
-                        formulaBuilder.plus(
-                                formulaBuilder.requirement(minTemperature),
-                                formulaBuilder.requirement(maxTemperature)),
-                        formulaBuilder.constant(BigDecimal.valueOf(2L))));
+        ReadingTypeDeliverableBuilder builder =
+                newDeliveryBuilder("averageT", configuration, K_daily);
         ReadingTypeDeliverable avgTemperature =
-                this.configuration.addReadingTypeDeliverable(
-                        "averageT",
-                        K_daily,
-                        formulaBuilder.build());
+                builder.build(builder.divide(
+                        builder.plus(
+                                builder.requirement(minTemperature),
+                                builder.requirement(maxTemperature)),
+                        builder.constant(BigDecimal.valueOf(2L))));
+
         this.deliverableId = avgTemperature.getId();
 
         // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
@@ -540,7 +533,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         return injector.getInstance(ServerMetrologyConfigurationService.class);
     }
 
-    private static ServerFormulaBuilder newFormulaBuilder() {
+    private static FormulaBuilder newFormulaBuilder() {
         return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
     }
 
@@ -565,6 +558,12 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
     private String mRID2GrepPattern(String mRID) {
         return mRID.replace(".", "\\.");
+    }
+
+    private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyConfiguration configuration, ReadingType readingType) {
+        return
+                getMetrologyConfigurationService().newReadingTypeDeliverableBuilder(name, configuration, readingType, Formula.Mode.AUTO);
+
     }
 
 }

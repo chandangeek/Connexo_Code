@@ -172,7 +172,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
 
     @Override
-    public ServerFormulaBuilder newFormulaBuilder(Formula.Mode mode) {
+    public FormulaBuilder newFormulaBuilder(Formula.Mode mode) {
         return new FormulaBuilderImpl(mode, getDataModel(), getThesaurus());
     }
 
