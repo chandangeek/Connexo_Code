@@ -14,16 +14,23 @@ public class GoingOnInfo {
     public String status;
 
     static Comparator<GoingOnInfo> order() {
+
         return Comparator
                 .comparing(GoingOnInfo::getSeverity)
                 .thenComparing(GoingOnInfo::getDueDate, Comparator.<Instant>naturalOrder().reversed());
     }
 
-    public Instant getDueDate() {
-        return dueDate;
+    /**
+     * for comparator use only
+     */
+    private Instant getDueDate() {
+        return dueDate == null ? Instant.MAX : dueDate;
     }
 
-    public Severity getSeverity() {
-        return severity;
+    /**
+     * for comparator use only
+     */
+    private Severity getSeverity() {
+        return severity == null ? Severity.NONE : severity;
     }
 }
