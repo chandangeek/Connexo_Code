@@ -126,6 +126,8 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_ENABLEMENT_UPDATE_RESTRICTED(2101, Keys.COM_TASK_ENABLEMENT_UPDATE_RESTRICTED, "The communication task configuration is part of shared communication schedule on some devices" +
             " and all communication tasks in that shared communication schedule should have the same connection method, security set, protocol dialect and/or urgency", Level.SEVERE),
     NO_SUCH_COMTASK_ENABLEMENT(2102, Keys.NO_SUCH_COM_TASK_ENABLEMENT, "No comtask enablement with id {0}"),
+    TRACKING_ID_MISSING(2103, Keys.DEVICE_MESSAGE_TRACKING_ID_MISSING, "Tracking id is missing"),
+    TRACKING_CATEGORY_MISSING(2104, Keys.DEVICE_MESSAGE_TRACKING_CATEGORY_MISSING, "Tracking category is missing")
     ;
 
     private final int number;
@@ -281,5 +283,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String READING_OVERFLOW_DETECTED = "reading.overflow";
         public static final String COM_TASK_ENABLEMENT_UPDATE_RESTRICTED = "com.task.enablement.update.restricted";
         public static final String NO_SUCH_COM_TASK_ENABLEMENT = "NoSuchComTaskEnablement";
+        public static final String DEVICE_MESSAGE_TRACKING_ID_MISSING = "TrackingIdMissing";
+        public static final String DEVICE_MESSAGE_TRACKING_CATEGORY_MISSING = "TrackingCategoryMissing";
     }
 }

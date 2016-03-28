@@ -1,5 +1,15 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -15,19 +25,10 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import org.joda.time.DateTimeConstants;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -231,7 +232,8 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
         }
         sqlBuilder.append(" and ct.lastSessionSuccessIndicator = 0");
         this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(true, sqlBuilder);
-        try (PreparedStatement stmnt = sqlBuilder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
+             PreparedStatement stmnt = sqlBuilder.prepare(connection)) {
             try (ResultSet resultSet = stmnt.executeQuery()) {
                 if (resultSet.next()) {
                     return resultSet.getLong(1);
@@ -280,7 +282,8 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
 
     private Map<ComSession.SuccessIndicator, Long> fetchSuccessIndicatorCounters(SqlBuilder builder) {
         Map<ComSession.SuccessIndicator, Long> counters = new HashMap<>();
-        try (PreparedStatement stmnt = builder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
+             PreparedStatement stmnt = builder.prepare(connection)) {
             this.fetchSuccessIndicatorCounters(stmnt, counters);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
@@ -332,7 +335,8 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
     }
 
     private Map<ConnectionTypePluggableClass, List<Long>> fetchConnectionTypeHeatMapCounters(SqlBuilder sqlBuilder) {
-        try (PreparedStatement statement = sqlBuilder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             return this.fetchConnectionTypeHeatMapCounters(statement);
         }
         catch (SQLException ex) {
@@ -415,7 +419,8 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
     }
 
     private Map<DeviceType, List<Long>> fetchDeviceTypeHeatMapCounters(SqlBuilder sqlBuilder) {
-        try (PreparedStatement statement = sqlBuilder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             return this.fetchDeviceTypeHeatMapCounters(statement);
         }
         catch (SQLException ex) {
@@ -470,7 +475,8 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
     }
 
     private Map<ComPortPool, List<Long>> fetchComPortPoolHeatMapCounters(SqlBuilder sqlBuilder) {
-        try (PreparedStatement statement = sqlBuilder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             return this.fetchComPortPoolHeatMapCounters(statement);
         }
         catch (SQLException ex) {

@@ -54,8 +54,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,7 +91,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         inMemoryPersistence.getThreadPrincipalService().set(testUser);
         freezeClock(1970, Calendar.JANUARY, 1); // Experiencing timing issues in tests that set clock back in time and the respective devices need their device life cycle
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("MyTestDeviceType", deviceProtocolPluggableClass);
-        deviceType.save();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigForMessaging");
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);

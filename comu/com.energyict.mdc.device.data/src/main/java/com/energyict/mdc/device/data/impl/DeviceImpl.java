@@ -115,12 +115,14 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -2019,7 +2021,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId) {
-        return new InternalDeviceMessageBuilder(deviceMessageId);
+        return this.newDeviceMessage(deviceMessageId, TrackingCategory.manual);
+    }
+
+    @Override
+    public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId, TrackingCategory trackingCategory) {
+        return new InternalDeviceMessageBuilder(deviceMessageId, trackingCategory);
     }
 
     @Override
@@ -2138,8 +2145,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
         private final DeviceMessageImpl deviceMessage;
 
-        private InternalDeviceMessageBuilder(DeviceMessageId deviceMessageId) {
+        private InternalDeviceMessageBuilder(DeviceMessageId deviceMessageId, TrackingCategory trackingCategory) {
             deviceMessage = DeviceImpl.this.dataModel.getInstance(DeviceMessageImpl.class).initialize(DeviceImpl.this, deviceMessageId);
+            deviceMessage.setTrackingCategory(trackingCategory);
         }
 
         @Override
