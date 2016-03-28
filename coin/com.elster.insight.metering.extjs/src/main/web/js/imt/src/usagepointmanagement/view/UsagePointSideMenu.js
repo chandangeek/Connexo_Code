@@ -18,25 +18,30 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
-                itemId: 'usage-point-overview-link',
-                href: me.router.getRoute('usagepoints/view').buildUrl()
-            },
-            {
-                text: Uni.I18n.translate('general.usagePointAttributes', 'IMT', 'Usage point attributes'),
-                itemId: 'usage-point-attributes-link',
-                href: me.router.getRoute('usagepoints/view/attributes').buildUrl()
-            },
-            {
-                text: Uni.I18n.translate('general.history', 'IMT', 'History'),
-                itemId: 'usage-point-history-link',
-                href: me.router.getRoute('usagepoints/view/history').buildUrl()
-            },
-            {
-                text: Uni.I18n.translate('usagepoint.processes', 'IMT', 'Processes'),
-                privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                itemId: 'usage-point-processes-link',
-                href: me.router.getRoute('usagepoints/view/processes').buildUrl()
+                xtype: 'menu',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
+                        itemId: 'usage-point-overview-link',
+                        href: me.router.getRoute('usagepoints/view').buildUrl()
+                    },
+                    {
+                        text: Uni.I18n.translate('general.usagePointAttributes', 'IMT', 'Usage point attributes'),
+                        itemId: 'usage-point-attributes-link',
+                        href: me.router.getRoute('usagepoints/view/attributes').buildUrl()
+                    },
+                    {
+                        text: Uni.I18n.translate('general.history', 'IMT', 'History'),
+                        itemId: 'usage-point-history-link',
+                        href: me.router.getRoute('usagepoints/view/history').buildUrl()
+                    },
+                    {
+                        text: Uni.I18n.translate('usagepoint.processes', 'IMT', 'Processes'),
+                        privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                        itemId: 'usage-point-processes-link',
+                        href: me.router.getRoute('usagepoints/view/processes').buildUrl()
+                    }
+                ]
             }
         ];
 
