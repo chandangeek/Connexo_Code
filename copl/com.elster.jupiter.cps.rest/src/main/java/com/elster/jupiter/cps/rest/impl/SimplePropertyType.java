@@ -2,6 +2,7 @@ package com.elster.jupiter.cps.rest.impl;
 
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.properties.PropertyType;
+import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -15,6 +16,7 @@ public enum SimplePropertyType implements PropertyType {
     DATE(Date.class),
     TEXT(String.class),
     TIMESTAMP(Instant.class),
+    QUANTITY(Quantity.class),
     ;
 
     private Class typeClass;

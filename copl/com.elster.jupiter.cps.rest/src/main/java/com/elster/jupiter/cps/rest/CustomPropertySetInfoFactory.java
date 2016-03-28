@@ -17,6 +17,8 @@ import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.RangeInstantBuilder;
+import com.elster.jupiter.util.units.Quantity;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -42,6 +44,8 @@ public class CustomPropertySetInfoFactory {
         this.propertyValueInfoService = new PropertyValueInfoService();
         this.propertyValueInfoService.addPropertyValueInfoConverter(new BooleanPropertyValueConverter());
         this.propertyValueInfoService.addPropertyValueInfoConverter(new NumberPropertyValueConverter());
+        this.propertyValueInfoService.addPropertyValueInfoConverter(new InstantPropertyValueConverter());
+        this.propertyValueInfoService.addPropertyValueInfoConverter(new QuantityPropertyValueConverter());
     }
 
     public CustomPropertySetInfo getGeneralInfo(RegisteredCustomPropertySet rcps) {
@@ -86,7 +90,8 @@ public class CustomPropertySetInfoFactory {
             }
             CustomPropertySet<?, ?> cps = rcps.getCustomPropertySet();
             info.properties = cps.getPropertySpecs().stream()
-                    .map(propertySpec -> getPropertyInfo(propertySpec, key -> customPropertySetValue != null ? customPropertySetValue.getProperty(key) : null))
+                    .map(propertySpec -> getPropertyInfo(propertySpec, key -> customPropertySetValue != null ? customPropertySetValue
+                            .getProperty(key) : null))
                     .collect(Collectors.toList());
         }
         return info;
@@ -160,7 +165,8 @@ public class CustomPropertySetInfoFactory {
         if (valueProvider == null) {
             return null;
         }
-        return this.propertyValueInfoService.getConverter(propertySpec).convertValueToInfo(valueProvider.apply(propertySpec.getName()), propertySpec);
+        return this.propertyValueInfoService.getConverter(propertySpec)
+                .convertValueToInfo(valueProvider.apply(propertySpec.getName()), propertySpec);
     }
 
     private Object getDefaultValue(PropertySpec propertySpec) {
@@ -168,7 +174,8 @@ public class CustomPropertySetInfoFactory {
         if (possibleValues == null) {
             return null;
         }
-        return this.propertyValueInfoService.getConverter(propertySpec).convertValueToInfo(possibleValues.getDefault(), propertySpec);
+        return this.propertyValueInfoService.getConverter(propertySpec)
+                .convertValueToInfo(possibleValues.getDefault(), propertySpec);
     }
 
     public CustomPropertySetValues getCustomPropertySetValues(CustomPropertySetInfo<?> info, List<PropertySpec> propertySpecs) {
@@ -185,7 +192,8 @@ public class CustomPropertySetInfoFactory {
             for (CustomPropertySetAttributeInfo property : info.properties) {
                 PropertySpec propertySpec = propertySpecMap.get(property.key);
                 if (propertySpec != null && property.propertyValueInfo != null && property.propertyValueInfo.value != null) {
-                    values.setProperty(property.key, this.propertyValueInfoService.getConverter(propertySpec).convertInfoToValue(property.propertyValueInfo.value, propertySpec));
+                    values.setProperty(property.key, this.propertyValueInfoService.getConverter(propertySpec)
+                            .convertInfoToValue(property.propertyValueInfo.value, propertySpec));
                 }
             }
         }
@@ -197,7 +205,8 @@ public class CustomPropertySetInfoFactory {
         if (valueRangeConflict != null) {
             info.conflictType = valueRangeConflict.getType().name();
             info.message = valueRangeConflict.getMessage();
-            info.conflictAtStart = valueRangeConflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START);
+            info.conflictAtStart = valueRangeConflict.getType()
+                    .equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START);
             info.conflictAtEnd = valueRangeConflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END);
             info.editable = valueRangeConflict.getType().equals(ValuesRangeConflictType.RANGE_INSERTED);
         }
@@ -279,9 +288,99 @@ public class CustomPropertySetInfoFactory {
 
         @Override
         public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
-            if (infoValue != null && !(infoValue instanceof String && Checks.is((String) infoValue).emptyOrOnlyWhiteSpace())) {
+            if (infoValue != null && !(infoValue instanceof String && Checks.is((String) infoValue)
+                    .emptyOrOnlyWhiteSpace())) {
                 return new BigDecimal(infoValue.toString());
             }
+            return null;
+        }
+    }
+
+    static class InstantPropertyValueConverter implements PropertyValueInfoConverter {
+
+        @Override
+        public boolean canProcess(PropertySpec propertySpec) {
+            return propertySpec != null && propertySpec.getValueFactory().getValueType().equals(Instant.class);
+        }
+
+        @Override
+        public PropertyType getPropertyType(PropertySpec propertySpec) {
+            return SimplePropertyType.TIMESTAMP;
+        }
+
+        @Override
+        public Object convertValueToInfo(Object domainValue, PropertySpec propertySpec) {
+            return domainValue;
+        }
+
+        @Override
+        public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
+            if (infoValue != null && (infoValue instanceof Long)) {
+                return Instant.ofEpochMilli((Long) infoValue);
+            }
+            return null;
+        }
+    }
+
+    static class QuantityPropertyValueConverter implements PropertyValueInfoConverter {
+        static class QuantityInfo {
+            public String value;
+            public Integer multiplier;
+            public String unit;
+            public String displayValue;
+        }
+
+        @Override
+        public boolean canProcess(PropertySpec propertySpec) {
+            return propertySpec != null && propertySpec.getValueFactory().getValueType().equals(Quantity.class);
+        }
+
+        @Override
+        public PropertyType getPropertyType(PropertySpec propertySpec) {
+            return SimplePropertyType.QUANTITY;
+        }
+
+        @Override
+        public Object convertValueToInfo(Object domainValue, PropertySpec propertySpec) {
+            QuantityInfo quantityInfo = new QuantityInfo();
+            if (domainValue != null && domainValue instanceof Quantity) {
+                Quantity value = (Quantity) domainValue;
+                quantityInfo.value = value.getValue().toPlainString();
+                quantityInfo.multiplier = value.getMultiplier();
+                quantityInfo.unit = value.getUnit().toString();
+                String[] valueParts = value.toString(true).split(" ");
+                quantityInfo.displayValue = valueParts[1];
+            }
+            return quantityInfo;
+        }
+
+        @Override
+        public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
+            if (infoValue != null && infoValue instanceof Map) {
+                Map value = (Map) infoValue;
+                BigDecimal bigDecimalValue;
+                String unit;
+                int multiplier;
+
+                if (value.get("value") == null) {
+                    bigDecimalValue = new BigDecimal(0);
+                } else {
+                    bigDecimalValue = new BigDecimal(value.get("value").toString());
+                }
+                if (value.get("unit") == null) {
+                    return null;
+                } else {
+                    unit = String.valueOf(value.get("unit"));
+                }
+
+                if (Integer.valueOf(value.get("multiplier").toString()) == null) {
+                    return Quantity.create(bigDecimalValue, unit);
+                }
+
+                multiplier = Integer.valueOf(value.get("multiplier").toString());
+                return Quantity.create(bigDecimalValue, multiplier, unit);
+            }
+
             return null;
         }
     }
@@ -304,7 +403,8 @@ public class CustomPropertySetInfoFactory {
 
         @Override
         public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
-            if (infoValue != null && infoValue instanceof String && !Checks.is((String) infoValue).emptyOrOnlyWhiteSpace()) {
+            if (infoValue != null && infoValue instanceof String && !Checks.is((String) infoValue)
+                    .emptyOrOnlyWhiteSpace()) {
                 return propertySpec.getValueFactory().fromStringValue((String) infoValue);
             }
             return null;
