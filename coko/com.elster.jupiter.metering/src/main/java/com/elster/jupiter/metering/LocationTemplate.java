@@ -7,9 +7,6 @@ import java.util.Map;
 
 public interface LocationTemplate {
 
-    ImmutableList<String> ALLOWED_LOCATION_TEMPLATE_ELEMENTS =
-            ImmutableList.of("#ccod", "#cnam", "#adma", "#loc", "#subloc",
-                    "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip", "#locale");
     long getId();
 
     void remove();

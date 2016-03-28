@@ -18,7 +18,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
     private Map<String, Integer> rankings;
     private final DataModel dataModel;
     private List<TemplateField> templateMembers = new ArrayList<>();
-    public static ImmutableList<String> ALLOWED_LOCATION_TEMPLATE_ELEMENTS =
+    public static final ImmutableList<String> ALLOWED_LOCATION_TEMPLATE_ELEMENTS =
             ImmutableList.of("#ccod", "#cnam", "#adma", "#loc", "#subloc",
                     "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip", "#locale");
 
