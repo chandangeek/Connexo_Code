@@ -8,7 +8,7 @@ Ext.define('Mdc.controller.history.Setup', {
     routeConfig: {
         usagepoints: {
             disabled: true,
-            title: Uni.I18n.translate('general.usagePointsManagement', 'MDC', 'Usage points management'),
+            title: Uni.I18n.translate('general.usagePointsManagement', 'MDC', 'Usage points'),
             route: 'usagepoints',
             items: {
                 add: {
@@ -36,20 +36,12 @@ Ext.define('Mdc.controller.history.Setup', {
                     },
                     items: {
                         edit: {
-                            title: Uni.I18n.translate('general.editUsagePoint', 'MDC', 'Edit usage point'),
+                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                             route: 'edit',
                             controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                             privileges: Mdc.privileges.UsagePoint.admin,
                             disabled: Mdc.privileges.UsagePoint.checkApp('Insight'),
-                            action: 'showEditUsagePoint',
-                            callback: function (route) {
-                                this.getApplication().on('editUsagePointLoaded', function (record) {
-                                    route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('mRID')));
-                                    return true;
-                                }, {single: true});
-
-                                return this;
-                            }
+                            action: 'showEditUsagePoint'
                         },
                         'processes': {
                             title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
