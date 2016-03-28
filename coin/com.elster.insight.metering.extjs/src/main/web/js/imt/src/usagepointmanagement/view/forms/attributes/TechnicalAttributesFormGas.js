@@ -82,10 +82,14 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFo
                         fld.setVisible(me.down('#fld-up-bypass').getValue() == 'YES')
                     }
                 },
-                renderer: function (data) {
-                    var value;
-                    value = Ext.getStore('Imt.usagepointmanagement.store.BypassStatuses').getById(data);
-                    return value.get('displayValue');
+                renderer: function (value) {
+                    var result;
+
+                    if (!Ext.isEmpty(value)) {
+                        result = Ext.getStore('Imt.usagepointmanagement.store.BypassStatuses').getById(value).get('displayValue');
+                    }
+
+                    return result || '-';
                 }
             },
             {
@@ -110,8 +114,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFo
                 xtype: 'threevaluesdisplayfield',
                 name: 'clamped',
                 itemId: 'fld-up-clamped',
-                fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped'),
-
+                fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped')
             },
             {
                 name: 'interruptible',

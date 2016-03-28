@@ -45,7 +45,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             isDependenciesLoaded = Ext.getClassName(mRID) === 'Imt.usagepointmanagement.model.UsagePoint',
-            dependenciesCounter = isDependenciesLoaded ? 1 : 3,
+            dependenciesCounter = isDependenciesLoaded ? 1 : 4,
             showPage = function () {
                 dependenciesCounter--;
                 if (!dependenciesCounter) {
@@ -66,6 +66,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
             mainView.setLoading();
             me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(showPage);
             me.getStore('Imt.usagepointmanagement.store.PhaseCodes').load(showPage);
+            me.getStore('Imt.usagepointmanagement.store.BypassStatuses').load(showPage);
             me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
                 success: function (record) {
                     usagePoint = record;
@@ -116,14 +117,16 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
         var me = this,
             page = me.getPage(),
             usagePoint = page.usagePoint,
-            record = form.getRecord();
+            record = form.getRecord(),
+            customPropertySets;
 
         switch (Ext.getClassName(record)) {
             case 'Imt.usagepointmanagement.model.UsagePoint':
                 usagePoint = record;
                 break;
             case 'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint':
-                usagePoint.customPropertySets().add(record);
+                customPropertySets = usagePoint.customPropertySets();
+                customPropertySets.insert(customPropertySets.find('id', record.getId()), [record]);
                 break;
             default:
                 usagePoint.set('techInfo', record.getData());
