@@ -3,6 +3,7 @@ Ext.define('Mdc.model.DeviceCommand', {
     idProperty: 'id',
     fields: [
         {name: 'trackingId', type: 'string', useNull: true},
+        {name: 'trackingCategory', useNull: true},
         {name: 'category', type: 'string', useNull: true},
         {name: 'status', type: 'auto', useNull: true},
         {name: 'sentDate', type: 'int', useNull: true},
