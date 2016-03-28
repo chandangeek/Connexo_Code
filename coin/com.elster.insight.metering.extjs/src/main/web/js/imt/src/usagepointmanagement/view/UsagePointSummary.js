@@ -7,7 +7,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
     layout: 'form',
     defaults: {
         xtype: 'displayfield',
-        labelWidth: 130
+        labelWidth: 120
     },
 
     router: null,
