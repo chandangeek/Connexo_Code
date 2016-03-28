@@ -3,10 +3,9 @@ package com.elster.jupiter.util.geo;
 import java.sql.*;
 
 import java.math.BigDecimal;
-import oracle.jdbc.OracleConnection;
 import oracle.sql.NUMBER;
 
-public class SpatialCoordinatesFactory{ //extends AbstractValueFactory<SpatialCoordinates> {
+public class SpatialCoordinatesFactory{
 
     public String getDbType() {
         return SpatialCoordinates.SQL_TYPE_NAME;
@@ -25,7 +24,7 @@ public class SpatialCoordinatesFactory{ //extends AbstractValueFactory<SpatialCo
                 BigDecimal longitude = (BigDecimal) pointAttributes[1];
                 return new SpatialCoordinates(new DegreesWorldCoordinate(latitude), new DegreesWorldCoordinate(longitude));
             } catch (SQLException e) {
-                throw new RuntimeException(e); //new ApplicationException(e);
+                throw new RuntimeException(e);
             }
         }
     }
@@ -80,7 +79,7 @@ public class SpatialCoordinatesFactory{ //extends AbstractValueFactory<SpatialCo
 
     private String LATITUDE_LONGITUDE_SEPARATOR = ":";
 
-    //@Override
+
     public SpatialCoordinates fromStringValue(String stringValue) {
         if (stringValue==null || stringValue.length()==0 || stringValue.indexOf(LATITUDE_LONGITUDE_SEPARATOR)==-1) {
             return null;
@@ -94,7 +93,7 @@ public class SpatialCoordinatesFactory{ //extends AbstractValueFactory<SpatialCo
         return new SpatialCoordinates(latitude, longitude);
     }
 
-    //@Override
+
     public String toStringValue(SpatialCoordinates object) {
         if (object==null) {
             return "";
