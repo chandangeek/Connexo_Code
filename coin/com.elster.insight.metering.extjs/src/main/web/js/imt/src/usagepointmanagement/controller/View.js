@@ -22,6 +22,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.store.measurementunits.Capacity',
         'Imt.usagepointmanagement.store.measurementunits.EstimationLoad'
     ],
+
     models: [
         'Imt.usagepointmanagement.model.UsagePoint'
     ],
@@ -63,4 +64,3 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         });
     }
 });
-
