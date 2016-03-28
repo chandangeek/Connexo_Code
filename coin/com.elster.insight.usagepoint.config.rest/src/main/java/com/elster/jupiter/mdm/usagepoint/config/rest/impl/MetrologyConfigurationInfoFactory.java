@@ -20,7 +20,8 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
-import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
+import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.aggregation.ServerExpressionNode;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
@@ -44,7 +45,7 @@ public class MetrologyConfigurationInfoFactory {
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
     }
 
-    public MetrologyConfigurationInfo asInfo(UPMetrologyConfiguration metrologyConfiguration) {
+    public MetrologyConfigurationInfo asInfo(UsagePointMetrologyConfiguration metrologyConfiguration) {
         MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
         info.id = metrologyConfiguration.getId();
         info.name = metrologyConfiguration.getName();
@@ -58,13 +59,9 @@ public class MetrologyConfigurationInfoFactory {
         return info;
     }
 
-    public MetrologyConfigurationInfo asDetailedInfo(UPMetrologyConfiguration meterConfiguration) {
+    public MetrologyConfigurationInfo asDetailedInfo(UsagePointMetrologyConfiguration meterConfiguration) {
         MetrologyConfigurationInfo info = asInfo(meterConfiguration);
-        meterConfiguration.getContracts().
-
-
-
-
+        info.metrologyContracts = meterConfiguration.getContracts().stream().map(this::asDetailedInfo).collect(Collectors.toList());
 
         info.customPropertySets = meterConfiguration.getCustomPropertySets()
                 .stream()
@@ -97,7 +94,7 @@ public class MetrologyConfigurationInfoFactory {
 
     private IdWithNameInfo asInfo(MetrologyContract metrologyContract) {
         IdWithNameInfo info = new IdWithNameInfo();
-        info.id = metrologyContract.getId();
+        info.id = metrologyContract.getMetrologyPurpose().getId();
         info.name = metrologyContract.getMetrologyPurpose().getName();
         return info;
     }
@@ -130,11 +127,10 @@ public class MetrologyConfigurationInfoFactory {
 
 
     private List<ReadingTypeRequirementsInfo> asInfoList(ExpressionNode expressionNode) {
-        ReadingTypeRequirementsInfo info = new ReadingTypeRequirementsInfo();
 
         ReadingTypeVisitor readingTypeVisitor = new ReadingTypeVisitor();
         expressionNode.accept(readingTypeVisitor);
-//        Stream.of(readingTypeVisitor.readingTypeDeliverableNodes.stream().map())
+        return readingTypeVisitor.readingTypeRequirementNodes.stream().map(e -> asInfo(e.getReadingTypeRequirement())).collect(Collectors.toList());
     }
 
     private ReadingTypeRequirementsInfo asInfo(ReadingTypeRequirement requirement) {
@@ -147,12 +143,14 @@ public class MetrologyConfigurationInfoFactory {
          else if(requirement instanceof PartiallySpecifiedReadingType){
             PartiallySpecifiedReadingType partiallySpecifiedReadingType = (PartiallySpecifiedReadingType) requirement;
             info.type = "partiallySpecified";
+            info.readingTypePattern = asInfo(partiallySpecifiedReadingType.getReadingTypeTemplate());
         }
+        return info;
     }
 
     private ReadingTypePatternInfo asInfo(ReadingTypeTemplate template) {
         ReadingTypePatternInfo info = new ReadingTypePatternInfo();
-        info.value = template.
+        info.value = "[*] * A+ (*Wh)";
         return info;
     }
 
