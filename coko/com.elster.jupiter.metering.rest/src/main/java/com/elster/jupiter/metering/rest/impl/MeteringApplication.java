@@ -17,6 +17,8 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 
 import com.google.common.collect.ImmutableSet;
@@ -44,6 +46,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     private volatile MeteringService meteringService;
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
+    private volatile ServiceCallService serviceCallService;
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
 
@@ -55,12 +58,18 @@ public class MeteringApplication extends Application implements TranslationKeyPr
                 MeteringFieldResource.class,
                 ServiceCategoryResource.class,
                 EndDeviceEventTypeResource.class,
+                RestValidationExceptionMapper.class),
                 LocationResource.class);
     }
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 
     @Reference
@@ -149,6 +158,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
+            bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
+            bind(serviceCallService).to(ServiceCallService.class);
         }
     }
 }
