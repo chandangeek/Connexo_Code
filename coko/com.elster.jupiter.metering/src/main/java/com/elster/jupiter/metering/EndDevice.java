@@ -9,7 +9,6 @@ import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.util.geo.SpatialGeometryObject;
 import com.google.common.collect.Range;
 
 import java.time.Instant;

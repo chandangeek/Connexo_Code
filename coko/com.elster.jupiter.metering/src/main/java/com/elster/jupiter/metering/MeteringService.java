@@ -18,8 +18,6 @@ import java.util.Optional;
 @ProviderType
 public interface MeteringService {
     String COMPONENTNAME = "MTR";
-    String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
-    String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
 
     ServiceLocationBuilder newServiceLocation();
 

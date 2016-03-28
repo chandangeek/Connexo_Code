@@ -41,10 +41,10 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -89,7 +89,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
     private volatile LocationTemplate locationTemplate;
-    private static List<TemplateField> locationTemplateMembers;
+    private static ImmutableList<TemplateField> locationTemplateMembers;
+    private static String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
+    private static String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
 
     public MeteringServiceImpl() {
         this.createAllReadingTypes = true;
@@ -373,7 +375,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             locationTemplate
                     .parseTemplate(locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields());
         }
-        locationTemplateMembers = locationTemplate.getTemplateMembers();
+        locationTemplateMembers = ImmutableList.copyOf(locationTemplate.getTemplateMembers());
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
@@ -764,7 +766,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     public LocationTemplate createLocationTemplateDefaultData() {
-        String fields = LocationTemplate.ALLOWED_LOCATION_TEMPLATE_ELEMENTS.stream().
+        String fields = LocationTemplateImpl.ALLOWED_LOCATION_TEMPLATE_ELEMENTS.stream().
                 reduce((s, t) -> s + "," + t).get();
         LocationTemplate defaultlocationTemplate = new LocationTemplateImpl(dataModel).init(fields, fields);
         defaultlocationTemplate.parseTemplate(fields, fields);
