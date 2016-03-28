@@ -22,7 +22,6 @@ public interface MetrologyConfigurationService {
 
     MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
-    UsagePointMetrologyConfigurationBuilder newUsagePointMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
 
@@ -31,6 +30,16 @@ public interface MetrologyConfigurationService {
     Optional<MetrologyConfiguration> findMetrologyConfiguration(String name);
 
     List<MetrologyConfiguration> findAllMetrologyConfigurations();
+
+    UsagePointMetrologyConfigurationBuilder newUsagePointMetrologyConfiguration(String name, ServiceCategory serviceCategory);
+
+    Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(long id);
+
+    Optional<UsagePointMetrologyConfiguration> findAndLockUsagePointMetrologyConfiguration(long id, long version);
+
+    Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(String name);
+
+    List<UsagePointMetrologyConfiguration> findAllUsagePointMetrologyConfigurations();
 
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 

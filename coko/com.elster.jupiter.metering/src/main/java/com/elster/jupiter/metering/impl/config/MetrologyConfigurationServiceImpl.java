@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
@@ -143,6 +144,26 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         UsagePointMetrologyConfigurationBuilderImpl builder = new UsagePointMetrologyConfigurationBuilderImpl(getDataModel());
         builder.init(name, serviceCategory);
         return builder;
+    }
+
+    @Override
+    public Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(long id) {
+        return this.getDataModel().mapper(UsagePointMetrologyConfiguration.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<UsagePointMetrologyConfiguration> findAndLockUsagePointMetrologyConfiguration(long id, long version) {
+        return this.getDataModel().mapper(UsagePointMetrologyConfiguration.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(String name) {
+        return this.getDataModel().mapper(UsagePointMetrologyConfiguration.class).getUnique("name", name);
+    }
+
+    @Override
+    public List<UsagePointMetrologyConfiguration> findAllUsagePointMetrologyConfigurations() {
+        return DefaultFinder.of(UsagePointMetrologyConfiguration.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
     }
 
     @Override
