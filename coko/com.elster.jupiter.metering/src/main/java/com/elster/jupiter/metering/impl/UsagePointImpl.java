@@ -5,7 +5,6 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
@@ -87,9 +86,6 @@ public class UsagePointImpl implements UsagePoint {
     private String readRoute;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String servicePriority;
-
-
-    @SuppressWarnings("unused")
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Instant installationTime;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
@@ -340,8 +336,20 @@ public class UsagePointImpl implements UsagePoint {
     public void delete() {
         this.removeMetrologyConfigurationCustomPropertySetValues();
         this.removeServiceCategoryCustomPropertySetValues();
+        this.removeDetail();
+        this.removeMeterActivations();
         dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
+    }
+
+    private void removeDetail() {
+        List<UsagePointDetailImpl> detailList = this.getDetail(Range.all());
+        detailList.forEach(dataModel::remove);
+    }
+
+    private void removeMeterActivations() {
+        List<MeterActivationImpl> maList = this.getMeterActivations();
+        maList.forEach(dataModel::remove);
     }
 
     private void removeMetrologyConfigurationCustomPropertySetValues() {
