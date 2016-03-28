@@ -49,7 +49,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
                 xtype: 'container',
                 layout: 'column',
                 defaultType: 'button',
-                padding: '0 0 0 165',
+                padding: '0 0 0 ' + (me.editDefaults && me.editDefaults.labelWidth ? me.editDefaults.labelWidth : 100 + 15),
                 items: [
                     {
                         itemId: 'edit-form-save-button',
