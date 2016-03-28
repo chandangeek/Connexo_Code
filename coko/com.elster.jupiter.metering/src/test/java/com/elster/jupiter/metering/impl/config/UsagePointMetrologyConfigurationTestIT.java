@@ -15,8 +15,12 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.AfterClass;
@@ -31,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointMetrologyConfigurationTestIT {
 
+    private static final String DEFAULT_SEARCH_PROPERTY = "usagePointRequirementSearchableProperty";
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
 
     @Rule
@@ -54,6 +59,14 @@ public class UsagePointMetrologyConfigurationTestIT {
 
     private ServiceCategory getServiceCategory() {
         return inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.GAS).get();
+    }
+
+    private SearchablePropertyValue.ValueBean getSearchablePropertyValueBean() {
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+        valueBean.propertyName = DEFAULT_SEARCH_PROPERTY;
+        valueBean.operator = SearchablePropertyOperator.EQUAL;
+        valueBean.values = Collections.singletonList("value");
+        return valueBean;
     }
 
     @Test
@@ -214,5 +227,81 @@ public class UsagePointMetrologyConfigurationTestIT {
                 .withReadingType(readingType);
         assertThat(readingTypeRequirement.getName()).isEqualTo(name);
         assertThat(readingTypeRequirement.getMetrologyConfiguration()).isEqualTo(metrologyConfiguration);
+    }
+
+    @Test
+    @Transactional
+    public void testCanAddUsagePointRequirement() {
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("config", getServiceCategory())
+                .create();
+        UsagePointRequirement usagePointRequirement = metrologyConfiguration.addUsagePointRequirement(getSearchablePropertyValueBean());
+
+        SearchablePropertyValue.ValueBean valueBean = usagePointRequirement.toValueBean();
+        assertThat(valueBean.operator).isEqualTo(SearchablePropertyOperator.EQUAL);
+        assertThat(valueBean.propertyName).isEqualTo(DEFAULT_SEARCH_PROPERTY);
+        assertThat(valueBean.values).containsExactly("value");
+    }
+
+    @Test
+    @Transactional
+    public void testCanNotAddUsagePointRequirementWithTheSamePropertyTwice() {
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("config", getServiceCategory())
+                .create();
+        metrologyConfiguration.addUsagePointRequirement(getSearchablePropertyValueBean());
+        metrologyConfiguration.addUsagePointRequirement(getSearchablePropertyValueBean());
+
+        assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(1);
+    }
+
+    @Test
+    @Transactional
+    public void testCanUpdateUsagePointRequirement() {
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("config", getServiceCategory())
+                .create();
+        SearchablePropertyValue.ValueBean valueBean = getSearchablePropertyValueBean();
+        metrologyConfiguration.addUsagePointRequirement(valueBean);
+        valueBean.values = Collections.singletonList("changed");
+        valueBean.operator = SearchablePropertyOperator.NOT_EQUAL;
+        metrologyConfiguration.addUsagePointRequirement(valueBean);
+
+        metrologyConfiguration = getMetrologyConfigurationService()
+                .findUsagePointMetrologyConfiguration(metrologyConfiguration.getId())
+                .get();
+        assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(1);
+        valueBean = metrologyConfiguration.getUsagePointRequirements().get(0).toValueBean();
+        assertThat(valueBean.propertyName).isEqualTo(DEFAULT_SEARCH_PROPERTY);
+        assertThat(valueBean.values).contains("changed");
+        assertThat(valueBean.operator).isEqualTo(SearchablePropertyOperator.NOT_EQUAL);
+    }
+
+    @Test
+    @Transactional
+    public void testCanRemoveUsagePointRequirement() {
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("config", getServiceCategory())
+                .create();
+
+        SearchablePropertyValue.ValueBean valueBean = getSearchablePropertyValueBean();
+        UsagePointRequirement requirement1 = metrologyConfiguration.addUsagePointRequirement(valueBean);
+
+        valueBean.propertyName = "requirement2";
+        valueBean.values = Collections.singletonList("some");
+        valueBean.operator = SearchablePropertyOperator.NOT_EQUAL;
+        metrologyConfiguration.addUsagePointRequirement(valueBean);
+        assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(2);
+
+        metrologyConfiguration = getMetrologyConfigurationService()
+                .findUsagePointMetrologyConfiguration(metrologyConfiguration.getId())
+                .get();
+        metrologyConfiguration.removeUsagePointRequirement(requirement1);
+
+        assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(1);
+        valueBean = metrologyConfiguration.getUsagePointRequirements().get(0).toValueBean();
+        assertThat(valueBean.propertyName).isEqualTo("requirement2");
+        assertThat(valueBean.values).containsExactly("some");
+        assertThat(valueBean.operator).isEqualTo(SearchablePropertyOperator.NOT_EQUAL);
     }
 }

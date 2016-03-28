@@ -56,7 +56,8 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
         METROLOGY_CONTRACTS("metrologyContracts"),
         METER_ROLES("meterRoles"),
         DELIVERABLES("deliverables"),
-        REQUIREMENT_TO_ROLE_REFERENCES("requirementToRoleReferences"),;
+        REQUIREMENT_TO_ROLE_REFERENCES("requirementToRoleReferences"),
+        USAGE_POINT_REQUIREMENTS("usagePointRequirements"),;
 
         private final String javaFieldName;
 

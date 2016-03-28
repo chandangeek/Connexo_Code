@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
@@ -53,6 +54,8 @@ import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateAttributeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateAttributeValueImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
+import com.elster.jupiter.metering.impl.config.UsagePointRequirementImpl;
+import com.elster.jupiter.metering.impl.config.UsagePointRequirementValue;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -893,9 +896,9 @@ public enum TableSpecs {
             table.column("CONSTANTVALUE").number().map("constantValue").add();
 
             // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
-            Column readingTypeDeliverableColumn = table.column("READINGTYPE_DELIVERABLE").number().add();
+            table.column("READINGTYPE_DELIVERABLE").number().add();
             // ReadingTypeRequirementNodeImpl readingTypeRequirement value
-            Column readingTypeRequirementColumn = table.column("READINGTYPE_REQUIREMENT").number().add();
+            table.column("READINGTYPE_REQUIREMENT").number().add();
 
             table.primaryKey("MTR_PK_FORMULA_NODE").on(idColumn).add();
             table.foreignKey("MTR_VALIDCHILD").references(MTR_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
@@ -930,7 +933,7 @@ public enum TableSpecs {
     MTR_SERVICECAT_METERROLE_USAGE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ServiceCategoryMeterRoleUsage.class);
+            Table<ServiceCategoryMeterRoleUsage> table = dataModel.addTable(name(), ServiceCategoryMeterRoleUsage.class);
             table.map(ServiceCategoryMeterRoleUsage.class);
             Column serviceCategory = table.column(ServiceCategoryMeterRoleUsage.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
             Column meterRole = table.column(ServiceCategoryMeterRoleUsage.Fields.METERROLE.name()).varChar(NAME_LENGTH).notNull().add();
@@ -955,7 +958,7 @@ public enum TableSpecs {
     MTR_M_CONFIG_ROLE_USAGE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), MetrologyConfigurationMeterRoleUsageImpl.class);
+            Table<MetrologyConfigurationMeterRoleUsageImpl> table = dataModel.addTable(name(), MetrologyConfigurationMeterRoleUsageImpl.class);
             table.map(MetrologyConfigurationMeterRoleUsageImpl.class);
 
             Column metrologyConfigColumn = table.column(MetrologyConfigurationMeterRoleUsageImpl.Fields.METROLOGY_CONFIGURATION.name())
@@ -987,7 +990,7 @@ public enum TableSpecs {
     MTR_RT_TEMPLATE {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ReadingTypeTemplate.class);
+            Table<ReadingTypeTemplate> table = dataModel.addTable(name(), ReadingTypeTemplate.class);
             table.map(ReadingTypeTemplateImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
@@ -1009,7 +1012,7 @@ public enum TableSpecs {
     MTR_RT_TEMPLATE_ATTR {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ReadingTypeTemplateAttribute.class);
+            Table<ReadingTypeTemplateAttribute> table = dataModel.addTable(name(), ReadingTypeTemplateAttribute.class);
             table.map(ReadingTypeTemplateAttributeImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
@@ -1045,7 +1048,7 @@ public enum TableSpecs {
     MTR_RT_TEMPLATE_ATTR_VALUE {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ReadingTypeTemplateAttributeValueImpl.class);
+            Table<ReadingTypeTemplateAttributeValueImpl> table = dataModel.addTable(name(), ReadingTypeTemplateAttributeValueImpl.class);
             table.map(ReadingTypeTemplateAttributeValueImpl.class);
 
             Column attrColumn = table
@@ -1074,7 +1077,7 @@ public enum TableSpecs {
     MTR_RT_REQUIREMENT {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ReadingTypeRequirement.class);
+            Table<ReadingTypeRequirement> table = dataModel.addTable(name(), ReadingTypeRequirement.class);
             table.map(ReadingTypeRequirementImpl.IMPLEMENTERS);
 
             Column idColumn = table.addAutoIdColumn();
@@ -1122,7 +1125,7 @@ public enum TableSpecs {
     MTR_RT_REQUIREMENT_ATTR_VALUE {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), PartiallySpecifiedReadingTypeAttributeValueImpl.class);
+            Table<PartiallySpecifiedReadingTypeAttributeValueImpl> table = dataModel.addTable(name(), PartiallySpecifiedReadingTypeAttributeValueImpl.class);
             table.map(PartiallySpecifiedReadingTypeAttributeValueImpl.class);
 
             Column requirementColumn = table
@@ -1157,7 +1160,7 @@ public enum TableSpecs {
     MTR_REQUIREMENT_2_METER_ROLE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ReadingTypeRequirementMeterRoleUsage.class);
+            Table<ReadingTypeRequirementMeterRoleUsage> table = dataModel.addTable(name(), ReadingTypeRequirementMeterRoleUsage.class);
             table.map(ReadingTypeRequirementMeterRoleUsage.class);
 
             Column meterRoleColumn = table.column(ReadingTypeRequirementMeterRoleUsage.Fields.METER_ROLE.name())
@@ -1186,7 +1189,7 @@ public enum TableSpecs {
     MTR_METROLOGY_PURPOSE {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), MetrologyPurpose.class);
+            Table<MetrologyPurpose> table = dataModel.addTable(name(), MetrologyPurpose.class);
             table.map(MetrologyPurposeImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
@@ -1217,7 +1220,7 @@ public enum TableSpecs {
     MTR_METROLOGY_CONTRACT {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), MetrologyContract.class);
+            Table<MetrologyContract> table = dataModel.addTable(name(), MetrologyContract.class);
             table.map(MetrologyContractImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
@@ -1257,7 +1260,7 @@ public enum TableSpecs {
     MTR_RT_DELIVERABLE {
         @Override
         void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), ReadingTypeDeliverable.class);
+            Table<ReadingTypeDeliverable> table = dataModel.addTable(name(), ReadingTypeDeliverable.class);
             table.map(ReadingTypeDeliverableImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
@@ -1308,7 +1311,7 @@ public enum TableSpecs {
     MTR_CONTRACT_TO_DELIVERABLE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table table = dataModel.addTable(name(), MetrologyContractReadingTypeDeliverableUsage.class);
+            Table<MetrologyContractReadingTypeDeliverableUsage> table = dataModel.addTable(name(), MetrologyContractReadingTypeDeliverableUsage.class);
             table.map(MetrologyContractReadingTypeDeliverableUsage.class);
 
             Column metrologyContractColumn = table.column(MetrologyContractReadingTypeDeliverableUsage.Fields.METROLOGY_CONTRACT.name())
@@ -1332,6 +1335,76 @@ public enum TableSpecs {
                     .references(ReadingTypeDeliverable.class)
                     .on(deliverableColumn)
                     .map(MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName())
+                    .add();
+        }
+    },
+    MTR_UP_REQUIREMENT {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointRequirement> table = dataModel.addTable(name(), UsagePointRequirement.class);
+            table.map(UsagePointRequirementImpl.class);
+
+            Column metrologyConfigurationColumn = table.column(UsagePointRequirementImpl.Fields.METROLOGY_CONFIGURATION.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column searchablePropertyColumn = table.column(UsagePointRequirementImpl.Fields.SEARCHABLE_PROPERTY.name())
+                    .varChar(Table.SHORT_DESCRIPTION_LENGTH)
+                    .notNull()
+                    .map(UsagePointRequirementImpl.Fields.SEARCHABLE_PROPERTY.fieldName())
+                    .add();
+            table.column(UsagePointRequirementImpl.Fields.OPERATOR.name())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2ENUM)
+                    .map(UsagePointRequirementImpl.Fields.OPERATOR.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_UP_REQUIREMENT_PK").on(metrologyConfigurationColumn, searchablePropertyColumn).add();
+            table.foreignKey("MTR_UP_REQUIREMENT_2_CONFIG")
+                    .on(metrologyConfigurationColumn)
+                    .references(UsagePointMetrologyConfiguration.class)
+                    .map(UsagePointRequirementImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .reverseMap(MetrologyConfigurationImpl.Fields.USAGE_POINT_REQUIREMENTS.fieldName())
+                    .composition()
+                    .onDelete(CASCADE)
+                    .add();
+        }
+    },
+    MTR_UP_REQUIREMENT_VALUE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointRequirementValue> table = dataModel.addTable(name(), UsagePointRequirementValue.class);
+            table.map(UsagePointRequirementValue.class);
+            Column metrologyConfigurationColumn = table.column(UsagePointRequirementImpl.Fields.METROLOGY_CONFIGURATION.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column searchablePropertyColumn = table.column(UsagePointRequirementImpl.Fields.SEARCHABLE_PROPERTY.name())
+                    .varChar(Table.SHORT_DESCRIPTION_LENGTH)
+                    .notNull()
+                    .add();
+            Column positionColumn = table.column(UsagePointRequirementValue.Fields.POSITION.name())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INT)
+                    .map(UsagePointRequirementValue.Fields.POSITION.fieldName())
+                    .add();
+            table.column(UsagePointRequirementValue.Fields.VALUE.name())
+                    .varChar(Table.SHORT_DESCRIPTION_LENGTH)
+                    .notNull()
+                    .map(UsagePointRequirementValue.Fields.VALUE.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_UP_REQUIREMENT_VALUE_PK").on(metrologyConfigurationColumn, searchablePropertyColumn, positionColumn).add();
+            table.foreignKey("MTR_UP_REQ_VALUE_2_REQ")
+                    .on(metrologyConfigurationColumn, searchablePropertyColumn)
+                    .references(UsagePointRequirement.class)
+                    .map(UsagePointRequirementValue.Fields.USAGE_POINT_REQUIREMENT.fieldName())
+                    .reverseMap(UsagePointRequirementImpl.Fields.CONDITION_VALUES.fieldName())
+                    .reverseMapOrder(UsagePointRequirementValue.Fields.POSITION.fieldName())
+                    .composition()
+                    .onDelete(CASCADE)
                     .add();
         }
     },
