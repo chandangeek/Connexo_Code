@@ -166,7 +166,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         }
         InstallerImpl installer = new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, messageService, createAllReadingTypes, requiredReadingTypes, clock);
         installer.install();
-        new CreateLocationMemberTableOperation(dataModel,locationTemplate).execute();
+        new CreateLocationMemberTableOperation(dataModel, locationTemplate).execute();
         installer.addDefaultData();
     }
 
@@ -365,11 +365,17 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public final void activate(BundleContext context) {
 
         if (dataModel != null && context != null) {
-            String locationTemplateFields = context.getProperty(LOCATION_TEMPLATE).trim();
-            String locationTemplateMandatoryFields = context.getProperty(LOCATION_TEMPLATE_MANDATORY_FIELDS).trim();
-            locationTemplate = new LocationTemplateImpl(dataModel).init(locationTemplateFields, locationTemplateMandatoryFields);
-            locationTemplate
-                    .parseTemplate(locationTemplateFields, locationTemplateMandatoryFields);
+            String locationTemplateFields = context.getProperty(LOCATION_TEMPLATE);
+            String locationTemplateMandatoryFields = context.getProperty(LOCATION_TEMPLATE_MANDATORY_FIELDS);
+            if (locationTemplateFields != null && locationTemplateMandatoryFields != null) {
+                locationTemplateFields = locationTemplateFields.trim();
+                locationTemplateMandatoryFields = locationTemplateFields.trim();
+                locationTemplate = new LocationTemplateImpl(dataModel).init(locationTemplateFields, locationTemplateMandatoryFields);
+                locationTemplate
+                        .parseTemplate(locationTemplateFields, locationTemplateMandatoryFields);
+            }else{
+                throw new IllegalArgumentException("Bad Location Template");
+            }
         } else if (dataModel.isInstalled() && getLocationTemplateFromDB().isPresent()) {
             locationTemplate = getLocationTemplateFromDB().get();
             locationTemplate
@@ -685,10 +691,10 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
-    public Optional<List<String>> getFormattedLocationMembers(long id){
+    public Optional<List<String>> getFormattedLocationMembers(long id) {
         List<LocationMember> members = dataModel.query(LocationMember.class).select(Operator.EQUAL.compare("locationId", id));
         List<String> formattedLocation = new ArrayList<>();
-        if(!members.isEmpty()){
+        if (!members.isEmpty()) {
             LocationMember member = members.get(0);
             Map<String, String> memberValues = new HashMap<>();
             memberValues.put("countryCode", member.getCountryCode());
@@ -776,13 +782,13 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public GeoCoordinates createGeoCoordinates(String coordinates) {
         GeoCoordinatesImpl geoCoordinates = GeoCoordinatesImpl
-                .from(dataModel,new SpatialCoordinatesFactory().fromStringValue(coordinates));
+                .from(dataModel, new SpatialCoordinatesFactory().fromStringValue(coordinates));
         geoCoordinates.doSave();
         return geoCoordinates;
     }
 
     @Override
-    public Optional<GeoCoordinates> findGeoCoordinates(long id){
+    public Optional<GeoCoordinates> findGeoCoordinates(long id) {
         return dataModel.mapper(GeoCoordinates.class).getOptional(id);
     }
 
@@ -805,7 +811,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public Optional<GeoCoordinates> findUsagePointGeoCoordinates(long id) {
-        return findUsagePoint(id).isPresent() ? findUsagePoint(id).get().getGeoCoordinates(): Optional.empty();
+        return findUsagePoint(id).isPresent() ? findUsagePoint(id).get().getGeoCoordinates() : Optional.empty();
     }
 
     @SuppressWarnings("unchecked")

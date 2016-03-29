@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.inject.Inject;
+import java.time.Instant;
 
 
 public class GeoCoordinatesImpl implements GeoCoordinates {
@@ -14,22 +15,11 @@ public class GeoCoordinatesImpl implements GeoCoordinates {
     private long id;
     private final DataModel dataModel;
     private SpatialCoordinates coordinates;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
 
-    //  private String coordLat;
-    //  private String coordLong;
-    /*private final String getSDOCoordinatesFunction=
-            "create or replace function get_coordinates(longitude in number, \n" +
-                    "                                           latitude in number)\n" +
-                    "return MDSYS.SDO_GEOMETRY deterministic is\n" +
-                    "begin\n" +
-                    "     return MDSYS.SDO_GEOMETRY(\n" +
-                    "     2001\n" +
-                    "    ,8307 -- SRID\n" +
-                    "    ,MDSYS.SDO_POINT_TYPE(longitude, latitude, NULL),NULL, NULL);\n" +
-                    "end;\n" +
-                    "/";
-
-*/
     @Inject
     GeoCoordinatesImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -58,6 +48,21 @@ public class GeoCoordinatesImpl implements GeoCoordinates {
     @Override
     public void setCoordinates(SpatialCoordinates coordinates) {
         this.coordinates = coordinates;
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public Instant getModTime() {
+        return modTime;
     }
 
     void doSave() {

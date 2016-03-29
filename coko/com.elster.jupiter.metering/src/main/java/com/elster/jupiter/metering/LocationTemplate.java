@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering;
 
-import com.google.common.collect.ImmutableList;
-
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +25,12 @@ public interface LocationTemplate {
     List<TemplateField> getTemplateMembers();
 
     void setTemplateMembers(List<TemplateField> templateMembers);
+
+    long getVersion();
+
+    Instant getCreateTime();
+
+    Instant getModTime();
 
     interface TemplateField {
         int getRanking();

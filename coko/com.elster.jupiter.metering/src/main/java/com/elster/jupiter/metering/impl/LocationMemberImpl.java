@@ -1,10 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -28,8 +25,10 @@ public class LocationMemberImpl implements LocationMember {
     private boolean defaultLocation;
     private String locale;
     private final DataModel dataModel;
-    private Instant createDate;
-    private Instant modDate;
+    private Instant createTime;
+    private Instant modTime;
+    private long version;
+    private String userName;
 
     @Inject
     LocationMemberImpl(DataModel dataModel) {
@@ -166,6 +165,21 @@ public class LocationMemberImpl implements LocationMember {
     @Override
     public boolean isDefaultLocation() {
         return defaultLocation;
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public Instant getModTime() {
+        return modTime;
     }
 
     @Override

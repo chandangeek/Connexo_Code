@@ -1,10 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.impl.config.Installer;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -18,6 +20,10 @@ public final class LocationTemplateImpl implements LocationTemplate {
     private Map<String, Integer> rankings;
     private final DataModel dataModel;
     private List<TemplateField> templateMembers = new ArrayList<>();
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
     public static final ImmutableList<String> ALLOWED_LOCATION_TEMPLATE_ELEMENTS =
             ImmutableList.of("#ccod", "#cnam", "#adma", "#loc", "#subloc",
                     "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip", "#locale");
@@ -102,10 +108,10 @@ public final class LocationTemplateImpl implements LocationTemplate {
                 });
 
             } else {
-                throw new IllegalArgumentException("Bad Template");
+                throw new IllegalArgumentException("Bad Location Template");
             }
         } else {
-            throw new IllegalArgumentException("Bad Template");
+            throw new IllegalArgumentException("Bad Location Template");
         }
     }
 
@@ -190,6 +196,21 @@ public final class LocationTemplateImpl implements LocationTemplate {
     @Override
     public void setTemplateMembers(List<TemplateField> templateMembers) {
         this.templateMembers = templateMembers;
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public Instant getModTime() {
+        return modTime;
     }
 
     private static final class TemplateFieldImpl implements TemplateField {
