@@ -264,7 +264,6 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
         this.ratedCurrent = ratedCurrent;
     }
 
-
     public Optional<Quantity> getEstimatedLoad() {
         return Optional.ofNullable(estimatedLoad);
     }
@@ -274,7 +273,7 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     }
 
     public Optional<Quantity> getNominalVoltage() {
-        return Optional.ofNullable(estimatedLoad);
+        return Optional.ofNullable(nominalVoltage);
     }
 
     public void setNominalVoltage(Quantity nominalVoltage) {
