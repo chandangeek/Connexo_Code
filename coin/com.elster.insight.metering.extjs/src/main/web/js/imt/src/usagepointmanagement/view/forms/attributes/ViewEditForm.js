@@ -171,7 +171,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
     clearInvalid: function () {
         var me = this,
             editForm = me.getEditForm(),
-            form = editForm.markInvalid
+            form = editForm.clearInvalid
                 ? editForm
                 : editForm.getForm();
 
