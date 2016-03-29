@@ -152,10 +152,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
 
     getRecord: function () {
         var me = this,
-            editForm = me.getEditForm();
+            editForm = me.getEditForm(),
+            record = Ext.clone(editForm.getRecord());
 
-        editForm.updateRecord();
-        return editForm.getRecord();
+        editForm.updateRecord(record);
+        return record;
     },
 
     markInvalid: function (errors) {
