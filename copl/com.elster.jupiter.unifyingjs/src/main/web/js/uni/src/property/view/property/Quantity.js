@@ -108,9 +108,9 @@ Ext.define('Uni.property.view.property.Quantity', {
         var me = this;
 
         if (Ext.isObject(value)) {
-            return '' + (value.value || '') + (value.displayValue || '')
+            return ('' + (value.value || '') + (value.displayValue ? ' ' + value.displayValue : '') || '-');
         } else {
-            return '';
+            return '-';
         }
     }
 });
