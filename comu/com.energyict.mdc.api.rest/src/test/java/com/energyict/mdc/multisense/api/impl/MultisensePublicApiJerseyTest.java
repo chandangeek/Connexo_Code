@@ -84,6 +84,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
@@ -129,7 +130,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     @Mock
     DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
-    Clock clock;
+    Clock clock = Clock.fixed(LocalDateTime.of(2016, 3, 20, 16, 0, 0)
+            .toInstant(ZoneOffset.UTC), ZoneId.systemDefault());
     @Mock
     ProtocolPluggableService protocolPluggableService;
     @Mock
@@ -634,6 +636,9 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");
         when(usagePoint.getServicePriority()).thenReturn("service priority");
         when(meteringService.findUsagePoint(id)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != 2L)))).thenReturn(Optional
+                .empty());
+        when(meteringService.findAndLockUsagePointByIdAndVersion(id, 2L)).thenReturn(Optional.of(usagePoint));
         return usagePoint;
     }
 

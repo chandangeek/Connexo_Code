@@ -4,8 +4,10 @@ import com.elster.jupiter.metering.UsagePoint;
 
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
 
@@ -56,6 +59,36 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<String>get("$.servicePriority")).isEqualTo("service priority");
         assertThat(model.<String>get("$.link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("$.link.href")).isEqualTo("http://localhost:9998/usagepoints/31");
+    }
+
+    @Test
+    public void testUpdateUsagePoint() throws Exception {
+        Instant now = Instant.now(clock);
+        UsagePointInfo info = new UsagePointInfo();
+        info.id = 999L;
+        info.version = 2L;
+        info.aliasName = "alias";
+        info.description = "desc";
+        info.installationTime = now;
+        info.location = "here";
+        info.mrid = "mmmmm";
+        info.name = "naam";
+        info.outageRegion = "outage";
+        info.serviceDeliveryRemark = "remark";
+        info.servicePriority = "prio1";
+
+        UsagePoint usagePoint = mockUsagePoint(11L, "usage point");
+        Response response = target("/usagepoints/11").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(usagePoint).setName("naam");
+        verify(usagePoint).setAliasName("alias");
+        verify(usagePoint).setDescription("desc");
+        verify(usagePoint).setInstallationTime(now);
+        verify(usagePoint).setMRID("mmmmm");
+        verify(usagePoint).setOutageRegion("outage");
+        verify(usagePoint).setServiceDeliveryRemark("remark");
+        verify(usagePoint).setServicePriority("prio1");
+        verify(usagePoint).update();
     }
 
     @Test
