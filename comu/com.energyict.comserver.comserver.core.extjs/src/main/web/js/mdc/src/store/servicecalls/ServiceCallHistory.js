@@ -12,7 +12,7 @@ Ext.define('Mdc.store.servicecalls.ServiceCallHistory', {
         },
 
         setUrl: function (mRID) {
-            this.url = '/api/ddr/devices/' + mRID + '/servicecallhistory';
+            this.url = '/api/ddr/devices/' + encodeURIComponent(mRID) + '/servicecallhistory';
         }
     }
 });

@@ -23,7 +23,11 @@ Ext.define('Mdc.view.setup.servicecalls.RunningServiceCallsPreviewContainer', {
         var me = this;
         me.grid = {
             xtype: 'servicecalls-grid',
-            store: me.store
+            store: me.store,
+            menuItemId: 'device-service-calls-action-menu',
+            itemId: 'running-service-calls-grid',
+            cancelAllHidden: false,
+            usesExactCount: true
         };
 
 

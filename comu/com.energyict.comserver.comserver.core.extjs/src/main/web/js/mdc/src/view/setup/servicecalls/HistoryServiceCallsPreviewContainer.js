@@ -23,7 +23,9 @@ Ext.define('Mdc.view.setup.servicecalls.HistoryServiceCallsPreviewContainer', {
         var me = this;
         me.grid = {
             xtype: 'servicecalls-grid',
-            store: me.store
+            store: me.store,
+            actionMenuHidden: true,
+            usesExactCount: true
         };
 
 

@@ -33,6 +33,10 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
         {
             ref: 'serviceCallsSetup',
             selector: 'service-calls-setup'
+        },
+        {
+            ref: 'runningServiceCallsGrid',
+            selector: '#running-service-calls-grid'
         }
     ],
 
@@ -43,6 +47,12 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
         this.control({
             'service-calls-setup #device-service-calls-tab-panel': {
                 tabchange: this.onTabChange
+            },
+            '#device-service-calls-action-menu': {
+                click: this.chooseAction
+            },
+            'cancel-all-action-menu': {
+                click: this.cancelAllAction
             }
         });
     },
@@ -128,6 +138,103 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
         filter.toDate = date;
 
         return filter;
+    },
+
+    chooseAction: function (menu, item) {
+        var me = this;
+
+        switch (item.action) {
+            case 'cancel':
+                me.cancelServiceCall(menu.record);
+        }
+    },
+
+    cancelServiceCall: function (record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
+                cancelText: Uni.I18n.translate('general.no', 'MDC', 'No')
+            }),
+            store = Ext.getStore('Mdc.store.servicecalls.RunningServiceCalls'),
+            serviceCallState = record.get('state'),
+            router = me.getController('Uni.controller.history.Router');
+
+        record.setProxy(
+            {
+                type: 'rest',
+                url: '/api/ddr/devices/' + encodeURIComponent(router.arguments.mRID) + '/runningservicecalls',
+                timeout: 120000,
+                reader: {
+                    type: 'json'
+                }
+            });
+        confirmationWindow.show(
+            {
+                msg: Uni.I18n.translate('device.servicecall.remove.msg', 'MDC', 'This service call will be canceled and no longer be running. Do you wish to continue?'),
+                title: Uni.I18n.translate('general.cancelX', 'MDC', "Cancel '{0}'?", [record.data.name]),
+                fn: function (state) {
+                    if (state === 'confirm') {
+                        serviceCallState.id = "sclc.default.cancelled";
+                        record.set('state', serviceCallState);
+                        if(record.get('parents') === '') {
+                            record.set('parents', [])
+                        }
+                        if(record.get('children') === '') {
+                            record.set('children', [])
+                        }
+                        if(record.get('targetObject') === '') {
+                            record.set('targetObject', null)
+                        }
+                        record.save({
+                            success: function(newRecord){
+                                store.load();
+                            }
+                        });
+                    }
+                }
+            });
+    },
+
+    cancelAllAction: function(menu, item) {
+        var me = this;
+        switch (item.action) {
+            case 'cancel-all':
+                me.cancelAllServiceCalls();
+        }
+    },
+
+    cancelAllServiceCalls: function() {
+        var me = this,
+            serviceCallState = {id: 'sclc.default.cancelled'},
+            store = Ext.getStore('Mdc.store.servicecalls.RunningServiceCalls'),
+            router = me.getController('Uni.controller.history.Router'),
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
+                cancelText: Uni.I18n.translate('general.no', 'MDC', 'No')
+            });
+
+        confirmationWindow.show(
+            {
+                msg: Uni.I18n.translate('device.servicecall.cancelall.msg', 'MDC', 'All the service calls that can be cancelled will be cancelled. Do you wish to continue?'),
+                title: Uni.I18n.translate('device.servicecall.cancelall.title', 'MDC', "Cancel all ongoing service calls?"),
+                fn: function (state) {
+                    if (state === 'confirm') {
+                        me.getRunningServiceCallsGrid().setLoading(true);
+                        Ext.Ajax.request({
+                            url: '/api/ddr/devices/' + encodeURIComponent(router.arguments.mRID) + '/servicecalls',
+                            jsonData: {state: serviceCallState},
+                            method: 'PUT',
+                            success: function () {
+                                me.getRunningServiceCallsGrid().setLoading(false);
+                                store.load();
+                            },
+                            failure: function(response, opts){
+                                me.getRunningServiceCallsGrid().setLoading(false);
+                            }
+                        })
+                    }
+                }
+            });
     }
 });
 
