@@ -2,6 +2,7 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -9,7 +10,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
-
+import com.elster.jupiter.util.json.JsonService;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -67,6 +68,8 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
     private volatile SecurityTokenImpl securityToken;
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
+    private volatile MessageService messageService;
+    private volatile JsonService jsonService;
     private int timeout;
     private int tokenRefreshMaxCount;
     private int tokenExpTime;
@@ -74,12 +77,14 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
 
 
     @Inject
-    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService) throws
+    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, MessageService messageService, JsonService jsonService) throws
             InvalidKeySpecException,
             NoSuchAlgorithmException {
         setUserService(userService);
         setOrmService(ormService);
         setDataVaultService(dataVaultService);
+        setMessageService(messageService);
+        setJsonService(jsonService);
         activate(null);
         if (!dataModel.isInstalled()) {
             install();
@@ -88,6 +93,16 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
 
     public BasicAuthentication() {
 
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService){
+        this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService){
+        this.messageService = messageService;
     }
 
     @Reference
@@ -120,6 +135,8 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
             @Override
             protected void configure() {
                 bind(UserService.class).toInstance(userService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(JsonService.class).toInstance(jsonService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(DataModel.class).toInstance(dataModel);
             }
@@ -140,7 +157,7 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
             try {
                 securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()),
                         dataVaultService.decrypt(keyStore.get().getPrivateKey()),
-                        tokenExpTime, tokenRefreshMaxCount, timeout);
+                        tokenExpTime, tokenRefreshMaxCount, timeout, messageService, jsonService);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 throw new RuntimeException(e);
             }

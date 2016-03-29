@@ -1,14 +1,12 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.JWSVerifier;
+import com.elster.jupiter.util.json.JsonService;
+import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -24,10 +22,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 public class SecurityTokenImpl {
@@ -37,9 +32,12 @@ public class SecurityTokenImpl {
     private final int tokenExpiration;
     private final int maxTokenCount;
     private final int timeOut;
+    private final String USR_QUEUE_DEST = "UsrQueueDest";
+    private volatile MessageService messageService;
+    private volatile JsonService jsonService;
 
 
-    public SecurityTokenImpl(byte[] publicKey, byte[] privateKey, int tokenExpiration, int maxTokenCount, int timeOut) throws
+    public SecurityTokenImpl(byte[] publicKey, byte[] privateKey, int tokenExpiration, int maxTokenCount, int timeOut, MessageService messageService, JsonService jsonService) throws
             NoSuchAlgorithmException,
             InvalidKeySpecException {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -50,6 +48,8 @@ public class SecurityTokenImpl {
         this.tokenExpiration = tokenExpiration;
         this.maxTokenCount = maxTokenCount;
         this.timeOut = timeOut;
+        this.messageService = messageService;
+        this.jsonService = jsonService;
     }
 
     public int getCookieMaxAge() {
@@ -79,6 +79,7 @@ public class SecurityTokenImpl {
             SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
 
             signedJWT.sign(signer);
+            logMessage("Token renewal for user ", "["+user.getName()+"]");
             return signedJWT.serialize();
 
 
@@ -121,13 +122,14 @@ public class SecurityTokenImpl {
     }
 
     public TokenValidation verifyToken(String token, UserService userService) {
+        Optional<User> user = Optional.empty();
         try {
             Optional<SignedJWT> signedJWT = checkTokenIntegrity(token);
             if (signedJWT.isPresent() && (Long) signedJWT.get()
                     .getJWTClaimsSet()
                     .getCustomClaim("cnt") < maxTokenCount) {
                 long userId = Long.valueOf(signedJWT.get().getJWTClaimsSet().getSubject());
-                Optional<User> user = userService.getLoggedInUser(userId);
+                user = userService.getLoggedInUser(userId);
                 if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime()))) {
                     return new TokenValidation(user.isPresent(), user.orElse(null), token);
                 } else if (new Date().before(new Date(signedJWT.get()
@@ -139,17 +141,25 @@ public class SecurityTokenImpl {
                         String newToken = createToken(userService.getLoggedInUser(userId).get(), ++count);
                         return new TokenValidation(user.isPresent(), user.orElse(null), newToken);
                     } else {
+                        if(user.isPresent()) {
+                            logMessage("Token renewal for user ", user.get().getName());
+                        }
                         return new TokenValidation(false, null, null);
                     }
                 }
             } else {
+                if(user.isPresent()) {
+                    logMessage("Token renewal for user ", user.get().getName());
+                }
                 return new TokenValidation(false, null, null);
             }
 
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
+        if(user.isPresent()) {
+            logMessage("Token renewal for user ", user.get().getName());
+        }
         return new TokenValidation(false, null, null);
     }
 
@@ -199,6 +209,16 @@ public class SecurityTokenImpl {
             e.printStackTrace();
         }
         return Optional.empty();
+    }
+
+    private void logMessage(String message, String userName){
+        Map<String, String> messageProperties = new HashMap<>();
+        messageProperties.put(message, userName);
+        Optional<DestinationSpec> found = messageService.getDestinationSpec(USR_QUEUE_DEST);
+        if(found.isPresent()){
+            String json = jsonService.serialize(messageProperties);
+            found.get().message(json).send();
+        }
     }
 
 
