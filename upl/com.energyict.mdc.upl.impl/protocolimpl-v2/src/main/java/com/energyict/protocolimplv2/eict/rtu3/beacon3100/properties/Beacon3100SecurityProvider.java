@@ -202,7 +202,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
                 throw DeviceConfigurationException.invalidPropertyFormat(
                         propertyName,
                         "Certificate with alias '" + certificateAlias.getAlias() + "'",
-                        "The certificate must be a valid X509 v3 certificate");
+                        "The certificate must be a valid X509 v3 certificate: " + e.getMessage());
             }
         }
     }
