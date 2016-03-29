@@ -68,51 +68,63 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         var me = this;
         me.store = Ext.getStore(me.store) || Ext.create(me.store);
         if (this.type === 'device') {
-            // set proxy
+            me.store.setProxy({
+                type: 'rest',
+                url: '/api/ddr/devices/'+ this.mrId +'/whatsgoingon',
+                reader: {
+                    type: 'json',
+                    root: 'goingsOn'
+                }
+            });
         } else if (this.type === 'usagePoint') {
             // set proxy
         }
-        me.store.clearFilter();
-        me.down('tabpanel').removeAll();
-        if (type !== 'all' && type !== '' && type !== undefined) {
-            me.store.filter([
-                {
-                    filterFn: function (item) {
-                        return item.get('type') === type;
-                    }
+        me.store.load({
+            callback: function(){
+                me.store.clearFilter();
+                me.down('tabpanel').removeAll();
+                if (type !== 'all' && type !== '' && type !== undefined) {
+                    me.store.filter([
+                        {
+                            filterFn: function (item) {
+                                return item.get('type') === type;
+                            }
+                        }
+                    ]);
                 }
-            ]);
-        }
-        var tabContents = [];
-        var lines = [];
-        Ext.suspendLayouts();
-        me.store.each(function (item, index, total) {
-            if (index !== 0 && (index + 1) % 10 === 0) {
-                me.addLine(lines, item);
-                tabContents.push(lines);
-                lines = [];
-            } else {
-                me.addLine(lines, item);
+                var tabContents = [];
+                var lines = [];
+                Ext.suspendLayouts();
+                me.store.each(function (item, index, total) {
+                    if (index !== 0 && (index + 1) % 10 === 0) {
+                        me.addLine(lines, item);
+                        tabContents.push(lines);
+                        lines = [];
+                    } else {
+                        me.addLine(lines, item);
+                    }
+                });
+                if (lines.length !== 0) {
+                    tabContents.push(lines);
+                }
+                Ext.each(tabContents, function (tabContent, index) {
+                    me.down('tabpanel').add({
+                        layout: 'column',
+                        iconCls: index === 0 ? 'icon-circle' : 'icon-circle2',
+                        items: [{
+                            columnWidth: 0.50,
+                            items: tabContent.splice(0, 5)
+                        }, {
+                            columnWidth: 0.50,
+                            items: tabContent
+                        }]
+                    });
+                });
+                Ext.resumeLayouts();
+                me.doLayout();
             }
         });
-        if (lines.length !== 0) {
-            tabContents.push(lines);
-        }
-        Ext.each(tabContents, function (tabContent, index) {
-            me.down('tabpanel').add({
-                layout: 'column',
-                iconCls: index === 0 ? 'icon-circle' : 'icon-circle2',
-                items: [{
-                    columnWidth: 0.50,
-                    items: tabContent.splice(0, 5)
-                }, {
-                    columnWidth: 0.50,
-                    items: tabContent
-                }]
-            });
-        });
-        Ext.resumeLayouts();
-        me.doLayout();
+
     },
 
     addLine: function (lines, item) {
@@ -148,12 +160,12 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                     }
                 } else if (value.severity !== undefined && value.assignee === undefined) {
                     switch (value.severity) {
-                        case 'high':
+                        case 'HIGH':
                             fillColor = '#FFFFFF';
                             borderColor = '#EB5642';
                             textColor = '#EB5642';
                             break;
-                        case 'warning':
+                        case 'WARNING':
                             fillColor = '#FFFFFF';
                             borderColor = '#FB9F76';
                             textColor = '#FB9F76';
@@ -163,12 +175,12 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                     switch (value.assignee) {
                         case 'currentuser':
                             switch (value.severity) {
-                                case 'high':
+                                case 'HIGH':
                                     fillColor = '#EB5642';
                                     borderColor = '#EB5642';
                                     textColor = '#EB5642';
                                     break;
-                                case 'warning':
+                                case 'WARNING':
                                     fillColor = '#FB9F76';
                                     borderColor = '#FB9F76';
                                     textColor = '#FB9F76';
@@ -177,12 +189,12 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                             break;
                         case 'unassigned':
                             switch (value.severity) {
-                                case 'high':
+                                case 'HIGH':
                                     fillColor = '#FFFFFF';
                                     borderColor = '#EB5642';
                                     textColor = '#EB5642';
                                     break;
-                                case 'warning':
+                                case 'WARNING':
                                     fillColor = '#FFFFFF';
                                     borderColor = '#FB9F76';
                                     textColor = '#FB9F76';
@@ -191,12 +203,12 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                             break;
                         default:
                             switch (value.severity) {
-                                case 'high':
+                                case 'HIGH':
                                     fillColor = '#A0A0A0';
                                     borderColor = '#EB5642';
                                     textColor = '#EB5642';
                                     break;
-                                case 'warning':
+                                case 'WARNING':
                                     fillColor = '#A0A0A0';
                                     borderColor = '#FB9F76';
                                     textColor = '#FB9F76';
@@ -241,8 +253,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 break;
         }
         var html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
-        html += !!value.assignee ? ' (' + value.assignee + ')' : '';
-        html += !!value.dueDate ? Uni.I18n.translate('whatsGoingOn.due', 'UNI', '(due {0})', Uni.DateTime.formatDateShort(new Date(value.dueDate))) : '';
+        html += !!value.dueDate ? ' ' + Uni.I18n.translate('whatsGoingOn.due', 'UNI', '(due {0})', Uni.DateTime.formatDateShort(new Date(value.dueDate))) : '';
         html += '</a>';
         return html;
     },
