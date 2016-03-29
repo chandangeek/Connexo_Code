@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.imports.impl.parsers.BooleanParser;
 import com.elster.jupiter.metering.imports.impl.parsers.DateParser;
 import com.elster.jupiter.metering.imports.impl.parsers.LiteralStringParser;
 import com.elster.jupiter.metering.imports.impl.parsers.NumberParser;
+import com.elster.jupiter.metering.imports.impl.parsers.QuantityParser;
 import com.elster.jupiter.metering.imports.impl.parsers.YesNoAnswerParser;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 
@@ -24,6 +25,10 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
 
     private final DateParser dateParser;
     private final BigDecimalParser bigDecimalParser;
+    private final QuantityParser quantityParser;
+    private final LiteralStringParser stringParser;
+    private final BooleanParser booleanParser;
+    private final YesNoAnswerParser yesNoAnswerParser;
     private final MeteringDataImporterContext context;
     NumberParser numberParser;
 
@@ -31,6 +36,10 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
         this.dateParser = new DateParser(dateFormat, timeZone);
         this.bigDecimalParser = new BigDecimalParser(numberFormat);
         this.numberParser = new NumberParser(NumberFormat.getInstance(context.getThreadPrincipalService().getLocale()));
+        this.stringParser = new LiteralStringParser();
+        this.booleanParser = new BooleanParser();
+        this.yesNoAnswerParser = new YesNoAnswerParser();
+        this.quantityParser = new QuantityParser(bigDecimalParser, numberParser, stringParser);
         this.context = context;
     }
 
@@ -42,9 +51,6 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
     @Override
     public Map<String, FileImportField<?>> getFields(UsagePointImportRecord record) {
         Map<String, FileImportField<?>> fields = new HashMap<>();
-        LiteralStringParser stringParser = new LiteralStringParser();
-        BooleanParser booleanParser = new BooleanParser();
-        YesNoAnswerParser yesNoAnswerParser = new YesNoAnswerParser();
         //mRID
         fields.put("mRID", CommonField.withParser(stringParser)
                 .withSetter(record::setmRID)
@@ -107,77 +113,29 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
                 .withSetter(record::setPhaseCode)
                 .withName("phaseCode")
                 .build());
-        fields.put("ratedPowerValue", CommonField.withParser(bigDecimalParser)
-                .withSetter(record::setRatedPowerValue)
-                .withName("ratedPowerValue")
+        fields.put("ratedPower", CommonField.withParser(quantityParser)
+                .withSetter(record::setRatedPower)
+                .withName("ratedPower")
                 .build());
-        fields.put("ratedPowerMultiplier", CommonField.withParser(numberParser)
-                .withSetter(number -> record.setRatedPowerMultiplier(number != null ? number.intValue() : null))
-                .withName("ratedPowerMultiplier")
+        fields.put("ratedCurrent", CommonField.withParser(quantityParser)
+                .withSetter(record::setRatedCurrent)
+                .withName("ratedCurrent")
                 .build());
-        fields.put("ratedPowerUnit", CommonField.withParser(stringParser)
-                .withSetter(record::setRatedPowerUnit)
-                .withName("ratedPowerUnit")
+        fields.put("estimatedLoad", CommonField.withParser(quantityParser)
+                .withSetter(record::setEstimatedLoad)
+                .withName("estimatedLoad")
                 .build());
-        fields.put("ratedCurrentValue", CommonField.withParser(bigDecimalParser)
-                .withSetter(record::setRatedCurrentValue)
-                .withName("ratedCurrentValue")
+        fields.put("nominalVoltage", CommonField.withParser(quantityParser)
+                .withSetter(record::setNominalVoltage)
+                .withName("nominalVoltage")
                 .build());
-        fields.put("ratedCurrentMultiplier", CommonField.withParser(numberParser)
-                .withSetter(number -> record.setRatedCurrentMultiplier(number != null ? number.intValue() : null))
-                .withName("ratedCurrentMultiplier")
+        fields.put("pressure", CommonField.withParser(quantityParser)
+                .withSetter(record::setPressure)
+                .withName("pressure")
                 .build());
-        fields.put("ratedCurrentUnit", CommonField.withParser(stringParser)
-                .withSetter(record::setRatedCurrentUnit)
-                .withName("ratedCurrentUnit")
-                .build());
-        fields.put("estimatedLoadValue", CommonField.withParser(bigDecimalParser)
-                .withSetter(record::setEstimatedLoadValue)
-                .withName("estimatedLoadValue")
-                .build());
-        fields.put("estimatedLoadMultiplier", CommonField.withParser(numberParser)
-                .withSetter(number -> record.setEstimatedLoadMultiplier(number != null ? number.intValue() : null))
-                .withName("estimatedLoadMultiplier")
-                .build());
-        fields.put("estimatedLoadUnit", CommonField.withParser(stringParser)
-                .withSetter(record::setEstimatedLoadUnit)
-                .withName("estimatedLoadUnit")
-                .build());
-        fields.put("nominalVoltageValue", CommonField.withParser(bigDecimalParser)
-                .withSetter(record::setNominalVoltageValue)
-                .withName("nominalVoltageValue")
-                .build());
-        fields.put("nominalVoltageMultiplier", CommonField.withParser(numberParser)
-                .withSetter(number -> record.setNominalVoltageMultiplier(number != null ? number.intValue() : null))
-                .withName("nominalVoltageMultiplier")
-                .build());
-        fields.put("nominalVoltageUnit", CommonField.withParser(stringParser)
-                .withSetter(record::setNominalVoltageUnit)
-                .withName("nominalVoltageUnit")
-                .build());
-        fields.put("pressureValue", CommonField.withParser(bigDecimalParser)
-                .withSetter(record::setPressureValue)
-                .withName("pressureValue")
-                .build());
-        fields.put("pressureMultiplier", CommonField.withParser(numberParser)
-                .withSetter(number -> record.setPressureMultiplier(number != null ? number.intValue() : null))
-                .withName("pressureMultiplier")
-                .build());
-        fields.put("pressureUnit", CommonField.withParser(stringParser)
-                .withSetter(record::setPressureUnit)
-                .withName("pressureUnit")
-                .build());
-        fields.put("physicalCapacityValue", CommonField.withParser(bigDecimalParser)
-                .withSetter(record::setPhysicalCapacityValue)
-                .withName("physicalCapacityValue")
-                .build());
-        fields.put("physicalCapacityMultiplier", CommonField.withParser(numberParser)
-                .withSetter(number -> record.setPhysicalCapacityMultiplier(number != null ? number.intValue() : null))
-                .withName("physicalCapacityMultiplier")
-                .build());
-        fields.put("physicalCapacityUnit", CommonField.withParser(stringParser)
-                .withSetter(record::setPhysicalCapacityUnit)
-                .withName("physicalCapacityUnit")
+        fields.put("physicalCapacity", CommonField.withParser(quantityParser)
+                .withSetter(record::setPhysicalCapacity)
+                .withName("physicalCapacity")
                 .build());
         fields.put("limiter", CommonField.withParser(booleanParser)
                 .withSetter(record::setLimiter)
@@ -187,17 +145,9 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
                 .withSetter(record::setLoadLimiterType)
                 .withName("loadLimiterType")
                 .build());
-        fields.put("loadLimitValue", CommonField.withParser(bigDecimalParser)
-                .withSetter(record::setLoadLimitValue)
-                .withName("loadLimitValue")
-                .build());
-        fields.put("loadLimitMultiplier", CommonField.withParser(numberParser)
-                .withSetter(number -> record.setLoadLimitMultiplier(number != null ? number.intValue() : null))
-                .withName("loadLimitMultiplier")
-                .build());
-        fields.put("loadLimitUnit", CommonField.withParser(stringParser)
-                .withSetter(record::setLoadLimitUnit)
-                .withName("loadLimitUnit")
+        fields.put("loadLimit", CommonField.withParser(quantityParser)
+                .withSetter(record::setLoadLimit)
+                .withName("loadLimit")
                 .build());
         fields.put("bypass", CommonField.withParser(yesNoAnswerParser)
                 .withSetter(record::setBypass)
@@ -237,9 +187,10 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
                 dateParser,
                 bigDecimalParser,
                 numberParser,
-                new LiteralStringParser(),
-                new BooleanParser(),
-                new YesNoAnswerParser()
+                stringParser,
+                booleanParser,
+                yesNoAnswerParser,
+                quantityParser
         ).forEach(e -> parsers.put(e.getValueType(), e));
         return parsers;
     }

@@ -49,7 +49,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
     public void process(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
         try {
                 validate(data, logger);
-                validateQuanitities(data, logger);
 
                 UsagePoint usagePoint = getUsagePoint(data, logger);
 
@@ -100,16 +99,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                     .orElse(context.getClock().instant())).validate();
             createDetails(dummyUsagePoint, data, logger).validate();
             validateCustomPropertySetValues(dummyUsagePoint, data, logger);
-        }
-    }
-
-    private void validateQuanitities(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
-        for (Optional<Quantity> quantity : Arrays.asList(data.getEstimatedLoad(), data.getLoadLimit(), data.getNominalVoltage(), data
-                        .getPhysicalCapacity(),
-                data.getPressure(), data.getRatedCurrent(), data.getRatedPower())) {
-            if (quantity.isPresent() && (quantity.get().getMultiplier() > 24 || quantity.get().getMultiplier() < -24)) {
-                throw new ProcessorException(MessageSeeds.IMPORT_QUANITITY_OUT_OF_BOUNDS, data.getLineNumber());
-            }
         }
     }
 
