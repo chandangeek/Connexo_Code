@@ -111,7 +111,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "issue";
             goingOnInfo.id = issue.getId();
-            goingOnInfo.description = issue.getTitle();
+            goingOnInfo.description = issue.getReason().getName();
             goingOnInfo.dueDate = issue.getDueDate();
             goingOnInfo.severity = Optional.ofNullable(issue.getDueDate()).filter(dueDate -> clock.instant().isAfter(dueDate)).map(dueDate -> Severity.HIGH).orElse(null);
             goingOnInfo.assignee = Optional.ofNullable(issue.getAssignee()).map(IssueAssignee::getName).orElse(null);
