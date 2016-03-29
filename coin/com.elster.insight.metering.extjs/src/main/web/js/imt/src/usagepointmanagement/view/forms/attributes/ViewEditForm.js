@@ -158,18 +158,24 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
         return editForm.getRecord();
     },
 
-    markInvalid: function () {
+    markInvalid: function (errors) {
         var me = this,
-            editForm = me.getEditForm();
+            editForm = me.getEditForm(),
+            form = editForm.markInvalid
+                ? editForm
+                : editForm.getForm();
 
-        editForm.markInvalid.apply(editForm, arguments);
+        form.markInvalid(errors);
     },
 
     clearInvalid: function () {
         var me = this,
-            editForm = me.getEditForm();
+            editForm = me.getEditForm(),
+            form = editForm.markInvalid
+                ? editForm
+                : editForm.getForm();
 
-        editForm.getForm().clearInvalid();
+        form.clearInvalid();
     },
 
     switchDisplayMode: function (mode) {
