@@ -73,7 +73,9 @@ public class ServiceCallTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
     public ServiceCallTypeInfo postServiceCallType(ServiceCallTypeInfo info) {
-        ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(info.serviceCallLifeCycle.name)
+        ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycles().stream()
+                .filter(scl -> Long.valueOf(info.serviceCallLifeCycle.id.toString()).equals(scl.getId()))
+                .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL_LIFE_CYCLE));
         ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(info.name, info.versionName, serviceCallLifeCycle);
         builder.handler(info.handler);

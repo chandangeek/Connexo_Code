@@ -9,10 +9,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.whiteboard.ReferenceResolver;
-import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallFilter;
-import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.*;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.servicecall.security.Privileges;
 
@@ -23,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Path("/servicecalls")
 public class ServiceCallResource {
@@ -133,10 +131,11 @@ public class ServiceCallResource {
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL_TYPE));
 
-        ServiceCall serviceCall = serviceCallType.newServiceCall()
+        ServiceCallBuilder builder = serviceCallType.newServiceCall()
                 .externalReference(info.externalReference)
-                .origin(info.origin)
-                .targetObject(info.targetObject)
+                .origin(info.origin);
+        Optional.ofNullable(info.targetObject).ifPresent(builder::targetObject);
+        ServiceCall serviceCall = builder
                 .create();
 
         return new ServiceCallInfoFactory(thesaurus, propertyUtils, referenceResolver).summarized(serviceCall);
