@@ -34,6 +34,8 @@ public class UserCreatedMessageHandler implements MessageHandler {
                         userLogin.log(Level.WARNING, entry.getKey() + entry.getValue());
                     } else if (entry.getKey().equals("Token renewal for user ")){
                         tokenRenewal.log(Level.INFO, entry.getKey() + entry.getValue());
+                    } else if (entry.getKey().equals("Token expired for user ")){
+                        tokenRenewal.log(Level.INFO, entry.getKey() + entry.getValue());
                     }
                 });
     }
