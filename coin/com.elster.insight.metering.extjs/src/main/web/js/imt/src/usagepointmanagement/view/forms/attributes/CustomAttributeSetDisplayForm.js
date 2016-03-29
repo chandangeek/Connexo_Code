@@ -39,7 +39,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.CustomAttributeSetDis
             isActive = record.get('isActive');
 
             if (isActive) {
-                if (startTime && endTime) {
+                if (startTime || endTime) {
                     if (!endTime) {
                         period = Uni.I18n.translate('general.fromX', 'IMT', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(startTime))], false);
                     } else if (!startTime) {
