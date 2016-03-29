@@ -18,7 +18,9 @@ import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -81,6 +83,8 @@ import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
@@ -134,6 +138,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     DeviceMessageService deviceMessageService;
     @Mock
     CommunicationTaskService communicationTaskService;
+    @Mock
+    MeteringService meteringService;
 
     @Override
     protected Application getApplication() {
@@ -156,6 +162,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setSchedulingService(schedulingService);
         application.setDeviceMessageService(deviceMessageService);
         application.setCommunicationTaskService(communicationTaskService);
+        application.setMeteringService(meteringService);
         return application;
     }
 
@@ -610,4 +617,24 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(id, version)).thenReturn(Optional.of(mock));
         return mock;
     }
+
+    protected UsagePoint mockUsagePoint(long id, String name) {
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        when(usagePoint.getId()).thenReturn(id);
+        when(usagePoint.getVersion()).thenReturn(2L);
+        when(usagePoint.getName()).thenReturn(name);
+        when(usagePoint.getAliasName()).thenReturn("alias " + name);
+        when(usagePoint.getDescription()).thenReturn("usage point desc");
+        when(usagePoint.getOutageRegion()).thenReturn("outage region");
+        when(usagePoint.getReadRoute()).thenReturn("read route");
+        when(usagePoint.getServiceLocationString()).thenReturn("location");
+        when(usagePoint.getMRID()).thenReturn("MRID");
+        when(usagePoint.getInstallationTime()).thenReturn(LocalDateTime.of(2016, 3, 20, 11, 0)
+                .toInstant(ZoneOffset.UTC));
+        when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");
+        when(usagePoint.getServicePriority()).thenReturn("service priority");
+        when(meteringService.findUsagePoint(id)).thenReturn(Optional.of(usagePoint));
+        return usagePoint;
+    }
+
 }

@@ -58,7 +58,8 @@ public enum MessageSeeds implements MessageSeed {
     EXPECTED_MESSAGE_SPEC_ID(49, "ExpectedDeviceMessageSpecId", "Device message specification id was expected in the request"),
     EXPECTED_RELEASE_DATE(50, "ReleaseDateExpected", "Release date was expected in the request"),
     EXPECTED_PROTOCOL_INFO(51, "ExpectedProtocolInfo", "Protocol information was expected in the request"),
-    EXPECTED_COM_TASK(52, "ExpectedComTask" , "Communication task was expected in the request");
+    EXPECTED_COM_TASK(52, "ExpectedComTask", "Communication task was expected in the request"),
+    NO_SUCH_USAGE_POINT(53, "NuSuchUsagePOiunt", "No such usage point");
 
     private final int number;
     private final String key;
