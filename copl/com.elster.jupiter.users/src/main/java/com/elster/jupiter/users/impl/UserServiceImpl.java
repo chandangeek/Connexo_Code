@@ -3,6 +3,8 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -37,6 +39,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.elster.jupiter.util.json.JsonService;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -81,6 +84,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private List<User> loggedInUsers = new CopyOnWriteArrayList<>();
     private volatile DataVaultService dataVaultService;
     private volatile BundleContext bundleContext;
+    private volatile MessageService messageService;
+    private volatile JsonService jsonService;
 
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
@@ -110,7 +115,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private final Object privilegeProviderRegistrationLock = new Object();
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService, MessageService messageService, JsonService jsonService) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
@@ -118,6 +123,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         setNlsService(nlsService);
         setDataVaultService(dataVaultService);
         setThreadPrincipalService(threadPrincipalService);
+        setMessageService(messageService);
+        setJsonService(jsonService);
         activate(null);
         if (!dataModel.isInstalled()) {
             installDataModel(true);
@@ -140,6 +147,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(UserService.class).toInstance(UserServiceImpl.this);
+                bind(MessageService.class).toInstance(messageService);
+                bind(JsonService.class).toInstance(jsonService);
             }
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
@@ -238,7 +247,20 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
             userName = items[1];
         }
 
-        return authenticate(domain, userName, names[1]);
+        Map<String, String> messageProperties = new HashMap<>();
+        Optional<User> user = authenticate(domain, userName, names[1]);
+        if(user.isPresent()){
+            messageProperties.put("LoginSuccess", "Username: "+ userName);
+        }else{
+            messageProperties.put("LoginFailed", "Username: "+ userName + ", Password: "+names[1]);
+        }
+        Optional<DestinationSpec> found = messageService.getDestinationSpec(USR_QUEUE_DEST);
+        if(found.isPresent()){
+            String json = jsonService.serialize(messageProperties);
+            found.get().message(json).send();
+        }
+
+        return user;
     }
 
     @Override
@@ -516,7 +538,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private void installDataModel(boolean inTest) {
         synchronized (privilegeProviderRegistrationLock) {
             InstallerImpl installer = new InstallerImpl(dataModel, this);
-            installer.install(getRealm());
+            installer.install(getRealm(), messageService);
             if (inTest) {
                 doInstallPrivileges(this);
             }
@@ -629,6 +651,16 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Reference
     public final void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public final void setMessageService(MessageService messageService){
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public  final void setJsonService(JsonService jsonService){
+        this.jsonService = jsonService;
     }
 
     @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
