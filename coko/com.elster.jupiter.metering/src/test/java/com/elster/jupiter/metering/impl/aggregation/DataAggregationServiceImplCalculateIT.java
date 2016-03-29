@@ -34,6 +34,8 @@ import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.FormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -220,7 +222,17 @@ public class DataAggregationServiceImplCalculateIT {
 
     private static void setupMetrologyPurpose() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose().withName(DataAggregationServiceImplCalculateIT.class.getSimpleName()).create();
+            NlsKey name = mock(NlsKey.class);
+            when(name.getKey()).thenReturn(DataAggregationServiceImplCalculateIT.class.getSimpleName());
+            when(name.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateIT.class.getSimpleName());
+            when(name.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
+            when(name.getLayer()).thenReturn(Layer.DOMAIN);
+            NlsKey description = mock(NlsKey.class);
+            when(description.getKey()).thenReturn(DataAggregationServiceImplCalculateIT.class.getSimpleName() + ".description");
+            when(description.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateIT.class.getSimpleName());
+            when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
+            when(description.getLayer()).thenReturn(Layer.DOMAIN);
+            METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(description, description);
             ctx.commit();
         }
     }

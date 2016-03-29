@@ -20,11 +20,11 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.FormulaBuilder;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
-import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -87,9 +87,9 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private DataModel dataModel;
     @Mock
-    private QueryExecutor<UsagePointMetrologyConfiguration> queryExecutor;
+    private QueryExecutor<EffectiveMetrologyConfigurationOnUsagePoint> queryExecutor;
     @Mock
-    private UsagePointMetrologyConfiguration effectiveMetrologyConfiguration;
+    private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration;
     @Mock
     private ServerMeteringService meteringService;
     @Mock
@@ -135,7 +135,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.dataModel.getInstance(AggregatedReadingRecordFactory.class)).thenReturn(new AggregatedReadingRecordFactoryImpl(this.dataModel));
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.eventService, this.userService, this.nlsService);
         when(this.metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(this.contract));
-        when(this.dataModel.query(eq(UsagePointMetrologyConfiguration.class), anyVararg())).thenReturn(this.queryExecutor);
+        when(this.dataModel.query(eq(EffectiveMetrologyConfigurationOnUsagePoint.class), anyVararg())).thenReturn(this.queryExecutor);
         when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
         when(this.effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(this.metrologyConfiguration);
         when(this.effectiveMetrologyConfiguration.getRange()).thenReturn(year2016());
@@ -171,7 +171,7 @@ public class DataAggregationServiceImplCalculateTest {
         MetrologyContract otherContract = mock(MetrologyContract.class);
         MetrologyConfiguration otherConfiguration = mock(MetrologyConfiguration.class);
         when(otherConfiguration.getContracts()).thenReturn(Collections.singletonList(otherContract));
-        UsagePointMetrologyConfiguration effectiveMetrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(otherConfiguration);
         DataAggregationServiceImpl service = this.testInstance();
         Range<Instant> aggregationPeriod = year2016();
