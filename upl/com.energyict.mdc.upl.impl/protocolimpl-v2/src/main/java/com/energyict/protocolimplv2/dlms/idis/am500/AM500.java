@@ -14,6 +14,7 @@ import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
@@ -55,9 +56,9 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     protected IDISLogBookFactory idisLogBookFactory = null;
     protected IDISMessaging idisMessaging = null;
-    private IDISRegisterFactory registerFactory = null;
     protected IDISProfileDataReader idisProfileDataReader = null;
     protected IDISStoredValues storedValues = null;
+    private IDISRegisterFactory registerFactory = null;
     private String serialNumber = null;
 
     @Override
@@ -146,6 +147,14 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
                 }
             }
         }
+    }
+
+    @Override
+    protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
+        if (dlmsSecuritySupport == null) {
+            dlmsSecuritySupport = new AM500SecuritySupport();
+        }
+        return dlmsSecuritySupport;
     }
 
     /**
@@ -308,6 +317,6 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-02-09 13:07:47 +0200 (Tue, 09 Feb 2016)$";
+        return "$Date: 2016-03-29 09:35:10 +0200 (Tue, 29 Mar 2016)$";
     }
 }
