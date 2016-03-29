@@ -74,7 +74,8 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             {value: '10'},
             {value: '20'},
             {value: '50'},
-            {value: '100'}
+            {value: '100'},
+            {value: '200'}
         ]
     }),
 

@@ -83,6 +83,7 @@ Ext.define('Uni.property.controller.Registry', {
         ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
         IDWITHNAME: 'Uni.property.view.property.Reference',
         DEVICECONFIGURATIONLIST: 'Uni.property.view.property.deviceconfigurations.DeviceConfigurations',
+        SELECTIONGRID: 'Uni.property.view.property.SelectionGrid',
         QUANTITY: 'Uni.property.view.property.Quantity'
     },
 
