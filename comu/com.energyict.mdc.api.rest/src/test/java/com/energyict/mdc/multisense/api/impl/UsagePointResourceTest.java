@@ -63,7 +63,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         Response response = target("/usagepoints").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<List>get("$")).hasSize(13);
-        assertThat(model.<List<String>>get("$")).containsOnly("aliasAliasName",
+        assertThat(model.<List<String>>get("$")).containsOnly("aliasName",
                 "description",
                 "id",
                 "installationTime",

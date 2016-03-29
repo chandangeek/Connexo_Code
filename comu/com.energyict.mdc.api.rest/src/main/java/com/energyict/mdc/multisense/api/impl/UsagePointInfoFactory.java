@@ -55,7 +55,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("link", ((usagePointInfo, usagePoint, uriInfo) ->
                 usagePointInfo.link = link(usagePoint, Relation.REF_SELF, uriInfo)));
         map.put("name", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.name = usagePoint.getName());
-        map.put("aliasAliasName", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.aliasName = usagePoint.getAliasName());
+        map.put("aliasName", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.aliasName = usagePoint.getAliasName());
         map.put("description", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.description = usagePoint.getDescription());
         map.put("location", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.location = usagePoint.getServiceLocationString());
         map.put("mrid", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.mrid = usagePoint.getMRID());
