@@ -138,6 +138,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
 
                 if (responseText && Ext.isArray(responseText.errors)) {
                     form.markInvalid(responseText.errors);
+                    record.reject();
                 }
             },
             callback: function () {
