@@ -301,10 +301,10 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 previewForm.down('#tracking').renderer = function (val) {
                     if (record.get('trackingCategory').activeLink != undefined && record.get('trackingCategory').activeLink) {
                         return '<a style="text-decoration: underline" href="' +
-                            me.getController('Uni.controller.history.Router').getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: val})
-                            + '">' + val + '</a>';
+                            me.getController('Uni.controller.history.Router').getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: val.id})
+                            + '">' + val.name + '</a>';
                     } else {
-                        return val ? Ext.String.htmlEncode(val) : '-';
+                        return val.id ? Ext.String.htmlEncode(val.id) : '-';
                     }
                 }
             } else {
