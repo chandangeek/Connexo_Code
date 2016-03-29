@@ -9,13 +9,18 @@ import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -23,7 +28,11 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component(name = "com.elster.insight.udr.rest",
         service = {Application.class, TranslationKeyProvider.class},
@@ -35,6 +44,7 @@ public class UsagePointApplication extends Application implements TranslationKey
 
     private volatile TransactionService transactionService;
     private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
     private volatile MeteringService meteringService;
     private volatile RestQueryService restQueryService;
     private volatile Clock clock;
@@ -71,6 +81,7 @@ public class UsagePointApplication extends Application implements TranslationKey
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
@@ -98,7 +109,6 @@ public class UsagePointApplication extends Application implements TranslationKey
     public void setMeteringGroupService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
-
 
     @Reference
     public void setRestQueryService(RestQueryService restQueryService) {
@@ -150,6 +160,7 @@ public class UsagePointApplication extends Application implements TranslationKey
         @Override
         protected void configure() {
             bind(transactionService).to(TransactionService.class);
+            bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(meteringService).to(MeteringService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);

@@ -2,18 +2,23 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.mdm.common.rest.IntervalInfo;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
+
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -21,13 +26,25 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ChannelResourceTest extends UsagePointDataRestApplicationJerseyTest {
 
@@ -53,16 +70,13 @@ public class ChannelResourceTest extends UsagePointDataRestApplicationJerseyTest
     @Mock
     private ValidationEvaluator evaluator;
 
-    public ChannelResourceTest() {
-    }
-
     @Before
     public void setUpStubs() {
         when(meteringService.findMeter("1")).thenReturn(Optional.of(meter));
         when(meteringService.findUsagePoint("1")).thenReturn(Optional.of(usagePoint));
 
         doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
-        
+
         when(usagePoint.getId()).thenReturn(1L);
         when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.of(meterActivation));
         when(usagePoint.getMeterActivation(any())).thenReturn(Optional.of(meterActivation) );
@@ -112,7 +126,7 @@ public class ChannelResourceTest extends UsagePointDataRestApplicationJerseyTest
         when(channel.getMeterActivation()).thenReturn(meterActivation);
         Range<Instant> intervalToNow = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.now());
         when(meterActivation.getRange()).thenReturn(intervalToNow);
-        when(evaluator.getValidationStatus(eq(channel), any(), any(Range.class))).thenReturn(new ArrayList());
+        when(evaluator.getValidationStatus(eq(channel), any(), any(Range.class))).thenReturn(new ArrayList<>());
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(validationService.getEvaluator(eq(meter), any(Range.class))).thenReturn(evaluator);
         when(evaluator.isValidationEnabled(channel)).thenReturn(false);
@@ -154,9 +168,9 @@ public class ChannelResourceTest extends UsagePointDataRestApplicationJerseyTest
 
     @Test
     public void testPutChannelData() {
-        
+
         when(channel.getReading(Instant.ofEpochMilli(intervalEnd+900000))).thenReturn(Optional.of(lastReading));
-        
+
         ChannelDataInfo channelDataInfo = new ChannelDataInfo();
         channelDataInfo.value = BigDecimal.TEN;
         channelDataInfo.interval = new IntervalInfo();
@@ -165,7 +179,7 @@ public class ChannelResourceTest extends UsagePointDataRestApplicationJerseyTest
 
         List<ChannelDataInfo> infos = new ArrayList<>();
         infos.add(channelDataInfo);
-        
+
         channelDataInfo = new ChannelDataInfo();
         channelDataInfo.value = null;
         channelDataInfo.interval = new IntervalInfo();
@@ -200,7 +214,7 @@ public class ChannelResourceTest extends UsagePointDataRestApplicationJerseyTest
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         ReadingQualityType readingQualitySuspect = new ReadingQualityType("3.6.258");
         DataValidationStatus statusForSuspect = mockDataValidationStatus(readingQualitySuspect, false);
-        when(evaluator.getValidationStatus(eq(channel), any(), any())).thenReturn(Arrays.asList(statusForSuspect));       
+        when(evaluator.getValidationStatus(eq(channel), any(), any())).thenReturn(Arrays.asList(statusForSuspect));
         String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).property("suspect","suspect").create();
         String json = target("usagepoints/1/channels/" + CHANNEL_MRID1 + "/data")
                 .queryParam("filter", filter)
@@ -210,7 +224,7 @@ public class ChannelResourceTest extends UsagePointDataRestApplicationJerseyTest
 
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(4);
     }
-    
+
     private DataValidationStatus mockDataValidationStatus(ReadingQualityType readingQualityType, boolean isBulk) {
         DataValidationStatus status = mock(DataValidationStatus.class);
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
