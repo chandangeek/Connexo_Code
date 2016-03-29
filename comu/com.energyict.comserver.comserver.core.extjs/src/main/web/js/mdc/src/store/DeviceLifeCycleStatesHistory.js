@@ -11,6 +11,9 @@ Ext.define('Mdc.store.DeviceLifeCycleStatesHistory', {
         },
         setUrl: function (params) {
             this.url = this.urlTpl.replace('{mrid}', params.mRID);
-        }
+        },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined
     }
 });
