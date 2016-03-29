@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.events.EventService;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
@@ -15,9 +16,9 @@ import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
-import com.elster.jupiter.events.EventService;
-
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -35,6 +36,7 @@ public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> 
     private ExecutionLogger logger;
     private final ComTaskExecution comTaskExecution;
     private final ServiceProvider serviceProvider;
+    private List<Issue> issues = new ArrayList<>();
 
     public DeviceCommandImpl(ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
         super();
@@ -50,12 +52,20 @@ public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> 
         return serviceProvider;
     }
 
+    public List<Issue> getIssues() {
+        return issues;
+    }
+
+    public ExecutionLogger getLogger() {
+        return logger;
+    }
+
     @Override
     public final void execute(ComServerDAO comServerDAO) {
         try {
             this.doExecute(comServerDAO);
             //Event Mechanism
-            Optional<E> event = newEvent(null);
+            Optional<E> event = newEvent(getIssues());
             if (event.isPresent()) {
                 publish(event.get());
             }
@@ -127,12 +137,9 @@ public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> 
      * @param issue the issue that should be logged
      */
     protected void addIssue (CompletionCode completionCode, Issue issue) {
+        this.issues.add(issue);
         if (logger != null) {
             logger.addIssue(completionCode, issue, this.getComTaskExecution());
-        }
-        Optional<E> event = newEvent(issue);
-        if (event.isPresent()) {
-            publish(event.get());
         }
     }
 
@@ -143,7 +150,7 @@ public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> 
         return builder.toString();
     }
     // Needs to be overriden by subclasses for which 'data storage' events should be thrown;
-    protected Optional<E> newEvent(Issue issue){
+    protected Optional<E> newEvent(List<Issue> issues) {
         return Optional.empty();
     };
     protected abstract void toJournalMessageDescription(DescriptionBuilder builder, ComServer.LogLevel serverLogLevel);

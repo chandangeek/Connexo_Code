@@ -17,7 +17,10 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -123,11 +126,9 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
         return this.lastLogBooks;
     }
 
-    protected Optional<MeterDataStorageEvent> newEvent(Issue issue) {
+    protected Optional<MeterDataStorageEvent> newEvent(List<Issue> issues) {
         MeterDataStorageEvent event  =  new MeterDataStorageEvent(new ComServerEventServiceProvider(), this);
-        if (issue != null){
-            event.setIssue(issue);
-        }
+        event.addIssues(issues);
         return Optional.of(event);
     }
 

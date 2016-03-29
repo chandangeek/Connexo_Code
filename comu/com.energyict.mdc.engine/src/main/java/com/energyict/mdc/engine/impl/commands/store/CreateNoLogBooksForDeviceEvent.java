@@ -2,14 +2,15 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.NoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedNoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.issues.Issue;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -48,11 +49,9 @@ public class CreateNoLogBooksForDeviceEvent extends DeviceCommandImpl<CollectedN
         }
     }
 
-    protected Optional<CollectedNoLogBooksForDeviceEvent> newEvent(Issue issue) {
+    protected Optional<CollectedNoLogBooksForDeviceEvent> newEvent(List<Issue> issues) {
         CollectedNoLogBooksForDeviceEvent event  =  new CollectedNoLogBooksForDeviceEvent(new ComServerEventServiceProvider(), collectedDeviceData);
-        if (issue != null){
-            event.setIssue(issue);
-        }
+        event.addIssues(issues);
         return Optional.of(event);
     }
 

@@ -311,11 +311,9 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
         }
     }
 
-    protected Optional<CollectedDeviceTopologyEvent> newEvent(Issue issue) {
+    protected Optional<CollectedDeviceTopologyEvent> newEvent(List<Issue> issues) {
         CollectedDeviceTopologyEvent event  =  new CollectedDeviceTopologyEvent(new ComServerEventServiceProvider(), deviceTopology);
-        if (issue != null){
-            event.setIssue(issue);
-        }
+        event.addIssues(issues);
         return Optional.of(event);
     }
 
