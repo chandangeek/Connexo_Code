@@ -32,4 +32,14 @@ public class FunctionTest {
         assertThat(Function.from(com.elster.jupiter.metering.config.Function.AVG)).isEqualTo(Function.AVG);
     }
 
+    @Test
+    public void aggTime() {
+        assertThat(Function.from(com.elster.jupiter.metering.config.Function.AGG_TIME)).isEqualTo(Function.AGG_TIME);
+    }
+
+    @Test
+    public void coalesce() {
+        assertThat(Function.from(com.elster.jupiter.metering.config.Function.FIRST_NOT_NULL)).isEqualTo(Function.COALESCE);
+    }
+
 }

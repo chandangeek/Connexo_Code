@@ -7,6 +7,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -258,6 +259,11 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public Optional<MeterRole> findMeterRole(String key) {
         return getDataModel().mapper(MeterRole.class).getUnique(MeterRoleImpl.Fields.KEY.fieldName(), METER_ROLE_KEY_PREFIX + key);
+    }
+
+    @Override
+    public MeterRole findDefaultMeterRole(DefaultMeterRole defaultMeterRole) {
+        return this.findMeterRole(defaultMeterRole.getKey()).get();
     }
 
     @Override

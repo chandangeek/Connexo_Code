@@ -21,6 +21,7 @@ public interface FormulaBuilder  {
     ExpressionNodeBuilder maximum(ExpressionNodeBuilder... terms);
     ExpressionNodeBuilder minimum(ExpressionNodeBuilder... terms);
     ExpressionNodeBuilder average(ExpressionNodeBuilder... terms);
+    ExpressionNodeBuilder firstNotNull(ExpressionNodeBuilder... terms);
     ExpressionNodeBuilder aggregate(ExpressionNodeBuilder expression);
     ExpressionNodeBuilder plus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2);
     ExpressionNodeBuilder minus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2);

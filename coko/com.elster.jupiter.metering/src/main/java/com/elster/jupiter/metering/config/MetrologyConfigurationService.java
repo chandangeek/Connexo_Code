@@ -45,6 +45,8 @@ public interface MetrologyConfigurationService {
 
     MeterRole newMeterRole(NlsKey name);
 
+    MeterRole findDefaultMeterRole(DefaultMeterRole defaultMeterRole);
+
     Optional<MeterRole> findMeterRole(String key);
 
     ReadingTypeTemplate createReadingTypeTemplate(String name);
