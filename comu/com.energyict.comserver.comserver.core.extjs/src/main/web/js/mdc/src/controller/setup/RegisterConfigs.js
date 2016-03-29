@@ -408,12 +408,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                     success: function (deviceConfiguration) {
                                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                         widget.down('form').loadRecord(registerConfiguration);
-                                        // Don't know why this isn't set when loading the record:
-                                        if (registerConfiguration.get('asText') === true) {
-                                            widget.down('#textRadio').setValue(true);
-                                        } else {
-                                            widget.down('#numberRadio').setValue(true);
-                                        }
+                                        // Don't know why these aren't set when loading the record:
+                                        widget.down('#valueTypeRadioGroup').setValue({ asText : registerConfiguration.get('asText') });
+                                        widget.down('#multiplierRadioGroup').setValue({ useMultiplier : registerConfiguration.get('useMultiplier') });
+
                                         me.getApplication().fireEvent('loadRegisterConfiguration', registerConfiguration);
                                         me.getRegisterConfigEditForm().setTitle(
                                             Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", registerConfiguration.get('collectedReadingType').fullAliasName)
@@ -422,7 +420,11 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         widget.down('#editObisCodeField').setValue(me.registerTypesObisCode);
                                         widget.down('#mdc-calculated-readingType-combo').setDisabled(deviceConfiguration.get('active'));
                                         widget.down('#valueTypeRadioGroup').setDisabled(deviceConfiguration.get('active'));
-                                        widget.down('#multiplierRadioGroup').setDisabled(deviceConfiguration.get('active'));
+                                        widget.down('#multiplierRadioGroup').setDisabled(
+                                            !me.registerConfigurationBeingEdited.get('possibleCalculatedReadingTypes') ||
+                                            me.registerConfigurationBeingEdited.get('possibleCalculatedReadingTypes').length === 0 ||
+                                            deviceConfiguration.get('active')
+                                        );
                                         me.getOverruledObisCodeField().setValue(registerConfiguration.get('overruledObisCode'));
                                         me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), registerConfiguration.get('overruledObisCode'));
                                         widget.setLoading(false);
@@ -523,6 +525,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         overflowValueField.allowBlank = radioGroup.getValue().asText;
 
         if (me.getRegisterConfigEditForm().up('#registerConfigEdit').isEdit()) { // Busy editing a register config
+            me.registerConfigurationBeingEdited.set('isCumulative', me.registerConfigurationBeingEdited.get('readingType').isCumulative);
             dataContainer = me.registerConfigurationBeingEdited;
         } else { // Busy adding a register config
             dataContainer = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', me.getRegisterTypeCombo().getValue());
@@ -536,16 +539,16 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     onMultiplierChange: function(radioGroup) {
         var me = this,
             contentContainer = this.getRegisterConfigEditForm().up('#registerConfigEdit'),
-            useMultiplier = radioGroup.getValue().useMultiplier;
+            useMultiplier = radioGroup.getValue().useMultiplier,
+            dataContainer;
 
         if (contentContainer.isEdit()) { // Busy editing a register config
-            me.updateReadingTypeFields(me.registerConfigurationBeingEdited, useMultiplier);
+            me.registerConfigurationBeingEdited.set('isCumulative', me.registerConfigurationBeingEdited.get('readingType').isCumulative);
+            dataContainer = me.registerConfigurationBeingEdited;
         } else { // Busy adding a register config
-            me.updateReadingTypeFields(
-                me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', me.getRegisterTypeCombo().getValue()),
-                useMultiplier
-            );
+            dataContainer = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', me.getRegisterTypeCombo().getValue());
         }
+        me.updateReadingTypeFields(dataContainer, useMultiplier);
     },
 
     updateReadingTypeFields: function(dataContainer, useMultiplier) {
