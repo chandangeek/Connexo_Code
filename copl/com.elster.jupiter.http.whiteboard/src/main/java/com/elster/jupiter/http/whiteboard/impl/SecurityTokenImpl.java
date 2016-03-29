@@ -142,14 +142,14 @@ public class SecurityTokenImpl {
                         return new TokenValidation(user.isPresent(), user.orElse(null), newToken);
                     } else {
                         if(user.isPresent()) {
-                            logMessage("Token renewal for user ", user.get().getName());
+                            logMessage("Token expired for user ", user.get().getName());
                         }
                         return new TokenValidation(false, null, null);
                     }
                 }
             } else {
                 if(user.isPresent()) {
-                    logMessage("Token renewal for user ", user.get().getName());
+                    logMessage("Token expired for user ", user.get().getName());
                 }
                 return new TokenValidation(false, null, null);
             }
@@ -158,7 +158,7 @@ public class SecurityTokenImpl {
             e.printStackTrace();
         }
         if(user.isPresent()) {
-            logMessage("Token renewal for user ", user.get().getName());
+            logMessage("Token expired for user ", user.get().getName());
         }
         return new TokenValidation(false, null, null);
     }
