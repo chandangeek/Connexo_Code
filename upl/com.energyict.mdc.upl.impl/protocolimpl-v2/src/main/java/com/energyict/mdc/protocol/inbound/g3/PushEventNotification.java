@@ -67,12 +67,12 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         return DiscoverResultType.DATA;
     }
 
-    protected String getLoggingMessage(){
+    protected String getLoggingMessage() {
         StringBuilder logMessage = new StringBuilder();
 
         logMessage.append("Received inbound event notification from [");
-        if (getDeviceIdentifier()!=null) {
-            logMessage.append(getDeviceIdentifier().getIdentifier());
+        if (getDeviceIdentifier() != null) {
+            logMessage.append(getDeviceIdentifier().toString());
         } else {
             logMessage.append("unknown");
         }
@@ -130,7 +130,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-01-08 15:05:08 +0200 (Fri, 08 Jan 2016)$";
+        return "$Date: 2016-03-29 12:57:54 +0200 (Tue, 29 Mar 2016)$";
     }
 
     @Override
