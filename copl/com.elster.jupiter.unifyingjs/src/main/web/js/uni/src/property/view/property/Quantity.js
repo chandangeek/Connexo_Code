@@ -107,8 +107,10 @@ Ext.define('Uni.property.view.property.Quantity', {
     getValueAsDisplayString: function (value) {
         var me = this;
 
-        return Ext.isObject(value)
-            ? value.value + ' ' + value.displayValue
-            : '';
+        if (Ext.isObject(value)) {
+            return '' + (value.value || '') + (value.displayValue || '')
+        } else {
+            return '';
+        }
     }
 });
