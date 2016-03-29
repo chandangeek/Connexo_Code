@@ -26,7 +26,7 @@ Ext.define('Scs.view.Grid', {
                      url += record.get('id');
                      return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                  },
-                 flex: 0.6
+                 flex: 1
             },
             {
                 header: Uni.I18n.translate('servicecalls.externalReference', 'SCS', 'External reference'),
@@ -41,7 +41,7 @@ Ext.define('Scs.view.Grid', {
             {
                 header: Uni.I18n.translate('general.status', 'SCS', 'Status'),
                 dataIndex: 'state',
-                flex: 1,
+                flex: 0.8,
                 renderer: function(value) {
                     if(value.displayValue) {
                         return value.displayValue;
@@ -68,7 +68,8 @@ Ext.define('Scs.view.Grid', {
                     itemId: me.menuItemId
                 },
                 isDisabled: me.fnIsDisabled,
-                hidden: me.actionMenuHidden
+                hidden: me.actionMenuHidden,
+                flex: 0.7
             }
         ];
 
