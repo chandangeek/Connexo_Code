@@ -178,6 +178,10 @@ Ext.define('Isu.controller.IssueDetail', {
         page.down('#issue-add-comment-area').focus();
         page.down('#no-issue-comments').hide();
         page.down('#issue-comments-add-comment-button').hide();
+        if(page.down('#tab-issue-context'))
+            page.down('#tab-issue-context').setActiveTab(1);
+        else
+            page.up('#tab-issue-context').setActiveTab(1);
         Ext.resumeLayouts(true);
     },
 
