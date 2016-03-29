@@ -44,8 +44,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
-            isDependenciesLoaded = Ext.getClassName(mRID) === 'Imt.usagepointmanagement.model.UsagePoint',
-            dependenciesCounter = isDependenciesLoaded ? 1 : 4,
+            dependenciesCounter = 4,
             showPage = function () {
                 dependenciesCounter--;
                 if (!dependenciesCounter) {
@@ -60,25 +59,21 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
                     Ext.resumeLayouts(true);
                 }
             },
-            usagePoint = isDependenciesLoaded ? mRID : undefined;
+            usagePoint;
 
-        if (!isDependenciesLoaded) {
-            mainView.setLoading();
-            me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(showPage);
-            me.getStore('Imt.usagepointmanagement.store.PhaseCodes').load(showPage);
-            me.getStore('Imt.usagepointmanagement.store.BypassStatuses').load(showPage);
-            me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
-                success: function (record) {
-                    usagePoint = record;
-                    showPage();
-                },
-                failure: function () {
-                    mainView.setLoading(false);
-                }
-            });
-        } else {
-            showPage();
-        }
+        mainView.setLoading();
+        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(showPage);
+        me.getStore('Imt.usagepointmanagement.store.PhaseCodes').load(showPage);
+        me.getStore('Imt.usagepointmanagement.store.BypassStatuses').load(showPage);
+        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
+            success: function (record) {
+                usagePoint = record;
+                showPage();
+            },
+            failure: function () {
+                mainView.setLoading(false);
+            }
+        });
     },
 
     chooseAction: function (menu, item) {
@@ -117,16 +112,14 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
         var me = this,
             page = me.getPage(),
             usagePoint = page.usagePoint,
-            record = form.getRecord(),
-            customPropertySets;
+            record = form.getRecord();
 
         switch (Ext.getClassName(record)) {
             case 'Imt.usagepointmanagement.model.UsagePoint':
                 usagePoint = record;
                 break;
             case 'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint':
-                customPropertySets = usagePoint.customPropertySets();
-                customPropertySets.insert(customPropertySets.find('id', record.getId()), [record]);
+                usagePoint.customPropertySets().add(record);
                 break;
             default:
                 usagePoint.set('techInfo', record.getData());
@@ -136,8 +129,8 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
         page.setLoading();
         usagePoint.save({
             isNotEdit: true,
-            success: function (record) {
-                me.showUsagePointAttributes(record);
+            success: function () {
+                me.getController('Uni.controller.history.Router').getRoute().forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.updateSuccess', 'IMT', 'Usage point saved'));
             },
             failure: function (record, response) {
