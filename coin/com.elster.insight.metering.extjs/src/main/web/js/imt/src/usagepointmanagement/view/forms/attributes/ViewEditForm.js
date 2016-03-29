@@ -188,7 +188,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
             me.getLayout().setActiveItem(mode === 'view' ? 0 : 1);
             if (mode === 'view') {
                 editForm = me.getEditForm();
-                editForm.loadRecord(editForm.getRecord());
+                editForm.loadRecord(me.getViewForm().getRecord());
             }
             Ext.resumeLayouts(true);
             me.displayMode = mode;

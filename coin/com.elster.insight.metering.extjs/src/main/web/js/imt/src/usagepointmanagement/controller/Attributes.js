@@ -127,7 +127,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
 
         form.clearInvalid();
         page.setLoading();
-        Ext.clone(usagePoint).save({
+        usagePoint.save({
             isNotEdit: true,
             success: function () {
                 me.getController('Uni.controller.history.Router').getRoute().forward();
