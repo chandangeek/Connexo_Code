@@ -689,7 +689,19 @@ public class DeviceResource {
                 .stream()
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
-        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
+        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+    }
+
+    @PUT
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("{mRID}/runningservicecalls/{id}")
+    public Response cancelServiceCall(@PathParam("mRID") String mrid, @PathParam("id") long serviceCallId, ServiceCallInfo info) {
+        if(info.state.id.equals("sclc.default.cancelled")) {
+            serviceCallService.getServiceCall(serviceCallId).ifPresent(ServiceCall::cancel);
+            return Response.status(Response.Status.ACCEPTED).build();
+        }
+        throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
     }
 
     @GET
@@ -700,28 +712,28 @@ public class DeviceResource {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
 
         ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
-        //filter.setTargetObject(device);
         serviceCallService.getServiceCallFinder(filter)
                 .stream()
                 .filter(serviceCall -> serviceCall.getTargetObject().map(device::equals).orElse(false))
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
-        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
+        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{mRID}/servicecalls")
     public Response cancelServiceCallsFor(@PathParam("mRID") String mrid, ServiceCallInfo serviceCallInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         if (serviceCallInfo.state == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
         }
         if (DefaultState.CANCELLED.getKey().equals(serviceCallInfo.state.id)) {
             serviceCallService.cancelServiceCallsFor(device);
             return Response.accepted().build();
         }
-        throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
     }
 
     @GET
