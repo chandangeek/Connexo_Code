@@ -348,6 +348,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         me.getAddPropertyForm().hide();
         me.getAddPropertyHeader().hide();
         if (Ext.isDefined(cat)) {
+            me.getCommandCombo().enable();
             me.getCommandCombo().reset();
             me.getCommandCombo().bindStore(cat.deviceMessageSpecs(), true);
         }
