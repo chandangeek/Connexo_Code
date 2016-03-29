@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -158,6 +159,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     MdcReadingTypeUtilService mdcReadingTypeUtilService;
     @Mock
     ServiceCallService serviceCallService;
+    @Mock
+    BpmService bpmService;
 
     @Before
     public void setup() {
@@ -220,6 +223,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDeviceMessageService(deviceMessageService);
         application.setCustomPropertySetService(customPropertySetService);
         application.setServiceCallService(serviceCallService);
+        application.setBpmService(bpmService);
         return application;
     }
 
