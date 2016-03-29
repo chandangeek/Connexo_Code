@@ -2,12 +2,17 @@ Ext.define('Scs.view.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.servicecalls-grid',
     store: 'Scs.store.ServiceCalls',
+    menuItemId: '',
     router: null,
+    actionMenuHidden: false,
+    cancelAllHidden: true,
+    usesExactCount: false,
     requires: [
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Scs.view.ActionMenu'
+        'Scs.view.ActionMenu',
+        'Scs.view.CancelAllActionMenu'
     ],
 
     initComponent: function () {
@@ -60,9 +65,10 @@ Ext.define('Scs.view.Grid', {
                 privileges: Scs.privileges.ServiceCall.admin,
                 menu: {
                     xtype: 'scs-action-menu',
-                    itemId: 'scs-action-menu'
+                    itemId: me.menuItemId
                 },
-                isDisabled: me.fnIsDisabled
+                isDisabled: me.fnIsDisabled,
+                hidden: me.actionMenuHidden
             }
         ];
 
@@ -74,6 +80,20 @@ Ext.define('Scs.view.Grid', {
                 displayMsg: Uni.I18n.translate('serviceCalls.pagingtoolbartop.displayMsg', 'SCS', '{0} - {1} of {2} service calls'),
                 displayMoreMsg: Uni.I18n.translate('serviceCalls.pagingtoolbartop.displayMoreMsg', 'SCS', '{0} - {1} of more than {2} service calls'),
                 emptyMsg: Uni.I18n.translate('serviceCalls.pagingtoolbartop.emptyMsg', 'SCS', 'There are no service calls to display'),
+                usesExactCount: me.usesExactCount,
+                items: [
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.Actions', 'SCS', 'Actions'),
+                        iconCls: 'x-uni-action-iconD',
+                        itemId: 'cancelAllServiceCallsButton',
+                        menu: {
+                            xtype: 'cancel-all-action-menu'
+                        },
+                        hidden: me.cancelAllHidden
+                    }
+                ]
+
             },
             {
                 xtype: 'pagingtoolbarbottom',
@@ -81,7 +101,7 @@ Ext.define('Scs.view.Grid', {
                 itemsPerPageMsg: Uni.I18n.translate('serviceCalls.pagingtoolbarbottom.itemsPerPage', 'SCS', 'Service calls per page'),
                 dock: 'bottom'
             }
-        ]
+        ];
 
         me.callParent(arguments);
     },

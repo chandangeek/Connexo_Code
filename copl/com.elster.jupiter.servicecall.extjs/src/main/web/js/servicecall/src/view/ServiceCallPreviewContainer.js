@@ -27,6 +27,7 @@ Ext.define('Scs.view.ServiceCallPreviewContainer', {
         me.grid = {
             xtype: 'servicecalls-grid',
             itemId: 'grd-service-calls',
+            menuItemId: 'service-calls-overview-scs-menu',
             router: me.router,
             store: me.store
         };
