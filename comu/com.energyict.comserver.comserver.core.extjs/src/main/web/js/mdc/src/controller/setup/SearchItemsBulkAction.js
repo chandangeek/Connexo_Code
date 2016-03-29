@@ -10,7 +10,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         'Mdc.view.setup.searchitems.bulk.Wizard'
     ],
     requires: [
-        'Uni.view.window.Wizard'
+        'Uni.view.window.Wizard',
+        'Uni.data.reader.JsonBuffered'
     ],
     stores: [
         'Mdc.store.CommunicationSchedulesWithoutPaging',
@@ -139,12 +140,15 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
             var store = Ext.create('Ext.data.Store', {
                 buffered: true,
-                pageSize: 200,
+                pageSize: 100,
                 remoteFilter: true,
                 model: searchResults.model,
                 filters: searchResults.filters.getRange(),
                 proxy: searchResults.getProxy()
             });
+
+            // we replace reader to buffered due to our store is buffered
+            store.getProxy().setReader(Ext.create('Uni.data.reader.JsonBuffered', store.getProxy().getReader()));
 
             widget = Ext.widget('searchitems-bulk-browse', {
                 deviceStore: store
