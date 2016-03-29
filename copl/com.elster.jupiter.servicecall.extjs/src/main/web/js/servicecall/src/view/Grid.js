@@ -7,6 +7,7 @@ Ext.define('Scs.view.Grid', {
     actionMenuHidden: false,
     cancelAllHidden: true,
     usesExactCount: false,
+    defaultPageSize: 10,
     requires: [
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
@@ -100,7 +101,8 @@ Ext.define('Scs.view.Grid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('serviceCalls.pagingtoolbarbottom.itemsPerPage', 'SCS', 'Service calls per page'),
-                dock: 'bottom'
+                dock: 'bottom',
+                defaultPageSize: me.defaultPageSize
             }
         ];
 

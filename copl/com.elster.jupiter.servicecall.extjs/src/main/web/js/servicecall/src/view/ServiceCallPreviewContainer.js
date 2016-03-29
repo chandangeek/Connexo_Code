@@ -28,6 +28,7 @@ Ext.define('Scs.view.ServiceCallPreviewContainer', {
             xtype: 'servicecalls-grid',
             itemId: 'grd-service-calls',
             menuItemId: 'service-calls-overview-scs-menu',
+            defaultPageSize: 200,
             router: me.router,
             store: me.store
         };
