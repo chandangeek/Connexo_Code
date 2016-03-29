@@ -25,7 +25,36 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
             return record.convertObjectField(value);
         }},
         {name: 'startedOn', type: 'date', dateFormat: 'time', persist: false},
-        {name: 'finishedOn', type: 'date', dateFormat: 'time', persist: false}
+        {name: 'finishedOn', type: 'date', dateFormat: 'time', persist: false},
+        {name: 'timeBoundaryStart',type: 'int',useNull: true, defaultValue: 64800}, // 18:00 by default
+        {name: 'timeBoundaryEnd',type: 'int',useNull: true, defaultValue: 82800},   // 23:00 by default
+        {
+            name: 'timeBoundaryAsText',
+            persist: false,
+            mapping: function (data) {
+                if ( !Ext.isEmpty(data.timeBoundaryStart) || !Ext.isEmpty(data.timeBoundaryEnd)) {
+                    var startMinutes = (data.timeBoundaryStart / 3600 | 0),
+                        startSeconds = (data.timeBoundaryStart / 60 - startMinutes * 60),
+                        endMinutes = (data.timeBoundaryEnd / 3600 | 0),
+                        endSeconds = (data.timeBoundaryEnd / 60 - endMinutes * 60),
+                        addZeroIfOneDigit = function (timeCount) {
+                            var timeInString = timeCount.toString();
+                            if (timeInString.length === 1) {
+                                timeInString = '0' + timeInString;
+                            }
+                            return timeInString;
+                        },
+                        doFormat = function(minutes, seconds) {
+                            return addZeroIfOneDigit(minutes) + ':' + addZeroIfOneDigit(seconds);
+                        };
+
+                    return Uni.I18n.translate('general.betweenXandY', 'FWC', 'Between {0} and {1}',
+                        [ doFormat(startMinutes, startSeconds), doFormat(endMinutes, endSeconds) ]
+                    );
+                }
+                return '-';
+            }
+        }
     ],
     associations: [
         {

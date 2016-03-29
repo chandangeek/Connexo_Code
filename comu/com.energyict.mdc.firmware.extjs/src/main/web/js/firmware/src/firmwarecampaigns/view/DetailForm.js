@@ -4,18 +4,6 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
         'Fwc.firmwarecampaigns.view.ActionMenu'
     ],
     alias: 'widget.firmware-campaigns-detail-form',
-    tools: [
-        {
-            xtype: 'button',
-            itemId: 'firmware-campaigns-detail-action-menu-button',
-            text: Uni.I18n.translate('general.actions', 'FWC', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
-            menu: {
-                xtype: 'firmware-campaigns-action-menu',
-                itemId: 'firmware-campaigns-action-menu'
-            }
-        }
-    ],
     layout: 'column',
     defaults: {
         xtype: 'container',
@@ -30,6 +18,21 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
     isPreview: false,
     initComponent: function () {
         var me = this;
+
+        me.tools = [
+            {
+                xtype: 'button',
+                privileges: Fwc.privileges.FirmwareCampaign.administrate,
+                itemId: 'firmware-campaigns-detail-action-menu-button',
+                text: Uni.I18n.translate('general.actions', 'FWC', 'Actions'),
+                iconCls: 'x-uni-action-iconD',
+                menu: {
+                    xtype: 'firmware-campaigns-action-menu',
+                    itemId: 'firmware-campaigns-action-menu',
+                    returnToCampaignOverview: !me.isPreview
+                }
+            }
+        ];
 
         me.items = [
             {
@@ -55,15 +58,20 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.deviceType', 'FWC', 'Device type'),
                         name: 'deviceType',
                         renderer: function (value) {
-                            return value ? '<a href="' + me.router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl({deviceTypeId: value.id}) + '">' + value.localizedValue + '</a>' : ''
+                            return value ? '<a href="' + me.router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl({deviceTypeId: value.id}) + '">' + value.localizedValue + '</a>' : '-'
                         }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        name: 'timeBoundaryAsText',
+                        fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary')
                     },
                     {
                         itemId: 'firmware-type-field',
                         fieldLabel: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
                         name: 'firmwareType',
                         renderer: function (value) {
-                            return value ? value.localizedValue : ''
+                            return value ? value.localizedValue : '-'
                         }
                     },
                     {
@@ -71,7 +79,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('firmware.campaigns.firmwareManagementOption', 'FWC', 'Firmware management option'),
                         name: 'managementOption',
                         renderer: function (value) {
-                            return value ? value.localizedValue : ''
+                            return value ? value.localizedValue : '-'
                         }
                     },
                     {
@@ -94,7 +102,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.status', 'FWC', 'Status'),
                         name: 'status',
                         renderer: function (value) {
-                            return value ? value.localizedValue : '';
+                            return value ? value.localizedValue : '-';
                         }
                     },
                     {
@@ -147,7 +155,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.startedOn', 'FWC', 'Started on'),
                         name: 'startedOn',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                            return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                         }
                     },
                     {
@@ -155,7 +163,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.finishedOn', 'FWC', 'Finished on'),
                         name: 'finishedOn',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                            return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                         }
                     }
                 ]

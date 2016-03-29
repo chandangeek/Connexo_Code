@@ -5,6 +5,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Add', {
     ],
     alias: 'widget.firmware-campaigns-add',
     returnLink: null,
+    action: null,
 
     initComponent: function () {
         var me = this;
@@ -15,7 +16,8 @@ Ext.define('Fwc.firmwarecampaigns.view.Add', {
                 itemId: 'firmware-campaigns-add-form',
                 title: Uni.I18n.translate('firmware.campaigns.addFirmwareCampaign', 'FWC', 'Add firmware campaign'),
                 ui: 'large',
-                returnLink: me.returnLink
+                returnLink: me.returnLink,
+                action : me.action
             }
         ];
 

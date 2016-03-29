@@ -2,13 +2,15 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
     extend: 'Ext.grid.Panel',
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Fwc.firmwarecampaigns.view.DeviceActionMenu'
     ],
     alias: 'widget.firmware-campaign-devices-grid',
     store: 'Fwc.firmwarecampaigns.store.Devices',
     router: null,
     overflowY: 'auto',
     maxHeight: 430,
+    campaignIsOngoing: null,
 
     initComponent: function () {
         var me = this;
@@ -50,7 +52,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                             iconCls = 'icon-blocked';
                             break;
                     }
-                    return value ? '<span class="' + iconCls + '"></span>' + value.name : '';
+                    return value ? '<span class="' + iconCls + '"></span>' + value.name : '-';
                 }
             },
             {
@@ -58,7 +60,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 dataIndex: 'startedOn',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 }
             },
             {
@@ -66,7 +68,31 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 dataIndex: 'finishedOn',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                }
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                privileges: Fwc.privileges.FirmwareCampaign.administrate,
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    if (!me.campaignIsOngoing) {
+                        return true;
+                    }
+                    switch (record.get('status').id) { // current device status
+                        case 'pending':
+                        case 'ongoing':
+                            return false; // because the device can be skipped
+                        case 'cancelled':
+                        case 'failed':
+                        case 'configurationError':
+                            return false; // because the device can be retried
+                        default:
+                            return true;
+                    }
+                },
+                menu: {
+                    xtype: 'firmware-campaigns-device-action-menu',
+                    itemId: 'firmware-campaigns-device-action-menu'
                 }
             }
         ];

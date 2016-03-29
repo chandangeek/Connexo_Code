@@ -39,8 +39,10 @@ Ext.define('Fwc.firmwarecampaigns.controller.Detail', {
                 widget.down('firmware-campaigns-detail-form property-form').loadRecord(record);
                 me.getApplication().fireEvent('loadFirmwareCampaign', record);
                 Ext.resumeLayouts(true);
-                widget.down('firmware-campaigns-action-menu').record = record;
-                widget.down('firmware-campaigns-detail-form #firmware-campaigns-detail-action-menu-button').setDisabled(record.get('status').id !== 'ONGOING');
+                if (widget.down('firmware-campaigns-action-menu')) {
+                    widget.down('firmware-campaigns-action-menu').record = record;
+                    widget.down('firmware-campaigns-detail-form #firmware-campaigns-detail-action-menu-button').setDisabled(record.get('status').id !== 'ONGOING');
+                }
             },
             callback: function () {
                 pageView.setLoading(false);

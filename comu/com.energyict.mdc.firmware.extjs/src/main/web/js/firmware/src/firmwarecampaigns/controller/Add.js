@@ -36,6 +36,9 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
     init: function () {
         this.control({
             'firmware-campaigns-add [action=addFirmwareCampaign]': {
+                click: this.addFirmwareCampaign
+            },
+            'firmware-campaigns-add [action=saveFirmwareCampaign]': {
                 click: this.saveFirmwareCampaign
             }
         });
@@ -46,15 +49,15 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('firmware-campaigns-add', {
                 itemId: 'firmware-campaigns-add',
+                action: 'addFirmwareCampaign',
                 returnLink: router.getRoute('workspace/firmwarecampaigns').buildUrl()
             }),
             firmwareCampaign = Ext.create('Fwc.firmwarecampaigns.model.FirmwareCampaign'),
-            dependences = ['Fwc.store.DeviceTypes',
-                'Fwc.store.DeviceGroups'],
-            dependencesCounter = dependences.length,
-            dependencesOnLoad = function () {
-                dependencesCounter--;
-                if (!dependencesCounter) {
+            dependencies = ['Fwc.store.DeviceTypes', 'Fwc.store.DeviceGroups'],
+            dependenciesCounter = dependencies.length,
+            onDependenciesLoaded = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
                     firmwareCampaign.set('name', 'FW-CP-' + new Date().getTime());
                     widget.down('firmware-campaigns-add-form').loadRecord(firmwareCampaign);
                     widget.setLoading(false);
@@ -63,17 +66,17 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading();
-        Ext.Array.each(dependences, function (store) {
-            me.getStore(store).load(dependencesOnLoad);
+        Ext.Array.each(dependencies, function (store) {
+            me.getStore(store).load(onDependenciesLoaded);
         });
     },
 
-    saveFirmwareCampaign: function () {
+    addFirmwareCampaign: function () {
         var me = this,
             page = me.getPage(),
             form = me.getForm(),
             errorMessage = form.down('uni-form-error-message'),
-            baseForm= form.getForm();
+            baseForm = form.getForm();
 
         Ext.suspendLayouts();
         baseForm.clearInvalid();
@@ -84,9 +87,60 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         form.getRecord().save({
             backUrl: page.returnLink,
             success: function (record, operation) {
-                me.getApplication().fireEvent('acknowledge', operation.action === 'create'
-                    ? Uni.I18n.translate('firmware.campaigns.addSuccess', 'FWC', 'Firmware campaign added')
-                    : Uni.I18n.translate('firmware.campaigns.saveSuccess', 'FWC', 'Firmware campaign saved'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.addSuccess', 'FWC', 'Firmware campaign added'));
+                if (page.rendered) {
+                    window.location.href = page.returnLink;
+                }
+            },
+            failure: function (record, operation) {
+                var responseText = Ext.decode(operation.response.responseText, true);
+
+                if (page.rendered && responseText && responseText.errors) {
+                    Ext.suspendLayouts();
+                    baseForm.markInvalid(responseText.errors);
+                    errorMessage.show();
+                    Ext.resumeLayouts(true);
+                }
+            },
+            callback: function () {
+                page.setLoading(false);
+            }
+        });
+    },
+
+    saveFirmwareCampaign: function () {
+        var me = this,
+            page = me.getPage(),
+            form = me.getForm(),
+            nameField = form.down('#firmware-campaign-name'),
+            timeBoundaryStartField = form.down('#timeBoundaryStart'),
+            timeBoundaryEndField = form.down('#timeBoundaryEnd'),
+            errorMessage = form.down('uni-form-error-message'),
+            baseForm = form.getForm(),
+            nameOrTimeBoundaryChanged = false;
+
+        Ext.suspendLayouts();
+        baseForm.clearInvalid();
+        errorMessage.hide();
+        Ext.resumeLayouts(true);
+
+        if (form.campaignRecordBeingEdited.get('name') != nameField.getValue()) {
+            form.campaignRecordBeingEdited.set('name', nameField.getValue());
+            nameOrTimeBoundaryChanged = true;
+        }
+        if (form.campaignRecordBeingEdited.get('timeBoundaryStart') != timeBoundaryStartField.getValue()) {
+            form.campaignRecordBeingEdited.set('timeBoundaryStart', timeBoundaryStartField.getValue());
+            nameOrTimeBoundaryChanged = true;
+        }
+        if (form.campaignRecordBeingEdited.get('timeBoundaryEnd') != timeBoundaryEndField.getValue()) {
+            form.campaignRecordBeingEdited.set('timeBoundaryEnd', timeBoundaryEndField.getValue());
+            nameOrTimeBoundaryChanged = true;
+        }
+
+        form.campaignRecordBeingEdited.save({
+            backUrl: page.returnLink,
+            success: function (record, operation) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.saveSuccess', 'FWC', 'Firmware campaign saved'));
                 if (page.rendered) {
                     window.location.href = page.returnLink;
                 }
