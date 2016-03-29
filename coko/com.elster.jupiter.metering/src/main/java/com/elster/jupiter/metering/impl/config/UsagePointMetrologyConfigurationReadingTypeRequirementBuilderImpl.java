@@ -6,28 +6,22 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
-import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 
-class UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl extends MetrologyConfigurationReadingTypeRequirementBuilderImpl implements UPMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder {
+class UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl extends MetrologyConfigurationReadingTypeRequirementBuilderImpl implements UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder {
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
-    private final UPMetrologyConfigurationImpl metrologyConfiguration;
+    private final UsagePointMetrologyConfigurationImpl metrologyConfiguration;
 
     private MeterRole meterRole;
 
-    UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(ServerMetrologyConfigurationService metrologyConfigurationService, UPMetrologyConfigurationImpl metrologyConfiguration) {
-        super(metrologyConfigurationService, metrologyConfiguration);
+    UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(ServerMetrologyConfigurationService metrologyConfigurationService, UsagePointMetrologyConfigurationImpl metrologyConfiguration, String name) {
+        super(metrologyConfigurationService, metrologyConfiguration, name);
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.metrologyConfiguration = metrologyConfiguration;
     }
 
     @Override
-    public UPMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder withName(String name) {
-        super.withName(name);
-        return this;
-    }
-
-    @Override
-    public UPMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder withMeterRole(MeterRole meterRole) {
+    public UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder withMeterRole(MeterRole meterRole) {
         this.meterRole = meterRole;
         return this;
     }
@@ -43,10 +37,10 @@ class UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl extends 
     }
 
     private <T extends ReadingTypeRequirement> T addReadingTypeRequirementToMeterRoleReference(T readingTypeRequirement) {
-        UsagePointMetrologyConfigurationRequirementRoleReference reference = this.metrologyConfigurationService.getDataModel()
-                .getInstance(UsagePointMetrologyConfigurationRequirementRoleReference.class)
-                .init(this.metrologyConfiguration, this.meterRole, readingTypeRequirement);
-        this.metrologyConfiguration.addReadingTypeRequirementToMeterRoleReference(reference);
+        ReadingTypeRequirementMeterRoleUsage reference = this.metrologyConfigurationService.getDataModel()
+                .getInstance(ReadingTypeRequirementMeterRoleUsage.class)
+                .init(this.meterRole, readingTypeRequirement);
+        this.metrologyConfiguration.addReadingTypeRequirementMeterRoleUsage(reference);
         return readingTypeRequirement;
     }
 }

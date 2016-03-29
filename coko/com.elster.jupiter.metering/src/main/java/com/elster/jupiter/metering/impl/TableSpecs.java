@@ -30,10 +30,12 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
-import com.elster.jupiter.metering.config.UPMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
 import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
@@ -41,18 +43,16 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPrope
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationMeterRoleUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
-import com.elster.jupiter.metering.impl.config.MetrologyContractReadingTypeDeliverableMapping;
+import com.elster.jupiter.metering.impl.config.MetrologyContractReadingTypeDeliverableUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
 import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeAttributeValueImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementMeterRoleUsage;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateAttributeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateAttributeValueImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
-import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
-import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationRequirementRoleReference;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -654,8 +654,8 @@ public enum TableSpecs {
     },
     MTR_USAGEPOINTMTRCONFIG {
         void addTo(DataModel dataModel) {
-            Table<UsagePointMetrologyConfiguration> table = dataModel.addTable(name(), UsagePointMetrologyConfiguration.class);
-            table.map(UsagePointMetrologyConfigurationImpl.class);
+            Table<EffectiveMetrologyConfigurationOnUsagePoint> table = dataModel.addTable(name(), EffectiveMetrologyConfigurationOnUsagePoint.class);
+            table.map(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
             Column usagePoint = table.column("USAGEPOINT").type("number").notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
@@ -969,7 +969,7 @@ public enum TableSpecs {
 
             table.primaryKey("MTR_PK_CONF_ROLE_USAGE").on(metrologyConfigColumn, meterRoleColumn).add();
             table.foreignKey("FK_USAGE_MCMR_TO_CONFIG")
-                    .references(UPMetrologyConfiguration.class)
+                    .references(UsagePointMetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
                     .onDelete(CASCADE)
                     .map(MetrologyConfigurationMeterRoleUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
@@ -1154,44 +1154,32 @@ public enum TableSpecs {
                     .add();
         }
     },
-    MTR_CONFIG_ROLE_REQ_USAGE {
+    MTR_REQUIREMENT_2_METER_ROLE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<UsagePointMetrologyConfigurationRequirementRoleReference> table = dataModel.addTable(name(), UsagePointMetrologyConfigurationRequirementRoleReference.class);
-            table.map(UsagePointMetrologyConfigurationRequirementRoleReference.class);
+            Table<ReadingTypeRequirementMeterRoleUsage> table = dataModel.addTable(name(), ReadingTypeRequirementMeterRoleUsage.class);
+            table.map(ReadingTypeRequirementMeterRoleUsage.class);
 
-            Column metrologyConfigColumn = table.column(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.METROLOGY_CONFIGURATION.name())
-                    .number()
-                    .notNull()
-                    .add();
-            Column meterRoleColumn = table.column(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.METER_ROLE.name())
+            Column meterRoleColumn = table.column(ReadingTypeRequirementMeterRoleUsage.Fields.METER_ROLE.name())
                     .varChar(NAME_LENGTH)
                     .notNull()
                     .add();
             Column requirementColumn = table
-                    .column(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.READING_TYPE_REQUIREMENT.name())
+                    .column(ReadingTypeRequirementMeterRoleUsage.Fields.READING_TYPE_REQUIREMENT.name())
                     .number()
                     .notNull()
                     .add();
 
-            table.primaryKey("MTR_PK_CONF_ROLE_REQ_USAGE").on(metrologyConfigColumn, meterRoleColumn, requirementColumn).add();
-            table.foreignKey("FK_CONF_ROLE_REQ_TO_CONFIG")
-                    .references(UPMetrologyConfiguration.class)
-                    .on(metrologyConfigColumn)
-                    .onDelete(CASCADE)
-                    .map(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.METROLOGY_CONFIGURATION.fieldName())
-                    .reverseMap(MetrologyConfigurationImpl.Fields.REQUIREMENT_TO_ROLE_REFERENCES.fieldName())
-                    .composition()
-                    .add();
-            table.foreignKey("FK_CONF_ROLE_REQ_TO_ROLE")
+            table.primaryKey("MTR_PK_REQUIREMENT_2_ROLE").on(meterRoleColumn, requirementColumn).add();
+            table.foreignKey("FK_REQ2ROLE_TO_ROLE")
                     .references(MeterRole.class)
                     .on(meterRoleColumn)
-                    .map(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.METER_ROLE.fieldName())
+                    .map(ReadingTypeRequirementMeterRoleUsage.Fields.METER_ROLE.fieldName())
                     .add();
-            table.foreignKey("FK_CONF_ROLE_REQ_TO_REQ")
+            table.foreignKey("FK_REQ2ROLE_TO_REQ")
                     .references(ReadingTypeRequirement.class)
                     .on(requirementColumn)
-                    .map(UsagePointMetrologyConfigurationRequirementRoleReference.Fields.READING_TYPE_REQUIREMENT.fieldName())
+                    .map(ReadingTypeRequirementMeterRoleUsage.Fields.READING_TYPE_REQUIREMENT.fieldName())
                     .add();
         }
     },
@@ -1215,6 +1203,11 @@ public enum TableSpecs {
                     .number()
                     .conversion(NUMBER2ENUM)
                     .map(MetrologyPurposeImpl.Fields.DEFAULT_PURPOSE.fieldName())
+                    .add();
+            table.column(MetrologyPurposeImpl.Fields.TRANSLATABLE.name())
+                    .bool()
+                    .conversion(CHAR2BOOLEAN)
+                    .map(MetrologyPurposeImpl.Fields.TRANSLATABLE.fieldName())
                     .add();
 
             table.primaryKey("MTR_METROLOGY_PURPOSE_PK").on(idColumn).add();
@@ -1315,14 +1308,14 @@ public enum TableSpecs {
     MTR_CONTRACT_TO_DELIVERABLE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<MetrologyContractReadingTypeDeliverableMapping> table = dataModel.addTable(name(), MetrologyContractReadingTypeDeliverableMapping.class);
-            table.map(MetrologyContractReadingTypeDeliverableMapping.class);
+            Table<MetrologyContractReadingTypeDeliverableUsage> table = dataModel.addTable(name(), MetrologyContractReadingTypeDeliverableUsage.class);
+            table.map(MetrologyContractReadingTypeDeliverableUsage.class);
 
-            Column metrologyContractColumn = table.column(MetrologyContractReadingTypeDeliverableMapping.Fields.METROLOGY_CONTRACT.name())
+            Column metrologyContractColumn = table.column(MetrologyContractReadingTypeDeliverableUsage.Fields.METROLOGY_CONTRACT.name())
                     .number()
                     .notNull()
                     .add();
-            Column deliverableColumn = table.column(MetrologyContractReadingTypeDeliverableMapping.Fields.DELIVERABLE.name())
+            Column deliverableColumn = table.column(MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.name())
                     .number()
                     .notNull()
                     .add();
@@ -1331,14 +1324,14 @@ public enum TableSpecs {
             table.foreignKey("FK_CONTR_DELIVER_TO_CONTR")
                     .references(MetrologyContract.class)
                     .on(metrologyContractColumn)
-                    .map(MetrologyContractReadingTypeDeliverableMapping.Fields.METROLOGY_CONTRACT.fieldName())
+                    .map(MetrologyContractReadingTypeDeliverableUsage.Fields.METROLOGY_CONTRACT.fieldName())
                     .reverseMap(MetrologyContractImpl.Fields.DELIVERABLES.fieldName())
                     .composition()
                     .add();
             table.foreignKey("FK_CONTR_DELIVER_TO_DELIVER")
                     .references(ReadingTypeDeliverable.class)
                     .on(deliverableColumn)
-                    .map(MetrologyContractReadingTypeDeliverableMapping.Fields.DELIVERABLE.fieldName())
+                    .map(MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName())
                     .add();
         }
     },

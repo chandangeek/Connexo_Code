@@ -12,15 +12,10 @@ class MetrologyConfigurationReadingTypeRequirementBuilderImpl implements Metrolo
 
     private String name;
 
-    MetrologyConfigurationReadingTypeRequirementBuilderImpl(ServerMetrologyConfigurationService metrologyConfigurationService, MetrologyConfigurationImpl metrologyConfiguration) {
+    MetrologyConfigurationReadingTypeRequirementBuilderImpl(ServerMetrologyConfigurationService metrologyConfigurationService, MetrologyConfigurationImpl metrologyConfiguration, String name) {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.metrologyConfiguration = metrologyConfiguration;
-    }
-
-    @Override
-    public MetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder withName(String name) {
         this.name = name;
-        return this;
     }
 
     @Override

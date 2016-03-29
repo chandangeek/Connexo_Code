@@ -4,7 +4,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 
-public interface UPMetrologyConfiguration extends MetrologyConfiguration {
+public interface UsagePointMetrologyConfiguration extends MetrologyConfiguration {
 
     void addMeterRole(MeterRole meterRole);
 
@@ -16,9 +16,6 @@ public interface UPMetrologyConfiguration extends MetrologyConfiguration {
 
     @ProviderType
     interface MetrologyConfigurationReadingTypeRequirementBuilder extends MetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder {
-
-        @Override
-        MetrologyConfigurationReadingTypeRequirementBuilder withName(String name);
 
         MetrologyConfigurationReadingTypeRequirementBuilder withMeterRole(MeterRole meterRole);
     }

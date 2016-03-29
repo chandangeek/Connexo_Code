@@ -9,7 +9,6 @@ import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 
@@ -17,8 +16,8 @@ public class ReadingTypeTemplateInstaller {
 
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
-    public ReadingTypeTemplateInstaller(MetrologyConfigurationService metrologyConfigurationService) {
-        this.metrologyConfigurationService = (ServerMetrologyConfigurationService) metrologyConfigurationService;
+    public ReadingTypeTemplateInstaller(ServerMetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     public void install() {

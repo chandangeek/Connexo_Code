@@ -44,7 +44,7 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
 
     public static final Map<String, Class<? extends MetrologyConfiguration>> IMPLEMENTERS = ImmutableMap.of(
             MetrologyConfigurationImpl.TYPE_IDENTIFIER, MetrologyConfigurationImpl.class,
-            UPMetrologyConfigurationImpl.TYPE_IDENTIFIER, UPMetrologyConfigurationImpl.class);
+            UsagePointMetrologyConfigurationImpl.TYPE_IDENTIFIER, UsagePointMetrologyConfigurationImpl.class);
 
     public enum Fields {
         NAME("name"),
@@ -276,7 +276,7 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
 
     @Override
     public MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name) {
-        return new MetrologyConfigurationReadingTypeRequirementBuilderImpl(this.metrologyConfigurationService, this).withName(name);
+        return new MetrologyConfigurationReadingTypeRequirementBuilderImpl(this.metrologyConfigurationService, this, name);
     }
 
     @Override

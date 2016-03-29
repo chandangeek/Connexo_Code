@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.users.UserService;
@@ -107,6 +108,8 @@ public class DataAggregationServiceImplCalculateTest {
     private UserService userService;
     @Mock
     private MetrologyConfiguration metrologyConfiguration;
+    @Mock
+    private NlsService nlsService;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     private SqlBuilder withClauseBuilder;
@@ -130,7 +133,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.connection.prepareStatement(anyString())).thenReturn(this.preparedStatement);
         when(this.preparedStatement.executeQuery()).thenReturn(this.resultSet);
         when(this.dataModel.getInstance(AggregatedReadingRecordFactory.class)).thenReturn(new AggregatedReadingRecordFactoryImpl(this.dataModel));
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.eventService, this.userService);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.eventService, this.userService, this.nlsService);
         when(this.metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(this.contract));
         when(this.dataModel.query(eq(UsagePointMetrologyConfiguration.class), anyVararg())).thenReturn(this.queryExecutor);
         when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));

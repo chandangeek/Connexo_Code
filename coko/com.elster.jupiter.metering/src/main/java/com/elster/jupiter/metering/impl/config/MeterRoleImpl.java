@@ -2,8 +2,8 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 
@@ -11,7 +11,6 @@ import com.google.inject.Inject;
 
 import javax.validation.constraints.Size;
 import java.util.Objects;
-import java.util.Optional;
 
 public final class MeterRoleImpl implements MeterRole {
 
@@ -40,8 +39,8 @@ public final class MeterRoleImpl implements MeterRole {
         this.thesaurus = thesaurus;
     }
 
-    public MeterRoleImpl init(String key) {
-        this.key = key;
+    public MeterRoleImpl init(String nameKey) {
+        this.key = nameKey;
         return this;
     }
 
@@ -52,12 +51,7 @@ public final class MeterRoleImpl implements MeterRole {
 
     @Override
     public String getDisplayName() {
-        Optional<DefaultMeterRole> defaultMeterRole = DefaultMeterRole.from(this.key);
-        if (defaultMeterRole.isPresent()) {
-            return thesaurus.getFormat(defaultMeterRole.get()).format();
-        } else {
-            return thesaurus.getStringBeyondComponent(this.key, this.key);
-        }
+        return this.thesaurus.getFormat(new SimpleTranslationKey(this.key, this.key)).format();
     }
 
     @Override
@@ -70,7 +64,6 @@ public final class MeterRoleImpl implements MeterRole {
         }
 
         MeterRoleImpl that = (MeterRoleImpl) o;
-
         return this.key.equals(that.key);
     }
 

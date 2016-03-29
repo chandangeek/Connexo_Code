@@ -6,15 +6,14 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 public class Installer {
 
     private final MeteringService meteringService;
-    private final MetrologyConfigurationService metrologyConfigurationService;
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
-    Installer(MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService) {
+    Installer(MeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
@@ -29,11 +28,11 @@ public class Installer {
     }
 
     private void createMeterRoles() {
-        metrologyConfigurationService.newMeterRole(DefaultMeterRole.DEFAULT);//available to all service categories, so no need to attach
-        MeterRole production = metrologyConfigurationService.newMeterRole(DefaultMeterRole.PRODUCTION);
-        MeterRole consumption = metrologyConfigurationService.newMeterRole(DefaultMeterRole.CONSUMPTION);
-        MeterRole main = metrologyConfigurationService.newMeterRole(DefaultMeterRole.MAIN);
-        MeterRole check = metrologyConfigurationService.newMeterRole(DefaultMeterRole.CHECK);
+        metrologyConfigurationService.newMeterRole(DefaultMeterRole.DEFAULT.getNlsKey());//available to all service categories, so no need to attach
+        MeterRole production = metrologyConfigurationService.newMeterRole(DefaultMeterRole.PRODUCTION.getNlsKey());
+        MeterRole consumption = metrologyConfigurationService.newMeterRole(DefaultMeterRole.CONSUMPTION.getNlsKey());
+        MeterRole main = metrologyConfigurationService.newMeterRole(DefaultMeterRole.MAIN.getNlsKey());
+        MeterRole check = metrologyConfigurationService.newMeterRole(DefaultMeterRole.CHECK.getNlsKey());
 
         attachMeterRolesToServiceCategory(meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get(), production, consumption, main, check);
         attachMeterRolesToServiceCategory(meteringService.getServiceCategory(ServiceKind.GAS).get(), consumption, main, check);
@@ -48,9 +47,9 @@ public class Installer {
     }
 
     private void createMetrologyPurposes() {
-        metrologyConfigurationService.createMetrologyPurpose().fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
-        metrologyConfigurationService.createMetrologyPurpose().fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
-        metrologyConfigurationService.createMetrologyPurpose().fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.VOLTAGE_MONITORING);
+        metrologyConfigurationService.createMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
+        metrologyConfigurationService.createMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
+        metrologyConfigurationService.createMetrologyPurpose(DefaultMetrologyPurpose.VOLTAGE_MONITORING);
     }
 
     private void createReadingTypeTemplates() {

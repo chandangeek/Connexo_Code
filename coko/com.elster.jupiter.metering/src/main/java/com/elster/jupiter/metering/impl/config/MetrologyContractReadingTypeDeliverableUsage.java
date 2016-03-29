@@ -7,7 +7,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-public class MetrologyContractReadingTypeDeliverableMapping {
+public class MetrologyContractReadingTypeDeliverableUsage {
     public enum Fields {
         METROLOGY_CONTRACT("metrologyContract"),
         DELIVERABLE("deliverable"),;
@@ -28,7 +28,7 @@ public class MetrologyContractReadingTypeDeliverableMapping {
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeDeliverable> deliverable = ValueReference.absent();
 
-    MetrologyContractReadingTypeDeliverableMapping init(MetrologyContract metrologyContract, ReadingTypeDeliverable deliverable) {
+    MetrologyContractReadingTypeDeliverableUsage init(MetrologyContract metrologyContract, ReadingTypeDeliverable deliverable) {
         this.metrologyContract.set(metrologyContract);
         this.deliverable.set(deliverable);
         return this;

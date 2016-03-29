@@ -59,7 +59,7 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
 
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
-        UPMetrologyConfigurationImpl subInst = new UPMetrologyConfigurationImpl(metrologyConfigurationService, eventService);
+        UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(metrologyConfigurationService, eventService);
         Reflection.field("id").ofType(Long.TYPE).in(subInst).set(INSTANCE_A_ID);
         return subInst;
     }
