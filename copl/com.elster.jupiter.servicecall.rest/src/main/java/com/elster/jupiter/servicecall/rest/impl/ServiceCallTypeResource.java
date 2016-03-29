@@ -68,7 +68,7 @@ public class ServiceCallTypeResource {
             type.setLogLevel(null);
         }
         type.save();
-        return Response.status(Response.Status.OK).build();
+        return Response.ok(serviceCallTypeInfoFactory.from(type)).build();
     }
 
     private ServiceCallType fetchAndLockServiceCallType(ServiceCallTypeInfo info) {
