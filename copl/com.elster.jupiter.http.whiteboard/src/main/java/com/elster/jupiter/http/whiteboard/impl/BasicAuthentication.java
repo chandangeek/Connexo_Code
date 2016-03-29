@@ -168,6 +168,11 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
                 .execute();
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "EVT", "DVA");
+    }
+
     private void installDataModel() {
         dataModel.install(true, true);
     }
@@ -222,14 +227,15 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
         return Optional.empty();
     }
 
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "DVA");
-    }
-
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // Set no caching for specific resources regardless of the authentication type
+        if (isCachedResource(request.getRequestURL().toString())) {
+            response.setHeader("Cache-Control", "max-age=86400");
+        } else {
+            response.setHeader("Cache-Control", "no-cache");
+        }
+
         String authentication = request.getHeader("Authorization");
         if (authentication != null && authentication.startsWith("Basic ")) {
             return doBasicAuthentication(request, response, authentication.split(" ")[1]);
@@ -241,11 +247,6 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
                 return doCookieAuthorization(tokenCookie.get(), request, response);
             } else if (unsecureAllowed(request.getRequestURI())) {
                 response.setStatus(HttpServletResponse.SC_ACCEPTED);
-                if (isCachedResource(request.getRequestURL().toString())) {
-                    response.setHeader("Cache-Control", "max-age=86400");
-                } else {
-                    response.setHeader("Cache-Control", "no-cache");
-                }
                 return true;
             } else {
                 String server = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
@@ -253,7 +254,6 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
                 response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURL());
                 return true;
             }
-
         }
     }
 
