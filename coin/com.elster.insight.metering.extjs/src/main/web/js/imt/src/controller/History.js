@@ -7,20 +7,20 @@ Ext.define('Imt.controller.History', {
             route: 'usagepoints',
             disabled: true,
             items: {
-            	add: {
-                	title: Uni.I18n.translate('general.label.usagepoint.add', 'IMT', 'Add usage point'),
+                add: {
+                    title: Uni.I18n.translate('general.label.usagepoint.add', 'IMT', 'Add usage point'),
                     route: 'add',
                     privileges: Imt.privileges.UsagePoint.admin,
                     controller: 'Imt.usagepointmanagement.controller.Edit',
                     action: 'showWizard'
-            	},
-           		view: {
-           			title: Uni.I18n.translate('general.label.usagepoint.view', 'IMT', 'View usage point'),
-           			route: '{mRID}',
+                },
+                view: {
+                    title: Uni.I18n.translate('general.label.usagepoint.view', 'IMT', 'View usage point'),
+                    route: '{mRID}',
                     privileges: Imt.privileges.UsagePoint.view,
-           			controller: 'Imt.usagepointmanagement.controller.View',
-           			action: 'showUsagePoint',
-           			callback: function (route) {
+                    controller: 'Imt.usagepointmanagement.controller.View',
+                    action: 'showUsagePoint',
+                    callback: function (route) {
                         this.getApplication().on('usagePointLoaded', function (record) {
                             route.setTitle(record.get('mRID'));
                             return true;
@@ -28,7 +28,7 @@ Ext.define('Imt.controller.History', {
 
                         return this;
                     },
-           			items: {
+                    items: {
                         //edit: {
                         //    title: Uni.I18n.translate('general.label.usagepoint.edit', 'IMT', 'Edit'),
                         //    route: 'edit',
@@ -179,13 +179,13 @@ Ext.define('Imt.controller.History', {
                                 }
                             }
                         },
-           			    registers: {
+                        registers: {
                             title: Uni.I18n.translate('general.label.usagepoint.registers', 'IMT', 'Registers'),
                             route: 'registers',
                             controller: 'Imt.registerdata.controller.View',
                             action: 'showUsagePointRegisters',
                             items: {
-                            	register: {
+                                register: {
                                     title: Uni.I18n.translate('general.label.usagepoint.register', 'IMT', 'Register'),
                                     route: '{registerId}',
                                     controller: 'Imt.registerdata.controller.ViewData',
@@ -203,19 +203,19 @@ Ext.define('Imt.controller.History', {
                                             title: Uni.I18n.translate('general.addReading', 'IMT', 'Add reading'),
                                             route: 'add',
                                             controller: 'Imt.registerdata.controller.EditData',
-                                 //           privileges: Mdc.privileges.Device.administrateDeviceData,
+                                            //           privileges: Mdc.privileges.Device.administrateDeviceData,
                                             action: 'showRegisterDataAddView',
-                                 //           dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
-                                 //           dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
+                                            //           dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                                            //           dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
                                         },
                                         edit: {
                                             title: Uni.I18n.translate('registerdata.editReading', 'IMT', 'Edit reading'),
                                             route: '{timestamp}/edit',
                                             controller: 'Imt.registerdata.controller.EditData',
-                                  //          privileges: Mdc.privileges.Device.administrateDeviceData,
+                                            //          privileges: Mdc.privileges.Device.administrateDeviceData,
                                             action: 'showRegisterDataEditView',
-                                  //          dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
-                                  //          dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
+                                            //          dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                                            //          dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
                                         }
                                     }
                                 },
@@ -235,38 +235,38 @@ Ext.define('Imt.controller.History', {
                                     }
                                 },
                             }
-           			    },
-           			    datavalidation: {
+                        },
+                        datavalidation: {
                             title: Uni.I18n.translate('general.label.usagepoint.validation.configuration', 'IMT', 'Validation configuration'),
                             route: 'datavalidation',
                             controller: 'Imt.validation.controller.UsagePointDataValidation',
                             action: 'showUsagePointDataValidationMainView',
-           			    },
+                        },
                         device: {
-                             title: Uni.I18n.translate('general.label.device.view', 'IMT', 'View device'),
-                             route: 'device/{deviceMRID}',
-                             controller: 'Imt.devicemanagement.controller.Device',
-                             action: 'showDevice',
-                             callback: function (route) {
-                                 this.getApplication().on('deviceloaded', function (record) {
-                                     route.setTitle('Device ' + record.get('name'));
-                                     return true;
-                                 }, {single: true});       
-                                 return this;
-                             } 
+                            title: Uni.I18n.translate('general.label.device.view', 'IMT', 'View device'),
+                            route: 'device/{deviceMRID}',
+                            controller: 'Imt.devicemanagement.controller.Device',
+                            action: 'showDevice',
+                            callback: function (route) {
+                                this.getApplication().on('deviceloaded', function (record) {
+                                    route.setTitle('Device ' + record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
                         },
                         metrologyconfiguration: {
-                           title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-                           route: 'metrologyconfiguration/{mcid}',
-                           controller: 'Imt.usagepointmanagement.controller.View',
-                           action: 'showMetrologyConfiguration',
-                           callback: function (route) {
-                               this.getApplication().on('metrologyConfigurationLoaded', function (record) {
-                                   route.setTitle(record.get('name'));
-                                   return true;
-                               }, {single: true});       
-                               return this;
-                           }  
+                            title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
+                            route: 'metrologyconfiguration/{mcid}',
+                            controller: 'Imt.usagepointmanagement.controller.View',
+                            action: 'showMetrologyConfiguration',
+                            callback: function (route) {
+                                this.getApplication().on('metrologyConfigurationLoaded', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
                         },
                         history: {
                             title: Uni.I18n.translate('general.history', 'IMT', 'History'),
@@ -327,10 +327,24 @@ Ext.define('Imt.controller.History', {
                                     }
                                 }
                             }
+                        },
+                        servicecalls: {
+                            title: Uni.I18n.translate('general.serviceCalls', 'IMT', 'Service calls'),
+                            route: 'servicecalls',
+                            controller: 'Imt.servicecalls.controller.ServiceCalls',
+                            action: 'showServiceCalls',
+                            items: {
+                                history: {
+                                    title: Uni.I18n.translate('general.history', 'IMT', 'History'),
+                                    route: 'history',
+                                    controller: 'Imt.servicecalls.controller.ServiceCalls',
+                                    action: 'showServiceCallHistory'
+                                }
+                            }
                         }
-           			}
-           		},
-           		device: {
+                    }
+                },
+                device: {
                     title: Uni.I18n.translate('general.label.device.view', 'IMT', 'View device'),
                     route: 'device/{deviceMRID}',
                     controller: 'Imt.devicemanagement.controller.Device',
@@ -339,10 +353,10 @@ Ext.define('Imt.controller.History', {
                         this.getApplication().on('deviceloaded', function (record) {
                             route.setTitle('Device ' + record.get('name'));
                             return true;
-                        }, {single: true});       
+                        }, {single: true});
                         return this;
-                    } 
-               }
+                    }
+                }
             }
         },
         administration: {
@@ -410,14 +424,14 @@ Ext.define('Imt.controller.History', {
                                     route: 'associatedvalidationrulesets',
                                     controller: 'Imt.metrologyconfiguration.controller.ValidationRuleSets',
                                     action: 'showValidationRuleSetsOverview',
-	                                items: {
-	                                	addruleset: {
-	                                        title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'IMT', 'Add validation rule set'),
-	                                        route: 'addruleset',
-	                                        controller: 'Imt.metrologyconfiguration.controller.ValidationRuleSets',
-	                                        action: 'showAddValidationRuleSets'
-	                                    },
-	                                }
+                                    items: {
+                                        addruleset: {
+                                            title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'IMT', 'Add validation rule set'),
+                                            route: 'addruleset',
+                                            controller: 'Imt.metrologyconfiguration.controller.ValidationRuleSets',
+                                            action: 'showAddValidationRuleSets'
+                                        },
+                                    }
                                 }
                             }
                         }
@@ -433,7 +447,7 @@ Ext.define('Imt.controller.History', {
             }
         },
         search: {
-            title: Uni.I18n.translate('general.label.search','IMT','Search'),
+            title: Uni.I18n.translate('general.label.search', 'IMT', 'Search'),
             route: 'search',
             controller: 'Imt.controller.Search',
             action: 'showOverview'
