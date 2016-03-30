@@ -15,12 +15,8 @@ public class HasQuantityMultiplierValidator implements ConstraintValidator<HasQu
 
     @Override
     public boolean isValid(Quantity value, ConstraintValidatorContext context) {
-        if (value!=null) {
-            if (value.getMultiplier() < constraintAnnotation.min()
-                    || value.getMultiplier() > constraintAnnotation.max()) {
-                return false;
-            }
-        }
-        return true;
+        return value == null
+                || value.getMultiplier() >= constraintAnnotation.min()
+                && value.getMultiplier() <= constraintAnnotation.max();
     }
 }

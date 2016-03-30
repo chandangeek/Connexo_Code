@@ -2,6 +2,7 @@ package com.elster.jupiter.util.units;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Arrays;
 
 public class HasQuantityUnitValidator implements ConstraintValidator<HasQuantityUnit, Quantity> {
 
@@ -14,17 +15,6 @@ public class HasQuantityUnitValidator implements ConstraintValidator<HasQuantity
 
     @Override
     public boolean isValid(Quantity value, ConstraintValidatorContext context) {
-
-        if(value != null) {
-            if (value.getUnit() != null) {
-                for (Unit unit : constraintAnnotation.units()) {
-                    if (value.getUnit().equals(unit)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        return true;
+        return value == null || Arrays.asList(constraintAnnotation.units()).contains(value.getUnit());
     }
 }
