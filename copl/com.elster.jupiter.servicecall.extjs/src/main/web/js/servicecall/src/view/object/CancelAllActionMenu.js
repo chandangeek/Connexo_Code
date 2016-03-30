@@ -1,4 +1,4 @@
-Ext.define('Scs.view.CancelAllActionMenu', {
+Ext.define('Scs.view.object.CancelAllActionMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.cancel-all-action-menu',
     plain: true,

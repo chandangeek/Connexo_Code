@@ -13,7 +13,7 @@ Ext.define('Scs.view.Grid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Scs.view.ActionMenu',
-        'Scs.view.CancelAllActionMenu'
+        'Scs.view.object.CancelAllActionMenu'
     ],
 
     initComponent: function () {
