@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.config;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.nls.NlsKey;
 
@@ -21,7 +20,6 @@ public interface MetrologyConfigurationService {
     String COMPONENT_NAME = "MCF";
 
     MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory);
-
 
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
 
@@ -53,6 +51,8 @@ public interface MetrologyConfigurationService {
 
     Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id);
 
+    Optional<ReadingTypeTemplate> findReadingTypeTemplate(String name);
+
     Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version);
 
     MetrologyPurpose createMetrologyPurpose(NlsKey name, NlsKey description);
@@ -62,8 +62,6 @@ public interface MetrologyConfigurationService {
     Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
 
     List<MetrologyPurpose> getMetrologyPurposes();
-
-    ReadingTypeDeliverable createReadingTypeDeliverable(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula formula);
 
     List<ReadingTypeDeliverable> findReadingTypeDeliverable(ReadingTypeDeliverableFilter filter);
 

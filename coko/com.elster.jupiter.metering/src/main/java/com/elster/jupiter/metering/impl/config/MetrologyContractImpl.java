@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,8 +76,14 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     @Override
     public void removeDeliverable(ReadingTypeDeliverable deliverable) {
-        if (this.deliverables.remove(deliverable)) {
-            touch();
+        Iterator<MetrologyContractReadingTypeDeliverableUsage> iterator = this.deliverables.iterator();
+        while (iterator.hasNext()) {
+            MetrologyContractReadingTypeDeliverableUsage usage = iterator.next();
+            if (usage.getDeliverable().equals(deliverable)) {
+                iterator.remove();
+                this.touch();
+                return;
+            }
         }
     }
 

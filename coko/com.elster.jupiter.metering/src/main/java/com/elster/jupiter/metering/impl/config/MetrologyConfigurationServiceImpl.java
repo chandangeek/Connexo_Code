@@ -3,9 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
@@ -62,16 +60,12 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     private static final String METER_PURPOSE_KEY_PREFIX = "metrology.purpose.";
 
     private volatile ServerMeteringService meteringService;
-    private volatile EventService eventService;
     private volatile UserService userService;
-    private volatile NlsService nlsService;
 
     @Inject
-    public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, EventService eventService, UserService userService, NlsService nlsService) {
+    public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, UserService userService) {
         this.meteringService = meteringService;
-        this.eventService = eventService;
         this.userService = userService;
-        this.nlsService = nlsService;
     }
 
     @Override
@@ -207,11 +201,6 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         return new FormulaBuilderImpl(mode, getDataModel(), getThesaurus());
     }
 
-    public ReadingTypeDeliverableBuilder newReadingTypeDeliverableBuilder(String name, MetrologyConfiguration metrologyConfiguration, ReadingType readingType, Formula.Mode mode) {
-        return new ReadingTypeDeliverableBuilder(metrologyConfiguration, name, readingType, mode, getDataModel(), this.getThesaurus());
-    }
-
-
     public Optional<Formula> findFormula(long id) {
         return getDataModel().mapper(Formula.class).getOptional(id);
     }
@@ -240,6 +229,11 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id) {
         return getDataModel().mapper(ReadingTypeTemplate.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<ReadingTypeTemplate> findReadingTypeTemplate(String name) {
+        return getDataModel().mapper(ReadingTypeTemplate.class).getUnique(ReadingTypeTemplateImpl.Fields.NAME.fieldName(), name);
     }
 
     @Override
@@ -310,11 +304,6 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public List<MetrologyPurpose> getMetrologyPurposes() {
         return getDataModel().mapper(MetrologyPurpose.class).find();
-    }
-
-    //@Override
-    public ReadingTypeDeliverable createReadingTypeDeliverable(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula formula) {
-        return metrologyConfiguration.addReadingTypeDeliverable(name, readingType, formula);
     }
 
     @Override

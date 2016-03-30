@@ -12,10 +12,9 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
-import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.impl.config.FormulaBuilder;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -306,7 +305,7 @@ public class ConsoleCommands {
             if (!config.isPresent()) {
                 throw new RuntimeException("no metrology config found with id " + metrologyConfigId);
             }
-            config.get().addReadingTypeRequirement(name)
+            config.get().newReadingTypeRequirement(name)
                     .withReadingType(readingType.get());
             context.commit();
         }
@@ -326,10 +325,8 @@ public class ConsoleCommands {
 
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
 
-
-            ReadingTypeDeliverableBuilder builder =
-                    metrologyConfigurationService.newReadingTypeDeliverableBuilder(name, config.get(), readingType.get(), Formula.Mode.EXPERT);
-            ReadingTypeDeliverable deliverable = builder.build(node);
+            ReadingTypeDeliverableBuilder builder = config.get().newReadingTypeDeliverable(name, readingType.get(), Formula.Mode.EXPERT);
+            builder.build(node);
 
             context.commit();
         }

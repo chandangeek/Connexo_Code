@@ -4,14 +4,15 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
 import java.math.BigDecimal;
+
+;
 
 /**
  * Created by igh on 24/03/2016.
@@ -20,10 +21,10 @@ public class ReadingTypeDeliverableBuilder {
 
     private FormulaBuilderImpl formulaBuilder;
     private String name;
-    private MetrologyConfiguration metrologyConfiguration;
+    private ServerMetrologyConfiguration metrologyConfiguration;
     private ReadingType readingType;
 
-    public ReadingTypeDeliverableBuilder(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula.Mode mode, DataModel dataModel, Thesaurus thesaurus) {
+    public ReadingTypeDeliverableBuilder(ServerMetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula.Mode mode, DataModel dataModel, Thesaurus thesaurus) {
         this.formulaBuilder = new FormulaBuilderImpl(mode, dataModel, thesaurus);
         this.name = name;
         this.metrologyConfiguration = metrologyConfiguration;
@@ -103,6 +104,5 @@ public class ReadingTypeDeliverableBuilder {
     public ReadingTypeDeliverable doBuild() {
         return metrologyConfiguration.addReadingTypeDeliverable(name, readingType, formulaBuilder.build());
     }
-
 
 }
