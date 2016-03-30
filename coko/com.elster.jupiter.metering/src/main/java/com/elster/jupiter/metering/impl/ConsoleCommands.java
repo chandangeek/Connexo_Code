@@ -294,40 +294,38 @@ public class ConsoleCommands {
 
     }
 
+    public void addRequirement() {
+        System.out.println("Usage: addRequirement <name> <reading type> <metrology configuration id>");
+    }
+
     public void addRequirement(String name, String readingTypeString, long metrologyConfigId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Optional<MetrologyConfiguration> config = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId);
-            Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeString);
-            if (!readingType.isPresent()) {
-                throw new RuntimeException("ReadingType does not exist");
-            }
-            if (!config.isPresent()) {
-                throw new RuntimeException("no metrology config found with id " + metrologyConfigId);
-            }
-            config.get().newReadingTypeRequirement(name)
-                    .withReadingType(readingType.get());
+            MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
+            ReadingType readingType = meteringService.getReadingType(readingTypeString)
+                    .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
+
+            metrologyConfiguration.newReadingTypeRequirement(name).withReadingType(readingType);
             context.commit();
         }
+    }
+
+    public void addDeliverable() {
+        System.out.println("Usage: addDeliverable <name> <reading type> <metrology configuration id> <formula string>");
     }
 
     public void addDeliverable(String name, String readingTypeString, long metrologyConfigId, String formulaString) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Optional<MetrologyConfiguration> config = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId);
-            Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeString);
-            if (!readingType.isPresent()) {
-                throw new RuntimeException("ReadingType does not exist");
-            }
-            if (!config.isPresent()) {
-                throw new RuntimeException("no metrology config found with id " + metrologyConfigId);
-            }
+            MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
+            ReadingType readingType = meteringService.getReadingType(readingTypeString)
+                    .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
 
-            ReadingTypeDeliverableBuilder builder = config.get().newReadingTypeDeliverable(name, readingType.get(), Formula.Mode.EXPERT);
-            builder.build(node);
-
+            metrologyConfigurationService.newReadingTypeDeliverableBuilder(name, metrologyConfiguration, readingType, Formula.Mode.EXPERT).build(node);
             context.commit();
         }
     }
