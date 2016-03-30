@@ -3,6 +3,7 @@ Ext.define('Idc.view.LogGrid', {
     alias: 'widget.issue-details-log-grid',
     store: null,
     ui: 'medium',
+    maxHeight: 408,
     columns: [
         {
             text: Uni.I18n.translate('general.timestamp', 'IDC', 'Timestamp'),
