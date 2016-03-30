@@ -39,7 +39,11 @@ import com.energyict.mdc.device.data.impl.tasks.report.CommunicationTaskReportSe
 import com.energyict.mdc.device.data.impl.tasks.report.ConnectionTaskReportServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -49,6 +53,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -339,7 +344,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     }
 
     @Reference
-    public void setTransactionService(TransactionService transactionService){
+    public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
 
@@ -389,7 +394,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     }
 
     @Reference
-    public void setJsonService(JsonService jsonService){
+    public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
     }
 
@@ -434,7 +439,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     }
 
     @Reference
-    public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService readingTypeUtilService){
+    public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService readingTypeUtilService) {
         this.readingTypeUtilService = readingTypeUtilService;
     }
 
@@ -633,8 +638,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
                 statement.executeUpdate();
                 // Don't care about how many rows were updated and if that matches the expected number of updates
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
@@ -642,7 +646,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     @Override
     public Map<TaskStatus, Long> fetchTaskStatusCounters(PreparedStatementProvider preparedStatementProvider) {
         Map<TaskStatus, Long> counters = new HashMap<>();
-        try (PreparedStatement statement = preparedStatementProvider.prepare(this.dataModel.getConnection(true))) {
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = preparedStatementProvider.prepare(connection)) {
             this.fetchTaskStatusCounters(statement, counters);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
@@ -663,7 +668,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     @Override
     public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(PreparedStatementProvider builder) {
         Map<Long, Map<TaskStatus, Long>> counters = new HashMap<>();
-        try (PreparedStatement statement = builder.prepare(this.dataModel.getConnection(true))) {
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = builder.prepare(connection)) {
             this.fetchTaskStatusBreakdown(statement, counters);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
@@ -699,8 +705,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private EnumSet<TaskStatus> taskStatusComplement(Set<TaskStatus> taskStatuses) {
         if (taskStatuses.isEmpty()) {
             return EnumSet.allOf(TaskStatus.class);
-        }
-        else {
+        } else {
             return EnumSet.complementOf(EnumSet.copyOf(taskStatuses));
         }
     }

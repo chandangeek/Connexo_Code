@@ -1,17 +1,18 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.device.data.impl.UpdateEventType;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.UpdateEventType;
+
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -54,7 +55,8 @@ public class ComScheduleUpdatedMessageHandler implements MessageHandler {
         String topic = (String) messageProperties.get(EventConstants.EVENT_TOPIC);
         if (TOPIC.equals(topic)) {
             long comScheduleId = this.getLong("id", messageProperties);
-            try (PreparedStatement preparedStatement = this.dataModel.getConnection(true).prepareStatement("SELECT MIN(id), MAX(id) FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " WHERE comschedule = ?")){
+            try (Connection connection = this.dataModel.getConnection(true);
+                 PreparedStatement preparedStatement = connection.prepareStatement("SELECT MIN(id), MAX(id) FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " WHERE comschedule = ?")) {
                 try (ResultSet resultSet = preparedStatement.getResultSet()) {
                     resultSet.first();
                     long minId = resultSet.getLong(0);
