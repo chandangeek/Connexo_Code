@@ -65,7 +65,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private TemporalReference<EndDeviceLifeCycleStatus> status = Temporals.absent();
     private StateManager stateManager = new NoDeviceLifeCycle();
     private final Reference<Location> location = ValueReference.absent();
-    private final Reference<GeoCoordinates> coordinates = ValueReference.absent();
+    private final Reference<GeoCoordinates> geoCoordinates = ValueReference.absent();
 
     private final Clock clock;
     private final DataModel dataModel;
@@ -175,7 +175,12 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
 
     @Override
     public Optional<GeoCoordinates> getGeoCoordinates() {
-        return coordinates.getOptional();
+        return geoCoordinates.getOptional();
+    }
+
+    @Override
+    public void setGeoCoordintes(GeoCoordinates geoCoordinates){
+        this.geoCoordinates.set(geoCoordinates);
     }
 
     @Override

@@ -250,7 +250,7 @@ public enum TableSpecs {
                     .on(geoCoordinatesIdColumn)
                     .references(GeoCoordinates.class)
                     .onDelete(RESTRICT)
-                    .map("coordinates")
+                    .map("geoCoordinates")
                     .add();
         }
     },
@@ -325,7 +325,7 @@ public enum TableSpecs {
                     .on(geoCoordinatesIdColumn)
                     .references(GeoCoordinates.class)
                     .onDelete(RESTRICT)
-                    .map("coordinates")
+                    .map("geoCoordinates")
                     .add();
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
         }

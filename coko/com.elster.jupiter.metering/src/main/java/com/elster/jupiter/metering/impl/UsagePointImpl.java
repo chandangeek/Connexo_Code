@@ -87,7 +87,7 @@ public class UsagePointImpl implements UsagePoint {
     private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
     private List<UsagePointConfigurationImpl> usagePointConfigurations = new ArrayList<>();
     private final Reference<Location> upLocation = ValueReference.absent();
-    private final Reference<GeoCoordinates> coordinates = ValueReference.absent();
+    private final Reference<GeoCoordinates> geoCoordinates = ValueReference.absent();
 
     private final Clock clock;
     private final DataModel dataModel;
@@ -702,6 +702,6 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public Optional<GeoCoordinates> getGeoCoordinates() {
-        return coordinates.getOptional();
+        return geoCoordinates.getOptional();
     }
 }
