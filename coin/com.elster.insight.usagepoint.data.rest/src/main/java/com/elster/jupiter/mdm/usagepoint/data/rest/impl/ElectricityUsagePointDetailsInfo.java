@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -13,16 +14,16 @@ import java.time.Clock;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ElectricityUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
-    public boolean grounded;
+    public YesNoAnswer grounded;
     public Quantity nominalServiceVoltage;
     public PhaseCode phaseCode;
     public Quantity ratedCurrent;
     public Quantity ratedPower;
     public Quantity estimatedLoad;
-    public boolean limiter;
+    public YesNoAnswer limiter;
     public String loadLimiterType;
     public Quantity loadLimit;
-    public boolean interruptible;
+    public YesNoAnswer interruptible;
 
     public ElectricityUsagePointDetailsInfo() {
     }

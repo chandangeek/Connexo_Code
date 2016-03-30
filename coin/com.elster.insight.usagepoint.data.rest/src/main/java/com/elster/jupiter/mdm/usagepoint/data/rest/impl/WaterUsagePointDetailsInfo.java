@@ -10,10 +10,10 @@ import java.time.Clock;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class WaterUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
-    public boolean grounded;
+    public YesNoAnswer grounded;
     public Quantity pressure;
     public Quantity physicalCapacity;
-    public boolean limiter;
+    public YesNoAnswer limiter;
     public String loadLimiterType;
     public Quantity loadLimit;
     public YesNoAnswer bypass;
