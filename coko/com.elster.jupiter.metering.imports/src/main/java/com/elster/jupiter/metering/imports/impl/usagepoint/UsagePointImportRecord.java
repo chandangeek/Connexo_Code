@@ -27,7 +27,7 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     //Technical
 
     private YesNoAnswer collar;
-    private Boolean grounded;
+    private YesNoAnswer grounded;
 
     private BigDecimal pressureValue;
     private Integer pressureMultiplier;
@@ -37,7 +37,7 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     private Integer physicalCapacityMultiplier;
     private String physicalCapacityUnit;
 
-    private Boolean limiter;
+    private YesNoAnswer limiter;
     private String loadLimiterType;
     private BigDecimal loadLimitValue;
     private Integer loadLimitMultiplier;
@@ -49,7 +49,7 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     private YesNoAnswer valve;
     private YesNoAnswer capped;
     private YesNoAnswer clamped;
-    private Boolean interruptible;
+    private YesNoAnswer interruptible;
 
     private String phaseCode;
 
@@ -159,19 +159,19 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
         this.collar = collar;
     }
 
-    public Optional<Boolean> isGrounded() {
+    public Optional<YesNoAnswer> isGrounded() {
         return Optional.ofNullable(grounded);
     }
 
-    public void setGrounded(Boolean grounded) {
+    public void setGrounded(YesNoAnswer grounded) {
         this.grounded = grounded;
     }
 
-    public Optional<Boolean> isInterruptible() {
+    public Optional<YesNoAnswer> isInterruptible() {
         return Optional.ofNullable(interruptible);
     }
 
-    public void setInterruptible(Boolean interruptible) {
+    public void setInterruptible(YesNoAnswer interruptible) {
         this.interruptible = interruptible;
     }
 
@@ -183,11 +183,11 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
         this.phaseCode = phaseCode.toUpperCase();
     }
 
-    public Optional<Boolean> isLimiterInstalled() {
+    public Optional<YesNoAnswer> isLimiterInstalled() {
         return Optional.ofNullable(limiter);
     }
 
-    public void setLimiter(Boolean limiter) {
+    public void setLimiter(YesNoAnswer limiter) {
         this.limiter = limiter;
     }
 

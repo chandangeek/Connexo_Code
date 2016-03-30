@@ -99,7 +99,7 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
                 .withSetter(record::setCollar)
                 .withName("collar")
                 .build());
-        fields.put("grounded", CommonField.withParser(booleanParser)
+        fields.put("grounded", CommonField.withParser(yesNoAnswerParser)
                 .withSetter(record::setGrounded)
                 .withName("grounded")
                 .build());
@@ -179,7 +179,7 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
                 .withSetter(record::setPhysicalCapacityUnit)
                 .withName("physicalCapacityUnit")
                 .build());
-        fields.put("limiter", CommonField.withParser(booleanParser)
+        fields.put("limiter", CommonField.withParser(yesNoAnswerParser)
                 .withSetter(record::setLimiter)
                 .withName("limiter")
                 .build());
@@ -219,7 +219,7 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
                 .withSetter(record::setClamp)
                 .withName("clamped")
                 .build());
-        fields.put("interruptible", CommonField.withParser(booleanParser)
+        fields.put("interruptible", CommonField.withParser(yesNoAnswerParser)
                 .withSetter(record::setInterruptible)
                 .withName("interruptible")
                 .build());

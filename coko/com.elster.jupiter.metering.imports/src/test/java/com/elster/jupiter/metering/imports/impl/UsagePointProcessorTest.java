@@ -153,16 +153,16 @@ public class UsagePointProcessorTest {
         when(nlsMessageFormat.format(anyInt(),anyInt())).thenReturn("message");
         when(usagePoint.newElectricityDetailBuilder(any(Instant.class))).thenReturn(usagePointDetailBuilder);
         when(usagePointDetailBuilder.withCollar(any(YesNoAnswer.class))).thenReturn(usagePointDetailBuilder);
-        when(usagePointDetailBuilder.withGrounded(any(Boolean.class))).thenReturn(usagePointDetailBuilder);
+        when(usagePointDetailBuilder.withGrounded(any(YesNoAnswer.class))).thenReturn(usagePointDetailBuilder);
         when(usagePointDetailBuilder.withNominalServiceVoltage(any(Quantity.class))).thenReturn(usagePointDetailBuilder);
         when(usagePointDetailBuilder.withPhaseCode(any(PhaseCode.class))).thenReturn(usagePointDetailBuilder);
         when(usagePointDetailBuilder.withRatedCurrent(any(Quantity.class))).thenReturn(usagePointDetailBuilder);
         when(usagePointDetailBuilder.withRatedPower(any(Quantity.class))).thenReturn(usagePointDetailBuilder);
         when(usagePointDetailBuilder.withEstimatedLoad(any(Quantity.class))).thenReturn(usagePointDetailBuilder);
-        when(usagePointDetailBuilder.withLimiter(any(Boolean.class))).thenReturn(usagePointDetailBuilder);
+        when(usagePointDetailBuilder.withLimiter(any(YesNoAnswer.class))).thenReturn(usagePointDetailBuilder);
         when(usagePointDetailBuilder.withLoadLimit(any(Quantity.class))).thenReturn(usagePointDetailBuilder);
         when(usagePointDetailBuilder.withLoadLimiterType(any(String.class))).thenReturn(usagePointDetailBuilder);
-        when(usagePointDetailBuilder.withInterruptible(any(Boolean.class))).thenReturn(usagePointDetailBuilder);
+        when(usagePointDetailBuilder.withInterruptible(any(YesNoAnswer.class))).thenReturn(usagePointDetailBuilder);
         when(usagePoint.forCustomProperties()).thenReturn(usagePointCustomPropertySetExtension);
         when(usagePointCustomPropertySetExtension.getAllPropertySets()).thenReturn(Collections.emptyList());
 
