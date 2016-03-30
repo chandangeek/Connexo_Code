@@ -309,20 +309,14 @@ public class UsagePointImpl implements UsagePoint {
         this.removeMetrologyConfigurationCustomPropertySetValues();
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
-        this.removeMeterActivations();
         dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
     private void removeDetail() {
-        List<UsagePointDetailImpl> detailList = this.getDetail(Range.all());
-        detailList.forEach(dataModel::remove);
+        this.getDetail(Range.all()).forEach(detail::remove);
     }
 
-    private void removeMeterActivations() {
-        List<MeterActivationImpl> maList = this.getMeterActivations();
-        maList.forEach(dataModel::remove);
-    }
 
     private void removeMetrologyConfigurationCustomPropertySetValues() {
         this.removeCustomPropertySetValues(
