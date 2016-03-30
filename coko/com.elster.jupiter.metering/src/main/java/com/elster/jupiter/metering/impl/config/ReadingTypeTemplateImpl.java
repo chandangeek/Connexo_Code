@@ -176,7 +176,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
         }
 
         @Override
-        public void done() {
+        public ReadingTypeTemplate done() {
             if (!this.attributes.isEmpty()) {
                 this.template.allAttributes.removeAll(this.attributes);
                 this.template.allAttributes.addAll(this.attributes);
@@ -192,8 +192,14 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
                     }
                 }
                 this.template.persistedAttributes.addAll(this.attributes);
-                this.template.dataModel.touch(this.template);
+                if (this.template.getId() > 0) {
+                    this.template.dataModel.touch(this.template);
+                }
             }
+            if (this.template.getId() == 0) {
+                this.template.save();
+            }
+            return this.template;
         }
     }
 }

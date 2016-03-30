@@ -211,19 +211,17 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public ReadingTypeTemplate createReadingTypeTemplate(String name) {
+    public ReadingTypeTemplate.ReadingTypeTemplateUpdater createReadingTypeTemplate(String name) {
         ReadingTypeTemplateImpl template = getDataModel().getInstance(ReadingTypeTemplateImpl.class)
                 .init(name);
-        template.save();
-        return template;
+        return template.startUpdate();
     }
 
     @Override
-    public ReadingTypeTemplate createReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate) {
+    public ReadingTypeTemplate.ReadingTypeTemplateUpdater createReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate) {
         ReadingTypeTemplateImpl template = getDataModel().getInstance(ReadingTypeTemplateImpl.class)
                 .init(defaultTemplate);
-        template.save();
-        return template;
+        return template.startUpdate();
     }
 
     @Override

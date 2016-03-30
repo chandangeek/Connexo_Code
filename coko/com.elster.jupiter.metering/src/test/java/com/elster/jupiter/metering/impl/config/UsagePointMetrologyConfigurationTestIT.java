@@ -195,7 +195,9 @@ public class UsagePointMetrologyConfigurationTestIT {
         MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
         serviceCategory.addMeterRole(meterRole);
         metrologyConfiguration.addMeterRole(meterRole);
-        ReadingTypeTemplate readingTypeTemplate = getMetrologyConfigurationService().createReadingTypeTemplate("Zero reading type template");
+        ReadingTypeTemplate readingTypeTemplate = getMetrologyConfigurationService()
+                .createReadingTypeTemplate("Zero reading type template")
+                .done();
         metrologyConfiguration.newReadingTypeRequirement("Reading type requirement")
                 .withReadingTypeTemplate(readingTypeTemplate);
     }

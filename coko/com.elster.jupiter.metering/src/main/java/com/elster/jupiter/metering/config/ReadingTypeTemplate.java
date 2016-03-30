@@ -1,9 +1,10 @@
 package com.elster.jupiter.metering.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.Set;
 
@@ -51,6 +52,6 @@ public interface ReadingTypeTemplate extends HasId, HasName {
          */
         ReadingTypeTemplateUpdater setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues);
 
-        void done();
+        ReadingTypeTemplate done();
     }
 }

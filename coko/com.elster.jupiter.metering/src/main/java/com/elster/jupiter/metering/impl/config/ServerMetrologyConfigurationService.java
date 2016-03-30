@@ -26,7 +26,7 @@ public interface ServerMetrologyConfigurationService extends MetrologyConfigurat
 
     MetrologyPurpose createMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
 
-    ReadingTypeTemplate createReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate);
+    ReadingTypeTemplate.ReadingTypeTemplateUpdater createReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate);
 
     Optional<Formula> findFormula(long id);
 
