@@ -27,7 +27,7 @@ Ext.define('Uni.property.view.property.Quantity', {
                 valueField: 'id',
                 queryMode: 'local',
                 forceSelection: true,
-                value: possibleValues[0] ? possibleValues[0].id : null
+                value: possibleValues[0] ? possibleValues[0].multiplier + possibleValues[0].unit : null
             }
         ];
     },
