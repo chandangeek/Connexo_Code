@@ -287,8 +287,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
-    public ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode) {
-        return new ReadingTypeDeliverableBuilder(this, name, readingType, mode, this.metrologyConfigurationService.getDataModel(), this.metrologyConfigurationService.getThesaurus());
+    public ReadingTypeDeliverableBuilderImpl newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode) {
+        return new ReadingTypeDeliverableBuilderImpl(this, name, readingType, mode, this.metrologyConfigurationService.getDataModel(), this.metrologyConfigurationService.getThesaurus());
     }
 
     @Override
