@@ -137,8 +137,9 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     @Override
     public boolean validateName() {
         ReadingTypeDeliverableFilter filter = new ReadingTypeDeliverableFilter().withMetrologyConfigurations(getMetrologyConfiguration());
-        List<ReadingTypeDeliverable> deliverables = this.metrologyConfigurationService.findReadingTypeDeliverable(filter);
-        return deliverables.isEmpty() || deliverables.size() == 1 && deliverables.get(0).getId() == getId();
+        return !this.metrologyConfigurationService.findReadingTypeDeliverable(filter)
+                .stream()
+                .anyMatch(candidate -> candidate.getId() != getId() && candidate.getName().equals(getName()));
     }
 
     @Override
