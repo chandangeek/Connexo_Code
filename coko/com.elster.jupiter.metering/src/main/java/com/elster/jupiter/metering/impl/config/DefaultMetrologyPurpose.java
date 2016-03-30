@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.config;
+package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;

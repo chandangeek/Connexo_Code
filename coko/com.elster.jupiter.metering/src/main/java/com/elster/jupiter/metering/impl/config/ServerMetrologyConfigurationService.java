@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -25,6 +24,8 @@ public interface ServerMetrologyConfigurationService extends MetrologyConfigurat
     Thesaurus getThesaurus();
 
     MetrologyPurpose createMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
+
+    Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
 
     ReadingTypeTemplate.ReadingTypeTemplateUpdater createReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate);
 

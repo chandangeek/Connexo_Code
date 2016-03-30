@@ -59,8 +59,6 @@ public interface MetrologyConfigurationService {
 
     Optional<MetrologyPurpose> findMetrologyPurpose(long id);
 
-    Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
-
     List<MetrologyPurpose> getMetrologyPurposes();
 
     List<ReadingTypeDeliverable> findReadingTypeDeliverable(ReadingTypeDeliverableFilter filter);
