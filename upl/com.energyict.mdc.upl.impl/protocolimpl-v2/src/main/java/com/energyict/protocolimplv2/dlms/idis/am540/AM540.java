@@ -47,7 +47,7 @@ public class AM540 extends AM130 implements SerialNumberSupport{
 
     @Override
     public String getProtocolDescription() {
-        return "AM540 DLMS (IDIS P2)";
+        return "Elster AM540 DLMS (IDIS P2)";
     }
 
     @Override
