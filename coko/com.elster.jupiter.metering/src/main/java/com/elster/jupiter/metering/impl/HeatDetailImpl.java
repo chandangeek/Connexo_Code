@@ -18,10 +18,10 @@ import java.time.Clock;
 
 public class HeatDetailImpl extends UsagePointDetailImpl implements HeatDetail {
 
-    @HasQuantityMultiplier(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.ILLEGAL_VALUE + "}")
-    @HasQuantityUnit(units =  {Unit.PASCAL}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.ILLEGAL_VALUE + "}")
+    @HasQuantityMultiplier(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_MULTIPLIER + "}")
+    @HasQuantityUnit(units =  {Unit.PASCAL}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity pressure;
-    @HasQuantityUnit(units =  {Unit.WATT_HOUR}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.ILLEGAL_UNIT + "}")
+    @HasQuantityUnit(units =  {Unit.WATT_HOUR}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity physicalCapacity;
     private YesNoAnswer bypass;
     private BypassStatus bypassStatus;
