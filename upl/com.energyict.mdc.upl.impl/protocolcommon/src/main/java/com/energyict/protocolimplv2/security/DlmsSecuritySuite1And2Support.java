@@ -227,7 +227,8 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
                     dlmsSecuritySupport.new LowLevelAuthentication(),
                     dlmsSecuritySupport.new Md5Authentication(),
                     dlmsSecuritySupport.new Sha1Authentication(),
-                    dlmsSecuritySupport.new GmacAuthentication()
+                    dlmsSecuritySupport.new GmacAuthentication(),
+                    new Sha256Authentication()
             );
         }
 
