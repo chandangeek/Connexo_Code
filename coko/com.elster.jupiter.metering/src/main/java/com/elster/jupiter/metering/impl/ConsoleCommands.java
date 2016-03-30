@@ -14,7 +14,6 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.FormulaBuilder;
-import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -325,7 +324,7 @@ public class ConsoleCommands {
 
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
 
-            metrologyConfigurationService.newReadingTypeDeliverableBuilder(name, metrologyConfiguration, readingType, Formula.Mode.EXPERT).build(node);
+            metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.EXPERT).build(node);
             context.commit();
         }
     }
