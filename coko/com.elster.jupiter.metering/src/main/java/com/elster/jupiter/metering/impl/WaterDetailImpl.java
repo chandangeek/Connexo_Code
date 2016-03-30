@@ -17,10 +17,10 @@ import java.time.Clock;
 
 public class WaterDetailImpl extends UsagePointDetailImpl implements WaterDetail {
 
-    private boolean grounded;
+    private YesNoAnswer grounded;
     private Quantity pressure;
     private Quantity physicalCapacity;
-    private boolean limiter;
+    private YesNoAnswer limiter;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
     private Quantity loadLimit;
@@ -45,12 +45,12 @@ public class WaterDetailImpl extends UsagePointDetailImpl implements WaterDetail
     }
 
     @Override
-    public boolean isGrounded() {
+    public YesNoAnswer isGrounded() {
         return grounded;
     }
 
     @Override
-    public boolean isLimiter() {
+    public YesNoAnswer isLimiter() {
         return limiter;
     }
 
@@ -99,11 +99,11 @@ public class WaterDetailImpl extends UsagePointDetailImpl implements WaterDetail
         return clamped;
     }
 
-    public void setGrounded(boolean grounded) {
+    public void setGrounded(YesNoAnswer grounded) {
         this.grounded = grounded;
     }
 
-    public void setLimiter(boolean limiter) {
+    public void setLimiter(YesNoAnswer limiter) {
         this.limiter = limiter;
     }
 

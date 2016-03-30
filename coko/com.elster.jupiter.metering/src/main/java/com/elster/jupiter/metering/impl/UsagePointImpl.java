@@ -20,6 +20,8 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -309,19 +311,13 @@ public class UsagePointImpl implements UsagePoint {
         this.removeMetrologyConfigurationCustomPropertySetValues();
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
-        this.removeMeterActivations();
         dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
     private void removeDetail() {
-        List<UsagePointDetailImpl> detailList = this.getDetail(Range.all());
-        detailList.forEach(dataModel::remove);
-    }
+        this.getDetail(Range.all()).forEach(detail::remove);
 
-    private void removeMeterActivations() {
-        List<MeterActivationImpl> maList = this.getMeterActivations();
-        maList.forEach(dataModel::remove);
     }
 
     private void removeMetrologyConfigurationCustomPropertySetValues() {
