@@ -17,8 +17,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
-
-import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component(name = "insight.usagepoint.info.factory", service = {InfoFactory.class}, immediate = true)
 public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     private volatile Clock clock;
@@ -46,6 +44,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.thesaurus = thesaurus;
         this.meteringService = meteringService;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+    }
+
+    @Activate
+    public void activate() {
+        customPropertySetInfoFactory = new CustomPropertySetInfoFactory(thesaurus, clock);
     }
 
     @Reference
@@ -131,5 +134,4 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
                 .withServiceLocationString(usagePointInfo.location);
     }
-
 }
