@@ -21,7 +21,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.impl.config.FormulaBuilder;
+import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -214,7 +214,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mock15minReadingType("0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
-        FormulaBuilder formulaBuilder = this.newFormulaBuilder();
+        ServerFormulaBuilder formulaBuilder = this.newFormulaBuilder();
         ExpressionNode node = formulaBuilder.plus(
                 formulaBuilder.requirement(production),
                 formulaBuilder.requirement(consumption)).create();
@@ -319,7 +319,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mock15minReadingType("13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
-        FormulaBuilder formulaBuilder = this.newFormulaBuilder();
+        ServerFormulaBuilder formulaBuilder = this.newFormulaBuilder();
         ExpressionNode node = formulaBuilder.plus(
                 formulaBuilder.requirement(production),
                 formulaBuilder.requirement(consumption)).create();
@@ -425,7 +425,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mock15minReadingType("0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
-        FormulaBuilder formulaBuilder = this.newFormulaBuilder();
+        ServerFormulaBuilder formulaBuilder = this.newFormulaBuilder();
         ExpressionNode node = formulaBuilder.plus(
                 formulaBuilder.requirement(production),
                 formulaBuilder.requirement(consumption)).create();
@@ -559,7 +559,7 @@ public class DataAggregationServiceImplCalculateTest {
         return this.virtualFactory;
     }
 
-    private com.elster.jupiter.metering.impl.config.FormulaBuilder newFormulaBuilder() {
+    private ServerFormulaBuilder newFormulaBuilder() {
         return this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
     }
 

@@ -32,6 +32,6 @@ public interface ServerMetrologyConfigurationService extends MetrologyConfigurat
 
     List<Formula> findFormulas();
 
-    FormulaBuilder newFormulaBuilder(Formula.Mode mode);
+    ServerFormulaBuilder newFormulaBuilder(Formula.Mode mode);
 
 }
