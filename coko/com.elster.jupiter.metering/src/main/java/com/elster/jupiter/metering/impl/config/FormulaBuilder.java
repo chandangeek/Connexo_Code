@@ -1,14 +1,18 @@
-package com.elster.jupiter.metering.config;
+package com.elster.jupiter.metering.impl.config;
 
-import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
 import java.math.BigDecimal;
 
 /**
- * Created by igh on 26/02/2016.
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2016-03-21 (15:18)
  */
-@ProviderType
-public interface FormulaBuilder {
+public interface FormulaBuilder  {
 
     ExpressionNodeBuilder constant(BigDecimal value);
     ExpressionNodeBuilder constant(long value);
@@ -17,6 +21,7 @@ public interface FormulaBuilder {
     ExpressionNodeBuilder maximum(ExpressionNodeBuilder... terms);
     ExpressionNodeBuilder minimum(ExpressionNodeBuilder... terms);
     ExpressionNodeBuilder average(ExpressionNodeBuilder... terms);
+    ExpressionNodeBuilder firstNotNull(ExpressionNodeBuilder... terms);
     ExpressionNodeBuilder aggregate(ExpressionNodeBuilder expression);
     ExpressionNodeBuilder plus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2);
     ExpressionNodeBuilder minus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2);
@@ -25,5 +30,8 @@ public interface FormulaBuilder {
     ExpressionNodeBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable);
     ExpressionNodeBuilder requirement(ReadingTypeRequirement value);
     Formula build();
+
+    FormulaBuilder init(ExpressionNodeBuilder nodeBuilder);
+    FormulaBuilder init(ExpressionNode expressionNode);
 
 }

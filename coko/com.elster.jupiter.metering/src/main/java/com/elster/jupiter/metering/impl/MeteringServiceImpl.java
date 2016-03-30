@@ -393,7 +393,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Activate
     public final void activate(BundleContext bundleContext) {
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.eventService, this.userService, this.nlsService);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService);
         registerMetrologyConfigurationService(bundleContext);
         dataModel.register(new AbstractModule() {
             @Override

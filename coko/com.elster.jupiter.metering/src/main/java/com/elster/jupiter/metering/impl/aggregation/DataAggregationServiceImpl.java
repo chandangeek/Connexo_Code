@@ -4,12 +4,16 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -31,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link DataAggregationService} interface.
@@ -78,15 +84,45 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
 
     @Override
     public List<? extends BaseReadingRecord> calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+        List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
+        this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
+        Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
         VirtualFactory virtualFactory = this.virtualFactoryProvider.get();
         this.deliverablesPerMeterActivation = new HashMap<>();
-        this.getOverlappingMeterActivations(usagePoint, period).forEach(meterActivation -> this.prepare(meterActivation, contract, period, virtualFactory));
+        this.getOverlappingMeterActivations(usagePoint, clippedPeriod).forEach(meterActivation -> this.prepare(meterActivation, contract, clippedPeriod, virtualFactory));
         try {
             return this.execute(this.generateSql(virtualFactory));
         }
         catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
+    }
+
+    private List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationForUsagePointInPeriod(UsagePoint usagePoint, Range<Instant> period) {
+        return this.getDataModel()
+                .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, MetrologyContract.class)
+                .select(where("usagePoint").isEqualTo(usagePoint)
+                   .and(where("interval").isEffective(period)));
+    }
+
+    private void validateContractAppliesToUsagePoint(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+        if (effectivities.stream().noneMatch(each -> this.hasContract(each, contract))) {
+            throw new MetrologyContractDoesNotApplyToUsagePointException(this.getThesaurus(), contract, usagePoint, period);
+        }
+    }
+
+    private Range<Instant> clipToContractActivePeriod(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, MetrologyContract contract, Range<Instant> period) {
+        return effectivities
+                .stream()
+                .filter(each -> this.hasContract(each, contract))
+                .findFirst()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getRange)
+                .map(period::intersection)
+                .orElseThrow(() -> new IllegalStateException("Validation that contract was active on contract failed before"));
+    }
+
+    private boolean hasContract(EffectiveMetrologyConfigurationOnUsagePoint each, MetrologyContract contract) {
+        return each.getMetrologyConfiguration().getContracts().contains(contract);
     }
 
     private Stream<? extends MeterActivation> getOverlappingMeterActivations(UsagePoint usagePoint, Range<Instant> period) {
@@ -224,6 +260,10 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
 
     private DataModel getDataModel() {
         return this.meteringService.getDataModel();
+    }
+
+    private Thesaurus getThesaurus() {
+        return this.meteringService.getThesaurus();
     }
 
     private List<AggregatedReadingRecord> execute(PreparedStatement statement) throws SQLException {

@@ -24,11 +24,14 @@ public interface ServerMetrologyConfigurationService extends MetrologyConfigurat
 
     Thesaurus getThesaurus();
 
+    MetrologyPurpose createMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
+
     ReadingTypeTemplate createReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate);
 
     Optional<Formula> findFormula(long id);
 
     List<Formula> findFormulas();
 
-    MetrologyPurpose createMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
+    FormulaBuilder newFormulaBuilder(Formula.Mode mode);
+
 }

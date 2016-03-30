@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.config;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
@@ -52,11 +53,11 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     List<ReadingTypeRequirement> getRequirements();
 
-    MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name);
+    MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name);
 
     void removeReadingTypeRequirement(ReadingTypeRequirement readingTypeRequirement);
 
-    ReadingTypeDeliverable addReadingTypeDeliverable(String name, ReadingType readingType, Formula formula);
+    ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode);
 
     void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable);
 

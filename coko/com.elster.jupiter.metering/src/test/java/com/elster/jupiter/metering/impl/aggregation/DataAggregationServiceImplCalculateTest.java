@@ -10,21 +10,26 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.impl.config.FormulaBuilder;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
 
@@ -76,9 +81,15 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private MetrologyConfiguration configuration;
     @Mock
+    private MetrologyPurpose metrologyPurpose;
+    @Mock
     private MetrologyContract contract;
     @Mock
     private DataModel dataModel;
+    @Mock
+    private QueryExecutor<EffectiveMetrologyConfigurationOnUsagePoint> queryExecutor;
+    @Mock
+    private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration;
     @Mock
     private ServerMeteringService meteringService;
     @Mock
@@ -96,15 +107,20 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private UserService userService;
     @Mock
+    private MetrologyConfiguration metrologyConfiguration;
+    @Mock
     private NlsService nlsService;
 
-    private MetrologyConfigurationService metrologyConfigurationService;
+    private ServerMetrologyConfigurationService metrologyConfigurationService;
     private SqlBuilder withClauseBuilder;
     private SqlBuilder selectClauseBuilder;
     private SqlBuilder completeSqlBuilder;
 
     @Before
     public void initializeMocks() throws SQLException {
+        when(this.usagePoint.getName()).thenReturn("DataAggregationServiceImplCalculateTest");
+        when(this.metrologyPurpose.getName()).thenReturn("DataAggregationServiceImplCalculateTest");
+        when(this.contract.getMetrologyPurpose()).thenReturn(this.metrologyPurpose);
         this.withClauseBuilder = new SqlBuilder();
         this.selectClauseBuilder = new SqlBuilder();
         this.completeSqlBuilder = new SqlBuilder();
@@ -117,7 +133,54 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.connection.prepareStatement(anyString())).thenReturn(this.preparedStatement);
         when(this.preparedStatement.executeQuery()).thenReturn(this.resultSet);
         when(this.dataModel.getInstance(AggregatedReadingRecordFactory.class)).thenReturn(new AggregatedReadingRecordFactoryImpl(this.dataModel));
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.eventService, this.userService, this.nlsService);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService);
+        when(this.metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(this.contract));
+        when(this.dataModel.query(eq(EffectiveMetrologyConfigurationOnUsagePoint.class), anyVararg())).thenReturn(this.queryExecutor);
+        when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
+        when(this.effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(this.metrologyConfiguration);
+        when(this.effectiveMetrologyConfiguration.getRange()).thenReturn(year2016());
+        when(this.effectiveMetrologyConfiguration.getInterval()).thenReturn(Interval.of(year2016()));
+    }
+
+    /**
+     * Tests the case where data aggregation is requested for a
+     * {@link MetrologyContract} that is not active on the {@link UsagePoint}
+     * because no {@link MetrologyConfiguration} has been applied
+     * to the UsagePoint yet.
+     */
+    @Test(expected = MetrologyContractDoesNotApplyToUsagePointException.class)
+    public void noMetrologyConfigurationsAppliedToUsagePoint() {
+        DataAggregationServiceImpl service = this.testInstance();
+        Range<Instant> aggregationPeriod = year2016();
+        when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.emptyList());
+
+        // Business method
+        service.calculate(this.usagePoint, this.contract, aggregationPeriod);
+
+        //Asserts: see expected exception rule
+    }
+
+    /**
+     * Tests the case where data aggregation is requested for a
+     * {@link MetrologyContract} that is not active on the {@link UsagePoint}
+     * because no {@link MetrologyConfiguration} has been applied
+     * to the UsagePoint yet.
+     */
+    @Test(expected = MetrologyContractDoesNotApplyToUsagePointException.class)
+    public void otherMetrologyConfigurationAppliedToUsagePoint() {
+        MetrologyContract otherContract = mock(MetrologyContract.class);
+        MetrologyConfiguration otherConfiguration = mock(MetrologyConfiguration.class);
+        when(otherConfiguration.getContracts()).thenReturn(Collections.singletonList(otherContract));
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(otherConfiguration);
+        DataAggregationServiceImpl service = this.testInstance();
+        Range<Instant> aggregationPeriod = year2016();
+        when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
+
+        // Business method
+        service.calculate(this.usagePoint, this.contract, aggregationPeriod);
+
+        //Asserts: see expected exception rule
     }
 
     /**
@@ -130,7 +193,7 @@ public class DataAggregationServiceImplCalculateTest {
      *       netConsumption (15m kWh) ::= A- + A+
      * Device:
      *    meter activations:
-     *       Jan 1st 2015 -> forever
+     *       Jan 1st 2016 -> forever
      *           A- -> 15 min kWh
      *           A+ -> 15 min kWh
      * In other words, simple sum of 2 requirements that are provided
@@ -496,7 +559,7 @@ public class DataAggregationServiceImplCalculateTest {
         return this.virtualFactory;
     }
 
-    private FormulaBuilder newFormulaBuilder() {
+    private com.elster.jupiter.metering.impl.config.FormulaBuilder newFormulaBuilder() {
         return this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
     }
 

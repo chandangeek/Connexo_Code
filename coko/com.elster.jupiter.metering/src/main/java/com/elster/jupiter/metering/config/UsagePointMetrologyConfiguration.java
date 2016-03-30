@@ -14,7 +14,7 @@ public interface UsagePointMetrologyConfiguration extends MetrologyConfiguration
 
     List<MeterRole> getMeterRoles();
 
-    MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name);
+    MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name);
 
     UsagePointRequirement addUsagePointRequirement(SearchablePropertyValue.ValueBean valueBean);
 

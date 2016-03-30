@@ -75,7 +75,7 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
     }
 
     @Override
-    public UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name) {
+    public UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name) {
         return new UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(getMetrologyConfigurationService(), this, name);
     }
 

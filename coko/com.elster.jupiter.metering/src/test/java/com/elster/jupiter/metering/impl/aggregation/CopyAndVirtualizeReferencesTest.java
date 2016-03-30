@@ -10,13 +10,13 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FormulaBuilder;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.FormulaBuilder;
 import com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.users.UserService;
 
@@ -63,7 +63,7 @@ public class CopyAndVirtualizeReferencesTest {
     @Mock
     private NlsService nlsService;
 
-    private MetrologyConfigurationService metrologyConfigurationService;
+    private ServerMetrologyConfigurationService metrologyConfigurationService;
 
     @Before
     public void initializeMocks() {
@@ -72,7 +72,7 @@ public class CopyAndVirtualizeReferencesTest {
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(this.deliverable.getReadingType()).thenReturn(readingType);
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.eventService, this.userService, this.nlsService);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService);
     }
 
     @Test
