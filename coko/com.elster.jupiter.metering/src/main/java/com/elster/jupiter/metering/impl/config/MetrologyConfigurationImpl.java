@@ -39,7 +39,7 @@ import static com.elster.jupiter.domain.util.Save.CREATE;
 import static com.elster.jupiter.domain.util.Save.UPDATE;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
-public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUniqueName {
+public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration, HasUniqueName {
     public static final String TYPE_IDENTIFIER = "B";
 
     public static final Map<String, Class<? extends MetrologyConfiguration>> IMPLEMENTERS = ImmutableMap.of(
@@ -275,7 +275,7 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
     }
 
     @Override
-    public MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name) {
+    public MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name) {
         return new MetrologyConfigurationReadingTypeRequirementBuilderImpl(this.metrologyConfigurationService, this, name);
     }
 
@@ -284,6 +284,11 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUn
         if (this.readingTypeRequirements.remove(readingTypeRequirement)) {
             touch();
         }
+    }
+
+    @Override
+    public ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode) {
+        return new ReadingTypeDeliverableBuilder(this, name, readingType, mode, this.metrologyConfigurationService.getDataModel(), this.metrologyConfigurationService.getThesaurus());
     }
 
     @Override

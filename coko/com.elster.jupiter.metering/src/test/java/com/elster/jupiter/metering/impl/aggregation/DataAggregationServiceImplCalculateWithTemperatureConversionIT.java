@@ -282,7 +282,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("kelvinToCelcius", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.addReadingTypeRequirement("T").withReadingType(K_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(K_15min);
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
@@ -367,7 +367,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("kelvingToFahrenheit", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.addReadingTypeRequirement("T").withReadingType(K_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(K_15min);
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
@@ -457,9 +457,9 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("celciusAndFahrenheitToKelvin", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement minTemperature = this.configuration.addReadingTypeRequirement("minT").withReadingType(C_15min);
+        ReadingTypeRequirement minTemperature = this.configuration.newReadingTypeRequirement("minT").withReadingType(C_15min);
         this.temperature1RequirementId = minTemperature.getId();
-        ReadingTypeRequirement maxTemperature = this.configuration.addReadingTypeRequirement("maxT").withReadingType(F_15min);
+        ReadingTypeRequirement maxTemperature = this.configuration.newReadingTypeRequirement("maxT").withReadingType(F_15min);
         this.temperature2RequirementId = maxTemperature.getId();
 
         // Setup configuration deliverables
@@ -573,8 +573,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     }
 
     private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyConfiguration configuration, ReadingType readingType) {
-        return
-                getMetrologyConfigurationService().newReadingTypeDeliverableBuilder(name, configuration, readingType, Formula.Mode.AUTO);
+        return configuration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
 
     }
 

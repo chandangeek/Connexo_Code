@@ -82,7 +82,7 @@ public class FormulaCrudTest {
                     inMemoryBootstrapModule.getMeteringService().createReadingType(
                             "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
             assertThat(readingType != null);
-            config.addReadingTypeRequirement("Aplus").withReadingType(readingType);
+            config.newReadingTypeRequirement("Aplus").withReadingType(readingType);
 
             assertThat(config.getRequirements().size() == 1);
             ReadingTypeRequirement req = service.findReadingTypeRequirement(
@@ -429,8 +429,7 @@ public class FormulaCrudTest {
                             "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
             assertThat(readingType != null);
 
-            ReadingTypeDeliverableBuilder builder =
-                service.newReadingTypeDeliverableBuilder(name, config, readingType, myMode);
+            ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, myMode);
 
             ReadingTypeDeliverable deliverable = builder.build(builder.maximum(builder.constant(10), builder.constant(20)));
             assertThat(deliverable.getFormula().getExpressionNode().toString().equals("max(constant(10), constant(20))"));

@@ -290,32 +290,27 @@ public class DataAggregationServiceImplExpertModeIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.addReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
-        ReadingTypeRequirement pressure = this.configuration.addReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
-        ReadingTypeRequirement volume = this.configuration.addReadingTypeRequirement("V").withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
-        FormulaBuilder formulaBuilder = newFormulaBuilder();
-        formulaBuilder.init(
-                formulaBuilder.multiply(
-                        formulaBuilder.constant(BigDecimal.valueOf(40L)),   // calorific value
-                        formulaBuilder.multiply(
-                                formulaBuilder.requirement(volume),
-                                formulaBuilder.multiply(
-                                        formulaBuilder.divide(
-                                                formulaBuilder.requirement(temperature),
-                                                formulaBuilder.requirement(pressure)),
-                                        formulaBuilder.divide(
-                                                formulaBuilder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
-                                                formulaBuilder.constant(BigDecimal.valueOf(15L)))))));
-        ReadingTypeDeliverable energy =
-                this.configuration.addReadingTypeDeliverable(
-                        "Energy",
-                        ENERGY_15min,
-                        formulaBuilder.build());
+        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("Energy", ENERGY_15min, Formula.Mode.EXPERT);
+        ReadingTypeDeliverable energy = builder.build(
+                builder.multiply(
+                        builder.constant(BigDecimal.valueOf(40L)),   // calorific value
+                        builder.multiply(
+                                builder.requirement(volume),
+                                builder.multiply(
+                                        builder.divide(
+                                                builder.requirement(temperature),
+                                                builder.requirement(pressure)),
+                                        builder.divide(
+                                                builder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
+                                                builder.constant(BigDecimal.valueOf(15L)))))));
         this.deliverableId = energy.getId();
 
         // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
@@ -404,33 +399,32 @@ public class DataAggregationServiceImplExpertModeIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.addReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
-        ReadingTypeRequirement pressure = this.configuration.addReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
-        ReadingTypeRequirement volume = this.configuration.addReadingTypeRequirement("V").withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
-        FormulaBuilder formulaBuilder = newFormulaBuilder();
-        formulaBuilder.init(
-                formulaBuilder.aggregate(   // Note how the expert is required to define when the aggregation is done
-                    formulaBuilder.multiply(
-                            formulaBuilder.constant(BigDecimal.valueOf(40L)),   // calorific value
-                            formulaBuilder.multiply(
-                                    formulaBuilder.requirement(volume),
-                                    formulaBuilder.multiply(
-                                            formulaBuilder.divide(
-                                                    formulaBuilder.requirement(temperature),
-                                                    formulaBuilder.requirement(pressure)),
-                                            formulaBuilder.divide(
-                                                    formulaBuilder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
-                                                    formulaBuilder.constant(BigDecimal.valueOf(15L))))))));     // 15 normalized gas is measured at 15 °Celcius
+        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable(
+                "Energy",
+                ENERGY_daily,
+                Formula.Mode.EXPERT);
         ReadingTypeDeliverable energy =
-                this.configuration.addReadingTypeDeliverable(
-                        "Energy",
-                        ENERGY_daily,
-                        formulaBuilder.build());
+                builder.build(
+                    builder.aggregate(   // Note how the expert is required to define when the aggregation is done
+                        builder.multiply(
+                            builder.constant(BigDecimal.valueOf(40L)),   // calorific value
+                            builder.multiply(
+                                builder.requirement(volume),
+                                builder.multiply(
+                                    builder.divide(
+                                        builder.requirement(temperature),
+                                        builder.requirement(pressure)),
+                                    builder.divide(
+                                        builder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
+                                        builder.constant(BigDecimal.valueOf(15L))))))));     // 15 normalized gas is measured at 15 °Celcius
         this.deliverableId = energy.getId();
 
         // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
@@ -528,12 +522,6 @@ public class DataAggregationServiceImplExpertModeIT {
 
     private String mRID2GrepPattern(String mRID) {
         return mRID.replace(".", "\\.");
-    }
-
-    private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyConfiguration configuration, ReadingType readingType) {
-        return
-                getMetrologyConfigurationService().newReadingTypeDeliverableBuilder(name, configuration, readingType, Formula.Mode.AUTO);
-
     }
 
 }
