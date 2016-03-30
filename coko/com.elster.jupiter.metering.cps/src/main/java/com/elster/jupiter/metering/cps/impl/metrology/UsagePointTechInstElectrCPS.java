@@ -169,8 +169,8 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
                     .varChar(255)
                     .map(UsagePointTechInstElectrDE.Fields.FEEDER.javaName())
                     .add();
-//            table.addQuantityColumns(UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY.databaseName(), false, UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY
-//                    .javaName());
+            table.addQuantityColumns(UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY.databaseName(), false, UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY
+                    .javaName());
         }
     }
 }
