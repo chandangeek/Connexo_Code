@@ -1,21 +1,30 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointBuilder;
 
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
 
@@ -89,6 +98,43 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         verify(usagePoint).setServiceDeliveryRemark("remark");
         verify(usagePoint).setServicePriority("prio1");
         verify(usagePoint).update();
+    }
+
+    @Test
+    public void testCreateUsagePoint() throws Exception {
+        Instant now = Instant.now(clock);
+        UsagePointInfo info = new UsagePointInfo();
+        info.serviceKind = ServiceKind.ELECTRICITY;
+        info.aliasName = "alias";
+        info.description = "desc";
+        info.installationTime = now;
+        info.location = "here";
+        info.mrid = "mmmmm";
+        info.name = "naam";
+        info.outageRegion = "outage";
+        info.serviceDeliveryRemark = "remark";
+        info.servicePriority = "prio1";
+        info.readRoute = "route";
+
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        when(usagePoint.getId()).thenReturn(6L);
+        ServiceCategory serviceCategory = mock(ServiceCategory.class);
+        UsagePointBuilder usagePointBuilder = FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class);
+        when(serviceCategory.newUsagePoint(any(), any())).thenReturn(usagePointBuilder);
+        when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
+
+        Response response = target("/usagepoints").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        assertThat(response.getLocation()).isEqualTo(new URI("http://localhost:9998/usagepoints/6"));
+        verify(usagePointBuilder).withName("naam");
+        verify(usagePointBuilder).withAliasName("alias");
+        verify(usagePointBuilder).withDescription("desc");
+        verify(usagePointBuilder).withOutageRegion("outage");
+        verify(usagePointBuilder).withServiceDeliveryRemark("remark");
+        verify(usagePointBuilder).withServicePriority("prio1");
+        verify(usagePointBuilder).withServiceLocationString("here");
+        verify(usagePointBuilder).withReadRoute("route");
+        verify(usagePointBuilder).create();
     }
 
     @Test

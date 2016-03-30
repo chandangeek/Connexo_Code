@@ -84,7 +84,6 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
@@ -130,8 +129,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     @Mock
     DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
-    Clock clock = Clock.fixed(LocalDateTime.of(2016, 3, 20, 16, 0, 0)
-            .toInstant(ZoneOffset.UTC), ZoneId.systemDefault());
+    Clock clock;
     @Mock
     ProtocolPluggableService protocolPluggableService;
     @Mock

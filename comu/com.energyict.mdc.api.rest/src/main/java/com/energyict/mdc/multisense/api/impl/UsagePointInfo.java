@@ -1,5 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.metering.ServiceKind;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -16,7 +18,7 @@ public class UsagePointInfo extends LinkInfo {
     public Instant installationTime;
     public String serviceDeliveryRemark;
 
-    public LinkInfo serviceCategory;
+    public ServiceKind serviceKind;
     public List<LinkInfo> meterActivations;
     public List<LinkInfo> accountabilities;
     public List<LinkInfo> usagePointConfigurations;

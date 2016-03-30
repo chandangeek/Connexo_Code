@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.security.Privileges;
@@ -13,6 +14,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -21,6 +23,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
@@ -89,6 +92,7 @@ public class UsagePointResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{usagePointId}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Transactional
     public UsagePointInfo updateUsagePoint(@PathParam("usagePointId") long usagePointId, UsagePointInfo usagePointInfo, @Context UriInfo uriInfo) {
         if (usagePointInfo.version == null) {
             exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.VERSION_MISSING, "version");
@@ -106,6 +110,52 @@ public class UsagePointResource {
         usagePoint.setServicePriority(usagePointInfo.servicePriority);
         usagePoint.update();
         return usagePointInfoFactory.from(usagePoint, uriInfo, Collections.emptyList());
+    }
+
+    /**
+     * <p>A usage point is a point in the grid where data is measured (energy consumption and/or production). This point can
+     * be either virtual (in order to perform calculations within the system), or physical. A physical usage point can be
+     * either used to deliver a service or not in which case we speak of a service delivery point.</p>
+     * <p>
+     * <p>The usage point is often also refered to as a service delivery point or a point of delivery (typically UK with a
+     * meter point reference number - MPRN or MPAN).</p>
+     * <p>
+     * <p>On a physical usage point one or multiple meters can be installed (sub metering, subtracting or control metering,
+     * etc.), and these can change over time.</p>
+     *
+     * @param usagePointInfo JSON description of new usage point values
+     * @param uriInfo uriInfo
+     * @return The updated usage point
+     * @summary Create a usage point
+     */
+    @POST
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Transactional
+    public Response createUsagePoint(UsagePointInfo usagePointInfo, @Context UriInfo uriInfo) {
+        if (usagePointInfo.serviceKind == null) {
+            exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.FIELD_MISSING, "serviceKind");
+        }
+        UsagePoint usagePoint = meteringService.getServiceCategory(usagePointInfo.serviceKind)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CATEGORY))
+                .newUsagePoint(usagePointInfo.mrid, usagePointInfo.installationTime)
+                .withAliasName(usagePointInfo.aliasName)
+                .withDescription(usagePointInfo.description)
+                .withName(usagePointInfo.name)
+                .withOutageRegion(usagePointInfo.outageRegion)
+                .withReadRoute(usagePointInfo.readRoute)
+                .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
+                .withServiceLocationString(usagePointInfo.location)
+                .withServicePriority(usagePointInfo.servicePriority)
+                .create();
+
+        URI uri = uriInfo.getBaseUriBuilder().
+                path(UsagePointResource.class).
+                path(UsagePointResource.class, "getUsagePoint").
+                build(usagePoint.getId());
+
+        return Response.created(uri).build();
     }
 
     /**
