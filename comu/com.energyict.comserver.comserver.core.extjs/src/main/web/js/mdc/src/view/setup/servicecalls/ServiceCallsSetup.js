@@ -8,14 +8,14 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
-        'Mdc.view.setup.servicecalls.RunningServiceCallsPreviewContainer',
-        'Mdc.view.setup.servicecalls.HistoryServiceCallsPreviewContainer',
+        'Scs.view.object.RunningServiceCallsPreviewContainer',
+        'Scs.view.object.HistoryServiceCallsPreviewContainer',
         'Scs.view.ServiceCallFilter'
     ],
 
     stores: [
-        'Mdc.store.servicecalls.ServiceCallHistory',
-        'Mdc.store.servicecalls.RunningServiceCalls',
+        'Scs.store.object.ServiceCallHistory',
+        'Scs.store.object.RunningServiceCalls',
         'Scs.store.ServiceCallTypes',
         'Scs.store.States'
     ],
@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
         me.content = [
             {
                 xtype: 'tabpanel',
-                itemId: 'device-service-calls-tab-panel',
+                itemId: 'object-service-calls-tab-panel',
                 title: Uni.I18n.translate('general.serviceCalls', 'MDC', 'Service calls'),
                 ui: 'large',
                 activeTab: me.activeTab,
@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
                         items: [
                             {
                                 xtype: 'running-service-call-preview-container',
-                                store: 'Mdc.store.servicecalls.RunningServiceCalls'
+                                store: 'Scs.store.object.RunningServiceCalls'
                             }
                         ]
                     },
@@ -73,13 +73,13 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
         me.down('#history-service-calls-tab').add(
             {
                 xtype: 'service-call-filter',
-                store: 'Mdc.store.servicecalls.ServiceCallHistory',
+                store: 'Scs.store.object.ServiceCallHistory',
                 modDateHidden: true,
                 filterDefault: filterDefault
             },
             {
                 xtype: 'history-service-call-preview-container',
-                store: 'Mdc.store.servicecalls.ServiceCallHistory'
+                store: 'Scs.store.object.ServiceCallHistory'
             });
 
         me.resumeLayouts(true);

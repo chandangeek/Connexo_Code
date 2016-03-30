@@ -10,8 +10,8 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
     ],
 
     stores: [
-        'Mdc.store.servicecalls.ServiceCallHistory',
-        'Mdc.store.servicecalls.RunningServiceCalls',
+        'Scs.store.object.ServiceCallHistory',
+        'Scs.store.object.RunningServiceCalls',
         'Scs.store.ServiceCallTypes',
         'Scs.store.States'
     ],
@@ -45,10 +45,10 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
 
     init: function () {
         this.control({
-            'service-calls-setup #device-service-calls-tab-panel': {
+            'service-calls-setup #object-service-calls-tab-panel': {
                 tabchange: this.onTabChange
             },
-            '#device-service-calls-action-menu': {
+            '#object-service-calls-action-menu': {
                 click: this.chooseAction
             },
             'cancel-all-action-menu': {
@@ -72,7 +72,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
             me.showTabbedView(mRID, 1);
         } else if (!me.historyAdded) {
             me.skip = true;
-            Ext.getStore('Mdc.store.servicecalls.ServiceCallHistory').getProxy().setUrl(mRID);
+            Ext.getStore('Scs.store.object.ServiceCallHistory').getProxy().setUrl('/api/ddr/devices/' + encodeURIComponent(mRID) + '/servicecallhistory');
             me.getServiceCallsSetup().addHistoryGrid(me.getSixtyDaysFilter());
             me.historyAdded = true;
         } else {
@@ -85,11 +85,11 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             widget,
-            historyStore = Ext.getStore('Mdc.store.servicecalls.ServiceCallHistory'),
-            runningStore = Ext.getStore('Mdc.store.servicecalls.RunningServiceCalls');
+            historyStore = Ext.getStore('Scs.store.object.ServiceCallHistory'),
+            runningStore = Ext.getStore('Scs.store.object.RunningServiceCalls');
 
         me.historyAdded = false;
-        runningStore.getProxy().setUrl(mRID);
+        runningStore.getProxy().setUrl('/api/ddr/devices/' + encodeURIComponent(mRID) + '/runningservicecalls');
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 widget = Ext.widget('service-calls-setup', {
@@ -98,7 +98,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
                     activeTab: activeTab
                 });
                 if(activeTab === 1) {
-                    historyStore.getProxy().setUrl(mRID);
+                    historyStore.getProxy().setUrl('/api/ddr/devices/' + encodeURIComponent(mRID) + '/servicecallhistory');
                     widget.addHistoryGrid(me.getSixtyDaysFilter());
                     me.historyAdded = true;
                 }
@@ -155,7 +155,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
                 confirmText: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
                 cancelText: Uni.I18n.translate('general.no', 'MDC', 'No')
             }),
-            store = Ext.getStore('Mdc.store.servicecalls.RunningServiceCalls'),
+            store = Ext.getStore('Scs.store.object.RunningServiceCalls'),
             serviceCallState = record.get('state'),
             router = me.getController('Uni.controller.history.Router');
 
@@ -206,7 +206,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
     cancelAllServiceCalls: function() {
         var me = this,
             serviceCallState = {id: 'sclc.default.cancelled'},
-            store = Ext.getStore('Mdc.store.servicecalls.RunningServiceCalls'),
+            store = Ext.getStore('Scs.store.object.RunningServiceCalls'),
             router = me.getController('Uni.controller.history.Router'),
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
