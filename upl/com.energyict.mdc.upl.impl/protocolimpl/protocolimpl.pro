@@ -315,6 +315,8 @@
 
 -keepnames class com.energyict.protocolimpl.sctm.fcl.FCL
 
+-keepnames class com.energyict.protocolimpl.migration.DummyProtocol
+
 -keepnames class com.energyict.protocolimpl.sctm.faf.FAF10
 
 -keepnames class com.energyict.protocolimpl.iec1107.enermete60x.EnermetE60X

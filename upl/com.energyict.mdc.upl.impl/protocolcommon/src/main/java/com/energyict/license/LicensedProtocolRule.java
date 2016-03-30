@@ -316,6 +316,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     Mx382_IDIS(278, "com.energyict.protocolimplv2.dlms.idis.iskra.mx382.Mx382"),
 
+    MIGRATION_DUMMY_PROTOCOL(279, "com.energyict.protocolimpl.migration.DummyProtocol"),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),
