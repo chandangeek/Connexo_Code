@@ -161,11 +161,11 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     }
 
     public Optional<PhaseCode> getPhaseCode() {
-        return Arrays.stream(PhaseCode.values()).filter(p -> p.name().equals(phaseCode)).findFirst();
+        return Arrays.stream(PhaseCode.values()).filter(p -> p.name().equalsIgnoreCase(phaseCode)).findFirst();
     }
 
     public void setPhaseCode(String phaseCode) {
-        this.phaseCode = phaseCode.toUpperCase();
+        this.phaseCode = phaseCode!=null?phaseCode.toUpperCase():phaseCode;
     }
 
     public Optional<Boolean> isLimiterInstalled() {
@@ -201,7 +201,7 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     }
 
     public Optional<BypassStatus> getBypassStatus() {
-        return Arrays.stream(BypassStatus.values()).filter(p -> p.name().equals(bypassStatus)).findFirst();
+        return Arrays.stream(BypassStatus.values()).filter(p -> p.name().equalsIgnoreCase(bypassStatus)).findFirst();
     }
 
     public void setBypassStatus(String bypassStatus) {
