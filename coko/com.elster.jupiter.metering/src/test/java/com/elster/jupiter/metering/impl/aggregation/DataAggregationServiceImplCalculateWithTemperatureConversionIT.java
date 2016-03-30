@@ -29,11 +29,11 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.FormulaBuilder;
-import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
+import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
@@ -463,8 +463,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.temperature2RequirementId = maxTemperature.getId();
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder =
-                newDeliveryBuilder("averageT", configuration, K_daily);
+        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("averageT", configuration, K_daily);
         ReadingTypeDeliverable avgTemperature =
                 builder.build(builder.divide(
                         builder.plus(
@@ -545,7 +544,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         return injector.getInstance(ServerMetrologyConfigurationService.class);
     }
 
-    private static FormulaBuilder newFormulaBuilder() {
+    private static ServerFormulaBuilder newFormulaBuilder() {
         return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
     }
 

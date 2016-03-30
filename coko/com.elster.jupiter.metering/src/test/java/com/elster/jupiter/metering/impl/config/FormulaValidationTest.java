@@ -2,11 +2,11 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.units.Dimension;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,9 +14,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.*;
-
 
 /**
  * Created by igh on 11/03/2016.
@@ -71,12 +71,12 @@ public class FormulaValidationTest {
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.POWER);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.minus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
         } catch (InvalidNodeException e) {
@@ -91,12 +91,12 @@ public class FormulaValidationTest {
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.POWER);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.plus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
         } catch (InvalidNodeException e) {
@@ -111,12 +111,12 @@ public class FormulaValidationTest {
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.CURRENCY);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.minus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
             fail("InvalidNodeException expected");
@@ -132,12 +132,12 @@ public class FormulaValidationTest {
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.CURRENCY);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.plus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
             fail("InvalidNodeException expected");
@@ -153,12 +153,12 @@ public class FormulaValidationTest {
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.ELECTRIC_CURRENT);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.multiply(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
             fail("InvalidNodeException expected");
@@ -174,12 +174,12 @@ public class FormulaValidationTest {
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.multiply(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
             assertEquals(node.getDimension(), Dimension.SURFACE);
@@ -195,12 +195,12 @@ public class FormulaValidationTest {
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.divide(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
             assertEquals(node.getDimension(), Dimension.LENGTH);
@@ -216,12 +216,12 @@ public class FormulaValidationTest {
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.ELECTRIC_CURRENT);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.divide(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
             fail("InvalidNodeException expected");
@@ -237,12 +237,12 @@ public class FormulaValidationTest {
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.POWER);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.plus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
             assertEquals(node.getDimension(), Dimension.VOLUME);
@@ -259,13 +259,13 @@ public class FormulaValidationTest {
         when(readingTypeRequirement3.getDimension()).thenReturn(Dimension.POWER);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.maximum(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2),
                 builder.requirement(readingTypeRequirement3));
-        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
             assertEquals(node.getDimension(), Dimension.VOLUME);
@@ -282,13 +282,13 @@ public class FormulaValidationTest {
         when(readingTypeRequirement3.getDimension()).thenReturn(Dimension.ELECTRIC_CHARGE);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.maximum(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2),
                 builder.requirement(readingTypeRequirement3));
-        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
             fail("InvalidNodeException expected");
@@ -308,13 +308,13 @@ public class FormulaValidationTest {
         when(volume2.getDimension()).thenReturn(Dimension.VOLUME);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.multiply(builder.divide(builder.multiply(
                                 builder.requirement(pressure1), builder.requirement(volume1)),
                         builder.requirement(temperature1)),
                 builder.divide(builder.requirement(temperature2), builder.requirement(pressure2)) );
-        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
             assertEquals(node.getDimension(), Dimension.VOLUME);
@@ -322,4 +322,5 @@ public class FormulaValidationTest {
             fail("No InvalidNodeException expected!");
         }
     }
+
 }

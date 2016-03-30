@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
@@ -185,6 +186,18 @@ public class ReadingTypeDeliverableImplTestIT {
 
     @Test
     @Transactional
+    public void testCanCreateTwoDeliverablesWithDifferentNames() {
+        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("name", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
+        assertThat(deliverable1.getId()).isGreaterThan(0);
+
+        ReadingTypeDeliverableBuilder otherBuilder = metrologyConfiguration.newReadingTypeDeliverable("otherName", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable2 = otherBuilder.build(otherBuilder.constant(10));
+        assertThat(deliverable2.getId()).isGreaterThan(0);
+    }
+
+    @Test
+    @Transactional
     public void testCanCreateReadingTypeDeliverable() {
         String name = "deliverable";
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
@@ -322,7 +335,7 @@ public class ReadingTypeDeliverableImplTestIT {
         metrologyContract.removeDeliverable(deliverable);
 
         // Asserts
-        List<ReadingTypeDeliverable>deliverables = metrologyContract.getDeliverables();
+        List<ReadingTypeDeliverable> deliverables = metrologyContract.getDeliverables();
         assertThat(deliverables).isEmpty();
     }
 
