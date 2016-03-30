@@ -361,11 +361,13 @@ Ext.define('Imt.controller.History', {
                             title: Uni.I18n.translate('general.serviceCalls', 'IMT', 'Service calls'),
                             route: 'servicecalls',
                             controller: 'Imt.servicecalls.controller.ServiceCalls',
+                            privileges: Imt.privileges.UsagePoint.view,
                             action: 'showServiceCalls',
                             items: {
                                 history: {
                                     title: Uni.I18n.translate('general.history', 'IMT', 'History'),
                                     route: 'history',
+                                    privileges: Imt.privileges.UsagePoint.view,
                                     controller: 'Imt.servicecalls.controller.ServiceCalls',
                                     action: 'showServiceCallHistory'
                                 }
