@@ -4,9 +4,20 @@ Ext.define('Uni.property.view.property.Quantity', {
     msgTarget: 'under',
     getEditCmp: function () {
         var me = this,
-            possibleValues = me.getProperty().getPossibleValues();
+            possibleValues = me.getProperty().getPossibleValues(),
+            store = Ext.create('Ext.data.Store', {
+                model: 'Uni.property.model.MeasurementUnit',
+                findUnit: function (data) {
+                    var store = this,
+                        index = store.findBy(function (record) {
+                            return data.unit === record.get('unit') && data.multiplier === record.get('multiplier');
+                        });
 
-        Ext.getStore('Uni.property.store.MeasurementUnits').loadData(possibleValues, false);
+                    return store.getAt(index);
+                }
+            });
+
+        store.loadData(possibleValues, false);
 
         return [
             {
@@ -21,7 +32,7 @@ Ext.define('Uni.property.view.property.Quantity', {
             {
                 xtype: 'combobox',
                 itemId: me.key + 'unit',
-                store: 'Uni.property.store.MeasurementUnits',
+                store: store,
                 width: 80,
                 displayField: 'displayValue',
                 valueField: 'id',
