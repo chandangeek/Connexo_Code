@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.imports.impl.parsers;
 import com.elster.jupiter.metering.imports.impl.FieldParser;
 import com.elster.jupiter.metering.imports.impl.exceptions.ValueParserException;
 import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.util.units.Unit;
 
 import java.math.BigDecimal;
 
@@ -33,8 +34,13 @@ public class QuantityParser implements FieldParser<Quantity> {
             try {
                 BigDecimal bigDecimalValue = bigDecimalParser.parse(quantityParameters[0]);
                 int multiplier = numberParser.parse(quantityParameters[1]).intValue();
-                String unit = quantityParameters[2];
-                return Quantity.create(bigDecimalValue, multiplier, unit);
+                String unitString = quantityParameters[2];
+                try {
+                    Unit.get(unitString);
+                } catch (IllegalArgumentException e) {
+                    throw new ValueParserException(unitString, "A, V, Wh, kg");
+                }
+                return Quantity.create(bigDecimalValue, multiplier, unitString);
             } catch (IllegalArgumentException e) {
                 throw new ValueParserException(value, bigDecimalParser.getNumberFormat().getExample() + ":3:A");
             }
