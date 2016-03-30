@@ -1,5 +1,8 @@
 Ext.define('Uni.property.view.property.Quantity', {
     extend: 'Uni.property.view.property.Base',
+    requires: [
+        'Uni.property.model.MeasurementUnit'
+    ],
 
     msgTarget: 'under',
     getEditCmp: function () {
