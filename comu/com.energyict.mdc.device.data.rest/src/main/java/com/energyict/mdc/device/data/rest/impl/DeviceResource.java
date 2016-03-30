@@ -2,7 +2,15 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
@@ -31,8 +39,22 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
@@ -77,6 +99,7 @@ public class DeviceResource {
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
     private final DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
     private final TransactionService transactionService;
+    private final ServiceCallService serviceCallService;
 
     @Inject
     public DeviceResource(
@@ -109,7 +132,8 @@ public class DeviceResource {
             DeviceInfoFactory deviceInfoFactory,
             DeviceAttributesInfoFactory deviceAttributesInfoFactory,
             DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory,
-            TransactionService transactionService) {
+            TransactionService transactionService,
+            ServiceCallService serviceCallService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -140,6 +164,7 @@ public class DeviceResource {
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
         this.devicesForConfigChangeSearchFactory = devicesForConfigChangeSearchFactory;
         this.transactionService = transactionService;
+        this.serviceCallService = serviceCallService;
     }
 
     @GET @Transactional
@@ -595,6 +620,21 @@ public class DeviceResource {
     @Path("/{mRID}/transitions")
     public DeviceLifeCycleActionResource getDeviceLifeCycleActionsResource() {
         return deviceLifeCycleActionResourceProvider.get();
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{mRID}/servicecalls")
+    public Response cancelServiceCallsFor(@PathParam("mRID") String mrid, ServiceCallInfo serviceCallInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        if (serviceCallInfo.state == null) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        if (DefaultState.CANCELLED.getKey().equals(serviceCallInfo.state.id)) {
+            serviceCallService.cancelServiceCallsFor(device);
+            return Response.accepted().build();
+        }
+        throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
     @GET @Transactional
