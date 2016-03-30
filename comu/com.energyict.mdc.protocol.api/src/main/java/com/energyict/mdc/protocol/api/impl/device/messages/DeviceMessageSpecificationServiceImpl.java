@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
+import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -198,6 +199,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         Stream.of(EIWebConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(MBusSetupDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(ZigBeeConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
+        Stream.of(TrackingCategory.values()).forEach(keys::add);
         return keys;
     }
 
