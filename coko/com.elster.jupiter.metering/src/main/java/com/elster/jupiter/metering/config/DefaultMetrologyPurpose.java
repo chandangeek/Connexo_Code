@@ -34,8 +34,8 @@ public enum DefaultMetrologyPurpose {
         INFORMATION_NAME("metrology.purpose.information.name", "Information"),
         VOLTAGE_MONITORING_NAME("metrology.purpose.voltage.monitoring.name", "Voltage monitoring"),
         BILLING_DESCRIPTION("metrology.purpose.billing.description", "The calculation of data based on data from meters for further export to the external billing system"),
-        INFORMATION_DESCRIPTION("metrology.purpose.information.description", ""),
-        VOLTAGE_MONITORING_DESCRIPTION("metrology.purpose.voltage.monitoring.description", ""),;
+        INFORMATION_DESCRIPTION("metrology.purpose.information.description", "Information metrology purpose"),
+        VOLTAGE_MONITORING_DESCRIPTION("metrology.purpose.voltage.monitoring.description", "Voltage monitoring metrology purpose"),;
 
         private String key;
         private String defaultFormat;
