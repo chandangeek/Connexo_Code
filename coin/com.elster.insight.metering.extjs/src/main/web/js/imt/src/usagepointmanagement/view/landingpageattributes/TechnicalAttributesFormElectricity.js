@@ -56,12 +56,18 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                     },
                     {
                         xtype: 'measuredisplayfield',
+                        name: 'ratedCurrent',
+                        itemId: 'fld-up-rated-current',
+                        fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
+                        unitType: 'amperage'
+                    },
+                    {
+                        xtype: 'measuredisplayfield',
                         name: 'estimatedLoad',
                         itemId: 'fld-up-estimated-load',
                         fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
                         unitType: 'estimationLoad'
                     },
-
                     {
                         name: 'limiter',
                         itemId: 'fld-up-limiter',
