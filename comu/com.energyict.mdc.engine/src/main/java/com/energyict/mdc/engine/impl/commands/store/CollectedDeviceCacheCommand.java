@@ -14,6 +14,7 @@ import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -71,11 +72,9 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl<CollectedDevi
         builder.addProperty("deviceIdentifier").append(this.deviceCache.getDeviceIdentifier());
     }
 
-    protected Optional<CollectedDeviceCacheEvent> newEvent(Issue issue) {
+    protected Optional<CollectedDeviceCacheEvent> newEvent(List<Issue> issues) {
         CollectedDeviceCacheEvent event  =  new CollectedDeviceCacheEvent(new ComServerEventServiceProvider(), deviceCache);
-        if (issue != null){
-            event.setIssue(issue);
-        }
+        event.addIssues(issues);
         return Optional.of(event);
     }
 

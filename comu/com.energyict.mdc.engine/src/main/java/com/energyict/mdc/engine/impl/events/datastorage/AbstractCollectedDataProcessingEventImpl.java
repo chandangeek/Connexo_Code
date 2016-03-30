@@ -6,8 +6,12 @@ import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Base class for all {@link CollectedDataProcessingEvent}s
@@ -21,7 +25,7 @@ import org.json.JSONWriter;
 public abstract class AbstractCollectedDataProcessingEventImpl<T extends CollectedData> extends AbstractComServerEventImpl implements CollectedDataProcessingEvent {
 
     private T payload;
-    private Issue issue;
+    private List<Issue> issues = new ArrayList<>();
 
     protected AbstractCollectedDataProcessingEventImpl(ServiceProvider serviceProvider) {
         super(serviceProvider);
@@ -40,16 +44,20 @@ public abstract class AbstractCollectedDataProcessingEventImpl<T extends Collect
     }
 
     @Override
-    public Issue getIssue() {
-        return issue;
+    public List<Issue> getIssues() {
+        return issues;
     }
 
-    public void setIssue(Issue issue) {
-        this.issue = issue;
+    public void addIssue(Issue issue) {
+        this.issues.add(issue);
     }
 
-    public boolean hasIssue() {
-        return (issue != null);
+    public void addIssues(List<Issue> issues) {
+        this.issues.addAll(issues);
+    }
+
+    public boolean hasIssues() {
+        return (issues != null && !issues.isEmpty());
     }
 
     public Category getCategory (){
@@ -59,7 +67,6 @@ public abstract class AbstractCollectedDataProcessingEventImpl<T extends Collect
     protected void toString(JSONWriter writer) throws JSONException {
         super.toString(writer);
         addEventInfo(writer);
-        addIssue(writer);
     }
 
     protected void addEventInfo(JSONWriter writer) throws JSONException {
@@ -69,6 +76,7 @@ public abstract class AbstractCollectedDataProcessingEventImpl<T extends Collect
         writer.object();
         addPayload(writer);
         writer.endObject();
+        addIssues(writer);
     }
 
     /**
@@ -80,32 +88,33 @@ public abstract class AbstractCollectedDataProcessingEventImpl<T extends Collect
         // By default nothing is written on the writer
     }
 
-    private void addIssue(JSONWriter writer) throws JSONException {
-        if (hasIssue()) {
-            writer.key("issue");
-            writer.object();
+    private void addIssues(JSONWriter writer) throws JSONException {
+        if (hasIssues()) {
+            writer.key("issues");
+            writer.array();
 
-            writer.key("description").value(issue.getDescription());
-            writer.key("isWarning").value(issue.isWarning());
-            writer.key("isProblem").value(issue.isProblem());
-
-            writer.endObject();
+            for (Issue issue : getIssues()) {
+                writer.object();
+                writer.
+                        key(issue.isWarning() ? "warning" : "problem").
+                        value(issue.getDescription());
+                writer.endObject();
+            }
+            writer.endArray();
         }
     }
 
     @Override
     public LogLevel getLogLevel (){
-         if (!this.hasIssue()){
-             return LogLevel.INFO;
-         }
-         if (issue.isWarning()){
-             return LogLevel.WARN;
-         }
+        if (!this.hasIssues()) {
+            return LogLevel.INFO;
+        } else if (getIssues().stream().allMatch(Issue::isWarning)) {
+            return LogLevel.WARN;
+        }
         return LogLevel.ERROR;
     }
 
     public String getLogMessage (){
         return this.toString();
     }
-
 }

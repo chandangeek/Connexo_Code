@@ -46,27 +46,24 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
         PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
         if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
             updateMeterDataStorer(preStoredLoadProfile.getDeviceIdentifier(), preStoredLoadProfile.getIntervalBlocks(), preStoredLoadProfile.getLastReading());
-        } else if(preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED)){
+        } else if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED)) {
             final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
-            if (getExecutionLogger() != null) {
-                getExecutionLogger().addIssue( CompletionCode.Ok
-                        ,this.getIssueService().newWarning(
-                                            this,
-                                            MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED.getKey(),
-                                            optionalLoadProfile.get().getObisCode().toString(),
-                                            optionalLoadProfile.get().getLastReading().map(instant -> instant).orElse(Instant.EPOCH))
-                        , this.getComTaskExecution());
-            }
-        }
-        else {
-            if (getExecutionLogger() != null) {
-                getExecutionLogger().addIssue(CompletionCode.ConfigurationWarning
-                        , this.getIssueService().newWarning(
-                                this,
-                                MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE.getKey(),
-                                comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier()).map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString()).orElse(""))
-                        , this.getComTaskExecution());
-            }
+            this.addIssue(
+                    CompletionCode.Ok,
+                    this.getIssueService().newWarning(
+                            this,
+                            MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED.getKey(),
+                            optionalLoadProfile.get().getObisCode().toString(),
+                            optionalLoadProfile.get().getLastReading().map(instant -> instant).orElse(Instant.EPOCH)));
+        } else {
+            this.addIssue(
+                    CompletionCode.ConfigurationWarning,
+                    this.getIssueService().newWarning(
+                            this,
+                            MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE.getKey(),
+                            comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier())
+                                    .map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString())
+                                    .orElse("")));
         }
     }
 
@@ -94,11 +91,9 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
         }
     }
 
-    protected Optional<CollectedLoadProfileEvent> newEvent(Issue issue) {
+    protected Optional<CollectedLoadProfileEvent> newEvent(List<Issue> issues) {
         CollectedLoadProfileEvent event  =  new CollectedLoadProfileEvent(new ComServerEventServiceProvider(), collectedLoadProfile);
-        if (issue != null){
-            event.setIssue(issue);
-        }
+        event.addIssues(issues);
         return Optional.of(event);
     }
 

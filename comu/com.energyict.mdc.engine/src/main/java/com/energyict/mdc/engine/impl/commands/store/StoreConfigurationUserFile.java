@@ -2,16 +2,17 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.StoreConfigurationEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -57,11 +58,9 @@ public class StoreConfigurationUserFile extends DeviceCommandImpl<StoreConfigura
         }
     }
 
-    protected Optional<StoreConfigurationEvent> newEvent(Issue issue) {
+    protected Optional<StoreConfigurationEvent> newEvent(List<Issue> issues) {
         StoreConfigurationEvent event  =  new StoreConfigurationEvent(new ComServerEventServiceProvider(), this.deviceIdentifier);
-        if (issue != null){
-            event.setIssue(issue);
-        }
+        event.addIssues(issues);
         return Optional.of(event);
     }
 
