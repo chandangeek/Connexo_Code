@@ -8,11 +8,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.ExpressionNode;
-import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.*;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.impl.config.FormulaBuilder;
@@ -34,10 +30,7 @@ import java.io.FileNotFoundException;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.metering.console", service = ConsoleCommands.class, property = {
@@ -316,7 +309,7 @@ public class ConsoleCommands {
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
-            metrologyConfiguration.addReadingTypeRequirement(name)
+            metrologyConfiguration.newReadingTypeRequirement(name)
                     .withReadingType(readingType);
             context.commit();
         }
@@ -327,8 +320,13 @@ public class ConsoleCommands {
     }
 
     public void deliverables(long id) {
-        metrologyConfigurationService.findMetrologyConfiguration(id).get()
-                .getDeliverables().stream()
+        printDeliverables(metrologyConfigurationService.findMetrologyConfiguration(id)
+                .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
+                .getDeliverables());
+    }
+
+    private void printDeliverables(List<ReadingTypeDeliverable> deliverables) {
+        deliverables.stream()
                 .map(del -> del.getId() + " " + del.getName() + " " + del.getReadingType().getMRID() + " root node: " + del.getFormula().getExpressionNode().getId())
                 .forEach(System.out::println);
     }
@@ -347,7 +345,7 @@ public class ConsoleCommands {
 
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
 
-            metrologyConfigurationService.newReadingTypeDeliverableBuilder(name, metrologyConfiguration, readingType, Formula.Mode.EXPERT)
+            metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.EXPERT)
                     .build(node);
             context.commit();
         }
@@ -363,12 +361,27 @@ public class ConsoleCommands {
             try {
                 ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
                         .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-                metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
-                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
+                MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                        .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
+                metrologyConfiguration
                         .removeReadingTypeDeliverable(deliverable);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void getDeliverablesOnContract() {
+        System.out.println("Usage: getDeliverablesOnContract <metrology configuration id> <default purpose>");
+    }
+
+    public void getDeliverablesOnContract(long metrologyConfigId, String defaultPurpose) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.valueOf(defaultPurpose))
+                    .orElseThrow(() -> new NoSuchElementException("Default purposes not installed"));
+            MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId).get().addMetrologyContract(purpose);
+            printDeliverables(contract.getDeliverables());
         }
     }
 
