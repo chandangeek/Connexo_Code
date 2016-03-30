@@ -172,6 +172,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             record,
             modelProxy;
 
+        wizard.clearInvalid();
         wizard.updateRecord();
         wizard.setLoading();
         record = wizard.getRecord();
