@@ -3,9 +3,10 @@ Ext.define('Uni.property.view.property.Quantity', {
 
     msgTarget: 'under',
     getEditCmp: function () {
-        var me = this;
+        var me = this,
+            possibleValues = me.getProperty().getPossibleValues();
 
-        Ext.getStore('Uni.property.store.MeasurementUnits').loadData(me.getProperty().getPossibleValues(), false);
+        Ext.getStore('Uni.property.store.MeasurementUnits').loadData(possibleValues, false);
 
         return [
             {
@@ -25,7 +26,8 @@ Ext.define('Uni.property.view.property.Quantity', {
                 displayField: 'displayValue',
                 valueField: 'id',
                 queryMode: 'local',
-                forceSelection: true
+                forceSelection: true,
+                value: possibleValues[0] ? possibleValues[0].id : null
             }
         ];
     },
