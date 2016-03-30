@@ -76,7 +76,7 @@ public class AM130 extends AM500 {
 
     @Override
     public String getProtocolDescription() {
-        return "Elster AM130 DLMS (IDIS P2) MBus slave";
+        return "Elster AM130 DLMS (IDIS P2)";
     }
 
     /**
