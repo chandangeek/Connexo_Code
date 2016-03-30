@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.importers.impl.devices;
 
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.impl.GeoCoordinatesImpl;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
@@ -73,6 +75,8 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
             setLocationAttributes(builder.member(), data, ranking).add();
             endDevice.setLocation(builder.create());
         }
+        endDevice.setGeoCoordintes(context.getMeteringService()
+                .createGeoCoordinates(data.getGeoCoordinates().stream().reduce((s, t) -> s + ":" + t).get()));
         endDevice.update();
     }
 

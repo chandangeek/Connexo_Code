@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class DeviceInstallationImportDescription implements FileImportDescription<DeviceInstallationImportRecord> {
 
@@ -43,6 +44,10 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
                 .withSetter(record::setTransitionDate)
                 .markMandatory()
                 .build());
+        IntStream.range(0, 2).forEach(cnt ->
+                fields.add(CommonField.withParser(stringParser)
+                .withSetter(record::setGeoCoordinates)
+                .build()));
         context.getMeteringService().getLocationTemplate().getRankings().entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
