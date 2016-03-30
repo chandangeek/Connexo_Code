@@ -110,7 +110,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
     @Override
     public String getProtocolDescription() {
-        return "Elster AS230 IEC1107\n";
+        return "Elster AS230 IEC1107";
     }
 
     private static final int DEBUG = 0;

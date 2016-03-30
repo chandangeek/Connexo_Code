@@ -224,12 +224,12 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
 
     @Override
     public RegisterInfo translateRegister(Register register) throws UnsupportedException {
-        throw new UnsupportedException("The Mbus device can't translate his registers ...");
+        throw new UnsupportedException("The Mbus device can't translate its registers ...");
     }
 
     @Override
     public List<RegisterValue> readRegisters(List<Register> registers) throws UnsupportedException {
-        throw new UnsupportedException("The Mbus device does not read his own registers, his master will do this.");
+        throw new UnsupportedException("The Mbus device does not read its own registers, its master will do this.");
     }
 
     @Override
@@ -254,17 +254,17 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
 
     @Override
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws UnsupportedException {
-        throw new UnsupportedException("The Mbus device does not read his own events, his master will do this for him.");
+        throw new UnsupportedException("The Mbus device does not read its own events, its master will do this.");
     }
 
     @Override
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws UnsupportedException {
-        throw new UnsupportedException("The Mbus device does not fetch his own loadProfiles configs, his master will do this for him");
+        throw new UnsupportedException("The Mbus device does not fetch its own loadProfile configs, its master will do this.");
     }
 
     @Override
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws UnsupportedException {
-        throw new UnsupportedException("The Mbus device does not read his own loadProfiles, his master will do this for him");
+        throw new UnsupportedException("The Mbus device does not read its own loadProfiles, its master will do this.");
     }
     /**
      * Returns a list of required property keys
