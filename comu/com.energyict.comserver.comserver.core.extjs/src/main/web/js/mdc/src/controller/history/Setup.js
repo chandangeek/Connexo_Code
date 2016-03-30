@@ -7,12 +7,23 @@ Ext.define('Mdc.controller.history.Setup', {
 
     routeConfig: {
         usagepoints: {
-            title: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points'),
+            disabled: true,
+            title: Uni.I18n.translate('general.usagePointsManagement', 'MDC', 'Usage points'),
             route: 'usagepoints',
             items: {
+                add: {
+                    title: Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
+                    route: 'add',
+                    controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
+                    privileges: Mdc.privileges.UsagePoint.admin,
+                    disabled: Mdc.privileges.UsagePoint.checkApp('Insight'),
+                    action: 'showAddUsagePoint'
+                },
                 usagepoint: {
                     title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
+                    privileges: Mdc.privileges.UsagePoint.view,
                     route: '{usagePointId}',
+                    disabled: Mdc.privileges.UsagePoint.checkApp('Insight'),
                     controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                     action: 'showUsagePoint',
                     callback: function (route) {
@@ -24,6 +35,14 @@ Ext.define('Mdc.controller.history.Setup', {
                         return this;
                     },
                     items: {
+                        edit: {
+                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                            route: 'edit',
+                            controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
+                            privileges: Mdc.privileges.UsagePoint.admin,
+                            disabled: Mdc.privileges.UsagePoint.checkApp('Insight'),
+                            action: 'showEditUsagePoint'
+                        },
                         'processes': {
                             title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
                             route: 'processes',
