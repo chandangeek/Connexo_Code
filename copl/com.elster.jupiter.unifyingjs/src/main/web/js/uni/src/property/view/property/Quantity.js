@@ -1,6 +1,7 @@
 Ext.define('Uni.property.view.property.Quantity', {
     extend: 'Uni.property.view.property.Base',
 
+    msgTarget: 'under',
     getEditCmp: function () {
         var me = this;
 
