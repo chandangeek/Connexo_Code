@@ -92,8 +92,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.store.TimeUnits',
         'Uni.property.store.RelativePeriods',
         'Uni.property.store.PropertyReadingTypes',
-        'Uni.property.store.PropertyDeviceConfigurations',
-        'Uni.property.store.MeasurementUnits'
+        'Uni.property.store.PropertyDeviceConfigurations'
     ],
 
     /**
