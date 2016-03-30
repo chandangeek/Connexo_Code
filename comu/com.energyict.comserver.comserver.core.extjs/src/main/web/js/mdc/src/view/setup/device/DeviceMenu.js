@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.serviceCalls', 'MDC', 'Service calls'),
-                        privileges: Scs.privileges.ServiceCall.view,
+                        privileges: Mdc.privileges.Device.viewDevice,
                         itemId: 'device-servicecalls-link',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/servicecalls'
                     }
