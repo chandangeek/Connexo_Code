@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -34,6 +35,7 @@ public class SearchApplication extends Application implements MessageSeedProvide
     public static final String COMPONENT_NAME = "JSR";
 
     private volatile SearchService searchService;
+    private volatile SearchLocationService searchLocationService;
     private volatile Thesaurus thesaurus;
     private volatile InfoFactoryService infoFactoryService;
 
@@ -55,6 +57,11 @@ public class SearchApplication extends Application implements MessageSeedProvide
     @Reference
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
+    }
+
+    @Reference
+    public void setSearchLocationService(SearchLocationService searchLocationService) {
+        this.searchLocationService = searchLocationService;
     }
 
     @Reference
@@ -81,6 +88,7 @@ public class SearchApplication extends Application implements MessageSeedProvide
         @Override
         protected void configure() {
             bind(searchService).to(SearchService.class);
+            bind(searchLocationService).to(SearchLocationService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(infoFactoryService).to(InfoFactoryService.class);
             bind(SearchCriterionInfoFactory.class).to(SearchCriterionInfoFactory.class);

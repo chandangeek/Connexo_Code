@@ -13,6 +13,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
 import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
@@ -48,13 +49,15 @@ import static java.util.stream.Collectors.toList;
 public class DynamicSearchResource {
 
     private final SearchService searchService;
+    private final SearchLocationService searchLocationService;
     private final ExceptionFactory exceptionFactory;
     private final SearchCriterionInfoFactory searchCriterionInfoFactory;
     private final InfoFactoryService infoFactoryService;
 
     @Inject
-    public DynamicSearchResource(SearchService searchService, ExceptionFactory exceptionFactory, SearchCriterionInfoFactory searchCriterionInfoFactory, InfoFactoryService infoFactoryService) {
+    public DynamicSearchResource(SearchService searchService, SearchLocationService searchLocationService, ExceptionFactory exceptionFactory, SearchCriterionInfoFactory searchCriterionInfoFactory, InfoFactoryService infoFactoryService) {
         this.searchService = searchService;
+        this.searchLocationService = searchLocationService;
         this.exceptionFactory = exceptionFactory;
         this.searchCriterionInfoFactory = searchCriterionInfoFactory;
 
@@ -204,8 +207,8 @@ public class DynamicSearchResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{domain}/findcriteria/{property}")
-    public Response getFullCriteriaInfo2(@PathParam("domain") String domainId,
+    @Path("/{domain}/locationsearchcriteria/{property}")
+    public Response getLocationFullCriteriaInfo(@PathParam("domain") String domainId,
                                          @PathParam("property") String property,
                                          @BeanParam JsonQueryParameters jsonQueryParameters,
                                          @BeanParam JsonQueryFilter jsonQueryFilter,
@@ -215,12 +218,8 @@ public class DynamicSearchResource {
                 .filter(prop -> property.equals(prop.getName()))
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_PROPERTY, property));
-        List<SearchablePropertyConstriction> searchablePropertyConstrictions =
-                searchableProperty.getConstraints().stream().
-                        map(constrainingProperty -> SearchablePropertyValueConverter.convert(constrainingProperty, jsonQueryFilter).asConstriction()).
-                        collect(toList());
-        searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
-        PropertyInfo propertyInfo = searchCriterionInfoFactory.asSingleObject(searchableProperty, uriInfo, jsonQueryFilter.getString("displayValue"));
+
+        PropertyInfo propertyInfo = searchCriterionInfoFactory.asSingleObjectWithValues(searchableProperty, uriInfo, searchLocationService.findLocations(jsonQueryFilter.getString("displayValue")));
         return Response.ok().entity(propertyInfo).build();
     }
 

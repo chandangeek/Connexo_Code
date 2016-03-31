@@ -9,8 +9,11 @@ import com.elster.jupiter.util.HasId;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -37,7 +40,7 @@ public class SearchCriterionInfoFactory {
         return uriInfo.
                 getBaseUriBuilder().
                 path(DynamicSearchResource.class).
-                path(DynamicSearchResource.class, property.getName().equals("location") ? "getFullCriteriaInfo2" : "getFullCriteriaInfo").
+                path(DynamicSearchResource.class, property.getName().equals("location") ? "getLocationFullCriteriaInfo" : "getFullCriteriaInfo").
                 resolveTemplate("domain", property.getDomain().getId()).
                 resolveTemplate("property", property.getName()).
                 build();
@@ -59,6 +62,17 @@ public class SearchCriterionInfoFactory {
                     .sorted((v1, v2) -> v1.displayValue.compareToIgnoreCase(v2.displayValue))
                     .collect(toList());
         }
+        propertyInfo.total = propertyInfo.values != null ? propertyInfo.values.size() : 0;
+        return propertyInfo;
+    }
+
+    public PropertyInfo asSingleObjectWithValues(SearchableProperty property, UriInfo uriInfo, Map<Long, String> locations) {
+        PropertyInfo propertyInfo = asListObject(property, uriInfo);
+        PropertySpec propertySpec = property.getSpecification();
+        propertyInfo.type = propertySpec.getValueFactory().getValueType().getSimpleName();
+        propertyInfo.factoryName = propertySpec.getValueFactory().getClass().getName();
+        propertyInfo.values = this.getLocationValues(locations);
+        propertyInfo.exhaustive = true;
         propertyInfo.total = propertyInfo.values != null ? propertyInfo.values.size() : 0;
         return propertyInfo;
     }
@@ -87,6 +101,20 @@ public class SearchCriterionInfoFactory {
             info.id = ((HasIdAndName) valueObject).getId();
         }
         return info;
+    }
+
+    private List<IdWithDisplayValueInfo> getLocationValues(Map<Long, String> locations) {
+        List<IdWithDisplayValueInfo> list = locations.entrySet().
+                stream().
+                map(l -> {
+                    IdWithDisplayValueInfo location = new IdWithDisplayValueInfo();
+                    location.id = l.getKey();
+                    location.displayValue = l.getValue();
+                    return location;
+                }).
+                collect(Collectors.toList());
+
+        return list;
     }
 
 }
