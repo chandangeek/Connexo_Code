@@ -661,6 +661,18 @@ public class DeviceResource {
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
     }
 
+    @GET @Transactional
+    @Path("/{mRID}/dataloggerslaves")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getDataLoggerSlaves(@PathParam("mRID") String id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+
+        // TODO: get the data logger slaves from this device
+
+        List<DeviceTopologyInfo> slavesList = new ArrayList<>();
+        return PagedInfoList.fromPagedList("dataLoggerSlaveDevices", slavesList, queryParameters);
+    }
+
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {
         Predicate<Device> predicate = d -> true;
         predicate = addPropertyStringFilterIfAvailabale(filter, "mrid", predicate, Device::getmRID);
