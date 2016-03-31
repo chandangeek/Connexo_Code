@@ -8,7 +8,9 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
     requires: [
         'Mdc.view.setup.devicetopology.Grid',
         'Mdc.view.setup.device.DeviceMenu',
-        'Mdc.view.setup.devicechannels.DeviceTopologiesTopFilter'
+        'Mdc.view.setup.devicechannels.DeviceTopologiesTopFilter',
+        'Uni.view.container.PreviewContainer',
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     stores: [

@@ -1,19 +1,19 @@
-Ext.define('Mdc.view.setup.devicetopology.Grid', {
+Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.deviceTopologyGrid',
-    itemId: 'deviceTopologyGrid',
-    store: 'Mdc.store.DeviceTopology',
+    alias: 'widget.dataLoggerSlavesGrid',
+    itemId: 'mdc-dataloggerslaves-grid',
+    store: 'Mdc.store.DataLoggerSlaves',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.DeviceTopology'
+        'Mdc.store.DataLoggerSlaves'
     ],
 
     initComponent: function () {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('deviceCommunicationTopology.mRID', 'MDC', 'MRID'),
+                header: Uni.I18n.translate('general.mRID', 'MDC', 'MRID'),
                 dataIndex: 'mRID',
                 renderer: function (value, meta, record) {
                     var href = me.router.getRoute('devices/device').buildUrl({mRID: record.get('mRID')});
@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceCommunicationTopology.serialNumber', 'MDC', 'Serial number'),
+                header: Uni.I18n.translate('general.serialNumber', 'MDC', 'Serial number'),
                 dataIndex: 'serialNumber',
                 flex: 1
             },
@@ -32,12 +32,12 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceCommunicationTopology.configuration', 'MDC', 'Configuration'),
+                header: Uni.I18n.translate('general.configuration', 'MDC', 'Configuration'),
                 dataIndex: 'deviceConfigurationName',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceCommunicationTopology.addedOn', 'MDC', 'Added on'),
+                header: Uni.I18n.translate('general.addedOn', 'MDC', 'Added on'),
                 dataIndex: 'creationTime',
                 flex: 1,
                 renderer: function (value) {
@@ -52,20 +52,19 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 store: me.store,
                 deferLoading: true,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
-                displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
-                emptyMsg: Uni.I18n.translate('devices.pagingtoolbartop.emptyMsg', 'MDC', 'There are no devices to display')
+                displayMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} data logger slaves'),
+                displayMoreMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} data logger slaves'),
+                emptyMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.emptyMsg', 'MDC', 'There are no data logger slaves to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 deferLoading: true,
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page'),
+                itemsPerPageMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Data logger slaves per page'),
                 dock: 'bottom'
             }
         ];
 
         me.callParent(arguments);
-        me.maxHeight = 560;
     }
 });
