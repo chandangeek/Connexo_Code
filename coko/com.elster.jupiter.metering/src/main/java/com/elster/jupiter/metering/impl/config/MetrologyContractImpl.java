@@ -66,7 +66,8 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     @Override
     public MetrologyContract addDeliverable(ReadingTypeDeliverable deliverable) {
-        MetrologyContractReadingTypeDeliverableUsage deliverableMapping = this.metrologyConfigurationService.getDataModel().getInstance(MetrologyContractReadingTypeDeliverableUsage.class)
+        MetrologyContractReadingTypeDeliverableUsage deliverableMapping = this.metrologyConfigurationService.getDataModel()
+                .getInstance(MetrologyContractReadingTypeDeliverableUsage.class)
                 .init(this, deliverable);
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverableMapping);
         this.deliverables.add(deliverableMapping);

@@ -5,7 +5,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -17,9 +16,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
-import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImplCalculateIT;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.transaction.TransactionContext;
 
@@ -38,8 +34,6 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeDeliverableImplTestIT {
@@ -59,22 +53,11 @@ public class ReadingTypeDeliverableImplTestIT {
     public static void setUp() {
         inMemoryBootstrapModule.activate();
         try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
-            NlsKey name = mock(NlsKey.class);
-            when(name.getKey()).thenReturn(ReadingTypeDeliverableImplTestIT.class.getSimpleName());
-            when(name.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateIT.class.getSimpleName());
-            when(name.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
-            when(name.getLayer()).thenReturn(Layer.DOMAIN);
-            NlsKey description = mock(NlsKey.class);
-            when(description.getKey()).thenReturn(ReadingTypeDeliverableImplTestIT.class.getSimpleName() + ".description");
-            when(description.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateIT.class.getSimpleName());
-            when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
-            when(description.getLayer()).thenReturn(Layer.DOMAIN);
-            MetrologyPurpose metrologyPurpose = inMemoryBootstrapModule.getMetrologyConfigurationService().createMetrologyPurpose(name, description);
-            metrologyConfiguration =
-                    inMemoryBootstrapModule.getMetrologyConfigurationService()
-                            .newMetrologyConfiguration(
-                                    "Test",
-                                    inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get()).create();
+            MetrologyPurpose metrologyPurpose = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                    .findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get();
+            ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+            metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                    .newMetrologyConfiguration("Test", serviceCategory).create();
             metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
             readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "zero reading type");
             context.commit();
@@ -336,6 +319,19 @@ public class ReadingTypeDeliverableImplTestIT {
         // Asserts
         List<ReadingTypeDeliverable> deliverables = metrologyContract.getDeliverables();
         assertThat(deliverables).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION + "}", property = "deliverable", strict = true)
+    public void testCanNotAddDeliverableFromAnotherMetrologyConfigurationToMetrologyContract() {
+        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        MetrologyConfiguration anotherConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .newMetrologyConfiguration("Another configuration", serviceCategory).create();
+        ReadingTypeDeliverableBuilder builder = anotherConfiguration.newReadingTypeDeliverable("Some deliverable", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable = builder.build(builder.constant(10));
+
+        metrologyContract.addDeliverable(deliverable);
     }
 
 }
