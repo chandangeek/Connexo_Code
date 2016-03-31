@@ -329,33 +329,35 @@ Ext.define('Imt.controller.History', {
                             }
                         },
                         'processes': {
-                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+                            title: Uni.I18n.translate('processes.title', 'IMT', 'Processes'),
                             route: 'processes',
                             controller: 'Imt.processes.controller.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                            action: 'showUsagePointProcesses'
+                            action: 'showUsagePointProcesses',
+                            items: {
+                                'processstart': {
+                                    title: Uni.I18n.translate('processes.startProcesses', 'IMT', 'Start processes'),
+                                    route: 'start',
+                                    controller: 'Imt.processes.controller.MonitorProcesses',
+                                    privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                                    action: 'showUsagePointStartProcess'
+                                }
+                            }
                         },
                         'processesrunning': {
-                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+                            title: Uni.I18n.translate('processes.title', 'IMT', 'Processes'),
                             route: 'running',
                             controller: 'Imt.processes.controller.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             action: 'showUsagePointProcesses'
                         },
                         'processeshistory': {
-                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+                            title: Uni.I18n.translate('processes.title', 'IMT', 'Processes'),
                             route: 'processes/history',
                             controller: 'Imt.processes.controller.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
                             action: 'showUsagePointProcesses'
-                        },
-                        'processstart': {
-                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
-                            route: 'processes/start',
-                            controller: 'Imt.processes.controller.MonitorProcesses',
-                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                            action: 'showUsagePointStartProcess'
                         }
            			}
            		},
