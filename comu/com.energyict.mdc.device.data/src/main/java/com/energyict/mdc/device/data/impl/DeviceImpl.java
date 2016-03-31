@@ -240,6 +240,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     private transient DeviceValidationImpl deviceValidation;
     private final Reference<DeviceEstimation> deviceEstimation = ValueReference.absent();
+    private final Reference<GeoCoordinates> geoCoordinates = ValueReference.absent();
 
     private transient Optional<Meter> meter = Optional.empty();
     private transient AmrSystem amrSystem;
@@ -247,6 +248,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private transient MultiplierType multiplierType;
     private transient BigDecimal multiplier;
     private Location location;
+
 
     @Inject
     public DeviceImpl(
@@ -330,13 +332,24 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public Location getLocation(){
+    public Location getLocation() {
         return this.location;
     }
 
     @Override
-    public void setLocation(Location location){
+    public void setLocation(Location location) {
         this.location = location;
+    }
+
+
+    @Override
+    public Optional<GeoCoordinates> getGeoCoordinates() {
+        return geoCoordinates.getOptional();
+    }
+
+    @Override
+    public void setGeoCoordintes(GeoCoordinates geoCoordinates) {
+        this.geoCoordinates.set(geoCoordinates);
     }
 
     @Override
@@ -344,19 +357,32 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         boolean alreadyPersistent = this.id > 0;
         if (alreadyPersistent) {
             Save.UPDATE.save(dataModel, this);
+
+           /* findKoreMeter(getMdcAmrSystem())
+                    .filter(meter -> !Objects.equals(meter.getMRID(), this.getmRID()))
+                    .ifPresent(meter -> {
+                        meter.setMRID(getmRID());
+                        if(this.location != null) {
+                            meter.setLocation(location);
+                        }
+                        if(this.geoCoordinates.isPresent()) {
+                            meter.setGeoCoordintes(geoCoordinates.get());
+                        }
+                        meter.update();
+                    });
+*/
             Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
-            if(meter.isPresent()){
-                if(!meter.get().getMRID().equals(this.getmRID())){
-                    if(this.location != null) {
-                        meter.get().setLocation(location);
-                    }
-                    meter.get().update();
-                }else{
-                    if(this.location != null){
-                        meter.get().setLocation(location);
-                        meter.get().update();
-                    }
+            if (meter.isPresent()) {
+                if (!meter.get().getMRID().equals(this.getmRID())) {
+                    meter.get().setMRID(getmRID());
                 }
+                if (this.location != null) {
+                    meter.get().setLocation(location);
+                }
+                if (this.geoCoordinates.isPresent()) {
+                    meter.get().setGeoCoordintes(geoCoordinates.get());
+                }
+                meter.get().update();
             }
             this.saveDirtySecurityProperties();
             this.saveDirtyConnectionProperties();
@@ -365,8 +391,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             Save.CREATE.save(dataModel, this);
             Meter meter = this.createKoreMeter();
-            if(this.location != null){
+            if (this.location != null) {
                 meter.setLocation(location);
+            }
+            if (this.geoCoordinates.isPresent()) {
+                meter.setGeoCoordintes(geoCoordinates.get());
             }
             this.createMeterConfiguration(meter, this.clock.instant(), false);
             this.saveNewDialectProperties();
@@ -765,7 +794,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             validateStartDateOfNewMultiplier(now, startDateMultiplier);
             boolean validMultiplierValue = multiplier.compareTo(BigDecimal.ONE) == 1;
             MeterActivation newMeterActivation = activate(startDateMultiplier.orElse(now), validMultiplierValue);
-            if(validMultiplierValue){
+            if (validMultiplierValue) {
                 newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier);
             }
             createMeterConfiguration(findOrCreateKoreMeter(getMdcAmrSystem()), startDateMultiplier.orElse(now), validMultiplierValue);

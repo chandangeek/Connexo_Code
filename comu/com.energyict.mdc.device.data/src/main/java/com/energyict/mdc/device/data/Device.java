@@ -3,10 +3,7 @@ package com.energyict.mdc.device.data;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -73,6 +70,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     Location getLocation();
 
     void setLocation(Location location);
+
+    Optional<GeoCoordinates> getGeoCoordinates();
+
+    void setGeoCoordintes(GeoCoordinates geoCoordinates);
 
     /**
      * Gets the name of the Device.
