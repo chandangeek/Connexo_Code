@@ -135,4 +135,8 @@ public class FormulaBuilderImpl implements FormulaBuilder {
     public DataModel getDataModel() {
         return dataModel;
     }
+
+    public Thesaurus getThesaurus() {
+        return thesaurus;
+    }
 }

@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import static org.junit.Assert.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -434,6 +435,52 @@ public class FormulaCrudTest {
 
             ReadingTypeDeliverable deliverable = builder.build(builder.maximum(builder.constant(10), builder.constant(20)));
             assertThat(deliverable.getFormula().getExpressionNode().toString().equals("max(constant(10), constant(20))"));
+        }
+    }
+
+
+    @Test
+    // formula = Requirement
+    public void createDeliverableCreationWithRequirementThatIsOnADifferentMetrologyConfig() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+
+            Optional<ServiceCategory> serviceCategory =
+                    inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+            assertThat(serviceCategory.isPresent());
+            MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                    service.newMetrologyConfiguration("test", serviceCategory.get());
+            MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+            assertThat(config != null);
+            ReadingType readingType =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
+            assertThat(readingType != null);
+            config.addReadingTypeRequirement("Aplus").withReadingType(readingType);
+
+            assertThat(config.getRequirements().size() == 1);
+            ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                    config.getRequirements().get(0).getId()).get();
+
+
+            metrologyConfigurationBuilder =
+                    service.newMetrologyConfiguration("test2", serviceCategory.get());
+            MetrologyConfiguration config2 = metrologyConfigurationBuilder.create();
+
+            ReadingTypeDeliverableBuilder builder =
+                    service.newReadingTypeDeliverableBuilder("deliverable", config2, readingType, Formula.Mode.AUTO);
+
+
+           try {
+               builder.build(builder.requirement(req));
+            fail("InvalidNodeException expected");
+            } catch (InvalidNodeException e) {
+                assertEquals(e.getMessage(),"The requirement with id '" + req.getId() + "' cannot be used because it has a different metrology configuration.");
+            }
+
+
+            context.commit();
         }
     }
 

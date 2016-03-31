@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
@@ -41,11 +42,17 @@ public class ReadingTypeDeliverableBuilder {
     }
 
     public ExpressionNodeBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable) {
+        if (!readingTypeDeliverable.getMetrologyConfiguration().equals(metrologyConfiguration)) {
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.getId());
+        }
         return formulaBuilder.deliverable(readingTypeDeliverable);
     }
 
-    public ExpressionNodeBuilder requirement(ReadingTypeRequirement value) {
-        return formulaBuilder.requirement(value);
+    public ExpressionNodeBuilder requirement(ReadingTypeRequirement requirement) {
+        if (!requirement.getMetrologyConfiguration().equals(metrologyConfiguration)) {
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) requirement.getId());
+        }
+        return formulaBuilder.requirement(requirement);
     }
 
     public ExpressionNodeBuilder requirement(ReadingTypeRequirementNode existingNode) {
