@@ -22,12 +22,10 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 },
                 items: [
                     {
+                        xtype: 'threevaluesdisplayfield',
                         name: 'grounded',
                         itemId: 'fld-up-grounded',
-                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        }
+                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
                     },
                     {
                         xtype: 'measuredisplayfield',
@@ -44,12 +42,10 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         unitType: 'volume'
                     },
                     {
+                        xtype: 'threevaluesdisplayfield',
                         name: 'limiter',
                         itemId: 'fld-up-limiter',
-                        fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        }
+                        fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter')
                     },
                     {
                         name: 'loadLimiterType',
@@ -57,7 +53,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Load limiter type'),
                         listeners: {
                             beforerender: function (fld){
-                                fld.setVisible(me.down('#fld-up-limiter').getValue())
+                                fld.setVisible(me.down('#fld-up-limiter').getValue() == "YES")
                             }
                         },
                         renderer: function (value) {
@@ -72,7 +68,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         unitType: 'volume',
                         listeners: {
                             beforerender: function (fld){
-                                fld.setVisible(me.down('#fld-up-limiter').getValue())
+                                fld.setVisible(me.down('#fld-up-limiter').getValue() == "YES")
                             }
                         }
                     },
@@ -123,12 +119,10 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
 
                     },
                     {
+                        xtype: 'threevaluesdisplayfield',
                         name: 'interruptible',
                         itemId: 'fld-up-interruptible',
-                        fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        }
+                        fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible')
                     }
                 ]
             },
