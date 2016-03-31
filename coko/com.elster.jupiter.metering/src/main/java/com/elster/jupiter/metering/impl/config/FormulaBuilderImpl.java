@@ -157,4 +157,8 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
         return dataModel;
     }
 
+    public Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
 }

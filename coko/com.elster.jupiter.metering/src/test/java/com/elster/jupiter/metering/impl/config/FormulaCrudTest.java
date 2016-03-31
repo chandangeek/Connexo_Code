@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import static org.junit.Assert.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -75,12 +76,12 @@ public class FormulaCrudTest {
                     inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
             assertThat(serviceCategory.isPresent());
             MetrologyConfigurationBuilder metrologyConfigurationBuilder =
-                    service.newMetrologyConfiguration("test", serviceCategory.get());
+                    service.newMetrologyConfiguration("config", serviceCategory.get());
             MetrologyConfiguration config = metrologyConfigurationBuilder.create();
             assertThat(config != null);
             ReadingType readingType =
                     inMemoryBootstrapModule.getMeteringService().createReadingType(
-                            "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
+                            "0.0.1.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype");
             assertThat(readingType != null);
             config.newReadingTypeRequirement("Aplus").withReadingType(readingType);
 
@@ -421,10 +422,10 @@ public class FormulaCrudTest {
                     inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
             assertThat(serviceCategory.isPresent());
             MetrologyConfigurationBuilder metrologyConfigurationBuilder =
-                    service.newMetrologyConfiguration("test", serviceCategory.get());
+                    service.newMetrologyConfiguration("test5", serviceCategory.get());
             MetrologyConfiguration config = metrologyConfigurationBuilder.create();
             assertThat(config != null);
-            ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
+            ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.3.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
             assertThat(readingType != null);
 
             ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, myMode);
@@ -433,5 +434,142 @@ public class FormulaCrudTest {
             assertThat(deliverable.getFormula().getExpressionNode().toString().equals("max(constant(10), constant(20))"));
         }
     }
+
+
+    @Test
+    // formula = Requirement
+    public void createDeliverableWithRequirementThatIsOnADifferentMetrologyConfig() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+
+            Optional<ServiceCategory> serviceCategory =
+                    inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+            assertThat(serviceCategory.isPresent());
+            MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                    service.newMetrologyConfiguration("test", serviceCategory.get());
+            MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+            assertThat(config != null);
+            ReadingType readingType =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
+            assertThat(readingType != null);
+            config.newReadingTypeRequirement("Aplus").withReadingType(readingType);
+
+            assertThat(config.getRequirements().size() == 1);
+            ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                    config.getRequirements().get(0).getId()).get();
+
+
+            metrologyConfigurationBuilder =
+                    service.newMetrologyConfiguration("test2", serviceCategory.get());
+            MetrologyConfiguration config2 = metrologyConfigurationBuilder.create();
+
+            ReadingTypeDeliverableBuilder builder =
+                    config2.newReadingTypeDeliverable("deliverable", readingType, Formula.Mode.AUTO);
+
+           try {
+               builder.build(builder.requirement(req));
+            fail("InvalidNodeException expected");
+            } catch (InvalidNodeException e) {
+                assertEquals(e.getMessage(),"The requirement with id '" + req.getId() + "' cannot be used because it has a different metrology configuration.");
+            }
+
+
+            context.commit();
+        }
+    }
+
+
+    @Test
+    // formula = Requirement
+    public void createDeliverableOnARequirementThatIsDimensionless() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+
+            Optional<ServiceCategory> serviceCategory =
+                    inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+            assertThat(serviceCategory.isPresent());
+            MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                    service.newMetrologyConfiguration("test3", serviceCategory.get());
+            MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+            assertThat(config != null);
+            ReadingType readingTypeRequirement =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "0.0.0.12.0.41.109.0.0.0.0.0.0.0.0.0.109.0", "readingtype for requirement");
+            assertThat(readingTypeRequirement != null);
+            config.newReadingTypeRequirement("consumption").withReadingType(readingTypeRequirement);
+
+            assertThat(config.getRequirements().size() == 1);
+            ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                    config.getRequirements().get(0).getId()).get();
+
+
+            ReadingType readingTypeDeliverable =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype for deliverable");
+            assertThat(readingTypeDeliverable != null);
+
+            ReadingTypeDeliverableBuilder builder =
+                    config.newReadingTypeDeliverable("deliverable", readingTypeDeliverable, Formula.Mode.AUTO);
+
+            try {
+                builder.build(builder.requirement(req));
+            } catch (InvalidNodeException e) {
+                fail("No InvalidNodeException expected!");
+            }
+
+
+            context.commit();
+        }
+    }
+
+    @Test
+    // formula = Requirement
+    public void createDeliverableOnARequirementWithIncompatibleReadingType() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+
+            Optional<ServiceCategory> serviceCategory =
+                    inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+            assertThat(serviceCategory.isPresent());
+            MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                    service.newMetrologyConfiguration("test4", serviceCategory.get());
+            MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+            assertThat(config != null);
+            ReadingType readingTypeRequirement =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "readingtype for requirement2");
+            assertThat(readingTypeRequirement != null);
+            config.newReadingTypeRequirement("cons").withReadingType(readingTypeRequirement);
+
+            assertThat(config.getRequirements().size() == 1);
+            ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                    config.getRequirements().get(0).getId()).get();
+
+
+            ReadingType readingTypeDeliverable =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "11.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype for deliverable2");
+            assertThat(readingTypeDeliverable != null);
+
+            ReadingTypeDeliverableBuilder builder =
+                    config.newReadingTypeDeliverable("deliverable", readingTypeDeliverable, Formula.Mode.AUTO);
+
+            try {
+                builder.build(builder.requirement(req));
+                fail("InvalidNodeException expected");
+            } catch (InvalidNodeException e) {
+                assertEquals(e.getMessage(),"The readingtype is not compatible with the dimension of the formula.");
+            }
+
+
+            context.commit();
+        }
+    }
+
+
 
 }

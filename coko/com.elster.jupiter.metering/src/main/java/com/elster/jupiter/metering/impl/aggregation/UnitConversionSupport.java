@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.units.Dimension;
 import com.elster.jupiter.util.units.Unit;
 
@@ -109,6 +110,21 @@ public class UnitConversionSupport {
                 (isVolumeRelated(first) && isFlowRelated(second))
                 || (isFlowRelated(first) && isVolumeRelated(second))
                 || (first.hasSameDimensions(second));
+    }
+
+    /**
+     * Tests if the {@link Dimension} of a formula can be assigned to a given {@link ReadingType}
+     *
+     * @param readingType The ReadingType
+     * @param dimension The Dimension
+     * @return A flag that indicates if both Dimension are compatible or not
+     */
+    public static boolean isAssignable(ReadingType readingType, Dimension dimension) {
+        Dimension dimensionOfReadingType = readingType.getUnit().getUnit().getDimension();
+        return (isDimensionless(dimension) ||
+                (isVolumeRelated(dimensionOfReadingType) && isFlowRelated(dimension))
+                || (isFlowRelated(dimension) && isVolumeRelated(dimensionOfReadingType))
+                || (dimensionOfReadingType.hasSameDimensions(dimension)));
     }
 
     private static boolean isDimensionless(Dimension dim) {
