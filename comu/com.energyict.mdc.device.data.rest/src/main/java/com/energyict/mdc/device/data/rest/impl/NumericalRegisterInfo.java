@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
