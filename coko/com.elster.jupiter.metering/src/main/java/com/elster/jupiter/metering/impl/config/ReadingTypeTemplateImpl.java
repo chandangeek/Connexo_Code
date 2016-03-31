@@ -158,6 +158,11 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
         return this.allAttributes.stream().anyMatch(attr -> !attr.getCode().isPresent() && attr.getPossibleValues().isEmpty());
     }
 
+    @Override
+    public void delete() {
+        this.dataModel.mapper(ReadingTypeTemplate.class).remove(this);
+    }
+
     private static class ReadingTypeTemplateAttributeSetterImpl implements ReadingTypeTemplateAttributeSetter {
 
         private final ReadingTypeTemplateImpl template;

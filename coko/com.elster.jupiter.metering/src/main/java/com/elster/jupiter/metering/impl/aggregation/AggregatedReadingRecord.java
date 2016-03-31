@@ -15,7 +15,6 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +34,7 @@ class AggregatedReadingRecord implements BaseReadingRecord {
 
     private final MeteringService meteringService;
     private Map<IReadingType, Quantity> values;
-    private Timestamp localDate;
+    private Instant timestamp;
     private ProcessStatus processStatus;
 
     @Inject
@@ -80,7 +79,7 @@ class AggregatedReadingRecord implements BaseReadingRecord {
         try {
             String readingTypeMRID = resultSet.getString(1);
             BigDecimal value = resultSet.getBigDecimal(2);
-            this.localDate = resultSet.getTimestamp(3);
+            this.timestamp = Instant.ofEpochMilli(resultSet.getLong(3));
             long processStatusBits = resultSet.getLong(4);
             if (this.processStatus == null) {
                 this.processStatus = new ProcessStatus(processStatusBits);
@@ -150,7 +149,7 @@ class AggregatedReadingRecord implements BaseReadingRecord {
 
     @Override
     public Instant getTimeStamp() {
-        return this.localDate.toInstant();
+        return this.timestamp;
     }
 
     @Override

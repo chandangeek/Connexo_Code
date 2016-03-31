@@ -14,9 +14,12 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
-import com.elster.jupiter.metering.impl.config.FormulaBuilder;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
+import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -65,9 +68,11 @@ import java.util.stream.Collectors;
         "osgi.command.function=updateFormula",
         "osgi.command.function=addMetrologyConfig",
         "osgi.command.function=addRequirement",
+        "osgi.command.function=addRequirementWithTemplateReadingType",
         "osgi.command.function=deliverables",
         "osgi.command.function=addDeliverable",
         "osgi.command.function=deleteDeliverable",
+        "osgi.command.function=getDeliverablesOnContract",
         "osgi.command.function=addDeliverableToContract",
         "osgi.command.function=removeDeliverableFromContract",
         "osgi.command.function=metrologyConfigs"
@@ -159,9 +164,9 @@ public class ConsoleCommands {
             threadPrincipalService.clear();
         }
     }
+
     public void addUsagePointToCurrentMeterActivation() {
-        System.out.println("usage:");
-        System.out.println("       addUsagePointToCurrentMeterActivation <mrid> <usagepoint mrid>");
+        System.out.println("Usage: addUsagePointToCurrentMeterActivation <mRID> <usage point mRID>");
     }
 
     public void addUsagePointToCurrentMeterActivation(String mrId, String usagePointmrId) {
@@ -229,7 +234,7 @@ public class ConsoleCommands {
             File eventData = new File(dataFile);
             try (Scanner scanner = new Scanner(eventData)) {
                 List<String> lines = new ArrayList<>();
-                while (scanner.hasNextLine()){
+                while (scanner.hasNextLine()) {
                     lines.add(scanner.nextLine());
                 }
 
@@ -260,7 +265,7 @@ public class ConsoleCommands {
     public void addFormula(String formulaString) {
         try (TransactionContext context = transactionService.getContext()) {
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
-            FormulaBuilder formulaBuilder = (FormulaBuilder) metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
             Formula formula = formulaBuilder.init(node).build();
             context.commit();
         }
@@ -268,7 +273,7 @@ public class ConsoleCommands {
 
     public void updateFormula(long id, String formulaString) {
         try (TransactionContext context = transactionService.getContext()) {
-            Optional<Formula> formula =  metrologyConfigurationService.findFormula(id);
+            Optional<Formula> formula = metrologyConfigurationService.findFormula(id);
             if (!formula.isPresent()) {
                 System.out.println("No formula found with id " + id);
             } else {
@@ -301,7 +306,7 @@ public class ConsoleCommands {
     }
 
     public void metrologyConfigs() {
-        for (MetrologyConfiguration config: metrologyConfigurationService.findAllMetrologyConfigurations()) {
+        for (MetrologyConfiguration config : metrologyConfigurationService.findAllMetrologyConfigurations()) {
             System.out.println(config.getId() + ": " + config.getName());
         }
     }
@@ -320,6 +325,23 @@ public class ConsoleCommands {
 
             metrologyConfiguration.newReadingTypeRequirement(name)
                     .withReadingType(readingType);
+            context.commit();
+        }
+    }
+
+    public void addRequirementWithTemplateReadingType() {
+        System.out.println("Usage: addRequirementWithTemplateReadingType <name> <reading type template> <metrology configuration id>");
+    }
+
+    public void addRequirementWithTemplateReadingType(String name, String defaultTemplate, long metrologyConfigId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
+            ReadingTypeTemplate template = metrologyConfigurationService.createReadingTypeTemplate(DefaultReadingTypeTemplate.valueOf(defaultTemplate)).done();
+
+            metrologyConfiguration.newReadingTypeRequirement(name)
+                    .withReadingTypeTemplate(template);
             context.commit();
         }
     }
@@ -354,8 +376,7 @@ public class ConsoleCommands {
 
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
 
-            metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.EXPERT)
-                    .build(node);
+            ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO)).build(node);
             context.commit();
         }
     }
@@ -407,6 +428,7 @@ public class ConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
             MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId).get().addMetrologyContract(purpose);
             contract.addDeliverable(deliverable);
+            context.commit();
         }
     }
 
@@ -423,6 +445,7 @@ public class ConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
             MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId).get().addMetrologyContract(purpose);
             contract.removeDeliverable(deliverable);
+            context.commit();
         }
     }
 

@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
-import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
+import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.Operator;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Created by igh on 26/02/2016.
  */
-public class FormulaBuilderImpl implements FormulaBuilder {
+public class FormulaBuilderImpl implements ServerFormulaBuilder {
 
     private Formula.Mode mode;
     private DataModel dataModel;
@@ -33,13 +33,13 @@ public class FormulaBuilderImpl implements FormulaBuilder {
     }
 
     @Override
-    public FormulaBuilder init(ExpressionNodeBuilder nodeBuilder) {
+    public ServerFormulaBuilder init(ExpressionNodeBuilder nodeBuilder) {
         this.nodebuilder = nodeBuilder;
         return this;
     }
 
     @Override
-    public FormulaBuilder init(ExpressionNode formulaPart) {
+    public ServerFormulaBuilder init(ExpressionNode formulaPart) {
         this.node = formulaPart;
         return this;
     }
@@ -156,4 +156,9 @@ public class FormulaBuilderImpl implements FormulaBuilder {
     public DataModel getDataModel() {
         return dataModel;
     }
+
+    public Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
 }

@@ -28,16 +28,16 @@ public class MeterReadingImpl implements MeterReading {
     public static MeterReadingImpl newInstance() {
     	return new MeterReadingImpl();
     }
-    
+
     public static MeterReadingImpl of(Reading reading) {
     	MeterReadingImpl result = newInstance();
     	result.addReading(reading);
     	return result;
     }
-    
+
     @Override
     public List<Reading> getReadings() {
-        if (this.readings != null && this.readings.size() > 0) {
+        if (this.readings != null && !this.readings.isEmpty()) {
             return Collections.unmodifiableList(this.readings);
         } else {
             return Collections.emptyList();
@@ -46,7 +46,7 @@ public class MeterReadingImpl implements MeterReading {
 
     @Override
     public List<IntervalBlock> getIntervalBlocks() {
-        if(this.intervalBlocks != null && this.intervalBlocks.size() > 0){
+        if (this.intervalBlocks != null && !this.intervalBlocks.isEmpty()) {
             return Collections.unmodifiableList(this.intervalBlocks);
         } else {
             return Collections.emptyList();
@@ -55,7 +55,7 @@ public class MeterReadingImpl implements MeterReading {
 
     @Override
     public List<EndDeviceEvent> getEvents() {
-        if (this.endDeviceEvents != null && this.endDeviceEvents.size() > 0) {
+        if (this.endDeviceEvents != null && !this.endDeviceEvents.isEmpty()) {
             return Collections.unmodifiableList(this.endDeviceEvents);
         } else {
             return Collections.emptyList();

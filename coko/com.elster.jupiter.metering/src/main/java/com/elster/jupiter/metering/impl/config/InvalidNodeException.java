@@ -10,5 +10,9 @@ public class InvalidNodeException extends LocalizedException {
         super(thesaurus, messageSeed);
     }
 
+    public InvalidNodeException(Thesaurus thesaurus, MessageSeed messageSeed, int value) {
+        super(thesaurus, messageSeed, value);
+    }
+
 }
 

@@ -196,7 +196,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
 
     @Override
-    public FormulaBuilder newFormulaBuilder(Formula.Mode mode) {
+    public ServerFormulaBuilder newFormulaBuilder(Formula.Mode mode) {
         return new FormulaBuilderImpl(mode, getDataModel(), getThesaurus());
     }
 
@@ -224,6 +224,11 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
                 .findFirst()
                 .orElseGet(() -> getDataModel().getInstance(ReadingTypeTemplateImpl.class).init(defaultTemplate));
         return template.startUpdate();
+    }
+
+    @Override
+    public List<ReadingTypeTemplate> getReadingTypeTemplates() {
+        return getDataModel().mapper(ReadingTypeTemplate.class).find();
     }
 
     @Override

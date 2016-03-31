@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 @ProviderType
 public interface ReadingTypeRequirement extends HasId, HasName {
 
+    long getVersion();
+
     /**
      * Returns the {@link MetrologyConfiguration} that defined
      * this ReadingTypeRequirement.
@@ -70,27 +72,4 @@ public interface ReadingTypeRequirement extends HasId, HasName {
      */
     Dimension getDimension();
 
-    /**
-     * <p>
-     * For {@link FullySpecifiedReadingType} checks that candidate is the same reading type as
-     * {@link FullySpecifiedReadingType#getReadingType()}
-     * </p>
-     * <p>
-     * For {@link PartiallySpecifiedReadingType} checks that each candidate's attribute:
-     * <ul>
-     * <li>is equal to overridden attribute value (if it was overridden,
-     * see {@link PartiallySpecifiedReadingType#overrideAttribute(ReadingTypeTemplateAttributeName, int)})</li>
-     * <li>or is equal to template attribute value (if attribute has code or possible values,
-     * see {@link ReadingTypeTemplateAttribute#matches(ReadingType)})</li>
-     * <li>or has one of system allowed values, see
-     * {@link ReadingTypeTemplateAttributeName.ReadingTypeAttribute#getPossibleValues()}</li>
-     * </ul>
-     * </p>
-     *
-     * @param candidate reading type for check
-     * @return <code>true</code> if all attributes are within limits
-     */
-    boolean matches(ReadingType candidate);
-
-    long getVersion();
 }

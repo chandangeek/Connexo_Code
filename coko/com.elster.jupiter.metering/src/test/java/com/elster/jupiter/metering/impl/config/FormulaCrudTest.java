@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
-import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
@@ -14,6 +13,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import static org.junit.Assert.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -75,12 +76,12 @@ public class FormulaCrudTest {
                     inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
             assertThat(serviceCategory.isPresent());
             MetrologyConfigurationBuilder metrologyConfigurationBuilder =
-                    service.newMetrologyConfiguration("test", serviceCategory.get());
+                    service.newMetrologyConfiguration("config", serviceCategory.get());
             MetrologyConfiguration config = metrologyConfigurationBuilder.create();
             assertThat(config != null);
             ReadingType readingType =
                     inMemoryBootstrapModule.getMeteringService().createReadingType(
-                            "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
+                            "0.0.1.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype");
             assertThat(readingType != null);
             config.newReadingTypeRequirement("Aplus").withReadingType(readingType);
 
@@ -88,7 +89,7 @@ public class FormulaCrudTest {
             ReadingTypeRequirement req = service.findReadingTypeRequirement(
                     config.getRequirements().get(0).getId()).get();
 
-            FormulaBuilder builder = (FormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
             ExpressionNodeBuilder nodeBuilder = builder.requirement(req);
             Formula formula = builder.init(nodeBuilder).build();
             assertThat(formula.getExpressionNode() instanceof ReadingTypeRequirementNode);
@@ -105,7 +106,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            FormulaBuilder builder = (FormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
             ExpressionNodeBuilder nodeBuilder = builder.constant(10);
             Formula formula = builder.init(nodeBuilder).build();
@@ -133,7 +134,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            FormulaBuilder builder = (FormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
             ExpressionNodeBuilder nodeBuilder = builder.maximum(
                     builder.constant(10),
@@ -176,7 +177,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            FormulaBuilder builder = (FormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
             ExpressionNodeBuilder nodeBuilder = builder.maximum(
                     builder.constant(10),
@@ -223,7 +224,7 @@ public class FormulaCrudTest {
 
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse("constant(10)");
 
-            Formula formula = ((FormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT)).init(node).build();
+            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
             context.commit();
             long formulaId = formula.getId();
             Optional<Formula> loadedFormula = service.findFormula(formulaId);
@@ -249,7 +250,7 @@ public class FormulaCrudTest {
 
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse("max(constant(10), constant(0))");
 
-            Formula formula = ((FormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT)).init(node).build();
+            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
 
             context.commit();
             long formulaId = formula.getId();
@@ -287,7 +288,7 @@ public class FormulaCrudTest {
 
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse("max(constant(1), plus(constant(2), constant(3)))");
 
-            Formula formula = ((FormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT)).init(node).build();
+            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
 
             context.commit();
             long formulaId = formula.getId();
@@ -326,7 +327,7 @@ public class FormulaCrudTest {
             String formulaString = "max(constant(1), min(constant(2), constant(3), constant(4)))";
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse("max(constant(1), min(constant(2), constant(3), constant(4)))");
 
-            Formula formula = ((FormulaBuilder) service.newFormulaBuilder(myMode)).init(node).build();
+            Formula formula = service.newFormulaBuilder(myMode).init(node).build();
 
             context.commit();
             long formulaId = formula.getId();
@@ -348,7 +349,7 @@ public class FormulaCrudTest {
             ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
             String formulaString = "multiply(sum(max(constant(10), constant(0)), constant(5), constant(3)), constant(2))";
             ExpressionNode node = new ExpressionNodeParser(thesaurus, service).parse(formulaString);
-            ((FormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT)).init(node).build();
+            service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
             context.commit();
             List<Formula> formulas = service.findFormulas();
             for (Formula f : formulas) {
@@ -363,7 +364,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            FormulaBuilder builder = (FormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
             ExpressionNodeBuilder nodeBuilder = builder.constant(10);
             Formula formula = builder.init(nodeBuilder).build();
@@ -384,7 +385,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            FormulaBuilder builder = (FormulaBuilder) service.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
             ExpressionNodeBuilder nodeBuilder = builder.constant(10);
             Formula formula = builder.init(nodeBuilder).build();
@@ -421,12 +422,10 @@ public class FormulaCrudTest {
                     inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
             assertThat(serviceCategory.isPresent());
             MetrologyConfigurationBuilder metrologyConfigurationBuilder =
-                    service.newMetrologyConfiguration("test", serviceCategory.get());
+                    service.newMetrologyConfiguration("test5", serviceCategory.get());
             MetrologyConfiguration config = metrologyConfigurationBuilder.create();
             assertThat(config != null);
-            ReadingType readingType =
-                    inMemoryBootstrapModule.getMeteringService().createReadingType(
-                            "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
+            ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.3.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
             assertThat(readingType != null);
 
             ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, myMode);
@@ -435,5 +434,142 @@ public class FormulaCrudTest {
             assertThat(deliverable.getFormula().getExpressionNode().toString().equals("max(constant(10), constant(20))"));
         }
     }
+
+
+    @Test
+    // formula = Requirement
+    public void createDeliverableWithRequirementThatIsOnADifferentMetrologyConfig() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+
+            Optional<ServiceCategory> serviceCategory =
+                    inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+            assertThat(serviceCategory.isPresent());
+            MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                    service.newMetrologyConfiguration("test", serviceCategory.get());
+            MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+            assertThat(config != null);
+            ReadingType readingType =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
+            assertThat(readingType != null);
+            config.newReadingTypeRequirement("Aplus").withReadingType(readingType);
+
+            assertThat(config.getRequirements().size() == 1);
+            ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                    config.getRequirements().get(0).getId()).get();
+
+
+            metrologyConfigurationBuilder =
+                    service.newMetrologyConfiguration("test2", serviceCategory.get());
+            MetrologyConfiguration config2 = metrologyConfigurationBuilder.create();
+
+            ReadingTypeDeliverableBuilder builder =
+                    config2.newReadingTypeDeliverable("deliverable", readingType, Formula.Mode.AUTO);
+
+           try {
+               builder.build(builder.requirement(req));
+            fail("InvalidNodeException expected");
+            } catch (InvalidNodeException e) {
+                assertEquals(e.getMessage(),"The requirement with id '" + req.getId() + "' cannot be used because it has a different metrology configuration.");
+            }
+
+
+            context.commit();
+        }
+    }
+
+
+    @Test
+    // formula = Requirement
+    public void createDeliverableOnARequirementThatIsDimensionless() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+
+            Optional<ServiceCategory> serviceCategory =
+                    inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+            assertThat(serviceCategory.isPresent());
+            MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                    service.newMetrologyConfiguration("test3", serviceCategory.get());
+            MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+            assertThat(config != null);
+            ReadingType readingTypeRequirement =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "0.0.0.12.0.41.109.0.0.0.0.0.0.0.0.0.109.0", "readingtype for requirement");
+            assertThat(readingTypeRequirement != null);
+            config.newReadingTypeRequirement("consumption").withReadingType(readingTypeRequirement);
+
+            assertThat(config.getRequirements().size() == 1);
+            ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                    config.getRequirements().get(0).getId()).get();
+
+
+            ReadingType readingTypeDeliverable =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype for deliverable");
+            assertThat(readingTypeDeliverable != null);
+
+            ReadingTypeDeliverableBuilder builder =
+                    config.newReadingTypeDeliverable("deliverable", readingTypeDeliverable, Formula.Mode.AUTO);
+
+            try {
+                builder.build(builder.requirement(req));
+            } catch (InvalidNodeException e) {
+                fail("No InvalidNodeException expected!");
+            }
+
+
+            context.commit();
+        }
+    }
+
+    @Test
+    // formula = Requirement
+    public void createDeliverableOnARequirementWithIncompatibleReadingType() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+
+            Optional<ServiceCategory> serviceCategory =
+                    inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+            assertThat(serviceCategory.isPresent());
+            MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                    service.newMetrologyConfiguration("test4", serviceCategory.get());
+            MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+            assertThat(config != null);
+            ReadingType readingTypeRequirement =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "readingtype for requirement2");
+            assertThat(readingTypeRequirement != null);
+            config.newReadingTypeRequirement("cons").withReadingType(readingTypeRequirement);
+
+            assertThat(config.getRequirements().size() == 1);
+            ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                    config.getRequirements().get(0).getId()).get();
+
+
+            ReadingType readingTypeDeliverable =
+                    inMemoryBootstrapModule.getMeteringService().createReadingType(
+                            "11.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype for deliverable2");
+            assertThat(readingTypeDeliverable != null);
+
+            ReadingTypeDeliverableBuilder builder =
+                    config.newReadingTypeDeliverable("deliverable", readingTypeDeliverable, Formula.Mode.AUTO);
+
+            try {
+                builder.build(builder.requirement(req));
+                fail("InvalidNodeException expected");
+            } catch (InvalidNodeException e) {
+                assertEquals(e.getMessage(),"The readingtype is not compatible with the dimension of the formula.");
+            }
+
+
+            context.commit();
+        }
+    }
+
+
 
 }
