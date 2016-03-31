@@ -35,7 +35,7 @@ public abstract class AbstractCoordinates implements Coordinates {
     }
 
     public String toString() {
-        return "(" + getLatitude().toString() + ", " +
-                getLongitude().toString() + ")";
+        return getLatitude().toString() + ", " +
+                getLongitude().toString();
     }
 }
