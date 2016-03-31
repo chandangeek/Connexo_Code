@@ -280,4 +280,27 @@ public class ReadingTypeRequirementTestIT {
 
         assertThat(rtr1).isNotEqualTo(rtr2);
     }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIREMENT_MUST_HAVE_UNIQUE_RT + "}", property = "readingType", strict = true)
+    public void testCanNotCreateRequirementsWithTheSameReadingType() {
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
+        metrologyConfiguration.newReadingTypeRequirement("Name").withReadingType(readingType);
+        metrologyConfiguration.newReadingTypeRequirement("Name 2").withReadingType(readingType);
+    }
+
+    @Test
+    @Transactional
+    public void testCanCreateRequirementsWithTheSameReadingTypeButOnDifferentConfigurations() {
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
+        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        MetrologyConfiguration metrologyConfiguration2 = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .newMetrologyConfiguration("Configuration 2", serviceCategory).create();
+
+        FullySpecifiedReadingType rtr1 = metrologyConfiguration.newReadingTypeRequirement("Name").withReadingType(readingType);
+        FullySpecifiedReadingType rtr2 = metrologyConfiguration2.newReadingTypeRequirement("Name 2").withReadingType(readingType);
+
+        assertThat(rtr1).isNotEqualTo(rtr2);
+    }
 }

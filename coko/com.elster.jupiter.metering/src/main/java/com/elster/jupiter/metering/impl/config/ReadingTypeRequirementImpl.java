@@ -76,6 +76,10 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
         this.name = name;
     }
 
+    protected ServerMetrologyConfigurationService getMetrologyConfigurationService() {
+        return this.metrologyConfigurationService;
+    }
+
     private boolean hasRequirementsWithTheSameName() {
         return this.metrologyConfigurationService.getDataModel()
                 .query(ReadingTypeRequirement.class)
@@ -84,6 +88,7 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
                 .stream()
                 .anyMatch(candidate -> candidate.getId() != getId());
     }
+
     @Override
     public boolean validate(ConstraintValidatorContext context) {
         if (getMetrologyConfiguration() != null

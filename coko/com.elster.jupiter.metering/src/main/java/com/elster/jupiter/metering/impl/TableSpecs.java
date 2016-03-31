@@ -1082,7 +1082,7 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("REQTYPE", "char(3)");
-            table.column(ReadingTypeRequirementImpl.Fields.NAME.name())
+            Column nameColumn = table.column(ReadingTypeRequirementImpl.Fields.NAME.name())
                     .varChar(NAME_LENGTH)
                     .notNull()
                     .map(ReadingTypeRequirementImpl.Fields.NAME.fieldName())
@@ -1103,6 +1103,8 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey("MTR_RT_REQUIREMENT_PK").on(idColumn).add();
+            table.unique("MTR_RT_REQUIREMENT_NAME_UQ").on(nameColumn, metrologyConfigColumn).add();
+            table.unique("MTR_RT_REQUIREMENT_RT_UQ").on(readingTypeColumn, metrologyConfigColumn).add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)

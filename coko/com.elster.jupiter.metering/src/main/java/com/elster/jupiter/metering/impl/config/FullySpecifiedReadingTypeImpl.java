@@ -10,6 +10,9 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.Dimension;
 
 import javax.inject.Inject;
+import javax.validation.ConstraintValidatorContext;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class FullySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl implements FullySpecifiedReadingType {
     public static final String TYPE_IDENTIFIER = "FUL";
@@ -28,9 +31,33 @@ public class FullySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl im
         return this;
     }
 
+    private boolean hasRequirementsWithTheSameReadingType() {
+        return getMetrologyConfigurationService().getDataModel()
+                .query(FullySpecifiedReadingType.class)
+                .select(where(Fields.READING_TYPE.fieldName()).isEqualTo(getReadingType())
+                        .and(where(Fields.METROLOGY_CONFIGURATION.fieldName()).isEqualTo(getMetrologyConfiguration())))
+                .stream()
+                .anyMatch(candidate -> candidate.getId() != getId());
+    }
+
+    @Override
+    public boolean validate(ConstraintValidatorContext context) {
+        boolean isValid = super.validate(context);
+        if (getMetrologyConfiguration() != null
+                && getReadingType() != null
+                && hasRequirementsWithTheSameReadingType()) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.REQUIREMENT_MUST_HAVE_UNIQUE_RT + "}")
+                    .addPropertyNode(Fields.READING_TYPE.fieldName())
+                    .addConstraintViolation();
+            return false;
+        }
+        return isValid;
+    }
+
     @Override
     public ReadingType getReadingType() {
-        return this.readingType.get();
+        return this.readingType.orNull();
     }
 
     @Override
