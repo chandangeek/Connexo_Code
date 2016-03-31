@@ -6,11 +6,17 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
 //    toggleId: null,
     device: null,
 
-    title: Uni.I18n.translate('devicemenu.title', 'MDC', 'Device'),
+    title: Uni.I18n.translate('general.device', 'MDC', 'Device'),
 
     initComponent: function () {
         var me = this,
             mRID = me.device.get('mRID');
+
+        if ( !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger') ) {
+            me.title = Uni.I18n.translate('general.dataLogger', 'MDC', 'Data logger');
+        } else {
+            me.title = Uni.I18n.translate('general.device', 'MDC', 'Device');
+        }
 
         me.menuItems = [
             {

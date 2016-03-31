@@ -1194,7 +1194,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             route.setTitle(record.get('mRID'));
                             return true;
                         }, {single: true});
-
                         return this;
                     },
                     items: {
@@ -2048,6 +2047,16 @@ Ext.define('Mdc.controller.history.Setup', {
                         }
                     }
                 }
+            },
+            callback: function (route) {
+                this.getApplication().on('loadDevice', function (record) {
+                    if ( !Ext.isEmpty(record.get('isDataLogger')) && record.get('isDataLogger') ) {
+                        route.setTitle(Uni.I18n.translate('general.dataLoggers', 'MDC', 'Data loggers'));
+                    } else {
+                        route.setTitle(Uni.I18n.translate('general.devices', 'MDC', 'Devices'));
+                    }
+                });
+                return this;
             }
         },
         search: {

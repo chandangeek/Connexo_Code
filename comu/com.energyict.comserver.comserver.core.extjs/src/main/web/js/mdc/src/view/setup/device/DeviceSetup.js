@@ -38,9 +38,11 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     ],
 
     renderFlag: function(labelsStore) {
-        var me = this;
-        var toolbar = me.down('#deviceSetupFlags');
-        var flag = null;
+        var me = this,
+            toolbar = me.down('#deviceSetupFlags'),
+            flag = null;
+
+        if (!me.rendered) return;
 
         if (labelsStore.count) {
             flag = labelsStore.getById('mdc.label.category.favorites');
