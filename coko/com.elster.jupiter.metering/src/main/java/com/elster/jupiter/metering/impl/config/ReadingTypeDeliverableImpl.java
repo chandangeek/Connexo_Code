@@ -20,7 +20,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
-import java.util.List;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
 public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUniqueName {
@@ -117,11 +116,6 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         this.formula.set(formula);
     }
 
-    public void save() {
-        Save.action(getId()).save(this.dataModel, this);
-        this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_CREATED.topic(), this);
-    }
-
     @Override
     public void update() {
         Save.action(getId()).save(this.dataModel, this);
@@ -130,7 +124,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     @Override
     public void delete() {
-        dataModel.remove(this);
+        getMetrologyConfiguration().removeReadingTypeDeliverable(this);
         this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_DELETED.topic(), this);
     }
 

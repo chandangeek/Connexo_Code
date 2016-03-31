@@ -334,4 +334,14 @@ public class ReadingTypeDeliverableImplTestIT {
         metrologyContract.addDeliverable(deliverable);
     }
 
+    @Test
+    @Transactional
+    public void canDeleteDeliverableViaDeleteCommandOnTheObject() {
+        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("Some deliverable", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable = builder.build(builder.constant(10));
+        assertThat(deliverable.getId()).isGreaterThan(0);
+
+        deliverable.delete();
+        assertThat(deliverable.getMetrologyConfiguration().getDeliverables()).isEmpty();
+    }
 }
