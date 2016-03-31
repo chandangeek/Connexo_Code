@@ -11,22 +11,6 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.cps</name>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.qmino</groupId>
-                <artifactId>miredot-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>restdoc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>

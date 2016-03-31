@@ -38,12 +38,20 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -289,8 +297,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                     .mapper(RegisteredCustomPropertySet.class)
                     .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), customPropertySet.getId());
         if (registeredCustomPropertySet.isPresent()) {
-            // Registered in a previous platform session, likely the system was restarted
-            DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet, false);
+            // Registered in a previous platform session, likely the system was restarted / redeployed
+            DataModel dataModel = this.registerAndInstallDataModel(customPropertySet, false);
             this.activePropertySets.put(
                     customPropertySet.getId(),
                     new ActiveCustomPropertySet(
