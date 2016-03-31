@@ -44,6 +44,10 @@ public class H2BootstrapService implements BootstrapService {
         try (Connection connection = decoratedDataSource.getConnection()){
             connection.prepareStatement("create alias if not exists regexp_like as $$ boolean regexpLike(String s, String p, String ignore) { return s.matches(p); } $$;").execute();
             connection.prepareStatement("create domain if not exists SDO_GEOMETRY as VARCHAR(255)").execute();
+            connection.prepareStatement("create schema if not exists MDSYS AUTHORIZATION SA").execute();
+            connection.prepareStatement("create table if not exists MDSYS.USER_SDO_GEOM_METADATA(TABLE_NAME VARCHAR2(32),COLUMN_NAME VARCHAR2(1024),DIMINFO VARCHAR2(1024),SRID INT)").execute();
+            connection.prepareStatement("create alias if not exists MDSYS.SDO_DIM_ARRAY as $$ String sdoDimArray(String element1, String element2) { return element1+\" \"+element2; } $$;").execute();
+            connection.prepareStatement("create alias if not exists SDO_DIM_ELEMENT as $$ String sdoDimElement(String coordType, int dimX, int dimY, int dimZ) { return coordType +\" \"+ dimX +\" \"+ dimY +\" \"+ dimZ; } $$;").execute();
         } catch (SQLException e) {
             throw new DataSourceSetupException(e);
         }
