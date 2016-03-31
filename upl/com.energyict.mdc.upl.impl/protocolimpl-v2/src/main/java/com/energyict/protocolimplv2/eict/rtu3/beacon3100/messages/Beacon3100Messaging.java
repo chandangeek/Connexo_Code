@@ -205,7 +205,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             for (BusinessObject businessObject : group.getMembers()) {
                 if (businessObject instanceof Device) {
                     Device device = (Device) businessObject;
-                    String callHomeId = device.getProtocolProperties().<String>getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
+                    String callHomeId = device.getProtocolProperties().getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
                     if (!callHomeId.isEmpty()) {
                         if (macAddresses.length() != 0) {
                             macAddresses.append(SEPARATOR);
@@ -665,7 +665,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         it.setUsePollingVerifyAndActivate(true);    //Poll verification
         it.setPollingDelay(10000);
-        it.setPollingRetries(30);
+        it.setPollingRetries(60);
         it.setDelayBeforeSendingBlocks(5000);
 
         try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
