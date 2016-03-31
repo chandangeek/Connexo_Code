@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.imports.impl.FileImportRecordWithCustomProper
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
@@ -29,19 +28,14 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     private YesNoAnswer collar;
     private YesNoAnswer grounded;
 
-    private BigDecimal pressureValue;
-    private Integer pressureMultiplier;
-    private String pressureUnit;
+    private Quantity pressure;
 
-    private BigDecimal physicalCapacityValue;
-    private Integer physicalCapacityMultiplier;
-    private String physicalCapacityUnit;
+    private Quantity physicalCapacity;
 
     private YesNoAnswer limiter;
     private String loadLimiterType;
-    private BigDecimal loadLimitValue;
-    private Integer loadLimitMultiplier;
-    private String loadLimitUnit;
+
+    private Quantity loadLimit;
 
     private YesNoAnswer bypass;
     private String bypassStatus;
@@ -53,22 +47,13 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
 
     private String phaseCode;
 
-    private BigDecimal ratedPowerValue;
-    private Integer ratedPowerMultiplier;
-    private String ratedPowerUnit;
+    private Quantity ratedPower;
 
-    private BigDecimal ratedCurrentValue;
-    private Integer ratedCurrentMultiplier;
-    private String ratedCurrentUnit;
+    private Quantity ratedCurrent;
 
-    private BigDecimal estimatedLoadValue;
-    private Integer estimatedLoadMultiplier;
-    private String estimatedLoadUnit;
+    private Quantity estimatedLoad;
 
-    private BigDecimal nominalVoltageValue;
-    private Integer nominalVoltageMultiplier;
-    private String nominalVoltageUnit;
-
+    private Quantity nominalVoltage;
 
     private boolean allowUpdate;
 
@@ -176,11 +161,11 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     }
 
     public Optional<PhaseCode> getPhaseCode() {
-        return Arrays.stream(PhaseCode.values()).filter(p -> p.name().equals(phaseCode)).findFirst();
+        return Arrays.stream(PhaseCode.values()).filter(p -> p.name().equalsIgnoreCase(phaseCode)).findFirst();
     }
 
     public void setPhaseCode(String phaseCode) {
-        this.phaseCode = phaseCode.toUpperCase();
+        this.phaseCode = phaseCode!=null?phaseCode.toUpperCase():phaseCode;
     }
 
     public Optional<YesNoAnswer> isLimiterInstalled() {
@@ -200,19 +185,11 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     }
 
     public Optional<Quantity> getLoadLimit() {
-        return Optional.ofNullable(getQuantity(loadLimitValue, loadLimitMultiplier, loadLimitUnit));
+        return Optional.ofNullable(loadLimit);
     }
 
-    public void setLoadLimitValue(BigDecimal loadLimitValue) {
-        this.loadLimitValue = loadLimitValue;
-    }
-
-    public void setLoadLimitMultiplier(Integer loadLimitMultiplier) {
-        this.loadLimitMultiplier = loadLimitMultiplier;
-    }
-
-    public void setLoadLimitUnit(String loadLimitUnit) {
-        this.loadLimitUnit = loadLimitUnit;
+    public void setLoadLimit(Quantity loadLimit) {
+        this.loadLimit = loadLimit;
     }
 
     public Optional<YesNoAnswer> isBypassInstalled() {
@@ -224,7 +201,7 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     }
 
     public Optional<BypassStatus> getBypassStatus() {
-        return Arrays.stream(BypassStatus.values()).filter(p -> p.name().equals(bypassStatus)).findFirst();
+        return Arrays.stream(BypassStatus.values()).filter(p -> p.name().equalsIgnoreCase(bypassStatus)).findFirst();
     }
 
     public void setBypassStatus(String bypassStatus) {
@@ -256,99 +233,51 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     }
 
     public Optional<Quantity> getPressure() {
-        return Optional.ofNullable(getQuantity(pressureValue, pressureMultiplier, pressureUnit));
+        return Optional.ofNullable(pressure);
     }
 
-    public void setPressureValue(BigDecimal pressureValue) {
-        this.pressureValue = pressureValue;
-    }
-
-    public void setPressureMultiplier(Integer pressureMultiplier) {
-        this.pressureMultiplier = pressureMultiplier;
-    }
-
-    public void setPressureUnit(String pressureUnit) {
-        this.pressureUnit = pressureUnit;
+    public void setPressure(Quantity pressure) {
+        this.pressure = pressure;
     }
 
     public Optional<Quantity> getPhysicalCapacity() {
-        return Optional.ofNullable(getQuantity(physicalCapacityValue, physicalCapacityMultiplier, physicalCapacityUnit));
+        return Optional.ofNullable(physicalCapacity);
     }
 
-    public void setPhysicalCapacityValue(BigDecimal physicalCapacityValue) {
-        this.physicalCapacityValue = physicalCapacityValue;
-    }
-
-    public void setPhysicalCapacityMultiplier(Integer physicalCapacityMultiplier) {
-        this.physicalCapacityMultiplier = physicalCapacityMultiplier;
-    }
-
-    public void setPhysicalCapacityUnit(String physicalCapacityUnit) {
-        this.physicalCapacityUnit = physicalCapacityUnit;
+    public void setPhysicalCapacity(Quantity physicalCapacity) {
+        this.physicalCapacity = physicalCapacity;
     }
 
     public Optional<Quantity> getRatedPower() {
-        return Optional.ofNullable(getQuantity(ratedPowerValue, ratedPowerMultiplier, ratedPowerUnit));
+        return Optional.ofNullable(ratedPower);
     }
 
-    public void setRatedPowerValue(BigDecimal ratedPowerValue) {
-        this.ratedPowerValue = ratedPowerValue;
-    }
-
-    public void setRatedPowerMultiplier(Integer ratedPowerMultiplier) {
-        this.ratedPowerMultiplier = ratedPowerMultiplier;
-    }
-
-    public void setRatedPowerUnit(String ratedPowerUnit) {
-        this.ratedPowerUnit = ratedPowerUnit;
+    public void setRatedPower(Quantity ratedPower) {
+        this.ratedPower = ratedPower;
     }
 
     public Optional<Quantity> getRatedCurrent() {
-        return Optional.ofNullable(getQuantity(ratedCurrentValue, ratedCurrentMultiplier, ratedCurrentUnit));
+        return Optional.ofNullable(ratedCurrent);
     }
 
-    public void setRatedCurrentValue(BigDecimal ratedCurrentValue) {
-        this.ratedCurrentValue = ratedCurrentValue;
-    }
-
-    public void setRatedCurrentMultiplier(Integer ratedCurrentMultiplier) {
-        this.ratedCurrentMultiplier = ratedCurrentMultiplier;
-    }
-
-    public void setRatedCurrentUnit(String ratedCurrentUnit) {
-        this.ratedCurrentUnit = ratedCurrentUnit;
+    public void setRatedCurrent(Quantity ratedCurrent) {
+        this.ratedCurrent = ratedCurrent;
     }
 
     public Optional<Quantity> getEstimatedLoad() {
-        return Optional.ofNullable(getQuantity(estimatedLoadValue, estimatedLoadMultiplier, estimatedLoadUnit));
+        return Optional.ofNullable(estimatedLoad);
     }
 
-    public void setEstimatedLoadValue(BigDecimal estimatedLoadValue) {
-        this.estimatedLoadValue = estimatedLoadValue;
-    }
-
-    public void setEstimatedLoadMultiplier(Integer estimatedLoadMultiplier) {
-        this.estimatedLoadMultiplier = estimatedLoadMultiplier;
-    }
-
-    public void setEstimatedLoadUnit(String estimatedLoadUnit) {
-        this.estimatedLoadUnit = estimatedLoadUnit;
+    public void setEstimatedLoad(Quantity estimatedLoad) {
+        this.estimatedLoad = estimatedLoad;
     }
 
     public Optional<Quantity> getNominalVoltage() {
-        return Optional.ofNullable(getQuantity(nominalVoltageValue, nominalVoltageMultiplier, nominalVoltageUnit));
+        return Optional.ofNullable(nominalVoltage);
     }
 
-    public void setNominalVoltageValue(BigDecimal nominalVoltageValue) {
-        this.nominalVoltageValue = nominalVoltageValue;
-    }
-
-    public void setNominalVoltageMultiplier(Integer nominalVoltageMultiplier) {
-        this.nominalVoltageMultiplier = nominalVoltageMultiplier;
-    }
-
-    public void setNominalVoltageUnit(String nominalVoltageUnit) {
-        this.nominalVoltageUnit = nominalVoltageUnit;
+    public void setNominalVoltage(Quantity nominalVoltage) {
+        this.nominalVoltage = nominalVoltage;
     }
 
     public Optional<Instant> getInstallationTime() {
@@ -365,17 +294,5 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
 
     public void setAllowUpdate(Boolean allowUpdate) {
         this.allowUpdate = allowUpdate != null && allowUpdate;
-    }
-
-    private Quantity getQuantity(BigDecimal value, Integer multipler, String unit) {
-        if (unit != null && value != null) {
-            if (multipler != null) {
-                return Quantity.create(value, multipler, unit);
-            } else {
-                return Quantity.create(value, unit);
-            }
-        } else {
-            return null;
-        }
     }
 }

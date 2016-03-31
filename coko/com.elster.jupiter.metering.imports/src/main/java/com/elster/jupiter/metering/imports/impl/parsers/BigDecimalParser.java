@@ -31,6 +31,10 @@ public class BigDecimalParser implements FieldParser<BigDecimal> {
         return parseNonEmptyBigDecimalString(value);
     }
 
+    public SupportedNumberFormat getNumberFormat() {
+        return numberFormat;
+    }
+
     public BigDecimal parseNonEmptyBigDecimalString(String value) throws ValueParserException {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ENGLISH);
         symbols.setDecimalSeparator(numberFormat.getDecimalSeparator());
