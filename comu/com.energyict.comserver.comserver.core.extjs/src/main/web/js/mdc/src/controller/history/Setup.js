@@ -8,7 +8,7 @@ Ext.define('Mdc.controller.history.Setup', {
     routeConfig: {
         usagepoints: {
             disabled: true,
-            title: Uni.I18n.translate('general.usagePointsManagement', 'MDC', 'Usage points management'),
+            title: Uni.I18n.translate('general.usagePointsManagement', 'MDC', 'Usage points'),
             route: 'usagepoints',
             items: {
                 add: {
@@ -36,20 +36,12 @@ Ext.define('Mdc.controller.history.Setup', {
                     },
                     items: {
                         edit: {
-                            title: Uni.I18n.translate('general.editUsagePoint', 'MDC', 'Edit usage point'),
+                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                             route: 'edit',
                             controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                             privileges: Mdc.privileges.UsagePoint.admin,
                             disabled: Mdc.privileges.UsagePoint.checkApp('Insight'),
-                            action: 'showEditUsagePoint',
-                            callback: function (route) {
-                                this.getApplication().on('editUsagePointLoaded', function (record) {
-                                    route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('mRID')));
-                                    return true;
-                                }, {single: true});
-
-                                return this;
-                            }
+                            action: 'showEditUsagePoint'
                         },
                         'processes': {
                             title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
@@ -1233,7 +1225,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                     route: 'customattributes/{customAttributeSetId}/versions/add',
                                     controller: 'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnDevice',
-                                    privileges: Mdc.privileges.Device.administrateDeviceData,
+                                    privileges: Mdc.privileges.Device.hasFullAdministrateTimeSlicedCps(),
                                     action: 'addCustomAttributeVersion',
                                     callback: function (route) {
                                         this.getApplication().on('loadCustomAttributeSetOnDeviceAdd', function (record) {
@@ -1826,7 +1818,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showSpecifications',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
-                                            route.setTitle(record.get('name'));
+                                            route.setTitle(record.get('readingType').fullAliasName);
                                             return true;
                                         }, {single: true});
                                         return this;
@@ -1934,7 +1926,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showValidationBlocks',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
-                                            route.setTitle(record.get('name'));
+                                            route.setTitle(record.get('readingType').fullAliasName);
                                             return true;
                                         }, {single: true});
                                         return this;
@@ -1945,7 +1937,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: '{channelId}/validation',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
-                                            route.setTitle(record.get('name'));
+                                            route.setTitle(record.get('readingType').fullAliasName);
                                             return true;
                                         }, {single: true});
                                         return this;

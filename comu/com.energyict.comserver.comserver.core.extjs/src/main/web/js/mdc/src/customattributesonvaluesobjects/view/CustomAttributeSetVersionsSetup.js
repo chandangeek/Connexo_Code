@@ -35,7 +35,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionsS
                         itemId: 'custom-attribute-set-add-version-btn',
                         hidden: true,
                         action: 'moveToAddVersionPage',
-                        type: me.type
+                        type: me.type,
+                        privileges: Mdc.privileges.Device.adminTimeSlicedCps
                     }
                 ]
             },
@@ -52,4 +53,3 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionsS
         });
     }
 });
-

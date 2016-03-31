@@ -88,7 +88,10 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                             {
                                 name: 'overflow',
                                 fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
-                                itemId: 'mdc-register-config-preview-overflow'
+                                itemId: 'mdc-register-config-preview-overflow',
+                                renderer: function (value) {
+                                    return value ? value : '-';
+                                }
                             },
                             {
                                 name: 'numberOfFractionDigits',

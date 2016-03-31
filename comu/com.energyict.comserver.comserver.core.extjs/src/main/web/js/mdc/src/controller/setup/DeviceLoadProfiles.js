@@ -2,7 +2,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'Mdc.view.setup.deviceloadprofiles.Setup'
+        'Mdc.view.setup.deviceloadprofiles.Setup',
+        'Mdc.view.setup.deviceloadprofiles.EditWindow'
     ],
 
     requires: [
@@ -28,6 +29,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         {
             ref: 'preview',
             selector: 'deviceLoadProfilesSetup #deviceLoadProfilesPreview'
+        },
+        {
+            ref: 'deviceLoadProfileEditWindow',
+            selector: 'deviceloadprofile-edit-window'
+        },
+        {
+            ref: 'deviceLoadProfileOverview',
+            selector: 'deviceLoadProfilesOverview'
         }
     ],
 
@@ -41,6 +50,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             },
             '#loadProfileActionMenu': {
                 click: this.chooseAction
+            },
+            '#mdc-deviceloadprofile-edit-window-save': {
+                click: this.saveLoadProfile
             }
         });
     },
@@ -128,6 +140,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 filterParams.suspect = 'suspect';
                 route = 'devices/device/loadprofiles/loadprofiletableData';
                 break;
+            case 'editLoadProfile':
+                Ext.widget('deviceloadprofile-edit-window', {
+                    loadProfileRecord: menu.record
+                }).show();
+                break;
         }
 
         route && (route = router.getRoute(route));
@@ -214,5 +231,47 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 }
             });
         }
+    },
+
+    saveLoadProfile: function() {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            editWindow = me.getDeviceLoadProfileEditWindow(),
+            datePicker = editWindow.down('#mdc-deviceloadprofile-edit-window-date-picker'),
+            loadProfileRecordInEditWindow = editWindow.loadProfileRecord,
+            loadProfileModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
+            deviceMRID = this.getController('Uni.controller.history.Router').arguments.mRID,
+            loadProfileId = loadProfileRecordInEditWindow.get('id'),
+            onLoadProfileLoaded = function(loadProfileRecord) {
+                loadProfileRecordInEditWindow.set('lastReading', datePicker.getValue());
+                loadProfileRecord.beginEdit();
+                loadProfileRecord.set('lastReading', datePicker.getValue());
+                //if (!loadProfileRecord.get('lastChecked')) {
+                //    loadProfileRecord.set('lastChecked', null);
+                //}
+                //if (!logbookRecord.get('lastEventDate')) {
+                //    logbookRecord.set('lastEventDate', null);
+                //}
+                loadProfileRecord.endEdit();
+                loadProfileRecord.save({
+                    success: onLoadProfileSaved
+                });
+                editWindow.close();
+            },
+            onLoadProfileSaved = function() {
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('deviceloadpofiles.acknowledge.updateSuccess', 'MDC', 'Load profile saved')
+                );
+                if (router.getRoute().route === 'loadprofiles') {
+                    me.showPreview(null, loadProfileRecordInEditWindow);
+                } else if (router.getRoute().route === '{loadProfileId}') {
+                    me.getDeviceLoadProfileOverview().down('#deviceLoadProfilesPreviewForm').loadRecord(loadProfileRecordInEditWindow);
+                }
+            };
+
+        loadProfileModel.getProxy().setUrl(deviceMRID);
+        loadProfileModel.load(loadProfileId, {
+            success: onLoadProfileLoaded
+        });
     }
 });
