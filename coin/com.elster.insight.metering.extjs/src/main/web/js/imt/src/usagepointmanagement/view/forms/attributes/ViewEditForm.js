@@ -129,7 +129,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
             viewForm = me.getViewForm(),
             editForm;
 
-        me.initialRecord = Ext.clone(record);
         Ext.suspendLayouts();
         if (me.displayMode === 'view') {
             viewForm.loadRecord(record);
@@ -180,8 +179,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
     },
 
     switchDisplayMode: function (mode) {
-        var me = this,
-            editForm;
+        var me = this;
 
         if (me.hasEditMode && mode !== me.displayMode && (mode === 'view' || mode === 'edit')) {
             Ext.suspendLayouts();
@@ -189,7 +187,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
             me.getLayout().setActiveItem(mode === 'view' ? 0 : 1);
             if (mode === 'view') {
                 me.clearInvalid();
-                me.getEditForm().loadRecord(me.initialRecord);
+                me.record.reject();
+                me.getEditForm().loadRecord(me.record);
             }
             Ext.resumeLayouts(true);
             me.displayMode = mode;
