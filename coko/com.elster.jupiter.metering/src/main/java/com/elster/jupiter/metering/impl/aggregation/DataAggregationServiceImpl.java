@@ -11,8 +11,8 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
-import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -84,7 +84,7 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
 
     @Override
     public List<? extends BaseReadingRecord> calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
-        List<UsagePointMetrologyConfiguration> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
+        List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
         this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
         Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
         VirtualFactory virtualFactory = this.virtualFactoryProvider.get();
@@ -98,30 +98,30 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
         }
     }
 
-    private List<UsagePointMetrologyConfiguration> getEffectiveMetrologyConfigurationForUsagePointInPeriod(UsagePoint usagePoint, Range<Instant> period) {
+    private List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationForUsagePointInPeriod(UsagePoint usagePoint, Range<Instant> period) {
         return this.getDataModel()
-                .query(UsagePointMetrologyConfiguration.class, MetrologyConfiguration.class, MetrologyContract.class)
+                .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, MetrologyContract.class)
                 .select(where("usagePoint").isEqualTo(usagePoint)
                    .and(where("interval").isEffective(period)));
     }
 
-    private void validateContractAppliesToUsagePoint(List<UsagePointMetrologyConfiguration> effectivities, UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+    private void validateContractAppliesToUsagePoint(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
         if (effectivities.stream().noneMatch(each -> this.hasContract(each, contract))) {
             throw new MetrologyContractDoesNotApplyToUsagePointException(this.getThesaurus(), contract, usagePoint, period);
         }
     }
 
-    private Range<Instant> clipToContractActivePeriod(List<UsagePointMetrologyConfiguration> effectivities, MetrologyContract contract, Range<Instant> period) {
+    private Range<Instant> clipToContractActivePeriod(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, MetrologyContract contract, Range<Instant> period) {
         return effectivities
                 .stream()
                 .filter(each -> this.hasContract(each, contract))
                 .findFirst()
-                .map(UsagePointMetrologyConfiguration::getRange)
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getRange)
                 .map(period::intersection)
                 .orElseThrow(() -> new IllegalStateException("Validation that contract was active on contract failed before"));
     }
 
-    private boolean hasContract(UsagePointMetrologyConfiguration each, MetrologyContract contract) {
+    private boolean hasContract(EffectiveMetrologyConfigurationOnUsagePoint each, MetrologyContract contract) {
         return each.getMetrologyConfiguration().getContracts().contains(contract);
     }
 

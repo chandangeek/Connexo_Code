@@ -29,12 +29,15 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.FormulaBuilder;
-import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
+import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -213,7 +216,17 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
 
     private static void setupMetrologyPurpose() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose().withName(DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT.class.getSimpleName()).create();
+            NlsKey name = mock(NlsKey.class);
+            when(name.getKey()).thenReturn("DASImplCalculateWithVolumeToFlowConversionIT");
+            when(name.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateIT.class.getSimpleName());
+            when(name.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
+            when(name.getLayer()).thenReturn(Layer.DOMAIN);
+            NlsKey description = mock(NlsKey.class);
+            when(description.getKey()).thenReturn("DASImplCalculateWithVolumeToFlowConversionIT.description");
+            when(description.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateIT.class.getSimpleName());
+            when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
+            when(description.getLayer()).thenReturn(Layer.DOMAIN);
+            METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
             ctx.commit();
         }
     }
@@ -277,16 +290,15 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.addReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.addReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWReverse);
         this.productionRequirementId = production.getId();
         System.out.println("simplestNetConsumptionOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("simplestNetConsumptionOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder =
-                newDeliveryBuilder("consumption", configuration, fifteenMinutesNetConsumption);
+        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("consumption", configuration, fifteenMinutesNetConsumption);
         ReadingTypeDeliverable netConsumption =
                 builder.build(builder.plus(
                         builder.requirement(production),
@@ -379,16 +391,15 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("monthlyNetConsumptionBasedOn15MinValuesOfProsumer", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.addReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.addReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder =
-                newDeliveryBuilder("consumption", configuration, monthlyNetConsumption);
+        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("consumption", configuration, monthlyNetConsumption);
         ReadingTypeDeliverable netConsumption =
                 builder.build(builder.plus(
                         builder.requirement(production),
@@ -491,16 +502,15 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.addReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.addReadingTypeRequirement("A+").withReadingType(hourlykWReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(hourlykWReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder =
-                newDeliveryBuilder("consumption", configuration, monthlyNetConsumption);
+        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("consumption", configuration, monthlyNetConsumption);
         ReadingTypeDeliverable netConsumption =
                 builder.build(builder.plus(
                         builder.requirement(consumption),
@@ -584,7 +594,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         return injector.getInstance(ServerMetrologyConfigurationService.class);
     }
 
-    private static FormulaBuilder newFormulaBuilder() {
+    private static ServerFormulaBuilder newFormulaBuilder() {
         return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
     }
 
@@ -615,8 +625,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
     }
 
     private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyConfiguration configuration, ReadingType readingType) {
-        return
-                getMetrologyConfigurationService().newReadingTypeDeliverableBuilder(name, configuration, readingType, Formula.Mode.AUTO);
+        return configuration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
 
     }
 

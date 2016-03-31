@@ -13,10 +13,11 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.FormulaBuilder;
+import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.Range;
@@ -59,6 +60,8 @@ public class CopyAndVirtualizeReferencesTest {
     private EventService eventService;
     @Mock
     private UserService userService;
+    @Mock
+    private NlsService nlsService;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
 
@@ -69,7 +72,7 @@ public class CopyAndVirtualizeReferencesTest {
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(this.deliverable.getReadingType()).thenReturn(readingType);
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.eventService, this.userService);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService);
     }
 
     @Test
@@ -90,7 +93,7 @@ public class CopyAndVirtualizeReferencesTest {
     @Test
     public void copyMinimumFunctionCallNodeWithoutArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        FormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
+        ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
         FunctionCallNodeImpl node =
                 (FunctionCallNodeImpl) formulaBuilder.minimum().create();
 
@@ -108,7 +111,7 @@ public class CopyAndVirtualizeReferencesTest {
     @Test
     public void copyFunctionCallNodeWithoutArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        FormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
+        ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
         FunctionCallNodeImpl node =
                 (FunctionCallNodeImpl) formulaBuilder.maximum().create();
 
@@ -125,7 +128,7 @@ public class CopyAndVirtualizeReferencesTest {
 
     @Test
     public void copyFunctionCallNodeWithOneArgument() {
-        FormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
+        ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
         FunctionCallNodeImpl node =
                 (FunctionCallNodeImpl) formulaBuilder.minimum(formulaBuilder.constant(BigDecimal.TEN)).create();
         CopyAndVirtualizeReferences visitor = getTestInstance();
@@ -147,7 +150,7 @@ public class CopyAndVirtualizeReferencesTest {
     @Test
     public void copyFunctionCallNodeWithTwoArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        FormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
+        ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
         FunctionCallNodeImpl node =
                 (FunctionCallNodeImpl) formulaBuilder
                         .maximum(
@@ -174,7 +177,7 @@ public class CopyAndVirtualizeReferencesTest {
     @Test
     public void copyFunctionCallNodeWithThreeArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        FormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
+        ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
         FunctionCallNodeImpl node =
                 (FunctionCallNodeImpl) formulaBuilder
                         .maximum(
@@ -205,7 +208,7 @@ public class CopyAndVirtualizeReferencesTest {
     @Test
     public void copyPlusOperation() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        FormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
         ExpressionNode formulaPart = formulaBuilder.plus(
                 formulaBuilder.constant(BigDecimal.TEN),
                 formulaBuilder.constant(BigDecimal.ZERO)).create();
@@ -230,7 +233,7 @@ public class CopyAndVirtualizeReferencesTest {
     @Test
     public void copyAggregationNode() {
         CopyAndVirtualizeReferences visitor = getTestInstance(Formula.Mode.EXPERT);
-        FormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
         FunctionCallNodeImpl node =
                 (FunctionCallNodeImpl) formulaBuilder.aggregate(
                         formulaBuilder.plus(
@@ -259,7 +262,7 @@ public class CopyAndVirtualizeReferencesTest {
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
-        FormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
         ExpressionNode formulaPart =
                 formulaBuilder.plus(
                     formulaBuilder.requirement(mock(ReadingTypeRequirement.class)),

@@ -1,67 +1,78 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 
 import javax.inject.Inject;
-import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static com.google.common.base.MoreObjects.toStringHelper;
+public class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
+    public static final String TYPE_IDENTIFIER = "U";
 
-/**
- * Provides an implementation for the {@link UsagePointMetrologyConfiguration} interface.
- */
-public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
-
-    private final DataModel dataModel;
-
-    @SuppressWarnings("unused")//Managed by ORM
-    private Interval interval;
-    private Reference<UsagePoint> usagePoint = ValueReference.absent();
-    private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
+    private List<MetrologyConfigurationMeterRoleUsageImpl> meterRoles = new ArrayList<>();
+    private List<ReadingTypeRequirementMeterRoleUsage> requirementToRoleUsages = new ArrayList<>();
 
     @Inject
-    public UsagePointMetrologyConfigurationImpl(DataModel dataModel) {
-        super();
-        this.dataModel = dataModel;
-    }
-
-    public UsagePointMetrologyConfigurationImpl initAndSave(UsagePoint usagePoint, MetrologyConfiguration metrologyConfiguration, Instant start) {
-        this.usagePoint.set(usagePoint);
-        this.metrologyConfiguration.set(metrologyConfiguration);
-        this.interval = Interval.startAt(start);
-        return this;
+    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
+        super(metrologyConfigurationService, eventService);
     }
 
     @Override
-    public MetrologyConfiguration getMetrologyConfiguration() {
-        return metrologyConfiguration.get();
-    }
-
-    @Override
-    public Interval getInterval() {
-        return this.interval;
-    }
-
-    @Override
-    public void close(Instant closingDate) {
-        if (!isEffectiveAt(closingDate)) {
-            throw new IllegalArgumentException();
+    public void addMeterRole(MeterRole meterRole) {
+        if (!getMeterRoles().contains(meterRole)) {
+            if (!getServiceCategory().getMeterRoles().contains(meterRole)) {
+                throw CannotManageMeterRoleOnMetrologyConfigurationException
+                        .canNotAddMeterRoleWhichIsNotAssignedToServiceCategory(getMetrologyConfigurationService().getThesaurus(),
+                                meterRole.getDisplayName(), getServiceCategory().getDisplayName());
+            }
+            MetrologyConfigurationMeterRoleUsageImpl usage = getMetrologyConfigurationService().getDataModel()
+                    .getInstance(MetrologyConfigurationMeterRoleUsageImpl.class)
+                    .init(this, meterRole);
+            this.meterRoles.add(usage);
+            touch();
         }
-        this.interval = this.interval.withEnd(closingDate);
-        this.dataModel.update(this);
     }
 
     @Override
-    public String toString() {
-        return toStringHelper(this)
-                .add("usagePoint", this.usagePoint)
-                .add("metrologyConfiguration", this.metrologyConfiguration)
-                .toString();
+    public void removeMeterRole(MeterRole meterRole) {
+        Optional<MetrologyConfigurationMeterRoleUsageImpl> meterRoleUsage = this.meterRoles
+                .stream()
+                .filter(usage -> usage.getMeterRole().equals(meterRole))
+                .findAny();
+        if (meterRoleUsage.isPresent()) {
+            if (this.requirementToRoleUsages
+                    .stream()
+                    .map(ReadingTypeRequirementMeterRoleUsage::getMeterRole)
+                    .anyMatch(meterRole::equals)) {
+                throw CannotManageMeterRoleOnMetrologyConfigurationException.canNotDeleteMeterRoleFromMetrologyConfiguration(
+                        getMetrologyConfigurationService().getThesaurus(), meterRole.getDisplayName(), getName());
+            }
+            this.meterRoles.remove(meterRoleUsage.get());
+            touch();
+        }
+    }
+
+    @Override
+    public List<MeterRole> getMeterRoles() {
+        return this.meterRoles
+                .stream()
+                .map(MetrologyConfigurationMeterRoleUsageImpl::getMeterRole)
+                .collect(Collectors.toList());
+    }
+
+    void addReadingTypeRequirementMeterRoleUsage(ReadingTypeRequirementMeterRoleUsage usage) {
+        Save.CREATE.validate(getMetrologyConfigurationService().getDataModel(), usage);
+        this.requirementToRoleUsages.add(usage);
+    }
+
+    @Override
+    public UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name) {
+        return new UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(getMetrologyConfigurationService(), this, name);
     }
 
 }

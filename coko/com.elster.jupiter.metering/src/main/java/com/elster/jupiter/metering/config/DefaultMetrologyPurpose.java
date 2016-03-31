@@ -1,5 +1,9 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum DefaultMetrologyPurpose {
@@ -7,20 +11,22 @@ public enum DefaultMetrologyPurpose {
     INFORMATION(Translation.INFORMATION_NAME, Translation.INFORMATION_DESCRIPTION),
     VOLTAGE_MONITORING(Translation.VOLTAGE_MONITORING_NAME, Translation.VOLTAGE_MONITORING_DESCRIPTION),;
 
-    private TranslationKey nameTranslationKey;
-    private TranslationKey descriptionTranslationKey;
+    private TranslationKey name;
+    private TranslationKey description;
 
-    DefaultMetrologyPurpose(TranslationKey nameTranslationKey, TranslationKey descriptionTranslationKey) {
-        this.nameTranslationKey = nameTranslationKey;
-        this.descriptionTranslationKey = descriptionTranslationKey;
+    DefaultMetrologyPurpose(TranslationKey name, TranslationKey description) {
+        this.name = name;
+        this.description = description;
     }
 
-    public TranslationKey getNameTranslationKey() {
-        return nameTranslationKey;
+    public NlsKey getName() {
+        return SimpleNlsKey.key(MeteringService.COMPONENTNAME, Layer.DOMAIN, this.name.getKey())
+                .defaultMessage(this.name.getDefaultFormat());
     }
 
-    public TranslationKey getDescriptionTranslationKey() {
-        return descriptionTranslationKey;
+    public NlsKey getDescription() {
+        return SimpleNlsKey.key(MeteringService.COMPONENTNAME, Layer.DOMAIN, this.description.getKey())
+                .defaultMessage(this.description.getDefaultFormat());
     }
 
     public enum Translation implements TranslationKey {

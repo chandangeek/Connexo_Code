@@ -18,7 +18,8 @@ public enum Function {
     MAX,
     MIN,
     AVG,
-    AGG_TIME;
+    AGG_TIME,
+    COALESCE;
 
     public static Function from(com.elster.jupiter.metering.config.Function function) {
         switch (function) {
@@ -36,6 +37,9 @@ public enum Function {
             }
             case AGG_TIME: {
                 return AGG_TIME;
+            }
+            case FIRST_NOT_NULL: {
+                return COALESCE;
             }
             default: {
                 throw new IllegalArgumentException("Unsupported function: " + function.name());

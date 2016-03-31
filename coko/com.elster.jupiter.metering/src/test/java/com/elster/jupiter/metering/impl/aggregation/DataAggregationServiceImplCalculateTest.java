@@ -20,11 +20,12 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.FormulaBuilder;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
-import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.users.UserService;
@@ -86,9 +87,9 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private DataModel dataModel;
     @Mock
-    private QueryExecutor<UsagePointMetrologyConfiguration> queryExecutor;
+    private QueryExecutor<EffectiveMetrologyConfigurationOnUsagePoint> queryExecutor;
     @Mock
-    private UsagePointMetrologyConfiguration effectiveMetrologyConfiguration;
+    private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration;
     @Mock
     private ServerMeteringService meteringService;
     @Mock
@@ -107,6 +108,8 @@ public class DataAggregationServiceImplCalculateTest {
     private UserService userService;
     @Mock
     private MetrologyConfiguration metrologyConfiguration;
+    @Mock
+    private NlsService nlsService;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     private SqlBuilder withClauseBuilder;
@@ -130,9 +133,9 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.connection.prepareStatement(anyString())).thenReturn(this.preparedStatement);
         when(this.preparedStatement.executeQuery()).thenReturn(this.resultSet);
         when(this.dataModel.getInstance(AggregatedReadingRecordFactory.class)).thenReturn(new AggregatedReadingRecordFactoryImpl(this.dataModel));
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.eventService, this.userService);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService);
         when(this.metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(this.contract));
-        when(this.dataModel.query(eq(UsagePointMetrologyConfiguration.class), anyVararg())).thenReturn(this.queryExecutor);
+        when(this.dataModel.query(eq(EffectiveMetrologyConfigurationOnUsagePoint.class), anyVararg())).thenReturn(this.queryExecutor);
         when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
         when(this.effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(this.metrologyConfiguration);
         when(this.effectiveMetrologyConfiguration.getRange()).thenReturn(year2016());
@@ -168,7 +171,7 @@ public class DataAggregationServiceImplCalculateTest {
         MetrologyContract otherContract = mock(MetrologyContract.class);
         MetrologyConfiguration otherConfiguration = mock(MetrologyConfiguration.class);
         when(otherConfiguration.getContracts()).thenReturn(Collections.singletonList(otherContract));
-        UsagePointMetrologyConfiguration effectiveMetrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(otherConfiguration);
         DataAggregationServiceImpl service = this.testInstance();
         Range<Instant> aggregationPeriod = year2016();
@@ -211,7 +214,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mock15minReadingType("0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
-        FormulaBuilder formulaBuilder = this.newFormulaBuilder();
+        ServerFormulaBuilder formulaBuilder = this.newFormulaBuilder();
         ExpressionNode node = formulaBuilder.plus(
                 formulaBuilder.requirement(production),
                 formulaBuilder.requirement(consumption)).create();
@@ -316,7 +319,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mock15minReadingType("13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
-        FormulaBuilder formulaBuilder = this.newFormulaBuilder();
+        ServerFormulaBuilder formulaBuilder = this.newFormulaBuilder();
         ExpressionNode node = formulaBuilder.plus(
                 formulaBuilder.requirement(production),
                 formulaBuilder.requirement(consumption)).create();
@@ -422,7 +425,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mock15minReadingType("0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
-        FormulaBuilder formulaBuilder = this.newFormulaBuilder();
+        ServerFormulaBuilder formulaBuilder = this.newFormulaBuilder();
         ExpressionNode node = formulaBuilder.plus(
                 formulaBuilder.requirement(production),
                 formulaBuilder.requirement(consumption)).create();
@@ -556,7 +559,7 @@ public class DataAggregationServiceImplCalculateTest {
         return this.virtualFactory;
     }
 
-    private com.elster.jupiter.metering.impl.config.FormulaBuilder newFormulaBuilder() {
+    private ServerFormulaBuilder newFormulaBuilder() {
         return this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
     }
 

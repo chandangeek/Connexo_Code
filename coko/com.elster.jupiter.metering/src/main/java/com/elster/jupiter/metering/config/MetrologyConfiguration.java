@@ -52,11 +52,11 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     List<ReadingTypeRequirement> getRequirements();
 
-    MetrologyConfigurationReadingTypeRequirementBuilder addReadingTypeRequirement(String name);
+    MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name);
 
     void removeReadingTypeRequirement(ReadingTypeRequirement readingTypeRequirement);
 
-    ReadingTypeDeliverable addReadingTypeDeliverable(String name, ReadingType readingType, Formula formula);
+    ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode);
 
     void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable);
 
@@ -66,8 +66,6 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     @ProviderType
     interface MetrologyConfigurationReadingTypeRequirementBuilder {
-
-        MetrologyConfigurationReadingTypeRequirementBuilder withName(String name);
 
         FullySpecifiedReadingType withReadingType(ReadingType readingType);
 

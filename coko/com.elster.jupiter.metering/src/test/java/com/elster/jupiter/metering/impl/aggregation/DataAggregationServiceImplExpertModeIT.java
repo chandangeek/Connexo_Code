@@ -29,12 +29,15 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.FormulaBuilder;
-import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
+import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -210,7 +213,17 @@ public class DataAggregationServiceImplExpertModeIT {
 
     private static void setupMetrologyPurpose() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose().withName(DataAggregationServiceImplExpertModeIT.class.getSimpleName()).create();
+            NlsKey name = mock(NlsKey.class);
+            when(name.getKey()).thenReturn(DataAggregationServiceImplExpertModeIT.class.getSimpleName());
+            when(name.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateIT.class.getSimpleName());
+            when(name.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
+            when(name.getLayer()).thenReturn(Layer.DOMAIN);
+            NlsKey description = mock(NlsKey.class);
+            when(description.getKey()).thenReturn(DataAggregationServiceImplExpertModeIT.class.getSimpleName() + ".description");
+            when(description.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateIT.class.getSimpleName());
+            when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
+            when(description.getLayer()).thenReturn(Layer.DOMAIN);
+            METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
             ctx.commit();
         }
     }
@@ -278,32 +291,27 @@ public class DataAggregationServiceImplExpertModeIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.addReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
-        ReadingTypeRequirement pressure = this.configuration.addReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
-        ReadingTypeRequirement volume = this.configuration.addReadingTypeRequirement("V").withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
-        FormulaBuilder formulaBuilder = newFormulaBuilder();
-        formulaBuilder.init(
-                formulaBuilder.multiply(
-                        formulaBuilder.constant(BigDecimal.valueOf(40L)),   // calorific value
-                        formulaBuilder.multiply(
-                                formulaBuilder.requirement(volume),
-                                formulaBuilder.multiply(
-                                        formulaBuilder.divide(
-                                                formulaBuilder.requirement(temperature),
-                                                formulaBuilder.requirement(pressure)),
-                                        formulaBuilder.divide(
-                                                formulaBuilder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
-                                                formulaBuilder.constant(BigDecimal.valueOf(15L)))))));
-        ReadingTypeDeliverable energy =
-                this.configuration.addReadingTypeDeliverable(
-                        "Energy",
-                        ENERGY_15min,
-                        formulaBuilder.build());
+        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("Energy", ENERGY_15min, Formula.Mode.EXPERT);
+        ReadingTypeDeliverable energy = builder.build(
+                builder.multiply(
+                        builder.constant(BigDecimal.valueOf(40L)),   // calorific value
+                        builder.multiply(
+                                builder.requirement(volume),
+                                builder.multiply(
+                                        builder.divide(
+                                                builder.requirement(temperature),
+                                                builder.requirement(pressure)),
+                                        builder.divide(
+                                                builder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
+                                                builder.constant(BigDecimal.valueOf(15L)))))));
         this.deliverableId = energy.getId();
 
         // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
@@ -392,33 +400,32 @@ public class DataAggregationServiceImplExpertModeIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.addReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
-        ReadingTypeRequirement pressure = this.configuration.addReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
-        ReadingTypeRequirement volume = this.configuration.addReadingTypeRequirement("V").withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
-        FormulaBuilder formulaBuilder = newFormulaBuilder();
-        formulaBuilder.init(
-                formulaBuilder.aggregate(   // Note how the expert is required to define when the aggregation is done
-                    formulaBuilder.multiply(
-                            formulaBuilder.constant(BigDecimal.valueOf(40L)),   // calorific value
-                            formulaBuilder.multiply(
-                                    formulaBuilder.requirement(volume),
-                                    formulaBuilder.multiply(
-                                            formulaBuilder.divide(
-                                                    formulaBuilder.requirement(temperature),
-                                                    formulaBuilder.requirement(pressure)),
-                                            formulaBuilder.divide(
-                                                    formulaBuilder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
-                                                    formulaBuilder.constant(BigDecimal.valueOf(15L))))))));     // 15 normalized gas is measured at 15 °Celcius
+        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable(
+                "Energy",
+                ENERGY_daily,
+                Formula.Mode.EXPERT);
         ReadingTypeDeliverable energy =
-                this.configuration.addReadingTypeDeliverable(
-                        "Energy",
-                        ENERGY_daily,
-                        formulaBuilder.build());
+                builder.build(
+                    builder.aggregate(   // Note how the expert is required to define when the aggregation is done
+                        builder.multiply(
+                            builder.constant(BigDecimal.valueOf(40L)),   // calorific value
+                            builder.multiply(
+                                builder.requirement(volume),
+                                builder.multiply(
+                                    builder.divide(
+                                        builder.requirement(temperature),
+                                        builder.requirement(pressure)),
+                                    builder.divide(
+                                        builder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
+                                        builder.constant(BigDecimal.valueOf(15L))))))));     // 15 normalized gas is measured at 15 °Celcius
         this.deliverableId = energy.getId();
 
         // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
@@ -493,7 +500,7 @@ public class DataAggregationServiceImplExpertModeIT {
         return injector.getInstance(ServerMetrologyConfigurationService.class);
     }
 
-    private static FormulaBuilder newFormulaBuilder() {
+    private static ServerFormulaBuilder newFormulaBuilder() {
         return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.EXPERT);
     }
 
@@ -516,12 +523,6 @@ public class DataAggregationServiceImplExpertModeIT {
 
     private String mRID2GrepPattern(String mRID) {
         return mRID.replace(".", "\\.");
-    }
-
-    private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyConfiguration configuration, ReadingType readingType) {
-        return
-                getMetrologyConfigurationService().newReadingTypeDeliverableBuilder(name, configuration, readingType, Formula.Mode.AUTO);
-
     }
 
 }

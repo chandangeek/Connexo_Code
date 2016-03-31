@@ -12,7 +12,13 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.TableSpecs;
-import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleNlsKey;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -20,10 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -85,22 +87,14 @@ public class MeterRoleTest {
     @Transactional
     public void testCreateMeterRole() {
         //Business method
-        getMetrologyConfigurationService().newMeterRole(new TranslationKey() {
-            @Override
-            public String getKey() {
-                return "meter.role.new";
-            }
-
-            @Override
-            public String getDefaultFormat() {
-                return "New meter role";
-            }
-        });
+        getMetrologyConfigurationService().newMeterRole(SimpleNlsKey
+                .key(MetrologyConfigurationService.COMPONENT_NAME, Layer.DOMAIN, "meter.role.new")
+                .defaultMessage("New meter role"));
 
         //Asserts
         Optional<MeterRole> meterRole = getMetrologyConfigurationService().findMeterRole("meter.role.new");
         assertThat(meterRole).isPresent();
-        assertThat(meterRole.get().getDisplayName()).isEqualTo("meter.role.new");
+        assertThat(meterRole.get().getDisplayName()).isEqualTo("New meter role");
     }
 
     @Test

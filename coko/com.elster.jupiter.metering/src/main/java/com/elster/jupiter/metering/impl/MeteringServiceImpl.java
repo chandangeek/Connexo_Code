@@ -35,7 +35,6 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
-import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.aggregation.AggregatedReadingRecordFactory;
@@ -394,7 +393,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Activate
     public final void activate(BundleContext bundleContext) {
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.eventService, this.userService);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService);
         registerMetrologyConfigurationService(bundleContext);
         dataModel.register(new AbstractModule() {
             @Override
@@ -684,7 +683,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         Arrays.stream(PropertyTranslationKeys.values()).forEach(translationKeys::add);
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
         Arrays.stream(AmiBillingReadyKind.values()).forEach(translationKeys::add);
-        Arrays.stream(DefaultMeterRole.values()).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         return translationKeys;
     }
@@ -710,7 +708,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         return multiplierType;
     }
 
-    private void copyKeyIfMissing(NlsKey name, String localKey) {
+    @Override
+    public void copyKeyIfMissing(NlsKey name, String localKey) {
         if (this.thesaurus.getTranslations().get(localKey) == null) {
             this.nlsService.copy(name, COMPONENTNAME, Layer.DOMAIN, key -> localKey);
         }

@@ -29,12 +29,14 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.FormulaBuilder;
-import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilder;
+import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -210,7 +212,17 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
     private static void setupMetrologyPurpose() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose().withName(DataAggregationServiceImplCalculateWithTemperatureConversionIT.class.getSimpleName()).create();
+            NlsKey name = mock(NlsKey.class);
+            when(name.getKey()).thenReturn(DataAggregationServiceImplCalculateWithTemperatureConversionIT.class.getSimpleName());
+            when(name.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateIT.class.getSimpleName());
+            when(name.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
+            when(name.getLayer()).thenReturn(Layer.DOMAIN);
+            NlsKey description = mock(NlsKey.class);
+            when(description.getKey()).thenReturn(DataAggregationServiceImplCalculateWithTemperatureConversionIT.class.getSimpleName() + ".description");
+            when(description.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateIT.class.getSimpleName());
+            when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
+            when(description.getLayer()).thenReturn(Layer.DOMAIN);
+            METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
             ctx.commit();
         }
     }
@@ -270,7 +282,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("kelvinToCelcius", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.addReadingTypeRequirement("T").withReadingType(K_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(K_15min);
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
@@ -355,7 +367,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("kelvingToFahrenheit", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.addReadingTypeRequirement("T").withReadingType(K_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(K_15min);
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
@@ -445,14 +457,13 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("celciusAndFahrenheitToKelvin", ELECTRICITY).create();
 
         // Setup configuration requirements
-        ReadingTypeRequirement minTemperature = this.configuration.addReadingTypeRequirement("minT").withReadingType(C_15min);
+        ReadingTypeRequirement minTemperature = this.configuration.newReadingTypeRequirement("minT").withReadingType(C_15min);
         this.temperature1RequirementId = minTemperature.getId();
-        ReadingTypeRequirement maxTemperature = this.configuration.addReadingTypeRequirement("maxT").withReadingType(F_15min);
+        ReadingTypeRequirement maxTemperature = this.configuration.newReadingTypeRequirement("maxT").withReadingType(F_15min);
         this.temperature2RequirementId = maxTemperature.getId();
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder =
-                newDeliveryBuilder("averageT", configuration, K_daily);
+        ReadingTypeDeliverableBuilder builder = newDeliveryBuilder("averageT", configuration, K_daily);
         ReadingTypeDeliverable avgTemperature =
                 builder.build(builder.divide(
                         builder.plus(
@@ -533,7 +544,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         return injector.getInstance(ServerMetrologyConfigurationService.class);
     }
 
-    private static FormulaBuilder newFormulaBuilder() {
+    private static ServerFormulaBuilder newFormulaBuilder() {
         return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
     }
 
@@ -561,8 +572,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     }
 
     private ReadingTypeDeliverableBuilder newDeliveryBuilder(String name, MetrologyConfiguration configuration, ReadingType readingType) {
-        return
-                getMetrologyConfigurationService().newReadingTypeDeliverableBuilder(name, configuration, readingType, Formula.Mode.AUTO);
+        return configuration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
 
     }
 

@@ -22,6 +22,12 @@ public enum Function {
         public String toString() {
             return "agg";
         }
+    },
+    FIRST_NOT_NULL {
+        @Override
+        public String toString() {
+            return "firstNotNull";
+        }
     };
 
     public String toString() {

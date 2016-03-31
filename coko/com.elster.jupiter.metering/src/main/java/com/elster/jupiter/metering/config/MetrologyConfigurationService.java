@@ -1,8 +1,7 @@
 package com.elster.jupiter.metering.config;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.NlsKey;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -22,8 +21,6 @@ public interface MetrologyConfigurationService {
 
     MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
-    UsagePointMetrologyConfigurationBuilder newUsagePointMetrologyConfiguration(String name, ServiceCategory serviceCategory);
-
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
 
     Optional<MetrologyConfiguration> findAndLockMetrologyConfiguration(long id, long version);
@@ -32,9 +29,21 @@ public interface MetrologyConfigurationService {
 
     List<MetrologyConfiguration> findAllMetrologyConfigurations();
 
+    UsagePointMetrologyConfigurationBuilder newUsagePointMetrologyConfiguration(String name, ServiceCategory serviceCategory);
+
+    Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(long id);
+
+    Optional<UsagePointMetrologyConfiguration> findAndLockUsagePointMetrologyConfiguration(long id, long version);
+
+    Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(String name);
+
+    List<UsagePointMetrologyConfiguration> findAllUsagePointMetrologyConfigurations();
+
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
-    MeterRole newMeterRole(TranslationKey key);
+    MeterRole newMeterRole(NlsKey name);
+
+    MeterRole findDefaultMeterRole(DefaultMeterRole defaultMeterRole);
 
     Optional<MeterRole> findMeterRole(String key);
 
@@ -42,17 +51,17 @@ public interface MetrologyConfigurationService {
 
     Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id);
 
+    Optional<ReadingTypeTemplate> findReadingTypeTemplate(String name);
+
     Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version);
 
-    MetrologyPurpose.MetrologyPurposeBuilder createMetrologyPurpose();
+    MetrologyPurpose createMetrologyPurpose(NlsKey name, NlsKey description);
 
     Optional<MetrologyPurpose> findMetrologyPurpose(long id);
 
     Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
 
     List<MetrologyPurpose> getMetrologyPurposes();
-
-    ReadingTypeDeliverable createReadingTypeDeliverable(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula formula);
 
     List<ReadingTypeDeliverable> findReadingTypeDeliverable(ReadingTypeDeliverableFilter filter);
 

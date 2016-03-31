@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -20,8 +21,9 @@ public class MetrologyPurposeImpl implements MetrologyPurpose {
     public enum Fields {
         ID("id"),
         NAME("name"),
-        DEFAULT_PURPOSE("defaultPurpose"),
-        DESCRIPTION("description"),;
+        DESCRIPTION("description"),
+        TRANSLATABLE("translatable"),
+        DEFAULT_PURPOSE("defaultPurpose"),;
 
         private String javaFieldName;
 
@@ -44,6 +46,7 @@ public class MetrologyPurposeImpl implements MetrologyPurpose {
     private String name;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
+    private boolean translatable;
     private DefaultMetrologyPurpose defaultPurpose;
 
     @Inject
@@ -55,14 +58,13 @@ public class MetrologyPurposeImpl implements MetrologyPurpose {
 
     public MetrologyPurposeImpl init(DefaultMetrologyPurpose defaultMetrologyPurpose) {
         this.defaultPurpose = defaultMetrologyPurpose;
-        this.name = defaultMetrologyPurpose.getNameTranslationKey().getDefaultFormat();
-        this.description = defaultMetrologyPurpose.getDescriptionTranslationKey().getDefaultFormat();
-        return this;
+        return this.init(defaultMetrologyPurpose.getName().getKey(), defaultMetrologyPurpose.getDescription().getKey(), true);
     }
 
-    public MetrologyPurposeImpl init(String name, String description) {
+    public MetrologyPurposeImpl init(String name, String description, boolean translatable) {
         this.name = name;
         this.description = description;
+        this.translatable = translatable;
         return this;
     }
 
@@ -73,16 +75,16 @@ public class MetrologyPurposeImpl implements MetrologyPurpose {
 
     @Override
     public String getName() {
-        if (this.defaultPurpose != null) {
-            return this.thesaurus.getFormat(this.defaultPurpose.getNameTranslationKey()).format();
+        if (this.translatable) {
+            return this.thesaurus.getFormat(new SimpleTranslationKey(this.name, this.name)).format();
         }
         return this.name;
     }
 
     @Override
     public String getDescription() {
-        if (this.defaultPurpose != null) {
-            return this.thesaurus.getFormat(this.defaultPurpose.getDescriptionTranslationKey()).format();
+        if (this.translatable) {
+            return this.thesaurus.getFormat(new SimpleTranslationKey(this.description, this.description)).format();
         }
         return this.description;
     }
