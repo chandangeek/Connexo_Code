@@ -21,18 +21,18 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                         href: me.router.getRoute('usagepoints/view/history').buildUrl({mRID: me.mRID})
                     },
                     {
+                        text: Uni.I18n.translate('usagepoint.processes', 'IMT', 'Processes'),
+                        privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                        itemId: 'usage-point-processes-link',
+                        href: me.router.getRoute('usagepoints/view/processes').buildUrl({mRID: me.mRID})
+                    },
+                    {
                         text: Uni.I18n.translate('general.servicecalls', 'IMT', 'Service calls'),
                         itemId: 'usage-point-service-calls-link',
                         privileges: Imt.privileges.UsagePoint.view,
                         href: me.router.getRoute('usagepoints/view/servicecalls').buildUrl({mRID: me.mRID})
                     }
                 ]
-            },
-            {
-                text: Uni.I18n.translate('usagepoint.processes', 'IMT', 'Processes'),
-                privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                itemId: 'usage-point-processes-link',
-                href: me.router.getRoute('usagepoints/view/processes').buildUrl({mRID: me.mRID})
             },
             {
                 title: 'Data sources',
