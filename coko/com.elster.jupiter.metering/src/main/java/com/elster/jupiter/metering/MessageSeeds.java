@@ -51,6 +51,7 @@ public enum MessageSeeds implements MessageSeed {
     CONTRACT_NOT_ACTIVE(5007, Constants.CONTRACT_NOT_ACTIVE, "The metrology contract with purpose {0} is not active on usage point ''{1}'' during the requested data aggregation period ({2})"),
     INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT(5008, Constants.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, "The requirement with id ''{0}'' cannot be used because it has a different metrology configuration."),
     INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE(5009, Constants.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, "The deliverable with id ''{0}'' cannot be used because it has a different metrology configuration."),
+    READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(5010, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The readingtype is not compatible with the dimension of the formula."),
     ;
 
     private final int number;
@@ -132,5 +133,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CAN_NOT_ADD_REQUIREMENT_WITH_THAT_ROLE = "can.not.add.requirement.with.that.role";
         public static final String INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT = "invalid.metrologyconfiguration.for.requirement";
         public static final String INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE = "invalid.metrologyconfiguration.for.deliverable";
+        public static final String READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA = "readingtype.of.deliverable.incompatible.with.formula";
     }
 }
