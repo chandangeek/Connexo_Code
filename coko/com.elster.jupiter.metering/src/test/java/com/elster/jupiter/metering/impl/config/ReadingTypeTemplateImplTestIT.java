@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -200,7 +201,7 @@ public class ReadingTypeTemplateImplTestIT {
                     .done();
             context.commit();
         }
-        ReadingTypeTemplate.ReadingTypeTemplateUpdater updater = template.startUpdate()
+        ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter updater = template.startUpdate()
                 .setAttribute(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.DAILY.getId())
                 .setAttribute(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE.getId())
                 .setAttribute(ReadingTypeTemplateAttributeName.TIME, null) // default
@@ -292,5 +293,18 @@ public class ReadingTypeTemplateImplTestIT {
                 .setAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 5)
                 .done();
         // assert no exception about non-unique name
+    }
+
+    @Test
+    @Transactional
+    public void testCanNotAddTwoTheSameDefaultTemplates() {
+        inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS).done();
+        inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS).done();
+
+        List<ReadingTypeTemplate> aPlusTemplates = inMemoryBootstrapModule.getMetrologyConfigurationService().getDataModel()
+                .query(ReadingTypeTemplate.class)
+                .select(where(ReadingTypeTemplateImpl.Fields.DEFAULT_TEMPLATE.fieldName()).isEqualTo(DefaultReadingTypeTemplate.A_PLUS));
+
+        assertThat(aPlusTemplates).hasSize(1);
     }
 }

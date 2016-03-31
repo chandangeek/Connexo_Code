@@ -142,8 +142,8 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     }
 
     @Override
-    public ReadingTypeTemplateUpdater startUpdate() {
-        return new ReadingTypeTemplateUpdaterImpl(this);
+    public ReadingTypeTemplateAttributeSetter startUpdate() {
+        return new ReadingTypeTemplateAttributeSetterImpl(this);
     }
 
     @Override
@@ -158,18 +158,18 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
         return this.allAttributes.stream().anyMatch(attr -> !attr.getCode().isPresent() && attr.getPossibleValues().isEmpty());
     }
 
-    private static class ReadingTypeTemplateUpdaterImpl implements ReadingTypeTemplateUpdater {
+    private static class ReadingTypeTemplateAttributeSetterImpl implements ReadingTypeTemplateAttributeSetter {
 
         private final ReadingTypeTemplateImpl template;
         private List<ReadingTypeTemplateAttributeImpl> attributes;
 
-        private ReadingTypeTemplateUpdaterImpl(ReadingTypeTemplateImpl template) {
+        private ReadingTypeTemplateAttributeSetterImpl(ReadingTypeTemplateImpl template) {
             this.template = template;
             this.attributes = new ArrayList<>();
         }
 
         @Override
-        public ReadingTypeTemplateUpdater setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues) {
+        public ReadingTypeTemplateAttributeSetter setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues) {
             attributes.add(template.dataModel.getInstance(ReadingTypeTemplateAttributeImpl.class)
                     .init(template, name, code, possibleValues));
             return this;

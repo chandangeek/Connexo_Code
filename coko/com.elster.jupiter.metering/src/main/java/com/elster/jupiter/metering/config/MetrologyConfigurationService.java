@@ -47,7 +47,7 @@ public interface MetrologyConfigurationService {
 
     Optional<MeterRole> findMeterRole(String key);
 
-    ReadingTypeTemplate.ReadingTypeTemplateUpdater createReadingTypeTemplate(String name);
+    ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter createReadingTypeTemplate(String name);
 
     Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id);
 

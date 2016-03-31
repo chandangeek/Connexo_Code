@@ -23,7 +23,7 @@ public interface ReadingTypeTemplate extends HasId, HasName {
      */
     ReadingTypeTemplateAttribute getAttribute(ReadingTypeTemplateAttributeName attributeName);
 
-    ReadingTypeTemplateUpdater startUpdate();
+    ReadingTypeTemplateAttributeSetter startUpdate();
 
     /**
      * Indicates that one or more attributes does not define nor specific code, nor possible values.
@@ -41,7 +41,7 @@ public interface ReadingTypeTemplate extends HasId, HasName {
 
     long getVersion();
 
-    interface ReadingTypeTemplateUpdater {
+    interface ReadingTypeTemplateAttributeSetter {
         /**
          * Updates attribute in template.
          *
@@ -50,7 +50,7 @@ public interface ReadingTypeTemplate extends HasId, HasName {
          * @param possibleValues possible attribute values
          * @return the updater
          */
-        ReadingTypeTemplateUpdater setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues);
+        ReadingTypeTemplateAttributeSetter setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues);
 
         ReadingTypeTemplate done();
     }
