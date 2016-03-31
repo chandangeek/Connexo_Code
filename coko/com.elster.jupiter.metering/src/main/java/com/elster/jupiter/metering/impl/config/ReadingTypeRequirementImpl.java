@@ -15,16 +15,21 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Checks;
 
 import com.google.common.collect.ImmutableMap;
 
+import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequirement {
+import static com.elster.jupiter.util.conditions.Where.where;
+
+@SelfValid
+public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequirement, SelfObjectValidator {
     public static final Map<String, Class<? extends ReadingTypeRequirement>> IMPLEMENTERS = ImmutableMap.of(
             PartiallySpecifiedReadingTypeImpl.TYPE_IDENTIFIER, PartiallySpecifiedReadingTypeImpl.class,
             FullySpecifiedReadingTypeImpl.TYPE_IDENTIFIER, FullySpecifiedReadingTypeImpl.class);
@@ -48,6 +53,8 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
         }
     }
 
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
+
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
@@ -60,9 +67,35 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     private Instant modTime;
     private String userName;
 
+    public ReadingTypeRequirementImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
     protected void init(MetrologyConfiguration metrologyConfiguration, String name) {
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.name = name;
+    }
+
+    private boolean hasRequirementsWithTheSameName() {
+        return this.metrologyConfigurationService.getDataModel()
+                .query(ReadingTypeRequirement.class)
+                .select(where(Fields.NAME.fieldName()).isEqualTo(getName())
+                        .and(where(Fields.METROLOGY_CONFIGURATION.fieldName()).isEqualTo(getMetrologyConfiguration())))
+                .stream()
+                .anyMatch(candidate -> candidate.getId() != getId());
+    }
+    @Override
+    public boolean validate(ConstraintValidatorContext context) {
+        if (getMetrologyConfiguration() != null
+                && !Checks.is(getName()).emptyOrOnlyWhiteSpace()
+                && hasRequirementsWithTheSameName()) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+                    .addPropertyNode(Fields.NAME.fieldName())
+                    .addConstraintViolation();
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -86,7 +119,7 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
 
     @Override
     public MetrologyConfiguration getMetrologyConfiguration() {
-        return this.metrologyConfiguration.get();
+        return this.metrologyConfiguration.orNull();
     }
 
     @Override

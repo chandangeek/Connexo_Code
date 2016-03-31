@@ -255,4 +255,29 @@ public class ReadingTypeRequirementTestIT {
         assertThat(partiallySpecifiedReadingType.matches(readingType)).isFalse();
     }
 
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}", property = "name", strict = true)
+    public void testCanNotCreateRequirementsWithTheSameName() {
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
+        ReadingType weeklyReadingType = inMemoryBootstrapModule.getMeteringService().createReadingType("24.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Weekly reading type");
+        metrologyConfiguration.newReadingTypeRequirement("Name").withReadingType(readingType);
+        metrologyConfiguration.newReadingTypeRequirement("Name").withReadingType(weeklyReadingType);
+    }
+
+    @Test
+    @Transactional
+    public void testCanCreateRequirementsWithTheSameNameButOnDifferentConfigurations() {
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
+
+        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        MetrologyConfiguration metrologyConfiguration2 = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .newMetrologyConfiguration("Configuration 2", serviceCategory).create();
+        ReadingType readingType2 = inMemoryBootstrapModule.getMeteringService().createReadingType("24.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Weekly reading type");
+
+        FullySpecifiedReadingType rtr1 = metrologyConfiguration.newReadingTypeRequirement("Name").withReadingType(readingType);
+        FullySpecifiedReadingType rtr2 = metrologyConfiguration2.newReadingTypeRequirement("Name").withReadingType(readingType2);
+
+        assertThat(rtr1).isNotEqualTo(rtr2);
+    }
 }

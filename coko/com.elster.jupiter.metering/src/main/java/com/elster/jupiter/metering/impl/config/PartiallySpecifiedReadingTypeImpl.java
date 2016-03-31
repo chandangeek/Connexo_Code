@@ -38,8 +38,8 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     private Dimension dimension;
 
     @Inject
-    public PartiallySpecifiedReadingTypeImpl(DataModel dataModel) {
-        super();
+    public PartiallySpecifiedReadingTypeImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService) {
+        super(metrologyConfigurationService);
         this.dataModel = dataModel;
     }
 
@@ -63,7 +63,7 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
                     .map(PartiallySpecifiedReadingTypeAttributeValueImpl::getCode)
                     .map(this::getDimensionFromReadingTypeUnitCode)
                     .findAny()
-                    .orElseGet(() -> getDimensionFromTemplate());
+                    .orElseGet(this::getDimensionFromTemplate);
         }
         return this.dimension;
     }
