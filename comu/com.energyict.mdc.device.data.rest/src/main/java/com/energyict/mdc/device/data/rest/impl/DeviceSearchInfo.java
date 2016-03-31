@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Batch;
@@ -13,7 +14,9 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DeviceSearchInfo {
     public long id;
@@ -35,6 +38,7 @@ public class DeviceSearchInfo {
     public Instant decommissionDate;
     public Boolean validationActive;
     public Boolean hasOpenDataValidationIssues;
+    public String location;
 
 
     public static DeviceSearchInfo from(Device device, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus) {
@@ -65,6 +69,14 @@ public class DeviceSearchInfo {
         searchInfo.decommissionDate = lifecycleDates.getRetiredDate().orElse(null);
         searchInfo.validationActive = device.forValidation().isValidationActive();
         searchInfo.hasOpenDataValidationIssues = DeviceInfo.getOpenDataValidationIssue(device, meteringService, issueService, issueDataValidationService).isPresent();
+        meteringService.findDeviceLocation(device.getmRID())
+                .ifPresent(location -> {
+                    meteringService.getFormattedLocationMembers(location.getId())
+                            .ifPresent(formattedLocationMembers -> {
+                                searchInfo.location = formattedLocationMembers.stream().map(Object::toString).collect(Collectors.joining(","));
+                            });
+                });
+
         return searchInfo;
     }
 }
