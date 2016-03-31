@@ -45,9 +45,13 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         EndDeviceGroupEventData eventSource = (EndDeviceGroupEventData) localEvent.getSource();
         EndDeviceGroup endDeviceGroup = eventSource.getEndDeviceGroup();
-        if (validationService.findValidationTask(endDeviceGroup.getId()).isPresent()) {
+        if (isInUse(endDeviceGroup)) {
             throw new VetoDeleteDeviceGroupException(thesaurus, endDeviceGroup);
         }
+    }
+
+    private boolean isInUse(EndDeviceGroup endDeviceGroup) {
+        return !validationService.findByDeviceGroup(endDeviceGroup, 0, 1).isEmpty();
     }
 
     @Override
