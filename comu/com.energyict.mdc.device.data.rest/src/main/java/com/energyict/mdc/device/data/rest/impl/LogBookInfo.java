@@ -36,7 +36,7 @@ public class LogBookInfo {
         Optional<Instant> lastLogBookDate = logBook.getLastLogBook();
         if (lastLogBookDate.isPresent()) {
             info.lastEventDate = lastLogBookDate.get();
-            List<EndDeviceEventRecord> endDeviceEvents = logBook.getEndDeviceEvents(Ranges.openClosed(lastLogBookDate.get(), lastLogBookDate.get()));
+            List<EndDeviceEventRecord> endDeviceEvents = logBook.getEndDeviceEvents(Ranges.closedOpen(info.lastEventDate, info.lastEventDate.plusSeconds(1)));
             if (!endDeviceEvents.isEmpty()) {
                 EndDeviceEventRecord lastRecord = endDeviceEvents.get(0);
                 info.lastEventType = EndDeviceEventTypeInfo.from(lastRecord.getEventType(), thesaurus);
