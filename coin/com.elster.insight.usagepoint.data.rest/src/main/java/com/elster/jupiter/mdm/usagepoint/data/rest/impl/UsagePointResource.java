@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
@@ -138,6 +139,15 @@ public class UsagePointResource {
         UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info);
         info.writeTo(usagePoint);
         info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+
+        UsagePointCustomPropertySetExtension extension = usagePoint.forCustomProperties();
+        info.customPropertySets.stream()
+                .forEach(customPropertySetInfo -> {
+                    UsagePointPropertySet propertySet = extension.getPropertySet(customPropertySetInfo.id);
+                    propertySet.setValues(customPropertySetInfoFactory
+                            .getCustomPropertySetValues(customPropertySetInfo, propertySet.getCustomPropertySet().getPropertySpecs()));
+                });
+
         return usagePointInfoFactory.from(usagePoint);
     }
 
@@ -159,7 +169,9 @@ public class UsagePointResource {
     @Path("/servicecategory")
     public PagedInfoList getServiceCategories(@BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
         List<ServiceCategoryInfo> categories = Arrays.stream(ServiceKind.values())
-                .map(meteringService::getServiceCategory).flatMap(sc -> sc.isPresent() && sc.get().isActive() ? Stream.of(sc.get()) : Stream.empty()).sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
+                .map(meteringService::getServiceCategory)
+                .flatMap(sc -> sc.isPresent() && sc.get().isActive() ? Stream.of(sc.get()) : Stream.empty())
+                .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
                 .filter(sc -> !sc.getCustomPropertySets().stream().anyMatch(rcps -> !rcps.isEditableByCurrentUser()))
                 .map(sc -> new ServiceCategoryInfo(sc, sc.getCustomPropertySets()
                         .stream()
@@ -189,7 +201,7 @@ public class UsagePointResource {
             if (step == 1) {
                 usagePointInfoFactory.newUsagePointBuilder(info).validate();
             } else if (step == 2) {
-                if(info.techInfo==null){
+                if (info.techInfo == null) {
                     throw exceptionFactory.newException(MessageSeeds.NO_SUCH_TECHNICAL_INFO, info.serviceCategory);
                 }
                 info.techInfo.getUsagePointDetailBuilder(usagePointInfoFactory.newUsagePointBuilder(info)
@@ -216,16 +228,17 @@ public class UsagePointResource {
         info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
 
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
-            UsagePointPropertySet propertySet = usagePoint.forCustomProperties().getPropertySet(customPropertySetInfo.id);
+            UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
+                    .getPropertySet(customPropertySetInfo.id);
             propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
                     propertySet.getCustomPropertySet().getPropertySpecs()));
         }
         return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
     }
 
-    private void validateSeviceKind(String serviceKindString){
-        if (Arrays.stream(ServiceKind.values()).allMatch(sk -> !sk.name().equals(serviceKindString))){
-            throw new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_SERVICE_CATEGORY,"serviceCategory");
+    private void validateSeviceKind(String serviceKindString) {
+        if (Arrays.stream(ServiceKind.values()).allMatch(sk -> !sk.name().equals(serviceKindString))) {
+            throw new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_SERVICE_CATEGORY, "serviceCategory");
         }
     }
 
