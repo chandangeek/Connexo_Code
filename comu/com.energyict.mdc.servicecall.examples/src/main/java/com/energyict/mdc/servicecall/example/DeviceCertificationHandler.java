@@ -24,7 +24,6 @@ import java.util.Optional;
         property = "name=DeviceCertificationHandler")
 public class DeviceCertificationHandler implements ServiceCallHandler {
 
-    private volatile CustomPropertySetService customPropertySetService;
     private volatile DeviceService deviceService;
 
     public DeviceCertificationHandler() {
@@ -32,7 +31,6 @@ public class DeviceCertificationHandler implements ServiceCallHandler {
 
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        this.customPropertySetService = customPropertySetService;
     }
 
     @Reference
@@ -61,7 +59,7 @@ public class DeviceCertificationHandler implements ServiceCallHandler {
     }
 
     protected void updateYear(ServiceCall serviceCall) {
-        DeviceCertificationDomainExtension extensionFor = serviceCall.getExtensionFor(new DeviceCertificationCustomPropertySet(customPropertySetService))
+        DeviceCertificationDomainExtension extensionFor = serviceCall.getExtensionFor(new DeviceCertificationCustomPropertySet())
                 .get();
         Optional<Device> device = deviceService.findDeviceById(extensionFor.getDeviceId());
         if (device.isPresent()) {
@@ -75,11 +73,6 @@ public class DeviceCertificationHandler implements ServiceCallHandler {
             device.get().setYearOfCertification(yearOfCertification);
             serviceCall.log(LogLevel.FINE, "Year updated");
             device.get().save();
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                serviceCall.log(LogLevel.WARNING, "Something happened while I was -euh- working: "+e);
-//            }
             serviceCall.log(LogLevel.INFO, "Device updated");
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
