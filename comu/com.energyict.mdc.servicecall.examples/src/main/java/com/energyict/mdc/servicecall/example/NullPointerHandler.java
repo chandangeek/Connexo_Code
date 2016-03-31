@@ -31,7 +31,7 @@ public class NullPointerHandler implements ServiceCallHandler {
 
     @Activate
     public void activate() {
-        System.out.println("Activating captain hook handler");
+        System.out.println("Activating null pointer handler");
     }
 
     @Override

@@ -147,7 +147,7 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
     }
 
     protected void createChildren(ServiceCall serviceCall) {
-        DeviceGroupCertificationDomainExtension extensionFor = serviceCall.getExtensionFor(new DeviceGroupCertificationCustomPropertySet(customPropertySetService))
+        DeviceGroupCertificationDomainExtension extensionFor = serviceCall.getExtensionFor(new DeviceGroupCertificationCustomPropertySet())
                 .get();
 
         Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroup(extensionFor.getDeviceGroupId());
