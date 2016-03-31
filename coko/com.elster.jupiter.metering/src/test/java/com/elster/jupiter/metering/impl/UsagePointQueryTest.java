@@ -158,7 +158,7 @@ public class UsagePointQueryTest {
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).withServiceLocation(location).create();
         usagePoint.setServiceLocation(location);
         ElectricityDetailImpl detail = (ElectricityDetailImpl) serviceCategory.newUsagePointDetail(usagePoint, Instant.now());
-        detail.setRatedPower(Unit.WATT_HOUR.amount(BigDecimal.valueOf(1000),3));
+        detail.setRatedPower(Unit.WATT.amount(BigDecimal.valueOf(1000),3));
         usagePoint.addDetail(detail);
 //        usagePoint.save();
         Query<UsagePoint> query = meteringService.getUsagePointQuery();
