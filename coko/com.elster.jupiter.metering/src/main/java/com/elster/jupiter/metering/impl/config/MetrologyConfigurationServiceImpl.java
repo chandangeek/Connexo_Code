@@ -227,6 +227,11 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
+    public List<ReadingTypeTemplate> getReadingTypeTemplates() {
+        return getDataModel().mapper(ReadingTypeTemplate.class).find();
+    }
+
+    @Override
     public Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id) {
         return getDataModel().mapper(ReadingTypeTemplate.class).getOptional(id);
     }

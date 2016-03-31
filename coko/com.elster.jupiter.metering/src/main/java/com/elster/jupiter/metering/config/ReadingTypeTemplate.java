@@ -40,6 +40,8 @@ public interface ReadingTypeTemplate extends HasId, HasName {
 
     long getVersion();
 
+    void delete();
+
     interface ReadingTypeTemplateUpdater {
         /**
          * Updates attribute in template.

@@ -88,7 +88,7 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     }
 
     @Override
-    public boolean matches(ReadingType candidate) {
+    public boolean matches(ReadingType readingType) {
         if (this.attributeMatchers == null) {
             Map<ReadingTypeTemplateAttributeName, Function<ReadingType, Boolean>> attributeMatchersMap = getReadingTypeTemplate().getAttributes()
                     .stream()
@@ -97,7 +97,7 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
                     rt -> ReadingTypeTemplateAttributeName.getReadingTypeAttributeCode(attr.getName().getDefinition(), rt) == attr.getCode()));
             this.attributeMatchers = attributeMatchersMap.values();
         }
-        return this.attributeMatchers.stream().allMatch(matcher -> matcher.apply(candidate));
+        return this.attributeMatchers.stream().allMatch(matcher -> matcher.apply(readingType));
     }
 
     private Function<ReadingType, Boolean> getMatcherWithSystemPossibleValues(ReadingTypeTemplateAttribute attribute) {

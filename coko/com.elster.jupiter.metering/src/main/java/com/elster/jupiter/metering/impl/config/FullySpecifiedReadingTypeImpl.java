@@ -32,7 +32,7 @@ public class FullySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl im
     }
 
     @Override
-    public boolean matches(ReadingType candidate) {
-        return getReadingType().equals(candidate);
+    public boolean matches(ReadingType readingType) {
+        return getReadingType().equals(readingType);
     }
 }
