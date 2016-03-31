@@ -22,7 +22,7 @@ public class ServiceCallInfo {
     public List<IdWithNameInfo> parents;
     public List<ServiceCallChildrenInfo> children;
     public String type;
-    public String typeVersionName;
+    public long typeId;
     public long numberOfChildren;
     public List<ServiceCallCustomPropertySetInfo> customPropertySets;
     public boolean canCancel;
