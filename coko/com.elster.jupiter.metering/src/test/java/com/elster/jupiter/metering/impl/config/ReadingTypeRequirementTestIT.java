@@ -219,8 +219,8 @@ public class ReadingTypeRequirementTestIT {
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.4.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "DeltaDelta reading type");
         PartiallySpecifiedReadingTypeImpl partiallySpecifiedReadingType =
                 (PartiallySpecifiedReadingTypeImpl) metrologyConfiguration
-                    .newReadingTypeRequirement("Zero partially specified")
-                    .withReadingTypeTemplate(readingTypeTemplate);
+                        .newReadingTypeRequirement("Zero partially specified")
+                        .withReadingTypeTemplate(readingTypeTemplate);
         assertThat(partiallySpecifiedReadingType.matches(readingType)).isTrue();
     }
 
@@ -234,8 +234,8 @@ public class ReadingTypeRequirementTestIT {
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.9.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "DeltaDelta reading type");
         PartiallySpecifiedReadingTypeImpl partiallySpecifiedReadingType =
                 (PartiallySpecifiedReadingTypeImpl) metrologyConfiguration
-                    .newReadingTypeRequirement("Zero partially specified")
-                    .withReadingTypeTemplate(readingTypeTemplate);
+                        .newReadingTypeRequirement("Zero partially specified")
+                        .withReadingTypeTemplate(readingTypeTemplate);
         partiallySpecifiedReadingType.overrideAttribute(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.SUMMATION.getId());
         assertThat(partiallySpecifiedReadingType.matches(readingType)).isTrue();
     }
@@ -249,8 +249,8 @@ public class ReadingTypeRequirementTestIT {
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("24.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Weekly reading type");
         PartiallySpecifiedReadingTypeImpl partiallySpecifiedReadingType =
                 (PartiallySpecifiedReadingTypeImpl) metrologyConfiguration
-                    .newReadingTypeRequirement("Zero partially specified")
-                    .withReadingTypeTemplate(readingTypeTemplate);
+                        .newReadingTypeRequirement("Zero partially specified")
+                        .withReadingTypeTemplate(readingTypeTemplate);
         // System possible values for macro period should be applied
         assertThat(partiallySpecifiedReadingType.matches(readingType)).isFalse();
     }
