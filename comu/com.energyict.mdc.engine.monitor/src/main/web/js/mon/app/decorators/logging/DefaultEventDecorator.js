@@ -15,9 +15,10 @@ Ext.define('CSMonitor.decorators.logging.DefaultEventDecorator', {
             attrib;
         for (attrib in this.getEvent()) {
             if (attrib !== 'timestamp' && attrib !== 'class') {
-                logString += ' \'' + attrib + '\': ' + this.getEvent()[attrib];
+                logString += '\'' + attrib + '\': ' + this.getEvent()[attrib] + ', ';
             }
         }
+        logString = logString.substring(0, logString.length - 2); // Subtract the last ', '
         logString += '}';
         return logString;
     },
