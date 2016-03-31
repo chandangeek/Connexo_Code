@@ -66,7 +66,7 @@ public class UsagePointDetailImplIT {
     private static final Quantity RATED_CURRENT = Unit.AMPERE.amount(BigDecimal.valueOf(14));
     private static final Quantity RATED_POWER = Unit.WATT.amount(BigDecimal.valueOf(156156));
     private static final Quantity RATED_POWER2 = Unit.WATT.amount(BigDecimal.valueOf(156157));
-    private static final Quantity LOAD = Unit.WATT_HOUR.amount(BigDecimal.ONE);
+    private static final Quantity LOAD = Unit.VOLT_AMPERE.amount(BigDecimal.valueOf(12345));
 
     private static final Instant JANUARY_2014 = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
     private static final Instant FEBRUARY_2014 = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();

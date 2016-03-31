@@ -317,6 +317,7 @@ public class UsagePointImpl implements UsagePoint {
 
     private void removeDetail() {
         this.getDetail(Range.all()).forEach(detail::remove);
+    }
 
     }
 
