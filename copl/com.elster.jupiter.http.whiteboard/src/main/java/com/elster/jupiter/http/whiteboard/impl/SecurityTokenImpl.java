@@ -142,24 +142,20 @@ public class SecurityTokenImpl {
                         return new TokenValidation(user.isPresent(), user.orElse(null), newToken);
                     } else {
                         if(user.isPresent()) {
-                            logMessage("Token expired for user ", user.get().getName());
+                            logMessage("Token expired for user ", "[" + user.get().getName() + "]");
                         }
                         return new TokenValidation(false, null, null);
                     }
                 }
             } else {
-                if(user.isPresent()) {
-                    logMessage("Token expired for user ", user.get().getName());
-                }
+                logMessage("Invalid token ", "");
                 return new TokenValidation(false, null, null);
             }
 
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        if(user.isPresent()) {
-            logMessage("Token expired for user ", user.get().getName());
-        }
+        logMessage("Invalid token ", "");
         return new TokenValidation(false, null, null);
     }
 
