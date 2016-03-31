@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -92,6 +93,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
         Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
+        Optional<GeoCoordinates> geoCoordinates =meteringService.findDeviceGeoCoordinates(device.getmRID());
         String formattedLocation = "";
         if(location.isPresent()){
             Optional<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
@@ -104,7 +106,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                 }
             }
         }
-        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation);
+        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates.isPresent()?geoCoordinates.get().toString():null);
     }
 
     @Override
@@ -137,6 +139,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         infos.add(0, createDescription("serialNumber", String.class));
         infos.add(0, createDescription("mRID", String.class));
         infos.add(0, createDescription("location", String.class));
+        infos.add(0, createDescription("geoCoordinates", String.class));
         return infos;
     }
 

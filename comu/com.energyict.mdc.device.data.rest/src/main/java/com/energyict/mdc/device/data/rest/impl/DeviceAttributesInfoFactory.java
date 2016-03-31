@@ -1,10 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
@@ -43,8 +42,10 @@ public class DeviceAttributesInfoFactory {
     }
 
     public DeviceAttributesInfo from(Device device) {
+        State state = device.getState();
         DeviceAttributesInfo info = new DeviceAttributesInfo();
         Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
+        Optional<GeoCoordinates> geoCoordinates = meteringService.findDeviceGeoCoordinates(device.getmRID());
         String formattedLocation = "";
         if(location.isPresent()){
             Optional<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
@@ -56,13 +57,17 @@ public class DeviceAttributesInfoFactory {
                     formattedLocation += formattedLocationMembers.get().get(i) != null ? formattedLocationMembers.get().get(i) : "";
                 }
             }
+            info.device = DeviceInfo.from(device, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
+            info.location = new DeviceAttributeInfo();
+            info.location.displayValue = formattedLocation;
+            fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);
         }
-        info.device = DeviceInfo.from(device, formattedLocation);
-        State state = device.getState();
 
-        info.location = new DeviceAttributeInfo();
-        info.location.displayValue = formattedLocation;
-        fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);
+        info.device = DeviceInfo.from(device, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
+        info.geoCoordinates = new DeviceAttributeInfo();
+        info.geoCoordinates.displayValue = geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null;
+        fillAvailableAndEditable(info.geoCoordinates, DeviceAttribute.GEOCOORDINATES, state);
+
 
         info.mrid = new DeviceAttributeInfo();
         info.mrid.displayValue = device.getmRID();

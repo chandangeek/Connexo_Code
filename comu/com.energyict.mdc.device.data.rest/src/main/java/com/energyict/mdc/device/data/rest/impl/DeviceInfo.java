@@ -55,11 +55,12 @@ public class DeviceInfo extends DeviceVersionInfo {
     public DeviceLifeCycleStateInfo state;
     public String location;
     public LocationInfo locationInfo;
+    public String geoCoordinates;
 
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus, String location) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus, String location, String geoCoordinates) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
@@ -102,7 +103,13 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, null, deviceState);
         deviceInfo.version = device.getVersion();
         deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
-        deviceInfo.location = location;
+        if(geoCoordinates !=null){
+            deviceInfo.geoCoordinates = geoCoordinates;
+        }
+        if(location!=null){
+            deviceInfo.location = location;
+        }
+
         return deviceInfo;
     }
 
@@ -115,7 +122,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         return issueDataValidationService.findAllDataValidationIssues(filter).stream().findFirst();
     }
 
-    public static DeviceInfo from(Device device, String location) {
+    public static DeviceInfo from(Device device, String location, String geoCoordinates) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
@@ -128,6 +135,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.version = device.getVersion();
         deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         deviceInfo.location = location;
+        deviceInfo.geoCoordinates = geoCoordinates;
         return deviceInfo;
     }
 
