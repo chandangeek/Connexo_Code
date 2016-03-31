@@ -53,6 +53,7 @@ public class DeviceInfo extends DeviceVersionInfo {
     public Boolean hasLoadProfiles;
     public Boolean isDirectlyAddressed;
     public Boolean isGateway;
+    public Boolean isDataLogger;
     public String serviceCategory;
     public String usagePoint;
     public DeviceEstimationStatusInfo estimationStatus;
@@ -90,6 +91,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
         deviceInfo.isDirectlyAddressed = deviceConfiguration.isDirectlyAddressable();
         deviceInfo.isGateway = deviceConfiguration.canActAsGateway();
+        deviceInfo.isDataLogger = deviceConfiguration.isDataloggerEnabled();
         Optional<? extends MeterActivation> meterActivation = device.getCurrentMeterActivation();
         if (meterActivation.isPresent()) {
             meterActivation.map(MeterActivation::getUsagePoint)
