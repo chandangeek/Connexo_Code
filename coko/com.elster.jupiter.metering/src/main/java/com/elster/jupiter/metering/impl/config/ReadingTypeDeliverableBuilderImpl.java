@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.FormulaBuilder;
@@ -44,12 +45,18 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
 
     @Override
     public FormulaBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable) {
+        if (!readingTypeDeliverable.getMetrologyConfiguration().equals(metrologyConfiguration)) {
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.getId());
+        }
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.deliverable(readingTypeDeliverable));
     }
 
     @Override
-    public FormulaBuilder requirement(ReadingTypeRequirement value) {
-        return new FormulaAndExpressionNodeBuilder(formulaBuilder.requirement(value));
+    public FormulaBuilder requirement(ReadingTypeRequirement requirement) {
+        if (!requirement.getMetrologyConfiguration().equals(metrologyConfiguration)) {
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) requirement.getId());
+        }
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.requirement(requirement));
     }
 
     @Override
@@ -137,4 +144,6 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
             return this.expressionNodeBuilder.create();
         }
     }
+
+
 }

@@ -76,12 +76,12 @@ public class FormulaCrudTest {
                     inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
             assertThat(serviceCategory.isPresent());
             MetrologyConfigurationBuilder metrologyConfigurationBuilder =
-                    service.newMetrologyConfiguration("test", serviceCategory.get());
+                    service.newMetrologyConfiguration("config", serviceCategory.get());
             MetrologyConfiguration config = metrologyConfigurationBuilder.create();
             assertThat(config != null);
             ReadingType readingType =
                     inMemoryBootstrapModule.getMeteringService().createReadingType(
-                            "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
+                            "0.0.1.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype");
             assertThat(readingType != null);
             config.newReadingTypeRequirement("Aplus").withReadingType(readingType);
 
@@ -454,7 +454,7 @@ public class FormulaCrudTest {
                     inMemoryBootstrapModule.getMeteringService().createReadingType(
                             "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
             assertThat(readingType != null);
-            config.addReadingTypeRequirement("Aplus").withReadingType(readingType);
+            config.newReadingTypeRequirement("Aplus").withReadingType(readingType);
 
             assertThat(config.getRequirements().size() == 1);
             ReadingTypeRequirement req = service.findReadingTypeRequirement(
@@ -466,8 +466,7 @@ public class FormulaCrudTest {
             MetrologyConfiguration config2 = metrologyConfigurationBuilder.create();
 
             ReadingTypeDeliverableBuilder builder =
-                    service.newReadingTypeDeliverableBuilder("deliverable", config2, readingType, Formula.Mode.AUTO);
-
+                    config2.newReadingTypeDeliverable("deliverable", readingType, Formula.Mode.AUTO);
 
            try {
                builder.build(builder.requirement(req));
