@@ -107,7 +107,6 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         return factory.createImporter(properties);
     }
 
-    @Ignore
     @Test
     public void testActivateTransitionIsNotSupportedByImporter() {
         String csv = "Device MRID;Transition date;Activate\n" +
@@ -136,7 +135,7 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         verify(logger, never()).severe(Matchers.anyString());
     }
 
-    @Ignore
+
     @Test
     public void testDeactivateTransitionIsNotSupportedByImporter() {
         String csv = "Device MRID;Transition date;Activate\n" +

@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
@@ -28,6 +26,25 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
 
     public DeviceInstallationImportProcessor(DeviceDataImporterContext context) {
         super(context);
+    }
+
+    @Override
+    protected void beforeTransition(Device device, DeviceInstallationImportRecord data) throws ProcessorException {
+        LocationBuilder builder = super.getContext().getMeteringService().newLocationBuilder();
+        EndDevice endDevice = super.getContext().getMeteringService().findEndDevice(data.getDeviceMRID())
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
+        Map<String, Integer> ranking = super.getContext().getMeteringService().getLocationTemplate().getRankings();
+        Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(data.getLocation().get(ranking.get("locale")));
+        if (memberBuilder.isPresent()) {
+            setLocationAttributes(memberBuilder.get(), data, ranking);
+            endDevice.setLocation(builder.create());
+        } else {
+            setLocationAttributes(builder.member(), data, ranking).add();
+            endDevice.setLocation(builder.create());
+        }
+        endDevice.setGeoCoordintes(super.getContext().getMeteringService()
+                .createGeoCoordinates(data.getGeoCoordinates().stream().reduce((s, t) -> s + ":" + t).get()));
+        endDevice.update();
     }
 
     @Override
@@ -105,5 +122,24 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
             }
         }
         return executableActionProperties;
+    }
+
+    private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, DeviceInstallationImportRecord data, Map<String, Integer> ranking) {
+        builder.setCountryCode(data.getLocation().get(ranking.get("countryCode")))
+                .setCountryName(data.getLocation().get(ranking.get("countryName")))
+                .setAdministrativeArea(data.getLocation().get(ranking.get("administrativeArea")))
+                .setLocality(data.getLocation().get(ranking.get("locality")))
+                .setSubLocality(data.getLocation().get(ranking.get("subLocality")))
+                .setStreetType(data.getLocation().get(ranking.get("streetType")))
+                .setStreetName(data.getLocation().get(ranking.get("streetName")))
+                .setStreetNumber(data.getLocation().get(ranking.get("streetNumber")))
+                .setEstablishmentType(data.getLocation().get(ranking.get("establishmentType")))
+                .setEstablishmentName(data.getLocation().get(ranking.get("establishmentName")))
+                .setEstablishmentNumber(data.getLocation().get(ranking.get("establishmentNumber")))
+                .setAddressDetail(data.getLocation().get(ranking.get("addressDetail")))
+                .setZipCode(data.getLocation().get(ranking.get("zipCode")))
+                .isDaultLocation(true)
+                .setLocale(data.getLocation().get(ranking.get("locale")));
+        return builder;
     }
 }

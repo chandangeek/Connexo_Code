@@ -63,44 +63,10 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     }
 
     protected void beforeTransition(Device device, T data) throws ProcessorException {
-        LocationBuilder builder = context.getMeteringService().newLocationBuilder();
-        EndDevice endDevice = context.getMeteringService().findEndDevice(data.getDeviceMRID())
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
-        Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getRankings();
-        Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(data.getLocation().get(ranking.get("locale")));
-        if (memberBuilder.isPresent()) {
-            setLocationAttributes(memberBuilder.get(), data, ranking);
-            endDevice.setLocation(builder.create());
-        } else {
-            setLocationAttributes(builder.member(), data, ranking).add();
-            endDevice.setLocation(builder.create());
-        }
-        endDevice.setGeoCoordintes(context.getMeteringService()
-                .createGeoCoordinates(data.getGeoCoordinates().stream().reduce((s, t) -> s + ":" + t).get()));
-        endDevice.update();
     }
 
     protected void afterTransition(Device device, T data, FileImportLogger logger) throws ProcessorException {
         device.save();
-    }
-
-    private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, T data, Map<String, Integer> ranking) {
-        builder.setCountryCode(data.getLocation().get(ranking.get("countryCode")))
-                .setCountryName(data.getLocation().get(ranking.get("countryName")))
-                .setAdministrativeArea(data.getLocation().get(ranking.get("administrativeArea")))
-                .setLocality(data.getLocation().get(ranking.get("locality")))
-                .setSubLocality(data.getLocation().get(ranking.get("subLocality")))
-                .setStreetType(data.getLocation().get(ranking.get("streetType")))
-                .setStreetName(data.getLocation().get(ranking.get("streetName")))
-                .setStreetNumber(data.getLocation().get(ranking.get("streetNumber")))
-                .setEstablishmentType(data.getLocation().get(ranking.get("establishmentType")))
-                .setEstablishmentName(data.getLocation().get(ranking.get("establishmentName")))
-                .setEstablishmentNumber(data.getLocation().get(ranking.get("establishmentNumber")))
-                .setAddressDetail(data.getLocation().get(ranking.get("addressDetail")))
-                .setZipCode(data.getLocation().get(ranking.get("zipCode")))
-                .isDaultLocation(true)
-                .setLocale(data.getLocation().get(ranking.get("locale")));
-        return builder;
     }
 
     private void performDeviceTransition(T data, Device device, FileImportLogger logger) {
