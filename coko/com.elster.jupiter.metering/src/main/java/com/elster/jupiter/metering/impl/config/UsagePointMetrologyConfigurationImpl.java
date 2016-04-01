@@ -4,9 +4,12 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointRequirement;
+import com.elster.jupiter.search.SearchablePropertyValue;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,6 +19,7 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
 
     private List<MetrologyConfigurationMeterRoleUsageImpl> meterRoles = new ArrayList<>();
     private List<ReadingTypeRequirementMeterRoleUsage> requirementToRoleUsages = new ArrayList<>();
+    private List<UsagePointRequirement> usagePointRequirements = new ArrayList<>();
 
     @Inject
     UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
@@ -75,4 +79,34 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
         return new UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(getMetrologyConfigurationService(), this, name);
     }
 
+    @Override
+    public UsagePointRequirement addUsagePointRequirement(SearchablePropertyValue.ValueBean valueBean) {
+        Optional<UsagePointRequirementImpl> existedUsagePointRequirement = getUsagePointRequirements()
+                .stream()
+                .filter(requirement -> requirement.getSearchablePropertyName().equals(valueBean.propertyName))
+                .findAny()
+                .map(UsagePointRequirementImpl.class::cast);
+        UsagePointRequirementImpl usagePointRequirement = existedUsagePointRequirement
+                .orElseGet(() -> getMetrologyConfigurationService().getDataModel().getInstance(UsagePointRequirementImpl.class))
+                .init(this, valueBean);
+        Save.CREATE.validate(getMetrologyConfigurationService().getDataModel(), usagePointRequirement);
+        if (!existedUsagePointRequirement.isPresent()) {
+            this.usagePointRequirements.add(usagePointRequirement);
+        } else {
+            getMetrologyConfigurationService().getDataModel().update(usagePointRequirement);
+        }
+        return usagePointRequirement;
+    }
+
+    @Override
+    public void removeUsagePointRequirement(UsagePointRequirement requirement) {
+        if (this.usagePointRequirements.remove(requirement)) {
+            touch();
+        }
+    }
+
+    @Override
+    public List<UsagePointRequirement> getUsagePointRequirements() {
+        return Collections.unmodifiableList(this.usagePointRequirements);
+    }
 }

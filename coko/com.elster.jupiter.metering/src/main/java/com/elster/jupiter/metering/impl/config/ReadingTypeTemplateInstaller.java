@@ -289,15 +289,14 @@ public class ReadingTypeTemplateInstaller {
 
     private static class Template {
 
-        private final ReadingTypeTemplate template;
-        private ReadingTypeTemplate.ReadingTypeTemplateUpdater updater;
+        private final ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter updater;
 
-        Template(ServerMetrologyConfigurationService metrologyConfigurationService, DefaultReadingTypeTemplate deaultTemplate) {
-            this.template = metrologyConfigurationService.createReadingTypeTemplate(deaultTemplate);
-            this.updater = this.template.startUpdate();
+        Template(ServerMetrologyConfigurationService metrologyConfigurationService, DefaultReadingTypeTemplate defaultTemplate) {
+            this.updater = metrologyConfigurationService.createReadingTypeTemplate(defaultTemplate);
         }
 
-        <T> Template withValues(ReadingTypeTemplateAttributeName attr, T... values) {
+        @SafeVarargs
+        final <T> Template withValues(ReadingTypeTemplateAttributeName attr, T... values) {
             if (values != null && values.length > 0) {
                 Integer[] possibleValues = new Integer[values.length];
                 for (int i = 0; i < values.length; i++) {

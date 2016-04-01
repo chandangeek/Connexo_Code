@@ -32,6 +32,7 @@ public interface ServerFormulaBuilder extends FormulaBuilder {
     Formula build();
 
     ServerFormulaBuilder init(ExpressionNodeBuilder nodeBuilder);
+
     ServerFormulaBuilder init(ExpressionNode expressionNode);
 
 }

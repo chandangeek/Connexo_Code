@@ -7,7 +7,11 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-public class MetrologyContractReadingTypeDeliverableUsage {
+import javax.validation.ConstraintValidatorContext;
+
+@SelfValid
+public class MetrologyContractReadingTypeDeliverableUsage implements SelfObjectValidator {
+
     public enum Fields {
         METROLOGY_CONTRACT("metrologyContract"),
         DELIVERABLE("deliverable"),;
@@ -32,6 +36,19 @@ public class MetrologyContractReadingTypeDeliverableUsage {
         this.metrologyContract.set(metrologyContract);
         this.deliverable.set(deliverable);
         return this;
+    }
+
+    @Override
+    public boolean validate(ConstraintValidatorContext context) {
+        if (getMetrologyContract() != null && getDeliverable() != null
+                && !getMetrologyContract().getMetrologyConfiguration().equals(getDeliverable().getMetrologyConfiguration())) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION + "}")
+                    .addPropertyNode(Fields.DELIVERABLE.fieldName())
+                    .addConstraintViolation();
+            return false;
+        }
+        return true;
     }
 
     public MetrologyContract getMetrologyContract() {

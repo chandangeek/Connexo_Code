@@ -57,7 +57,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         METROLOGY_CONTRACTS("metrologyContracts"),
         METER_ROLES("meterRoles"),
         DELIVERABLES("deliverables"),
-        REQUIREMENT_TO_ROLE_REFERENCES("requirementToRoleReferences"),;
+        REQUIREMENT_TO_ROLE_REFERENCES("requirementToRoleReferences"),
+        USAGE_POINT_REQUIREMENTS("usagePointRequirements"),;
 
         private final String javaFieldName;
 
@@ -294,9 +295,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public ReadingTypeDeliverable addReadingTypeDeliverable(String name, ReadingType readingType, Formula formula) {
-        if (!UnitConversionSupport.isAssignable(
-                readingType,
-                formula.getExpressionNode().getDimension())) {
+        if (readingType != null && !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
             throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA);
         }
         ReadingTypeDeliverableImpl deliverable = this.metrologyConfigurationService.getDataModel().getInstance(ReadingTypeDeliverableImpl.class)

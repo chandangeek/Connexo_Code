@@ -47,7 +47,7 @@ public interface MetrologyConfigurationService {
 
     Optional<MeterRole> findMeterRole(String key);
 
-    ReadingTypeTemplate createReadingTypeTemplate(String name);
+    ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter createReadingTypeTemplate(String name);
 
     List<ReadingTypeTemplate> getReadingTypeTemplates();
 
@@ -60,8 +60,6 @@ public interface MetrologyConfigurationService {
     MetrologyPurpose createMetrologyPurpose(NlsKey name, NlsKey description);
 
     Optional<MetrologyPurpose> findMetrologyPurpose(long id);
-
-    Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
 
     List<MetrologyPurpose> getMetrologyPurposes();
 

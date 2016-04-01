@@ -31,9 +31,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import static org.junit.Assert.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FormulaCrudTest {
@@ -170,7 +171,7 @@ public class FormulaCrudTest {
 
     @Test
     // formula by using the builder = max(10, plus(10, 0)) function call + operator call + constants
-    public void test3LevelNodeStructureCrud()  {
+    public void test3LevelNodeStructureCrud() {
 
         Formula.Mode myMode = Formula.Mode.EXPERT;
         Function myFunction = Function.MAX;
@@ -279,7 +280,7 @@ public class FormulaCrudTest {
 
     @Test
     // formula by using the builder = max(10, plus(10, 0)) function call + operator call + constants
-    public void test3LevelNodeStructureCrudUsingParser()  {
+    public void test3LevelNodeStructureCrudUsingParser() {
 
         Formula.Mode myMode = Formula.Mode.EXPERT;
         Function myFunction = Function.MAX;
@@ -318,7 +319,7 @@ public class FormulaCrudTest {
 
     @Test
     // formula by using the builder = max(10, plus(10, 0)) function call + operator call + constants
-    public void test4LevelNodeStructureCrudUsingParser()  {
+    public void test4LevelNodeStructureCrudUsingParser() {
 
         Formula.Mode myMode = Formula.Mode.EXPERT;
         try (TransactionContext context = getTransactionService().getContext()) {
@@ -344,7 +345,7 @@ public class FormulaCrudTest {
     }
 
     @Test
-    public void testParser()  {
+    public void testParser() {
         try (TransactionContext context = getTransactionService().getContext()) {
             ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
             String formulaString = "multiply(sum(max(constant(10), constant(0)), constant(5), constant(3)), constant(2))";
@@ -468,11 +469,11 @@ public class FormulaCrudTest {
             ReadingTypeDeliverableBuilder builder =
                     config2.newReadingTypeDeliverable("deliverable", readingType, Formula.Mode.AUTO);
 
-           try {
-               builder.build(builder.requirement(req));
-            fail("InvalidNodeException expected");
+            try {
+                builder.build(builder.requirement(req));
+                fail("InvalidNodeException expected");
             } catch (InvalidNodeException e) {
-                assertEquals(e.getMessage(),"The requirement with id '" + req.getId() + "' cannot be used because it has a different metrology configuration.");
+                assertEquals(e.getMessage(), "The requirement with id '" + req.getId() + "' cannot be used because it has a different metrology configuration.");
             }
 
 
@@ -562,14 +563,13 @@ public class FormulaCrudTest {
                 builder.build(builder.requirement(req));
                 fail("InvalidNodeException expected");
             } catch (InvalidNodeException e) {
-                assertEquals(e.getMessage(),"The readingtype is not compatible with the dimension of the formula.");
+                assertEquals(e.getMessage(), "The readingtype is not compatible with the dimension of the formula.");
             }
 
 
             context.commit();
         }
     }
-
 
 
 }

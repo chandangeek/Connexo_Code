@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
@@ -53,6 +54,8 @@ import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateAttributeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateAttributeValueImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
+import com.elster.jupiter.metering.impl.config.UsagePointRequirementImpl;
+import com.elster.jupiter.metering.impl.config.UsagePointRequirementValue;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -893,9 +896,9 @@ public enum TableSpecs {
             table.column("CONSTANTVALUE").number().map("constantValue").add();
 
             // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
-            Column readingTypeDeliverableColumn = table.column("READINGTYPE_DELIVERABLE").number().add();
+            table.column("READINGTYPE_DELIVERABLE").number().add();
             // ReadingTypeRequirementNodeImpl readingTypeRequirement value
-            Column readingTypeRequirementColumn = table.column("READINGTYPE_REQUIREMENT").number().add();
+            table.column("READINGTYPE_REQUIREMENT").number().add();
 
             table.primaryKey("MTR_PK_FORMULA_NODE").on(idColumn).add();
             table.foreignKey("MTR_VALIDCHILD").references(MTR_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
@@ -1079,7 +1082,7 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("REQTYPE", "char(3)");
-            table.column(ReadingTypeRequirementImpl.Fields.NAME.name())
+            Column nameColumn = table.column(ReadingTypeRequirementImpl.Fields.NAME.name())
                     .varChar(NAME_LENGTH)
                     .notNull()
                     .map(ReadingTypeRequirementImpl.Fields.NAME.fieldName())
@@ -1100,6 +1103,8 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey("MTR_RT_REQUIREMENT_PK").on(idColumn).add();
+            table.unique("MTR_RT_REQUIREMENT_NAME_UQ").on(nameColumn, metrologyConfigColumn).add();
+            table.unique("MTR_RT_REQUIREMENT_RT_UQ").on(readingTypeColumn, metrologyConfigColumn).add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
@@ -1332,6 +1337,76 @@ public enum TableSpecs {
                     .references(ReadingTypeDeliverable.class)
                     .on(deliverableColumn)
                     .map(MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.fieldName())
+                    .add();
+        }
+    },
+    MTR_UP_REQUIREMENT {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointRequirement> table = dataModel.addTable(name(), UsagePointRequirement.class);
+            table.map(UsagePointRequirementImpl.class);
+
+            Column metrologyConfigurationColumn = table.column(UsagePointRequirementImpl.Fields.METROLOGY_CONFIGURATION.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column searchablePropertyColumn = table.column(UsagePointRequirementImpl.Fields.SEARCHABLE_PROPERTY.name())
+                    .varChar(Table.SHORT_DESCRIPTION_LENGTH)
+                    .notNull()
+                    .map(UsagePointRequirementImpl.Fields.SEARCHABLE_PROPERTY.fieldName())
+                    .add();
+            table.column(UsagePointRequirementImpl.Fields.OPERATOR.name())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2ENUM)
+                    .map(UsagePointRequirementImpl.Fields.OPERATOR.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_UP_REQUIREMENT_PK").on(metrologyConfigurationColumn, searchablePropertyColumn).add();
+            table.foreignKey("MTR_UP_REQUIREMENT_2_CONFIG")
+                    .on(metrologyConfigurationColumn)
+                    .references(UsagePointMetrologyConfiguration.class)
+                    .map(UsagePointRequirementImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .reverseMap(MetrologyConfigurationImpl.Fields.USAGE_POINT_REQUIREMENTS.fieldName())
+                    .composition()
+                    .onDelete(CASCADE)
+                    .add();
+        }
+    },
+    MTR_UP_REQUIREMENT_VALUE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointRequirementValue> table = dataModel.addTable(name(), UsagePointRequirementValue.class);
+            table.map(UsagePointRequirementValue.class);
+            Column metrologyConfigurationColumn = table.column(UsagePointRequirementImpl.Fields.METROLOGY_CONFIGURATION.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column searchablePropertyColumn = table.column(UsagePointRequirementImpl.Fields.SEARCHABLE_PROPERTY.name())
+                    .varChar(Table.SHORT_DESCRIPTION_LENGTH)
+                    .notNull()
+                    .add();
+            Column positionColumn = table.column(UsagePointRequirementValue.Fields.POSITION.name())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INT)
+                    .map(UsagePointRequirementValue.Fields.POSITION.fieldName())
+                    .add();
+            table.column(UsagePointRequirementValue.Fields.VALUE.name())
+                    .varChar(Table.SHORT_DESCRIPTION_LENGTH)
+                    .notNull()
+                    .map(UsagePointRequirementValue.Fields.VALUE.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_UP_REQUIREMENT_VALUE_PK").on(metrologyConfigurationColumn, searchablePropertyColumn, positionColumn).add();
+            table.foreignKey("MTR_UP_REQ_VALUE_2_REQ")
+                    .on(metrologyConfigurationColumn, searchablePropertyColumn)
+                    .references(UsagePointRequirement.class)
+                    .map(UsagePointRequirementValue.Fields.USAGE_POINT_REQUIREMENT.fieldName())
+                    .reverseMap(UsagePointRequirementImpl.Fields.CONDITION_VALUES.fieldName())
+                    .reverseMapOrder(UsagePointRequirementValue.Fields.POSITION.fieldName())
+                    .composition()
+                    .onDelete(CASCADE)
                     .add();
         }
     },

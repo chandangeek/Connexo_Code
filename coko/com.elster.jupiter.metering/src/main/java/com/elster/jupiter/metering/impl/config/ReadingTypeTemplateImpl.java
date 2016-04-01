@@ -142,8 +142,8 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     }
 
     @Override
-    public ReadingTypeTemplateUpdater startUpdate() {
-        return new ReadingTypeTemplateUpdaterImpl(this);
+    public ReadingTypeTemplateAttributeSetter startUpdate() {
+        return new ReadingTypeTemplateAttributeSetterImpl(this);
     }
 
     @Override
@@ -163,25 +163,25 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
         this.dataModel.mapper(ReadingTypeTemplate.class).remove(this);
     }
 
-    private static class ReadingTypeTemplateUpdaterImpl implements ReadingTypeTemplateUpdater {
+    private static class ReadingTypeTemplateAttributeSetterImpl implements ReadingTypeTemplateAttributeSetter {
 
         private final ReadingTypeTemplateImpl template;
         private List<ReadingTypeTemplateAttributeImpl> attributes;
 
-        private ReadingTypeTemplateUpdaterImpl(ReadingTypeTemplateImpl template) {
+        private ReadingTypeTemplateAttributeSetterImpl(ReadingTypeTemplateImpl template) {
             this.template = template;
             this.attributes = new ArrayList<>();
         }
 
         @Override
-        public ReadingTypeTemplateUpdater setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues) {
+        public ReadingTypeTemplateAttributeSetter setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues) {
             attributes.add(template.dataModel.getInstance(ReadingTypeTemplateAttributeImpl.class)
                     .init(template, name, code, possibleValues));
             return this;
         }
 
         @Override
-        public void done() {
+        public ReadingTypeTemplate done() {
             if (!this.attributes.isEmpty()) {
                 this.template.allAttributes.removeAll(this.attributes);
                 this.template.allAttributes.addAll(this.attributes);
@@ -197,8 +197,14 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
                     }
                 }
                 this.template.persistedAttributes.addAll(this.attributes);
-                this.template.dataModel.touch(this.template);
+                if (this.template.getId() > 0) {
+                    this.template.dataModel.touch(this.template);
+                }
             }
+            if (this.template.getId() == 0) {
+                this.template.save();
+            }
+            return this.template;
         }
     }
 }

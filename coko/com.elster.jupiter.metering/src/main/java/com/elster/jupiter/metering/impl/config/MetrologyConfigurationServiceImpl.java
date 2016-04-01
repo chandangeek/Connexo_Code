@@ -6,7 +6,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
-import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -211,19 +210,20 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public ReadingTypeTemplate createReadingTypeTemplate(String name) {
+    public ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter createReadingTypeTemplate(String name) {
         ReadingTypeTemplateImpl template = getDataModel().getInstance(ReadingTypeTemplateImpl.class)
                 .init(name);
-        template.save();
-        return template;
+        return template.startUpdate();
     }
 
     @Override
-    public ReadingTypeTemplate createReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate) {
-        ReadingTypeTemplateImpl template = getDataModel().getInstance(ReadingTypeTemplateImpl.class)
-                .init(defaultTemplate);
-        template.save();
-        return template;
+    public ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter createReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate) {
+        ReadingTypeTemplateImpl template = getDataModel().query(ReadingTypeTemplateImpl.class)
+                .select(where(ReadingTypeTemplateImpl.Fields.DEFAULT_TEMPLATE.fieldName()).isEqualTo(defaultTemplate))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> getDataModel().getInstance(ReadingTypeTemplateImpl.class).init(defaultTemplate));
+        return template.startUpdate();
     }
 
     @Override

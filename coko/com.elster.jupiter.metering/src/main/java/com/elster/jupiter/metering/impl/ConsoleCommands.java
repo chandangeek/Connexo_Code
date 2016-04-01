@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -16,6 +15,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
+import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
@@ -164,6 +164,7 @@ public class ConsoleCommands {
             threadPrincipalService.clear();
         }
     }
+
     public void addUsagePointToCurrentMeterActivation() {
         System.out.println("Usage: addUsagePointToCurrentMeterActivation <mRID> <usage point mRID>");
     }
@@ -233,7 +234,7 @@ public class ConsoleCommands {
             File eventData = new File(dataFile);
             try (Scanner scanner = new Scanner(eventData)) {
                 List<String> lines = new ArrayList<>();
-                while (scanner.hasNextLine()){
+                while (scanner.hasNextLine()) {
                     lines.add(scanner.nextLine());
                 }
 
@@ -272,7 +273,7 @@ public class ConsoleCommands {
 
     public void updateFormula(long id, String formulaString) {
         try (TransactionContext context = transactionService.getContext()) {
-            Optional<Formula> formula =  metrologyConfigurationService.findFormula(id);
+            Optional<Formula> formula = metrologyConfigurationService.findFormula(id);
             if (!formula.isPresent()) {
                 System.out.println("No formula found with id " + id);
             } else {
@@ -305,7 +306,7 @@ public class ConsoleCommands {
     }
 
     public void metrologyConfigs() {
-        for (MetrologyConfiguration config: metrologyConfigurationService.findAllMetrologyConfigurations()) {
+        for (MetrologyConfiguration config : metrologyConfigurationService.findAllMetrologyConfigurations()) {
             System.out.println(config.getId() + ": " + config.getName());
         }
     }
@@ -337,10 +338,10 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
                     .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
-            ReadingTypeTemplate template = metrologyConfigurationService.createReadingTypeTemplate(DefaultReadingTypeTemplate.valueOf(defaultTemplate));
+            ReadingTypeTemplate template = metrologyConfigurationService.createReadingTypeTemplate(DefaultReadingTypeTemplate.valueOf(defaultTemplate)).done();
 
             metrologyConfiguration.newReadingTypeRequirement(name)
-                .withReadingTypeTemplate(template);
+                    .withReadingTypeTemplate(template);
             context.commit();
         }
     }

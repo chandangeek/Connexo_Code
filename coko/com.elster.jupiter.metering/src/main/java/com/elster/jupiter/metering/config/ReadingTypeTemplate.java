@@ -1,9 +1,10 @@
 package com.elster.jupiter.metering.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.Set;
 
@@ -22,7 +23,7 @@ public interface ReadingTypeTemplate extends HasId, HasName {
      */
     ReadingTypeTemplateAttribute getAttribute(ReadingTypeTemplateAttributeName attributeName);
 
-    ReadingTypeTemplateUpdater startUpdate();
+    ReadingTypeTemplateAttributeSetter startUpdate();
 
     /**
      * Indicates that one or more attributes does not define nor specific code, nor possible values.
@@ -42,7 +43,7 @@ public interface ReadingTypeTemplate extends HasId, HasName {
 
     void delete();
 
-    interface ReadingTypeTemplateUpdater {
+    interface ReadingTypeTemplateAttributeSetter {
         /**
          * Updates attribute in template.
          *
@@ -51,8 +52,8 @@ public interface ReadingTypeTemplate extends HasId, HasName {
          * @param possibleValues possible attribute values
          * @return the updater
          */
-        ReadingTypeTemplateUpdater setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues);
+        ReadingTypeTemplateAttributeSetter setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues);
 
-        void done();
+        ReadingTypeTemplate done();
     }
 }
