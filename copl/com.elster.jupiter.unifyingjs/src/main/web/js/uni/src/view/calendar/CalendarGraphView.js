@@ -174,7 +174,6 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
                         color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
                         style: {
                             textShadow: false,
-                            opacity: 0.7,
                             fontWeight: 'normal',
                             fontSize: '16px',
                             fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
