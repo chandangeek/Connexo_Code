@@ -91,29 +91,6 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         return DeviceSearchInfo.from(device, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus);
     }
 
-    public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
-        Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
-        Optional<GeoCoordinates> geoCoordinates =meteringService.findDeviceGeoCoordinates(device.getmRID());
-        String formattedLocation = "";
-        if(location.isPresent()){
-            Optional<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
-            if(formattedLocationMembers.isPresent()){
-                for(int i=0; i < formattedLocationMembers.get().size(); i++){
-                    if(i != 0 && formattedLocationMembers.get().get(i) != null){
-                        formattedLocation += ", ";
-                    }
-                    formattedLocation += formattedLocationMembers.get().get(i) != null ? formattedLocationMembers.get().get(i) : "";
-                }
-            }
-        }
-        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates.isPresent()?geoCoordinates.get().toString():null);
-    }
-
-    @Override
-    public Class<Device> getDomainClass() {
-        return Device.class;
-    }
-
     @Override
     public List<PropertyDescriptionInfo> modelStructure() {
         List<PropertyDescriptionInfo> infos = new ArrayList<>(21);
@@ -133,14 +110,39 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         Collections.sort(infos, Comparator.comparing(pdi -> pdi.propertyName));
 
         // Default columns in proper order
+        infos.add(0, createDescription("location", String.class));
         infos.add(0, new PropertyDescriptionInfo("state.name", String.class, thesaurus.getFormat(DeviceSearchModelTranslationKeys.STATE).format()));
         infos.add(0, createDescription("deviceConfigurationName", String.class));
         infos.add(0, createDescription("deviceTypeName", String.class));
         infos.add(0, createDescription("serialNumber", String.class));
         infos.add(0, createDescription("mRID", String.class));
-        infos.add(0, createDescription("location", String.class));
         infos.add(0, createDescription("geoCoordinates", String.class));
         return infos;
+    }
+
+    @Override
+    public Class<Device> getDomainClass() {
+        return Device.class;
+    }
+
+    public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
+        Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
+        Optional<GeoCoordinates> geoCoordinates = meteringService.findDeviceGeoCoordinates(device.getmRID());
+        String formattedLocation = "";
+        if (location.isPresent()) {
+            Optional<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
+            if (formattedLocationMembers.isPresent()) {
+                for (int i = 0; i < formattedLocationMembers.get().size(); i++) {
+                    if (i != 0 && formattedLocationMembers.get().get(i) != null) {
+                        formattedLocation += ", ";
+                    }
+                    formattedLocation += formattedLocationMembers.get().get(i) != null ? formattedLocationMembers.get().get(i) : "";
+                }
+            }
+        }
+        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates
+                .get()
+                .toString() : null);
     }
 
     private PropertyDescriptionInfo createDescription(String propertyName, Class<?> aClass) {
