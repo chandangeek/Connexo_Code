@@ -140,11 +140,11 @@ public class MbusProvider {
 	 */
 	protected String constructShortId(Unsigned16 manufacturer, Unsigned32 identification, Unsigned8 version, Unsigned8 deviceType){
 		StringBuilder strBuilder = new StringBuilder();
-
-		strBuilder.append((char)(((manufacturer.getValue()&0x7D00)/32/32)+64));
-		strBuilder.append((char)(((manufacturer.getValue()&0x03E0)/32)+64));
-		strBuilder.append((char)((manufacturer.getValue()&0x001F)+64));
-
+		if(manufacturer.getValue() != 0) {
+			strBuilder.append((char) (((manufacturer.getValue() & 0x7D00) / 32 / 32) + 64));
+			strBuilder.append((char) (((manufacturer.getValue() & 0x03E0) / 32) + 64));
+			strBuilder.append((char) ((manufacturer.getValue() & 0x001F) + 64));
+		}
 		strBuilder.append(String.format((this.fixMbusHexShortId)?"%08d":"%08x", identification.getValue()));	// 8 Hex digits with leading zeros
 		strBuilder.append(String.format("%03d", version.getValue()));			// 3 Dec digits with leading zeros
 		strBuilder.append(String.format("%02d", deviceType.getValue()));		// 2 Dec digits with leading zeros

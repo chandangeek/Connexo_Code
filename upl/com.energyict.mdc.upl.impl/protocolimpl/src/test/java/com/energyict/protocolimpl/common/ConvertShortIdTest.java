@@ -166,4 +166,18 @@ public class ConvertShortIdTest {
 
         assertTrue(thrown);
     }
+
+    /**
+     * Test the construction of the ShortID for MBus detection
+     */
+    @Test
+    public void constructShortIdWithEmptyValuesTest(){
+        MbusProvider mp = new MbusProvider(null, false);
+
+        Unsigned8 version = new Unsigned8(0);
+        Unsigned8 deviceType = new Unsigned8(0);
+        Unsigned32 identificationNumber = new Unsigned32(0);
+        Unsigned16 manufacturerId = new Unsigned16(0);
+        assertEquals("0000000000000", mp.constructShortId(manufacturerId, identificationNumber, version, deviceType));
+    }
 }
