@@ -11,8 +11,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
     setChartData: function (data) {
         var me = this;
-        me.chart.series[0].setData([], true);
-        me.chart.series[0].setData(data, true);
+        me.chart.series[0].setData(data, true, false);
     },
 
     setXAxis: function (categories, title) {
@@ -222,10 +221,12 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 stops: [
                     [0, '#70BB51'],
                     [0.5, '#ffffff'],
-                    [1, '#EB5642']
+                    [1.0, '#EB5642']
                 ],
                 min: -borders.max,
-                max: borders.max
+                max: borders.max,
+                endOnTick: false,
+                startOnTick: false
             },
             legend: {
                 enabled: false
