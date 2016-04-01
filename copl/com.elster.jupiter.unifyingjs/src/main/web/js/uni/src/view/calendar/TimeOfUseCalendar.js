@@ -21,91 +21,7 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
         }
     ],
 
-    day: [
-        {
-            from: {
-                hour: 0,
-                minute: 0
-            },
-            to: {
-                hour: 3,
-                minute: 18
-            },
-            type: 1
-        }, {
-            from: {
-                hour: 3,
-                minute: 18
-            },
-            to: {
-                hour: 6,
-                minute: 45
-            },
-            type: 2
-        }, {
-            from: {
-                hour: 6,
-                minute: 45
-            },
-            to: {
-                hour: 10,
-                minute: 00
-            },
-            type: 1
-        }, {
-            from: {
-                hours: 10,
-                minutes: 00
-            },
-            to: {
-                hours: 15,
-                minutes: 00
-            },
-            type: 2
-        }, {
-            from: {
-                hours: 15,
-                minutes: 00
-            },
-            to: {
-                hours: 24,
-                minutes: 00
-            },
-            type: 1
-        }],
-
-    day2: [
-        {
-            from: {
-                hours: 0,
-                minutes: 0
-            },
-            to: {
-                hours: 6,
-                minutes: 45
-            },
-            type: 2
-        }, {
-            from: {
-                hours: 6,
-                minutes: 45
-            },
-            to: {
-                hours: 15,
-                minutes: 00
-            },
-            type: 1
-        }, {
-            from: {
-                hours: 15,
-                minutes: 00
-            },
-            to: {
-                hours: 24,
-                minutes: 00
-            },
-            type: 2
-        }],
+    colors: ['#1E7D9E', '#70BB51', '#EB5642', '#686868', '#71ADC7', '#E6FFE3', '#A0A0A0', '#FFEBE3'],
 
     initComponent: function () {
 
@@ -154,7 +70,14 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
                 renderTo: me.down('#graphContainer').el.dom
             },
             title: {
-                text: 'test'
+                text: me.record.get('name'),
+                align: 'left',
+                style: {
+                    color: '#1E7D9E',
+                    fontWeight: 'bold',
+                    fontSize: '24',
+                    fontFamily: 'Open sans condensed, Lato, Helvetica, Arial, Verdana, Sans-serif'
+                }
             },
             credits: {
                 enabled: false
@@ -162,25 +85,73 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
 
             xAxis: {
                 opposite: true,
-                categories: me.getCategories(me.record)
+                categories: me.getCategories(me.record),
+                labels: {
+                    style: {
+                        color: '#686868',
+                        fontWeight: 'normal',
+                        fontSize: '13px',
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                    }
+                },
+                lineWidth: 0,
+                tickWidth: 0
             },
 
             yAxis: {
                 title: {
-                    text: 'Hours'
+                    text: ''
                 },
                 categories: me.createHourCategories(),
-                alternateGridColor: '#f4f2f2',
+                alternateGridColor: '#F0F0F0',
                 min: 0,
                 max: 24,
                 reversed: true,
                 tickInterval: 2,
-                minorTickInterval: 1
+                gridLineColor: '#D2D2D2',
+                labels: {
+                    style: {
+                        color: '#686868',
+                        fontWeight: 'normal',
+                        fontSize: '13px',
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                    }
+                }
+            },
+
+            exporting: {
+                enabled: false
             },
 
             tooltip: {
-                headerFormat: '<b>{point.x}</b><br/>',
-                pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+                shape: 'square',
+                followPointer: true,
+                headerFormat: '',
+                useHTML: true,
+                style: {
+                    color: '#686868',
+                    fontSize: '13px',
+                    fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                },
+                borderWidth: 0,
+                formatter: function () {
+                    var fromDate = new Date(),
+                        toDate = new Date(),
+                        range = this.series.options.range,
+                        html;
+
+                    fromDate.setHours(range.from.hour);
+                    fromDate.setMinutes(range.from.minute);
+                    toDate.setHours(range.to.hour);
+                    toDate.setMinutes(range.to.minute);
+
+                    html = '<table><tbody>';
+                    html += '<tr><td><b>' + Uni.I18n.translate('general.from', 'UNI', 'From') + ':</b></td><td>' + Uni.DateTime.formatTimeShort(fromDate) + '</td></tr>';
+                    html += '<tr><td><b>' + Uni.I18n.translate('general.to', 'UNI', 'To') + ':</b></td><td>' + Uni.DateTime.formatTimeShort(toDate) + '</td></tr>';
+                    html += '</tbody></table>';
+                    return html;
+                }
+
             },
 
             legend: {
@@ -195,19 +166,20 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
                     groupPadding: 0,
                     shadow: false,
                     dataLabels: {
-                        align: 'left',
-                        verticalAlign: 'top',
+                        align: 'center',
+                        verticalAlign: 'middle',
                         enabled: true,
                         color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
                         style: {
                             textShadow: false,
                             opacity: 0.7,
-                            fontWeight: 'normal'
+                            fontWeight: 'normal',
+                            fontSize: '16px',
+                            fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
                         },
 
                         formatter: function () {
-                            return 'DAY';
-                            //return this.series.options.label;
+                            return this.series.options.label;
                         }
                     }
                 }
@@ -219,10 +191,15 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
     },
 
     createHourCategories: function () {
-        var categories = [];
+        var categories = [],
+            d;
         for (var i = 0; i <= 24; i++) {
-            categories.push(("0" + i).slice(-2) + ':00');
+            d = new Date();
+            d.setHours(i);
+            d.setMinutes(0);
+            categories.push(Uni.DateTime.formatTimeShort(d));
         }
+
         return categories;
     },
 
@@ -243,7 +220,7 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
 
         week = me.calculateWeekRepresentation(record);
         week.forEach(function (day, index) {
-            var daySeries = me.createDaySerie(day, index);
+            var daySeries = me.createDaySerie(day, index, record);
             weekSeries = weekSeries.concat(daySeries);
         });
 
@@ -272,37 +249,29 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
             if (index < ranges.length - 1) {
                 period.to = ranges[index + 1].get('from');
             } else {
-                period.to = {hour: 24, minute: 00}
+                period.to = {hour: 23, minute: 59}
             }
-            period.type = 1;
+            period.event = range.get('event');
             day.push(period)
         });
         return day;
     },
-    createDaySerie: function (day, index) {
-        var daySerie = [],
-            counter = 1;
+
+    createDaySerie: function (day, index, record) {
+        var me = this,
+            daySerie = [];
         day.forEach(function (range) {
             var minutes = (range.to.hour * 60 + range.to.minute) - (range.from.hour * 60 + range.from.minute);
             var blockSize = (minutes / (60 * 24)) * 24;
-            switch (counter) {
-                case 1:
-                    color = '#1E7D9E';
-                    counter = 2;
-                    break;
-                case 2:
-                    color = '#70BB51';
-                    counter = 1;
-                    break;
-            }
             var s = [null, null, null, null, null, null, null];
-            var label = '' + ('0' + range.from.hour).slice(-2) + ':' + ('0' + range.from.minute).slice(-2) + ' - ' + ('0' + range.to.hour).slice(-2) + ':' + ('0' + range.to.minute).slice(-2);
+            var label = record.events().findRecord('id', range.event).get('name');
             s[index] = blockSize;
             daySerie.push({
                 data: s,
-                color: color,
+                color: me.colors[record.events().indexOf(record.events().findRecord('id', range.event))],
                 showInLegend: false,
-                label: label
+                label: label,
+                range: range
             })
         });
         return daySerie.reverse();
