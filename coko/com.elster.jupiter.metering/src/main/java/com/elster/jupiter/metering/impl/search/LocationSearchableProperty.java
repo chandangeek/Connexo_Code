@@ -12,14 +12,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class NameSearchableProperty implements SearchableUsagePointProperty {
+public class LocationSearchableProperty implements SearchableUsagePointProperty {
 
     private final UsagePointSearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "name";
+    private static final String FIELDNAME = "location";
 
-    public NameSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public LocationSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
@@ -42,8 +42,17 @@ public class NameSearchableProperty implements SearchableUsagePointProperty {
     }
 
     @Override
+    public PropertySpec getSpecification() {
+        return this.propertySpecService
+                .stringSpec()
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_LOCATION)
+                .fromThesaurus(this.thesaurus)
+                .finish();
+    }
+
+    @Override
     public Visibility getVisibility() {
-        return Visibility.REMOVABLE;
+        return Visibility.STICKY;
     }
 
     @Override
@@ -53,7 +62,7 @@ public class NameSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_NAME.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_LOCATION.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -66,15 +75,6 @@ public class NameSearchableProperty implements SearchableUsagePointProperty {
 
     private boolean valueCompatibleForDisplay(Object value) {
         return value instanceof String;
-    }
-
-    @Override
-    public PropertySpec getSpecification() {
-        return this.propertySpecService
-                .stringSpec()
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_NAME)
-                .fromThesaurus(this.thesaurus)
-                .finish();
     }
 
     @Override

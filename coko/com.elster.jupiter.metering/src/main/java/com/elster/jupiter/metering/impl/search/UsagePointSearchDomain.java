@@ -4,7 +4,9 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -46,6 +48,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMeteringService meteringService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile Thesaurus thesaurus;
 
     // For OSGi purposes
@@ -72,6 +75,10 @@ public class UsagePointSearchDomain implements SearchDomain {
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
@@ -105,7 +112,11 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new OutageRegionSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
+                new OutageRegionSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new LocationSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.meteringService
+                        .getThesaurus()),
+                new CreateTimeTimeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
         ));
     }
 
@@ -164,7 +175,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
         private UsagePointFinder(Condition condition) {
             this.finder = DefaultFinder
-                    .of(UsagePoint.class, condition, meteringService.getDataModel())
+                    .of(UsagePoint.class, condition, meteringService.getDataModel(), UsagePointMetrologyConfiguration.class)
                     .defaultSortColumn("mRID");
         }
 
