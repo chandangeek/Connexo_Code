@@ -60,8 +60,13 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.elster.jupiter.metering.impl.LocationTemplateImpl.LocationTemplateElements;
+import static com.elster.jupiter.metering.impl.LocationTemplateImpl.TemplateFieldImpl;
 
 import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 
@@ -89,7 +94,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
     private volatile LocationTemplate locationTemplate;
-    private static ImmutableList<TemplateField> locationTemplateMembers;
+    private static ImmutableList<TemplateField> locationTemplateMembers ;
     private static String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
     private static String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
 
@@ -105,7 +110,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
         setOrmService(ormService);
-        this.locationTemplate = createLocationTemplateDefaultData();
         setIdsService(idsService);
         setEventService(eventService);
         setPartyService(partyService);
@@ -374,15 +378,14 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 locationTemplate = new LocationTemplateImpl(dataModel).init(locationTemplateFields, locationTemplateMandatoryFields);
                 locationTemplate
                         .parseTemplate(locationTemplateFields, locationTemplateMandatoryFields);
+                locationTemplateMembers = ImmutableList.copyOf(locationTemplate.getTemplateMembers());
             }else{
                 throw new IllegalArgumentException("Bad Location Template");
             }
-        } else if (dataModel.isInstalled() && getLocationTemplateFromDB().isPresent()) {
-            locationTemplate = getLocationTemplateFromDB().get();
-            locationTemplate
-                    .parseTemplate(locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields());
+        } else if (locationTemplate==null){
+            createLocationTemplateDefaultData();
         }
-        locationTemplateMembers = ImmutableList.copyOf(locationTemplate.getTemplateMembers());
+
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
@@ -405,6 +408,21 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class);
             }
         });
+
+        if (dataModel.isInstalled() && getLocationTemplateFromDB().isPresent()) {
+            locationTemplate = getLocationTemplateFromDB().get();
+            locationTemplate
+                    .parseTemplate(locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields());
+            locationTemplateMembers = ImmutableList.copyOf(locationTemplate.getTemplateMembers());
+        }
+
+        if(locationTemplate == null){
+            String locationElements = LocationTemplateImpl.ALLOWED_LOCATION_TEMPLATE_ELEMENTS.stream().
+                    reduce((s, t) -> s + "," + t).get();
+            locationTemplate = new LocationTemplateImpl(dataModel).init(locationElements,locationElements);
+            locationTemplate
+                    .parseTemplate(locationElements, locationElements);
+        }
 
     }
 
@@ -772,12 +790,12 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         return locationTemplateMembers;
     }
 
-    public LocationTemplate createLocationTemplateDefaultData() {
-        String fields = LocationTemplateImpl.ALLOWED_LOCATION_TEMPLATE_ELEMENTS.stream().
-                reduce((s, t) -> s + "," + t).get();
-        LocationTemplate defaultlocationTemplate = new LocationTemplateImpl(dataModel).init(fields, fields);
-        defaultlocationTemplate.parseTemplate(fields, fields);
-        return defaultlocationTemplate;
+    private void createLocationTemplateDefaultData() {
+        List<TemplateField>templateElements = new ArrayList<>();
+        AtomicInteger index = new AtomicInteger(-1);
+        Stream.of(LocationTemplateElements.values()).forEach(t ->
+                templateElements.add(new TemplateFieldImpl(t.getElementAbbreviation(), t.toString(), index.incrementAndGet(), index.intValue()%2==0?true:false)));
+        locationTemplateMembers = ImmutableList.copyOf(templateElements);
     }
 
     @Override

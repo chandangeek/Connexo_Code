@@ -29,7 +29,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
                     "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip", "#locale");
 
 
-    private enum LocationTemplateElements {
+    enum LocationTemplateElements {
         COUNTRY_CODE("#ccod"),
         COUNTRY_NAME("#cnam"),
         ADMINISTRATIVE_AREA("#adma"),
@@ -44,6 +44,10 @@ public final class LocationTemplateImpl implements LocationTemplate {
         ADDRESS_DETAIL("#addtl"),
         ZIP_CODE("#zip"),
         LOCALE("#locale");
+
+        public String getElementAbbreviation() {
+            return elementAbbreviation;
+        }
 
         private final String elementAbbreviation;
 
@@ -213,9 +217,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
         return modTime;
     }
 
-    private static final class TemplateFieldImpl implements TemplateField {
-
-
+    static final class TemplateFieldImpl implements TemplateField {
         int ranking;
         boolean mandatory;
         String name;
