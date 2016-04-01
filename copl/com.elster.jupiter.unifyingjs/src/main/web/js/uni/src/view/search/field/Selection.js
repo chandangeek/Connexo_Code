@@ -279,8 +279,14 @@ Ext.define('Uni.view.search.field.Selection', {
                     me.syncView();
                 },
                 listeners: {
-                    select: function (s, record) {
-                        selection.add(record);
+                    select: function (sel, record) {
+                        if (sel.mode == 'SINGLE') {
+                            selection.removeAll();
+                            selection.add(record);
+                        }
+                        else {
+                            selection.add(record);
+                        }
                     },
                     deselect: function (s, record) {
                         selection.remove(record);
