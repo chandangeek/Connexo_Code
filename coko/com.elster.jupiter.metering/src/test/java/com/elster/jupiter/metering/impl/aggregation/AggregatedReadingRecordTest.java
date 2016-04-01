@@ -14,6 +14,7 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -76,9 +77,12 @@ public class AggregatedReadingRecordTest {
         BigDecimal expectedValue = BigDecimal.TEN;
         Quantity expectedQuantity = Quantity.create(expectedValue, 3,  "Wh");
         when(this.resultSet.getBigDecimal(2)).thenReturn(expectedValue);
+        Timestamp jan1st2016 = Timestamp.from(JAN_1_2016_UTC);
         Instant expectedIntervalStart = JAN_1_2016_UTC.minus(Duration.ofMinutes(15));
-        when(this.resultSet.getLong(3)).thenReturn(JAN_1_2016_UTC.toEpochMilli());
-        when(this.resultSet.getLong(4)).thenReturn(0L);
+        when(this.resultSet.getTimestamp(3)).thenReturn(jan1st2016);
+        when(this.resultSet.getLong(4)).thenReturn(JAN_1_2016_UTC.toEpochMilli());
+        when(this.resultSet.getLong(5)).thenReturn(0L);
+        when(this.resultSet.getLong(6)).thenReturn(1L);
         ProcessStatus expectedProcessStatus = new ProcessStatus(0);
 
         //Business method
@@ -93,6 +97,7 @@ public class AggregatedReadingRecordTest {
         assertThat(testInstance.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity);
         assertThat(testInstance.getTimePeriod()).contains(Range.openClosed(expectedIntervalStart, JAN_1_2016_UTC));
         assertThat(testInstance.getProcesStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(testInstance.getCount()).isEqualTo(1L);
     }
 
     @Test(expected = UnderlyingSQLFailedException.class)
@@ -115,9 +120,11 @@ public class AggregatedReadingRecordTest {
         when(this.resultSet.getString(1)).thenReturn(FIFTEEN_MINS_NET_CONSUMPTION_MRID);
         BigDecimal expectedValue = BigDecimal.TEN;
         when(this.resultSet.getBigDecimal(2)).thenReturn(expectedValue);
-        long jan1st2016 = JAN_1_2016_UTC.toEpochMilli();
-        when(this.resultSet.getLong(3)).thenReturn(jan1st2016);
-        when(this.resultSet.getLong(4)).thenReturn(0L);
+        Timestamp jan1st2016 = Timestamp.from(JAN_1_2016_UTC);
+        when(this.resultSet.getTimestamp(3)).thenReturn(jan1st2016);
+        when(this.resultSet.getLong(4)).thenReturn(jan1st2016.getTime());
+        when(this.resultSet.getLong(5)).thenReturn(0L);
+        when(this.resultSet.getLong(6)).thenReturn(1L);
 
         //Business method
         testInstance.addFrom(this.resultSet);
@@ -134,10 +141,12 @@ public class AggregatedReadingRecordTest {
         BigDecimal expectedValue2 = BigDecimal.valueOf(MY_FAVOURITE_PRIME_NUMBER);
         Quantity expectedQuantity2 = Quantity.create(expectedValue2, 3,  "Wh");
         when(this.resultSet.getBigDecimal(2)).thenReturn(expectedValue1, expectedValue2);
-        long ts1 = JAN_1_2016_UTC.toEpochMilli();
+        Timestamp ts1 = Timestamp.from(JAN_1_2016_UTC);
         Instant expectedPeriodStart = JAN_1_2016_UTC.minus(Duration.ofMinutes(15));
-        when(this.resultSet.getLong(3)).thenReturn(ts1);
-        when(this.resultSet.getLong(4)).thenReturn(1L, 2L);
+        when(this.resultSet.getTimestamp(3)).thenReturn(ts1);
+        when(this.resultSet.getLong(4)).thenReturn(ts1.getTime());
+        when(this.resultSet.getLong(5)).thenReturn(1L, 2L);
+        when(this.resultSet.getLong(6)).thenReturn(1L, 1L);
         ProcessStatus expectedProcessStatus = new ProcessStatus(3L);
 
         //Business methods
@@ -145,13 +154,14 @@ public class AggregatedReadingRecordTest {
         testInstance.addFrom(this.resultSet);
 
         // Asserts
-        assertThat(testInstance.getTimeStamp()).isEqualTo(Instant.ofEpochMilli(ts1));
+        assertThat(testInstance.getTimeStamp()).isEqualTo(ts1.toInstant());
         assertThat(testInstance.getReadingTypes()).containsOnly(fifteenMinutesNetConsumption, monthlyNetConsumption);
         assertThat(testInstance.getQuantities()).hasSize(2);
         assertThat(testInstance.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity1);
         assertThat(testInstance.getQuantity(monthlyNetConsumption)).isEqualTo(expectedQuantity2);
-        assertThat(testInstance.getTimePeriod()).contains(Range.openClosed(expectedPeriodStart, Instant.ofEpochMilli(ts1)));
+        assertThat(testInstance.getTimePeriod()).contains(Range.openClosed(expectedPeriodStart, ts1.toInstant()));
         assertThat(testInstance.getProcesStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(testInstance.getCount()).isEqualTo(1L);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -161,9 +171,11 @@ public class AggregatedReadingRecordTest {
         BigDecimal expectedValue1 = BigDecimal.TEN;
         BigDecimal expectedValue2 = BigDecimal.valueOf(MY_FAVOURITE_PRIME_NUMBER);
         when(this.resultSet.getBigDecimal(2)).thenReturn(expectedValue1, expectedValue2);
-        long ts1 = JAN_1_2016_UTC.toEpochMilli();
-        when(this.resultSet.getLong(3)).thenReturn(ts1);
-        when(this.resultSet.getLong(4)).thenReturn(1L, 2L);
+        Timestamp ts1 = Timestamp.from(JAN_1_2016_UTC);
+        when(this.resultSet.getTimestamp(3)).thenReturn(ts1);
+        when(this.resultSet.getLong(4)).thenReturn(ts1.getTime());
+        when(this.resultSet.getLong(5)).thenReturn(1L, 2L);
+        when(this.resultSet.getLong(6)).thenReturn(1L, 1L);
         testInstance.init(this.resultSet);
 
         //Business methods

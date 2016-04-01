@@ -40,4 +40,4 @@ BEGIN
     end loop;
   end if;
   return retval;
-END
+END;

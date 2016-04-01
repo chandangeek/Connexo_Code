@@ -15,6 +15,7 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -90,7 +91,7 @@ public class AggregatedReadingRecordFactoryImplTest {
         verify(this.resultSet).next();
         verify(this.resultSet, never()).getLong(anyInt());
         verify(this.resultSet, never()).getString(anyInt());
-        verify(this.resultSet, never()).getLong(anyInt());
+        verify(this.resultSet, never()).getTimestamp(anyInt());
         verify(this.resultSet, never()).getBigDecimal(anyInt());
         assertThat(readingRecords).isEmpty();
     }
@@ -98,7 +99,7 @@ public class AggregatedReadingRecordFactoryImplTest {
     @Test(expected = UnderlyingSQLFailedException.class)
     public void sqlExecptionIsWrapped() throws SQLException {
         when(this.resultSet.next()).thenReturn(true);
-        doThrow(SQLException.class).when(this.resultSet).getLong(anyInt());
+        doThrow(SQLException.class).when(this.resultSet).getTimestamp(anyInt());
 
         // Business method
         this.testInstance().consume(this.resultSet);
@@ -115,9 +116,12 @@ public class AggregatedReadingRecordFactoryImplTest {
         BigDecimal expectedValue2 = BigDecimal.valueOf(MY_FAVOURITE_PRIME_NUMBER);
         Quantity expectedQuantity2 = Quantity.create(expectedValue2, 3,  "Wh");
         when(this.resultSet.getBigDecimal(2)).thenReturn(expectedValue1, expectedValue2);
+        Timestamp ts1 = Timestamp.from(JAN_1_2016_UTC);
         Instant expectedPeriodStart = JAN_1_2016_UTC.minus(Duration.ofMinutes(15));
-        when(this.resultSet.getLong(3)).thenReturn(JAN_1_2016_UTC.toEpochMilli());
-        when(this.resultSet.getLong(4)).thenReturn(1L, 2L);
+        when(this.resultSet.getTimestamp(3)).thenReturn(ts1);
+        when(this.resultSet.getLong(4)).thenReturn(ts1.getTime());
+        when(this.resultSet.getLong(5)).thenReturn(1L, 2L);
+        when(this.resultSet.getLong(6)).thenReturn(1L, 1L);
         ProcessStatus expectedProcessStatus = new ProcessStatus(3L);
 
         // Business method
@@ -127,12 +131,12 @@ public class AggregatedReadingRecordFactoryImplTest {
         verify(this.resultSet, times(3)).next();
         assertThat(readingRecords).hasSize(1);
         AggregatedReadingRecord readingRecord = readingRecords.get(0);
-        assertThat(readingRecord.getTimeStamp()).isEqualTo(JAN_1_2016_UTC);
+        assertThat(readingRecord.getTimeStamp()).isEqualTo(ts1.toInstant());
         assertThat(readingRecord.getReadingTypes()).containsOnly(fifteenMinutesNetConsumption, monthlyNetConsumption);
         assertThat(readingRecord.getQuantities()).hasSize(2);
         assertThat(readingRecord.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity1);
         assertThat(readingRecord.getQuantity(monthlyNetConsumption)).isEqualTo(expectedQuantity2);
-        assertThat(readingRecord.getTimePeriod()).contains(Range.openClosed(expectedPeriodStart, JAN_1_2016_UTC));
+        assertThat(readingRecord.getTimePeriod()).contains(Range.openClosed(expectedPeriodStart, ts1.toInstant()));
         assertThat(readingRecord.getProcesStatus()).isEqualTo(expectedProcessStatus);
     }
 
@@ -145,11 +149,13 @@ public class AggregatedReadingRecordFactoryImplTest {
         BigDecimal expectedValue2 = BigDecimal.valueOf(MY_FAVOURITE_PRIME_NUMBER);
         Quantity expectedQuantity2 = Quantity.create(expectedValue2, 3,  "Wh");
         when(this.resultSet.getBigDecimal(2)).thenReturn(expectedValue1, expectedValue2);
-        long ts1 = JAN_1_2016_UTC.toEpochMilli();
-        long ts2 = JAN_1_2016_UTC.plus(Duration.ofMinutes(15)).toEpochMilli();
+        Timestamp ts1 = Timestamp.from(JAN_1_2016_UTC);
+        Timestamp ts2 = Timestamp.from(JAN_1_2016_UTC.plus(Duration.ofMinutes(15)));
         Instant expectedPeriodStart = JAN_1_2016_UTC.minus(Duration.ofMinutes(15));
-        when(this.resultSet.getLong(3)).thenReturn(ts1, ts1, ts2, ts2);
-        when(this.resultSet.getLong(4)).thenReturn(1L, 2L);
+        when(this.resultSet.getTimestamp(3)).thenReturn(ts1, ts1, ts2, ts2);    // once for the factory, once for the entity
+        when(this.resultSet.getLong(4)).thenReturn(ts1.getTime(), ts2.getTime());
+        when(this.resultSet.getLong(5)).thenReturn(1L, 2L);
+        when(this.resultSet.getLong(6)).thenReturn(1L, 1L);
         ProcessStatus expectedProcessStatus1 = new ProcessStatus(1L);
         ProcessStatus expectedProcessStatus2 = new ProcessStatus(2L);
 
@@ -160,18 +166,18 @@ public class AggregatedReadingRecordFactoryImplTest {
         verify(this.resultSet, times(3)).next();
         assertThat(readingRecords).hasSize(2);
         AggregatedReadingRecord readingRecord1 = readingRecords.get(0);
-        assertThat(readingRecord1.getTimeStamp()).isEqualTo(Instant.ofEpochMilli(ts1));
+        assertThat(readingRecord1.getTimeStamp()).isEqualTo(ts1.toInstant());
         assertThat(readingRecord1.getReadingTypes()).containsOnly(fifteenMinutesNetConsumption);
         assertThat(readingRecord1.getQuantities()).hasSize(1);
         assertThat(readingRecord1.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity1);
-        assertThat(readingRecord1.getTimePeriod()).contains(Range.openClosed(expectedPeriodStart, Instant.ofEpochMilli(ts1)));
+        assertThat(readingRecord1.getTimePeriod()).contains(Range.openClosed(expectedPeriodStart, ts1.toInstant()));
         assertThat(readingRecord1.getProcesStatus()).isEqualTo(expectedProcessStatus1);
         AggregatedReadingRecord readingRecord2 = readingRecords.get(1);
-        assertThat(readingRecord2.getTimeStamp()).isEqualTo(Instant.ofEpochMilli(ts2));
+        assertThat(readingRecord2.getTimeStamp()).isEqualTo(ts2.toInstant());
         assertThat(readingRecord2.getReadingTypes()).containsOnly(fifteenMinutesNetConsumption);
         assertThat(readingRecord2.getQuantities()).hasSize(1);
         assertThat(readingRecord2.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity2);
-        assertThat(readingRecord2.getTimePeriod()).contains(Range.openClosed(Instant.ofEpochMilli(ts1), Instant.ofEpochMilli(ts2)));
+        assertThat(readingRecord2.getTimePeriod()).contains(Range.openClosed(ts1.toInstant(), ts2.toInstant()));
         assertThat(readingRecord2.getProcesStatus()).isEqualTo(expectedProcessStatus2);
     }
 

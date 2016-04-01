@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,8 +35,10 @@ class AggregatedReadingRecord implements BaseReadingRecord {
 
     private final MeteringService meteringService;
     private Map<IReadingType, Quantity> values;
+    private Timestamp localDate;
     private Instant timestamp;
     private ProcessStatus processStatus;
+    private long count;
 
     @Inject
     AggregatedReadingRecord(MeteringService meteringService) {
@@ -77,16 +80,19 @@ class AggregatedReadingRecord implements BaseReadingRecord {
 
     AggregatedReadingRecord doAddFrom(ResultSet resultSet) {
         try {
-            String readingTypeMRID = resultSet.getString(1);
-            BigDecimal value = resultSet.getBigDecimal(2);
-            this.timestamp = Instant.ofEpochMilli(resultSet.getLong(3));
-            long processStatusBits = resultSet.getLong(4);
+            int columnIndex = 1;
+            String readingTypeMRID = resultSet.getString(columnIndex++);
+            BigDecimal value = resultSet.getBigDecimal(columnIndex++);
+            this.localDate = resultSet.getTimestamp(columnIndex++);
+            this.timestamp = Instant.ofEpochMilli(resultSet.getLong(columnIndex++));
+            long processStatusBits = resultSet.getLong(columnIndex++);
             if (this.processStatus == null) {
                 this.processStatus = new ProcessStatus(processStatusBits);
             }
             else {
                 this.processStatus = this.processStatus.or(new ProcessStatus(processStatusBits));
             }
+            this.count = resultSet.getLong(columnIndex);
             IReadingType readingType = this.findReadingTypeOrThrowException(readingTypeMRID);
             this.values.put(readingType, readingType.toQuantity(value));
             return this;
@@ -140,6 +146,10 @@ class AggregatedReadingRecord implements BaseReadingRecord {
     @Override
     public void setProcessingFlags(ProcessStatus.Flag... flags) {
         throw new UnsupportedOperationException("Aggregated reading records do not support setting processing flags");
+    }
+
+    public long getCount() {
+        return count;
     }
 
     @Override
