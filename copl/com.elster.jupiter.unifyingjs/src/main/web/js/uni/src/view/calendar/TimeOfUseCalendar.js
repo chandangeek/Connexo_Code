@@ -162,7 +162,7 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
 
             xAxis: {
                 opposite: true,
-                categories: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                categories: me.getCategories(me.record)
             },
 
             yAxis: {
@@ -226,6 +226,16 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
         return categories;
     },
 
+    getCategories: function(record) {
+        var categories = [];
+
+        Ext.Array.each(record.get('weekTemplate'), function (weekDay) {
+            categories.push(weekDay.name);
+        });
+
+        return categories;
+    },
+
     createWeekSeries: function (record) {
         var me = this,
             week,
@@ -244,13 +254,9 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
         var me = this,
             week = [];
 
-        week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', record.get('weekTemplate').monday)));
-        week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', record.get('weekTemplate').tuesday)));
-        week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', record.get('weekTemplate').wednesday)));
-        week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', record.get('weekTemplate').thursday)));
-        week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', record.get('weekTemplate').friday)));
-        week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', record.get('weekTemplate').saturday)));
-        week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', record.get('weekTemplate').sunday)));
+        Ext.Array.each(record.get('weekTemplate'), function (weekDay) {
+            week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', weekDay.type)));
+        });
 
         return week;
     },
