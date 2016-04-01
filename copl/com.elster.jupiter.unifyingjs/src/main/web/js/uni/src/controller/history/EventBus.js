@@ -8,7 +8,8 @@ Ext.define('Uni.controller.history.EventBus', {
         'Ext.util.History',
         'Uni.store.MenuItems',
         'Uni.store.PortalItems',
-        'Uni.util.History'
+        'Uni.util.History',
+        'Uni.store.Apps'
     ],
 
     config: {
@@ -20,12 +21,18 @@ Ext.define('Uni.controller.history.EventBus', {
     },
 
     onLaunch: function () {
-        this.initHistory();
-        this.initListeners();
+        var me= this,
+            appsStore = Uni.store.Apps;
+
+        me.initListeners();
+        appsStore.load(function() {
+            me.initHistory();
+        });
     },
 
     initHistory: function () {
         var me = this;
+        debugger;
 
         crossroads.bypassed.add(function (request) {
             crossroads.parse("/error/notfound");

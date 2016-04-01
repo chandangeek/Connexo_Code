@@ -51,7 +51,6 @@ Ext.define('Uni.controller.Navigation', {
             me.selectMenuItemByActiveToken();
         });
 
-        me.initApps();
         me.initMenuItems();
 
         me.control({
@@ -73,10 +72,6 @@ Ext.define('Uni.controller.Navigation', {
 
         me.getController('Uni.controller.history.Router').on('routematch', me.initBreadcrumbs, me);
         me.getController('Uni.controller.history.Router').on('routechange', me.updateBreadcrumb, me);
-    },
-
-    initApps: function () {
-        Uni.store.Apps.load();
     },
 
     onNavigationTitleChanged: function (title) {
