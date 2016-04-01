@@ -119,7 +119,6 @@ public class LocationSearchableProperty extends AbstractSearchableDeviceProperty
         builder.append("        UPPERADDRESSDETAIL, UPPERZIPCODE from mtr_locationmember where ");
         builder.add(toSqlFragment("LOCATIONID", condition, now));
         builder.append("   ) locIn ");
-        //builder.append("    where LOCATIONID = " + condition.values[0] + ") locIn ");
         builder.append("    on locIn.UPPERCOUNTRYCODE = locOut.UPPERCOUNTRYCODE AND locIn.UPPERCOUNTRYNAME = locOut.UPPERCOUNTRYNAME AND ");
         builder.append("        locIn.UPPERADMINISTRATIVEAREA = locOut.UPPERADMINISTRATIVEAREA AND locIn.UPPERLOCALITY = locOut.UPPERLOCALITY AND ");
         builder.append("        locIn.UPPERSUBLOCALITY = locOut.UPPERSUBLOCALITY AND locIn.UPPERSTREETTYPE = locOut.UPPERSTREETTYPE AND ");
@@ -130,7 +129,6 @@ public class LocationSearchableProperty extends AbstractSearchableDeviceProperty
         builder.append(" ) ");
 
         return builder;
-        //  return this.toSqlFragment("dev.LOCATIONID", condition, now);
     }
 
 
