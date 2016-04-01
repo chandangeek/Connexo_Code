@@ -99,7 +99,7 @@ public class AggregatedReadingRecordFactoryImplTest {
     @Test(expected = UnderlyingSQLFailedException.class)
     public void sqlExecptionIsWrapped() throws SQLException {
         when(this.resultSet.next()).thenReturn(true);
-        doThrow(SQLException.class).when(this.resultSet).getTimestamp(anyInt());
+        doThrow(SQLException.class).when(this.resultSet).getLong(4);
 
         // Business method
         this.testInstance().consume(this.resultSet);
@@ -152,8 +152,8 @@ public class AggregatedReadingRecordFactoryImplTest {
         Timestamp ts1 = Timestamp.from(JAN_1_2016_UTC);
         Timestamp ts2 = Timestamp.from(JAN_1_2016_UTC.plus(Duration.ofMinutes(15)));
         Instant expectedPeriodStart = JAN_1_2016_UTC.minus(Duration.ofMinutes(15));
-        when(this.resultSet.getTimestamp(3)).thenReturn(ts1, ts1, ts2, ts2);    // once for the factory, once for the entity
-        when(this.resultSet.getLong(4)).thenReturn(ts1.getTime(), ts2.getTime());
+        when(this.resultSet.getTimestamp(3)).thenReturn(ts1, ts2);
+        when(this.resultSet.getLong(4)).thenReturn(ts1.getTime(), ts1.getTime(), ts2.getTime(), ts2.getTime());   // once for the factory, once for the entity
         when(this.resultSet.getLong(5)).thenReturn(1L, 2L);
         when(this.resultSet.getLong(6)).thenReturn(1L, 1L);
         ProcessStatus expectedProcessStatus1 = new ProcessStatus(1L);

@@ -91,7 +91,7 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
         this.deliverablesPerMeterActivation = new HashMap<>();
         this.getOverlappingMeterActivations(usagePoint, clippedPeriod).forEach(meterActivation -> this.prepare(meterActivation, contract, clippedPeriod, virtualFactory));
         try {
-            return this.execute(this.generateSql(virtualFactory));
+            return this.postProcessMissings(this.execute(this.generateSql(virtualFactory)));
         }
         catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -256,6 +256,10 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
                 return this.execute(statement);
             }
         }
+    }
+
+    private List<? extends BaseReadingRecord> postProcessMissings(List<AggregatedReadingRecord> aggregatedReadingRecords) {
+        return aggregatedReadingRecords;
     }
 
     private DataModel getDataModel() {
