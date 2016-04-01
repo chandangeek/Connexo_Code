@@ -145,7 +145,7 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
                     toDate.setHours(range.to.hour);
                     toDate.setMinutes(range.to.minute);
 
-                    html = '<span style="font-family: Lato Bold, Helvetica, Arial, Verdana, Sans-serif;color:#70BB51;font-size: 16px;">'
+                    html = '<span style="font-family: Lato, Helvetica, Arial, Verdana, Sans-serif;color:#70BB51;font-size: 16px;font-weight: bold">'
                         + this.series.options.label + '</span>'
                     html += '<table style="margin-top: 5px" ><tbody>';
                     html += '<tr><td><b>' + Uni.I18n.translate('general.from', 'UNI', 'From') + ':</b></td><td>' + Uni.DateTime.formatTimeShort(fromDate) + '</td></tr>';
