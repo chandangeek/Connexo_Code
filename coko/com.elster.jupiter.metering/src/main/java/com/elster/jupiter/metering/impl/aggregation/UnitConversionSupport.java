@@ -123,7 +123,7 @@ public class UnitConversionSupport {
         Dimension dimensionOfReadingType = readingType.getUnit().getUnit().getDimension();
         return (isDimensionless(dimension) ||
                 (isVolumeRelated(dimensionOfReadingType) && isFlowRelated(dimension))
-                || (isFlowRelated(dimension) && isVolumeRelated(dimensionOfReadingType))
+                || (isFlowRelated(dimensionOfReadingType) && isVolumeRelated(dimension))
                 || (dimensionOfReadingType.hasSameDimensions(dimension)));
     }
 
