@@ -366,7 +366,7 @@ public class DataAggregationServiceImplCalculateIT {
             String overallSelectWithoutNewlines = this.selectClauseBuilder1.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(FIFTEEN_MINS_NET_CONSUMPTION_MRID) + "'.*");
             // Assert that the overall select statement selects the value and the timestamp from the with clause for the deliverable
-            assertThat(overallSelectWithoutNewlines).matches(".*rod" + netConsumptionDeliverableId + "_1\\.value, rod" + netConsumptionDeliverableId + "_1\\.timestamp.*");
+            assertThat(overallSelectWithoutNewlines).matches(".*rod" + netConsumptionDeliverableId + "_1\\.value, rod" + netConsumptionDeliverableId + "_1\\.localdate, rod" + netConsumptionDeliverableId + "_1\\.timestamp.*");
         }
     }
 
@@ -580,7 +580,7 @@ public class DataAggregationServiceImplCalculateIT {
             String overallSelectWithoutNewlines = this.selectClauseBuilder1.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(MONTHLY_NET_CONSUMPTION_MRID) + "'.*");
             // Assert that the overall select statement selects the value and the timestamp from the with clause for the deliverable
-            assertThat(overallSelectWithoutNewlines).matches(".*rod" + netConsumptionDeliverableId + "_1\\.value, rod" + netConsumptionDeliverableId + "_1\\.timestamp.*");
+            assertThat(overallSelectWithoutNewlines).matches(".*rod" + netConsumptionDeliverableId + "_1\\.value, rod" + netConsumptionDeliverableId + "_1\\.localdate, rod" + netConsumptionDeliverableId + "_1\\.timestamp.*");
         }
     }
 
@@ -706,12 +706,12 @@ public class DataAggregationServiceImplCalculateIT {
             String overallSelectWithoutNewlines1 = this.selectClauseBuilder1.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines1).matches(".*'" + this.mRID2GrepPattern(FIFTEEN_MINS_NET_CONSUMPTION_MRID) + "'.*");
             // Assert that the overall select statement selects the value and the timestamp from the with clause for the deliverable
-            assertThat(overallSelectWithoutNewlines1).matches(".*rod" + netConsumptionDeliverableId + "_1\\.value, rod" + netConsumptionDeliverableId + "_1\\.timestamp.*");
+            assertThat(overallSelectWithoutNewlines1).matches(".*rod" + netConsumptionDeliverableId + "_1\\.value, rod" + netConsumptionDeliverableId + "_1\\.localdate, rod" + netConsumptionDeliverableId + "_1\\.timestamp.*");
             // Assert that the overall select statement for second meter activation selects the target reading type
             String overallSelectWithoutNewlines2 = this.selectClauseBuilder2.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines2).matches(".*'" + this.mRID2GrepPattern(FIFTEEN_MINS_NET_CONSUMPTION_MRID) + "'.*");
             // Assert that the overall select statement selects the value and the timestamp from the with clause for the deliverable
-            assertThat(overallSelectWithoutNewlines2).matches(".*rod" + netConsumptionDeliverableId + "_2\\.value, rod" + netConsumptionDeliverableId + "_2\\.timestamp.*");
+            assertThat(overallSelectWithoutNewlines2).matches(".*rod" + netConsumptionDeliverableId + "_2\\.value, rod" + netConsumptionDeliverableId + "_2\\.localdate, rod" + netConsumptionDeliverableId + "_2\\.timestamp.*");
         }
     }
 

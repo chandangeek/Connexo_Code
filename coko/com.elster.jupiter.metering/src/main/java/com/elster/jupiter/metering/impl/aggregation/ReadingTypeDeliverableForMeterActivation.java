@@ -9,6 +9,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -176,7 +177,16 @@ class ReadingTypeDeliverableForMeterActivation {
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
             this.appendTrucatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+            sqlBuilder.append(", ");
+            sqlBuilder.append(AggregationFunction.MAX.sqlName());
+            sqlBuilder.append("(");
+            sqlBuilder.append(this.sqlName());
+            sqlBuilder.append(".");
+            sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName());
+            sqlBuilder.append(")");
         } else {
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.LOCALDATE, sqlBuilder, this.sqlName());
+            sqlBuilder.append(", ");
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.TIMESTAMP, sqlBuilder, this.sqlName());
         }
     }
@@ -198,16 +208,18 @@ class ReadingTypeDeliverableForMeterActivation {
     private void appendProcessStatusToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
             this.appendAggregatedProcessStatus(sqlBuilder);
+            sqlBuilder.append(", count(*)");
         } else {
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS, sqlBuilder, this.sqlName());
+            sqlBuilder.append(", 1");
         }
     }
 
     private void appendAggregatedProcessStatus(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(AggregationFunction.AGGREGATE_FLAGS.sqlName());
-        sqlBuilder.append("(");
-        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS, sqlBuilder, this.sqlName());
-        sqlBuilder.append(")");
+        AggregationFunction.AGGREGATE_FLAGS
+                .appendTo(
+                    sqlBuilder, Collections.singletonList(
+                    new TextFragment(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName())));
     }
 
     private void appendGroupByClauseIfApplicable(SqlBuilder sqlBuilder) {
@@ -218,7 +230,7 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private void appendGroupByClause(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" GROUP BY ");
-        this.appendTrucatedTimeline(sqlBuilder, this.sqlName() + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+        this.appendTrucatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
     }
 
     private boolean resultValueNeedsTimeBasedAggregation() {

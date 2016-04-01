@@ -3,6 +3,8 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.metering.impl.RecordSpecs;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.util.Collections;
+
 /**
  * Defines a set of constants that will be used in the SQL
  * that will be generated to do data aggregation.
@@ -145,10 +147,7 @@ final class SqlConstants {
                 if (value == null) {
                     sqlBuilder.append("0");
                 } else if (withAggregation) {
-                    sqlBuilder.append(AggregationFunction.AGGREGATE_FLAGS.sqlName());
-                    sqlBuilder.append("(");
-                    sqlBuilder.append(value);
-                    sqlBuilder.append(")");
+                    AggregationFunction.AGGREGATE_FLAGS.appendTo(sqlBuilder, Collections.singletonList(new TextFragment(value)));
                 } else {
                     sqlBuilder.append(value);
                 }
