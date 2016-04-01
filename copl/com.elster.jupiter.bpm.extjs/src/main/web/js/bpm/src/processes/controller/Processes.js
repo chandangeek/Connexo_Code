@@ -2,7 +2,9 @@ Ext.define('Bpm.processes.controller.Processes', {
     extend: 'Ext.app.Controller',
     requires: [
         'Bpm.privileges.BpmManagement',
-        'Bpm.processes.store.Processes'
+        'Bpm.processes.store.Processes',
+        'Uni.controller.history.Router',
+        'Uni.view.container.ContentContainer'
     ],
     views: [
         'Bpm.processes.view.Processes',

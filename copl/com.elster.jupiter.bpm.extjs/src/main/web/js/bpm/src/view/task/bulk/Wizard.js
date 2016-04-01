@@ -5,7 +5,8 @@ Ext.define('Bpm.view.task.bulk.Wizard', {
         'Bpm.view.task.bulk.Step2',
         'Bpm.view.task.bulk.Step3',
         'Bpm.view.task.bulk.Step4',
-        'Bpm.view.task.bulk.Step5'
+        'Bpm.view.task.bulk.Step5',
+        'Uni.view.container.ContentContainer'
     ],
     alias: 'widget.tasks-bulk-wizard',
     layout: 'card',

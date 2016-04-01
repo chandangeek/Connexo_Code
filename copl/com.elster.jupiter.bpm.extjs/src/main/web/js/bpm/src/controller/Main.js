@@ -5,17 +5,24 @@ Ext.define('Bpm.controller.Main', {
         'Ext.window.Window',
         'Uni.controller.Navigation',
         'Uni.store.MenuItems',
+        'Uni.property.view.property.SelectionGrid',
         'Bpm.controller.Task',
         'Bpm.controller.TaskBulk',
+        'Bpm.privileges.BpmManagement',
+        'Bpm.monitorprocesses.controller.MonitorProcesses',
+        'Bpm.startprocess.controller.StartProcess',
         'Bpm.processes.controller.Processes',
-        //     'Bpm.controller.history.BpmManagement',
-        'Bpm.privileges.BpmManagement'
+        'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses'
     ],
 
     controllers: [
         'Bpm.controller.history.BpmManagement',
         'Bpm.controller.Task',
-        'Bpm.controller.TaskBulk'
+        'Bpm.controller.TaskBulk',
+        'Bpm.monitorprocesses.controller.MonitorProcesses',
+        'Bpm.startprocess.controller.StartProcess',
+        'Bpm.processes.controller.Processes',
+        'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses'
     ],
 
     refs: [
