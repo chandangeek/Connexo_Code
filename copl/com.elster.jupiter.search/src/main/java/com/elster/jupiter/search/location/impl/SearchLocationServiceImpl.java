@@ -26,7 +26,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,7 +90,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         Map<Long, String> result = new HashMap<>();
 
         String[] templateMembers = locationTemplate.split(",");
-        List<String> formatedMembers = new ArrayList<>();
+
 
         SqlBuilder locationBuilder = new SqlBuilder();
         locationBuilder.append("select * from (");
@@ -105,18 +107,14 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         try (Connection connection = dataModel.getConnection(false);
              PreparedStatement statement = locationBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
-
                 while (resultSet.next()) {
-
+                    List<String> formatedMembers = new ArrayList<>();
                     for (String identifier : templateMembers) {
-
                         try {
-
                             String value = resultSet.getString(templateMap.get(identifier));
                             if (value != null && !value.isEmpty()) {
                                 formatedMembers.add(value);
                             }
-
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -127,7 +125,13 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return result;
+
+        return result
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue(String::compareToIgnoreCase))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (e1, e2) -> e1, LinkedHashMap::new));
     }
 
     private String getWhereClause(String locationPart) {
