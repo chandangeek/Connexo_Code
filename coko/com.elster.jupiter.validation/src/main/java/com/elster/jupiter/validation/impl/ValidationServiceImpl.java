@@ -143,7 +143,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
-//                bind(DestinationSpec.class).toProvider(ValidationServiceImpl.this::getDestination);
+                bind(DestinationSpec.class).toProvider(ValidationServiceImpl.this::getDestination);
             }
         });
     }
