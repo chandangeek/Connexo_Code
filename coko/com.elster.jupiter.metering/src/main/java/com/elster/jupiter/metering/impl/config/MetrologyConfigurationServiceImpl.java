@@ -169,7 +169,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
                 .select(where(MetrologyConfigurationImpl.Fields.STATUS.fieldName()).isEqualTo(MetrologyConfigurationStatus.ACTIVE));
         if (!activeConfigs.isEmpty()) {
             activeConfigs.stream()
-                    .map(config -> getDataModel().getInstance(LinkableMetrologyConfigurationSqlBuilder.class).init(usagePoint, config))
+                    .map(config -> getDataModel().getInstance(UsagePointRequirementSqlBuilder.class).init(usagePoint, config))
                     .forEach(finder::addBuilder);
             return finder.find();
         }

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class LinkableMetrologyConfigurationSqlBuilder implements Subquery {
+public class UsagePointRequirementSqlBuilder implements Subquery {
     private final SearchDomain searchDomain;
     private final PropertySpecService propertySpecService;
     private final SearchService searchService;
@@ -30,13 +30,13 @@ public class LinkableMetrologyConfigurationSqlBuilder implements Subquery {
     private UsagePointMetrologyConfiguration metrologyConfiguration;
 
     @Inject
-    public LinkableMetrologyConfigurationSqlBuilder(UsagePointRequirementsSearchDomain searchDomain, PropertySpecService propertySpecService, SearchService searchService) {
+    public UsagePointRequirementSqlBuilder(UsagePointRequirementsSearchDomain searchDomain, PropertySpecService propertySpecService, SearchService searchService) {
         this.searchDomain = searchDomain;
         this.propertySpecService = propertySpecService;
         this.searchService = searchService;
     }
 
-    public LinkableMetrologyConfigurationSqlBuilder init(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
+    public UsagePointRequirementSqlBuilder init(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
         this.usagePoint = usagePoint;
         this.metrologyConfiguration = metrologyConfiguration;
         return this;

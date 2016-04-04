@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMetrologyConfiguration> {
     private final ServerMeteringService meteringService;
-    private final Set<LinkableMetrologyConfigurationSqlBuilder> builders;
+    private final Set<UsagePointRequirementSqlBuilder> builders;
     private int start = -1;
     private int pageSize = 10;
     private List<Order> orders;
@@ -29,7 +29,7 @@ public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMe
         this.orders = new ArrayList<>();
     }
 
-    LinkableMetrologyConfigurationFinder addBuilder(LinkableMetrologyConfigurationSqlBuilder builder) {
+    LinkableMetrologyConfigurationFinder addBuilder(UsagePointRequirementSqlBuilder builder) {
         this.builders.add(builder);
         return this;
     }
@@ -53,7 +53,7 @@ public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMe
                 ? new Order[]{Order.ascending("name")}
                 : this.orders.toArray(new Order[this.orders.size()]);
         Condition condition = Condition.FALSE;
-        for (LinkableMetrologyConfigurationSqlBuilder builder : builders) {
+        for (UsagePointRequirementSqlBuilder builder : builders) {
             condition = condition.or(ListOperator.IN.contains(builder, "id"));
         }
         if (this.start >= 0) {
@@ -72,7 +72,7 @@ public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMe
     @Override
     public SqlFragment asFragment(String... fieldNames) {
         Condition condition = Condition.FALSE;
-        for (LinkableMetrologyConfigurationSqlBuilder builder : builders) {
+        for (UsagePointRequirementSqlBuilder builder : builders) {
             condition = condition.or(ListOperator.IN.contains(builder, "id"));
         }
         return this.meteringService.getDataModel()
