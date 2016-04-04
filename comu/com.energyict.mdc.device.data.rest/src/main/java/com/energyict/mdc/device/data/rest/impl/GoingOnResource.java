@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.ProcessInstanceInfo;
+import com.elster.jupiter.bpm.UserTaskInfo;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
@@ -20,6 +22,7 @@ import com.energyict.mdc.device.data.Device;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -27,7 +30,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.time.Clock;
-import java.util.Collections;
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +59,7 @@ public class GoingOnResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
+    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
 
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
 
@@ -78,8 +82,11 @@ public class GoingOnResource {
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
-        List<GoingOnInfo> processInstances = Collections.emptyList();
-        // TODO collect from Bpm
+        List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(device))
+                .processes
+                .stream()
+                .map(goingOnInfoFactory::toGoingOnInfo)
+                .collect(Collectors.toList());
 
         List<GoingOnInfo> goingOnInfos = Stream.of(issues, serviceCalls, processInstances)
                 .flatMap(List::stream)
@@ -87,6 +94,10 @@ public class GoingOnResource {
                 .collect(Collectors.toList());
 
         return Response.ok(PagedInfoList.fromPagedList("goingsOn", goingOnInfos, queryParameters)).build();
+    }
+
+    private String filterFor(Device device) {
+        return "?variableid=deviceId&variablevalue=" + device.getmRID();
     }
 
     private EnumSet<DefaultState> nonFinalStates() {
@@ -130,6 +141,22 @@ public class GoingOnResource {
             goingOnInfo.assignee = null;
             goingOnInfo.assigneeIsCurrentUser = false;
             goingOnInfo.status = serviceCallService.getDisplayName(serviceCall.getState());
+            return goingOnInfo;
+        }
+
+        private GoingOnInfo toGoingOnInfo(ProcessInstanceInfo processInstanceInfo) {
+            Optional<UserTaskInfo> userTaskInfo = processInstanceInfo.openTasks
+                    .stream()
+                    .min(Comparator.comparing(info -> Long.parseLong(info.dueDate)));
+            GoingOnInfo goingOnInfo = new GoingOnInfo();
+            goingOnInfo.type = "process";
+            goingOnInfo.id = userTaskInfo.map(info -> Long.parseLong(info.id)).orElse(0L);
+            goingOnInfo.description = processInstanceInfo.name;
+            goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);
+            goingOnInfo.severity = null;
+            goingOnInfo.assignee = userTaskInfo.flatMap(info -> Optional.ofNullable(info.actualOwner)).orElse(null);
+            goingOnInfo.assigneeIsCurrentUser = userTaskInfo.flatMap(info -> Optional.ofNullable(info.isAssignedToCurrentUser)).orElse(false);
+            goingOnInfo.status = userTaskInfo.flatMap(info -> Optional.ofNullable(info.status)).orElse(null);
             return goingOnInfo;
         }
     }
