@@ -196,18 +196,18 @@ translations.each do |component, keys|
 		emptyKeys.each do |key, value|
 			componentBlob += "\n" + key + "=" + value	
 		end
-	end
+  end
 	
 	translationsBlob += componentBlob + "\n\n"
-	if "#{just_checking}" != '' then
+	if "#{just_checking}" == '' then
         print componentBlob
     end
-	if just_checking != '' then
+	if "#{just_checking}" == '' then
         File.open(folder + "/src/main/resources/" + propertiesFile, 'w') { |file| file.write(componentBlob) }
     end
 end
 
-if "#{just_checking}" != '' then
+if "#{just_checking}" == '' then
     system("tail -n +3 src/main/resources/i18n.properties > src/main/resources/i18n.properties.bak")
     system("tail -n +3 src/main/resources/i18n.properties.tmp > src/main/resources/i18n.properties.tmp.bak")
     difference=`diff src/main/resources/i18n.properties.bak src/main/resources/i18n.properties.tmp.bak`
