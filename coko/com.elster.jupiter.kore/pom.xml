@@ -41,7 +41,6 @@
                 <module>../com.elster.jupiter.export.extjs</module>
                 <module>../com.elster.jupiter.export.processors</module>
                 <module>../com.elster.jupiter.export.rest</module>
-                <module>../com.elster.jupiter.gogo</module>
                 <module>../com.elster.jupiter.ids</module>
                 <module>../com.elster.jupiter.issue</module>
                 <module>../com.elster.jupiter.issue.extjs</module>
@@ -66,6 +65,13 @@
                 <module>../com.elster.jupiter.yellowfin.groups</module>
                 <module>../com.elster.jupiter.yellowfin.rest</module>
                 <module>../com.elster.jupiter.yellowfin.extjs</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>test-kore-bundles</id>
+            <modules>
+                <module>../com.elster.jupiter.gogo</module>
+                <module>../com.elster.jupiter.metering.cps</module>
             </modules>
         </profile>
     </profiles>
