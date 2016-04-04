@@ -128,16 +128,28 @@ Ext.define('Imt.servicecalls.controller.ServiceCalls', {
     },
 
     getSixtyDaysFilter: function () {
-        var date,
+        var me = this,
+            date,
             filter = {};
 
-        date = new Date();
+        filter.toDate = me.getTomorrow();
+
+        date = me.getTomorrow();
         date.setDate(date.getDate() - 60);
         filter.fromDate = date;
-        date = new Date();
-        filter.toDate = date;
 
         return filter;
+    },
+
+    getTomorrow: function () {
+        var date = new Date();
+        date.setDate(date.getDate() + 1);
+        date.setHours(0);
+        date.setMinutes(0);
+        date.setSeconds(0);
+        date.setMilliseconds(0);
+
+        return date;
     },
 
     chooseAction: function (menu, item) {
