@@ -319,7 +319,7 @@ public class UsagePointImpl implements UsagePoint {
         this.getDetail(Range.all()).forEach(detail::remove);
     }
 
-    }
+
 
     private void removeMetrologyConfigurationCustomPropertySetValues() {
         this.removeCustomPropertySetValues(
