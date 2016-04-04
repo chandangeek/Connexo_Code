@@ -26,7 +26,6 @@ Ext.define('Uni.controller.history.EventBus', {
 
     initHistory: function () {
         var me = this;
-        debugger;
 
         crossroads.bypassed.add(function (request) {
             crossroads.parse("/error/notfound");
