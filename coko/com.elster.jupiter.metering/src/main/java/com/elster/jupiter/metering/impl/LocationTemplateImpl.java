@@ -16,8 +16,9 @@ public final class LocationTemplateImpl implements LocationTemplate {
     private long id;
     private String templateFields;
     private String mandatoryFields;
+    private List<String>splitLineElements = new LinkedList<>();
     private final DataModel dataModel;
-    private List<TemplateField> templateMembers = new ArrayList<>();
+    private List<TemplateField> templateMembers = new LinkedList<>();
     private long version;
     private Instant createTime;
     private Instant modTime;
@@ -80,8 +81,13 @@ public final class LocationTemplateImpl implements LocationTemplate {
     @Override
     public void parseTemplate(String locationTemplate, String mandatoryFields) {
         if (locationTemplate != null && mandatoryFields != null) {
-            String[] templateElements = locationTemplate.trim().split(",");
-            String[] mandatoryFieldElements = mandatoryFields.trim().split(",");
+            this.templateFields = locationTemplate.trim();
+            this.mandatoryFields = mandatoryFields.trim();
+            Arrays.asList(this.templateFields.split(",")).stream().filter(f ->
+                    f.startsWith("\\n") || f.startsWith("\\r")).forEach(e ->
+                    splitLineElements.add(e.replace("\\n", "").replace("\\r", "")));
+            String[] templateElements = this.templateFields.replace("\\n", "").replace("\\r", "").split(",");
+            String[] mandatoryFieldElements = this.mandatoryFields.trim().split(",");
             if (Arrays.asList(templateElements).containsAll(ALLOWED_LOCATION_TEMPLATE_ELEMENTS)
                     && Arrays.asList(templateElements).containsAll(Arrays.asList(mandatoryFields.trim().split(",")))) {
                 AtomicInteger index = new AtomicInteger(-1);
@@ -196,6 +202,11 @@ public final class LocationTemplateImpl implements LocationTemplate {
     @Override
     public Instant getModTime() {
         return modTime;
+    }
+
+    @Override
+    public List<String> getSplitLineElements() {
+        return splitLineElements;
     }
 
     static final class TemplateFieldImpl implements TemplateField, Comparable<TemplateFieldImpl> {

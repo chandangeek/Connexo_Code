@@ -22,6 +22,8 @@ public interface LocationTemplate {
 
     List<TemplateField> getTemplateMembers();
 
+    List<String> getSplitLineElements();
+
     long getVersion();
 
     Instant getCreateTime();
@@ -44,6 +46,7 @@ public interface LocationTemplate {
         String getAbbreviation();
 
         void setAbbreviation(String abbreviation);
+
     }
 
 }
