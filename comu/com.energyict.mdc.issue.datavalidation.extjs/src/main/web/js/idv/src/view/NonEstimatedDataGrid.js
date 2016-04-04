@@ -73,6 +73,7 @@ Ext.define('Idv.view.NonEstimatedDataGrid', {
                     plain: true,
                     items: {
                         text: Uni.I18n.translate('issues.actionMenu.viewData', 'IDV', 'View data'),
+                        itemId: 'datavalidation-view-data-mnu',
                         action: 'viewData',
                         hrefTarget: '_blank'
                     }
