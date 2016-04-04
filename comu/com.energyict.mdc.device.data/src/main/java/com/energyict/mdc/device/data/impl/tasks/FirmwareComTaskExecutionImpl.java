@@ -26,7 +26,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -154,7 +154,7 @@ public class FirmwareComTaskExecutionImpl extends ComTaskExecutionImpl implement
 
     @Override
     public List<ComTask> getComTasks() {
-        return Arrays.asList(this.comTask.get());
+        return Collections.singletonList(this.comTask.get());
     }
 
     @Override
