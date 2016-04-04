@@ -9,6 +9,8 @@ import com.elster.jupiter.bpm.BpmProcessPrivilege;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
+import com.elster.jupiter.bpm.ProcessInstanceInfo;
+import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
@@ -24,6 +26,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -66,13 +69,14 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     private volatile UserService userService;
     private volatile BpmServerImpl bpmServer;
     private volatile QueryService queryService;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private List<ProcessAssociationProvider> processAssociationProviders = new CopyOnWriteArrayList<>();
 
     public BpmServiceImpl() {
     }
 
     @Inject
-    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService, QueryService queryService) {
+    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService, QueryService queryService, ThreadPrincipalService threadPrincipalService) {
         this();
         setOrmService(ormService);
         setMessageService(messageService);
@@ -80,6 +84,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         setUserService(userService);
         setNlsService(nlsService);
         setQueryService(queryService);
+        setThreadPrincipalService(threadPrincipalService);
         activate(null);
         if (!dataModel.isInstalled()) {
             install();
@@ -97,10 +102,11 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
                 bind(DataModel.class).toInstance(dataModel);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(BpmService.class).toInstance(BpmServiceImpl.this);
             }
         });
-        bpmServer = new BpmServerImpl(context);
+        bpmServer = new BpmServerImpl(context, threadPrincipalService);
     }
 
     @Deactivate
@@ -154,6 +160,11 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Override
@@ -295,6 +306,20 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     public Optional<ProcessAssociationProvider> getProcessAssociationProvider(String type) {
         return processAssociationProviders.stream()
                 .filter(p -> p.getType().equalsIgnoreCase(type)).findFirst();
+    }
+
+    @Override
+    public ProcessInstanceInfos getRunningProcesses(String authorization, String filter) {
+        ProcessInstanceInfos runningProcesses = this.getBpmServer().getRunningProcesses(authorization, filter);
+
+        List<BpmProcessDefinition> activeProcesses = this.getActiveBpmProcessDefinitions();
+        List<ProcessInstanceInfo> filteredRunningProcesses = runningProcesses.processes.stream()
+                .filter(process -> activeProcesses.stream()
+                        .anyMatch(activeProcess -> process.name.equals(activeProcess.getProcessName()) && process.version
+                                .equals(activeProcess.getVersion())))
+                .collect(Collectors.toList());
+
+        return new ProcessInstanceInfos(filteredRunningProcesses);
     }
 
     @Override

@@ -1,6 +1,12 @@
 package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.bpm.BpmServer;
+import com.elster.jupiter.bpm.ProcessInstanceInfos;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.osgi.framework.BundleContext;
 
 import java.io.BufferedReader;
@@ -10,7 +16,6 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
-import java.util.Optional;
 
 public class BpmServerImpl implements BpmServer {
 
@@ -25,8 +30,12 @@ public class BpmServerImpl implements BpmServer {
     private String url;
     private String basicAuthString;
 
-    BpmServerImpl(BundleContext context) {
+    private volatile ThreadPrincipalService threadPrincipalService;
+
+    BpmServerImpl(BundleContext context, ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
         this.setUrlFromContext(context);
+
         String user = this.getUserFromContext(context);
         String password = this.getPasswordFromContext(context);
         if(user != null && password != null) {
@@ -164,6 +173,41 @@ public class BpmServerImpl implements BpmServer {
                 httpConnection.disconnect();
             }
         }
+    }
+
+    @Override
+    public ProcessInstanceInfos getRunningProcesses(String authorization, String filter) {
+        String jsonContent;
+        JSONArray processes = null;
+        try {
+            String rest = "/rest/tasks/runningprocesses";
+            if (!filter.equals("")) {
+                rest += filter.startsWith("?") ? filter : "?" + filter;
+            }
+            jsonContent = this.doGet(rest, authorization);
+            if (!"".equals(jsonContent)) {
+                JSONObject obj = new JSONObject(jsonContent);
+                processes = obj.getJSONArray("processInstances");
+            }
+
+        } catch (JSONException e) {
+            //throw new ;
+        } catch (RuntimeException e) {
+            //throw new ;
+        }
+
+        return new ProcessInstanceInfos(processes, (threadPrincipalService.getPrincipal() != null) ? threadPrincipalService
+                .getPrincipal()
+                .getName() : "");
+    }
+
+    private String mapProcessStatus(int status) {
+        String currentStatus = "UNKNOWN";
+        switch (status) {
+            case 0:
+                break;
+        }
+        return currentStatus;
     }
 
 }
