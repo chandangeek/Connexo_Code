@@ -33,6 +33,14 @@ public class UserTaskInfos {
                     throw new RuntimeException(e);
                 }
             }
+
+            tasks.stream().sorted((t1, t2) -> {
+                if (t1.dueDate.isEmpty()) {
+                    return (t2.dueDate.isEmpty()) ? ((Integer.parseInt(t1.priority) < Integer.parseInt(t2.priority)) ? -1 : 1) : -1;
+                } else {
+                    return (Long.parseLong(t1.dueDate) < Long.parseLong(t2.dueDate)) ? -1 : 1;
+                }
+            });
         }
     }
 
