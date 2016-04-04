@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ReadingTypePatternInfo {
     public String value;
-    public ReadingTypePatternAttributesInfo attributes;
+    public ReadingTypePatternAttributeInfo attributes;
 
     public ReadingTypePatternInfo() {
     }

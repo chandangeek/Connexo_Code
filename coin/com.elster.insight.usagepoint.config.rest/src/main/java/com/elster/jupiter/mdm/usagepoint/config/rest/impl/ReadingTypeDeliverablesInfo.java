@@ -12,5 +12,5 @@ public class ReadingTypeDeliverablesInfo {
     public long id;
     public String name;
     public ReadingTypeInfo readingType;
-    public FormulaInfo formulaInfo;
+    public FormulaInfo formula;
 }

@@ -1,5 +1,9 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -12,10 +16,14 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
+import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -48,6 +56,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -105,24 +114,41 @@ public class MetrologyConfigurationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Transactional
     public Response createMetrologyConfiguration(MetrologyConfigurationInfo metrologyConfigurationInfo) {
-        /*
-        Just a stub, not to break a possibility to create metrology configuration from UI
-         */
-//        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-//        UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(metrologyConfigurationInfo.name, serviceCategory).create();
-
-        metrologyConfigurationService.newMeterRole(DefaultMeterRole.DEFAULT.getNlsKey());
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration("config", serviceCategory).create();
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
         serviceCategory.addMeterRole(meterRole);
+        UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(metrologyConfigurationInfo.name, serviceCategory)
+                .create();
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = Optional.ofNullable(meteringService.findReadingTypes(Arrays.asList("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0"))
                 .get(0)).orElseThrow(IllegalArgumentException::new);
         String name = "Reading type requirement";
-        metrologyConfiguration.addReadingTypeRequirement(name)
+        metrologyConfiguration.addMeterRole(meterRole);
+
+
+        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("testD", readingType, Formula.Mode.AUTO);
+
+        MetrologyPurpose purpose = metrologyConfigurationService.getMetrologyPurposes().stream().findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Default purposes not installed"));
+        MetrologyContract contract = metrologyConfiguration.addMetrologyContract(purpose);
+        contract.addDeliverable(builder.build(builder.requirement(metrologyConfiguration.newReadingTypeRequirement(name)
                 .withMeterRole(meterRole)
-                .withReadingType(readingType);
+                .withReadingType(readingType))));
+
+        builder = metrologyConfiguration.newReadingTypeDeliverable("testD2", readingType, Formula.Mode.AUTO);
+        contract.addDeliverable(builder.build(builder.requirement(metrologyConfiguration.newReadingTypeRequirement("testRequirement")
+                .withMeterRole(meterRole)
+                .withReadingTypeTemplate(metrologyConfigurationService.createReadingTypeTemplate("testTemplate"+metrologyConfigurationInfo.name)
+                        .setAttribute(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.MINUTE15.getId())
+                        .setAttribute(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE.getId())
+                        .setAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, null, ReadingTypeUnit.JOULE.getId(), ReadingTypeUnit.ELECTRONVOLT.getId())
+                        .done())
+                .overrideAttribute(ReadingTypeTemplateAttributeName.MACRO_PERIOD, 8)
+                .overrideAttribute(ReadingTypeTemplateAttributeName.ACCUMULATION,1)
+        .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE,1)
+        .overrideAttribute(ReadingTypeTemplateAttributeName.CRITICAL_PEAK_PERIOD,4)
+        .overrideAttribute(ReadingTypeTemplateAttributeName.CONSUMPTION_TIER,2)
+        .overrideAttribute(ReadingTypeTemplateAttributeName.COMMODITY, 10))));
 
         return Response.status(Response.Status.CREATED).entity(metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration)).build();
     }

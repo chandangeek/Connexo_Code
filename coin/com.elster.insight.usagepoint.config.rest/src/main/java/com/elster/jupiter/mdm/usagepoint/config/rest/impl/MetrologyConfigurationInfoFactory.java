@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
+import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.aggregation.ServerExpressionNode;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
@@ -29,6 +30,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -113,7 +115,7 @@ public class MetrologyConfigurationInfoFactory {
         info.id = readingTypeDeliverable.getId();
         info.name = readingTypeDeliverable.getName();
         info.readingType = new ReadingTypeInfo(readingTypeDeliverable.getReadingType());
-        info.formulaInfo = asInfo(readingTypeDeliverable.getFormula());
+        info.formula = asInfo(readingTypeDeliverable.getFormula());
         return info;
     }
 
@@ -121,7 +123,7 @@ public class MetrologyConfigurationInfoFactory {
         FormulaInfo info = new FormulaInfo();
         info.description = formula.getDescription();
         info.readingTypeRequirements = asInfoList(formula.getExpressionNode());
-        info.customProperties = Collections.emptyList();
+        info.customProperties = Collections.emptyList(); //not supported yet
         return info;
     }
 
@@ -143,17 +145,25 @@ public class MetrologyConfigurationInfoFactory {
          else if(requirement instanceof PartiallySpecifiedReadingType){
             PartiallySpecifiedReadingType partiallySpecifiedReadingType = (PartiallySpecifiedReadingType) requirement;
             info.type = "partiallySpecified";
-            info.readingTypePattern = asInfo(partiallySpecifiedReadingType.getReadingTypeTemplate());
+            info.readingTypePattern = new ReadingTypePatternInfo();
+            info.readingTypePattern.value = partiallySpecifiedReadingType.getStringDescription();
+            info.readingTypePattern.attributes = new ReadingTypePatternAttributeInfo();
+            info.readingTypePattern.attributes.multiplier = partiallySpecifiedReadingType
+                    .getTranslatedAttributeValue(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER)
+                    .map(Collections::singletonList).orElse(null);
+            info.readingTypePattern.attributes.accumulation = partiallySpecifiedReadingType
+                    .getTranslatedAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION)
+                    .map(Collections::singletonList).orElse(null);
+            info.readingTypePattern.attributes.timePeriod = partiallySpecifiedReadingType
+                    .getTranslatedTimeValue()
+                    .map(Collections::singletonList).orElse(null);
+            List<String> unitValues = partiallySpecifiedReadingType.getTranslatedUnitValues();
+            if(!unitValues.isEmpty()){
+                info.readingTypePattern.attributes.unit = unitValues;
+            }
         }
         return info;
     }
-
-    private ReadingTypePatternInfo asInfo(ReadingTypeTemplate template) {
-        ReadingTypePatternInfo info = new ReadingTypePatternInfo();
-        info.value = "[*] * A+ (*Wh)";
-        return info;
-    }
-
 
     private class ReadingTypeVisitor implements ExpressionNode.Visitor<Void>{
 
