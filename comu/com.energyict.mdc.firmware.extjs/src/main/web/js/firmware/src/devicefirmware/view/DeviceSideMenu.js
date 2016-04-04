@@ -10,6 +10,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceSideMenu', {
             items: [
                 {
                     text: Uni.I18n.translate('general.firmware', 'FWC', 'Firmware'),
+                    itemId: 'device-firmware-link-menu',
                     href: '#/devices/' + encodeURIComponent(me.device.get('mRID')) + '/firmware'
                 }
             ]
