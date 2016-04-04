@@ -3,25 +3,22 @@ package com.elster.jupiter.prepayment.impl;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.prepayment.impl.fullduplex.FullDuplexController;
+import com.elster.jupiter.prepayment.impl.servicecall.ServiceCallCommands;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.MessagesTask;
 
 import javax.inject.Inject;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -34,13 +31,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by bvn on 9/16/15.
@@ -48,67 +39,77 @@ import java.util.stream.Stream;
 @Path("usagepoints/{mrid}")
 public class UsagePointResource {
 
-    private static final String UNDEFINED = "undefined";
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final Clock clock;
     private final ExceptionFactory exceptionFactory;
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final TransactionService transactionService;
+    private final ServiceCallCommands serviceCallCommands;
+    private final FullDuplexController fullDuplexController;
 
     @Inject
-    public UsagePointResource(MeteringService meteringService, DeviceService deviceService, Clock clock, ExceptionFactory exceptionFactory, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public UsagePointResource(MeteringService meteringService, DeviceService deviceService, Clock clock, ExceptionFactory exceptionFactory, TransactionService transactionService, ServiceCallCommands serviceCallCommands, FullDuplexController fullDuplexController) {
         this.meteringService = meteringService;
         this.deviceService = deviceService;
         this.clock = clock;
         this.exceptionFactory = exceptionFactory;
-        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.transactionService = transactionService;
+        this.serviceCallCommands = serviceCallCommands;
+        this.fullDuplexController = fullDuplexController;
     }
 
     @PUT
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/contactor")
-    @Transactional
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context UriInfo uriInfo) {
-        validateContactorInfo(contactorInfo);
-        Device device = findDeviceThroughUsagePoint(mRID);
-        List<DeviceMessageId> deviceMessageIds = getMessageIdsOfAllRequiredMessages(contactorInfo);
-        List<DeviceMessage<Device>> deviceMessages = createDeviceMessagesOnDevice(contactorInfo, device, deviceMessageIds);
-        getComTaskEnablementsForDeviceMessages(device, deviceMessageIds).forEach(comTaskEnablement -> {
-            Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
-                    .filter(cte -> cte.getComTasks().stream()
-                            .anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))
-                    .findFirst();
-            existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)).runNow();
+        UsagePoint usagePoint = null;
+        Device device = null;
+        ServiceCall serviceCall = null;
+        try (TransactionContext context = transactionService.getContext()) {    //TODO: review transaction mechanism / when to rollback stuff
+            try {
+                usagePoint = findUsagePoint(mRID);
+                device = findDeviceThroughUsagePoint(usagePoint);
+                serviceCall = serviceCallCommands.createContactorOperationServiceCall(Optional.of(usagePoint), Optional.of(device), contactorInfo);
 
-        });
-        URI uri = uriInfo.getBaseUriBuilder().
-                path(UsagePointResource.class).
-                path(UsagePointResource.class, "getDeviceMessage").
-                build(mRID, deviceMessages.get(deviceMessages.size() - 1)
-                        .getId()); //TODO: now temporary using ID of last message
+                serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
+                serviceCallCommands.requestTransition(serviceCall, DefaultState.ONGOING);    // Immediately transit to 'ONGOING' state
+                validateContactorInfo(serviceCall, contactorInfo);
+                fullDuplexController.performContactorOperations(device, serviceCall, contactorInfo);
+                serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
 
-        return Response.accepted().location(uri).build();
+                //TODO: which info should the URI contain?
+                URI uri = uriInfo.getBaseUriBuilder().path(UsagePointResource.class).path(UsagePointResource.class, "getDeviceMessage").build(mRID, serviceCall.getId());
+                context.commit();
+                return Response.ok().location(uri).build();
+            } catch (ExceptionFactory.RestException | ConstraintViolationException e) { //TODO: catch also other types of exceptions?
+                if (serviceCall == null) {                  //TODO: should we take specific measures to prevent DDoS attacks? (cause now we create a new ServiceCall object for each incoming request)
+                    serviceCall = serviceCallCommands.createContactorOperationServiceCall(Optional.ofNullable(usagePoint), Optional.ofNullable(device), contactorInfo);
+                }
+                serviceCallCommands.rejectServiceCall(serviceCall, e.getMessage());
+                context.commit();
+                return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            }
+        }
     }
 
     /**
      * Validate the specified ContactorInfo contains valid data
      */
-    private void validateContactorInfo(ContactorInfo contactorInfo) {
+    private void validateContactorInfo(ServiceCall serviceCall, ContactorInfo contactorInfo) {
+        serviceCall.log(LogLevel.INFO, "Received parameters: " + contactorInfo.toString());
         if (contactorInfo.loadLimit != null) {
-            if (contactorInfo.loadLimit.limit == null || (contactorInfo.loadLimit.limit != null && contactorInfo.loadLimit.unit == null)) {
-                throw exceptionFactory.newException(MessageSeeds.INCOMPLETE_LOADLIMIT, "");
+            if (contactorInfo.loadLimit.limit == null || contactorInfo.loadLimit.unit == null) {
+                throw exceptionFactory.newException(MessageSeeds.INCOMPLETE_LOADLIMIT);
             } else if (!contactorInfo.loadLimit.getUnit().isPresent()) {
-                throw exceptionFactory.newException(MessageSeeds.UNKNOWN_UNIT_CODE, "");
+                throw exceptionFactory.newException(MessageSeeds.UNKNOWN_UNIT_CODE);
             }
         }
-
-        if (contactorInfo.readingType != null &&
-                !this.meteringService.getReadingType(contactorInfo.readingType).isPresent()) {
+        if (contactorInfo.readingType != null && !this.meteringService.getReadingType(contactorInfo.readingType).isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.UNKNOWN_READING_TYPE);
         }
-
         if (contactorInfo.loadTolerance != null && contactorInfo.loadTolerance < 0) {
+            serviceCall.log(LogLevel.FINE, "The specified load tolerance contains a negative value; this value will be ignored (the load tolerance will remain untouched).");
             contactorInfo.loadTolerance = null; // If tolerance is negative, then ignore it
         }
     }
@@ -118,7 +119,8 @@ public class UsagePointResource {
     @Path("/messages/{messageId}")
     @Transactional
     public Response getDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long id) {
-        Device device = findDeviceThroughUsagePoint(mRID);
+        UsagePoint usagePoint = findUsagePoint(mRID);
+        Device device = findDeviceThroughUsagePoint(usagePoint);
         DeviceMessage<Device> deviceMessage = device.getMessages()
                 .stream()
                 .filter(msg -> msg.getId() == id)
@@ -130,122 +132,13 @@ public class UsagePointResource {
         return Response.ok(info).build();
     }
 
-    private Device findDeviceThroughUsagePoint(String mRID) {
-        UsagePoint usagePoint = meteringService.findUsagePoint(mRID)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_USAGE_POINT));
-        MeterActivation meterActivation = usagePoint.getCurrentMeterActivation()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CURRENT_METER_ACTIVATION));
-        Meter meter = meterActivation.getMeter()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METER_IN_ACTIVATION));
-        return deviceService.findByUniqueMrid(meter.getMRID())
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_FOR_METER, meter.getMRID()));
+    private UsagePoint findUsagePoint(String mRID) {
+        return meteringService.findUsagePoint(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_USAGE_POINT));
     }
 
-    private ManuallyScheduledComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
-        if (comTaskEnablement.hasPartialConnectionTask()) {
-            device.getConnectionTasks().stream()
-                    .filter(connectionTask -> connectionTask.getPartialConnectionTask()
-                            .getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
-                    .findFirst()
-                    .ifPresent(comTaskExecutionBuilder::connectionTask);
-        }
-        ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = comTaskExecutionBuilder.add();
-        device.save();
-        return manuallyScheduledComTaskExecution;
-    }
-
-    private List<DeviceMessage<Device>> createDeviceMessagesOnDevice(ContactorInfo contactorInfo, Device device, List<DeviceMessageId> deviceMessageIds) {
-        List<DeviceMessage<Device>> deviceMessages = new ArrayList<>();
-        for (DeviceMessageId deviceMessageId : deviceMessageIds) {
-            Optional<DeviceMessageSpec> deviceMessageSpec = this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId
-                    .dbValue());
-            Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId)
-                    .setReleaseDate(clock.instant());
-
-            if (contactorInfo.activationDate != null && deviceMessageSpecHasPropertySpec(deviceMessageSpec, DeviceMessageConstants.contactorActivationDateAttributeName)) {
-                deviceMessageBuilder.addProperty(DeviceMessageConstants.contactorActivationDateAttributeName, Date.from(contactorInfo.activationDate));
-            }
-            if (contactorInfo.loadLimit != null && deviceMessageSpecHasPropertySpec(deviceMessageSpec, DeviceMessageConstants.normalThresholdAttributeName)) {
-                deviceMessageBuilder.addProperty(DeviceMessageConstants.normalThresholdAttributeName, contactorInfo.loadLimit.limit);
-                deviceMessageBuilder.addProperty(DeviceMessageConstants.unitAttributeName, contactorInfo.loadLimit.unit.isEmpty() ? UNDEFINED : contactorInfo.loadLimit.unit);
-            }
-            if (contactorInfo.loadTolerance != null && deviceMessageSpecHasPropertySpec(deviceMessageSpec, DeviceMessageConstants.overThresholdDurationAttributeName)) {
-                deviceMessageBuilder.addProperty(DeviceMessageConstants.overThresholdDurationAttributeName, new TimeDuration(contactorInfo.loadTolerance));
-            }
-            if (contactorInfo.tariffs != null && deviceMessageSpecHasPropertySpec(deviceMessageSpec, DeviceMessageConstants.tariffsAttributeName)) {
-                String tariffs = Arrays.asList(contactorInfo.tariffs)
-                        .stream()
-                        .map(Object::toString)
-                        .collect(Collectors.joining(", "));
-                deviceMessageBuilder.addProperty(DeviceMessageConstants.tariffsAttributeName, tariffs);
-            }
-            if (contactorInfo.readingType != null && deviceMessageSpecHasPropertySpec(deviceMessageSpec, DeviceMessageConstants.readingTypeAttributeName)) {
-                ReadingType readingType = this.meteringService.getReadingType(contactorInfo.readingType).get();
-                deviceMessageBuilder.addProperty(DeviceMessageConstants.readingTypeAttributeName, readingType);
-            }
-
-            deviceMessages.add(deviceMessageBuilder.add());
-        }
-
-        return deviceMessages;
-    }
-
-    private boolean deviceMessageSpecHasPropertySpec(Optional<DeviceMessageSpec> deviceMessageSpec, String propertyName) {
-        return deviceMessageSpec.isPresent() && deviceMessageSpec.get().getPropertySpec(propertyName).isPresent();
-    }
-
-    private Stream<ComTaskEnablement> getComTaskEnablementsForDeviceMessages(Device device, List<DeviceMessageId> deviceMessageIds) {
-        List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
-        deviceMessageIds.stream()
-                .forEach(deviceMessageId -> comTaskEnablements.add(device.getDeviceConfiguration()
-                        .getComTaskEnablements()
-                        .stream()
-                        .filter(cte -> cte.getComTask().getProtocolTasks().stream().
-                                filter(task -> task instanceof MessagesTask).
-                                flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                                flatMap(category -> category.getMessageSpecifications().stream()).
-                                filter(dms -> dms.getId().equals(deviceMessageId)).
-                                findFirst().
-                                isPresent())
-                        .findAny()
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_COMTASK_FOR_COMMAND))));
-
-        return comTaskEnablements.stream().distinct();
-    }
-
-    private List<DeviceMessageId> getMessageIdsOfAllRequiredMessages(ContactorInfo contactorInfo) {
-        List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
-        if (contactorInfo.status != null) {
-            switch (contactorInfo.status) {
-                case connected:
-                    deviceMessageIds.add(contactorInfo.activationDate != null ? DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_CLOSE);
-                    break;
-                case disconnected:
-                    deviceMessageIds.add(contactorInfo.activationDate != null ? DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_OPEN);
-                    break;
-                case armed:
-                    deviceMessageIds.add(contactorInfo.activationDate != null ? DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_OPEN);
-                    deviceMessageIds.add(contactorInfo.activationDate != null ? DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_ARM);
-                    break;
-                default:
-                    throw exceptionFactory.newException(MessageSeeds.UNKNOWN_STATUS);
-            }
-        }
-
-        if (contactorInfo.loadLimit != null && contactorInfo.loadLimit.shouldDisableLoadLimit()) {
-            deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_DISABLE_LOAD_LIMITING);
-        } else if (contactorInfo.loadLimit != null && contactorInfo.loadTolerance != null) {
-            deviceMessageIds.add(contactorInfo.tariffs != null ? DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION_WITH_TARIFFS : DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION);
-        } else if (contactorInfo.loadLimit != null) {
-            deviceMessageIds.add(contactorInfo.tariffs != null ? DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS : DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD);
-        } else if (contactorInfo.loadTolerance != null) {
-            deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_DURATION);
-        }
-
-        if (contactorInfo.readingType != null) {
-            deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_MEASUREMENT_READING_TYPE);
-        }
-        return deviceMessageIds;
+    private Device findDeviceThroughUsagePoint(UsagePoint usagePoint) {
+        MeterActivation meterActivation = usagePoint.getCurrentMeterActivation().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CURRENT_METER_ACTIVATION));
+        Meter meter = meterActivation.getMeter().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METER_IN_ACTIVATION));
+        return deviceService.findByUniqueMrid(meter.getMRID()).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_FOR_METER, meter.getMRID()));
     }
 }

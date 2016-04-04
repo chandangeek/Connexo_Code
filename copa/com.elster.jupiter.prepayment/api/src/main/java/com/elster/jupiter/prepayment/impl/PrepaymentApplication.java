@@ -1,5 +1,6 @@
 package com.elster.jupiter.prepayment.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -9,9 +10,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.prepayment.impl.fullduplex.FullDuplexController;
+import com.elster.jupiter.prepayment.impl.fullduplex.MultiSenseAMRImpl;
 import com.elster.jupiter.prepayment.impl.installer.InstallerImpl;
+import com.elster.jupiter.prepayment.impl.servicecall.ServiceCallCommands;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionLogger;
@@ -48,6 +54,9 @@ public class PrepaymentApplication extends Application implements InstallService
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
     private volatile TransactionService transactionService;
+    private volatile ServiceCallService serviceCallService;
+    private volatile PropertySpecService propertySpecService;
+    private volatile CustomPropertySetService customPropertySetService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile Clock clock;
 
@@ -91,6 +100,21 @@ public class PrepaymentApplication extends Application implements InstallService
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Override
@@ -142,10 +166,16 @@ public class PrepaymentApplication extends Application implements InstallService
             bind(nlsService).to(NlsService.class);
             bind(transactionService).to(TransactionService.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
+            bind(propertySpecService).to(PropertySpecService.class);
+            bind(serviceCallService).to(ServiceCallService.class);
+            bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(clock).to(Clock.class);
 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(ServiceCallCommands.class).to(ServiceCallCommands.class);
+            bind(FullDuplexController.class).to(FullDuplexController.class);
+            bind(MultiSenseAMRImpl.class).to(MultiSenseAMRImpl.class);
         }
     }
 

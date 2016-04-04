@@ -1,5 +1,5 @@
 package com.elster.jupiter.prepayment.impl;
 
-enum Status {
+public enum BreakerStatus {
     connected, disconnected, armed
 }

@@ -2,8 +2,10 @@ package com.elster.jupiter.prepayment.impl;
 
 import com.energyict.mdc.common.Unit;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -11,13 +13,39 @@ import java.util.Optional;
  */
 public class ContactorInfo {
 
-    public Status status;
+    public BreakerStatus status;
+    @XmlJavaTypeAdapter(JsonInstantAdapter.class)
     public Instant activationDate;
     public LoadLimit loadLimit;
     public Integer loadTolerance;
     public Integer[] tariffs;
     public String readingType;
     public String callback;
+
+    @Override
+    public String toString() {
+        StringBuilder msgBuilder = new StringBuilder();
+        msgBuilder.append("ContactorInfo{");
+        msgBuilder.append("status: ").append(status);
+        if (activationDate != null) {
+            msgBuilder.append(", activationDate: ").append(activationDate);
+        }
+        if (loadLimit != null) {
+            msgBuilder.append(", loadLimit: ").append(loadLimit.limit).append(" ").append(loadLimit.unit);
+        }
+        if (loadTolerance != null) {
+            msgBuilder.append(", loadTolerance: ").append(loadTolerance);
+        }
+        if (tariffs != null) {
+            msgBuilder.append(", tariffs: ").append(Arrays.toString(tariffs));
+        }
+        if (readingType != null) {
+            msgBuilder.append(", readingType: ").append(readingType);
+        }
+        msgBuilder.append(", callBack: ").append(callback);
+        msgBuilder.append("}");
+        return msgBuilder.toString();
+    }
 
     public class LoadLimit {
         public BigDecimal limit;
