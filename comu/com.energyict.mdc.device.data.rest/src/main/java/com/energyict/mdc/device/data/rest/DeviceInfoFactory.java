@@ -36,8 +36,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private IssueDataValidationService issueDataValidationService;
     private MeteringService meteringService;
 
-    public DeviceInfoFactory() {
-    }
+    public DeviceInfoFactory() {}
 
     @Inject
     public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService) {
@@ -136,12 +135,12 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         Collections.sort(infos, Comparator.comparing(pdi -> pdi.propertyName));
 
         // Default columns in proper order
+        infos.add(0, createDescription("location", String.class));
         infos.add(0, new PropertyDescriptionInfo("state.name", String.class, thesaurus.getFormat(DeviceSearchModelTranslationKeys.STATE).format()));
         infos.add(0, createDescription("deviceConfigurationName", String.class));
         infos.add(0, createDescription("deviceTypeName", String.class));
         infos.add(0, createDescription("serialNumber", String.class));
         infos.add(0, createDescription("mRID", String.class));
-        infos.add(0, createDescription("location", String.class));
         infos.add(0, createDescription("geoCoordinates", String.class));
         return infos;
     }
