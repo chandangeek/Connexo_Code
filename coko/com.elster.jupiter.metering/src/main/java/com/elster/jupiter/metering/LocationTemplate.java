@@ -14,8 +14,6 @@ public interface LocationTemplate {
 
     String getTemplateFields();
 
-    Map<String, Integer> getRankings();
-
     String getMandatoryFields();
 
     List<String> getTemplateElementsNames();
@@ -23,8 +21,6 @@ public interface LocationTemplate {
     List<String> getMandatoryFieldsNames();
 
     List<TemplateField> getTemplateMembers();
-
-    void setTemplateMembers(List<TemplateField> templateMembers);
 
     long getVersion();
 

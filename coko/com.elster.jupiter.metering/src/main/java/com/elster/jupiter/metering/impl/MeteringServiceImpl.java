@@ -411,8 +411,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
         if (dataModel.isInstalled() && getLocationTemplateFromDB().isPresent()) {
             locationTemplate = getLocationTemplateFromDB().get();
-            locationTemplate
-                    .parseTemplate(locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields());
             locationTemplateMembers = ImmutableList.copyOf(locationTemplate.getTemplateMembers());
         }
 
@@ -780,7 +778,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public Optional<LocationTemplate> getLocationTemplateFromDB() {
         List<LocationTemplate> template = new ArrayList<>(dataModel.mapper(LocationTemplate.class).find());
         if (!template.isEmpty()) {
-            return Optional.of(template.get(0));
+            LocationTemplateImpl dbTemplate = LocationTemplateImpl
+                    .from(dataModel, template.get(0).getTemplateFields(), template.get(0).getMandatoryFields());
+            dbTemplate
+                    .parseTemplate(dbTemplate.getTemplateFields(), dbTemplate.getMandatoryFields());
+            return Optional.of(dbTemplate);
         }
         return Optional.empty();
     }
