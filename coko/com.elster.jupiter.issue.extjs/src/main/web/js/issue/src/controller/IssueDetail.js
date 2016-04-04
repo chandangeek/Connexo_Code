@@ -339,6 +339,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 if (data.length) {
                     store = Ext.create('Idv.store.NonEstimatedDataStore', {data: data});
                     validationBlocksWidget = Ext.widget('no-estimated-data-grid', {
+                        itemId: 'validation-no-estimated-data-grid',
                         store: store,
                         router: router,
                         issue: rec
