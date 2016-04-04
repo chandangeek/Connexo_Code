@@ -147,7 +147,7 @@ public class InMemoryPersistence {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
-            bind(DataModel.class).toProvider(() -> dataModel);
+     //       bind(DataModel.class).toProvider(() -> dataModel);
         }
     }
 
