@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -21,6 +22,7 @@ import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.AfterClass;
@@ -305,5 +307,36 @@ public class UsagePointMetrologyConfigurationTestIT {
         assertThat(valueBean.propertyName).isEqualTo("requirement2");
         assertThat(valueBean.values).containsExactly("some");
         assertThat(valueBean.operator).isEqualTo(SearchablePropertyOperator.NOT_EQUAL);
+    }
+
+    @Test
+    @Transactional
+    public void testCanFindLinkableMetrologyConfigurations() {
+        ServiceCategory serviceCategory = getServiceCategory();
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("config", serviceCategory)
+                .create();
+        SearchablePropertyValue.ValueBean serviceKindBean = new SearchablePropertyValue.ValueBean();
+        serviceKindBean.propertyName = "SERVICEKIND";
+        serviceKindBean.operator = SearchablePropertyOperator.EQUAL;
+        serviceKindBean.values = Collections.singletonList("ELECTRICITY");
+        metrologyConfiguration.addUsagePointRequirement(serviceKindBean);
+        metrologyConfiguration.activate();
+
+        metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("config 2", serviceCategory)
+                .create();
+        serviceKindBean = new SearchablePropertyValue.ValueBean();
+        serviceKindBean.propertyName = "SERVICEKIND";
+        serviceKindBean.operator = SearchablePropertyOperator.EQUAL;
+        serviceKindBean.values = Collections.singletonList("GAS");
+        metrologyConfiguration.addUsagePointRequirement(serviceKindBean);
+        metrologyConfiguration.activate();
+
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("UsagePoint1", inMemoryBootstrapModule.getClock().instant()).create();
+        List<UsagePointMetrologyConfiguration> metrologyConfigurations = getMetrologyConfigurationService().findLinkableMetrologyConfigurations(usagePoint);
+
+        assertThat(metrologyConfigurations).hasSize(1);
+        assertThat(metrologyConfigurations.get(0)).isEqualTo(metrologyConfiguration);
     }
 }

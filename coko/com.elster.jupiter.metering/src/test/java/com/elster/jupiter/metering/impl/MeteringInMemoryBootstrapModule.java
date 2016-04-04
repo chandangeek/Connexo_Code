@@ -24,7 +24,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -90,7 +90,8 @@ public class MeteringInMemoryBootstrapModule {
                 new NlsModule(),
                 new BasicPropertiesModule(),
                 new TimeModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new SearchModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
@@ -157,7 +158,6 @@ public class MeteringInMemoryBootstrapModule {
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(SearchService.class).toInstance(mock(SearchService.class));
         }
     }
 

@@ -42,6 +42,7 @@ import com.elster.jupiter.metering.impl.aggregation.AggregatedReadingRecordFacto
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
+import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -58,6 +59,8 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -81,6 +84,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
 import javax.validation.constraints.NotNull;
 import java.time.Clock;
@@ -102,6 +106,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Component(name = "com.elster.jupiter.metering",
         service = {MeteringService.class, ServerMeteringService.class, InstallService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + MeteringService.COMPONENTNAME)
+@Singleton
 public class MeteringServiceImpl implements ServerMeteringService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile IdsService idsService;
@@ -118,6 +123,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MetrologyConfigurationServiceImpl metrologyConfigurationService;
+    private volatile SearchService searchService;
+    private volatile PropertySpecService propertySpecService;
+    private volatile UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     private volatile boolean createAllReadingTypes;
@@ -130,7 +138,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Inject
     public MeteringServiceImpl(
             Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
-            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService) {
+            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService,
+            PropertySpecService propertySpecService, SearchService searchService) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -145,6 +154,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setJsonService(jsonService);
         setFiniteStateMachineService(finiteStateMachineService);
         setCustomPropertySetService(customPropertySetService);
+        setPropertySpecService(propertySpecService);
+        setSearchService(searchService);
         activate(null);
         if (!dataModel.isInstalled()) {
             install();
@@ -174,7 +185,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public List<ReadingType> findReadingTypes(List<String> mRids) {
-       return dataModel.mapper(ReadingType.class).select(Where.where("mRID").in(mRids));
+        return dataModel.mapper(ReadingType.class).select(Where.where("mRID").in(mRids));
     }
 
     @Override
@@ -391,10 +402,23 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         this.customPropertySetService = customPropertySetService;
     }
 
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
     @Activate
     public final void activate(BundleContext bundleContext) {
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService);
+        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this);
+        this.searchService.register(this.usagePointRequirementsSearchDomain);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService); // has dependency to usagePointRequirementsSearchDomain
         registerMetrologyConfigurationService(bundleContext);
+
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -413,6 +437,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(ServerMetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(AggregatedReadingRecordFactory.class).to(AggregatedReadingRecordFactoryImpl.class);
+                bind(UsagePointRequirementsSearchDomain.class).toInstance(usagePointRequirementsSearchDomain);
+                bind(SearchService.class).toInstance(searchService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
             }
         });
     }
@@ -573,7 +600,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public void createAllReadingTypes(List<Pair<String, String>> readingTypes) {
         List<ReadingType> availableReadingTypes = getAvailableReadingTypes();
         List<String> availableReadingTypeCodes = availableReadingTypes.parallelStream().map(ReadingType::getMRID).collect(Collectors.toList());
-        List<Pair<String, String>> filteredReadingTypes = readingTypes.parallelStream().filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getFirst())).collect(Collectors.toList());
+        List<Pair<String, String>> filteredReadingTypes = readingTypes.parallelStream()
+                .filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getFirst()))
+                .collect(Collectors.toList());
 
         DecoratedStream.decorate(filteredReadingTypes.stream())
                 .map(filteredReadingType -> dataModel.getInstance(ReadingTypeImpl.class).init(filteredReadingType.getFirst(), filteredReadingType.getLast()))

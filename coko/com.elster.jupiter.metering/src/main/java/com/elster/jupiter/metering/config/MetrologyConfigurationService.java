@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.NlsKey;
 
 import aQute.bnd.annotation.ProviderType;
@@ -38,6 +39,8 @@ public interface MetrologyConfigurationService {
     Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(String name);
 
     List<UsagePointMetrologyConfiguration> findAllUsagePointMetrologyConfigurations();
+
+    List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint);
 
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
