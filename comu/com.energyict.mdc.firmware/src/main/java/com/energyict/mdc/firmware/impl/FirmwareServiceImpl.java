@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -32,6 +33,7 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -156,6 +158,14 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
         }
 
         return DefaultFinder.of(FirmwareVersion.class, condition, dataModel).sorted("lower(firmwareVersion)", false);
+    }
+
+    Finder<ActivatedFirmwareVersion> findActivatedFirmwareVersion(Condition condition){
+        return DefaultFinder.of(ActivatedFirmwareVersion.class, condition, dataModel);
+    }
+
+    Finder<PassiveFirmwareVersion> findPassiveFirmwareVersion(Condition condition){
+        return DefaultFinder.of(PassiveFirmwareVersion.class, condition, dataModel);
     }
 
     private <T> Condition createMultipleConditions(List<T> params, String conditionField) {
@@ -305,6 +315,21 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
         return dataModel.query(DeviceInFirmwareCampaignImpl.class, FirmwareCampaign.class, Device.class)
                 .select(where(DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName()).isEqualTo(device).and(
                         where(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName() + "." + FirmwareCampaignImpl.Fields.STATUS.fieldName()).isNotEqual(FirmwareCampaignStatus.COMPLETE)));
+    }
+
+    @Override
+    public FirmwareCampaign getFirmwareCampaign(FirmwareComTaskExecution comTaskExecution) {
+        List<FirmwareCampaignImpl> campaigns = getDeviceInFirmwareCampaignsFor(comTaskExecution.getDevice())
+                                            .stream()
+                                            .map(DeviceInFirmwareCampaignImpl.class::cast)
+                                            .filter(DeviceInFirmwareCampaignImpl::hasNonFinalStatus)
+                                            .map(DeviceInFirmwareCampaignImpl::getFirmwareCampaign)
+                                            .collect(Collectors.toList());
+        if (campaigns.isEmpty())
+            throw CampaignForComtaskExecutionExceptions.campaigNotFound(this.thesaurus, comTaskExecution);
+        else if (campaigns.size() > 1)
+            throw CampaignForComtaskExecutionExceptions.campaignNotUnambiguouslyDefined(this.thesaurus, comTaskExecution);
+        return campaigns.get(0);
     }
 
     @Override
@@ -513,6 +538,11 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
                 Arrays.asList(
                         Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN)));
         return resources;
+    }
+
+    @Override
+    public DeviceFirmwareHistory getFirmwareHistory(Device device) {
+        return new DeviceFirmwareHistoryImpl(this, device);
     }
 
 }

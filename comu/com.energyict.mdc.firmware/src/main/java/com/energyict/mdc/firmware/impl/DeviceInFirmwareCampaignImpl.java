@@ -172,6 +172,10 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         save();
     }
 
+    public boolean hasNonFinalStatus(){
+        return NON_FINAL_STATUSES.contains(this.getStatus());
+    }
+
     private void createFirmwareMessage(Optional<DeviceMessageId> firmwareMessageId) {
         Device.DeviceMessageBuilder deviceMessageBuilder = getDevice()
                 .newDeviceMessage(firmwareMessageId.get())

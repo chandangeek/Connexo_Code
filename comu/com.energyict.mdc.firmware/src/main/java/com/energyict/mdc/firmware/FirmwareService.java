@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
 import java.util.List;
@@ -65,6 +66,13 @@ public interface FirmwareService {
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign);
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter);
 
+    /**
+     * Returns the {@link FirmwareCampaign} that is linked with the given comtaskExecution
+     * @param comTaskExecution as a result of the firmware campaing
+     * @return
+     */
+    FirmwareCampaign getFirmwareCampaign(FirmwareComTaskExecution comTaskExecution);
+
     void cancelFirmwareCampaign(FirmwareCampaign firmwareCampaign);
 
     /**
@@ -83,4 +91,7 @@ public interface FirmwareService {
      * @return the utility class
      */
     FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device);
+
+    DeviceFirmwareHistory getFirmwareHistory(Device device);
+
 }
