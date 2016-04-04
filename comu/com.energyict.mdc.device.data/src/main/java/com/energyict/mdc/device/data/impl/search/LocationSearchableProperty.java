@@ -9,17 +9,17 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.device.data.Device;
+
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.inject.Inject;
+import java.io.Serializable;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 public class LocationSearchableProperty extends AbstractSearchableDeviceProperty {
@@ -56,6 +56,16 @@ public class LocationSearchableProperty extends AbstractSearchableDeviceProperty
     }
 
     @Override
+    public PropertySpec getSpecification() {
+        return this.propertySpecService
+                .stringSpec()
+                .named(DeviceFields.LOCATION.fieldName(), this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                //             .markExhaustive()
+                .finish();
+    }
+
+    @Override
     public Visibility getVisibility() {
         return Visibility.STICKY;
     }
@@ -63,33 +73,6 @@ public class LocationSearchableProperty extends AbstractSearchableDeviceProperty
     @Override
     public SelectionMode getSelectionMode() {
         return SelectionMode.SINGLE;
-    }
-
-    @Override
-    protected TranslationKey getNameTranslationKey() {
-        return PropertyTranslationKeys.DEVICE_LOCATION;
-    }
-
-    @Override
-    protected boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof ComTask;
-    }
-
-    @Override
-    protected String toDisplayAfterValidation(Object value) {
-        return ((ComTask) value).getName();
-    }
-
-    @Override
-    public PropertySpec getSpecification() {
-        List<ComTask> comTasks = taskService.findAllComTasks().find();
-        return this.propertySpecService
-                .referenceSpec(ComTask.class)
-                .named(DeviceFields.LOCATION.fieldName(), this.getNameTranslationKey())
-                .fromThesaurus(this.getThesaurus())
-                .addValues(comTasks.toArray(new ComTask[comTasks.size()]))
-                .markExhaustive()
-                .finish();
     }
 
     @Override
@@ -105,13 +88,48 @@ public class LocationSearchableProperty extends AbstractSearchableDeviceProperty
     }
 
     @Override
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.DEVICE_LOCATION;
+    }
+
+    @Override
+    protected boolean valueCompatibleForDisplay(Object value) {
+        return value instanceof String;
+    }
+
+    @Override
+    protected String toDisplayAfterValidation(Object value) {
+        return String.valueOf(value);
+    }
+
+    @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        // No join clauses required
+        builder.addEndDevice();
     }
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        return this.toSqlFragment("dev.mRID", condition, now);
+
+        SqlBuilder builder = new SqlBuilder();
+        builder.append(JoinClauseBuilder.Aliases.END_DEVICE + ".LOCATIONID IN (");
+        builder.append(" select locOut.LOCATIONID from mtr_locationmember locOut right join ");
+        builder.append(" (select LOCATIONID, UPPERCOUNTRYCODE, UPPERCOUNTRYNAME, UPPERADMINISTRATIVEAREA, UPPERLOCALITY, ");
+        builder.append("        UPPERSUBLOCALITY, UPPERSTREETTYPE, UPPERSTREETNAME, UPPERSTREETNUMBER, ");
+        builder.append("        UPPERESTABLISHMENTTYPE, UPPERESTABLISHMENTNAME, UPPERESTABLISHMENTNUMBER, ");
+        builder.append("        UPPERADDRESSDETAIL, UPPERZIPCODE from mtr_locationmember where ");
+        builder.add(toSqlFragment("LOCATIONID", condition, now));
+        builder.append("   ) locIn ");
+        builder.append("    on locIn.UPPERCOUNTRYCODE = locOut.UPPERCOUNTRYCODE AND locIn.UPPERCOUNTRYNAME = locOut.UPPERCOUNTRYNAME AND ");
+        builder.append("        locIn.UPPERADMINISTRATIVEAREA = locOut.UPPERADMINISTRATIVEAREA AND locIn.UPPERLOCALITY = locOut.UPPERLOCALITY AND ");
+        builder.append("        locIn.UPPERSUBLOCALITY = locOut.UPPERSUBLOCALITY AND locIn.UPPERSTREETTYPE = locOut.UPPERSTREETTYPE AND ");
+        builder.append("        locIn.UPPERSTREETNAME = locOut.UPPERSTREETNAME AND locIn.UPPERSTREETNUMBER = locOut.UPPERSTREETNUMBER AND ");
+        builder.append("        locIn.UPPERESTABLISHMENTTYPE = locOut.UPPERESTABLISHMENTTYPE AND locIn.UPPERESTABLISHMENTNAME = locOut.UPPERESTABLISHMENTNAME AND ");
+        builder.append("        locIn.UPPERESTABLISHMENTNUMBER = locOut.UPPERESTABLISHMENTNUMBER AND locIn.UPPERADDRESSDETAIL = locOut.UPPERADDRESSDETAIL AND ");
+        builder.append("        locIn.UPPERZIPCODE = locOut.UPPERZIPCODE ");
+        builder.append(" ) ");
+
+        return builder;
     }
+
 
 }
