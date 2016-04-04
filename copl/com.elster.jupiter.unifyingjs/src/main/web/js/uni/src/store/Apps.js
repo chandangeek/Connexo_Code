@@ -7,7 +7,13 @@ Ext.define('Uni.store.Apps', {
     storeId: 'apps',
     singleton: true,
     autoLoad: true,
+    isLoaded: false,
 
+    listeners: {
+        load: function (store) {
+            store.isLoaded = true;
+        }
+    },
 
     proxy: {
         type: 'ajax',
