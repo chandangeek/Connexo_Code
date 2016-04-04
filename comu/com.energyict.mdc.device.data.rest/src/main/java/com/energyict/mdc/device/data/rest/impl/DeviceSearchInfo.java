@@ -73,7 +73,7 @@ public class DeviceSearchInfo {
                 .ifPresent(location -> {
                     meteringService.getFormattedLocationMembers(location.getId())
                             .ifPresent(formattedLocationMembers -> {
-                                searchInfo.location = formattedLocationMembers.stream().map(Object::toString).collect(Collectors.joining(","));
+                                searchInfo.location = formattedLocationMembers.keySet().stream().map(Object::toString).collect(Collectors.joining(","));
                             });
                 });
 
