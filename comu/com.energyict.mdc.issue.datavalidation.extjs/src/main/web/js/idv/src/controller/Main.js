@@ -70,7 +70,7 @@ Ext.define('Idv.controller.Main', {
                 });
                 items.push({
                     text: Uni.I18n.translate('datavalidation.myOpenIssues','IDV','My open issues'),
-                    itemId: 'my-open-issues',
+                    itemId: 'datavalidation-my-open-issues',
                     href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datavalidation'], myopenissues: true})
                 });
             }
