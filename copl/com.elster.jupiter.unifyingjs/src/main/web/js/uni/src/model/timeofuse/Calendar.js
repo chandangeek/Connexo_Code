@@ -7,6 +7,7 @@ Ext.define('Uni.model.timeofuse.Calendar', {
     requires: [
         'Uni.model.timeofuse.Event',
         'Uni.model.timeofuse.DayType',
+        'Uni.model.timeofuse.Period'
     ],
 
 
@@ -40,6 +41,16 @@ Ext.define('Uni.model.timeofuse.Calendar', {
             foreignKey: 'dayTypes',
             getTypeDiscriminator: function (node) {
                 return 'Uni.model.timeofuse.DayType';
+            }
+        },
+        {
+            name: 'periods',
+            type: 'hasMany',
+            model: 'Uni.model.timeofuse.Period',
+            associationKey: 'periods',
+            foreignKey: 'periods',
+            getTypeDiscriminator: function (node) {
+                return 'Uni.model.timeofuse.Period';
             }
         }
     ]

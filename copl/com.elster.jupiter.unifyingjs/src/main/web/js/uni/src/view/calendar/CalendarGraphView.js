@@ -16,46 +16,15 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
             xtype: 'container',
             itemId: 'graphContainer',
             style: {
-                width: '90%'
+                width: '100%'
             }
         }
     ],
 
-    colors: ['#1E7D9E', '#70BB51', '#EB5642', '#686868', '#71ADC7', '#E6FFE3', '#A0A0A0', '#FFEBE3'],
+    colors: ['#1E7D9E', '#70BB51', '#EB5642', '#686868', '#71ADC7', '#E6FFE3', '#A0A0A0', '#FFEBE3'],//,['#7ebf69', '#5ebac2', '#4cc895',  '#d16a71', '#eb923b', '#e4df58']
 
     initComponent: function () {
-
         this.callParent(arguments);
-
-        var hsSeriesTranslate = Highcharts.Series.prototype.translate;
-
-        Highcharts.setOptions({
-            global: {
-                useUTC: false
-            }
-        });
-
-        Highcharts.Series.prototype.translate = function () {
-
-            hsSeriesTranslate.apply(this, arguments);
-            var series = this,
-                pointPlacement = series.options.pointPlacement,
-                dynamicallyPlaced = pointPlacement === 'between' || Ext.isNumber(pointPlacement);
-
-            if (dynamicallyPlaced) {
-                var xAxis = series.xAxis,
-                    points = series.points,
-                    dataLength = points.length,
-                    i;
-
-                for (i = 0; i < dataLength; i += 1) {
-                    var point = points[i],
-                        xValue = point.x;
-
-                    point.clientX = xAxis.translate(xValue, 0, 0, 0, 1, pointPlacement);
-                }
-            }
-        };
 
         this.down('#graphContainer').on('afterrender', this.drawGraph, this);
     },
@@ -66,18 +35,11 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
 
             chart: {
                 type: 'column',
-                height: 800,
+                height: 600,
                 renderTo: me.down('#graphContainer').el.dom
             },
             title: {
-                text: me.record.get('name'),
-                align: 'left',
-                style: {
-                    color: '#1E7D9E',
-                    fontWeight: 'bold',
-                    fontSize: '24',
-                    fontFamily: 'Open sans condensed, Lato, Helvetica, Arial, Verdana, Sans-serif'
-                }
+                text: ''
             },
             credits: {
                 enabled: false
@@ -176,7 +138,8 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
                             textShadow: false,
                             fontWeight: 'normal',
                             fontSize: '16px',
-                            fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                            fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif',
+                            width: '130px'
                         },
 
                         formatter: function () {
@@ -270,6 +233,7 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
             daySerie.push({
                 data: s,
                 color: me.colors[record.events().indexOf(record.events().findRecord('id', range.event))],
+                //color: me.colors[Ext.Number.randomInt(0, me.colors.length - 1)],
                 showInLegend: false,
                 label: label,
                 range: range
