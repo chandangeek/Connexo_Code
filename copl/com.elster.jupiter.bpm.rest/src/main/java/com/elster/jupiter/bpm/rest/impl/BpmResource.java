@@ -1,7 +1,40 @@
 package com.elster.jupiter.bpm.rest.impl;
 
-import com.elster.jupiter.bpm.*;
-import com.elster.jupiter.bpm.rest.*;
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.bpm.BpmProcessDefinitionBuilder;
+import com.elster.jupiter.bpm.BpmProcessPrivilege;
+import com.elster.jupiter.bpm.BpmServer;
+import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.ProcessAssociationProvider;
+import com.elster.jupiter.bpm.rest.AssigneeFilterListInfo;
+import com.elster.jupiter.bpm.rest.BpmProcessNotAvailable;
+import com.elster.jupiter.bpm.rest.BpmResourceAssignUserException;
+import com.elster.jupiter.bpm.rest.DeploymentInfo;
+import com.elster.jupiter.bpm.rest.DeploymentInfos;
+import com.elster.jupiter.bpm.rest.Errors;
+import com.elster.jupiter.bpm.rest.LocalizedFieldException;
+import com.elster.jupiter.bpm.rest.NoBpmConnectionException;
+import com.elster.jupiter.bpm.rest.NodeInfos;
+import com.elster.jupiter.bpm.rest.PagedInfoListCustomized;
+import com.elster.jupiter.bpm.rest.ProcessAssociationInfo;
+import com.elster.jupiter.bpm.rest.ProcessAssociationInfos;
+import com.elster.jupiter.bpm.rest.ProcessDefinitionInfo;
+import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
+import com.elster.jupiter.bpm.rest.ProcessHistoryInfos;
+import com.elster.jupiter.bpm.rest.ProcessInstanceNodeInfos;
+import com.elster.jupiter.bpm.rest.ProcessesPrivilegesInfo;
+import com.elster.jupiter.bpm.rest.PropertyUtils;
+import com.elster.jupiter.bpm.ProcessInstanceInfo;
+import com.elster.jupiter.bpm.ProcessInstanceInfos;
+import com.elster.jupiter.bpm.rest.StartupInfo;
+import com.elster.jupiter.bpm.rest.TaskBulkReportInfo;
+import com.elster.jupiter.bpm.rest.TaskContentInfo;
+import com.elster.jupiter.bpm.rest.TaskContentInfos;
+import com.elster.jupiter.bpm.rest.TaskGroupsInfos;
+import com.elster.jupiter.bpm.UserTaskInfo;
+import com.elster.jupiter.bpm.UserTaskInfos;
+import com.elster.jupiter.bpm.rest.TaskOutputContentInfo;
+import com.elster.jupiter.bpm.rest.VariableInfos;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
@@ -9,15 +42,19 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,10 +64,31 @@ import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import java.io.ByteArrayInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -84,7 +142,7 @@ public class BpmResource {
     @Path("/instances")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_BPM)
-    public ProcessInstanceInfos getAllInstances(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
+    public com.elster.jupiter.bpm.rest.ProcessInstanceInfos getAllInstances(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
         String jsonContent;
         JSONArray arr = null;
         DeploymentInfos deploymentInfos = getAllDeployments(auth);
@@ -106,15 +164,15 @@ public class BpmResource {
             }
         }
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        return new ProcessInstanceInfos(arr, queryParameters.getLimit(), queryParameters.getStartInt());
+        return new com.elster.jupiter.bpm.rest.ProcessInstanceInfos(arr, queryParameters.getLimit(), queryParameters.getStartInt());
     }
 
     @GET
     @Path("/deployment/{deploymentId}/instance/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_BPM)
-    public ProcessInstanceInfo getInstance(@Context UriInfo uriInfo, @PathParam("deploymentId") String deploymentId,
-                                           @PathParam("id") long instanceId, @HeaderParam("Authorization") String auth) {
+    public com.elster.jupiter.bpm.rest.ProcessInstanceInfo getInstance(@Context UriInfo uriInfo, @PathParam("deploymentId") String deploymentId,
+                                                                       @PathParam("id") long instanceId, @HeaderParam("Authorization") String auth) {
         JSONObject obj = null;
         String jsonContent;
         try {
@@ -127,7 +185,7 @@ public class BpmResource {
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
         }
-        return new ProcessInstanceInfo(obj);
+        return new com.elster.jupiter.bpm.rest.ProcessInstanceInfo(obj);
     }
 
     @GET
@@ -193,7 +251,7 @@ public class BpmResource {
     @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
-    public TaskInfos getTask(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter filterX, @HeaderParam("Authorization") String auth) {
+    public UserTaskInfos getTask(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter filterX, @HeaderParam("Authorization") String auth) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String jsonContent;
         int total = -1;
@@ -220,7 +278,7 @@ public class BpmResource {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        TaskInfos infos = new TaskInfos(arr);
+        UserTaskInfos infos = new UserTaskInfos(arr, "");
         if(total > 0){
             infos.total = total;
         }
@@ -231,16 +289,16 @@ public class BpmResource {
     @Path("/tasks/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
-    public TaskInfo getTask(@PathParam("id") long id, @HeaderParam("Authorization") String auth) {
+    public UserTaskInfo getTask(@PathParam("id") long id, @HeaderParam("Authorization") String auth) {
         String jsonContent;
-        TaskInfo taskInfo = new TaskInfo();
+        UserTaskInfo taskInfo = new UserTaskInfo();
         try {
             String rest = "/rest/tasks/";
             rest += String.valueOf(id);
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
-                taskInfo = new TaskInfo(obj);
+                taskInfo = new UserTaskInfo(obj, "");
             }
 
         } catch (JSONException e) {
@@ -646,10 +704,19 @@ public class BpmResource {
     }
 
     @GET
+    @Path("/processinstances")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public ProcessInstanceInfos getProcessInstances(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
+        String filter = getQueryParam(queryParameters);
+        return bpmService.getRunningProcesses(auth, filter);
+    }
+
+    @GET
     @Path("/runningprocesses")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
-    public RunningProcessInfos getRunningProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
+    public ProcessInstanceInfos getRunningProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String jsonContent;
         int total = -1;
@@ -673,8 +740,8 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
         }
         List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
-        RunningProcessInfos runningProcessInfos = new RunningProcessInfos(arr);
-        List<RunningProcessInfo> runningProcessesList = runningProcessInfos.processes.stream()
+        ProcessInstanceInfos runningProcessInfos = new ProcessInstanceInfos(arr, "");
+        List<ProcessInstanceInfo> runningProcessesList = runningProcessInfos.processes.stream()
                 .filter(s -> activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName()) && s.version.equals(a.getVersion())))
                 .collect(Collectors.toList());
         runningProcessInfos.processes = runningProcessesList;
