@@ -369,7 +369,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Activate
     public final void activate(BundleContext context) {
 
-        if (dataModel != null && context != null) {
+        if (dataModel != null && !dataModel.isInstalled() && context != null) {
             String locationTemplateFields = context.getProperty(LOCATION_TEMPLATE);
             String locationTemplateMandatoryFields = context.getProperty(LOCATION_TEMPLATE_MANDATORY_FIELDS);
             if (locationTemplateFields != null && locationTemplateMandatoryFields != null) {
