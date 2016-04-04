@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
@@ -21,6 +22,7 @@ import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.AfterClass;
@@ -305,5 +307,25 @@ public class UsagePointMetrologyConfigurationTestIT {
         assertThat(valueBean.propertyName).isEqualTo("requirement2");
         assertThat(valueBean.values).containsExactly("some");
         assertThat(valueBean.operator).isEqualTo(SearchablePropertyOperator.NOT_EQUAL);
+    }
+
+    @Test
+    @Transactional
+    public void testCanGetReadingTypeRequirementsForMeterRole() {
+        ServiceCategory serviceCategory = getServiceCategory();
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
+        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+        serviceCategory.addMeterRole(meterRole);
+        metrologyConfiguration.addMeterRole(meterRole);
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
+        String name = "Reading type requirement";
+        FullySpecifiedReadingType readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
+                .withMeterRole(meterRole)
+                .withReadingType(readingType);
+
+        List<ReadingTypeRequirement> requirements = metrologyConfiguration.getRequirements(meterRole);
+
+        assertThat(requirements).hasSize(1);
+        assertThat(requirements.get(0)).isEqualTo(readingTypeRequirement);
     }
 }
