@@ -13,12 +13,12 @@ import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.impl.DeviceAttributesInfo.DeviceAttribute;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import org.osgi.service.blueprint.reflect.MapEntry;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DeviceAttributesInfoFactory {
     private final BatchService batchService;
@@ -47,21 +47,23 @@ public class DeviceAttributesInfoFactory {
         Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
         Optional<GeoCoordinates> geoCoordinates = meteringService.findDeviceGeoCoordinates(device.getmRID());
         String formattedLocation = "";
-        if(location.isPresent()){
-            Optional<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
-            if(formattedLocationMembers.isPresent()){
-                for(int i=0; i < formattedLocationMembers.get().size(); i++){
-                    if(i != 0 && formattedLocationMembers.get().get(i) != null){
-                        formattedLocation += ", ";
-                    }
-                    formattedLocation += formattedLocationMembers.get().get(i) != null ? formattedLocationMembers.get().get(i) : "";
-                }
+        if (location.isPresent()) {
+            Optional<Map<String, Boolean>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
+            if (formattedLocationMembers.isPresent()) {
+                formattedLocation = formattedLocationMembers.get().entrySet()
+                        .stream()
+                        .map(e ->
+                                e.getValue() == true ?
+                                        "\\n\\r" + (e.getKey() != null ? e.getKey() : "")
+                                        : e.getKey() != null ? e.getKey() : "")
+                        .collect(Collectors.joining(", "));
             }
-            info.device = DeviceInfo.from(device, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
-            info.location = new DeviceAttributeInfo();
-            info.location.displayValue = formattedLocation;
-            fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);
         }
+
+        info.device = DeviceInfo.from(device, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
+        info.location = new DeviceAttributeInfo();
+        info.location.displayValue = formattedLocation;
+        fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);
 
         info.device = DeviceInfo.from(device, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
         info.geoCoordinates = new DeviceAttributeInfo();

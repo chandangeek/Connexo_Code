@@ -26,7 +26,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component(name="device.info.factory", service = { InfoFactory.class }, immediate = true)
+@Component(name = "device.info.factory", service = {InfoFactory.class}, immediate = true)
 public class DeviceInfoFactory implements InfoFactory<Device> {
 
     private Thesaurus thesaurus;
@@ -36,7 +36,8 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private IssueDataValidationService issueDataValidationService;
     private MeteringService meteringService;
 
-    public DeviceInfoFactory() {}
+    public DeviceInfoFactory() {
+    }
 
     @Inject
     public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService) {
@@ -93,21 +94,23 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
         Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
-        Optional<GeoCoordinates> geoCoordinates =meteringService.findDeviceGeoCoordinates(device.getmRID());
+        Optional<GeoCoordinates> geoCoordinates = meteringService.findDeviceGeoCoordinates(device.getmRID());
         String formattedLocation = "";
-        if(location.isPresent()){
-            Optional<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
-            if(formattedLocationMembers.isPresent()){
-                for(int i=0; i < formattedLocationMembers.get().size(); i++){
-                    if(i != 0 && formattedLocationMembers.get().get(i) != null){
-                        formattedLocation += ", ";
-                    }
-                    formattedLocation += formattedLocationMembers.get().get(i) != null ? formattedLocationMembers.get().get(i) : "";
-                }
+        if (location.isPresent()) {
+            Optional<Map<String, Boolean>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
+            if (formattedLocationMembers.isPresent()) {
+                formattedLocation = formattedLocationMembers.get().entrySet()
+                        .stream()
+                        .map(e ->
+                                e.getValue() == true ?
+                                        "\\n\\r" + (e.getKey() != null ? e.getKey() : "")
+                                        : e.getKey() != null ? e.getKey() : "")
+                        .collect(Collectors.joining(", "));
             }
         }
-        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates.isPresent()?geoCoordinates.get().toString():null);
+        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().toString() : null);
     }
+
 
     @Override
     public Class<Device> getDomainClass() {
