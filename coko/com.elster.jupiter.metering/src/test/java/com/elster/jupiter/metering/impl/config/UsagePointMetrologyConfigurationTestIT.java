@@ -339,4 +339,24 @@ public class UsagePointMetrologyConfigurationTestIT {
         assertThat(metrologyConfigurations).hasSize(1);
         assertThat(metrologyConfigurations.get(0)).isEqualTo(metrologyConfiguration);
     }
+
+
+    @Test
+    @Transactional
+    public void testNoLinkableMetrologyConfigurationsForAllInactiveMetrologyConfigurations() {
+        ServiceCategory serviceCategory = getServiceCategory();
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("config", serviceCategory)
+                .create();
+        SearchablePropertyValue.ValueBean serviceKindBean = new SearchablePropertyValue.ValueBean();
+        serviceKindBean.propertyName = "SERVICEKIND";
+        serviceKindBean.operator = SearchablePropertyOperator.EQUAL;
+        serviceKindBean.values = Collections.singletonList("GAS");
+        metrologyConfiguration.addUsagePointRequirement(serviceKindBean);
+
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("UsagePoint1", inMemoryBootstrapModule.getClock().instant()).create();
+        List<UsagePointMetrologyConfiguration> metrologyConfigurations = getMetrologyConfigurationService().findLinkableMetrologyConfigurations(usagePoint);
+
+        assertThat(metrologyConfigurations).hasSize(0);
+    }
 }
