@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
+import com.elster.jupiter.metering.LocationTemplate;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescription;
 import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
@@ -9,12 +10,10 @@ import com.energyict.mdc.device.data.importers.impl.parsers.BooleanParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
+import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DeviceInstallationImportDescription implements FileImportDescription<DeviceInstallationImportRecord> {
@@ -48,11 +47,11 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
                 fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setGeoCoordinates)
                 .build()));
-        context.getMeteringService().getLocationTemplate().getRankings().entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
+        context.getMeteringService().getLocationTemplate().getTemplateMembers().stream().sorted()
+                .map(TemplateField::getName)
                 .forEach(s-> {
-                    if(context.getMeteringService().getLocationTemplate().getMandatoryFieldsNames().stream().anyMatch(m -> m.equals(s))){
+                    if(context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+                            .filter(m->m.isMandatory()).anyMatch(m -> m.getName().equals(s))){
                         fields.add(CommonField.withParser(stringParser)
                                 .withSetter(record::addLocation)
                                 .markMandatory()

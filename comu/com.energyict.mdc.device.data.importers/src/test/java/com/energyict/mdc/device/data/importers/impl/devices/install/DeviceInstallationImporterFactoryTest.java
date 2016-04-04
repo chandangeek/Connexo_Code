@@ -7,8 +7,10 @@ import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.impl.LocationTemplateImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.GatewayType;
@@ -28,22 +30,20 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.omg.CORBA.MARSHAL;
-
 import java.io.ByteArrayInputStream;
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
 
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
 import static org.mockito.Matchers.any;
@@ -57,6 +57,12 @@ public class DeviceInstallationImporterFactoryTest {
     private Thesaurus thesaurus;
 
     private DeviceDataImporterContext context;
+
+    private LocationTemplate locationTemplate;
+
+    @Mock
+    private DataModel dataModel;
+
     @Mock
     private DeviceService deviceService;
     @Mock
@@ -64,7 +70,11 @@ public class DeviceInstallationImporterFactoryTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private LocationTemplate locationTemplate;
+    private EndDevice endDevice;
+    @Mock
+    private LocationBuilder locationBuilder;
+    @Mock
+    private LocationMemberBuilder locationMemberBuilder;
     @Mock
     private DeviceLifeCycleService deviceLifeCycleService;
     @Mock
@@ -91,7 +101,30 @@ public class DeviceInstallationImporterFactoryTest {
         context.setFiniteStateMachineService(finiteStateMachineService);
         context.setClock(clock);
         when(context.getThesaurus()).thenReturn(thesaurus);
+        final String templateMembers = "#ccod,#cnam,#adma,#loc,#subloc,#styp,#snam,#snum,#etyp,#enam,#enum,#addtl,#zip,#locale";
+        when(dataModel.getInstance(LocationTemplateImpl.class)).thenReturn(new LocationTemplateImpl(dataModel));
+        locationTemplate =  LocationTemplateImpl.from(dataModel, templateMembers, templateMembers);
+        locationTemplate.parseTemplate(templateMembers,templateMembers);
         when(context.getMeteringService().getLocationTemplate()).thenReturn(locationTemplate);
+        when(meteringService.newLocationBuilder()).thenReturn(locationBuilder);
+        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
+        when(locationBuilder.getMember("locale")).thenReturn(Optional.empty());
+        when(locationBuilder.member()).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
@@ -118,44 +151,6 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         Device device = mock(Device.class);
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
@@ -190,7 +185,7 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testBadColumnNumberCase() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
+        String csv = "mrid;installation date;latitude;longitude;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
                 "VPB0002;";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
@@ -199,13 +194,13 @@ public class DeviceInstallationImporterFactoryTest {
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.FILE_FORMAT_ERROR).format(2, 2, 1));
+        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.FILE_FORMAT_ERROR).format(2, 16, 1));
     }
 
     @Test
     public void testMissingMandatoryDeviceMridValueCase() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "   ;01/08/2015 00:30;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "   ;01/08/2015 00:30;45.7427346;21.2384365;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -218,8 +213,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testMissingMandatoryInstallationDateValueCase() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;  ;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n"  +
+                "VPB0002;  ;45.7427346;21.2384365;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -238,45 +233,6 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.empty());
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
-
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
@@ -290,45 +246,6 @@ public class DeviceInstallationImporterFactoryTest {
                 "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
-
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
@@ -367,45 +284,6 @@ public class DeviceInstallationImporterFactoryTest {
                 "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
-
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
@@ -448,45 +326,6 @@ public class DeviceInstallationImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
-
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
@@ -513,45 +352,6 @@ public class DeviceInstallationImporterFactoryTest {
                 "VPB0002;01/08/2015 00:30;45.7540873;21.22388;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001; ; ;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
-
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
@@ -586,45 +386,6 @@ public class DeviceInstallationImporterFactoryTest {
                 "VPB0002;01/08/2015 00:30;45.7540873;21.22388;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
-
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
@@ -668,45 +429,6 @@ public class DeviceInstallationImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
-
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
@@ -746,46 +468,7 @@ public class DeviceInstallationImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
-
-        Device device = mock(Device.class);
+       Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
@@ -824,45 +507,6 @@ public class DeviceInstallationImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
-
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
@@ -890,45 +534,6 @@ public class DeviceInstallationImporterFactoryTest {
                 "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;;;electricity;false;01/08/2015 00:30;5.6";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
-
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
 
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
@@ -970,45 +575,6 @@ public class DeviceInstallationImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
-
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
@@ -1049,45 +615,6 @@ public class DeviceInstallationImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
-
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
@@ -1126,45 +653,6 @@ public class DeviceInstallationImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
-
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
@@ -1188,45 +676,6 @@ public class DeviceInstallationImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
-
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
@@ -1246,45 +695,6 @@ public class DeviceInstallationImporterFactoryTest {
                 "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
-
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
 
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
@@ -1314,45 +724,6 @@ public class DeviceInstallationImporterFactoryTest {
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-        Map<String, Integer> ranking = new HashMap<>();
-        ranking.put("countryCode", 0);
-        ranking.put("countryName", 1);
-        ranking.put("administrativeArea", 2);
-        ranking.put("locality", 3);
-        ranking.put("subLocality", 4);
-        ranking.put("streetType", 5);
-        ranking.put("streetName", 6);
-        ranking.put("streetNumber", 7);
-        ranking.put("establishmentType", 8);
-        ranking.put("establishmentName", 9);
-        ranking.put("establishmentNumber", 10);
-        ranking.put("addressDetail", 11);
-        ranking.put("zipCode", 12);
-        ranking.put("locale", 13);
-        LocationBuilder builder = mock(LocationBuilder.class);
-        LocationBuilder.LocationMemberBuilder locationMemberBuilder = mock(LocationBuilder.LocationMemberBuilder.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        when(meteringService.newLocationBuilder()).thenReturn(builder);
-        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(builder.getMember("locale")).thenReturn(Optional.empty());
-        when(builder.member()).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
-        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
-        when(meteringService.getLocationTemplate().getRankings()).thenReturn(ranking);
-
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
@@ -1371,4 +742,5 @@ public class DeviceInstallationImporterFactoryTest {
                 .format(2, DefaultState.ACTIVE.getKey(), DefaultState.INACTIVE.getKey(), DefaultState.IN_STOCK.getKey() + ", " + DefaultState.COMMISSIONING.getKey()));
         verify(logger, never()).severe(Matchers.anyString());
     }
+
 }

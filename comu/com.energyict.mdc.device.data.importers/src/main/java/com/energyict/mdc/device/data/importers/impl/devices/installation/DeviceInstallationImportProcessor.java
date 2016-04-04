@@ -15,6 +15,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +34,9 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
         LocationBuilder builder = super.getContext().getMeteringService().newLocationBuilder();
         EndDevice endDevice = super.getContext().getMeteringService().findEndDevice(data.getDeviceMRID())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
-        Map<String, Integer> ranking = super.getContext().getMeteringService().getLocationTemplate().getRankings();
+        Map<String,Integer> ranking = super.getContext().getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+                .collect(Collectors.toMap(TemplateField::getName,
+                TemplateField::getRanking));
         Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(data.getLocation().get(ranking.get("locale")));
         if (memberBuilder.isPresent()) {
             setLocationAttributes(memberBuilder.get(), data, ranking);
