@@ -3,12 +3,12 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.RescheduleToNextComWindow;
 import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
@@ -16,10 +16,10 @@ import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
 
 import java.time.Clock;
 import java.util.Calendar;
+import java.util.Optional;
 
 /**
  * Provides code reuse opportunities for component that
@@ -64,7 +64,13 @@ public abstract class ScheduledJobImpl extends JobExecution {
 
     @Override
     public boolean isWithinComWindow () {
-        return this.isWithinComWindow(this.getConnectionTask().getCommunicationWindow());
+        ComWindow comWindowToUse = this.getConnectionTask().getCommunicationWindow();
+        Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(item -> !(item instanceof FirmwareComTaskExecution)).findFirst();
+        if (firmwareComTaskExecution.isPresent()){
+            FirmwareComTaskExecution comTaskExecution = (FirmwareComTaskExecution) firmwareComTaskExecution.get();
+            comWindowToUse = getServiceProvider().firmwareService().getFirmwareCampaign(comTaskExecution).getComWindow();
+        }
+        return this.isWithinComWindow(comWindowToUse);
     }
 
     private boolean isWithinComWindow (ComWindow comWindow) {
