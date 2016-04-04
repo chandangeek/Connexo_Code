@@ -3,6 +3,15 @@ Ext.define('Mdc.view.setup.searchitems.bulk.DevicesSelectionGrid', {
     xtype: 'devices-selection-grid',
     store: null,
 
+    requires: [
+        'Ext.grid.plugin.BufferedRenderer'
+    ],
+
+    plugins: {
+        ptype: 'bufferedrenderer',
+        synchronousRender: true
+    },
+
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
             'general.nrOfDevices.selected', count, 'MDC',
