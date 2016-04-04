@@ -29,6 +29,7 @@ Ext.define('Isu.view.issues.AssignForm', {
             items: [
                 {
                     xtype: 'combobox',
+                    itemId: 'cbo-bulk-issue-assignee',
                     fieldLabel: Uni.I18n.translate('general.assignee','ISU','Assignee'),
                     required: true,
                     queryMode: 'local',
