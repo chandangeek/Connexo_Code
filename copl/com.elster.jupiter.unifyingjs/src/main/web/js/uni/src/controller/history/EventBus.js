@@ -8,8 +8,7 @@ Ext.define('Uni.controller.history.EventBus', {
         'Ext.util.History',
         'Uni.store.MenuItems',
         'Uni.store.PortalItems',
-        'Uni.util.History',
-        'Uni.store.Apps'
+        'Uni.util.History'
     ],
 
     config: {
@@ -21,13 +20,8 @@ Ext.define('Uni.controller.history.EventBus', {
     },
 
     onLaunch: function () {
-        var me= this,
-            appsStore = Uni.store.Apps;
-
-        me.initListeners();
-        appsStore.load(function() {
-            me.initHistory();
-        });
+        this.initHistory();
+        this.initListeners();
     },
 
     initHistory: function () {
