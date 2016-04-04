@@ -15,6 +15,7 @@ import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.servicecall.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -51,38 +52,13 @@ public class ServiceCallResource {
     @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALLS)
     public PagedInfoList getAllServiceCalls(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
-        Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(convertToFilter(filter));
+        Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallInfoFactory.convertToServiceCallFilter(filter));
         List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
 
         serviceCalls.stream()
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
-    }
-
-    private ServiceCallFilter convertToFilter(JsonQueryFilter filter) {
-        ServiceCallFilter serviceCallFilter = serviceCallService.newServiceCallFilter();
-        if (filter.hasProperty("name")) {
-            serviceCallFilter.setReference(filter.getString("name"));
-        }
-        if (filter.hasProperty("type")) {
-            serviceCallFilter.setTypes(filter.getStringList("type"));
-        }
-        if(filter.hasProperty("status")) {
-            serviceCallFilter.setStates(filter.getStringList("status"));
-        }
-        if (filter.hasProperty("receivedDateFrom")) {
-            serviceCallFilter.setReceivedDateFrom(filter.getInstant("receivedDateFrom"));
-        } else if (filter.hasProperty("receivedDateTo")) {
-            serviceCallFilter.setReceivedDateTo(filter.getInstant("receivedDateTo"));
-        }
-        if (filter.hasProperty("modificationDateFrom")) {
-            serviceCallFilter.setModificationDateFrom(filter.getInstant("modificationDateFrom"));
-        } else if (filter.hasProperty("modificationDateTo")) {
-            serviceCallFilter.setModificationDateTo(filter.getInstant("modificationDateTo"));
-        }
-
-        return serviceCallFilter;
     }
 
     @GET
@@ -104,7 +80,7 @@ public class ServiceCallResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL));
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
 
-        List<ServiceCall> serviceCalls = parent.findChildren(convertToFilter(filter)).from(queryParameters).find();
+        List<ServiceCall> serviceCalls = parent.findChildren(serviceCallInfoFactory.convertToServiceCallFilter(filter)).from(queryParameters).find();
 
         serviceCalls.stream()
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
