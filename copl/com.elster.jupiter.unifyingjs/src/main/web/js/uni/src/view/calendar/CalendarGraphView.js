@@ -209,9 +209,9 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
 
         Ext.Array.each(dayType.ranges().getRange(), function (range, index, ranges) {
             period = {};
-            period.from = range.get('from');
+            period.from = {hour: range.get('fromHour'), minute: range.get('fromMinute')};
             if (index < ranges.length - 1) {
-                period.to = ranges[index + 1].get('from');
+                period.to = {hour: ranges[index + 1].get('fromHour'), minute: ranges[index + 1].get('fromMinute')};
             } else {
                 period.to = {hour: 23, minute: 59}
             }
