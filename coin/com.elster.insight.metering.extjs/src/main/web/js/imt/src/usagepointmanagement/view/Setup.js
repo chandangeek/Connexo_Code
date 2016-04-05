@@ -93,7 +93,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         items: [
                             {
                                 xtype: 'whatsgoingon',
-                                mrId: 'test',
+                                mrId: me.mRID,
                                 type: 'usagepoint',
                                 router: me.router,
                                 style: 'margin-bottom: 20px'
