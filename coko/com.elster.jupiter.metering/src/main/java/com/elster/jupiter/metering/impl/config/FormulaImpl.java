@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.impl.aggregation.IntermediateDimension;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -17,7 +18,6 @@ public class FormulaImpl implements ServerFormula {
     @SuppressWarnings("unused")// Managed by ORM
     private long id;
     private Mode mode;
-    @ValidExpression
     private Reference<ExpressionNode> expressionNode = ValueReference.absent();
     private final DataModel dataModel;
 

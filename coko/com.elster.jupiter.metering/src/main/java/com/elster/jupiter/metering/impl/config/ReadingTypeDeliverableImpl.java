@@ -54,6 +54,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @ValidExpression
     private Reference<Formula> formula = ValueReference.absent();
 
     private long version;
