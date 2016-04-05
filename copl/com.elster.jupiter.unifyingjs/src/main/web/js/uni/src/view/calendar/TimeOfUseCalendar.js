@@ -32,7 +32,7 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
                             type: 'date',
                             dataIndex: 'weekOf',
                             value: new Date(),
-                            text: Uni.I18n.translate('general.weekOf', 'SCS', 'Week of')
+                            text: Uni.I18n.translate('general.weekOf', 'UNI', 'Week of')
                         }
                     ]
                 },
