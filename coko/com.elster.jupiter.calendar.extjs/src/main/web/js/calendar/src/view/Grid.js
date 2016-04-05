@@ -40,7 +40,6 @@ Ext.define('Cal.view.Grid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('calendars.timeOfUse.pagingtoolbartop.displayMsg', 'CAL', '{0} time of use calendars'),
                 emptyMsg: Uni.I18n.translate('calendars.timeOfUse.pagingtoolbartop.emptyMsg', 'CAL', 'There are no time of use calendars to display'),
-                usesExactCount: true
             }
         ];
 

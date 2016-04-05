@@ -45,12 +45,11 @@ Ext.define('Cal.view.PreviewForm', {
                 {
                     xtype: 'displayfield',
                     fieldLabel: undefined,
-                    value: record.get('name'),
+                    value: record.get('name') + ' (' + Uni.I18n.translate('general.fromX', 'CAL', 'from {0}', [me.calculateDate(record.get('fromMonth'), record.get('fromDay'))]) + ')',
                     margin: '0 0 -10 0'
                 }
             );
         });
-
         me.down('#dayTypesField').removeAll();
         record.dayTypes().each(function (record) {
             me.down('#dayTypesField').add(
@@ -69,7 +68,7 @@ Ext.define('Cal.view.PreviewForm', {
                 {
                     xtype: 'displayfield',
                     fieldLabel: undefined,
-                    value: record.get('name') + '(' + record.get('code') + ')',
+                    value: record.get('name') + ' (' + record.get('code') + ')',
                     margin: '0 0 -10 0'
                 }
             );
@@ -78,6 +77,14 @@ Ext.define('Cal.view.PreviewForm', {
         Ext.resumeLayouts(true);
         me.updateLayout();
         me.doLayout();
+    },
+
+    calculateDate: function (month, day) {
+        var date = new Date();
+        date.setMonth(month);
+        date.setDate(day);
+
+        return Ext.util.Format.date(date, 'j F')
     }
 
 });

@@ -16,6 +16,10 @@ Ext.define('Cal.controller.Calendars', {
         {
             ref: 'preview',
             selector: 'tou-preview'
+        },
+        {
+            ref: 'timeOfUseGrid',
+            selector: 'tou-grid'
         }
     ],
 
@@ -23,13 +27,21 @@ Ext.define('Cal.controller.Calendars', {
         this.control({
             'tou-setup tou-grid': {
                 select: this.showPreview
-            },
+            }
         });
     },
 
     showTimeOfUseOverview: function () {
+        var me = this,
+            view,
+            store = me.getStore('Cal.store.TimeOfUseCalendars');
+
+        store.load();
+
         view = Ext.widget('tou-setup');
-        this.getApplication().fireEvent('changecontentevent', view);
+        me.getApplication().fireEvent('changecontentevent', view);
+
+
     },
 
     showPreview: function (selectionModel, record) {
@@ -39,5 +51,12 @@ Ext.define('Cal.controller.Calendars', {
 
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         previewForm.fillFieldContainers(record);
+    },
+
+    updateCalendarsCounter: function () {
+        var me = this;
+        me.getTimeOfUseGrid().down('pagingtoolbartop #displayItem').setText(
+            Uni.I18n.translatePlural('general.timeOfUseCalendarCount', me.getTimeOfUseGrid().getStore().getCount(), 'CAL', 'No time of use caldendars', '{0} time of use calendar', '{0} time of use calendars')
+        );
     }
 });
