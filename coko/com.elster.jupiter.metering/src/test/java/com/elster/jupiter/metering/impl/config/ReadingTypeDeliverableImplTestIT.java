@@ -357,4 +357,17 @@ public class ReadingTypeDeliverableImplTestIT {
                 metrologyConfiguration.getId()).get();
         assertThat(metrologyConfiguration.getDeliverables()).isEmpty();
     }
+
+    @Test
+    @Transactional
+    public void testRemovingDeliverableRemovesFormula() {
+        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("deliverable", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.constant(42), builder.constant(17)));
+        Formula formula = deliverable.getFormula();
+
+        metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
+
+        Optional<Formula> formulaRef = inMemoryBootstrapModule.getMetrologyConfigurationService().findFormula(formula.getId());
+        assertThat(formulaRef.isPresent()).isFalse();
+    }
 }

@@ -164,7 +164,8 @@ public enum EventType {
     METROLOGY_PURPOSE_DELETED("metrologypurpose/DELETED"),
     READING_TYPE_DELIVERABLE_CREATED("readingtypedeliverable/CREATED"),
     READING_TYPE_DELIVERABLE_UPDATED("readingtypedeliverable/UPDATED"),
-    READING_TYPE_DELIVERABLE_DELETED("readingtypedeliverable/DELETED"),;
+    READING_TYPE_DELIVERABLE_DELETED("readingtypedeliverable/DELETED"),
+    FORMULA_DELETED("formula/DELETED"),;
 
     private static final String NAMESPACE = "com/elster/jupiter/metering/";
     private final String topic;

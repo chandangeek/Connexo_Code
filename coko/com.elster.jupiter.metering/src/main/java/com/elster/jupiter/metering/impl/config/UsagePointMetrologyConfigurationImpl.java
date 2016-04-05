@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.search.SearchablePropertyValue;
@@ -67,6 +68,24 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
                 .stream()
                 .map(MetrologyConfigurationMeterRoleUsageImpl::getMeterRole)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReadingTypeRequirement> getRequirements(MeterRole meterRole) {
+        return this.requirementToRoleUsages
+                .stream()
+                .filter(usage -> usage.getMeterRole().equals(meterRole))
+                .map(ReadingTypeRequirementMeterRoleUsage::getReadingTypeRequirement)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<MeterRole> getMeterRoleFor(ReadingTypeRequirement readingTypeRequirement) {
+        return this.requirementToRoleUsages
+                .stream()
+                .filter(usage -> usage.getReadingTypeRequirement().equals(readingTypeRequirement))
+                .findAny()
+                .map(ReadingTypeRequirementMeterRoleUsage::getMeterRole);
     }
 
     void addReadingTypeRequirementMeterRoleUsage(ReadingTypeRequirementMeterRoleUsage usage) {
