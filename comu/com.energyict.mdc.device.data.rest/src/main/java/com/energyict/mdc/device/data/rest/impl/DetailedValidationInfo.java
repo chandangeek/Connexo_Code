@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.validation.rest.ValidationRuleInfo;
-
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -12,7 +9,7 @@ public class DetailedValidationInfo {
 
     public Boolean validationActive;
     public Boolean dataValidated;
-    public Set<Map.Entry<ValidationRuleInfo, Long>> suspectReason;
+    public Set<ValidationRuleInfoWithNumber> suspectReason;
     public Long lastChecked;
 
     public DetailedValidationInfo() {
