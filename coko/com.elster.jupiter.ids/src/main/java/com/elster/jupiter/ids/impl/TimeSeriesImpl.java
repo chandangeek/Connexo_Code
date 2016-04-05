@@ -86,12 +86,12 @@ public final class TimeSeriesImpl implements TimeSeries {
 		return this;
 	}
 
-    private final void setInterval(TemporalAmount interval) {
+    private void setInterval(TemporalAmount interval) {
     	List<TemporalUnit> units = interval.getUnits().stream().filter(unit -> interval.get(unit) > 0).collect(Collectors.toList());
     	if (units.size() > 1) {
     		 throw new IllegalArgumentException("Composite intervals are not supported");
     	}
-    	if (units.size() == 0) {
+    	if (units.isEmpty()) {
    		 throw new IllegalArgumentException("Empty interval not supported");
     	}
     	TemporalUnit unit = units.get(0);
