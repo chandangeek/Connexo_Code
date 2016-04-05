@@ -34,7 +34,7 @@ public class AggregatedReadingRecordFactoryImpl implements AggregatedReadingReco
         try {
             while (resultSet.next()) {
                 this.records.compute(
-                        Instant.ofEpochMilli(resultSet.getLong(3)),
+                        Instant.ofEpochMilli(resultSet.getLong(4)),
                         this.createOrUpdate(resultSet));
             }
             return new ArrayList<>(this.records.values());
