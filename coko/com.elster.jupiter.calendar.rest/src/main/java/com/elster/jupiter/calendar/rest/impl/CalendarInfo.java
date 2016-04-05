@@ -13,4 +13,5 @@ public class CalendarInfo {
     public List<EventInfo> events;
     public List<DayTypeInfo> dayTypes;
     public List<PeriodInfo> periods;
+    public List<DayInfo> weekTemplate;
 }

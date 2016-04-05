@@ -39,7 +39,7 @@ public class CalendarResource {
     @Path("/timeofusecalendars/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public CalendarInfo getTimeOfUseCalendar(@PathParam("id") long id) {
-        return calendarInfoFactory.fromCalendar(1);
+        return calendarInfoFactory.forViewing(1);
     }
 
     private int randomWithRange(int min, int max) {
