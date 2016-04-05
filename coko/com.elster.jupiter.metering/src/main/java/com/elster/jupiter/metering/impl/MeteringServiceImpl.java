@@ -44,6 +44,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
+
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.Bundle;
@@ -398,9 +399,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             }
         });
 
-        if (dataModel.isInstalled() && getLocationTemplateFromDB().isPresent()) {
-            locationTemplate = getLocationTemplateFromDB().get();
-            locationTemplateMembers = ImmutableList.copyOf(locationTemplate.getTemplateMembers());
+        if (dataModel.isInstalled()) {
+            getLocationTemplateFromDB().ifPresent(template -> {
+                locationTemplate = template;
+                locationTemplateMembers = ImmutableList.copyOf((template.getTemplateMembers()));
+            });
         }
 
         if (context == null && locationTemplate == null) {
@@ -468,13 +471,15 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public List<ReadingType> getAvailableEquidistantReadingTypes() {
-        return dataModel.stream(ReadingType.class).filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(true))
+        return dataModel.stream(ReadingType.class)
+                .filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(true))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ReadingType> getAvailableNonEquidistantReadingTypes() {
-        return dataModel.stream(ReadingType.class).filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(false))
+        return dataModel.stream(ReadingType.class)
+                .filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(false))
                 .collect(Collectors.toList());
     }
 
@@ -544,11 +549,16 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     // bulk insert
     public void createAllReadingTypes(List<Pair<String, String>> readingTypes) {
         List<ReadingType> availableReadingTypes = getAvailableReadingTypes();
-        List<String> availableReadingTypeCodes = availableReadingTypes.parallelStream().map(ReadingType::getMRID).collect(Collectors.toList());
-        List<Pair<String, String>> filteredReadingTypes = readingTypes.parallelStream().filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getFirst())).collect(Collectors.toList());
+        List<String> availableReadingTypeCodes = availableReadingTypes.parallelStream()
+                .map(ReadingType::getMRID)
+                .collect(Collectors.toList());
+        List<Pair<String, String>> filteredReadingTypes = readingTypes.parallelStream()
+                .filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getFirst()))
+                .collect(Collectors.toList());
 
         DecoratedStream.decorate(filteredReadingTypes.stream())
-                .map(filteredReadingType -> dataModel.getInstance(ReadingTypeImpl.class).init(filteredReadingType.getFirst(), filteredReadingType.getLast()))
+                .map(filteredReadingType -> dataModel.getInstance(ReadingTypeImpl.class)
+                        .init(filteredReadingType.getFirst(), filteredReadingType.getLast()))
                 .map(readingType -> ((ReadingType) readingType))
                 .partitionPer(1000)
                 .forEach(listPer1000 -> dataModel.mapper(ReadingType.class).persist(listPer1000));
@@ -694,7 +704,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public Optional<Map<String, Boolean>> getFormattedLocationMembers(long id) {
-        List<LocationMember> members = dataModel.query(LocationMember.class).select(Operator.EQUAL.compare("locationId", id));
+        List<LocationMember> members = dataModel.query(LocationMember.class)
+                .select(Operator.EQUAL.compare("locationId", id));
         Map<String, Boolean> formattedLocation = new LinkedHashMap<>();
         if (!members.isEmpty()) {
             LocationMember member = members.get(0);
@@ -757,7 +768,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public void createLocationTemplate() {
-        LocationTemplateImpl.from(dataModel, locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields()).doSave();
+        LocationTemplateImpl.from(dataModel, locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields())
+                .doSave();
     }
 
     @Override
@@ -783,10 +795,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     private void createLocationTemplateDefaultData() {
-        List<TemplateField> templateElements = new ArrayList<>();
+        List<TemplateField> templateElements = new LinkedList<>();
         AtomicInteger index = new AtomicInteger(-1);
         Stream.of(LocationTemplateElements.values()).forEach(t ->
-                templateElements.add(new TemplateFieldImpl(t.getElementAbbreviation(), t.toString(), index.incrementAndGet(), index.intValue() % 2 == 0 ? true : false)));
+                templateElements.add(new TemplateFieldImpl(t.getElementAbbreviation(), t.toString(), index.incrementAndGet(), index
+                        .intValue() % 2 == 0 ? true : false)));
         locationTemplateMembers = ImmutableList.copyOf(templateElements);
     }
 
