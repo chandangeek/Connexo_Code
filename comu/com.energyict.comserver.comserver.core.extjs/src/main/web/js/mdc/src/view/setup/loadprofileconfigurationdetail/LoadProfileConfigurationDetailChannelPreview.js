@@ -48,7 +48,10 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     items: [
                         {
                             fieldLabel: Uni.I18n.translate('channelConfig.overflowValue', 'MDC' ,'Overflow value'),
-                            name: 'overflowValue'
+                            name: 'overflowValue',
+                            renderer: function (value) {
+                                return value ? value : '-';
+                            }
                         },
                         {
                             fieldLabel: Uni.I18n.translate('channelConfig.numberOfFractionDigits', 'MDC' ,'Number of fraction digits'),

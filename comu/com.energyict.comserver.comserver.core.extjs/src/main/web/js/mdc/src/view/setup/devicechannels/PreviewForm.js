@@ -61,18 +61,18 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                     fieldLabel: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval'),
                                     name: 'interval_formatted'
                                 },
+                                //{
+                                //    fieldLabel: Uni.I18n.translate('devicechannels.lastReading', 'MDC', 'Last reading'),
+                                //    name: 'lastReading',
+                                //    renderer: function (value) {
+                                //        var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastreading', 'MDC', 'The moment when the data was read out for the last time.');
+                                //        return value
+                                //            ? Uni.DateTime.formatDateTimeLong(value) + '<span style="margin: 0 0 0 10px; width: 16px; height: 16px" class="uni-icon-info-small" data-qtip="' + tooltip + '"></span>'
+                                //            : '';
+                                //    }
+                                //},
                                 {
-                                    fieldLabel: Uni.I18n.translate('devicechannels.lastReading', 'MDC', 'Last reading'),
-                                    name: 'lastReading',
-                                    renderer: function (value) {
-                                        var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastreading', 'MDC', 'The moment when the data was read out for the last time.');
-                                        return value
-                                            ? Uni.DateTime.formatDateTimeLong(value) + '<span style="margin: 0 0 0 10px; width: 16px; height: 16px" class="uni-icon-info-small" data-qtip="' + tooltip + '"></span>'
-                                            : '';
-                                    }
-                                },
-                                {
-                                    fieldLabel: Uni.I18n.translate('device.channels.timestampLastValue', 'MDC', 'Timestamp last value'),
+                                    fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                                     name: 'lastValueTimestamp_formatted'
                                 },
                                 {
@@ -82,6 +82,15 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                 {
                                     fieldLabel: Uni.I18n.translate('channelConfig.numberOfFractionDigits', 'MDC' ,'Number of fraction digits'),
                                     name: 'nbrOfFractionDigits'
+                                },
+                                {
+                                    fieldLabel: Uni.I18n.translate('channelConfig.useMultiplier', 'MDC', 'Use multiplier'),
+                                    name: 'useMultiplier',
+                                    renderer: function(value) {
+                                        return value
+                                            ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                                            : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    }
                                 },
                                 {
                                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.loadProfile', 'MDC', 'Load profile'),

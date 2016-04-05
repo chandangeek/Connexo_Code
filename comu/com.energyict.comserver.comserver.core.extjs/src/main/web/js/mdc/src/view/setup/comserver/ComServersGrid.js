@@ -11,7 +11,8 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
         'Uni.view.toolbar.PagingBottom',
         'Uni.grid.column.Action',
         'Mdc.privileges.Monitor',
-        'Mdc.view.setup.comserver.ActionMenu'
+        'Mdc.view.setup.comserver.ActionMenu',
+        'Mdc.store.ComServers'
     ],
 
     columns: [

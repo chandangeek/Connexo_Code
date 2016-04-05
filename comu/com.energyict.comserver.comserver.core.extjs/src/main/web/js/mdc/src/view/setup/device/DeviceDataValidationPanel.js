@@ -81,12 +81,12 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                                 itemId: 'lastValidationCont',
                                 name: 'lastChecked',
                                 renderer: function (value) {
-                                    var icon = '<span style="display: inline-block; width: 16px; height: 16px; margin: 0 0 0 10px" class="uni-icon-info-small" data-qtip="'
-                                            + Uni.I18n.translate('device.lastValidation.tooltip', 'MDC', 'The moment when the validation ran for the last time.')
-                                            + '"></span>',
-                                        text = value ? Uni.DateTime.formatDateTimeLong(value) : Uni.I18n.translate('general.never', 'MDC', 'Never');
-
-                                    return text + icon;
+                                    return Ext.String.format(
+                                        '<span style="display: inline-block; float: left; margin: 0px 10px 0px 0px">{0}</span>' +
+                                        '<span style="display: inline-block; float: left; width: 16px; height: 16px;" class="uni-icon-info-small" data-qtip="{1}"></span>',
+                                        value ? Uni.DateTime.formatDateTimeLong(value) : Uni.I18n.translate('general.never', 'MDC', 'Never'),
+                                        Uni.I18n.translate('device.lastValidation.tooltip', 'MDC', 'The moment when the validation ran for the last time.')
+                                    );
                                 }
                             }
                         ]

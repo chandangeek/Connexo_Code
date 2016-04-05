@@ -18,7 +18,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Overview', {
                 items: [
                     {
                         ui: 'large',
-//                        title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                         flex: 1,
                         items:  {
                             xtype: 'deviceLoadProfilesPreviewForm',
@@ -39,19 +38,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Overview', {
                 ]
             }
         ];
-
-//        me.side = {
-//            xtype: 'panel',
-//            ui: 'medium',
-//            items: [
-//                {
-//                    xtype: 'deviceMenu',
-//                    itemId: 'stepsMenu',
-//                    device: me.device,
-//                    toggleId: 'loadProfilesLink'
-//                }
-//            ]
-//        };
 
         me.callParent(arguments);
     }

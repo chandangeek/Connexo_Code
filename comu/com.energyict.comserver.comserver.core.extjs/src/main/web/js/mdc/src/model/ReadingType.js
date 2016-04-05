@@ -24,7 +24,8 @@ Ext.define('Mdc.model.ReadingType', {
         {name: 'currency', type: 'string'},
         {name: 'version', type: 'number', useNull: true},
         {name: 'names', type: 'auto', useNull: true, defaultValue: {}},
-        {name: 'fullAliasName', type: 'string'}
+        {name: 'fullAliasName', type: 'string'},
+        {name: 'isCumulative', type: 'boolean'}
     ],
     proxy: {
         type: 'rest',

@@ -661,6 +661,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             useMultiplier = radioGroup.getValue().useMultiplier;
 
         if (contentContainer.isEdit()) { // Busy editing a channel config
+            me.channelConfigurationBeingEdited.set('isCumulative', me.channelConfigurationBeingEdited.get('readingType').isCumulative);
             me.updateReadingTypeFields(me.channelConfigurationBeingEdited, useMultiplier);
         } else { // Busy adding a register config
             me.updateReadingTypeFields(
