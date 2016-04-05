@@ -32,7 +32,8 @@ import java.util.Optional;
                 "osgi.command.function=updateYearOfCertificationGroup",
                 "osgi.command.function=hook",
                 "osgi.command.function=crash",
-                "osgi.command.function=createTrackedCommand"
+                "osgi.command.function=createTrackedCommand",
+                "osgi.command.function=createDeviceServiceCall"
         }, immediate = true)
 public class ServiceCallCommands {
     public static final String HANDLER_NAME = "yearUpdater";
@@ -257,6 +258,32 @@ public class ServiceCallCommands {
             context.commit();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void createDeviceServiceCall() {
+        System.out.println("Usage: createDeviceServiceCall <type> <version> <external reference> <device MRID>");
+    }
+
+    public void createDeviceServiceCall(String type, String typeVersion, String externalReference, String deviceMRID) {
+        threadPrincipalService.set(() -> "Console");
+        Optional<ServiceCallType> serviceCallType = serviceCallService.findServiceCallType(type, typeVersion);
+        if (!serviceCallType.isPresent()) {
+            System.out.println("There is no service call type with name: '" + type + "' and version: '" + typeVersion + "'");
+        } else {
+            try (TransactionContext context = transactionService.getContext()) {
+                Device device = deviceService.findByUniqueMrid(deviceMRID)
+                        .orElseThrow(() -> new IllegalArgumentException("No device known with mRID " + deviceMRID));
+
+                ServiceCall serviceCall = serviceCallType.get()
+                        .newServiceCall()
+                        .externalReference(externalReference)
+                        .targetObject(device)
+                        .create();
+                context.commit();
+
+                System.out.println("Service call with reference '" + serviceCall.getNumber() + "' has been created");
+            }
         }
     }
 
