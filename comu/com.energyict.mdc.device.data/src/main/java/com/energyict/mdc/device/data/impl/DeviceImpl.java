@@ -359,7 +359,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Save.UPDATE.save(dataModel, this);
             Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
             if (meter.isPresent()) {
-                if (!meter.get().getMRID().equals(this.getmRID())) {
+                if (meter.get().getMRID()!=null &&
+                        !meter.get().getMRID().equals(this.getmRID())) {
                     meter.get().setMRID(getmRID());
                 }
                 if (this.location != null) {
