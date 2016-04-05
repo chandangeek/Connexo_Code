@@ -11,6 +11,7 @@ import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.MeterDataReadout;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.*;
 import com.energyict.protocolimplv2.MdcManager;
 import org.apache.commons.logging.Log;
@@ -569,7 +570,7 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 
@@ -614,7 +615,7 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 

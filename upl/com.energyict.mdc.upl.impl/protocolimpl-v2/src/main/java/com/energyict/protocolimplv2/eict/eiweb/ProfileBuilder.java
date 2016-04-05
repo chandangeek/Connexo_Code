@@ -8,6 +8,8 @@ import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayInputStream;
@@ -129,7 +131,7 @@ public class ProfileBuilder {
         meterReadings = new ArrayList<>();
 
         if (data == null) {
-            throw MdcManager.getComServerExceptionFactory().missingInboundDataException(this.packetBuilder.getDeviceIdentifier());
+            throw CommunicationException.missingInboundData(this.packetBuilder.getDeviceIdentifier());
         }
 
         buildChannelInfo();
@@ -184,7 +186,7 @@ public class ProfileBuilder {
             Date date = new Date(ldate);
 
             if ((i == 0) && (!packetBuilder.isTimeCorrect(date))) {
-                throw MdcManager.getComServerExceptionFactory().createDataEncryptionException();
+                throw DataEncryptionException.dataEncryptionException();
             }
             this.buildIntervalDataForRecord(is, date);
         }
@@ -212,7 +214,7 @@ public class ProfileBuilder {
                 break;
 
             default:
-                throw MdcManager.getComServerExceptionFactory().unsupportedVersion(packetBuilder.getVersion(), "EIWeb packet builder");
+                throw CommunicationException.unsupportedVersion(packetBuilder.getVersion(), "EIWeb packet builder");
         }
 
         for (int t = 0; t < packetBuilder.getNrOfChannels(); t++) {
@@ -224,7 +226,7 @@ public class ProfileBuilder {
     private void buildIntervalDataForRecordAndChannel(LittleEndianInputStream is, IntervalData intervalData) throws IOException {
         switch (packetBuilder.getVersion() & 0x0F) {
             case PacketBuilder.VERSION_32BITS_3:
-                intervalData.addValue(is.readLEInt());
+                intervalData.addValue(is.readLEUnsignedInt());  // As of COMMUNICATION-1357, switched to LE unsigned int
                 break;
 
             case PacketBuilder.VERSION_WITH_STATEBITS_2:
@@ -233,7 +235,7 @@ public class ProfileBuilder {
                 break;
 
             default:
-                throw MdcManager.getComServerExceptionFactory().unsupportedVersion(packetBuilder.getVersion(), "EIWeb packet builder");
+                throw CommunicationException.unsupportedVersion(packetBuilder.getVersion(), "EIWeb packet builder");
         }
     }
 

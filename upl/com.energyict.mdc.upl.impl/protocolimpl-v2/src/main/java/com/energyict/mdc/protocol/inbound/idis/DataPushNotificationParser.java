@@ -21,6 +21,7 @@ import com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130Properties;
@@ -34,7 +35,6 @@ import java.util.TimeZone;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_TIMEZONE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
-import static com.energyict.protocolimplv2.MdcManager.getComServerExceptionFactory;
 
 /**
  * Parser class for the IDIS DataPush<br/>
@@ -88,17 +88,17 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
         try {
             structure = AXDRDecoder.decode(inboundFrame.array(), inboundFrame.position(), Structure.class);
         } catch (ProtocolException e) {
-            throw getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         }
 
         AbstractDataType dataType = structure.getNextDataType();
         if (dataType instanceof OctetString) {
             ObisCode obisCode = ObisCode.fromByteArray(((OctetString) dataType).getOctetStr());
             if (!obisCode.equalsIgnoreBChannel(EventPushNotificationConfig.getDefaultObisCode())) {
-                throw getComServerExceptionFactory().createProtocolParseException(new ProtocolException("The first element of the Data-notification body should contain the obiscode of the Push Setup IC, but was unexpected obis '" + obisCode.toString() + "'"));
+                throw DataParseException.ioException(new ProtocolException("The first element of the Data-notification body should contain the obiscode of the Push Setup IC, but was unexpected obis '" + obisCode.toString() + "'"));
             }
         } else {
-            throw getComServerExceptionFactory().createProtocolParseException(new ProtocolException("The first element of the Data-notification body should contain the obiscode of the Push Setup IC, but was an element of type '" + dataType.getClass().getSimpleName() + "'"));
+            throw DataParseException.ioException(new ProtocolException("The first element of the Data-notification body should contain the obiscode of the Push Setup IC, but was an element of type '" + dataType.getClass().getSimpleName() + "'"));
         }
 
         parseRegisters(structure);
@@ -108,7 +108,7 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
         while (structure.hasMoreElements()) {
             AbstractDataType logicalName = structure.getNextDataType();
             if (!(logicalName instanceof OctetString)){
-                throw getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Failed to parse the register data from the Data-notification body: Expected an element of type OctetString (~ the logical name of the object), but was an element of type '" + logicalName.getClass().getSimpleName() + "'"));
+                throw DataParseException.ioException(new ProtocolException("Failed to parse the register data from the Data-notification body: Expected an element of type OctetString (~ the logical name of the object), but was an element of type '" + logicalName.getClass().getSimpleName() + "'"));
             }
             AbstractDataType valueData = structure.getNextDataType();
             AbstractDataType scalerUnit = null;
@@ -151,7 +151,7 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
 
             addCollectedRegister(obisCode, value, scalerUnit, eventTime, text);
         } catch (IndexOutOfBoundsException | ProtocolException e) {
-           throw getComServerExceptionFactory().createProtocolParseException(new ProtocolException(e, "Failed to parse the register data from the Data-notification body: " + e.getMessage()));
+           throw DataParseException.ioException(new ProtocolException(e, "Failed to parse the register data from the Data-notification body: " + e.getMessage()));
         }
     }
 
@@ -174,7 +174,7 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
         try {
             return new AXDRDateTime(octetString.getBEREncodedByteArray(), 0, getDeviceTimeZone()).getValue().getTime(); // Make sure to pass device TimeZone, as deviation info is unspecified
         } catch (ProtocolException e) {
-            throw getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         }
     }
 

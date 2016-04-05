@@ -3,9 +3,12 @@ package com.energyict.protocolimpl.landisgyr.maxsys2510;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 class LinkLayer extends Connection {
 	
@@ -106,12 +109,12 @@ class LinkLayer extends Connection {
     }
 
     
-    protected void sleep(int millisec) throws IOException{
+    protected void sleep(int millisec) {
     	try {
             Thread.sleep(millisec);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
     
@@ -171,7 +174,7 @@ class LinkLayer extends Connection {
 
         }
 
-        throw new IOException("3) Failed to read: communication error");
+        throw new ProtocolConnectionException("3) Failed to read: communication error");
         
     }
     

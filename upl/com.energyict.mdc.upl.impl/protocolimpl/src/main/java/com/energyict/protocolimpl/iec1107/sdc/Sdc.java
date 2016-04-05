@@ -6,8 +6,13 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+
+import java.io.IOException;
 // com.energyict.protocolimpl.iec1107.sdc.Sdc
 /**
  *
@@ -22,7 +27,7 @@ KV|29072005|Changes to parsing of event log numbers (0x)
 KV|01092005|Add manufacturer specific code
  * @endchanges
  */
-public class Sdc extends SdcBase {
+public class Sdc extends SdcBase implements SerialNumberSupport{
     
     RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
     
@@ -34,8 +39,18 @@ public class Sdc extends SdcBase {
         return regs;
     }
 
+    @Override
+    public String getSerialNumber() {
+        ObisCode oc = new ObisCode(1,0,0,0,0,255);
+        try {
+            return readRegister(oc).getText();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
     }
 
     

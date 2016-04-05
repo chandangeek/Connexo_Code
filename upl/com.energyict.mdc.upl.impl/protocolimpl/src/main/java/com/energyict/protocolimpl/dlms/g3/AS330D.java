@@ -7,6 +7,7 @@ import com.energyict.cpo.Transaction;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -14,6 +15,7 @@ import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.g3.events.G3Events;
@@ -33,7 +35,7 @@ import java.util.logging.Level;
  * Date: 21/03/12
  * Time: 10:32
  */
-public class AS330D extends AbstractDlmsSessionProtocol {
+public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberSupport {
 
     private static final String TIMEOUT = "timeout";
     protected G3Properties properties;
@@ -58,7 +60,7 @@ public class AS330D extends AbstractDlmsSessionProtocol {
      * The protocol version
      */
     public String getProtocolVersion() {
-        return "$Date: 2012-03-28 15:35:22 +0200 (Wed, 28 Mar 2012) $";
+        return "$Date: 2015-11-26 15:25:12 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override
@@ -72,6 +74,15 @@ public class AS330D extends AbstractDlmsSessionProtocol {
     }
 
     @Override
+    public String getSerialNumber() {
+        try {
+            return readSerialNumber().trim();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, getProperties().getRetries() + 1);
+        }
+    }
+
+    @Override
     public void connect() throws IOException {
         getSession().init();
         try {
@@ -80,7 +91,6 @@ public class AS330D extends AbstractDlmsSessionProtocol {
             throw new NestedIOException(e, "Exception occurred while connection DLMSStream");
         }
         connectWithRetries();
-        validateSerialNumber();
     }
 
     private void connectWithRetries() throws IOException {

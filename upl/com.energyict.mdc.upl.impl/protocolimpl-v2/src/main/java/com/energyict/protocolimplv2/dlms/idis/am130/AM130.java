@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.dlms.idis.am130;
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -15,8 +16,8 @@ import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
@@ -28,7 +29,6 @@ import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class AM130 extends AM500 {
      */
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-03-21 15:53:44 +0100 (Mon, 21 Mar 2016)$";
     }
 
     protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
@@ -76,7 +76,7 @@ public class AM130 extends AM500 {
 
     @Override
     public String getProtocolDescription() {
-        return "AM130 DLMS (IDIS P2)";
+        return "Elster AM130 DLMS (IDIS P2)";
     }
 
     /**
@@ -128,9 +128,9 @@ public class AM130 extends AM500 {
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
         } catch (DataAccessResultException | ProtocolException e) {
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(protocolException);
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, publicDlmsSession);
+            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
         disconnectFromPublicClient(publicDlmsSession);
 

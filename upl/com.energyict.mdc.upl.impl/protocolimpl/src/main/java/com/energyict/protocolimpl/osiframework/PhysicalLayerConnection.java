@@ -13,6 +13,7 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.dialer.core.HalfDuplexController;
 
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 import serialio.xmodemapi.XGet;
 
@@ -219,7 +220,7 @@ public class PhysicalLayerConnection {
             }
             catch(InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
             if (count++ >= 9) break;
         }
@@ -280,7 +281,7 @@ public class PhysicalLayerConnection {
         } 
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
     /*

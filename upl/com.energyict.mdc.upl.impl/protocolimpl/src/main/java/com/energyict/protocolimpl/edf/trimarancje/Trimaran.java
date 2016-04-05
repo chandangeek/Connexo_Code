@@ -16,13 +16,7 @@ import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -35,12 +29,7 @@ import com.energyict.protocolimpl.edf.trimarancje.registermapping.RegisterFactor
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -101,20 +90,6 @@ public class Trimaran extends AbstractProtocol {
     	return Integer.parseInt(MeterProtocol.PROFILEINTERVAL);
     }
     
-   /*  
-     *  Method must be overridden by the subclass to verify the property 'SerialNumber'
-     *  against the serialnumber read from the meter.
-     *  Use code below as example to implement the method.
-     *  This code has been taken from a real protocol implementation.
-     */
-    protected void validateSerialNumber() throws IOException {
-//        boolean check = true;
-//        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-//        String sn = getSerialNumber();
-//        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
-//        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
-    }       
-    
     protected void validateDeviceId() throws IOException {
 //        if ((getInfoTypeDeviceID() == null) || ("".compareTo(getInfoTypeDeviceID())==0)) return;
 //        String devId = getCommandFactory().getDeviceIDExtendedCommand().getDeviceID();
@@ -174,7 +149,7 @@ public class Trimaran extends AbstractProtocol {
 
     public String getProtocolVersion() {
 //        return "$Revision$" ; 
-        return "$Date$";
+        return "$Date: 2015-11-26 15:23:39 +0200 (Thu, 26 Nov 2015)$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -188,10 +163,7 @@ public class Trimaran extends AbstractProtocol {
     	
     	return "UNSUPPORTED";
     }
-    
-    public String getSerialNumber() throws IOException {
-        return null;
-    }
+
     
     /*******************************************************************************************
      R e g i s t e r P r o t o c o l  i n t e r f a c e 

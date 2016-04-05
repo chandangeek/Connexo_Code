@@ -1,6 +1,7 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow;
 
 import com.energyict.cpo.*;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
@@ -122,13 +123,13 @@ public class WaveFlowProperties {
         String propertyValue = properties.<String>getTypedProperty(WAVENIS_BUBBLE_UP_INFO, "USED,1,28800,28800,1,000000000000");
         String[] split = propertyValue.split(",");
         if (split.length != 6) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(WAVENIS_BUBBLE_UP_INFO, propertyValue, "Should contain 6 comma separated parts.");
+            throw DeviceConfigurationException.invalidPropertyFormat(WAVENIS_BUBBLE_UP_INFO, propertyValue, "Should contain 6 comma separated parts.");
         }
         int startMoment;
         try {
             startMoment = Integer.parseInt(split[2]);
         } catch (NumberFormatException e) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(WAVENIS_BUBBLE_UP_INFO, propertyValue, "Bubble up start moment should be an integer.");
+            throw DeviceConfigurationException.invalidPropertyFormat(WAVENIS_BUBBLE_UP_INFO, propertyValue, "Bubble up start moment should be an integer.");
         }
         return startMoment;
     }

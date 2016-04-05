@@ -25,6 +25,11 @@ public class AM130Properties extends IDISProperties {
     }
 
     @Override
+    public boolean isBulkRequest() {
+        return true;
+    }
+
+    @Override
     public ConformanceBlock getConformanceBlock() {
         ConformanceBlock conformanceBlock = super.getConformanceBlock();
         conformanceBlock.setGeneralBlockTransfer(useGeneralBlockTransfer());

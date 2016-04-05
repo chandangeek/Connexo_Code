@@ -10,13 +10,14 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.cbo.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 
 
 /**
@@ -109,7 +110,7 @@ public class LoadProfileAndSeasonChangeOptionsCommand extends AbstractCommand {
         }
         
         if (temp==0)
-            throw new IOException("LoadProfileAndSeasonChangeOptionsCommand, getProfileInterval, error getting profile interval length (=0)!");
+            throw new ProtocolException("LoadProfileAndSeasonChangeOptionsCommand, getProfileInterval, error getting profile interval length (=0)!");
         return temp;
     }
     

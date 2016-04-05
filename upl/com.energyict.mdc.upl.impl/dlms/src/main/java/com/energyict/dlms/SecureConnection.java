@@ -51,16 +51,20 @@ public class SecureConnection implements DLMSConnection {
         return getTransportConnection().getInvokeIdAndPriorityHandler();
     }
 
+    public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {
+        getTransportConnection().setInvokeIdAndPriorityHandler(iiapHandler);
+    }
+
     public byte[] sendRawBytes(byte[] data) throws IOException, DLMSConnectionException {
         return getTransportConnection().sendRawBytes(data);
     }
 
-    public void setTimeout(long timeout) {
-        getTransportConnection().setTimeout(timeout);
-    }
-
     public long getTimeout() {
         return getTransportConnection().getTimeout();
+    }
+
+    public void setTimeout(long timeout) {
+        getTransportConnection().setTimeout(timeout);
     }
 
     public void setRetries(int retries) {
@@ -106,7 +110,10 @@ public class SecureConnection implements DLMSConnection {
                 final byte[] securedResponse = getTransportConnection().sendRequest(securedRequest);
 
                 // check if the response tag is know and decrypt the data if necessary
-                if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
+                if (securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG] == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
+                    //Return any errors as-is
+                    return securedResponse;
+                } else if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
                     // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
                     // Strip the 3 leading bytes before encrypting
                     final byte[] decryptedResponse;
@@ -137,6 +144,9 @@ public class SecureConnection implements DLMSConnection {
 
     public byte[] readResponseWithRetries(byte[] retryRequest, boolean isAlreadyEncrypted) throws IOException {
 
+        //framecounter out of sync (it was already incremented in sendRequest, so decrement it)
+        aso.getSecurityContext().decrementFrameCounter();
+
         /* dataTransport security is only applied after we made an established association */
         if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
 
@@ -151,7 +161,7 @@ public class SecureConnection implements DLMSConnection {
 
                 if (!isAlreadyEncrypted) {     //Don't encrypt the request again if it's already encrypted
                     final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
-                    securedRequest = encrypt(securedRequest);
+                    securedRequest = encrypt(securedRequest, false);
                     securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
                 } else {
                     //No encryption, only increase the frame counter
@@ -164,8 +174,14 @@ public class SecureConnection implements DLMSConnection {
                 // send the encrypted request to the DLMSConnection
                 final byte[] securedResponse = getTransportConnection().readResponseWithRetries(securedRequest);
 
+                //response sent, increment the framecounter
+                aso.getSecurityContext().incFrameCounter();
+
                 // check if the response tag is know and decrypt the data if necessary
-                if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
+                if (securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG] == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
+                    //Return any errors as-is
+                    return securedResponse;
+                } else if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
                     // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
                     // Strip the 3 leading bytes before encrypting
                     final byte[] decryptedResponse;
@@ -186,9 +202,13 @@ public class SecureConnection implements DLMSConnection {
         }
     }
 
+    private byte[] encrypt(byte[] securedRequest, boolean incrementFrameCounter) throws IOException{
+        return this.aso.getSecurityContext().dataTransportEncryption(securedRequest, incrementFrameCounter);
+    }
+
     //Subclasses can override encryption implementation
     protected byte[] encrypt(byte[] securedRequest) throws IOException {
-        return this.aso.getSecurityContext().dataTransportEncryption(securedRequest);
+        return this.aso.getSecurityContext().dataTransportEncryption(securedRequest, true);
     }
 
     protected byte[] decrypt(byte[] securedResponse) throws IOException, DLMSConnectionException {
@@ -229,10 +249,6 @@ public class SecureConnection implements DLMSConnection {
 
     public void setHHUSignOn(final HHUSignOn hhuSignOn, final String meterId, int hhuSignonBaudRateCode) {
         getTransportConnection().setHHUSignOn(hhuSignOn, meterId, hhuSignonBaudRateCode);
-    }
-
-    public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {
-        getTransportConnection().setInvokeIdAndPriorityHandler(iiapHandler);
     }
 
     public void setIskraWrapper(final int type) {

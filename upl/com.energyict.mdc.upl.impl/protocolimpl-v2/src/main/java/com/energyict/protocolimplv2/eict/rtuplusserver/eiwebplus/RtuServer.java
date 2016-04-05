@@ -3,14 +3,10 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -26,6 +22,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
@@ -52,7 +49,7 @@ import java.util.List;
  * Time: 13:40
  * Author: khe
  */
-public class RtuServer implements DeviceProtocol {
+public class RtuServer implements DeviceProtocol, SerialNumberSupport {
 
     private OfflineDevice offlineDevice;
     private NoOrPasswordSecuritySupport securitySupport = new NoOrPasswordSecuritySupport();
@@ -165,8 +162,13 @@ public class RtuServer implements DeviceProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         return messageAttribute.toString();
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     private LegacyMessageConverter getMessageConverter() {
@@ -233,7 +235,7 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:26:45 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override

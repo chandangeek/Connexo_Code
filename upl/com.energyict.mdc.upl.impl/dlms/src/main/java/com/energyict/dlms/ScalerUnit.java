@@ -1,5 +1,6 @@
 package com.energyict.dlms;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.*;
 
@@ -48,7 +49,11 @@ public class ScalerUnit {
     @Deprecated
     public ScalerUnit(AbstractDataType dataType) {
         scale = dataType.getStructure().getDataType(0).getInteger8().intValue();
-        unit = dataType.getStructure().getDataType(1).getTypeEnum().intValue();
+        if(dataType.getStructure().getDataType(1) != null) {
+            unit = dataType.getStructure().getDataType(1).getTypeEnum().intValue();
+        }else{
+            unit = BaseUnit.UNITLESS;
+        }
     }
 
     /**

@@ -12,12 +12,14 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
@@ -26,9 +28,9 @@ import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import org.xml.sax.SAXException;
 
@@ -115,7 +117,9 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 boolean disableDiscoveryOnPowerUp = messageHandler.getType().equals(RtuMessageConstant.DISABLE_DISCOVERY_ON_POWER_UP);
                 boolean installMbus = messageHandler.getType().equals(RtuMessageConstant.MBUS_INSTALL);
                 boolean resetMbusClient = messageHandler.getType().equals(RtuMessageConstant.RESET_MBUS_CLIENT);
-
+                boolean isMbusClientRemoteCommission = messageHandler.getType().equals(RtuMessageConstant.MBUS_REMOTE_COMMISSION);
+                //Messages for changing the MBus Client Object Attributes
+                boolean isChangeMbusClientAttributes = messageHandler.getType().equals(RtuMessageConstant.CHANGE_MBUS_CLIENT_ATTRIBUTES);
                 /* All MbusMeter related messages */
                 if (xmlConfig) {
                     doXmlConfig(content);
@@ -209,7 +213,11 @@ public class Dsmr23MessageExecutor extends MessageParser {
                     installMbus(messageHandler);
                 } else if (resetMbusClient) {
                     resetMbusClient(messageHandler);
-                } else {
+                } else if (isMbusClientRemoteCommission){
+                    mBusClientRemoteCommissioning(messageHandler);
+                } else if (isChangeMbusClientAttributes) {
+                    changeMBusClientAttributes(messageHandler);
+                }else {
                     msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
                     log(Level.INFO, "Message not supported : " + content);
                 }
@@ -241,7 +249,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             } catch (SQLException e) {
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
@@ -250,12 +258,25 @@ public class Dsmr23MessageExecutor extends MessageParser {
         }
     }
 
+
     private void installMbus(MessageHandler messageHandler) throws IOException {
-        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) messageHandler.getMbusInstallChannel());
+        int installChannel = messageHandler.getMbusInstallChannel();
+        int primaryAddress = getMBusPhysicalAddress(installChannel);
+        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (primaryAddress - 1));
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION9);
-        mbusClient.installSlave(0);     //Means: pick the next primary address that is available
+        mbusClient.installSlave(primaryAddress);
     }
 
+    private int getMBusPhysicalAddress(int installChannel) throws ProtocolException {
+        int physicalAddress;
+        if(installChannel == 0){
+            physicalAddress = (byte)this.protocol.getMeterTopology().searchNextFreePhysicalAddress();
+            log(Level.INFO, "Channel: " + physicalAddress + " will be used as MBUS install channel.");
+        }else{
+            physicalAddress = installChannel;
+        }
+        return physicalAddress;
+    }
     /**
      * Not supported for the DSMR 2.3 protocols.
      * Sub classes can override.
@@ -1426,5 +1447,35 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     protected MeteringWarehouse mw() {
         return ProtocolTools.mw();
+    }
+
+    private void mBusClientRemoteCommissioning(MessageHandler messageHandler) throws IOException{
+        int installChannel = messageHandler.getMbusInstallChannel();
+        int physicalAddress = getMBusPhysicalAddress(installChannel);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
+        String shortId = messageHandler.getMbusShortId();
+        MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(),((Dsmr23Properties)getProtocol().getProperties()).getFixMbusHexShortId());
+        try {
+            mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
+            mbusClient.setIdentificationNumber(mbusProvider.getIdentificationNumber(shortId));
+            mbusClient.setVersion(mbusProvider.getVersion(shortId));
+            mbusClient.setDeviceType(mbusProvider.getDeviceType(shortId));
+        }catch(ProtocolException e){
+            log(Level.SEVERE,"Invalid short id value.");
+        }
+    }
+
+    private void changeMBusClientAttributes(MessageHandler messageHandler) throws IOException {
+        int installChannel = messageHandler.getMbusInstallChannel();
+        int physicalAddress = getMBusPhysicalAddress(installChannel);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(),9);
+        try {
+            mbusClient.setManufacturerID(messageHandler.getMbusClientManufacturerID());
+            mbusClient.setIdentificationNumber(messageHandler.getMbusClientIdentificationNumber(((Dsmr23Properties)getProtocol().getProperties()).getFixMbusHexShortId()));
+            mbusClient.setDeviceType(messageHandler.getMbusDeviceType());
+            mbusClient.setVersion(messageHandler.getMbusClientVersion());
+        }catch(ProtocolException e){
+            log(Level.SEVERE,"Invalid short id value.");
+        }
     }
 }

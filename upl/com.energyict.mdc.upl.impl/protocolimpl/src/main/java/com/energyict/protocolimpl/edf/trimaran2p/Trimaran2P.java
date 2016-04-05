@@ -5,14 +5,8 @@ package com.energyict.protocolimpl.edf.trimaran2p;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -22,6 +16,7 @@ import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.DLMSPDUFacto
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.APSEParameters;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.Connection62056;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +30,7 @@ import java.util.Properties;
  * @author gna
  *
  */
-public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
+public class Trimaran2P extends AbstractProtocol implements ProtocolLink, SerialNumberSupport {
 	
 	private APSEPDUFactory aPSEFactory;
 	private APSEParameters aPSEParameters;
@@ -83,19 +78,6 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		return getTrimaran2PProfile().getProfileData(lastReading, to);
 	}
 	
-	protected void validateSerialNumber() throws IOException{
-		if((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber()) == 0)) {
-			return;
-		}
-		
-		String serialNumber = getDLMSPDUFactory().getStatusResponse().getSerialNumber();
-		if(serialNumber.compareTo(getInfoTypeSerialNumber()) == 0) {
-			return;
-		}
-		
-		throw new IOException("SerialNumber mismatch! Meter serialNumber = "+serialNumber+", configured serialNumber = "+getInfoTypeSerialNumber());
-	}
-
 	protected List doGetOptionalKeys() {
         List list = new ArrayList(7);
         list.add("T1Timeout");
@@ -187,8 +169,17 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		return firm;
 	}
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return getDLMSPDUFactory().getStatusResponse().getSerialNumber();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
     public String getProtocolVersion() {
-		return "$Date$";
+		return "$Date: 2015-11-26 15:26:45 +0200 (Thu, 26 Nov 2015)$";
 //		return "$Revision$";
 	}
 

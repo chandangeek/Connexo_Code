@@ -15,16 +15,11 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppmi1.opus.OpusConnection;
@@ -34,14 +29,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -119,7 +107,7 @@ import java.util.logging.Logger;
  * @endchanges
  */
 
-public class PPM extends AbstractPPM {
+public class PPM extends AbstractPPM implements SerialNumberSupport {
 
     private static final int SECONDS_PER_MINUTE = 60;
 
@@ -226,9 +214,18 @@ public class PPM extends AbstractPPM {
     }
 
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return (String) rFactory.getRegister(RegisterFactory.R_SERIAL_NUMBER);
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getMaxRetry() + 1);
+        }
+    }
+
     /* (non-Javadoc)
-      * @see com.energyict.protocol.MeterProtocol#setProperties(java.util.Properties)
-      */
+          * @see com.energyict.protocol.MeterProtocol#setProperties(java.util.Properties)
+          */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
         if (p.getProperty(MeterProtocol.ADDRESS) != null) {
@@ -370,9 +367,6 @@ public class PPM extends AbstractPPM {
 
             obisCodeMapper = new ObisCodeMapper(rFactory);
             profile = new Profile(this, rFactory);
-
-            validateSerialNumber();
-
         } catch (FlagIEC1107ConnectionException e) {
             disconnect();
             throw e;
@@ -402,31 +396,6 @@ public class PPM extends AbstractPPM {
             return;
         }
         throw new InvalidPropertyException("Configured password does not match the device opus password!");
-    }
-
-    /**
-     * Validate the serial number
-     * change on: 26/01/2005.  The method should basically ignore the leading dashes (-) in the comparison.
-     *
-     * @throws IOException
-     */
-    private void validateSerialNumber() throws IOException {
-
-        if ((pSerialNumber == null) || ("".equals(pSerialNumber))) {
-            return;
-        }
-
-        // at this point pSerialNumber can not be null any more
-        String sn = (String) rFactory.getRegister(RegisterFactory.R_SERIAL_NUMBER);
-
-        if (sn != null) {
-            String snNoDash = sn.replaceAll("-+", "");
-            String pSerialNumberNoDash = pSerialNumber.replaceAll("-+", "");
-            if (pSerialNumberNoDash.equals(snNoDash)) {
-                return;
-            }
-        }
-        throw new IOException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + pSerialNumber);
     }
 
     /* (non-Javadoc)
@@ -479,7 +448,7 @@ public class PPM extends AbstractPPM {
       * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
       */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:23:41 +0200 (Thu, 26 Nov 2015)$";
     }
 
     /* (non-Javadoc)

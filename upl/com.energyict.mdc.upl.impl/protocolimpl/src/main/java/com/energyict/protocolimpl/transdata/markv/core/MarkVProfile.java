@@ -15,7 +15,8 @@ import java.util.*;
 import java.util.logging.*;
 
 import com.energyict.cbo.*;
-import com.energyict.protocol.HalfDuplexEnabler;  
+import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.dialer.core.*;
 import com.energyict.protocol.*;
@@ -167,7 +168,7 @@ public class MarkVProfile {
                 }
                 catch(InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             }
             else break;

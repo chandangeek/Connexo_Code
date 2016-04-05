@@ -5,6 +5,7 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -46,5 +47,10 @@ public class WavenisGatewayConnectionType extends OutboundTcpIpConnectionType {
         } catch (IOException e) {
             throw new ConnectionException(e);
         }
+    }
+
+    @Override
+    public String getVersion() {
+        return "$Date: 2015-12-18 09:25:29 +0100 (Fri, 18 Dec 2015)$";
     }
 }

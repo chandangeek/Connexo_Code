@@ -13,13 +13,8 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
-import com.energyict.dlms.cosem.attributes.ClockAttributes;
-import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
@@ -29,28 +24,17 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedActivityCalendar;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedClock;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedData;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedDisconnectControl;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedObject;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
+import com.energyict.protocolimplv2.common.composedobjects.*;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -60,7 +44,7 @@ import java.util.Map;
  */
 public class AM130RegisterFactory implements DeviceRegisterSupport {
 
-    private static final int BULK_RESQUEST_REGISTER_LIMIT = 5;  //The number of attributes in a bulk request should be smaller than 16. Note that 1, 2 or 3 attributes are read out for every register!
+    protected static final int BULK_REQUEST_ATTRIBUTE_LIMIT = 16;  //The number of attributes in a bulk request should be smaller than 16.
 
     private static final String ALARM_REGISTER1 = "0.0.97.98.0.255";
     private static final String ALARM_REGISTER2 = "0.0.97.98.1.255";
@@ -81,18 +65,23 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
 
         result.addAll(readBillingRegisters(offlineRegisters));      // Cause these cannot be read out in bulk
         filterOutAllAllBillingRegistersFromList(offlineRegisters);  // Cause they are already read out (see previous line)
-        result.addAll(filterOutAllInvalidMBusRegistersFromList(offlineRegisters)); // For each invalid one, an 'Incompatible' collectedRegister will be added
+        result.addAll(filterOutAllInvalidRegistersFromList(offlineRegisters)); // For each invalid one, an 'Incompatible' collectedRegister will be added
 
-        int count = 0;
-        while ((count * BULK_RESQUEST_REGISTER_LIMIT) <= offlineRegisters.size()) {    //Read out in steps of x registers
-            int toIndex = (count + 1) * BULK_RESQUEST_REGISTER_LIMIT;
-            subSet = offlineRegisters.subList(count * BULK_RESQUEST_REGISTER_LIMIT, (toIndex < offlineRegisters.size()) ? toIndex : offlineRegisters.size());
-            result.addAll(readSubSetOfRegisters(subSet));
-            count++;
+        int from = 0;
+        while (from < offlineRegisters.size()) {    //Read out in steps of x registers
+            subSet = offlineRegisters.subList(from, offlineRegisters.size());
+            List<CollectedRegister> collectedRegisters = readSubSetOfRegisters(subSet);
+            from += collectedRegisters.size();
+            result.addAll(collectedRegisters);
         }
         return result;
     }
 
+    /**
+     * Read out a subset of registers.
+     * The limit of the meter is 16 attributes per bulk request.
+     * Note that the number of requested registers in the bulk request is dynamic.
+     */
     protected List<CollectedRegister> readSubSetOfRegisters(List<OfflineRegister> registers) {
         //Map of attributes (value, unit, captureTime) per register
         Map<ObisCode, ComposedObject> composedObjectMap = new HashMap<>();
@@ -100,18 +89,39 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         //List of all attributes that need to be read out
         List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
 
-        createComposedObjectMap(registers, composedObjectMap, dlmsAttributes);
-        ComposedCosemObject composedCosemObject = new ComposedCosemObject(getMeterProtocol().getDlmsSession(), true, dlmsAttributes);
-        return createCollectedRegisterListFromComposedCosemObject(registers, composedObjectMap, composedCosemObject);
+        int count = createComposedObjectMap(registers, composedObjectMap, dlmsAttributes);
+        ComposedCosemObject composedCosemObject = new ComposedCosemObject(getMeterProtocol().getDlmsSession(), getMeterProtocol().getDlmsSessionProperties().isBulkRequest(), dlmsAttributes);
+        return createCollectedRegisterListFromComposedCosemObject(registers.subList(0, count), composedObjectMap, composedCosemObject);
     }
 
-    protected void createComposedObjectMap(List<OfflineRegister> registers, Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes) {
+    /**
+     * Create a map of ComposedObjects for as much registers as possible.
+     * Return the number of registers from the given list that will be read out.
+     */
+    protected int createComposedObjectMap(List<OfflineRegister> registers, Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes) {
+        int count = 0;
+
         for (OfflineRegister register : registers) {
-            addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
+            if (dlmsAttributes.size() < BULK_REQUEST_ATTRIBUTE_LIMIT) {
+                Boolean result = addComposedObjectToComposedRegisterMap(composedObjectMap, dlmsAttributes, register);
+                if (result != null) {
+                    count++;
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
         }
+        return count;
     }
 
-    protected void addComposedObjectToComposedRegisterMap(Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes, OfflineRegister register) {
+    /**
+     * Return true if attribute(s) were added to the list, to read out the given register.
+     * Return false if the register is not supported by the protocol implementation or the meter.
+     * Return null if no attribute(s) were added to the list, because the attribute(s) for the given register could no longer be added to the bulk request (meter limit of 16)
+     */
+    protected Boolean addComposedObjectToComposedRegisterMap(Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes, OfflineRegister register) {
         ComposedObject composedObject = null;
 
         ObisCode obisCode = register.getObisCode();
@@ -128,6 +138,10 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
                     captureTimeAttribute = new DLMSAttribute(obisCode, ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), uo.getClassID());
                 }
+                if ((dlmsAttributes.size() + (captureTimeAttribute == null ? 2 : 3)) > BULK_REQUEST_ATTRIBUTE_LIMIT) {
+                    return null; //Don't add the new attributes, no more room
+                }
+
                 composedObject = new ComposedRegister(valueAttribute, unitAttribute, captureTimeAttribute);
                 dlmsAttributes.add(((ComposedRegister) composedObject).getRegisterValueAttribute());
                 dlmsAttributes.add(((ComposedRegister) composedObject).getRegisterUnitAttribute());
@@ -135,6 +149,10 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                     dlmsAttributes.add(((ComposedRegister) composedObject).getRegisterCaptureTime());
                 }
             } else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
+                if (dlmsAttributes.size() + 3 > BULK_REQUEST_ATTRIBUTE_LIMIT) {
+                    return null; //Don't add the new attributes, no more room
+                }
+
                 DLMSAttribute valueAttribute = new DLMSAttribute(obisCode, DemandRegisterAttributes.CURRENT_AVG_VALUE.getAttributeNumber(), uo.getClassID());
                 DLMSAttribute unitAttribute = new DLMSAttribute(obisCode, DemandRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
                 DLMSAttribute captureTimeAttribute = new DLMSAttribute(obisCode, DemandRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), uo.getClassID());
@@ -144,26 +162,44 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 dlmsAttributes.add(((ComposedRegister) composedObject).getRegisterUnitAttribute());
                 dlmsAttributes.add(((ComposedRegister) composedObject).getRegisterCaptureTime());
             } else if (uo.getClassID() == DLMSClassId.DATA.getClassId()) {
+                if (dlmsAttributes.size() + 1 > BULK_REQUEST_ATTRIBUTE_LIMIT) {
+                    return null; //Don't add the new attributes, no more room
+                }
+
                 DLMSAttribute valueAttribute = new DLMSAttribute(obisCode, DataAttributes.VALUE.getAttributeNumber(), uo.getClassID());
                 composedObject = new ComposedData(valueAttribute);
                 dlmsAttributes.add(((ComposedData) composedObject).getDataValueAttribute());
             } else if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
+                if (dlmsAttributes.size() + 1 > BULK_REQUEST_ATTRIBUTE_LIMIT) {
+                    return null; //Don't add the new attributes, no more room
+                }
+
                 DLMSAttribute controlStateAttribute = new DLMSAttribute(obisCode, DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber(), uo.getClassID());
                 composedObject = new ComposedDisconnectControl(null, controlStateAttribute, null);
                 dlmsAttributes.add(((ComposedDisconnectControl) composedObject).getControlStateAttribute());
             } else if (uo.getClassID() == DLMSClassId.CLOCK.getClassId()) {
+                if (dlmsAttributes.size() + 1 > BULK_REQUEST_ATTRIBUTE_LIMIT) {
+                    return null; //Don't add the new attributes, no more room
+                }
+
                 DLMSAttribute timeAttribute = new DLMSAttribute(obisCode, ClockAttributes.TIME.getAttributeNumber(), uo.getClassID());
                 composedObject = new ComposedClock(timeAttribute);
                 dlmsAttributes.add(((ComposedClock) composedObject).getTimeAttribute());
             } else if (uo.getClassID() == DLMSClassId.ACTIVITY_CALENDAR.getClassId()) {
+                if (dlmsAttributes.size() + 1 > BULK_REQUEST_ATTRIBUTE_LIMIT) {
+                    return null; //Don't add the new attributes, no more room
+                }
+
                 DLMSAttribute timeAttribute = new DLMSAttribute(obisCode, ActivityCalendarAttributes.CALENDAR_NAME_ACTIVE.getAttributeNumber(), uo.getClassID());
                 composedObject = new ComposedActivityCalendar(timeAttribute);
                 dlmsAttributes.add(((ComposedActivityCalendar) composedObject).getCalendarNameActiveAttribute());
             }
             if (composedObject != null) {
                 composedObjectMap.put(obisCode, composedObject);
+                return true;
             }
         }
+        return false;
     }
 
     protected List<CollectedRegister> createCollectedRegisterListFromComposedCosemObject(List<OfflineRegister> registers, Map<ObisCode, ComposedObject> composedObjectMap, ComposedCosemObject composedCosemObject) {
@@ -187,8 +223,9 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 if (composedObject instanceof ComposedRegister) {
                     ComposedRegister composedRegister = ((ComposedRegister) composedObject);
 
-                    Unit unit = null;
-                    if (composedRegister.getRegisterUnitAttribute() != null) {
+                    Unit unit = Unit.get(BaseUnit.UNITLESS);
+                    if (composedRegister.getRegisterUnitAttribute() != null &&
+                            composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute()).getStructure().getDataType(1) != null) {
                         unit = new ScalerUnit(composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute())).getEisUnit();
                     }
                     Date captureTime = null;
@@ -257,8 +294,8 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                     return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Encountered unexpected ComposedObject - data cannot be parsed."); // Should never occur
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession())) {
-                    if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession().getProperties().getRetries())) {
+                    if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                         return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
                     } else {
                         return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
@@ -285,17 +322,21 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         }
     }
 
-    private List<CollectedRegister> filterOutAllInvalidMBusRegistersFromList(List<OfflineRegister> offlineRegisters) {
-        List<CollectedRegister> invalidMBusRegisters = new ArrayList<>();
+    /**
+     * Filter out the following registers:
+     * - MBus devices (by serial number) that are not installed on the e-meter
+     */
+    protected List<CollectedRegister> filterOutAllInvalidRegistersFromList(List<OfflineRegister> offlineRegisters) {
+        List<CollectedRegister> invalidRegisters = new ArrayList<>();
         Iterator<OfflineRegister> it = offlineRegisters.iterator();
         while (it.hasNext()) {
             OfflineRegister register = it.next();
             if (getMeterProtocol().getPhysicalAddressFromSerialNumber(register.getSerialNumber()) == -1) {
-                invalidMBusRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, "Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device."));
+                invalidRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, "Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device."));
                 it.remove();
             }
         }
-        return invalidMBusRegisters;
+        return invalidRegisters;
     }
 
     private List<CollectedRegister> readBillingRegisters(List<OfflineRegister> offlineRegisters) {
@@ -308,7 +349,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         return collectedBillingRegisters;
     }
 
-    private CollectedRegister readBillingRegister(OfflineRegister offlineRegister) {
+    protected CollectedRegister readBillingRegister(OfflineRegister offlineRegister) {
         try {
             HistoricalValue historicalValue = ((AM130) getMeterProtocol()).getStoredValues().getHistoricalValue(offlineRegister.getObisCode());
             RegisterValue registerValue = new RegisterValue(offlineRegister.getObisCode(), historicalValue.getQuantityValue(), historicalValue.getEventTime());
@@ -323,14 +364,14 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
     }
 
     protected CollectedRegister handleIOException(OfflineRegister offlineRegister, IOException e) {
-        if (IOExceptionHandler.isUnexpectedResponse(e, am130.getDlmsSession())) {
-            if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, am130.getDlmsSession().getProperties().getRetries())) {
+            if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                 return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
             } else {
                 return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
             }
         } else {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, am130.getDlmsSession().getProperties().getRetries() + 1);
+            throw ConnectionCommunicationException.numberOfRetriesReached(e, am130.getDlmsSession().getProperties().getRetries() + 1);
         }
     }
 

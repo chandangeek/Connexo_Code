@@ -14,6 +14,7 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.mbus.core.ApplicationData;
@@ -105,7 +106,7 @@ public class MBusConnection extends IEC870Connection implements ProtocolConnecti
 		}
 		catch(InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
 		}
 		return o;
     }

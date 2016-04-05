@@ -107,4 +107,9 @@ public class DummyComChannel implements ServerComChannel {
     public void flush() throws IOException {
 
     }
+
+    @Override
+    public void setTimeout(long millis) {
+
+    }
 }

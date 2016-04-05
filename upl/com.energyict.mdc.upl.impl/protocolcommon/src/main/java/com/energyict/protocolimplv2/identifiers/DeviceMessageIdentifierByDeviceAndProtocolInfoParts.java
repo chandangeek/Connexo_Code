@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.cbo.NotFoundException;
+import com.energyict.protocol.exceptions.identifier.DuplicateException;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.meterdata.identifiers.MessageIdentifierType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.util.Collections;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -45,10 +45,10 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
     public DeviceMessage getDeviceMessage() {
         List<DeviceMessage> deviceMessages = MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getDeviceMessageFactory().findByDeviceAndProtocolInfoParts(deviceIdentifier.findDevice(), messageProtocolInfoParts);
         if (deviceMessages.isEmpty()) {
-            throw new NotFoundException("DeviceMessage for device (" + deviceIdentifier.toString() + ") and having " + Arrays.toString(messageProtocolInfoParts) + " in protocolInfo not found");
+            throw NotFoundException.notFound(DeviceMessage.class, this.toString());
         } else {
             if (deviceMessages.size() > 1) {
-                throw MdcManager.getComServerExceptionFactory().createDuplicateException(DeviceMessage.class, this.toString());
+                throw DuplicateException.duplicateFoundFor(DeviceMessage.class, this.toString());
             } else {
                 return deviceMessages.get(0);
             }

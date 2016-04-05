@@ -7,6 +7,8 @@ import com.energyict.mdc.protocol.inbound.general.frames.EventFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.EventPOFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.RegisterFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.RequestFrame;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 
@@ -84,7 +86,7 @@ public class InboundConnection {
      * Read in a frame after the I request was sent.
      * This method reads in bytes until a timeout occurs and returns the result.
      *
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException when no bytes were received after a certain time
+     * @throws com.energyict.protocol.exceptions.ProtocolRuntimeException when no bytes were received after a certain time
      */
     public String readVariableFrame() throws InboundTimeOutException {
         return readVariableLength(null, null);   //Read in a frame until a timeout occurs
@@ -117,7 +119,7 @@ public class InboundConnection {
      *
      * @param retryRequest this is what we send in case of timeouts. Nothing is sent if the request is null.
      * @return the full inbound frame
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException if a timeout occurs
+     * @throws com.energyict.protocol.exceptions.ProtocolRuntimeException if a timeout occurs
      */
     public AbstractInboundFrame readInboundFrame(byte[] retryRequest) throws InboundTimeOutException {
         StringBuilder sb = new StringBuilder();
@@ -137,7 +139,7 @@ public class InboundConnection {
      *
      * @param frame the received string
      * @return the parsing result
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException when an unknown frame type was received
+     * @throws com.energyict.protocol.exceptions.ProtocolRuntimeException when an unknown frame type was received
      */
     private AbstractInboundFrame parseInboundFrame(String frame) {
         if (frame.contains(REQUEST_TAG)) {
@@ -155,7 +157,7 @@ public class InboundConnection {
         if (frame.contains(REGISTER_TAG)) {
             return new RegisterFrame(frame, callHomeIdPlaceHolder);
         }
-        throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
+        throw InboundFrameException.unexpectedFrame(frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
     }
 
     private String getFrameTag(String frame) {
@@ -169,7 +171,7 @@ public class InboundConnection {
      * @param retryRequest in case of timeouts, send a retry.
      * @param endString    Stop reading in bytes when this string is found. If null, read in bytes until a timeout occurs.
      * @return the partial frame
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException in case of timeout after x retries
+     * @throws com.energyict.protocol.exceptions.ProtocolRuntimeException in case of timeout after x retries
      */
     private String readVariableLength(String endString, byte[] retryRequest) throws InboundTimeOutException {
         comChannel.startReading();
@@ -211,7 +213,7 @@ public class InboundConnection {
      * @param length       the number of bytes that should be read
      * @param retryRequest in case of timeouts, send a retry.
      * @return the bytes that were read out
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException in case of timeout after x retries
+     * @throws com.energyict.protocol.exceptions.ProtocolRuntimeException in case of timeout after x retries
      */
     private String readFixedLength(int length, byte[] retryRequest) {
         StringBuilder sb = new StringBuilder();
@@ -225,7 +227,7 @@ public class InboundConnection {
                 retryCount++;
                 timeoutMoment = System.currentTimeMillis() + timeout;
                 if (retryCount > retries) {
-                    throw MdcManager.getComServerExceptionFactory().createInboundTimeOutException("Timeout while waiting for inbound frame, after " + timeout + " ms, using " + retries + " retries.");
+                    throw InboundFrameException.timeoutException("Timeout while waiting for inbound frame, after " + timeout + " ms, using " + retries + " retries.");
                 }
                 if (retryRequest != null) {    //Send retry and wait again
                     send(retryRequest);
@@ -250,7 +252,7 @@ public class InboundConnection {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 

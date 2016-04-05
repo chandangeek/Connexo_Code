@@ -6,10 +6,12 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.ClientTypeManager;
 import com.energyict.dlms.cosem.DeviceTypeManager;
 import com.energyict.dlms.cosem.ScheduleManager;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -43,7 +45,7 @@ public class MasterDataSync {
     public CollectedMessage syncMasterData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         AllMasterData allMasterData;
         try {
-            final String serializedMasterData = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+            final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
             final JSONObject jsonObject = new JSONObject(serializedMasterData);
             allMasterData = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), AllMasterData.class);
         } catch (JSONException | IOException e) {
@@ -57,6 +59,17 @@ public class MasterDataSync {
         syncClientTypes(allMasterData);
         syncDeviceTypes(allMasterData);
 
+        //Now see if there were any warning while parsing the EIServer model, and add them as proper issues.
+        List<Issue> issues = new ArrayList<>();
+        for (int index = 0; index < allMasterData.getWarningKeys().size(); index++) {
+            String warningKey = allMasterData.getWarningKeys().get(index);
+            String warningArgument = allMasterData.getWarningArguments().get(index);
+            issues.add(MdcManager.getIssueFactory().createWarning(pendingMessage, warningKey, warningArgument));
+        }
+        if (!issues.isEmpty()) {
+            collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, issues);
+        }
+
         return collectedMessage;
     }
 
@@ -66,7 +79,7 @@ public class MasterDataSync {
     public CollectedMessage syncDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         Beacon3100MeterDetails[] meterDetails;
         try {
-            final String serializedMasterData = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dcDeviceID2AttributeName).getDeviceMessageAttributeValue();
+            final String serializedMasterData = pendingMessage.getPreparedContext();    //This context field contains the serialized version of the master data.
             final JSONArray jsonObject = new JSONArray(serializedMasterData);
             meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), Beacon3100MeterDetails[].class);
         } catch (JSONException | IOException e) {

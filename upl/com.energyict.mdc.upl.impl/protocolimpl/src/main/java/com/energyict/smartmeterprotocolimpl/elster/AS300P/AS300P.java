@@ -1,16 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.elster.AS300P;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.IPDialer;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.elster.AS300P.eventhandling.AS300PEventProfiles;
@@ -29,7 +30,7 @@ import java.util.logging.Logger;
  * @author sva
  * @since 8/05/13 - 10:25
  */
-public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol {
+public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol, SerialNumberSupport {
 
     /**
      * The properties to use for this protocol
@@ -89,13 +90,17 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
         }
     }
 
-    public String getMeterSerialNumber() throws IOException {
+    public String getMeterSerialNumber()  {
         if (getProperties().isFirmwareUpdateSession()) {
             getLogger().severe("Using firmware update client. Skipping serial number check!");
             return getProperties().getSerialNumber();
         } else {
-            verifyFirmwareVersion();
-            return getObjectFactory().getSerialNumber().getString();
+            try {
+                verifyFirmwareVersion();
+                return getObjectFactory().getSerialNumber().getString();
+            }  catch (IOException e) {
+                throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
+            }
         }
     }
 
@@ -103,7 +108,7 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
         if (getProperties().verifyFirmwareVersion()) {
             String elsterFirmwareVersion = new String(getObjectFactory().getActiveFirmwareIdACOR().getAttrbAbstractDataType(-1).getContentByteArray());
             if (!elsterFirmwareVersion.startsWith("ASP04.03.")) {
-                throw new IOException("Unsupported firmware version (" + elsterFirmwareVersion + ") - only firmware versions ASP04.03.XX can be read out with this protocol.");
+                throw new ProtocolException("Unsupported firmware version (" + elsterFirmwareVersion + ") - only firmware versions ASP04.03.XX can be read out with this protocol.");
             }
         }
     }
@@ -180,7 +185,7 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
     //---------- END OF MESSAGING ----------//
 
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:15 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public AS300PObjectFactory getObjectFactory() {
@@ -266,5 +271,10 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
 
     private void reInitDlmsSession(final Link link) {
         this.dlmsSession = new DlmsSession(link.getInputStream(), link.getOutputStream(), getLogger(), getProperties(), getTimeZone());
+    }
+
+    @Override
+    public String getSerialNumber() {
+        return getMeterSerialNumber();
     }
 }

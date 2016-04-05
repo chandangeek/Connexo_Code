@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.EMCO;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.EMCO.frame.*;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -121,7 +122,7 @@ public class FP93Connection implements ProtocolConnection {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             } catch (ProtocolConnectionException e) {
                 if (counter == retries) {
                     throw new ProtocolConnectionException(e.getMessage() + ", after " + retries + " retries", e.getProtocolErrorCode());

@@ -6,10 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.util.*;
-import java.io.*;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
@@ -45,7 +44,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     String softwareVersionNumber;
     
     /** Creates a new instance of MeterIdentity */
-    public MeterIdentity(int id,int size, LogicalAddressFactory laf) throws IOException {
+    public MeterIdentity(int id,int size, LogicalAddressFactory laf) {
         super(id,size,laf);
     }
     

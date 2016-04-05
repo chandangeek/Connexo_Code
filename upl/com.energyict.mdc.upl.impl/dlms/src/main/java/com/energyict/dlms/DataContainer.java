@@ -9,6 +9,7 @@ package com.energyict.dlms;
 import com.energyict.cbo.Utils;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
@@ -388,9 +389,9 @@ public class DataContainer implements Serializable {
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
                             IOException ioException = new IOException("Max printlevel exceeds!");
-                            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(ioException);
+                            throw DataParseException.generalParseException(ioException);
 						}
-						
+
 						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
 						addStructure(LevelNROfElements[iLevel]);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
@@ -403,7 +404,7 @@ public class DataContainer implements Serializable {
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
                             IOException ioException = new IOException("Max printlevel exceeds!");
-                            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(ioException);
+                            throw DataParseException.generalParseException(ioException);
                         }
 						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
 						addStructure(LevelNROfElements[iLevel]);

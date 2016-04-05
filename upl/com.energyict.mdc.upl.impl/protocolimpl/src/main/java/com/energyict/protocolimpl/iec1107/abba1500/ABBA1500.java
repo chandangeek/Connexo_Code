@@ -11,44 +11,23 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.base.DataDumpParser;
-import com.energyict.protocolimpl.base.DataParseException;
-import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -74,7 +53,7 @@ import java.util.logging.Logger;
  * @version 1.0
  * @endchanges
  */
-public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
+public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, SerialNumberSupport {
 
     private String strID;
     private String strPassword;
@@ -352,7 +331,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
      * The protocol version date
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -401,10 +380,10 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
             }
 
             if (!verifyMeterSerialNR()) {
-                throw new IOException("ABB A1500, connect, Wrong SerialNR!, EISerialNumber=" + serialNumber + ", MeterSerialNumber=" + getSerialNumber());
+                throw new ProtocolException("ABB A1500, connect, Wrong SerialNR!, EISerialNumber=" + serialNumber + ", MeterSerialNumber=" + getSerialNumber());
             }
         } catch (FlagIEC1107ConnectionException e) {
-            throw new IOException(e.getMessage());
+            throw new ProtocolConnectionException(e.getMessage(), e.getReason());
         }
 
         if (extendedLogging >= 1) {
@@ -413,13 +392,14 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
 
     }
 
-    private String getSerialNumber() throws IOException {
-        if (mSerialNumber == null) {
-            RegisterValue serialInfo = readRegister(serialNumbObisCode);
-            mSerialNumber = serialInfo.getText();
+    public String getSerialNumber() {
+        RegisterValue serialInfo;
+        try {
+            serialInfo = readRegister(serialNumbObisCode);
+            return serialInfo.getText();
+        } catch (IOException e){
+            throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
         }
-
-        return mSerialNumber;
     }
 
     private boolean verifyMeterSerialNR() throws IOException {
@@ -437,6 +417,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
             flagIEC1107Connection.disconnectMAC();
         } catch (FlagIEC1107ConnectionException e) {
             logger.severe("disconnect() error, " + e.getMessage());
+            throw new ProtocolConnectionException(e.getMessage(), e.getReason());
         }
     }
 
@@ -487,7 +468,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
                 dataReadout = flagIEC1107Connection.dataReadout(strID, nodeId);
                 try {
@@ -710,11 +691,11 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
         } catch (NoSuchRegisterException e) {
             throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
         } catch (FlagIEC1107ConnectionException e) {
-            throw new IOException("doTheReadRegister(), error, " + e.getMessage());
-        } catch (IOException e) {
-            throw new IOException("doTheReadRegister(), error, " + e.getMessage());
+            throw new ProtocolConnectionException("doTheReadRegister(), error, " + e.getMessage(), e.getReason());
         } catch (NumberFormatException e) {
             throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+        } catch (IOException e) {
+            throw new IOException("doTheReadRegister(), error, " + e.getMessage());
         }
     }
 
@@ -735,11 +716,11 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
         } catch (NoSuchRegisterException e) {
             throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
         } catch (FlagIEC1107ConnectionException e) {
-            throw new IOException("doTheReadBillingRegisterTimestamp(), error, " + e.getMessage());
-        } catch (IOException e) {
-            throw new IOException("doTheReadBillingRegisterTimestamp(), error, " + e.getMessage());
+            throw new ProtocolConnectionException("doTheReadBillingRegisterTimestamp(), error: " + e.getMessage());
         } catch (NumberFormatException e) {
-            throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+            throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!" + e.getMessage());
+        }catch (IOException e) {
+            throw new IOException("doTheReadBillingRegisterTimestamp(), error: " + e.getMessage());
         }
     }
 

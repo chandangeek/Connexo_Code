@@ -22,12 +22,12 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "Elster AM540 DLMS (IDIS P2) MBus slave V2";
+        return "Elster AM540 DLMS (NTA DSMR5.0) MBus slave";
     }
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-01-25 15:02:12 +0100 (Mon, 25 Jan 2016)$";
     }
 
     protected DeviceProtocolSecurityCapabilities getSecurityCapabilities() {

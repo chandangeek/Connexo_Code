@@ -11,14 +11,10 @@ import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.DialerMarker;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
@@ -26,14 +22,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 
@@ -64,7 +53,7 @@ KV|27072005|Use CTVT logical address instead of current historical value logical
 KV|15122005|Test if protocol retrieved new interval data, intervals retrieved between from and to
  * @endchanges
  */
-public class IndigoPlus extends AbstractIEC1107Protocol {
+public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberSupport {
     
     private static final int DEBUG=0;
     
@@ -79,7 +68,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
     }
     
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -210,7 +199,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
            getLogicalAddressFactory().setDateTimeGMT(date); 
         }
         catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("setTime() error, possibly wrong password level! "+e.toString());
+            throw new ProtocolConnectionException("setTime() error, possibly wrong password level! "+e.toString(), e.getReason());
         }
     }
     
@@ -234,24 +223,12 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
         
     }
     
-    public String getSerialNumber() throws IOException {
-       return getLogicalAddressFactory().getMeterIdentity().getMeterId();
-    }
-    
-    /*  
-     *  Method must be overridden by the subclass to verify the property 'SerialNumber'
-     *  against the serialnumber read from the meter.
-     *  Use code below as example to implement the method.
-     *  This code has been taken from a real protocol implementation.
-     */
-    protected void validateSerialNumber() throws IOException {
-        
-         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-        String sn = getSerialNumber().trim();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
-        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
-        
+    public String getSerialNumber() {
+        try {
+            return getLogicalAddressFactory().getMeterIdentity().getMeterId();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries()+1);
+        }
     }
     
     // ********************************************************************************************************

@@ -41,6 +41,10 @@ public class G3RespondingFrameCounterHandler implements RespondingFrameCounterHa
         return this.responseFrameCounter;
     }
 
+    @Override
+    public void resetRespondingFrameCounter(int initialValue) {
+        responseFrameCounter = initialValue;
+    }
 
     private boolean isFrameCounterInitialized() {
         return frameCounterInitialized;

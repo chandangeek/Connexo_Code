@@ -87,6 +87,6 @@ public class DataPushNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-04-20 15:56:46 +0200 (Mon, 20 Apr 2015) $";
     }
 }

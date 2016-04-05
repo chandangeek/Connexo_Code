@@ -6,10 +6,11 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ExceptionResponseException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
@@ -26,6 +27,10 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3DeviceInfo;
 import com.energyict.protocolimplv2.MdcManager;
@@ -38,7 +43,6 @@ import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSuppor
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DProperties;
 import com.energyict.protocolimplv2.dlms.g3.registers.RegisterFactory;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.AS330DSecuritySupport;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
@@ -54,7 +58,7 @@ import java.util.*;
  * @author khe
  * @since 8/06/2015 - 16:05
  */
-public class AS330D extends AbstractDlmsProtocol {
+public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport {
 
     //TODO mirror logical device ID & real logical device ID  + switch between both when necessary
     //TODO Create 2 DlmsSessions, 1 to the mirror logical device, and 1 to the gateway transparent logical device.
@@ -117,7 +121,7 @@ public class AS330D extends AbstractDlmsProtocol {
         } catch (DataAccessResultException | ProtocolException e) {
             frameCounter = new Random().nextInt();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, publicDlmsSession);
+            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
 
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
@@ -141,9 +145,9 @@ public class AS330D extends AbstractDlmsProtocol {
         try {
             return g3DeviceInfo.getSerialNumber();
         } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);   //Received error code from the meter, instead of the expected value
+            throw CommunicationException.unexpectedResponse(e);   //Received error code from the meter, instead of the expected value
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDlmsSessionProperties().getRetries() + 1);
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
         }
     }
 
@@ -238,16 +242,16 @@ public class AS330D extends AbstractDlmsProtocol {
 
         int tries = 0;
         while (true) {
-            ComServerExecutionException exception;
+            ProtocolRuntimeException exception;
             try {
                 if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     getDlmsSession().createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
                 }
                 return;
-            } catch (ComServerExecutionException e) {
+            } catch (ProtocolRuntimeException e) {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
-                } else if (MdcManager.getComServerExceptionFactory().isConnectionCommunicationException(e)) {
+                } else if (e instanceof ConnectionCommunicationException) {
                     throw e;
                 }
                 exception = e;
@@ -256,12 +260,12 @@ public class AS330D extends AbstractDlmsProtocol {
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > getDlmsSessionProperties().getAARQRetries()) {
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
-                throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(exception);
+                throw ConnectionCommunicationException.protocolConnectFailed(exception);
             } else {
                 getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     getDlmsSession().getAso().releaseAssociation();
-                } catch (ComServerExecutionException e) {
+                } catch (ProtocolRuntimeException e) {
                     // Absorb exception: in 99% of the cases we expect an exception here ...
                 }
                 getDlmsSession().getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
@@ -317,7 +321,12 @@ public class AS330D extends AbstractDlmsProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return "";
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return "";
     }
 
@@ -347,6 +356,6 @@ public class AS330D extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:23:38 +0200 (Thu, 26 Nov 2015)$";
     }
 }

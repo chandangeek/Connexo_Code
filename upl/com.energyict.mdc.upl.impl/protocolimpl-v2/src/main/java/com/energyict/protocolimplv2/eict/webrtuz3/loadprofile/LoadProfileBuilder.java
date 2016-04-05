@@ -21,7 +21,7 @@ public class LoadProfileBuilder extends com.energyict.protocolimplv2.nta.dsmr23.
     /**
      * Hardcoded ObisCode for the status of an Mbus profile
      */
-    protected static final ObisCode MbusMeterStatusObisCode = ObisCode.fromString("0.0.96.10.3.255");
+    protected static final ObisCode MbusMeterStatusObisCode = ObisCode.fromString("0.x.96.10.3.255");
 
     /**
      * Default constructor

@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.nta.dsmr40.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -55,8 +56,8 @@ public class Dsmr40Messaging extends Dsmr23Messaging {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return super.format(propertySpec, messageAttribute);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override

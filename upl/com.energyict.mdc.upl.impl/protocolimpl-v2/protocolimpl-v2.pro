@@ -81,6 +81,21 @@
 	public *;
 	protected *;
 }
+-keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.* {
+   public *;
+   protected *;
+   private *;
+}
+-keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.* {
+   public *;
+   protected *;
+   private *;
+}
+-keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.* {
+   public *;
+   protected *;
+   private *;
+}
 -keepnames class com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer
 -keepnames class com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP
 -keepnames class com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540
@@ -109,3 +124,17 @@
 }
 
 -keepnames class com.energyict.protocolimplv2.eict.gateway.TransparentGateway
+
+# Used for Crypto server project
+-keepnames class com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging
+-keep public class com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor {
+   public *;
+   protected *;
+}
+-keepnames class com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor
+-keep public class com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider{
+   public *;
+   protected *;
+}
+-keepnames class com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties
+-keepnames class com.energyict.protocolimplv2.security.SecurityPropertySpecName

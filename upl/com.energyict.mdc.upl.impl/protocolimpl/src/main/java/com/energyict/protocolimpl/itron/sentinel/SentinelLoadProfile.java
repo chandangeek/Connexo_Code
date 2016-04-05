@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.itron.sentinel;
 
 import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.ansi.c12.procedures.*;
 import com.energyict.protocolimpl.itron.sentinel.logicalid.*;
 import com.energyict.protocolimpl.itron.sentinel.tables.*;
@@ -373,7 +374,7 @@ if (DEBUG>=2) System.out.println("KV_DEBUG> interval "+i+", time="+cal.getTime()
                 }
                 catch(InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             }
             else break;

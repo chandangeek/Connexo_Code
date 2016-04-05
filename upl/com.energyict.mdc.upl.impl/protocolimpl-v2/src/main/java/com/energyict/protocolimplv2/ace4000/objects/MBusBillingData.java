@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.ace4000.objects;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.core.DataRecord;
@@ -164,7 +165,7 @@ public class MBusBillingData extends AbstractActarisObject {
                 }
             }
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         }
     }
 

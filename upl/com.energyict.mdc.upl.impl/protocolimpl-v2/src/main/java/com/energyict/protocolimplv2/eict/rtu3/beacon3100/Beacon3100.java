@@ -3,15 +3,21 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
@@ -25,6 +31,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -32,15 +39,15 @@ import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSuppor
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.RegisterFactory;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -55,9 +62,21 @@ import java.util.Random;
 public class Beacon3100 extends AbstractDlmsProtocol {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
-    private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
+
+    // https://confluence.eict.vpdc/display/G3IntBeacon3100/DLMS+management
+    // https://jira.eict.vpdc/browse/COMMUNICATION-1552
+    private static final ObisCode FRAMECOUNTER_OBISCODE_1_MNG = ObisCode.fromString("0.0.43.1.1.255");
+    private static final ObisCode FRAMECOUNTER_OBISCODE_32_RW = ObisCode.fromString("0.0.43.1.2.255");
+    private static final ObisCode FRAMECOUNTER_OBISCODE_64_FW = ObisCode.fromString("0.0.43.1.3.255");
+
+    private static final int CLIENT_1_MNG = 1;
+    private static final int CLIENT_32_RW = 32;
+    private static final int CLIENT_64_MNG = 64;
+
     private static final String MIRROR_LOGICAL_DEVICE_PREFIX = "ELS-MIR-";
     private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
+    private static final String UTF_8 = "UTF-8";
+    private static final int MAC_ADDRESS_LENGTH = 8;    //In bytes
 
     private Beacon3100Messaging beacon3100Messaging;
     private G3GatewayEvents g3GatewayEvents;
@@ -72,10 +91,36 @@ public class Beacon3100 extends AbstractDlmsProtocol {
     }
 
     /**
+     * Will return the correct frame counter obis code, for each client ID.
+     *    Management Client (1): 0 0 43 1 1 255 -> With a pre-established framecounter association.
+     *    R/W Client (32): 0 0 43 1 2 255 -> With a pre-established framecounter association.
+     *    Firmware Client (64): 0 0 43 1 3 255 255 -> With a pre-established framecounter association.
+     * https://jira.eict.vpdc/browse/COMMUNICATION-1552
+     *
+     * @param clientId - DLMS Client ID used in association
+     * @return - the correct obis code for this client
+     */
+    protected ObisCode getFrameCounterObisCode(int clientId){
+        switch (clientId){
+            case CLIENT_32_RW:
+                return FRAMECOUNTER_OBISCODE_32_RW;
+
+            case CLIENT_64_MNG:
+                return FRAMECOUNTER_OBISCODE_64_FW;
+        }
+
+        return FRAMECOUNTER_OBISCODE_1_MNG;
+    }
+    /**
      * First read out the frame counter for the management client, using the public client. It has a pre-established association.
      * Note that this happens without setting up an association, since the it's pre-established for the public client.
      */
     protected void readFrameCounter(ComChannel comChannel) {
+        if (usesSessionKey()) {
+            //No need to read out the global FC if we're going to use a new session key in this AA.
+            return;
+        }
+
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         Beacon3100Properties publicClientProperties = new Beacon3100Properties();
@@ -86,14 +131,21 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
         long frameCounter;
         try {
-            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
+            frameCounter = publicDlmsSession.getCosemObjectFactory().getData(getFrameCounterObisCode(getDlmsSessionProperties().getClientMacAddress())).getValueAttr().longValue();
         } catch (DataAccessResultException | ProtocolException e) {
             frameCounter = new Random().nextInt();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, publicDlmsSession);
+            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
 
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+    }
+
+    /**
+     * General ciphering (wrapped-key and agreed-key) are sessions keys
+     */
+    private boolean usesSessionKey() {
+        return getDlmsSessionProperties().getCipheringType().equals(CipheringType.GENERAL_CIPHERING) && getDlmsSessionProperties().getGeneralCipheringKeyType() != GeneralCipheringKeyType.IDENTIFIED_KEY;
     }
 
     @Override
@@ -101,7 +153,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         try {
             return getDlmsSession().getCosemObjectFactory().getData(SERIAL_NUMBER_OBISCODE).getString();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
     }
 
@@ -117,7 +169,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT Beacon3100 G3 DLMS";
+        return "Elster EnergyICT Beacon3100 G3 DLMS";
     }
 
     @Override
@@ -168,8 +220,13 @@ public class Beacon3100 extends AbstractDlmsProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getBeacon3100Messaging().format(propertySpec, messageAttribute);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return getBeacon3100Messaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return getBeacon3100Messaging().prepareMessageContext(offlineDevice, deviceMessage);
     }
 
     /**
@@ -199,46 +256,111 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(offlineDevice.getId()));
 
         List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
+        final Array nodeList;
         try {
             sapAssignmentList = this.getDlmsSession().getCosemObjectFactory().getSAPAssignment().getSapAssignmentList();
+            nodeList = this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement().getNodeList();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
+        final List<G3Topology.G3Node> g3Nodes = G3Topology.convertNodeList(nodeList, this.getDlmsSession().getTimeZone());
 
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {
-            final String logicalDeviceName = sapAssignmentItem.getLogicalDeviceName();
-            if (isGatewayLogicalDevice(logicalDeviceName)) {
-                final String macAddress = ProtocolTools.getHexStringFromBytes(logicalDeviceName.substring(logicalDeviceName.length() - 8).getBytes(), "");  //Last 8 bytes = the MAC address!
-                DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
-                deviceTopology.addSlaveDevice(slaveDeviceIdentifier);   //Using callHomeId as a general property
-                deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                slaveDeviceIdentifier,
-                                AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID,
-                                BigDecimal.valueOf(sapAssignmentItem.getSap())
-                        )
-                );
-                deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                slaveDeviceIdentifier,
-                                AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID,
-                                BigDecimal.valueOf(findMatchingMirrorLogicalDevice(macAddress, sapAssignmentList))
-                        )
-                );
+
+            byte[] logicalDeviceNameBytes = sapAssignmentItem.getLogicalDeviceNameBytes();
+            if (hasLogicalDevicePrefix(logicalDeviceNameBytes, GATEWAY_LOGICAL_DEVICE_PREFIX)) {
+                byte[] logicalNameMacBytes = ProtocolTools.getSubArray(logicalDeviceNameBytes, GATEWAY_LOGICAL_DEVICE_PREFIX.length(), GATEWAY_LOGICAL_DEVICE_PREFIX.length() + MAC_ADDRESS_LENGTH);
+                final String macAddress = ProtocolTools.getHexStringFromBytes(logicalNameMacBytes, "");
+
+                final G3Topology.G3Node g3Node = findG3Node(macAddress, g3Nodes);
+                if (g3Node != null) {
+
+                    //Always include the slave information if it is present in the SAP assignment list and the G3 node list.
+                    //It is the ComServer framework that will then do a smart update in EIServer, taking the readout LastSeenDate into account.
+                    DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
+                    deviceTopology.addSlaveDevice(slaveDeviceIdentifier);   //Using callHomeId as a general property
+                    deviceTopology.addAdditionalCollectedDeviceInfo(
+                            MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                    slaveDeviceIdentifier,
+                                    AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID,
+                                    BigDecimal.valueOf(sapAssignmentItem.getSap())
+                            )
+                    );
+                    deviceTopology.addAdditionalCollectedDeviceInfo(
+                            MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                    slaveDeviceIdentifier,
+                                    AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID,
+                                    BigDecimal.valueOf(findMatchingMirrorLogicalDevice(macAddress, sapAssignmentList))
+                            )
+                    );
+                    deviceTopology.addAdditionalCollectedDeviceInfo(
+                            MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                    slaveDeviceIdentifier,
+                                    G3Properties.PROP_LASTSEENDATE,
+                                    BigDecimal.valueOf(g3Node.getLastSeenDate().getTime())
+                            )
+                    );
+                }
             }
         }
         return deviceTopology;
     }
 
-    private boolean isGatewayLogicalDevice(String logicalDeviceName) {
-        return logicalDeviceName.startsWith(GATEWAY_LOGICAL_DEVICE_PREFIX);
+    /**
+     * This node is only considered an actual slave device if:
+     * - the configuredLastSeenDate in EIServer is still empty
+     * - the read out last seen date is empty (==> always update EIServer, by design)
+     * - the read out last seen date is the same, or newer, compared to the configuredLastSeenDate in EIServer
+     * <p/>
+     * If true, the gateway link in EIServer will be created and the properties will be set.
+     * If false, the gateway link (if it exists at all) will be removed.
+     */
+    private boolean hasNewerLastSeenDate(G3Topology.G3Node g3Node, long configuredLastSeenDate) {
+        return (configuredLastSeenDate == 0) || (g3Node.getLastSeenDate() == null) || (g3Node.getLastSeenDate().getTime() >= configuredLastSeenDate);
+    }
+
+    /**
+     * Return property "LastSeenDate" on slave device with callHomeId == macAddress
+     * Return 0 if not found.
+     */
+    private long getConfiguredLastSeenDate(String macAddress) {
+        for (OfflineDevice slaveDevice : getOfflineDevice().getAllSlaveDevices()) {
+            String configuredCallHomeId = slaveDevice.getAllProperties().getStringProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+            configuredCallHomeId = configuredCallHomeId == null ? "" : configuredCallHomeId;
+            if (macAddress.equals(configuredCallHomeId)) {
+                return slaveDevice.getAllProperties().getIntegerProperty(G3Properties.PROP_LASTSEENDATE, BigDecimal.ZERO).longValue();
+            }
+        }
+        return 0L;
+    }
+
+    private G3Topology.G3Node findG3Node(final String macAddress, final List<G3Topology.G3Node> g3Nodes) {
+        if (macAddress != null && g3Nodes != null && !g3Nodes.isEmpty()) {
+            for (final G3Topology.G3Node g3Node : g3Nodes) {
+                if (g3Node != null) {
+                    final String nodeMac = ProtocolTools.getHexStringFromBytes(g3Node.getMacAddress(), "");
+                    if (nodeMac.equalsIgnoreCase(macAddress)) {
+                        return g3Node;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean hasLogicalDevicePrefix(byte[] logicalDeviceNameBytes, String expectedPrefix) {
+        byte[] actualPrefixBytes = ProtocolTools.getSubArray(logicalDeviceNameBytes, 0, expectedPrefix.length());
+        String actualPrefix = new String(actualPrefixBytes, Charset.forName(UTF_8));
+        return actualPrefix.equals(expectedPrefix);
     }
 
     private long findMatchingMirrorLogicalDevice(String gatewayMacAddress, List<SAPAssignmentItem> sapAssignmentList) {
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {
-            final String logicalDeviceName = sapAssignmentItem.getLogicalDeviceName();
-            if (logicalDeviceName.startsWith(MIRROR_LOGICAL_DEVICE_PREFIX)) {
-                final String mirrorMacAddress = ProtocolTools.getHexStringFromBytes(logicalDeviceName.substring(logicalDeviceName.length() - 8).getBytes(), "");
+            byte[] logicalDeviceNameBytes = sapAssignmentItem.getLogicalDeviceNameBytes();
+            if (hasLogicalDevicePrefix(logicalDeviceNameBytes, MIRROR_LOGICAL_DEVICE_PREFIX)) {
+                byte[] logicalNameMacBytes = ProtocolTools.getSubArray(logicalDeviceNameBytes, MIRROR_LOGICAL_DEVICE_PREFIX.length(), MIRROR_LOGICAL_DEVICE_PREFIX.length() + MAC_ADDRESS_LENGTH);
+                final String mirrorMacAddress = ProtocolTools.getHexStringFromBytes(logicalNameMacBytes, "");
+
                 if (gatewayMacAddress.equals(mirrorMacAddress)) {
                     return sapAssignmentItem.getSap();
                 }
@@ -249,7 +371,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-03-24 18:11:11 +0100 (Thu, 24 Mar 2016)$";
     }
 
     @Override
@@ -288,4 +410,5 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         }
         return dlmsConfigurationSupport;
     }
+
 }

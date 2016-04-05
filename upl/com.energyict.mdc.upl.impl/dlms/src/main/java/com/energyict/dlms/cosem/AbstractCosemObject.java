@@ -5,34 +5,19 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.AdaptorConnection;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ReceiveBuffer;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.dlms.cosem.generalblocktransfer.GeneralBlockTransferHandler;
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
+import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,31 +36,23 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractCosemObject {
 
+    protected static final int MAX_NR_OF_INVOKE_ID_MISMATCH = 25;
     private static final boolean WRITE_WITH_BLOCK_ENABLED = false;
     private static final int DEFAULT_MAX_REC_PDU_SERVER = 1024;
-    protected static final int MAX_NR_OF_INVOKE_ID_MISMATCH = 25;
-
     private static final byte READRESPONSE_DATA_TAG = 0;
     private static final byte READRESPONSE_DATAACCESSERROR_TAG = 1;
     private static final byte READRESPONSE_DATABLOCK_RESULT_TAG = 2;
     private static final int ASSUMED_MAX_HEADER_LENGTH = 60;
 
     protected ProtocolLink protocolLink = null;
+    protected boolean dsmr4SelectiveAccessFormat = false;
     private ObjectReference objectReference = null;
     private Integer attributeNumber = null;     //State, For logging purposes only
     private Integer methodNumber = null;        //State, For logging purposes only
     private int nrOfInvalidResponseFrames = 0;
     private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
-    protected boolean dsmr4SelectiveAccessFormat = false;
     private GeneralBlockTransferHandler generalBlockTransferHandler;
 
-
-    /**
-     * Getter for the dlms class id
-     *
-     * @return the id of the dlms class
-     */
-    protected abstract int getClassId();
 
     /**
      * Creates a new instance of AbstractCosemObject
@@ -92,6 +69,103 @@ public abstract class AbstractCosemObject {
             this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler((byte) 0x42);
         }
     }
+
+    public static void handleConfirmedServiceError(byte[] responseData) throws ProtocolException {
+        switch (responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1]) {
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_INITIATEERROR_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'Initiate error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETSTATUS_TAG: {
+                throw new ProtocolException("Confirmed Sercie Error - 'GetStatus error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETNAMELIST_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'GetNameList error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETVARIABLEATTRIBUTE_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'GetVariableAttribute error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_READ_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'Read error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_WRITE_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'Write error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETDATASETATTRIBUTE_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'GetDataSetAttribute' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETTIATTRIBUTE_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'GetTIAttribute error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_CHANGESCOPE_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'ChangeScope error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_START_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'Start error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_RESUME_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'Resume error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_MAKEUSABLE_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'MakeUsable error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_INITIATELOAD_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'InitiateLoad error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_LOADSEGMENT_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'LoadSegment error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_TERMINATELOAD_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'TerminateLoad error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_INITIATEUPLOAD_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'InitiateUpload error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_UPLOADSEGMENT_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'UploadSegment error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_TERMINATEUPLOAD_TAG: {
+                throw new ProtocolException("Confirmed Service Error - 'TerminateUpload error' - Reason: "
+                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
+            }
+            default: {
+                throw new ProtocolException("Unknown service error, " + responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1] + responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2]
+                        + responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]);
+            }
+        }
+    }
+
+    public static byte[] getBytesFromInt(int value, int length) {
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < bytes.length; i++) {
+            int ptr = (bytes.length - (i + 1));
+            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
+        }
+        return bytes;
+    }
+
+    /**
+     * Getter for the dlms class id
+     *
+     * @return the id of the dlms class
+     */
+    protected abstract int getClassId();
 
     /**
      * @return
@@ -111,19 +185,15 @@ public abstract class AbstractCosemObject {
      * @throws java.io.IOException
      */
     protected long getLongData(int attribute) throws IOException {
-        try {
-            byte[] request = null;
-            if (this.objectReference.isLNReference()) {
-                request = buildGetRequest(getClassId(), this.objectReference.getLn(), DLMSUtils.attrSN2LN(attribute), null);
-            } else if (this.objectReference.isSNReference()) {
-                request = buildReadRequest((short) this.objectReference.getSn(), attribute, null);
-            }
-
-            byte[] responseData = sendAndReceiveValidResponse(request);
-            return DLMSUtils.parseValue2long(checkCosemPDUResponseHeader(responseData));
-        } catch (IOException e) {
-            throw new NestedIOException(e);
+        byte[] request = null;
+        if (this.objectReference.isLNReference()) {
+            request = buildGetRequest(getClassId(), this.objectReference.getLn(), DLMSUtils.attrSN2LN(attribute), null);
+        } else if (this.objectReference.isSNReference()) {
+            request = buildReadRequest((short) this.objectReference.getSn(), attribute, null);
         }
+
+        byte[] responseData = sendAndReceiveValidResponse(request);
+        return DLMSUtils.parseValue2long(checkCosemPDUResponseHeader(responseData));
     }
 
     /**
@@ -146,23 +216,17 @@ public abstract class AbstractCosemObject {
      * @deprecated use {@link #methodInvoke(com.energyict.dlms.cosem.methods.DLMSClassMethods, byte[])} instead. Should be converted to a private method.
      */
     public byte[] invoke(int methodId, byte[] data) throws IOException {
-        try {
-            if (objectReference.isLNReference()) {
-                byte[] request = buildActionRequest(getClassId(), this.objectReference.getLn(), methodId, data);
-                if (isConfirmedAssociation()) {
-                    byte[] responseData = sendAndReceiveValidResponse(request);
-                    return checkCosemPDUResponseHeader(responseData);
-                } else {
-                    sendUnconfirmedRequest(request);
-                    return new NullData().getBEREncodedByteArray();
-                }
+        if (objectReference.isLNReference()) {
+            byte[] request = buildActionRequest(getClassId(), this.objectReference.getLn(), methodId, data);
+            if (isConfirmedAssociation()) {
+                byte[] responseData = sendAndReceiveValidResponse(request);
+                return checkCosemPDUResponseHeader(responseData);
             } else {
-                return write(methodId, data);
+                sendUnconfirmedRequest(request);
+                return new NullData().getBEREncodedByteArray();
             }
-        } catch (DataAccessResultException e) {
-            throw (e);
-        } catch (IOException e) {
-            throw new NestedIOException(e);
+        } else {
+            return write(methodId, data);
         }
     }
 
@@ -183,54 +247,48 @@ public abstract class AbstractCosemObject {
      * @deprecated use {@link #write(com.energyict.dlms.cosem.attributes.DLMSClassAttributes, byte[])} instead. Should be converted to a private method.
      */
     protected byte[] write(int attribute, byte[] data) throws IOException {
-        try {
-            byte[] responseData = null;
-            if (this.objectReference.isLNReference()) {
-                byte[] request = buildSetRequest(getClassId(), this.objectReference.getLn(), (byte) attribute, data);
-                // Server max receive pdu size exceeded: we should use write request with block transfer
-                if ((request.length >= getMaxRecPduServer()) && (!this.protocolLink.getMeterConfig().isSL7000())) {
-                    responseData = sendSetRequestWithBlockTransfer(attribute, data);
-                    if (!isConfirmedAssociation()) {
-                        return null;
-                    }
-                } else {
-                    if (isConfirmedAssociation()) {
-                        // The Actaris SL7000 meter never uses block transfer requests, but always uses the regular one.
-                        responseData = sendAndReceiveValidResponse(request);
-                    } else {
-                        sendUnconfirmedRequest(request);
-                        return null;
-                    }
+        byte[] responseData = null;
+        if (this.objectReference.isLNReference()) {
+            byte[] request = buildSetRequest(getClassId(), this.objectReference.getLn(), (byte) attribute, data);
+            // Server max receive pdu size exceeded: we should use write request with block transfer
+            if ((request.length >= getMaxRecPduServer()) && (!this.protocolLink.getMeterConfig().isSL7000())) {
+                responseData = sendSetRequestWithBlockTransfer(attribute, data);
+                if (!isConfirmedAssociation()) {
+                    return null;
                 }
-            } else if (this.objectReference.isSNReference()) {
-
-                // very dirty trick because there is a lot of legacy code that passes the attribute as
-                // an correct offset to the base address... 	However, the later (better) dlms framework objects
-                // use the method for write in this abstract class with attribute id 0,1,...
-                // so, only for attribute = 8 or a multiple of 8 can be a problem....
-                if ((attribute < 8) || ((attribute % 8) != 0)) {
-                    attribute = (attribute - 1) * 8;
-                }
-
-                byte[] request = buildWriteRequest((short) this.objectReference.getSn(), attribute, data);
-
-                // Server max receive pdu size exceeded: we should use write request with block transfer
-                if (WRITE_WITH_BLOCK_ENABLED && (request.length >= getMaxRecPduServer())) {
-                    responseData = sendWriteRequestWithBlockTransfer(request);
-                } else {
-                    responseData = sendAndReceiveValidResponse(request);
-                }
-            }
-
-            if (getDLMSConnection() instanceof AdaptorConnection) {
-                return responseData;
             } else {
-                return checkCosemPDUResponseHeader(responseData);
+                if (isConfirmedAssociation()) {
+                    // The Actaris SL7000 meter never uses block transfer requests, but always uses the regular one.
+                    responseData = sendAndReceiveValidResponse(request);
+                } else {
+                    sendUnconfirmedRequest(request);
+                    return null;
+                }
             }
-        } catch (DataAccessResultException e) {
-            throw (e);
-        } catch (IOException e) {
-            throw new NestedIOException(e);
+        } else if (this.objectReference.isSNReference()) {
+
+            // very dirty trick because there is a lot of legacy code that passes the attribute as
+            // an correct offset to the base address... 	However, the later (better) dlms framework objects
+            // use the method for write in this abstract class with attribute id 0,1,...
+            // so, only for attribute = 8 or a multiple of 8 can be a problem....
+            if ((attribute < 8) || ((attribute % 8) != 0)) {
+                attribute = (attribute - 1) * 8;
+            }
+
+            byte[] request = buildWriteRequest((short) this.objectReference.getSn(), attribute, data);
+
+            // Server max receive pdu size exceeded: we should use write request with block transfer
+            if (WRITE_WITH_BLOCK_ENABLED && (request.length >= getMaxRecPduServer())) {
+                responseData = sendWriteRequestWithBlockTransfer(request);
+            } else {
+                responseData = sendAndReceiveValidResponse(request);
+            }
+        }
+
+        if (getDLMSConnection() instanceof AdaptorConnection) {
+            return responseData;
+        } else {
+            return checkCosemPDUResponseHeader(responseData);
         }
     }
 
@@ -708,10 +766,6 @@ public abstract class AbstractCosemObject {
 
             final byte[] responseData = sendAndReceiveValidResponse(request);
             return checkCosemPDUResponseHeader(responseData);
-        } catch (DataAccessResultException e) {
-            throw (e);
-        } catch (IOException e) {
-            throw new NestedIOException(e);
         } catch (IndexOutOfBoundsException e) {
             throw new ProtocolException(e, "Received partial response or invalid packet from device!");
         }
@@ -730,10 +784,6 @@ public abstract class AbstractCosemObject {
             }
             responseData = sendAndReceiveValidResponse(request);
             return checkCosemPDUResponseHeader(responseData);
-        } catch (DataAccessResultException e) {
-            throw (e);
-        } catch (IOException e) {
-            throw new NestedIOException(e);
         } catch (IndexOutOfBoundsException e) {
             throw new ProtocolException(e, "Received partial response or invalid packet from device!");
         }
@@ -763,10 +813,6 @@ public abstract class AbstractCosemObject {
             }
             responseData = sendAndReceiveValidResponse(request);
             return checkCosemPDUResponseHeader(responseData);
-        } catch (DataAccessResultException e) {
-            throw (e);
-        } catch (IOException e) {
-            throw new NestedIOException(e);
         } catch (IndexOutOfBoundsException e) {
             throw new ProtocolException(e, "Received partial response or invalid packet from device!");
         }
@@ -789,10 +835,6 @@ public abstract class AbstractCosemObject {
             }
             responseData = sendAndReceiveValidResponse(request);
             return checkCosemPDUResponseHeader(responseData);
-        } catch (DataAccessResultException e) {
-            throw (e);
-        } catch (IOException e) {
-            throw new NestedIOException(e);
         } catch (IndexOutOfBoundsException e) {
             throw new ProtocolException(e, "Received partial response or invalid packet from device!");
         }
@@ -1163,7 +1205,7 @@ public abstract class AbstractCosemObject {
             nrOfInvalidResponseFrames++;
             getLogger().log(Level.WARNING, "Invoke id of response frame does not match invoke id of request - response will be ignored.");
             if (nrOfInvalidResponseFrames == MAX_NR_OF_INVOKE_ID_MISMATCH) {
-                throw new IOException("Failed to retrieve a valid response - received " + MAX_NR_OF_INVOKE_ID_MISMATCH + " response frames in a row having a wrong invoke id.");
+                throw new ProtocolException("Failed to retrieve a valid response - received " + MAX_NR_OF_INVOKE_ID_MISMATCH + " response frames in a row having a wrong invoke id.");
             }
             responseData = getDLMSConnection().readResponseWithRetries(request, isAlreadyEncrypted);
             responseData = handleGeneralBlockTransfer(request, isAlreadyEncrypted, responseData);
@@ -1224,7 +1266,7 @@ public abstract class AbstractCosemObject {
                                 iBlockNumber = ProtocolUtils.getInt(responseData, i, 2);
                                 i += 2; // skip iBlockNumber
 
-                                iBlockSize = (int) DLMSUtils.getAXDRLength(responseData, i);
+                                iBlockSize = DLMSUtils.getAXDRLength(responseData, i);
 
                                 i += DLMSUtils.getAXDRLengthOffset(responseData, i);
 
@@ -1310,13 +1352,13 @@ public abstract class AbstractCosemObject {
                                         i++; // skip tag
 
                                         if (iBlockNumber == 0) {
-                                            iBlockSize = (int) DLMSUtils.getAXDRLength(responseData, i);
+                                            iBlockSize = DLMSUtils.getAXDRLength(responseData, i);
                                             i += DLMSUtils.getAXDRLengthOffset(responseData, i);
                                             receiveBuffer.addArray(responseData, i);
                                             i++; /// skip array tag
                                             i += DLMSUtils.getAXDRLengthOffset(responseData, i);
                                         } else {
-                                            iBlockSize = (int) DLMSUtils.getAXDRLength(responseData, i);
+                                            iBlockSize = DLMSUtils.getAXDRLength(responseData, i);
                                             i += DLMSUtils.getAXDRLengthOffset(responseData, i);
                                             receiveBuffer.addArray(responseData, i);
                                         }
@@ -1496,10 +1538,7 @@ public abstract class AbstractCosemObject {
                     }
 
                     default: {
-                        throw new ProtocolException("Unknown COSEM PDU, " + " 0x" + Integer.toHexString(ProtocolUtils.byte2int(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET])) + " 0x"
-                                + Integer.toHexString(ProtocolUtils.byte2int(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1])) + " 0x"
-                                + Integer.toHexString(ProtocolUtils.byte2int(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2])) + " 0x"
-                                + Integer.toHexString(ProtocolUtils.byte2int(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3])));
+                        throw new ProtocolException("Unknown COSEM PDU, " + ProtocolTools.getHexStringFromBytes(ProtocolTools.getSubArray(responseData, 3), ""));
                     } // !!! break !!! default
 
                 } // switch(responseData[i])
@@ -1509,87 +1548,6 @@ public abstract class AbstractCosemObject {
             return null;
         } finally {
             resetState();   //Reset the state when a response has been received. The state will be set again for the next request.
-        }
-    }
-
-    public static void handleConfirmedServiceError(byte[] responseData) throws ProtocolException {
-        switch (responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1]) {
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_INITIATEERROR_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'Initiate error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETSTATUS_TAG: {
-                throw new ProtocolException("Confirmed Sercie Error - 'GetStatus error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETNAMELIST_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'GetNameList error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETVARIABLEATTRIBUTE_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'GetVariableAttribute error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_READ_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'Read error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_WRITE_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'Write error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETDATASETATTRIBUTE_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'GetDataSetAttribute' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_GETTIATTRIBUTE_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'GetTIAttribute error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_CHANGESCOPE_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'ChangeScope error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_START_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'Start error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_RESUME_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'Resume error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_MAKEUSABLE_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'MakeUsable error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_INITIATELOAD_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'InitiateLoad error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_LOADSEGMENT_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'LoadSegment error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_TERMINATELOAD_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'TerminateLoad error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_INITIATEUPLOAD_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'InitiateUpload error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_UPLOADSEGMENT_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'UploadSegment error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            case DLMSCOSEMGlobals.CONFIRMEDSERVICEERROR_TERMINATEUPLOAD_TAG: {
-                throw new ProtocolException("Confirmed Service Error - 'TerminateUpload error' - Reason: "
-                        + ServiceError.getServiceErrorByCode(responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2], responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]).getDescription());
-            }
-            default: {
-                throw new ProtocolException("Unknown service error, " + responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 1] + responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 2]
-                        + responseData[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET + 3]);
-            }
         }
     }
 
@@ -2052,15 +2010,6 @@ public abstract class AbstractCosemObject {
         return intreq;
     }
 
-    public static byte[] getBytesFromInt(int value, int length) {
-        byte[] bytes = new byte[length];
-        for (int i = 0; i < bytes.length; i++) {
-            int ptr = (bytes.length - (i + 1));
-            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
-        }
-        return bytes;
-    }
-
     /**
      * @throws ProtocolException other error, e.g. unknown type, parsing error,....
      */
@@ -2208,10 +2157,10 @@ public abstract class AbstractCosemObject {
                 t++; // skip array tag
                 int offset = 0;
                 if ((responseData[t] & 0x80) != 0) {
-                    offset = (int) (responseData[t + 1] & (byte) 0x7F);
+                    offset = responseData[t + 1] & (byte) 0x7F;
                     for (int i = 0; i < offset; i++) {
                         elementsInArray = elementsInArray << 8;
-                        elementsInArray |= ((long) responseData[t + 2 + (int) i] & 0x000000ff);
+                        elementsInArray |= ((long) responseData[t + 2 + i] & 0x000000ff);
                     }
                 } else {
                     elementsInArray = (long) responseData[t] & 0x000000FF;

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.elster.garnet.common;
 
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
 import com.energyict.protocolimplv2.elster.garnet.exception.CipheringException;
@@ -83,7 +84,7 @@ public class XTEAEncryptionHelper {
                 break;
             default:
                 // We should never reach this point
-                throw MdcManager.getComServerExceptionFactory().createUnrecognizedEnumValueError(frame.getFunction().getFunctionCode().getEncryptionMode());
+                throw CodingException.unrecognizedEnumValue(frame.getFunction().getFunctionCode().getEncryptionMode());
         }
 
         if (encrypt) {

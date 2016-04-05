@@ -7,21 +7,11 @@ import com.energyict.dialer.coreimpl.IPDialer;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocol.WakeUpProtocolSupport;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
@@ -41,7 +31,7 @@ import java.util.logging.Logger;
  * Date: 29-jun-2011
  * Time: 11:32:30
  */
-public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
+public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, WakeUpProtocolSupport, SerialNumberSupport {
 
     protected AS300Properties properties;
     private AS300ObjectFactory objectFactory;
@@ -166,7 +156,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     }
 
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:26:47 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getSerialNumber() {

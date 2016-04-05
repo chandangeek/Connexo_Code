@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.edp.messages;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
@@ -76,7 +78,7 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case activityCalendarCodeTableAttributeName:
                 EDPActivityCalendarParser parser = new EDPActivityCalendarParser((Code) messageAttribute);
@@ -91,6 +93,11 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
             default:
                 return messageAttribute.toString();  //Used for String and BigDecimal attributes
         }
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     @Override

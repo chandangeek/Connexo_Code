@@ -6,15 +6,18 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
+import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 
 /**
@@ -37,7 +40,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     private boolean switchAddresses = false;
     private boolean useGeneralBlockTransfer;
     private int generalBlockTransferWindowSize;
-    private boolean usePolling;
+    private long pollingDelay;
 
     /**
      * The current retry count - 0 = first try / 1 = first retry / ...
@@ -60,7 +63,8 @@ public class TCPIPConnection implements DlmsV2Connection {
         this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
         this.useGeneralBlockTransfer = properties.useGeneralBlockTransfer();
         this.generalBlockTransferWindowSize = properties.getGeneralBlockTransferWindowSize();
-        this.usePolling = properties.isUsePolling();
+        this.pollingDelay = properties.getPollingDelay().getMilliSeconds();
+        this.comChannel.setTimeout(this.timeout);
     }
 
     public long getForceDelay() {
@@ -88,7 +92,10 @@ public class TCPIPConnection implements DlmsV2Connection {
     }
 
     /**
-     * Listen for a while, to receive a response from the meter
+     * Listen for a while, to receive a response from the meter.
+     * <p/>
+     * Frames that have a wrong WPDU source or destination will be fully read & ignored.
+     * After that, we will attempt to read out the next full frame, so the normal protocol sequence can continue.
      *
      * @throws IOException       in case of a problem with the communication (e.g. timeout)
      * @throws ProtocolException in case of a response that contains unexpected data
@@ -105,20 +112,39 @@ public class TCPIPConnection implements DlmsV2Connection {
 
         comChannel.startReading();
 
-        if (!usePolling) {
+        //If the protocol indicates we should avoid polling, AND it is a TCP connection, use this way of reading responses.
+        //Else, use the old way (polling .available() frequently).
+        if ((pollingDelay == 0) && ComChannelType.SocketComChannel.is(comChannel)) {
             wpdu = new WPDU();
 
+            //Read the header
             ByteBuffer header = readHeader();
-            readVersion(wpdu, header);
-            readSourceField(wpdu, header);
-            readDestinationField(wpdu, header);
-            int length = (header.getShort()  & 0x0FFFF);
+            wpdu.setVersion(header.getShort() & 0x0FFFF);
+            wpdu.setSource(header.getShort() & 0x0FFFF);
+            wpdu.setDestination(header.getShort() & 0x0FFFF);
+            int length = (header.getShort() & 0x0FFFF);
             wpdu.setLength(length);
 
+            //Read the rest of the frame (APDU)
             byte[] frame = new byte[length];
-            int readBytes = readFixedNumberOfBytes(frame);
+            int readBytes = readFixedNumberOfBytesWithoutPolling(frame);
             if (readBytes != length) {
-                throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
+                throw DataParseException.ioException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
+            }
+
+            //Now check if this frame has the correct version, source & destination
+            if (wpdu.getVersion() != WRAPPER_VERSION) {
+                throw new ProtocolException("Received WPDU with wrong WPDU version! Expected [" + WRAPPER_VERSION + "] but received [" + wpdu.getVersion() + "].");
+            }
+            int expectedSource = this.switchAddresses ? this.serverAddress : this.clientAddress;
+            if (wpdu.getSource() != expectedSource) {
+                //Invalid frame. Could be a late response that we considered missing (due to a timeout earlier). Ignore, read in the next full frame.
+                return receiveData();
+            }
+            int expectedDestination = switchAddresses ? this.clientAddress : this.serverAddress;
+            if (wpdu.getDestination() != expectedDestination) {
+                //Invalid frame. Could be a late response that we considered missing (due to a timeout earlier). Ignore, read in the next full frame.
+                return receiveData();
             }
 
             byte[] hdlcLegacyBytes = new byte[3];
@@ -164,14 +190,7 @@ public class TCPIPConnection implements DlmsV2Connection {
                             } else {
                                 wpdu.setSource(wpdu.getSource() * 256 + kar);
                                 count = 0;
-
-                                int address = this.switchAddresses ? this.serverAddress : this.clientAddress;
-                                if (wpdu.getSource() != address) {
-                                    state = State.STATE_HEADER_VERSION;
-                                    throw new ProtocolException("Received WPDU with wrong source address! Expected [" + address + "] but received [" + wpdu.getSource() + "].");
-                                } else {
-                                    state = State.STATE_HEADER_DESTINATION;
-                                }
+                                state = State.STATE_HEADER_DESTINATION;
                             }
                         }
                         break;
@@ -186,15 +205,7 @@ public class TCPIPConnection implements DlmsV2Connection {
                             } else {
                                 wpdu.setDestination(wpdu.getDestination() * 256 + kar);
                                 count = 0;
-
-                                int address = switchAddresses ? this.clientAddress : this.serverAddress;
-                                if (wpdu.getDestination() != address) {
-                                    state = State.STATE_HEADER_VERSION;
-                                    throw new ProtocolException("Received WPDU with wrong destination address! " +
-                                            "Expected [" + address + "] but received [" + wpdu.getDestination() + "].");
-                                } else {
-                                    state = State.STATE_HEADER_LENGTH;
-                                }
+                                state = State.STATE_HEADER_LENGTH;
                             }
                         }
                         break;
@@ -228,14 +239,25 @@ public class TCPIPConnection implements DlmsV2Connection {
                             resultArrayOutputStream.write(kar);
                             if (--count <= 0) {
                                 wpdu.setData(resultArrayOutputStream.toByteArray());
+
+                                //Now check the received source and destination fields.
+                                int expectedSource = this.switchAddresses ? this.serverAddress : this.clientAddress;
+                                if (wpdu.getSource() != expectedSource) {
+                                    //Invalid frame. Could be a late response that we considered missing (due to a timeout earlier). Ignore, read in the next full frame.
+                                    return receiveData();
+                                }
+                                int expectedDestination = switchAddresses ? this.clientAddress : this.serverAddress;
+                                if (wpdu.getDestination() != expectedDestination) {
+                                    //Invalid frame. Could be a late response that we considered missing (due to a timeout earlier). Ignore, read in the next full frame.
+                                    return receiveData();
+                                }
+
                                 return wpdu;
                             }
 
                         }
                         break; // STATE_DATA STATE_IDLE
-
                     }
-
                 }
 
                 if (((System.currentTimeMillis() - protocolTimeout)) > 0) {
@@ -245,61 +267,59 @@ public class TCPIPConnection implements DlmsV2Connection {
                 if (((System.currentTimeMillis() - interFrameTimeout)) > 0) {
                     throw new IOException("receiveResponse() interframe timeout error");
                 }
-
             } // while(true)
         }
     } // private byte waitForTCPIPFrameStateMachine()
 
     /**
-     * Read in a fixed number of bytes, or throw an IOException in case of a timeout
+     * Read in a fixed number of bytes, or throw an IOException in case of a timeout.
+     * No polling is done here. Timeout management is done in the underlying socket inputstream.
+     * <p/>
+     * If we receive an incomplete frame, the mechanism will keep trying to read in the remaining bytes until the timeout period.
      */
-    private int readFixedNumberOfBytes(byte[] frame) throws IOException {
-        final long timeoutMoment = System.currentTimeMillis() + timeout;
+    private int readFixedNumberOfBytesWithoutPolling(byte[] frame) throws IOException {
+        try {
+            int offset = 0;
+            int numRead;
+            final long timeoutMoment = System.currentTimeMillis() + timeout;
 
-        while (comChannel.available() == 0) {
-            if (System.currentTimeMillis() > timeoutMoment) {
-                throw new IOException("receiveResponse() response timeout error");
-            } else {
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            while (offset < frame.length && (numRead = comChannel.read(frame, offset, frame.length - offset)) >= 0) {
+                offset += numRead;
+                if (System.currentTimeMillis() > timeoutMoment) {
+                    //Failsafe mechanism for incomplete frames. If we received some bytes but not enough, throw an IOException after the timeout period.
+                    throw new IOException("Could not read " + frame.length + " withing the given timeout interval, only received " + offset + " bytes");
                 }
             }
-        }
+            return offset;
 
-        return comChannel.read(frame);
-    }
-
-    private void readDestinationField(WPDU wpdu, ByteBuffer header) throws ProtocolException {
-        wpdu.setDestination(header.getShort() & 0x0FFFF);
-        int address = switchAddresses ? this.clientAddress : this.serverAddress;
-        if (wpdu.getDestination() != address) {
-            throw new ProtocolException("Received WPDU with wrong destination address! Expected [" + address + "] but received [" + wpdu.getDestination() + "].");
+        } catch (ConnectionCommunicationException e) {
+            if (isSocketTimeoutException(e)) {
+                throw new IOException("receiveResponse() response timeout error");
+            } else {
+                throw e;
+            }
         }
     }
 
-    private void readSourceField(WPDU wpdu, ByteBuffer header) throws ProtocolException {
-        wpdu.setSource(header.getShort() & 0x0FFFF);
-        int address = this.switchAddresses ? this.serverAddress : this.clientAddress;
-        if (wpdu.getSource() != address) {
-            throw new ProtocolException("Received WPDU with wrong source address! Expected [" + address + "] but received [" + wpdu.getSource() + "].");
+    /**
+     * A SocketTimeoutException indicates that we did not receive a response from the meter within the given timeout interval
+     */
+    private boolean isSocketTimeoutException(Throwable t) {
+        while (t.getCause() != null) {
+            if (t.getCause() instanceof SocketTimeoutException) {
+                return true;
+            } else {
+                t = t.getCause();
+            }
         }
-    }
-
-    private void readVersion(WPDU wpdu, ByteBuffer header) throws ProtocolException {
-        wpdu.setVersion(header.getShort() & 0x0FFFF);
-        if (wpdu.getVersion() != WRAPPER_VERSION) {
-            throw new ProtocolException("Received WPDU with wrong WPDU version! Expected [" + WRAPPER_VERSION + "] but received [" + wpdu.getVersion() + "].");
-        }
+        return false;
     }
 
     private ByteBuffer readHeader() throws IOException {
         byte[] header = new byte[8];
-        int readBytes = readFixedNumberOfBytes(header);
+        int readBytes = readFixedNumberOfBytesWithoutPolling(header);
         if (readBytes != 8) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
+            throw DataParseException.ioException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
         }
         return ByteBuffer.wrap(header);
     }
@@ -308,7 +328,7 @@ public class TCPIPConnection implements DlmsV2Connection {
         if (comChannel.available() != 0) {
             return comChannel.read();
         } else {
-            delay(100);
+            delay(pollingDelay);
             return -1;
         }
     }
@@ -323,7 +343,7 @@ public class TCPIPConnection implements DlmsV2Connection {
             Thread.sleep(lDelay);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 
@@ -354,10 +374,10 @@ public class TCPIPConnection implements DlmsV2Connection {
                 }
                 return receiveData().getData();
             } catch (ProtocolException e) {    //Received invalid data, cannot continue...
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw ConnectionCommunicationException.unExpectedProtocolError(e);
             } catch (IOException e) {
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, maxRetries + 1);
+                    throw ConnectionCommunicationException.numberOfRetriesReached(e, maxRetries + 1);
                 }
             }
         }
@@ -374,10 +394,10 @@ public class TCPIPConnection implements DlmsV2Connection {
                 sendOut(data);
                 return receiveData().getRawData();
             } catch (ProtocolException e) {    //Received invalid data, cannot continue...
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw ConnectionCommunicationException.unExpectedProtocolError(e);
             } catch (IOException e) {
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, maxRetries + 1);
+                    throw ConnectionCommunicationException.numberOfRetriesReached(e, maxRetries + 1);
                 }
             }
         }
@@ -402,10 +422,10 @@ public class TCPIPConnection implements DlmsV2Connection {
                 sendOut(wpdu.getFrameData());
                 return receiveData().getData();
             } catch (ProtocolException e) {    //Received invalid data, cannot continue...
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw ConnectionCommunicationException.unExpectedProtocolError(e);
             } catch (IOException e) {
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, maxRetries + 1);
+                    throw ConnectionCommunicationException.numberOfRetriesReached(e, maxRetries + 1);
                 }
             }
         }
@@ -423,6 +443,7 @@ public class TCPIPConnection implements DlmsV2Connection {
 
     public void setTimeout(long timeout) {
         this.timeout = timeout;
+        comChannel.setTimeout(timeout);
     }
 
     public void setRetries(int retries) {

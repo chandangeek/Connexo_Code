@@ -353,7 +353,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
      * The protocol version date
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-04-10 12:16:12 +0200 (Fri, 10 Apr 2015) $";
     }
 
     public TimeZone getTimeZone() {

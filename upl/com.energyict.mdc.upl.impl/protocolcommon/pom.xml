@@ -21,6 +21,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdwimpl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>protocol-api</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>axis</groupId>

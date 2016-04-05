@@ -10,13 +10,16 @@ public enum G3NetworkManagementMethods implements DLMSClassMethods {
 	PING(3),
 	DETACH(4),
 	ENABLE(5),
-	PROVIDE_PSK(9);
+    RESET_PLC_NETWORK(6),
+    ADD_TO_BLACKLIST(7),
+    REMOVE_FROM_BLACKLIST(8),
+    PROVIDE_PSK(9);
 
 	private final int methodId;
-	
+
 	/**
 	 * Create a new instance.
-	 * 
+	 *
 	 * @param 	methodId			The ID of the method.
 	 */
 	private G3NetworkManagementMethods(final int methodId) {

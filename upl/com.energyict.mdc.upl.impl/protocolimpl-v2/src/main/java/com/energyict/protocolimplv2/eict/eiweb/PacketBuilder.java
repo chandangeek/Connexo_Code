@@ -7,6 +7,8 @@ import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
@@ -206,7 +208,7 @@ public class PacketBuilder {
             try {
                 this.parseDeviceIdentifier(Integer.parseInt(id), serialNumber);
             } catch (NumberFormatException e) {
-                throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.DEVICE_ID_URL_PARAMETER_NAME, id);
+                throw CommunicationException.numberFormatException(e, EIWebConstants.DEVICE_ID_URL_PARAMETER_NAME, id);
             }
         }
     }
@@ -229,7 +231,7 @@ public class PacketBuilder {
                 this.mask = Long.parseLong(mask, HEX_PARSE_RADIX);
             }
         } catch (NumberFormatException e) {
-            throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.MASK_URL_PARAMETER_NAME, mask);
+            throw CommunicationException.numberFormatException(e, EIWebConstants.MASK_URL_PARAMETER_NAME, mask);
         }
     }
 
@@ -240,7 +242,7 @@ public class PacketBuilder {
             try {
                 nrOfAcceptedMessages = Integer.parseInt(xmlctr);
             } catch (NumberFormatException e) {
-                throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.MESSAGE_COUNTER_URL_PARAMETER_NAME, xmlctr);
+                throw CommunicationException.numberFormatException(e, EIWebConstants.MESSAGE_COUNTER_URL_PARAMETER_NAME, xmlctr);
             }
         }
     }
@@ -255,25 +257,25 @@ public class PacketBuilder {
         }
     }
 
-    private int[] parseValues(byte[] buffer) {
+    private long[] parseValues(byte[] buffer) {
         String strValues = new String(buffer);
-        int[] valuesArray = new int[nrOfChannels];
+        long[] valuesArray = new long[nrOfChannels];
         StringTokenizer st = new StringTokenizer(strValues, ",");
         int iTokens = st.countTokens();
         if (iTokens != nrOfChannels) {
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException();
+            throw DataEncryptionException.dataEncryptionException();
         }
         try {
             for (int i = 0; i < iTokens; i++) {
-                valuesArray[i] = Integer.parseInt(st.nextToken());
+                valuesArray[i] = Long.parseLong(st.nextToken());
             }
         } catch (NumberFormatException e) {
-            throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.METER_DATA_PARAMETER_NAME, strValues);
+            throw CommunicationException.numberFormatException(e, EIWebConstants.METER_DATA_PARAMETER_NAME, strValues);
         }
         return valuesArray;
     }
 
-    private void createData(String utc, String code, String statebits, int[] values) throws IOException {
+    private void createData(String utc, String code, String statebits, long[] values) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         LittleEndianOutputStream os = new LittleEndianOutputStream(bos);
         this.addUTCToDataStream(utc, os);
@@ -289,7 +291,7 @@ public class PacketBuilder {
         try {
             os.writeLEInt((int) Long.parseLong(utc));
         } catch (NumberFormatException e) {
-            throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.UTC_URL_PARAMETER_NAME, utc);
+            throw CommunicationException.numberFormatException(e, EIWebConstants.UTC_URL_PARAMETER_NAME, utc);
         }
     }
 
@@ -297,7 +299,7 @@ public class PacketBuilder {
         try {
             os.writeByte(Byte.parseByte(code));
         } catch (NumberFormatException e) {
-            throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.CODE_URL_PARAMETER_NAME, code);
+            throw CommunicationException.numberFormatException(e, EIWebConstants.CODE_URL_PARAMETER_NAME, code);
         }
     }
 
@@ -305,14 +307,14 @@ public class PacketBuilder {
         try {
             os.writeLEShort((short) Integer.parseInt(statebits, HEX_PARSE_RADIX));
         } catch (NumberFormatException e) {
-            throw MdcManager.getComServerExceptionFactory().createCommunicationException(e, EIWebConstants.STATE_BITS_URL_PARAMETER_NAME, statebits);
+            throw CommunicationException.numberFormatException(e, EIWebConstants.STATE_BITS_URL_PARAMETER_NAME, statebits);
         }
     }
 
-    private void addValuesToDataStream(int[] values, LittleEndianOutputStream os) throws IOException {
+    private void addValuesToDataStream(long[] values, LittleEndianOutputStream os) throws IOException {
         for (int i = 0; i < values.length; i++) {
             if (version < VERSION_32BITS_3) {
-                os.writeLEShort((short) values[i]);
+                os.writeLEShort(values[i]);
             } else {
                 os.writeLEInt(values[i]);
             }

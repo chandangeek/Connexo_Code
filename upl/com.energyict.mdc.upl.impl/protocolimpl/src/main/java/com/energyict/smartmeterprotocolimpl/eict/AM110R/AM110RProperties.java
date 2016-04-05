@@ -29,7 +29,7 @@ public class AM110RProperties extends SmsWakeUpDlmsProtocolProperties {
     private static final String LOGBOOK_SELECTOR = "LogbookSelector";
     private static final String DEFAULT_LOGBOOK_SELECTOR = "-1";
 
-    private SecurityProvider securityProvider;
+    protected SecurityProvider securityProvider;
 
     @ProtocolProperty
     public DLMSReference getReference() {

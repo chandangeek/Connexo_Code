@@ -20,20 +20,18 @@ import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 /**
  *
  * @author Koen
  */
-public class PQM2 extends Modbus  {
+public class PQM2 extends Modbus implements SerialNumberSupport {
     
     /** Creates a new instance of PQM2 */
     public PQM2() {
@@ -60,8 +58,17 @@ public class PQM2 extends Modbus  {
         return (String)getRegisterFactory().findRegister("firmware version").objectValueWithParser("firmware version");
     }
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return (String)getRegisterFactory().findRegister("SerialNumber").value();
+        } catch (IOException e){
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }
     
     protected void initRegisterFactory() {

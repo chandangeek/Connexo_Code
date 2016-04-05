@@ -4,7 +4,6 @@ import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
@@ -12,8 +11,10 @@ import com.energyict.mdc.tasks.ProtocolDialectProperties;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Group;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -98,12 +99,12 @@ public class DeviceInfoSerializer {
         try {
             mapper.writeValue(writer, object);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw DataParseException.generalParseException(e);
         }
         return writer.toString();
     }
 
-    private static ComServerExecutionException invalidFormatException(String propertyName, String propertyValue, String message) {
-        return MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(propertyName, propertyValue, message);
+    private static ProtocolRuntimeException invalidFormatException(String propertyName, String propertyValue, String message) {
+        return DeviceConfigurationException.invalidPropertyFormat(propertyName, propertyValue, message);
     }
 }

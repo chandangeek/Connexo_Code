@@ -2,14 +2,11 @@ package com.energyict.protocolimpl.instromet.v444;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.instromet.connection.Command;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.connection.StatusCommand;
@@ -21,12 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * Protocol Class, supporting Instromet 444 gascorrector
@@ -38,7 +30,7 @@ import java.util.StringTokenizer;
  * @author igh
  * @since 14/11/2007
  */
-public class Instromet444 extends InstrometProtocol {
+public class Instromet444 extends InstrometProtocol implements SerialNumberSupport {
 
 	private Instromet444Profile instromet444Profile = null;
 	private TableFactory tableFactory = null;
@@ -117,19 +109,6 @@ public class Instromet444 extends InstrometProtocol {
 		return wrapValues;
 	}
 
-	protected void validateSerialNumber() throws IOException {
-		boolean check = true;
-		if ((getInfoTypeSerialNumber() == null) ||
-				("".compareTo(getInfoTypeSerialNumber())==0)) {
-			return;
-		}
-		String sn = this.getTableFactory().getCorrectorInformationTable().getSerialNumber();
-		if (sn.compareTo(getInfoTypeSerialNumber()) == 0) {
-			return;
-		}
-		throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
-	}
-
 	public int getCommId() throws IOException {
 		String nodeAddress = getInfoTypeNodeAddress();
 		if ((nodeAddress == null) || ("".equals(nodeAddress))) {
@@ -149,7 +128,7 @@ public class Instromet444 extends InstrometProtocol {
 		getInstrometConnection().wakeUp();
 	}
 
-	public void parseStatus(Response response) throws IOException {
+	public void parseStatus(Response response) throws ProtocolException {
 		byte[] data = response.getData();
 		if (data.length < 2) {
 			return;
@@ -180,8 +159,20 @@ public class Instromet444 extends InstrometProtocol {
 		return getTableFactory().getCorrectorInformationTable().getFirwareVersion();
 	}
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return this.getTableFactory().getCorrectorInformationTable().getSerialNumber();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
+	/**
+	 * The protocol version date
+     */
     public String getProtocolVersion() {
-		return "$Date$";
+		return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
 	}
 
 	public Date getTime() throws IOException {

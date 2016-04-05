@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.gatewayz3;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
@@ -92,8 +93,13 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         return null;  // nothing to do
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     @Override
@@ -118,6 +124,6 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-06 14:27:09 +0100 (Fri, 06 Nov 2015) $";
     }
 }

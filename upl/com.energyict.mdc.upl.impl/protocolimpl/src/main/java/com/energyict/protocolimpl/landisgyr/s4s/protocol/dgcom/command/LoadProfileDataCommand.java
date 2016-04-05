@@ -10,11 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.util.Equality;
 
@@ -353,7 +349,7 @@ RXS4 32k 122k
     } // protected void parse(byte[] data) throws IOException
     
     
-    private boolean checkParity(int val) throws IOException {
+    private boolean checkParity(int val) {
         int count=0;
         for (int i=0x0001;i!=0x8000;i<<=1) {
             if ((val&i)==i) count++;
@@ -361,7 +357,7 @@ RXS4 32k 122k
         return (count%2)==0;
     }
     
-    private Calendar getDateStamp(int value) throws IOException {
+    private Calendar getDateStamp(int value) throws ProtocolException {
         Calendar cal = ProtocolUtils.getCalendar(getCommandFactory().getS4s().getTimeZone());
         cal.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex((byte)(value&0xFF)));
         cal.set(Calendar.MONTH,(ProtocolUtils.BCD2hex((byte)((value>>8)&0x1F)))-1);
@@ -374,7 +370,7 @@ RXS4 32k 122k
         return cal;
     }
     
-    private void getTimeStamp(Calendar cal, int value) throws IOException {
+    private void getTimeStamp(Calendar cal, int value) {
         cal.set(Calendar.HOUR_OF_DAY,0);
         cal.set(Calendar.MINUTE,0);
         cal.set(Calendar.SECOND,0);

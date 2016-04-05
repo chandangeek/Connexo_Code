@@ -1,14 +1,16 @@
 package com.energyict.protocolimpl.coronis.core.wavecell;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Logger;
 
 /**
@@ -73,7 +75,7 @@ public class WaveCellConnect extends WaveFlowConnect {
     /**
      * Send a request, return the response or timeout. This method is used for all WaveFlow communications!
      */
-    public byte[] sendData(byte[] request) throws IOException, ConnectionException {
+    public byte[] sendData(byte[] request) throws IOException {
         this.request = request;
 
         //Send
@@ -100,7 +102,7 @@ public class WaveCellConnect extends WaveFlowConnect {
     private void readAndVerifyAck() throws IOException {
         WaveCellFrame waveCellFrame = readAndIgnoreEarlierFrames();
         if (!waveCellFrame.isAckCommand()) {
-            throw new IOException("Received an unexpected frame (type '" + waveCellFrame.getCommand() + "'), expected 'ACK' after a request");
+            throw new ProtocolException("Received an unexpected frame (type '" + waveCellFrame.getCommand() + "'), expected 'ACK' after a request");
         }
     }
 
@@ -204,7 +206,7 @@ public class WaveCellConnect extends WaveFlowConnect {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             } catch (IOException e) {
                 throw new ConnectionException("Connection, readBytes() error " + e.getMessage());
             }
@@ -215,7 +217,7 @@ public class WaveCellConnect extends WaveFlowConnect {
                     throw new ProtocolConnectionException("Received incomplete frame... (1 or more bytes missing)");
                 } else {
                     if (counter == retries) {
-                        throw new IOException("Response timeout error, after " + retries + " retries");
+                        throw new ProtocolConnectionException("Response timeout error, after " + retries + " retries", TIMEOUT_ERROR);
                     } else {   //Retry
                         counter++;
                         info("Request timed out after " + timeout + " ms, retrying (" + counter + "/" + retries + ") with new timeout: " + (timeout + this.timeout) + " ms.");
@@ -259,17 +261,17 @@ public class WaveCellConnect extends WaveFlowConnect {
             readFrameEnd();
         } else if (response.isError()) {
             readFrameEnd();
-            throw new IOException("Request failed, received 'ERR' response... possibly wrong request or wrong CRC.");
+            throw new ConnectionException("Request failed, received 'ERR' response... possibly wrong request or wrong CRC.");
         } else if (response.isAnsCommand()) { //Response or alarm
             readAndVerifyCharacter(SPACE);
             response = readWaveCellFrame(response);
             readFrameEnd();
             sendAck(response);
             if (response.getApplicativeData().getWavenisFrame().length == 0) {
-                throw new IOException("Received empty RF frame, radio command or parameter probably not supported...");
+                throw new ConnectionException("Received empty RF frame, radio command or parameter probably not supported...");
             }
         } else {
-            throw new IOException("Received an unexpected command: '" + response.getCommand() + "'. Expected INI, RDY, ANS, ERR or ACK.");
+            throw new ConnectionException("Received an unexpected command: '" + response.getCommand() + "'. Expected INI, RDY, ANS, ERR or ACK.");
         }
         return response;
     }
@@ -395,7 +397,7 @@ public class WaveCellConnect extends WaveFlowConnect {
     private int readAndVerifyCharacter(int expectedCharacter) throws IOException {
         int receivedCharacter = readByte();
         if (receivedCharacter != expectedCharacter) {
-            throw new IOException("Unexpected character '" + receivedCharacter + "' in the frame, expected '" + expectedCharacter + "'. Format should be [ID] <CMD> Message");
+            throw new ProtocolException("Unexpected character '" + receivedCharacter + "' in the frame, expected '" + expectedCharacter + "'. Format should be [ID] <CMD> Message");
         }
         return receivedCharacter;
     }

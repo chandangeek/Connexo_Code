@@ -7,13 +7,9 @@ import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
@@ -28,14 +24,11 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.abnt.common.AbntProperties;
-import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
-import com.energyict.protocolimplv2.abnt.common.LoadProfileBuilder;
-import com.energyict.protocolimplv2.abnt.common.LogBookFactory;
-import com.energyict.protocolimplv2.abnt.common.MessageFactory;
-import com.energyict.protocolimplv2.abnt.common.RegisterFactory;
-import com.energyict.protocolimplv2.abnt.common.RequestFactory;
+import com.energyict.protocolimplv2.abnt.common.*;
 import com.energyict.protocolimplv2.abnt.common.dialects.AbntOpticalDeviceProtocolDialect;
 import com.energyict.protocolimplv2.abnt.common.dialects.AbntSerialDeviceProtocolDialect;
 import com.energyict.protocolimplv2.abnt.common.dialects.AbntTransparentTCPDeviceProtocolDialect;
@@ -55,7 +48,7 @@ import java.util.TimeZone;
  * @author sva
  * @since 13/08/2014 - 11:28
  */
-public class A1055 extends AbstractAbntProtocol {
+public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
     private OfflineDevice offlineDevice;
     private RequestFactory requestFactory;
@@ -75,7 +68,7 @@ public class A1055 extends AbstractAbntProtocol {
      */
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:57 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override
@@ -201,7 +194,7 @@ public class A1055 extends AbstractAbntProtocol {
             DateTimeField dateTimeField = (DateTimeField) getRequestFactory().readDefaultParameters().getField(ReadParameterFields.currentDateTime);
             return dateTimeField.getDate(getProperties().getTimeZone());
         } catch (ParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         }
     }
 
@@ -210,9 +203,9 @@ public class A1055 extends AbstractAbntProtocol {
         try {
             getRequestFactory().setTime(timeToSet);
         } catch (ParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         } catch (AbntException e) {
-            throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("date/time change", e);
+            throw DeviceConfigurationException.notAllowedToExecuteCommand("date/time change", e);
         }
     }
 
@@ -252,8 +245,13 @@ public class A1055 extends AbstractAbntProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getMessageFactory().format(propertySpec, messageAttribute);
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        return getMessageFactory().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     @Override

@@ -5,10 +5,16 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  *
@@ -81,7 +87,7 @@ public abstract class AbstractVDEWRegistry {
             return (register.parse(register.readRegister(cached)));
         }
         catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("AbstractVDEWRegistry, getRegister, "+e.getMessage());
+            throw new ProtocolConnectionException("AbstractVDEWRegistry, getRegister, "+e.getMessage(), e.getReason());
         }
     }
     
@@ -96,7 +102,7 @@ public abstract class AbstractVDEWRegistry {
     }
     
     // search the map for the register info
-    private VDEWRegister findRegister(String name) throws IOException {
+    private VDEWRegister findRegister(String name)  {
         VDEWRegister register = (VDEWRegister)getRegisters().get(name);
         if (register == null) {
             Iterator iterator = getRegisters().values().iterator();
@@ -178,12 +184,12 @@ public abstract class AbstractVDEWRegistry {
         return meterExceptionInfo;
     }
 
-    public void validateData(byte[] data) throws IOException {
+    public void validateData(byte[] data) throws FlagIEC1107ConnectionException {
         String str = new String(data); 
         validateData(str);
     }
     
-    public void validateData(String str) throws IOException {
+    public void validateData(String str) throws FlagIEC1107ConnectionException {
     	// Iskra EMECO protocol
     	if (str.indexOf("ER") != -1) {
     		if (getMeterExceptionInfo() != null) {

@@ -5,6 +5,8 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -21,7 +23,6 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import org.xml.sax.SAXException;
 
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -89,6 +91,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     changeEncryptionKey(pendingMessage, 0);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
                     changeAuthenticationKey(pendingMessage, 2);
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY)) {
+                    changeHSLSecretUsingServiceKey(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY)) {
+                    changeAuthenticationKeyUsingServiceKey(pendingMessage, 2);
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY)) {
+                    changeEncryptionKeyUsingServiceKey(pendingMessage, 0);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD)) {
                     changePassword(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM)) {
@@ -127,13 +135,18 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     resetAlarmRegister();
                 } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.Commission_With_Channel)) {
                     mbusCommission(pendingMessage);
-                } else {   //Unsupported message
+                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.MBusClientRemoteCommission)) {
+                    mBusClientRemoteCommissioning(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.ChangeMBusAttributes)) {
+                    changeMBusClientAttributes(pendingMessage);
+                }
+                else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
                     collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
@@ -142,6 +155,18 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             result.addCollectedMessage(collectedMessage);
         }
         return result;
+    }
+
+    protected void changeEncryptionKeyUsingServiceKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
+        throw new IOException("Received message to write the encryption key, but Cryptoserver usage is not supported in this protocol");
+    }
+
+    protected void changeAuthenticationKeyUsingServiceKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
+        throw new IOException("Received message to write the authentication key, but Cryptoserver usage is not supported in this protocol");
+    }
+
+    protected void changeHSLSecretUsingServiceKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        throw new IOException("Received message to write the password, but Cryptoserver usage is not supported in this protocol");
     }
 
     private void changeDefaultResetWindow(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -164,11 +189,56 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void mbusCommission(OfflineDeviceMessage pendingMessage) throws IOException {
-        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) getIntegerAttribute(pendingMessage));
+        int installChannel = getIntegerAttribute(pendingMessage);
+        int primaryAddress = getMBusPhysicalAddress(installChannel);
+        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (primaryAddress - 1));
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION9);
-        mbusClient.installSlave(0);     //Means: pick the next primary address that is available
+        mbusClient.installSlave(primaryAddress);
     }
 
+    private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException{
+        int installChannel = getIntegerAttribute(pendingMessage);
+        int physicalAddress = getMBusPhysicalAddress(installChannel);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
+        String shortId = getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_mBusClientShortId);
+        MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(), getProtocol().getDlmsSessionProperties().getFixMbusHexShortId());
+        mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
+        mbusClient.setIdentificationNumber(mbusProvider.getIdentificationNumber(shortId));
+        mbusClient.setVersion(mbusProvider.getVersion(shortId));
+        mbusClient.setDeviceType(mbusProvider.getDeviceType(shortId));
+        mbusClient.installSlave(physicalAddress);
+    }
+
+    private void changeMBusClientAttributes(OfflineDeviceMessage pendingMessage) throws IOException {
+        int installChannel = getIntegerAttribute(pendingMessage);
+        int physicalAddress = getMBusPhysicalAddress(installChannel);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
+        mbusClient.setManufacturerID(getManufacturerId(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientManufacturerId)));
+        mbusClient.setIdentificationNumber(getIdentificationNumber(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber) , getProtocol().getDlmsSessionProperties().getFixMbusHexShortId()));
+        mbusClient.setDeviceType(getDeviceType(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientDeviceType)));
+        mbusClient.setVersion(getVersion(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientVersion)));
+    }
+
+    private Unsigned16 getManufacturerId(String manufacturerId) throws IOException {
+        char[] chars = manufacturerId.toCharArray();
+        int id =  Integer.parseInt("" + ((chars[2]-64) + (chars[1]-64)*32 + (chars[0]-64)*32*32));
+        return new Unsigned16(id);
+    }
+
+    private Unsigned32 getIdentificationNumber(String indentificationNumber, boolean fixMbusHexShortId) throws IOException {
+        if(fixMbusHexShortId)
+            return new Unsigned32(Integer.parseInt(indentificationNumber));
+        else
+            return new Unsigned32(Integer.parseInt(indentificationNumber, 16));
+    }
+
+    private Unsigned8 getVersion(String version) throws IOException {
+        return new Unsigned8(Integer.parseInt(version));
+    }
+
+    private Unsigned8 getDeviceType(String deviceType) throws IOException {
+        return new Unsigned8(Integer.parseInt(deviceType, 16));
+    }
     /**
      * Substracts 5 seconds from the startReadingTime and adds 5 seconds to the endReadingTime
      *
@@ -581,4 +651,17 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
         return this.mbusMessageExecutor;
     }
+
+
+    private int getMBusPhysicalAddress(int installChannel) throws ProtocolException {
+        int physicalAddress;
+        if(installChannel == 0){
+            physicalAddress = (byte)this.getProtocol().getMeterTopology().searchNextFreePhysicalAddress();
+            this.getProtocol().getLogger().log(Level.INFO, "Channel: " + physicalAddress + " will be used as MBUS install channel.");
+        }else{
+            physicalAddress = installChannel;
+        }
+        return physicalAddress;
+    }
+
 }

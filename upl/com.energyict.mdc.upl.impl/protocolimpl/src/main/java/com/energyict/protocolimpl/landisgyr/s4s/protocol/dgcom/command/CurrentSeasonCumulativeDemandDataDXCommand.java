@@ -10,10 +10,12 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import com.energyict.protocol.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
@@ -47,7 +49,7 @@ public class CurrentSeasonCumulativeDemandDataDXCommand extends AbstractCommand 
         if (getCommandFactory().getFirmwareVersionCommand().isDX())
             return new byte[]{(byte)0x5B,0,0,0,0,0,0,0,0};
         else
-            throw new IOException("CurrentSeasonCumulativeDemandDataCommand, only for DX meters!");
+            throw new ProtocolException("CurrentSeasonCumulativeDemandDataCommand, only for DX meters!");
     }
     
     protected void parse(byte[] data) throws IOException {

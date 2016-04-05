@@ -114,6 +114,7 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MbusMessageExecutor
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler
+-keepnames class com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler
 -keep public class com.energyict.protocolimpl.dlms.common.NTASecurityProvider {
 	public *;
 	protected *;
@@ -313,6 +314,8 @@
 -keepnames class com.energyict.protocolimpl.sctm.fbc.FBC
 
 -keepnames class com.energyict.protocolimpl.sctm.fcl.FCL
+
+-keepnames class com.energyict.protocolimpl.migration.DummyProtocol
 
 -keepnames class com.energyict.protocolimpl.sctm.faf.FAF10
 
@@ -628,6 +631,10 @@
     public void cacheRegisters(java.util.List);
 }
 
+-keep public class com.energyict.genericprotocolimpl.webrtu.common.MbusProvider {
+	public *;
+	protected *;
+}
 -keepnames class test.com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol
 
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3
@@ -716,3 +723,7 @@
 
 -keepnames class com.energyict.protocolimpl.modbus.schneider.powerlogic.PM5560
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.E35C
+
+-keepnames class com.energyict.protocolimpl.modbus.emco.FP93B
+-keepnames class com.energyict.protocolimpl.modbus.spiraxsarco.VLM20
+-keepnames class com.energyict.protocolimpl.modbus.spiraxsarco.RIM20

@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 
@@ -58,7 +59,7 @@ public class ZigBeeStatus {
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             }
 

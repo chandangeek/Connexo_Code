@@ -115,6 +115,14 @@ public class Clock extends AbstractCosemObject {
         }
     }
 
+    public void setDateTime(Calendar dateTime) throws IOException {
+        setDateTime(dateTime.getTime());
+    }
+
+    public void setDateTime(Date dateTime) throws IOException {
+        setAXDRDateTimeAttr(new AXDRDateTime(dateTime));
+    }
+
     public AXDRDateTime getAXDRDateTime() throws IOException {
         byte[] responseData = getResponseData(ClockAttributes.TIME);
         AXDRDateTime axdrDateTime = new AXDRDateTime(responseData, 0, protocolLink.getTimeZone());
@@ -132,7 +140,7 @@ public class Clock extends AbstractCosemObject {
         return getDateTime(responseData,-1);
     }
 
-    private Date getDateTime(byte[] responseData,int roundtripCorrection) throws IOException {
+    public Date getDateTime(byte[] responseData, int roundtripCorrection) throws IOException {
         Calendar gcalendarMeter=null;
 
         if ((responseData[13]&(byte)0x80)==(byte)0x80) {
@@ -163,42 +171,41 @@ public class Clock extends AbstractCosemObject {
             } else {
 				gcalendarMeter = ProtocolUtils.initCalendar((responseData[13] & (byte) 0x80) == (byte) 0x80, protocolLink.getTimeZone());
 			}
-        }
-        else {
+        } else {
             gcalendarMeter = ProtocolUtils.getCleanCalendar(protocolLink.getTimeZone());
         }
 
-        int year = (int) ProtocolUtils.getShort(responseData, 2)&0x0000FFFF;
+        int year = (int) ProtocolUtils.getShort(responseData, 2) & 0x0000FFFF;
         if (year != 0xFFFF) {
-			gcalendarMeter.set(Calendar.YEAR,year);
-		}
+            gcalendarMeter.set(Calendar.YEAR, year);
+        }
 
-        int month = (int)responseData[4]&0xFF;
+        int month = (int) responseData[4] & 0xFF;
         if (month != 0xFF) {
-			gcalendarMeter.set(Calendar.MONTH,month-1);
-		}
+            gcalendarMeter.set(Calendar.MONTH, month - 1);
+        }
 
-        int date = (int)responseData[5]&0xFF;
+        int date = (int) responseData[5] & 0xFF;
         if (date != 0xFF) {
-			gcalendarMeter.set(Calendar.DAY_OF_MONTH,date);
-		}
+            gcalendarMeter.set(Calendar.DAY_OF_MONTH, date);
+        }
 
-        int hour = (int)responseData[7]&0xFF;
+        int hour = (int) responseData[7] & 0xFF;
         if (hour != 0xFF) {
-			gcalendarMeter.set(Calendar.HOUR_OF_DAY,hour);
-		}
+            gcalendarMeter.set(Calendar.HOUR_OF_DAY, hour);
+        }
 
-        int minute = (int)responseData[8]&0xFF;
+        int minute = (int) responseData[8] & 0xFF;
         if (minute != 0xFF) {
-			gcalendarMeter.set(Calendar.MINUTE,minute);
-		}
+            gcalendarMeter.set(Calendar.MINUTE, minute);
+        }
 
-        int seconds = (int)responseData[9]&0xFF;
+        int seconds = (int) responseData[9] & 0xFF;
         if (seconds != 0xFF) {
-			gcalendarMeter.set(Calendar.SECOND,seconds);
-		}
+            gcalendarMeter.set(Calendar.SECOND, seconds);
+        }
 
-        gcalendarMeter.set(Calendar.MILLISECOND,0);
+        gcalendarMeter.set(Calendar.MILLISECOND, 0);
 
         return gcalendarMeter;
     }
@@ -209,9 +216,13 @@ public class Clock extends AbstractCosemObject {
      */
     public int getTimeZone() throws IOException {
         if (timeZone == -1) {
-            timeZone = (int)getLongData(TIME_TIME_ZONE)*(-1)/60;
+            timeZone = (int) getLongData(TIME_TIME_ZONE) * (-1) / 60;
         }
         return timeZone;
+    }
+
+    public void setTimeZone(int offset) throws IOException {
+        write(ClockAttributes.TIMEZONE, new Integer16(offset).getBEREncodedByteArray());
     }
 
     /**
@@ -219,7 +230,7 @@ public class Clock extends AbstractCosemObject {
      * @return Value of property status.
      */
     public int getStatus() throws IOException {
-        status = (int)getLongData(TIME_STATUS);
+        status = (int) getLongData(TIME_STATUS);
         return status;
     }
 
@@ -237,6 +248,17 @@ public class Clock extends AbstractCosemObject {
     }
 
     /**
+     * Write the start of DST
+     *
+     * @param dateTime  OctetString(size(12)) containing the AXDRDateTime
+     * @throws java.io.IOException
+     */
+    public void setDsDateTimeBegin(byte[] dateTime) throws IOException {
+        write(ClockAttributes.TIME_DS_BEGIN, dateTime);
+        dsDateTimeBegin = dateTime;
+    }
+
+    /**
      * Getter for property dsDateTimeEnd.
      *
      * @return Value of property dsDateTimeEnd.
@@ -250,28 +272,6 @@ public class Clock extends AbstractCosemObject {
     }
 
     /**
-     * Getter for property dsDeviation.
-     * @return Value of property dsDeviation.
-     */
-    public int getDsDeviation() throws IOException {
-        if (dsDeviation == -1) {
-            dsDeviation = (int)getLongData(TIME_DS_DEVIATION);
-        }
-        return dsDeviation;
-    }
-
-    /**
-     * Write the start of DST
-     *
-     * @param dateTime  OctetString(size(12)) containing the AXDRDateTime
-     * @throws java.io.IOException
-     */
-    public void setDsDateTimeBegin(byte[] dateTime) throws IOException {
-        write(ClockAttributes.TIME_DS_BEGIN, dateTime);
-        dsDateTimeBegin = dateTime;
-    }
-
-    /**
      * Write the end of DST
      *
      * @param dateTime  OctetString(size(12)) containing the AXDRDateTime
@@ -282,8 +282,15 @@ public class Clock extends AbstractCosemObject {
         dsDateTimeEnd = dateTime;
     }
 
-    public void setTimeZone(int offset) throws IOException {
-        write(ClockAttributes.TIMEZONE, new Integer16(offset).getBEREncodedByteArray());
+    /**
+     * Getter for property dsDeviation.
+     * @return Value of property dsDeviation.
+     */
+    public int getDsDeviation() throws IOException {
+        if (dsDeviation == -1) {
+            dsDeviation = (int) getLongData(TIME_DS_DEVIATION);
+        }
+        return dsDeviation;
     }
 
     /**
@@ -324,24 +331,16 @@ public class Clock extends AbstractCosemObject {
         return DLMSClassId.CLOCK.getClassId();
     }
 
-    public void setTimeAttr(DateTime dateTime) throws IOException {
-        write(ClockAttributes.TIME, dateTime.getBEREncodedByteArray());
-    }
-
     public void setAXDRDateTimeAttr(AXDRDateTime dateTime) throws IOException {
     	write(ClockAttributes.TIME, dateTime.getBEREncodedByteArray());
     }
 
-    public void setDateTime(Date dateTime) throws IOException {
-        setAXDRDateTimeAttr(new AXDRDateTime(dateTime));
-    }
-
-    public void setDateTime(Calendar dateTime) throws IOException {
-        setDateTime(dateTime.getTime());
-    }
-
     public AbstractDataType getTimeAttr() throws IOException {
         return AXDRDecoder.decode(getResponseData(ClockAttributes.TIME));
+    }
+
+    public void setTimeAttr(DateTime dateTime) throws IOException {
+        write(ClockAttributes.TIME, dateTime.getBEREncodedByteArray());
     }
 
     /**
@@ -399,7 +398,9 @@ public class Clock extends AbstractCosemObject {
         }
 
         Structure adjustingTimeStructure = new Structure(presetDateTime, validityIntervalStartDateTime, validityIntervalEndDateTime);
-        System.out.println(adjustingTimeStructure);
+        if (getLogger().isLoggable(java.util.logging.Level.ALL)) {
+            getLogger().log(java.util.logging.Level.ALL, (adjustingTimeStructure).toString());
+        }
         if (getObjectReference().isLNReference()) {
             this.invoke(METHODID_PRESET_ADJUSTING_TIME, adjustingTimeStructure.getBEREncodedByteArray());
         } else {

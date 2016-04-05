@@ -23,6 +23,7 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.pact.core.common.ChannelMap;
 import com.energyict.protocolimpl.pact.core.common.DateTime;
@@ -166,7 +167,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
     private void validateMeterIdentification() throws IOException {
@@ -423,7 +424,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
             Thread.sleep(delay);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
         calendar = ProtocolUtils.getCalendar(timeZone);
         calendar.add(Calendar.MILLISECOND, roundtripCorrection);

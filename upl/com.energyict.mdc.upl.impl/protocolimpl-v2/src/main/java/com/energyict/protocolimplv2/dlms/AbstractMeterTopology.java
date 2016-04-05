@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dlms;
 
-import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.tasks.support.DeviceTopologySupport;
 import com.energyict.obis.ObisCode;
 
@@ -44,4 +43,11 @@ public abstract class AbstractMeterTopology implements DeviceTopologySupport {
      * @return the corrected ObisCode
      */
     public abstract ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber);
+
+    /**
+     * Search for the next available physicalAddress
+     *
+     * @return the next available physicalAddress or -1 if none is available.
+     */
+    public abstract int searchNextFreePhysicalAddress();
 }

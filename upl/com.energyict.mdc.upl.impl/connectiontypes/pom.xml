@@ -28,6 +28,10 @@
             <artifactId>mdwimpl</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>protocol-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict.dataconcentrator.communicationdrivers</groupId>
             <artifactId>wavenis-driver</artifactId>
             <version>1.0.1</version>

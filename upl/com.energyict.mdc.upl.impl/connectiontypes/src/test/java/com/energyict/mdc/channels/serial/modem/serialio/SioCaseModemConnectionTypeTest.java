@@ -13,11 +13,12 @@ import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.channels.serial.modem.CaseModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedCaseModemProperties;
 import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
-import com.energyict.mdc.exceptions.ModemException;
+import com.energyict.protocol.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
+import com.energyict.protocol.exceptions.ProtocolExceptionReference;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -128,7 +129,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         try {
             caseModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-207")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_SEND_INIT_STRING)) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
             }
             throw e;
@@ -166,7 +167,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         try {
             caseModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-207")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_SEND_INIT_STRING)) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName, "Not_CorrectAnswer", "V0");
@@ -188,7 +189,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         try {
             caseModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-216")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_CALL_ABORTED)) {
                 fail("Should have gotten exception indicating that the modem received a ERROR signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);

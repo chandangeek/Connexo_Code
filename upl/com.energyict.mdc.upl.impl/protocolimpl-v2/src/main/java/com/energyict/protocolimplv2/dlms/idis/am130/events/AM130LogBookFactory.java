@@ -57,7 +57,7 @@ public class AM130LogBookFactory extends IDISLogBookFactory {
     protected List<MeterEvent> getMBusControlLog(Calendar fromCal, Calendar toCal, LogBookReader logBookReader) throws IOException {
         ObisCode mBusControlLogObisCode = getMBusControlLogObisCode(logBookReader.getMeterSerialNumber());
         ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(mBusControlLogObisCode);
-        profileGeneric.setDsmr4SelectiveAccessFormat(true);
+        profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
         DataContainer mBusControlLogDC = profileGeneric.getBuffer(fromCal, toCal);
         AbstractEvent mBusControlLog;
         switch (protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber())) {

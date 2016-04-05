@@ -7,11 +7,15 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
 import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @author  Koen
@@ -119,7 +123,7 @@ public class ABBA1700DataIdentityFactory {
            rawRegister.writeRawRegister(dataID,value);
         }
         catch(FlagIEC1107ConnectionException e) {
-           throw new IOException("ABBA1700DataIdentityFactory, setDataIdentity, "+e.getMessage());
+           throw new ProtocolConnectionException("ABBA1700DataIdentityFactory, setDataIdentity error: "+e.getMessage(), e.getReason());
         }
     }
     
@@ -130,16 +134,16 @@ public class ABBA1700DataIdentityFactory {
            rawRegister.writeRawRegister(dataID,"");
         }
         catch(FlagIEC1107ConnectionException e) {
-           throw new IOException("ABBA1700DataIdentityFactory, setDataIdentity, "+e.getMessage());
+           throw new ProtocolConnectionException("ABBA1700DataIdentityFactory, setDataIdentity error: "+e.getMessage(), e.getReason());
         }
     }
     
     // search the map for the register info
 
-    private ABBA1700DataIdentity findRawRegister(String dataID) throws IOException {
+    private ABBA1700DataIdentity findRawRegister(String dataID) throws ProtocolException {
        ABBA1700DataIdentity rawRegister = (ABBA1700DataIdentity)rawRegisters.get(dataID);
         if (rawRegister == null) {
-            throw new IOException("ABBA1700DataIdentityFactory, findRawRegister, " + dataID + " does not exist!");
+            throw new ProtocolException("ABBA1700DataIdentityFactory, findRawRegister, " + dataID + " does not exist!");
         } else {
             return rawRegister;
     }
@@ -154,7 +158,7 @@ public class ABBA1700DataIdentityFactory {
            return rawRegister.readRawRegisterStream(dataID,cached,nrOfBlocks);
         }
         catch(FlagIEC1107ConnectionException e) {
-           throw new IOException("ABBA1700DataIdentityFactory, getDataIdentityStream, "+e.getMessage());
+           throw new ProtocolConnectionException("ABBA1700DataIdentityFactory, getDataIdentityStream error: "+e.getMessage(), e.getReason());
         }
     }
     
@@ -165,7 +169,7 @@ public class ABBA1700DataIdentityFactory {
            return rawRegister.readRawRegister(dataID,cached,(dataLength==-1?rawRegister.getLength():dataLength),set);
         }
         catch(FlagIEC1107ConnectionException e) {
-           throw new IOException("ABBA1700DataIdentityFactory, getDataIdentity, "+e.getMessage());
+           throw new ProtocolConnectionException("ABBA1700DataIdentityFactory, getDataIdentity error: " + e.getMessage(), e.getReason());
         }
     }
 

@@ -100,7 +100,7 @@ public class RecDigitPower extends Modbus {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-09-08 10:39:36 +0200 (Tue, 08 Sep 2015) $";
     }
     
     protected void initRegisterFactory() {
@@ -213,8 +213,8 @@ public class RecDigitPower extends Modbus {
     				break;
     			}
     		}
-    		
-    		System.out.println("Next intervalTime: " + profileData.getIntervalData(i).getEndTime() );
+
+            getLogger().fine("Next intervalTime: " + profileData.getIntervalData(i).getEndTime());
     		
     	}
     	

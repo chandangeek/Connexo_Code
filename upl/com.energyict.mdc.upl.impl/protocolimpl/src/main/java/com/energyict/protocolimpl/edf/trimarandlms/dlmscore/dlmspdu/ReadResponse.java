@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu;
 
-import java.io.IOException;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.ConfirmedRespAPSE;
 
@@ -34,14 +33,14 @@ public class ReadResponse extends ConfirmedRespAPSE {
     }
     
     
-    protected byte[] preparebuildPDU() throws IOException {
+    protected byte[] preparebuildPDU() throws ProtocolException {
         
         return null;
     }
     
     final int DLMSPDU_READ_RESPONSE=0x0C;
     
-    protected void parsePDU(byte[] data) throws IOException {
+    protected void parsePDU(byte[] data) throws ProtocolException {
         int offset=0;
         if (DEBUG>=1){
         	System.out.println("KV_DEBUG> "+ProtocolUtils.outputHexString(data));
@@ -54,7 +53,7 @@ public class ReadResponse extends ConfirmedRespAPSE {
         
         int tag = ProtocolUtils.getInt(data,offset++,1);
         if (tag != DLMSPDU_READ_RESPONSE) {
-			throw new IOException("ReadResponse, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
+			throw new ProtocolException("ReadResponse, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
 		}
         
         
@@ -64,7 +63,7 @@ public class ReadResponse extends ConfirmedRespAPSE {
         tag = ProtocolUtils.getInt(data,offset++,1);
         if (tag==DATA_ACCESS_ERROR) {
             int error = ProtocolUtils.getInt(data,offset++,1);
-            throw new IOException ("ReadResponse, parsePDU, DataAccessError: "+DataAccessError.getDescription(error));
+            throw new ProtocolException ("ReadResponse, parsePDU, DataAccessError: "+DataAccessError.getDescription(error));
         }        
         
         setReadResponseData(ProtocolUtils.getSubArray(data,offset));

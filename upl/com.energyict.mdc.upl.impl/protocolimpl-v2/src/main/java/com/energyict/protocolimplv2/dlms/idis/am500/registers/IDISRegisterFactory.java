@@ -6,13 +6,8 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DemandRegister;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
@@ -23,18 +18,12 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKActiveInitiatorMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKIec61334LLCSetupMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKMacCountersMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKPhyMacSetupMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKReportingSystemListMapper;
-import com.energyict.protocolimpl.dlms.idis.registers.SFSKSyncTimeoutsMapper;
+import com.energyict.protocolimpl.dlms.idis.registers.*;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -165,14 +154,14 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
             }
             return createCollectedRegister(registerValue, offlineRegister);
         } catch (IOException e) {
-            if (IOExceptionHandler.isUnexpectedResponse(e, AM500.getDlmsSession())) {
-                if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, AM500.getDlmsSessionProperties().getRetries()+1)) {
+                if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                     return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
                 } else {
                     return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
                 }
             } else {
-                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, AM500.getDlmsSession().getProperties().getRetries() + 1);
+                throw ConnectionCommunicationException.numberOfRetriesReached(e, AM500.getDlmsSession().getProperties().getRetries() + 1);
             }
         }
     }

@@ -25,7 +25,7 @@ public class Kaifa extends E350 {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-01-07 15:53:48 +0100 (Wed, 07 Jan 2015) $";
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {

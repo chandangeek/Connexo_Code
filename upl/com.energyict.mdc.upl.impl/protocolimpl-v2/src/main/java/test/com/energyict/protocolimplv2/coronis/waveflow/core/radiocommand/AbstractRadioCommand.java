@@ -1,8 +1,8 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand;
 
-import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import test.com.energyict.protocolimplv2.coronis.common.WaveFlowException;
 import test.com.energyict.protocolimplv2.coronis.common.WaveflowProtocolUtils;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
@@ -217,8 +217,8 @@ abstract public class AbstractRadioCommand {
     /**
      * Common method for all commands / parameters to create a WaveFlowException in case something specific went wrong
      */
-    protected static ComServerExecutionException createWaveFlowException(String description) {
+    protected static ProtocolRuntimeException createWaveFlowException(String description) {
         WaveFlowException e = new WaveFlowException(description);
-        return MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+        return CommunicationException.unexpectedResponse(e);
     }
 }

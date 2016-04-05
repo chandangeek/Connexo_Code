@@ -2,8 +2,8 @@ package com.energyict.protocolimpl.instromet.v444.tables;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.ProtocolException;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ public class LoggingConfigurationTable extends AbstractTable {
 		channelInfos.add(info);
 	}
 	
-	protected void parse(byte[] data) throws IOException {
+	protected void parse(byte[] data) throws ProtocolException {
 		// hard coded, log selection does not matces with meter
 	}
 	
@@ -72,7 +72,7 @@ public class LoggingConfigurationTable extends AbstractTable {
 		return 10;
 	}
 	
-	protected void prepareBuild() throws IOException {
+	protected void prepareBuild() throws ProtocolException {
 		/*System.out.println("prepare build logging conf");
 		CommandFactory commandFactory = 
 			getTableFactory().getCommandFactory();
@@ -82,7 +82,7 @@ public class LoggingConfigurationTable extends AbstractTable {
     	readHeaders();*/
 	}
 	
-	protected void doBuild() throws IOException {
+	protected void doBuild() throws ProtocolException {
 		/*System.out.println("doBuild logging conf");
 		CommandFactory commandFactory = 
 			getTableFactory().getCommandFactory();

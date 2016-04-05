@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.ConfirmedReqAPSE;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.Encryptor6205651;
+
+import java.io.ByteArrayOutputStream;
 
 /**
  *
@@ -32,7 +32,7 @@ public class StatusRequest extends ConfirmedReqAPSE {
     
     final int DLMSPDU_STATUS_REQUEST=2;
     
-    protected byte[] preparebuildPDU() throws IOException {
+    protected byte[] preparebuildPDU() throws ProtocolException {
         
         setConfirmedRespAPSE(new StatusResponse(getAPSEFactory().getProtocolLink().getDLMSPDUFactory()));
         
@@ -55,7 +55,7 @@ public class StatusRequest extends ConfirmedReqAPSE {
         return getStatusResponse().toString();
     }
     
-    protected void parsePDU(byte[] data) throws IOException {
+    protected void parsePDU(byte[] data) throws ProtocolException {
     }
 
     public boolean isIdentify() {

@@ -4,13 +4,20 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.CRCGenerator;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 
 /**
@@ -128,7 +135,7 @@ public class PoregConnection implements ProtocolConnection {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             } catch (IOException e) {
                 throw new ConnectionException("Connection, readBytes() error " + e.getMessage());
             }
@@ -188,7 +195,7 @@ public class PoregConnection implements ProtocolConnection {
                 break;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
             if (System.currentTimeMillis() > timeOutMillis) {
                 break;              //Stop when timeout occurs
@@ -292,34 +299,34 @@ public class PoregConnection implements ProtocolConnection {
         return sendAndReceive(request);
     }
 
-    private byte[] parseResponseHeader(byte[] response, int expectedResponseType, int expectedASDUType) throws IOException {
+    private byte[] parseResponseHeader(byte[] response, int expectedResponseType, int expectedASDUType) throws ProtocolException {
         int offset = 0;
 
         int type = response[offset] & 0xFF;
         if (type != expectedResponseType) {
-            throw new IOException("Unexpected data type, received " + Response.getDescription(type) + ", expected " + Response.getDescription(expectedResponseType));
+            throw new ProtocolException("Unexpected data type, received " + Response.getDescription(type) + ", expected " + Response.getDescription(expectedResponseType));
         }
         offset++;
 
         byte[] address = ProtocolTools.getSubArray(response, offset, offset + 2);
         if (!Arrays.equals(address, getAddressBytes(poreg.getSystemAddress()))) {
-            throw new IOException("Error receiving register group, unexpected system address");
+            throw new ProtocolException("Error receiving register group, unexpected system address");
         }
         offset += 2;
 
         int asdu = response[offset] & 0xFF;
         if (asdu == 0) {
-            throw new IOException("Error receiving data. Received ASDU was type 0.");
+            throw new ProtocolException("Error receiving data. Received ASDU was type 0.");
         }
 
         if (asdu != expectedASDUType) {
-            throw new IOException("Error receiving data, expected ASDU type " + expectedASDUType + " in the response, got " + asdu);
+            throw new ProtocolException("Error receiving data, expected ASDU type " + expectedASDUType + " in the response, got " + asdu);
         }
         offset++;
 
         int length = response[offset] & 0xFF;
         if (length != (response.length - 3)) {
-            throw new IOException("Error receiving data, length mismatch. Expected " + (response.length - 3) + ", received " + length);
+            throw new ProtocolException("Error receiving data, length mismatch. Expected " + (response.length - 3) + ", received " + length);
         }
         offset++;
 
