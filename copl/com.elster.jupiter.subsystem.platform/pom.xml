@@ -65,6 +65,10 @@
             <artifactId>calendar.extjs</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>calendar.rest</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.partners</groupId>
             <artifactId>connexo.filter</artifactId>
         </dependency>
