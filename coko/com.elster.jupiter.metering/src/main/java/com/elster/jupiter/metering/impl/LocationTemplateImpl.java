@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.orm.DataModel;
+
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -16,7 +17,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
     private long id;
     private String templateFields;
     private String mandatoryFields;
-    private List<String>splitLineElements = new LinkedList<>();
+    private List<String> splitLineElements = new LinkedList<>();
     private final DataModel dataModel;
     private List<TemplateField> templateMembers = new LinkedList<>();
     private long version;
@@ -85,9 +86,12 @@ public final class LocationTemplateImpl implements LocationTemplate {
             this.mandatoryFields = mandatoryFields.trim();
             Arrays.asList(this.templateFields.split(",")).stream().filter(f ->
                     f.startsWith("\\n") || f.startsWith("\\r")).forEach(e ->
-                    splitLineElements.add(e.replace("\\n", "").replace("\\r", "")));
-            String[] templateElements = this.templateFields.replace("\\n", "").replace("\\r", "").split(",");
-            String[] mandatoryFieldElements = this.mandatoryFields.trim().split(",");
+                    splitLineElements.add(e.replace("\\r", "").replace("\\n", "")
+                            .replace("\r", "").replace("\n", "")
+                            .replace("\r\n", "").replace("\n\r", "")));
+            String[] templateElements = this.templateFields.replace("\\r", "").replace("\\n", "")
+                    .replace("\r", "").replace("\n", "").replace("\r\n", "").replace("\n\r", "").split(",");
+            String[] mandatoryFieldElements = this.mandatoryFields.split(",");
             if (Arrays.asList(templateElements).containsAll(ALLOWED_LOCATION_TEMPLATE_ELEMENTS)
                     && Arrays.asList(templateElements).containsAll(Arrays.asList(mandatoryFields.trim().split(",")))) {
                 AtomicInteger index = new AtomicInteger(-1);
@@ -265,14 +269,24 @@ public final class LocationTemplateImpl implements LocationTemplate {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             TemplateFieldImpl that = (TemplateFieldImpl) o;
 
-            if (ranking != that.ranking) return false;
-            if (mandatory != that.mandatory) return false;
-            if (name != null ? !name.equals(that.name) : that.name != null) return false;
+            if (ranking != that.ranking) {
+                return false;
+            }
+            if (mandatory != that.mandatory) {
+                return false;
+            }
+            if (name != null ? !name.equals(that.name) : that.name != null) {
+                return false;
+            }
             return abbreviation != null ? abbreviation.equals(that.abbreviation) : that.abbreviation == null;
 
         }
