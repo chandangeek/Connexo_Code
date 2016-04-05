@@ -370,7 +370,7 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
     }
 
     private boolean isCachedResource(String uri) {
-        return Stream.of(RESOURCES_NOT_CACHED)
+        return !Stream.of(RESOURCES_NOT_CACHED)
                 .filter(r -> uri.endsWith(r))
                 .findAny().isPresent();
     }
