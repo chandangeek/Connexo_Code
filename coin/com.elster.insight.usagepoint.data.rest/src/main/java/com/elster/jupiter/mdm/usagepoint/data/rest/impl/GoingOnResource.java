@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.UserTaskInfo;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
@@ -69,11 +70,17 @@ public class GoingOnResource {
         }
 
         Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
-        Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(usagePoint.getId()));
-        IssueFilter issueFilter = issueService.newIssueFilter();
-        issueFilter.addDevice(meter.get());
-        List<GoingOnInfo> issues = issueService.findIssues(issueFilter)
-                .stream()
+        Optional<Meter> foundMeter = amrSystem.get().findMeter(String.valueOf(usagePoint.getId()));
+
+        List<GoingOnInfo> issues = foundMeter
+                .map(meter -> {
+                    IssueFilter issueFilter = issueService.newIssueFilter();
+                    issueFilter.addDevice(meter);
+                    return issueFilter;
+                })
+                .map(issueService::findIssues)
+                .map(Finder::stream)
+                .orElseGet(Stream::empty)
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
