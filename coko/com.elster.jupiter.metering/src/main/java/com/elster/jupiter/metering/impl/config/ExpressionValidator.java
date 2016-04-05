@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.orm.associations.Reference;
 
