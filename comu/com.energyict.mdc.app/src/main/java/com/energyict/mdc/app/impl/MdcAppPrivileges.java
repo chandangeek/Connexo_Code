@@ -50,6 +50,7 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADD_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.REMOVE_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS,
 
                 //mdc.device.data - Device communication
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION,
