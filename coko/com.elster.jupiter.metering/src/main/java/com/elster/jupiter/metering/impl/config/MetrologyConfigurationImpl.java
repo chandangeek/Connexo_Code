@@ -309,6 +309,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     @Override
     public void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
         if (this.deliverables.remove(deliverable)) {
+            deliverable.getFormula().delete();
             touch();
         }
     }
