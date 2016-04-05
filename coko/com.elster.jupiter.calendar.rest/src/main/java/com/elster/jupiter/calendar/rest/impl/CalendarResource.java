@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
@@ -22,16 +23,23 @@ public class CalendarResource {
     }
 
     @GET
-    @Path(("/timeofusecalendars"))
+    @Path("/timeofusecalendars")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public List<CalendarInfo> getAllTimeOfUseCalendars() {
         List<CalendarInfo> infos = new ArrayList<CalendarInfo>();
 
         for (int i = 0; i < randomWithRange(5, 15); i++) {
-            infos.add(calendarInfoFactory.fromCalendar());
+            infos.add(calendarInfoFactory.fromCalendar(i));
         }
 
         return infos;
+    }
+
+    @GET
+    @Path("/timeofusecalendars/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public CalendarInfo getTimeOfUseCalendar(@PathParam("id") long id) {
+        return calendarInfoFactory.fromCalendar(1);
     }
 
     private int randomWithRange(int min, int max) {

@@ -7,13 +7,13 @@ public class CalendarInfoFactory {
     private int NUMBER_OF_EVENTS = 3;
     private int NUMBER_OF_DAYTYPES = 4;
 
-    CalendarInfo fromCalendar() {
+    CalendarInfo fromCalendar(long id) {
         CalendarInfo calendarInfo = new CalendarInfo();
 
         calendarInfo.name = "Residential TOU Example";
         calendarInfo.category = "TOU";
         calendarInfo.mRID = "optional";
-        calendarInfo.id = 1;
+        calendarInfo.id = id;
         calendarInfo.description = "From example provided by Robert Ritchy";
         calendarInfo.timeZone = "EDT";
         calendarInfo.startYear = 210;
@@ -43,7 +43,7 @@ public class CalendarInfoFactory {
                     range.fromSecond = (long) getRandomBetween(0, 59);
                     prevFromHour = (int) range.fromHour;
                 }
-                range.event = getRandomBetween(0, NUMBER_OF_EVENTS);
+                range.event = getRandomBetween(0, NUMBER_OF_EVENTS - 1);
                 dayTypeInfo.ranges.add(range);
             }
 
