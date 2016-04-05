@@ -185,6 +185,22 @@ Ext.define('Uni.property.form.Property', {
         });
     },
 
+    setPropertiesAndDisable: function(propertiesArray) {
+        var me = this;
+
+        Ext.Array.each(propertiesArray, function (property) {
+            if (!(property instanceof Uni.property.model.Property)) {
+                throw '!(entry instanceof Uni.property.model.Property)';
+            }
+
+            var field = me.getPropertyField(property.get('key'));
+            if (field) {
+                field.setProperty(property);
+                field.setDisabled(true);
+            }
+        });
+    },
+
     restoreAll: function () {
         this.items.each(function (item) {
             item.restoreDefault();
