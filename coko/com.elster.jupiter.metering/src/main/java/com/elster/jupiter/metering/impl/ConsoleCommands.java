@@ -62,10 +62,7 @@ import java.util.stream.Collectors;
         "osgi.command.function=advanceStartDate",
         "osgi.command.function=explain",
         "osgi.command.function=addEvents",
-        "osgi.command.function=addFormula",
         "osgi.command.function=formulas",
-        "osgi.command.function=deleteFormula",
-        "osgi.command.function=updateFormula",
         "osgi.command.function=addMetrologyConfig",
         "osgi.command.function=addRequirement",
         "osgi.command.function=addRequirementWithTemplateReadingType",
@@ -262,37 +259,6 @@ public class ConsoleCommands {
                 .forEach(System.out::println);
     }
 
-    public void addFormula(String formulaString) {
-        try (TransactionContext context = transactionService.getContext()) {
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
-            ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
-            Formula formula = formulaBuilder.init(node).build();
-            context.commit();
-        }
-    }
-
-    public void updateFormula(long id, String formulaString) {
-        try (TransactionContext context = transactionService.getContext()) {
-            Optional<Formula> formula = metrologyConfigurationService.findFormula(id);
-            if (!formula.isPresent()) {
-                System.out.println("No formula found with id " + id);
-            } else {
-                ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
-                Formula formulaObject = formula.get();
-                formulaObject.updateExpression(node);
-                context.commit();
-            }
-        }
-    }
-
-    public void deleteFormula(long id) {
-        try (TransactionContext context = transactionService.getContext()) {
-            metrologyConfigurationService.findFormula(id)
-                    .ifPresent(Formula::delete);
-            context.commit();
-        }
-    }
-
     public void addMetrologyConfig(String name) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
@@ -374,7 +340,7 @@ public class ConsoleCommands {
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration).parse(formulaString);
 
             ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO)).build(node);
             context.commit();

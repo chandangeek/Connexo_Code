@@ -79,6 +79,15 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Optional<MeterRole> getMeterRoleFor(ReadingTypeRequirement readingTypeRequirement) {
+        return this.requirementToRoleUsages
+                .stream()
+                .filter(usage -> usage.getReadingTypeRequirement().equals(readingTypeRequirement))
+                .findAny()
+                .map(ReadingTypeRequirementMeterRoleUsage::getMeterRole);
+    }
+
     void addReadingTypeRequirementMeterRoleUsage(ReadingTypeRequirementMeterRoleUsage usage) {
         Save.CREATE.validate(getMetrologyConfigurationService().getDataModel(), usage);
         this.requirementToRoleUsages.add(usage);
