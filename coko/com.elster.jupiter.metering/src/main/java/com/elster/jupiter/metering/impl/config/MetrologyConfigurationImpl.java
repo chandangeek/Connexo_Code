@@ -57,7 +57,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         METROLOGY_CONTRACTS("metrologyContracts"),
         METER_ROLES("meterRoles"),
         DELIVERABLES("deliverables"),
-        REQUIREMENT_TO_ROLE_REFERENCES("requirementToRoleReferences"),
+        REQUIREMENT_TO_ROLE_REFERENCES("requirementToRoleUsages"),
         USAGE_POINT_REQUIREMENTS("usagePointRequirements"),;
 
         private final String javaFieldName;
