@@ -1,5 +1,6 @@
 package com.elster.jupiter.prepayment.impl.fullduplex;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.prepayment.impl.MessageSeeds;
@@ -9,6 +10,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -19,6 +21,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -46,19 +49,22 @@ public class MultiSenseAMRImpl implements FullDuplexInterface {
     private static final String UNDEFINED = "undefined";
 
     private final Clock clock;
+    private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
     private final MeteringService meteringService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Inject
-    public MultiSenseAMRImpl(Clock clock, ExceptionFactory exceptionFactory, MeteringService meteringService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public MultiSenseAMRImpl(Clock clock, DeviceService deviceService, ExceptionFactory exceptionFactory, MeteringService meteringService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.clock = clock;
+        this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
         this.meteringService = meteringService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
-    public void armBreaker(Device device, ServiceCall serviceCall, Instant activationDate) {
+    public void armBreaker(EndDevice endDevice, ServiceCall serviceCall, Instant activationDate) {
+        Device device = findDeviceForEndDevice(endDevice);
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         deviceMessageIds.add(activationDate != null ? DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_OPEN);
         deviceMessageIds.add(activationDate != null ? DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_ARM);
@@ -71,7 +77,8 @@ public class MultiSenseAMRImpl implements FullDuplexInterface {
         scheduleDeviceCommandsComTaskEnablement(device, deviceMessageIds);
     }
 
-    public void connectBreaker(Device device, ServiceCall serviceCall, Instant activationDate) {
+    public void connectBreaker(EndDevice endDevice, ServiceCall serviceCall, Instant activationDate) {
+        Device device = findDeviceForEndDevice(endDevice);
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         deviceMessageIds.add(activationDate != null ? DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_CLOSE);
 
@@ -83,7 +90,8 @@ public class MultiSenseAMRImpl implements FullDuplexInterface {
         scheduleDeviceCommandsComTaskEnablement(device, deviceMessageIds);
     }
 
-    public void disconnectBreaker(Device device, ServiceCall serviceCall, Instant activationDate) {
+    public void disconnectBreaker(EndDevice endDevice, ServiceCall serviceCall, Instant activationDate) {
+        Device device = findDeviceForEndDevice(endDevice);
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         deviceMessageIds.add(activationDate != null ? DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_OPEN);
 
@@ -95,7 +103,8 @@ public class MultiSenseAMRImpl implements FullDuplexInterface {
         scheduleDeviceCommandsComTaskEnablement(device, deviceMessageIds);
     }
 
-    public void disableLoadLimiting(Device device, ServiceCall serviceCall) {
+    public void disableLoadLimiting(EndDevice endDevice, ServiceCall serviceCall) {
+        Device device = findDeviceForEndDevice(endDevice);
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_DISABLE_LOAD_LIMITING);
 
@@ -103,7 +112,8 @@ public class MultiSenseAMRImpl implements FullDuplexInterface {
         scheduleDeviceCommandsComTaskEnablement(device, deviceMessageIds);
     }
 
-    public void configureLoadLimitThresholdAndDuration(Device device, ServiceCall serviceCall, BigDecimal limit, String unit, Integer[] tariffs, Integer loadTolerance) {
+    public void configureLoadLimitThresholdAndDuration(EndDevice endDevice, ServiceCall serviceCall, BigDecimal limit, String unit, Integer[] tariffs, Integer loadTolerance) {
+        Device device = findDeviceForEndDevice(endDevice);
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         deviceMessageIds.add(tariffs != null ? DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION_WITH_TARIFFS : DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION);
 
@@ -122,7 +132,8 @@ public class MultiSenseAMRImpl implements FullDuplexInterface {
         scheduleDeviceCommandsComTaskEnablement(device, deviceMessageIds);
     }
 
-    public void configureLoadLimitThreshold(Device device, ServiceCall serviceCall, BigDecimal limit, String unit, Integer[] tariffs) {
+    public void configureLoadLimitThreshold(EndDevice endDevice, ServiceCall serviceCall, BigDecimal limit, String unit, Integer[] tariffs) {
+        Device device = findDeviceForEndDevice(endDevice);
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         deviceMessageIds.add(tariffs != null ? DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS : DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD);
 
@@ -140,7 +151,8 @@ public class MultiSenseAMRImpl implements FullDuplexInterface {
         scheduleDeviceCommandsComTaskEnablement(device, deviceMessageIds);
     }
 
-    public void configureLoadLimitDuration(Device device, ServiceCall serviceCall, Integer loadTolerance) {
+    public void configureLoadLimitDuration(EndDevice endDevice, ServiceCall serviceCall, Integer loadTolerance) {
+        Device device = findDeviceForEndDevice(endDevice);
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_DURATION);
 
@@ -150,7 +162,8 @@ public class MultiSenseAMRImpl implements FullDuplexInterface {
         scheduleDeviceCommandsComTaskEnablement(device, deviceMessageIds);
     }
 
-    public void configureLoadLimitMeasurementReadingType(Device device, ServiceCall serviceCall, String measurementReadingType) {
+    public void configureLoadLimitMeasurementReadingType(EndDevice endDevice, ServiceCall serviceCall, String measurementReadingType) {
+        Device device = findDeviceForEndDevice(endDevice);
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_MEASUREMENT_READING_TYPE);
 
@@ -223,5 +236,30 @@ public class MultiSenseAMRImpl implements FullDuplexInterface {
             deviceMessages.add(deviceMessageBuilder.add());
         }
         return deviceMessages;
+    }
+
+    @Override
+    public void scheduleStatusInformationTask(EndDevice endDevice, Instant scheduleTime) {
+        Device device = findDeviceForEndDevice(endDevice);
+        ComTaskEnablement comTaskEnablement = getStatusInformationComTaskEnablement(device);
+        Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
+                .filter(cte -> cte.getComTasks().stream().anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId())).findFirst();
+        existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)).schedule(scheduleTime);
+    }
+
+    private ComTaskEnablement getStatusInformationComTaskEnablement(Device device) {
+        return device.getDeviceConfiguration()
+                .getComTaskEnablements()
+                .stream()
+                .filter(cte -> cte.getComTask().getProtocolTasks().stream().
+                        filter(task -> task instanceof StatusInformationTask).
+                        findFirst().
+                        isPresent())
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_COMTASK_FOR_STATUS_INFORMATION));
+    }
+
+    private Device findDeviceForEndDevice(EndDevice endDevice) {
+        return deviceService.findByUniqueMrid(endDevice.getMRID()).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, endDevice.getMRID()));
     }
 }

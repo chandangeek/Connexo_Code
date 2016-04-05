@@ -26,7 +26,7 @@ public class ContactorInfo {
     public String toString() {
         StringBuilder msgBuilder = new StringBuilder();
         msgBuilder.append("ContactorInfo{");
-        msgBuilder.append("status: ").append(status);
+        msgBuilder.append("status: ").append(status.getDescription());
         if (activationDate != null) {
             msgBuilder.append(", activationDate: ").append(activationDate);
         }

@@ -26,7 +26,6 @@ public class LoggingHandler implements ServiceCallHandler {
 
     @Activate
     public void activate() {
-        System.err.println("Activating prepayment logging handler");
     }
 
     @Override

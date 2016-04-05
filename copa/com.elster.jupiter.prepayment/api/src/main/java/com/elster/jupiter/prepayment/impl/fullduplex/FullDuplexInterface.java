@@ -1,7 +1,7 @@
 package com.elster.jupiter.prepayment.impl.fullduplex;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.data.Device;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -15,20 +15,22 @@ import java.time.Instant;
  */
 public interface FullDuplexInterface {
 
-    void armBreaker(Device device, ServiceCall serviceCall, Instant activationDate);
+    void armBreaker(EndDevice endDevice, ServiceCall serviceCall, Instant activationDate);
 
-    void connectBreaker(Device device, ServiceCall serviceCall, Instant activationDate);
+    void connectBreaker(EndDevice endDevice, ServiceCall serviceCall, Instant activationDate);
 
-    void disconnectBreaker(Device device, ServiceCall serviceCall, Instant activationDate);
+    void disconnectBreaker(EndDevice endDevice, ServiceCall serviceCall, Instant activationDate);
 
-    void disableLoadLimiting(Device device, ServiceCall serviceCall);
+    void disableLoadLimiting(EndDevice endDevice, ServiceCall serviceCall);
 
-    void configureLoadLimitThresholdAndDuration(Device device, ServiceCall serviceCall, BigDecimal limit, String unit, Integer[] tariffs, Integer loadTolerance);
+    void configureLoadLimitThresholdAndDuration(EndDevice endDevice, ServiceCall serviceCall, BigDecimal limit, String unit, Integer[] tariffs, Integer loadTolerance);
 
-    void configureLoadLimitThreshold(Device device, ServiceCall serviceCall, BigDecimal limit, String unit, Integer[] tariffs);
+    void configureLoadLimitThreshold(EndDevice endDevice, ServiceCall serviceCall, BigDecimal limit, String unit, Integer[] tariffs);
 
-    void configureLoadLimitDuration(Device device, ServiceCall serviceCall, Integer loadTolerance);
+    void configureLoadLimitDuration(EndDevice endDevice, ServiceCall serviceCall, Integer loadTolerance);
 
-    void configureLoadLimitMeasurementReadingType(Device device, ServiceCall serviceCall, String measurementReadingType);
+    void configureLoadLimitMeasurementReadingType(EndDevice endDevice, ServiceCall serviceCall, String measurementReadingType);
+
+    void scheduleStatusInformationTask(EndDevice endDevice, Instant scheduleTime);
 
 }

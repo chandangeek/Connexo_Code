@@ -1,11 +1,11 @@
 package com.elster.jupiter.prepayment.impl.fullduplex;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.prepayment.impl.ContactorInfo;
 import com.elster.jupiter.prepayment.impl.servicecall.ContactorOperationCustomPropertySet;
 import com.elster.jupiter.prepayment.impl.servicecall.ContactorOperationDomainExtension;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
 
@@ -25,31 +25,31 @@ public class FullDuplexController {
         this.multiSenseAMR = multiSenseAMR;
     }
 
-    public void performContactorOperations(Device device, ServiceCall serviceCall, ContactorInfo contactorInfo) {
+    public void performContactorOperations(EndDevice endDevice, ServiceCall serviceCall, ContactorInfo contactorInfo) {
         int nrOfDeviceCommands = 0;
-        nrOfDeviceCommands += performBreakerOperations(device, serviceCall, contactorInfo);
-        nrOfDeviceCommands += performLoadLimitOperations(device, serviceCall, contactorInfo);
+        nrOfDeviceCommands += performBreakerOperations(endDevice, serviceCall, contactorInfo);
+        nrOfDeviceCommands += performLoadLimitOperations(endDevice, serviceCall, contactorInfo);
 
         serviceCall.log(LogLevel.INFO, "Scheduled " + nrOfDeviceCommands + " device command(s).");
         updateNrOfUnconfirmedDeviceCommands(serviceCall, nrOfDeviceCommands);
     }
 
-    private int performBreakerOperations(Device device, ServiceCall serviceCall, ContactorInfo contactorInfo) {
+    private int performBreakerOperations(EndDevice endDevice, ServiceCall serviceCall, ContactorInfo contactorInfo) {
         int nrOfDeviceCommands = 0;
         serviceCall.log(LogLevel.INFO, "Handling breaker operations - the breaker will be " + contactorInfo.status.name() + ".");
         switch (contactorInfo.status) {
-            case connected:
-                multiSenseAMR.connectBreaker(device, serviceCall, contactorInfo.activationDate);
+            case CONNECTED:
+                multiSenseAMR.connectBreaker(endDevice, serviceCall, contactorInfo.activationDate);
                 serviceCall.log(LogLevel.FINE, "Scheduled device command to connect the breaker.");
                 nrOfDeviceCommands++;
                 break;
-            case disconnected:
-                multiSenseAMR.disconnectBreaker(device, serviceCall, contactorInfo.activationDate);
+            case DISCONNECTED:
+                multiSenseAMR.disconnectBreaker(endDevice, serviceCall, contactorInfo.activationDate);
                 serviceCall.log(LogLevel.FINE, "Scheduled device command to disconnect the breaker.");
                 nrOfDeviceCommands++;
                 break;
-            case armed:
-                multiSenseAMR.armBreaker(device, serviceCall, contactorInfo.activationDate);
+            case ARMED:
+                multiSenseAMR.armBreaker(endDevice, serviceCall, contactorInfo.activationDate);
                 serviceCall.log(LogLevel.FINE, "Scheduled two device commands to arm the breaker.");
                 nrOfDeviceCommands += 2; // Will be transmitted as 2 separate DeviceCommands (first a DISCONNECT, then an ARM)
                 break;
@@ -57,30 +57,30 @@ public class FullDuplexController {
         return nrOfDeviceCommands;
     }
 
-    private int performLoadLimitOperations(Device device, ServiceCall serviceCall, ContactorInfo contactorInfo) {
+    private int performLoadLimitOperations(EndDevice endDevice, ServiceCall serviceCall, ContactorInfo contactorInfo) {
         int nrOfDeviceCommands = 0;
         if (shouldPerformLoadLimitOperations(contactorInfo)) {
             serviceCall.log(LogLevel.INFO, "Handling load limitation operations.");
             if (contactorInfo.loadLimit != null && contactorInfo.loadLimit.shouldDisableLoadLimit()) {
-                multiSenseAMR.disableLoadLimiting(device, serviceCall);
+                multiSenseAMR.disableLoadLimiting(endDevice, serviceCall);
                 serviceCall.log(LogLevel.FINE, "Scheduled device command to disable the load limiting");
                 nrOfDeviceCommands++;
             } else if (contactorInfo.loadLimit != null && contactorInfo.loadTolerance != null) {
-                multiSenseAMR.configureLoadLimitThresholdAndDuration(device, serviceCall, contactorInfo.loadLimit.limit, contactorInfo.loadLimit.unit, contactorInfo.tariffs, contactorInfo.loadTolerance);
+                multiSenseAMR.configureLoadLimitThresholdAndDuration(endDevice, serviceCall, contactorInfo.loadLimit.limit, contactorInfo.loadLimit.unit, contactorInfo.tariffs, contactorInfo.loadTolerance);
                 serviceCall.log(LogLevel.FINE, "Scheduled device command to configure the load limit and load tolerance");
                 nrOfDeviceCommands++;
             } else if (contactorInfo.loadLimit != null) {
-                multiSenseAMR.configureLoadLimitThreshold(device, serviceCall, contactorInfo.loadLimit.limit, contactorInfo.loadLimit.unit, contactorInfo.tariffs);
+                multiSenseAMR.configureLoadLimitThreshold(endDevice, serviceCall, contactorInfo.loadLimit.limit, contactorInfo.loadLimit.unit, contactorInfo.tariffs);
                 serviceCall.log(LogLevel.FINE, "Scheduled device command to configure the load limit");
                 nrOfDeviceCommands++;
             } else if (contactorInfo.loadTolerance != null) {
-                multiSenseAMR.configureLoadLimitDuration(device, serviceCall, contactorInfo.loadTolerance);
+                multiSenseAMR.configureLoadLimitDuration(endDevice, serviceCall, contactorInfo.loadTolerance);
                 serviceCall.log(LogLevel.FINE, "Scheduled device command to configure the load limit tolereance");
                 nrOfDeviceCommands++;
             }
 
             if (contactorInfo.readingType != null) {
-                multiSenseAMR.configureLoadLimitMeasurementReadingType(device, serviceCall, contactorInfo.readingType);
+                multiSenseAMR.configureLoadLimitMeasurementReadingType(endDevice, serviceCall, contactorInfo.readingType);
                 serviceCall.log(LogLevel.FINE, "Scheduled device command to set the load limit measurement type");
                 nrOfDeviceCommands++;
             }

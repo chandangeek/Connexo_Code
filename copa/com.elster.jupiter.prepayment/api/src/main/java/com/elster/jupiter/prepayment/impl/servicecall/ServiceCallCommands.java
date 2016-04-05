@@ -2,6 +2,7 @@ package com.elster.jupiter.prepayment.impl.servicecall;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.prepayment.impl.BreakerStatus;
@@ -12,7 +13,6 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -60,19 +60,19 @@ public class ServiceCallCommands {
     }
 
     @TransactionRequired
-    public ServiceCall createContactorOperationServiceCall(Optional<UsagePoint> usagePoint, Optional<Device> device, ContactorInfo contactorInfo) {
+    public ServiceCall createContactorOperationServiceCall(Optional<UsagePoint> usagePoint, Optional<EndDevice> endDevice, ContactorInfo contactorInfo) {
         ServiceCallType serviceCallType = getServiceCallType(contactorInfo);
 
         ContactorOperationDomainExtension contactorOperationDomainExtension = new ContactorOperationDomainExtension();
         contactorOperationDomainExtension.setmRIDUsagePoint(usagePoint.isPresent() ? usagePoint.get().getMRID() : "unknown");
-        contactorOperationDomainExtension.setmRIDDevice(device.isPresent() ? device.get().getmRID() : "unknown");
+        contactorOperationDomainExtension.setmRIDDevice(endDevice.isPresent() ? endDevice.get().getMRID() : "unknown");
         contactorOperationDomainExtension.setActivationDate(contactorInfo.activationDate != null ? contactorInfo.activationDate : Instant.now());
         contactorOperationDomainExtension.setBreakerStatus(contactorInfo.status);
         contactorOperationDomainExtension.setCallback(contactorInfo.callback);
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall().origin("Redknee").extendedWith(contactorOperationDomainExtension);
-        if (device.isPresent()) {
-            serviceCallBuilder.targetObject(device.get());
+        if (usagePoint.isPresent()) {
+            serviceCallBuilder.targetObject(usagePoint.get());
         }
         return serviceCallBuilder.create();
     }
@@ -122,10 +122,10 @@ public class ServiceCallCommands {
     }
 
     private ServiceCallTypes getServiceCallTypesFor(ContactorInfo contactorInfo) {
-        if (contactorInfo.status.equals(BreakerStatus.connected)) {
+        if (BreakerStatus.CONNECTED.equals(contactorInfo.status)) {
             return (contactorInfo.loadLimit == null || contactorInfo.loadLimit.shouldDisableLoadLimit()) ? ServiceCallTypes.connectWithoutLoadLimit : ServiceCallTypes.connectWithLoadLimit;
         }
-        if (contactorInfo.status.equals(BreakerStatus.armed)) {
+        if (BreakerStatus.ARMED.equals(contactorInfo.status)) {
             return (contactorInfo.loadLimit == null || contactorInfo.loadLimit.shouldDisableLoadLimit()) ? ServiceCallTypes.armWithoutLoadLimit : ServiceCallTypes.armWithLoadLimit;
         }
         return ServiceCallTypes.disconnect;

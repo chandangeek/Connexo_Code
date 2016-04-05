@@ -24,12 +24,16 @@ public class NoOperationHandler implements ServiceCallHandler {
 
     @Activate
     public void activate() {
-        System.err.println("Activating prepayment no operation handler");
     }
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         //TODO: implement CANCEL operation (e.g.: cancel all not yet executed DeviceCommands)
+    }
+
+    @Override
+    public boolean allowStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        return true; // TODO: implement for CANCEL operation
     }
 
     @Override

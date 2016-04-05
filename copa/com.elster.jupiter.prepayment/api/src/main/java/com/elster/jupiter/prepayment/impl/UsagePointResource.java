@@ -1,6 +1,6 @@
 package com.elster.jupiter.prepayment.impl;
 
-import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -64,18 +64,18 @@ public class UsagePointResource {
     @Path("/contactor")
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context UriInfo uriInfo) {
         UsagePoint usagePoint = null;
-        Device device = null;
+        EndDevice endDevice = null;
         ServiceCall serviceCall = null;
         try (TransactionContext context = transactionService.getContext()) {    //TODO: review transaction mechanism / when to rollback stuff
             try {
                 usagePoint = findUsagePoint(mRID);
-                device = findDeviceThroughUsagePoint(usagePoint);
-                serviceCall = serviceCallCommands.createContactorOperationServiceCall(Optional.of(usagePoint), Optional.of(device), contactorInfo);
+                endDevice = findEndDeviceThroughUsagePoint(usagePoint);
+                serviceCall = serviceCallCommands.createContactorOperationServiceCall(Optional.of(usagePoint), Optional.of(endDevice), contactorInfo);
 
                 serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
                 serviceCallCommands.requestTransition(serviceCall, DefaultState.ONGOING);    // Immediately transit to 'ONGOING' state
                 validateContactorInfo(serviceCall, contactorInfo);
-                fullDuplexController.performContactorOperations(device, serviceCall, contactorInfo);
+                fullDuplexController.performContactorOperations(endDevice, serviceCall, contactorInfo);
                 serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
 
                 //TODO: which info should the URI contain?
@@ -84,7 +84,7 @@ public class UsagePointResource {
                 return Response.ok().location(uri).build();
             } catch (ExceptionFactory.RestException | ConstraintViolationException e) { //TODO: catch also other types of exceptions?
                 if (serviceCall == null) {                  //TODO: should we take specific measures to prevent DDoS attacks? (cause now we create a new ServiceCall object for each incoming request)
-                    serviceCall = serviceCallCommands.createContactorOperationServiceCall(Optional.ofNullable(usagePoint), Optional.ofNullable(device), contactorInfo);
+                    serviceCall = serviceCallCommands.createContactorOperationServiceCall(Optional.ofNullable(usagePoint), Optional.ofNullable(endDevice), contactorInfo);
                 }
                 serviceCallCommands.rejectServiceCall(serviceCall, e.getMessage());
                 context.commit();
@@ -98,6 +98,9 @@ public class UsagePointResource {
      */
     private void validateContactorInfo(ServiceCall serviceCall, ContactorInfo contactorInfo) {
         serviceCall.log(LogLevel.INFO, "Received parameters: " + contactorInfo.toString());
+        if (contactorInfo.status == null) {
+            throw exceptionFactory.newException(MessageSeeds.UNKNOWN_STATUS);
+        }
         if (contactorInfo.loadLimit != null) {
             if (contactorInfo.loadLimit.limit == null || contactorInfo.loadLimit.unit == null) {
                 throw exceptionFactory.newException(MessageSeeds.INCOMPLETE_LOADLIMIT);
@@ -109,7 +112,7 @@ public class UsagePointResource {
             throw exceptionFactory.newException(MessageSeeds.UNKNOWN_READING_TYPE);
         }
         if (contactorInfo.loadTolerance != null && contactorInfo.loadTolerance < 0) {
-            serviceCall.log(LogLevel.FINE, "The specified load tolerance contains a negative value; this value will be ignored (the load tolerance will remain untouched).");
+            serviceCall.log(LogLevel.WARNING, "The specified load tolerance contains a negative value; this value will be ignored (the load tolerance will remain untouched).");
             contactorInfo.loadTolerance = null; // If tolerance is negative, then ignore it
         }
     }
@@ -120,7 +123,8 @@ public class UsagePointResource {
     @Transactional
     public Response getDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long id) {
         UsagePoint usagePoint = findUsagePoint(mRID);
-        Device device = findDeviceThroughUsagePoint(usagePoint);
+        EndDevice endDevice = findEndDeviceThroughUsagePoint(usagePoint);
+        Device device = findDeviceThroughEndDevice(endDevice);
         DeviceMessage<Device> deviceMessage = device.getMessages()
                 .stream()
                 .filter(msg -> msg.getId() == id)
@@ -136,9 +140,12 @@ public class UsagePointResource {
         return meteringService.findUsagePoint(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_USAGE_POINT));
     }
 
-    private Device findDeviceThroughUsagePoint(UsagePoint usagePoint) {
+    private EndDevice findEndDeviceThroughUsagePoint(UsagePoint usagePoint) {
         MeterActivation meterActivation = usagePoint.getCurrentMeterActivation().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CURRENT_METER_ACTIVATION));
-        Meter meter = meterActivation.getMeter().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METER_IN_ACTIVATION));
-        return deviceService.findByUniqueMrid(meter.getMRID()).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_FOR_METER, meter.getMRID()));
+        return meterActivation.getMeter().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METER_IN_ACTIVATION));
+    }
+
+    private Device findDeviceThroughEndDevice(EndDevice endDevice) { //TODO: only temporary, should be done by FullDuplexINterface
+        return deviceService.findByUniqueMrid(endDevice.getMRID()).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_FOR_METER, endDevice.getMRID()));
     }
 }
