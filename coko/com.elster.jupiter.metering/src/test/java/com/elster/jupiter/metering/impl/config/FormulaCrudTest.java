@@ -137,7 +137,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+            ServerFormulaBuilder builder = service.newFormulaBuilder(myMode);
 
             ExpressionNodeBuilder nodeBuilder = builder.maximum(
                     builder.constant(10),
