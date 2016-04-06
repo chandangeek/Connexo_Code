@@ -88,14 +88,14 @@ public class ServiceCategorySearchablePropertyTest {
     }
 
     @Test
-    public void testRemovableVisibility() {
+    public void testStickyVisibility() {
         ServiceCategorySearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
 
         // Asserts
-        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.REMOVABLE);
+        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.STICKY);
     }
 
     @Test
