@@ -71,7 +71,6 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
         graph.addEdge(CREATED, SCHEDULED);
         graph.addEdge(CREATED, REJECTED);
         graph.addEdge(CREATED, PENDING);
-        graph.addEdge(CREATED, CANCELLED);
         graph.addEdge(SCHEDULED, CANCELLED);
         graph.addEdge(SCHEDULED, PENDING);
         graph.addEdge(PENDING, CANCELLED);
@@ -96,7 +95,6 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
         map.put(Pair.of(CREATED, SCHEDULED), TranslationKeys.TRANSITION_FROM_CREATED_TO_SCHEDULED);
         map.put(Pair.of(CREATED, REJECTED), TranslationKeys.TRANSITION_FROM_CREATED_TO_REJECTED);
         map.put(Pair.of(CREATED, PENDING), TranslationKeys.TRANSITION_FROM_CREATED_TO_PENDING);
-        map.put(Pair.of(CREATED, CANCELLED), TranslationKeys.TRANSITION_FROM_CREATED_TO_CANCELLED);
         map.put(Pair.of(SCHEDULED, CANCELLED), TranslationKeys.TRANSITION_FROM_SCHEDULED_TO_CANCELLED);
         map.put(Pair.of(SCHEDULED, PENDING), TranslationKeys.TRANSITION_FROM_SCHEDULED_TO_PENDING);
         map.put(Pair.of(PENDING, CANCELLED), TranslationKeys.TRANSITION_FROM_PENDING_TO_CANCELLED);
