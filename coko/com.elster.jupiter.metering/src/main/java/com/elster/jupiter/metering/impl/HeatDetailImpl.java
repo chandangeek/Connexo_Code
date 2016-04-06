@@ -1,19 +1,27 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.HeatDetail;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.HasQuantityMultiplier;
+import com.elster.jupiter.util.units.HasQuantityUnit;
 import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.util.units.Unit;
 
 import javax.inject.Inject;
 import java.time.Clock;
 
 public class HeatDetailImpl extends UsagePointDetailImpl implements HeatDetail {
 
+    @HasQuantityMultiplier(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_MULTIPLIER + "}")
+    @HasQuantityUnit(units =  {Unit.PASCAL}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity pressure;
+    @HasQuantityUnit(units =  {Unit.WATT_HOUR}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity physicalCapacity;
     private YesNoAnswer bypass;
     private BypassStatus bypassStatus;

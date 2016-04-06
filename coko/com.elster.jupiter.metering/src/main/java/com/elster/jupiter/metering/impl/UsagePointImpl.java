@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.GasDetailBuilder;
@@ -41,6 +42,8 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.ImmutableList;
@@ -57,6 +60,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -334,9 +338,16 @@ public class UsagePointImpl implements UsagePoint {
     public void delete() {
         this.removeMetrologyConfigurationCustomPropertySetValues();
         this.removeServiceCategoryCustomPropertySetValues();
+        this.removeDetail();
         dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
+
+    private void removeDetail() {
+        this.getDetail(Range.all()).forEach(detail::remove);
+    }
+
+
 
     private void removeMetrologyConfigurationCustomPropertySetValues() {
         this.removeCustomPropertySetValues(
@@ -506,6 +517,11 @@ public class UsagePointImpl implements UsagePoint {
             this.customPropertySetExtension = new UsagePointCustomPropertySetExtensionImpl(this.clock, this.customPropertySetService, this.thesaurus, this);
         }
         return this.customPropertySetExtension;
+    }
+
+    @Override
+    public ConnectionState getConnectionState() {
+        return ConnectionState.UNDER_CONSTRUCTION;
     }
 
     @Override
@@ -688,5 +704,22 @@ public class UsagePointImpl implements UsagePoint {
                 .filter(usagePointConfiguration -> usagePointConfiguration.isEffectiveAt(time))
                 .map(UsagePointConfiguration.class::cast)
                 .findAny();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UsagePointImpl usagePoint = (UsagePointImpl) o;
+        return id == usagePoint.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

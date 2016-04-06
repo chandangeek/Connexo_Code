@@ -175,6 +175,8 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     UsagePointCustomPropertySetExtension forCustomProperties();
 
+    ConnectionState getConnectionState();
+
     interface UsagePointConfigurationBuilder {
 
         UsagePointConfigurationBuilder endingAt(Instant endTime);
