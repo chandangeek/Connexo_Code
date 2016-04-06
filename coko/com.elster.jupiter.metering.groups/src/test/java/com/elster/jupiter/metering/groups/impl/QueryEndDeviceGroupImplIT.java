@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
@@ -90,6 +91,7 @@ public class QueryEndDeviceGroupImplIT {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
         }
     }
 
