@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.GasDetailBuilder;
@@ -516,6 +517,11 @@ public class UsagePointImpl implements UsagePoint {
             this.customPropertySetExtension = new UsagePointCustomPropertySetExtensionImpl(this.clock, this.customPropertySetService, this.thesaurus, this);
         }
         return this.customPropertySetExtension;
+    }
+
+    @Override
+    public ConnectionState getConnectionState() {
+        return ConnectionState.UNDER_CONSTRUCTION;
     }
 
     @Override
