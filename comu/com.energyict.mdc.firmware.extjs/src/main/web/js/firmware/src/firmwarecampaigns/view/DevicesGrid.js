@@ -17,7 +17,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('general.name', 'FWC', 'Name'),
+                header: Uni.I18n.translate('general.mrid', 'FWC', 'MRID'),
                 dataIndex: 'mrid',
                 flex: 2,
                 renderer: function (value) {

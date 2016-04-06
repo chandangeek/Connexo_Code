@@ -56,12 +56,36 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
     onActionMenuClicked: function (menu, item) {
         switch (item.action) {
             case 'cancelDevice':
-                console.log('To do: cancel the device');
+                this.doCancelDeviceInFirmwareCampaign(menu.record);
                 break;
             case 'retryDevice':
-                console.log('To do: retry the device');
+                this.doRetryDeviceInFirmwareCampaign(menu.record);
                 break;
         }
+    },
+
+    doCancelDeviceInFirmwareCampaign : function(record) {
+        var url = record.cancelUrl();
+        Ext.Ajax.request({
+            url: url,
+            success: function(response){
+                var text = response.responseText;
+                console.log(text);
+                // process server response here
+            }
+        });
+    },
+
+    doRetryDeviceInFirmwareCampaign : function(record) {
+        var url = record.retryUrl();
+        Ext.Ajax.request({
+            url: url,
+            success: function(response){
+                var text = response.responseText;
+                console.log(text);
+                // process server response here
+            }
+        });
     }
 
 });
