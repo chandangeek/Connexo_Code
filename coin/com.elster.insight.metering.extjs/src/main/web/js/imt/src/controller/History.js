@@ -336,7 +336,7 @@ Ext.define('Imt.controller.History', {
                             action: 'showUsagePointProcesses',
                             items: {
                                 'processstart': {
-                                    title: Uni.I18n.translate('processes.startProcesses', 'IMT', 'Start processes'),
+                                    title: Uni.I18n.translate('processes.startProcesses', 'IMT', 'Start process'),
                                     route: 'start',
                                     controller: 'Imt.processes.controller.MonitorProcesses',
                                     privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
