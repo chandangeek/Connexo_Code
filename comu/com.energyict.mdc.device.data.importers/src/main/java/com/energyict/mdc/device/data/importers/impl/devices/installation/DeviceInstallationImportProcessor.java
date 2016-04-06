@@ -38,24 +38,29 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
         LocationBuilder builder = super.getContext().getMeteringService().newLocationBuilder();
         EndDevice endDevice = super.getContext().getMeteringService().findEndDevice(data.getDeviceMRID())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
-        Map<String,Integer> ranking = super.getContext().getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+        Map<String, Integer> ranking = super.getContext()
+                .getMeteringService()
+                .getLocationTemplate()
+                .getTemplateMembers()
+                .stream()
                 .collect(Collectors.toMap(TemplateField::getName,
-                TemplateField::getRanking));
-        Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(data.getLocation().get(ranking.get("locale")));
+                        TemplateField::getRanking));
+        Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(data.getLocation()
+                .get(ranking.get("locale")));
         if (memberBuilder.isPresent()) {
             setLocationAttributes(memberBuilder.get(), data, ranking);
-            endDevice.setLocation(builder.create());
         } else {
             setLocationAttributes(builder.member(), data, ranking).add();
-            endDevice.setLocation(builder.create());
         }
+        endDevice.setLocation(builder.create());
         endDevice.setGeoCoordintes(super.getContext().getMeteringService()
                 .createGeoCoordinates(data.getGeoCoordinates().stream().reduce((s, t) -> s + ":" + t).get()));
         endDevice.update();
     }
 
     @Override
-    protected void afterTransition(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) throws ProcessorException {
+    protected void afterTransition(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) throws
+            ProcessorException {
         super.afterTransition(device, data, logger);
         processUsagePoint(device, data, logger);
     }
@@ -77,7 +82,8 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
 
     private void processUsagePoint(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) {
         if (data.getUsagePointMrid() != null) {
-            Optional<UsagePoint> usagePointRef = getContext().getMeteringService().findUsagePoint(data.getUsagePointMrid());
+            Optional<UsagePoint> usagePointRef = getContext().getMeteringService()
+                    .findUsagePoint(data.getUsagePointMrid());
             if (usagePointRef.isPresent()) {
                 setUsagePoint(device, usagePointRef.get(), data);
             } else {
@@ -96,7 +102,9 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_USAGE_POINT, data.getLineNumber(),
-                        data.getUsagePointMrid(), Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))))
+                        data.getUsagePointMrid(), Arrays.stream(ServiceKind.values())
+                        .map(ServiceKind::getDisplayName)
+                        .collect(Collectors.joining(", "))))
                 .newUsagePoint(data.getUsagePointMrid(), getContext().getClock().instant())
                 .create();
     }
@@ -113,9 +121,10 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
     protected List<ExecutableActionProperty> getExecutableActionProperties(DeviceInstallationImportRecord data, Map<String, PropertySpec> allPropertySpecsForAction, FileImportLogger logger, ExecutableAction executableAction) {
         List<ExecutableActionProperty> executableActionProperties = super.getExecutableActionProperties(data, allPropertySpecsForAction, logger, executableAction);
 
-        if(data.getMultiplier() != null){
-            PropertySpec propertySpec = allPropertySpecsForAction.get(DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER.key());
-            if(propertySpec != null){
+        if (data.getMultiplier() != null) {
+            PropertySpec propertySpec = allPropertySpecsForAction.get(DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER
+                    .key());
+            if (propertySpec != null) {
                 try {
                     executableActionProperties.add(getContext().getDeviceLifeCycleService()
                             .toExecutableActionProperty(data.getMultiplier(), propertySpec));

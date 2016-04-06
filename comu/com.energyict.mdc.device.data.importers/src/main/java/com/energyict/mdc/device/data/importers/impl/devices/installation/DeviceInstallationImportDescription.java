@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
-import com.elster.jupiter.metering.LocationTemplate;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescription;
 import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
@@ -47,7 +46,8 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
                 fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setGeoCoordinates)
                 .build()));
-        context.getMeteringService().getLocationTemplate().getTemplateMembers().stream().sorted()
+        context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+                .sorted((t1,t2)->Integer.compare(t1.getRanking(),t2.getRanking()))
                 .map(TemplateField::getName)
                 .forEach(s-> {
                     if(context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
