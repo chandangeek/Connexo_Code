@@ -56,7 +56,7 @@ public class BpmResource {
         this.thesaurus = thesaurus;
         this.propertyUtils = propertyUtils;
 
-        this.errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Cannot connect to Flow; HTTP error {0}.");
+        this.errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Connexo Flow is not available.");
         this.errorInvalidMessage = thesaurus.getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
     }
 
@@ -102,7 +102,9 @@ public class BpmResource {
             } catch (JSONException e) {
                 throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
             } catch (RuntimeException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(this.errorNotFoundMessage)
+                        .build());
             }
         }
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -125,7 +127,9 @@ public class BpmResource {
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(this.errorNotFoundMessage)
+                    .build());
         }
         return new ProcessInstanceInfo(obj);
     }
@@ -146,7 +150,9 @@ public class BpmResource {
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(this.errorNotFoundMessage)
+                    .build());
         }
         return new NodeInfos(arr);
     }
@@ -168,7 +174,9 @@ public class BpmResource {
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(this.errorNotFoundMessage)
+                    .build());
         }
         return new VariableInfos(arr);
     }
@@ -184,7 +192,9 @@ public class BpmResource {
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(this.errorNotFoundMessage)
+                    .build());
         }
         return new DeploymentInfos(arr);
     }
@@ -216,7 +226,9 @@ public class BpmResource {
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(this.errorNotFoundMessage)
+                    .build());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -246,7 +258,9 @@ public class BpmResource {
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(this.errorNotFoundMessage)
+                    .build());
         }
         return taskInfo;
     }
@@ -268,7 +282,9 @@ public class BpmResource {
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(this.errorNotFoundMessage)
+                    .build());
         }
         return new ProcessInstanceNodeInfos(jsnobject, thesaurus);
     }
@@ -348,7 +364,9 @@ public class BpmResource {
             try {
                 response = bpmService.getBpmServer().doPost(rest, null, auth, 0);
             } catch (RuntimeException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(this.errorNotFoundMessage)
+                        .build());
             }
             if (response == null) {
                 throw new BpmResourceAssignUserException(thesaurus);
@@ -405,7 +423,9 @@ public class BpmResource {
             try {
                 bpmService.getBpmServer().doPost(rest, null, auth);
             } catch (RuntimeException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(this.errorNotFoundMessage)
+                        .build());
             }
             return Response.ok().build();
         }
@@ -610,7 +630,9 @@ public class BpmResource {
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(this.errorNotFoundMessage)
+                    .build());
         }
         return new ProcessDefinitionInfos(arr);
     }
@@ -672,7 +694,9 @@ public class BpmResource {
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(this.errorNotFoundMessage)
+                    .build());
         }
         List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
         RunningProcessInfos runningProcessInfos = new RunningProcessInfos(arr);
@@ -713,7 +737,9 @@ public class BpmResource {
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(this.errorNotFoundMessage)
+                    .build());
         }
         ProcessHistoryInfos processHistoryInfos = new ProcessHistoryInfos(arr);
         if (total > 0) {
@@ -756,7 +782,9 @@ public class BpmResource {
                 throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
             }
         } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(this.errorNotFoundMessage)
+                    .build());
         }
         if(obj == null){
             return Response.status(400).build();
