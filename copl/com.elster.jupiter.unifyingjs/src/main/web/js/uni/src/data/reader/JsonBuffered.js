@@ -9,7 +9,6 @@ Ext.define('Uni.data.reader.JsonBuffered', {
             var me = this;
             var total = data[me.totalProperty];
             me.totalCount = total < me.totalCount ? me.totalCount : total;
-            console.log(me.totalCount);
             return me.totalCount;
         }
     }
