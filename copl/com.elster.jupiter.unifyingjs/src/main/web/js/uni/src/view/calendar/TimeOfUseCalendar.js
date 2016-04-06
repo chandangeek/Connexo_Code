@@ -10,6 +10,7 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
         'Uni.view.calendar.TimeOfUsePreview'
     ],
     record: null,
+    model: null,
 
 
     initComponent: function () {
@@ -23,14 +24,16 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
             layout: {
                 type: 'vbox',
                 align: 'stretch'
-                },
+            },
             items: [
                 {
                     xtype: 'uni-grid-filterpaneltop',
+                    itemId: 'tou-filter',
                     filters: [
                         {
                             type: 'date',
                             dataIndex: 'weekOf',
+                            itemId: 'weekOf',
                             value: new Date(),
                             text: Uni.I18n.translate('general.weekOf', 'UNI', 'Week of')
                         }
@@ -49,14 +52,38 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
             ]
         };
 
-        this.on('afterrender', this.loadRecord);
+        // this.down('#tou-filter').down('#')
+        this.on('afterrender', this.prepareComponent)
         this.on('resize', this.resizeChart);
         this.callParent(arguments);
     },
 
-    loadRecord: function () {
+    prepareComponent: function () {
         var me = this;
-        me.down('#timeOfUsePreview').fillFieldContainers(me.record);
+
+        me.loadRecord(me.record);
+        me.down('#tou-filter').down('#filter-apply-all').on('click', me.applyFilter, me)
+    },
+
+    applyFilter: function () {
+        var me = this;
+
+        me.model.load(me.record.get('id'), {
+            params: {
+                weekOf: me.down('#weekOf').getParamValue()
+            },
+            success: function (newRecord) {
+                me.record = newRecord;
+                me.down('#calendar-graph-view').record = newRecord;
+                me.down('#calendar-graph-view').drawGraph();//.chart.redraw();
+                me.loadRecord(newRecord);
+            }
+        })
+    },
+
+    loadRecord: function (record) {
+        var me = this;
+        me.down('#timeOfUsePreview').fillFieldContainers(record);
     },
 
     resizeChart: function () {
