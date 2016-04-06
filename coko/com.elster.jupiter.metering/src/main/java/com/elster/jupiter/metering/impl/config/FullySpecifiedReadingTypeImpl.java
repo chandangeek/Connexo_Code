@@ -69,4 +69,9 @@ public class FullySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl im
     public boolean matches(ReadingType readingType) {
         return getReadingType().equals(readingType);
     }
+
+    @Override
+    public boolean isRegular() {
+        return getReadingType().isRegular();
+    }
 }

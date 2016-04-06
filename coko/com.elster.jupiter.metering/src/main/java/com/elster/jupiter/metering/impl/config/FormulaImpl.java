@@ -17,7 +17,6 @@ public class FormulaImpl implements ServerFormula {
     @SuppressWarnings("unused")// Managed by ORM
     private long id;
     private Mode mode;
-    @ValidExpression
     private Reference<ExpressionNode> expressionNode = ValueReference.absent();
     private final DataModel dataModel;
 

@@ -62,15 +62,15 @@ import java.util.stream.Collectors;
         "osgi.command.function=advanceStartDate",
         "osgi.command.function=explain",
         "osgi.command.function=addEvents",
-        "osgi.command.function=addFormula",
         "osgi.command.function=formulas",
-        "osgi.command.function=deleteFormula",
-        "osgi.command.function=updateFormula",
         "osgi.command.function=addMetrologyConfig",
         "osgi.command.function=addRequirement",
         "osgi.command.function=addRequirementWithTemplateReadingType",
         "osgi.command.function=deliverables",
         "osgi.command.function=addDeliverable",
+        "osgi.command.function=updateDeliverable",
+        "osgi.command.function=updateDeliverableReadingType",
+        "osgi.command.function=updateDeliverableFormula",
         "osgi.command.function=deleteDeliverable",
         "osgi.command.function=getDeliverablesOnContract",
         "osgi.command.function=addDeliverableToContract",
@@ -262,37 +262,6 @@ public class ConsoleCommands {
                 .forEach(System.out::println);
     }
 
-    public void addFormula(String formulaString) {
-        try (TransactionContext context = transactionService.getContext()) {
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
-            ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
-            Formula formula = formulaBuilder.init(node).build();
-            context.commit();
-        }
-    }
-
-    public void updateFormula(long id, String formulaString) {
-        try (TransactionContext context = transactionService.getContext()) {
-            Optional<Formula> formula = metrologyConfigurationService.findFormula(id);
-            if (!formula.isPresent()) {
-                System.out.println("No formula found with id " + id);
-            } else {
-                ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
-                Formula formulaObject = formula.get();
-                formulaObject.updateExpression(node);
-                context.commit();
-            }
-        }
-    }
-
-    public void deleteFormula(long id) {
-        try (TransactionContext context = transactionService.getContext()) {
-            metrologyConfigurationService.findFormula(id)
-                    .ifPresent(Formula::delete);
-            context.commit();
-        }
-    }
-
     public void addMetrologyConfig(String name) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
@@ -363,10 +332,10 @@ public class ConsoleCommands {
     }
 
     public void addDeliverable() {
-        System.out.println("Usage: addDeliverable <name> <reading type> <metrology configuration id> <formula string>");
+        System.out.println("Usage: addDeliverable  <metrology configuration id> <name> <reading type> <formula string>");
     }
 
-    public void addDeliverable(String name, String readingTypeString, long metrologyConfigId, String formulaString) {
+    public void addDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
@@ -374,9 +343,64 @@ public class ConsoleCommands {
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration).parse(formulaString);
 
             ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO)).build(node);
+            context.commit();
+        }
+    }
+
+    public void updateDeliverable() {
+        System.out.println("Usage: updateDeliverable  <deliverable id> <name> <reading type> <formula string>");
+    }
+
+    public void updateDeliverable(long deliverableId, String name, String readingTypeString, String formulaString) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
+            ReadingType readingType = meteringService.getReadingType(readingTypeString)
+                    .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration()).parse(formulaString);
+
+            deliverable.setName(name);
+            deliverable.setReadingType(readingType);
+            deliverable.getFormula().updateExpression(node);
+
+            context.commit();
+        }
+    }
+
+    public void updateDeliverableReadingType() {
+        System.out.println("Usage: updateDeliverableReadingType  <deliverable id> <reading type>");
+    }
+
+    public void updateDeliverableReadingType(long deliverableId, String readingTypeString) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
+            ReadingType readingType = meteringService.getReadingType(readingTypeString)
+                    .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
+
+            deliverable.setReadingType(readingType);
+            context.commit();
+        }
+    }
+
+    public void updateDeliverableFormula() {
+        System.out.println("Usage: updateDeliverableFormula  <deliverable id> <formula string>");
+    }
+
+
+    public void updateDeliverableFormula(long deliverableId, String formulaString) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration()).parse(formulaString);
+
+            deliverable.getFormula().updateExpression(node);
             context.commit();
         }
     }
@@ -388,16 +412,12 @@ public class ConsoleCommands {
     public void deleteDeliverable(long metrologyConfigId, long deliverableId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            try {
-                ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
-                        .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-                MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
-                        .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
-                metrologyConfiguration
-                        .removeReadingTypeDeliverable(deliverable);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
+            MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
+            metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
+            context.commit();
         }
     }
 

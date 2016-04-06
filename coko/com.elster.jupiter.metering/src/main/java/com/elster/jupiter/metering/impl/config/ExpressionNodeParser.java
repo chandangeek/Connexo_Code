@@ -1,7 +1,9 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Function;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -24,10 +26,12 @@ public class ExpressionNodeParser {
 
     private Thesaurus thesaurus;
     private MetrologyConfigurationService metrologyConfigurationService;
+    private MetrologyConfiguration metrologyConfiguration;
 
-    public ExpressionNodeParser(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService) {
+    public ExpressionNodeParser(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration) {
         this.thesaurus = thesaurus;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.metrologyConfiguration = metrologyConfiguration;
     }
 
     private Deque<String> stack = new ArrayDeque<>();
@@ -86,6 +90,9 @@ public class ExpressionNodeParser {
         }
         Optional<ReadingTypeDeliverable> readingTypeDeliverable = metrologyConfigurationService.findReadingTypeDeliverable(id);
         if (readingTypeDeliverable.isPresent()) {
+            if (!readingTypeDeliverable.get().getMetrologyConfiguration().equals(metrologyConfiguration)) {
+                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.get().getId());
+            }
             nodes.add(new ReadingTypeDeliverableNodeImpl(readingTypeDeliverable.get()));
         } else {
             throw new IllegalArgumentException("No deliverable found with id " + id);
@@ -101,6 +108,12 @@ public class ExpressionNodeParser {
         }
         Optional<ReadingTypeRequirement> readingTypeRequirement = metrologyConfigurationService.findReadingTypeRequirement(id);
         if (readingTypeRequirement.isPresent()) {
+            if (!readingTypeRequirement.get().getMetrologyConfiguration().equals(metrologyConfiguration)) {
+                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) readingTypeRequirement.get().getId());
+            }
+            if (!readingTypeRequirement.get().isRegular()) {
+                throw new InvalidNodeException(thesaurus, MessageSeeds.IRREGULAR_READINGTYPE_IN_REQUIREMENT);
+            }
             nodes.add(new ReadingTypeRequirementNodeImpl(readingTypeRequirement.get()));
         } else {
             throw new IllegalArgumentException("No requirement found with id " + id);

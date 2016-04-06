@@ -60,7 +60,7 @@ public class ReadingTypeDeliverableImplTestIT {
             metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
                     .newMetrologyConfiguration("Test", serviceCategory).create();
             metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
-            readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "zero reading type");
+            readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "cons reading type");
             context.commit();
         }
     }
@@ -356,5 +356,18 @@ public class ReadingTypeDeliverableImplTestIT {
         metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyConfiguration(
                 metrologyConfiguration.getId()).get();
         assertThat(metrologyConfiguration.getDeliverables()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testRemovingDeliverableRemovesFormula() {
+        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("deliverable", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.constant(42), builder.constant(17)));
+        Formula formula = deliverable.getFormula();
+
+        metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
+
+        Optional<Formula> formulaRef = inMemoryBootstrapModule.getMetrologyConfigurationService().findFormula(formula.getId());
+        assertThat(formulaRef.isPresent()).isFalse();
     }
 }

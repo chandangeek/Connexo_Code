@@ -1107,6 +1107,7 @@ public enum TableSpecs {
             table.foreignKey("FK_RT_REQUIREMENT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
+                    .onDelete(CASCADE)
                     .map(ReadingTypeRequirementImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.RT_REQUIREMENTS.fieldName())
                     .composition()
@@ -1173,16 +1174,30 @@ public enum TableSpecs {
                     .number()
                     .notNull()
                     .add();
+            Column metrologyConfigColumn = table.column(ReadingTypeRequirementMeterRoleUsage.Fields.METROLOGY_CONFIGURATION.name())
+                    .number()
+                    .notNull()
+                    .add(); // we need this column for a reverse reference map
 
             table.primaryKey("MTR_PK_REQUIREMENT_2_ROLE").on(meterRoleColumn, requirementColumn).add();
+            table.foreignKey("FK_REQ2ROLE_TO_CONFIG")
+                    .references(UsagePointMetrologyConfiguration.class)
+                    .on(metrologyConfigColumn)
+                    .onDelete(CASCADE)
+                    .map(ReadingTypeRequirementMeterRoleUsage.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .reverseMap(MetrologyConfigurationImpl.Fields.REQUIREMENT_TO_ROLE_REFERENCES.fieldName())
+                    .composition()
+                    .add();
             table.foreignKey("FK_REQ2ROLE_TO_ROLE")
                     .references(MeterRole.class)
                     .on(meterRoleColumn)
+                    .onDelete(CASCADE)
                     .map(ReadingTypeRequirementMeterRoleUsage.Fields.METER_ROLE.fieldName())
                     .add();
             table.foreignKey("FK_REQ2ROLE_TO_REQ")
                     .references(ReadingTypeRequirement.class)
                     .on(requirementColumn)
+                    .onDelete(CASCADE)
                     .map(ReadingTypeRequirementMeterRoleUsage.Fields.READING_TYPE_REQUIREMENT.fieldName())
                     .add();
         }

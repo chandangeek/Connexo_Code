@@ -57,11 +57,6 @@ public interface Formula extends HasId {
     void updateExpression(ExpressionNode nodeValue);
 
     /**
-     * Delete this {@link Formula}
-     */
-    void delete();
-
-    /**
      * Update this {@link Formula}
      */
     void save();
