@@ -1,6 +1,8 @@
 package com.energyict.mdc.tasks;
 
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.time.TimeService;
+
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
@@ -25,6 +27,7 @@ public class MockModule extends AbstractModule {
         bind(BundleContext.class).toInstance(bundleContext);
         bind(EventAdmin.class).toInstance(eventAdmin);
         bind(TimeService.class).toInstance(this.timeService);
+        bind(SearchService.class).toInstance(mock(SearchService.class));
     }
 
 }
