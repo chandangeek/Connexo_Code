@@ -79,7 +79,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
     chooseAction: function (menu, item) {
         var me = this;
 
-        me.editAttributes(me.getPage().down('#' + item.linkedForm));
+        me.editAttributes(me.getPage().down('component[itemId=' + item.linkedForm + "]"));
     },
 
     editAttributes: function (form) {
