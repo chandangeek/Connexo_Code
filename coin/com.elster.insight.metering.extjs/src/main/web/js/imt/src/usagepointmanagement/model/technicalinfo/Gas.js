@@ -1,10 +1,10 @@
 Ext.define('Imt.usagepointmanagement.model.technicalinfo.Gas', {
     extend: 'Ext.data.Model',
     fields: [
-        {name: 'grounded', type: 'boolean'},
+        {name: 'grounded', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
         {name: 'pressure', type: 'auto', defaultValue: null},
         {name: 'physicalCapacity', type: 'auto', defaultValue: null},
-        {name: 'limiter', type: 'boolean'},
+        {name: 'limiter', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
         {name: 'loadLimiterType', type: 'string'},
         {name: 'loadLimit', type: 'auto', defaultValue: null},
         {name: 'bypass', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
@@ -13,6 +13,6 @@ Ext.define('Imt.usagepointmanagement.model.technicalinfo.Gas', {
         {name: 'collar', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
         {name: 'capped', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
         {name: 'clamped', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
-        {name: 'interruptible', type: 'boolean'}
+        {name: 'interruptible', type: 'string', useNull: true, defaultValue: 'UNKNOWN'}
     ]
 });
