@@ -740,7 +740,7 @@ public class DemoTest {
 
     private List<FirmwareVersion> getFirmwareVersions(DeviceType deviceType){
         FirmwareService firmwareService = injector.getInstance(FirmwareService.class);
-        return firmwareService.findAllFirmwareVersions(new FirmwareVersionFilter(deviceType)).find();
+        return firmwareService.findAllFirmwareVersions(firmwareService.filterForFirmwareVersion(deviceType)).find();
     }
 
     protected void doPreparations() {
