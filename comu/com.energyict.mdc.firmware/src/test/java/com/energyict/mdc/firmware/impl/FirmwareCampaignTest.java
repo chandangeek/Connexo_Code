@@ -13,11 +13,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaignStatus;
-import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
@@ -64,14 +60,14 @@ public class FirmwareCampaignTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "deviceType", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + com.energyict.mdc.firmware.impl.MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "deviceType", strict = false)
     public void testInitWithNullDeviceType() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         firmwareService.newFirmwareCampaign(null, mock(EndDeviceGroup.class)).save();
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "deviceGroup", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + com.energyict.mdc.firmware.impl.MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "deviceGroup", strict = false)
     public void testInitWithNullGroup() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(getDeviceTypeMock(), null);
@@ -109,7 +105,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "name", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + com.energyict.mdc.firmware.impl.MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "name", strict = false)
     public void testNameValidation() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(getDeviceTypeMock(), mock(EndDeviceGroup.class));
@@ -124,7 +120,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "managementOption", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + com.energyict.mdc.firmware.impl.MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "managementOption", strict = false)
     public void testManagementOptionValidation() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(getDeviceTypeMock(), mock(EndDeviceGroup.class));
@@ -133,7 +129,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "firmwareType", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + com.energyict.mdc.firmware.impl.MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "firmwareType", strict = false)
     public void testFirmwareTypeValidation() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(getDeviceTypeMock(), mock(EndDeviceGroup.class));
@@ -144,7 +140,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "properties." + DeviceMessageConstants.firmwareUpdateFileAttributeName , strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + com.energyict.mdc.firmware.impl.MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "properties." + DeviceMessageConstants.firmwareUpdateFileAttributeName , strict = true)
     public void testPropertiesValidation() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(getDeviceTypeMock(), mock(EndDeviceGroup.class));
@@ -171,7 +167,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "properties." + DeviceMessageConstants.firmwareUpdateFileAttributeName , strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + com.energyict.mdc.firmware.impl.MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "properties." + DeviceMessageConstants.firmwareUpdateFileAttributeName , strict = true)
     public void testCreateWithNonExistingVersion() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(getDeviceTypeMock(), mock(EndDeviceGroup.class));

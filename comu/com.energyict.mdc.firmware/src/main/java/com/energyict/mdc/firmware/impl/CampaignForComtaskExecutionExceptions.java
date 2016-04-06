@@ -2,32 +2,34 @@ package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.firmware.FirmwareCampaign;
 
 /**
+ * Exceptions that are raised when looking for a {@link FirmwareCampaign} starting from a {@link FirmwareComTaskExecution}
  * Copyrights EnergyICT
  * Date: 4/04/2016
  * Time: 15:01
  */
-public class CampaignForComtaskExecutionExceptions {
+public class CampaignForComTaskExecutionExceptions {
 
-    public static LocalizedException campaigNotFound(Thesaurus thesaurus, ComTaskExecution comTaskExecution){
-        return new CampaignForComTaskExecutionNotFoundException(thesaurus, comTaskExecution);
+    static final String NO_CAMPAIGN_FOUND_FOR_COMTASKEXECUTION = "NoCampaignFoundForComtaskExecutionX";
+    static final String CAMPAIGN_NOT_UNAMBIGOUSLY_DETERMINED_FOR_COMTASKEXECUTION = "CampaignCouldNotBeDeterminedUnambiguouslyForComtaskExecutionX";
+
+    public static LocalizedException campaignNotFound(Thesaurus thesaurus, ComTaskExecution comTaskExecution){
+        return new InvalidCampaignForComTaskExecutionException(thesaurus, MessageSeeds.NOT_FOUND_CAMPAIGN_FOR_COMTASK_EXECUTION, comTaskExecution);
     }
 
     public static LocalizedException campaignNotUnambiguouslyDefined(Thesaurus thesaurus, ComTaskExecution comTaskExecution){
-        return new CampaignForComTaskExecutionNotUnambiguouslayDeterminedException(thesaurus, comTaskExecution);
+        return new InvalidCampaignForComTaskExecutionException(thesaurus, MessageSeeds.NO_CAMPAIGN_UNAMBIGUOUSLY_DETERMINED_FOR_COMTASK_EXECUTION, comTaskExecution);
     }
 
-    private static class CampaignForComTaskExecutionNotFoundException extends LocalizedException{
-        CampaignForComTaskExecutionNotFoundException(Thesaurus thesaurus, ComTaskExecution comTaskExecution){
-            super(thesaurus, MessageSeeds.NOT_FOUND_CAMPAIGN_FOR_COMTASK_EXECUTION, comTaskExecution.getId());
+    private static class InvalidCampaignForComTaskExecutionException extends LocalizedException{
+        InvalidCampaignForComTaskExecutionException(Thesaurus thesaurus, MessageSeed messageSeed, ComTaskExecution comTaskExecution){
+            super(thesaurus, messageSeed, comTaskExecution.getId());
         }
     }
 
-    private static class CampaignForComTaskExecutionNotUnambiguouslayDeterminedException extends LocalizedException{
-        CampaignForComTaskExecutionNotUnambiguouslayDeterminedException(Thesaurus thesaurus, ComTaskExecution comTaskExecution){
-            super(thesaurus, MessageSeeds.NO_CAMPAIGN_UNAMBIGUOUSLY_DETERMINED_FOR_COMTASK_EXECUTION, comTaskExecution.getId());
-        }
-    }
 }

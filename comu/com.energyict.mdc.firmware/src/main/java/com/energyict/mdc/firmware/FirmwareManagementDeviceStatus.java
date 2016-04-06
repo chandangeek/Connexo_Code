@@ -30,6 +30,11 @@ public enum FirmwareManagementDeviceStatus {
                     && checkReleaseDate(message, helper);
         }
 
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            return Arrays.asList(Constants.CANCELLED, Constants.ONGOING).contains(newStatus.key());
+        }
+
         private boolean checkReleaseDate(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             boolean firmwareUploadInFuture = message.getReleaseDate().isAfter(helper.getCurrentInstant());
             return firmwareUploadInFuture
@@ -53,6 +58,11 @@ public enum FirmwareManagementDeviceStatus {
                     && releaseDateInPast(message, helper)
                     && helper.firmwareUploadTaskIsBusy();
         }
+
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            return Arrays.asList(Constants.CANCELLED, Constants.SUCCESS, Constants.FAILED).contains(newStatus.key());
+        }
     },
 
     /**
@@ -68,6 +78,12 @@ public enum FirmwareManagementDeviceStatus {
             return isUploadMessage(message)
                     && releaseDateInPast(message, helper)
                     && (taskFailedButMessageNot(message, helper) || messageFailed(message, helper));
+        }
+
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            //retry
+            return newStatus.key().equals(Constants.PENDING);
         }
 
         private boolean taskFailedButMessageNot(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
@@ -100,6 +116,12 @@ public enum FirmwareManagementDeviceStatus {
 
         }
 
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            // final state
+            return false;
+        }
+
         private boolean messageWithoutActivateOnDateOption(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
             Optional<ProtocolSupportedFirmwareOptions> firmwareOption = helper.getUploadOptionFromMessage(message);
             return !firmwareOption.isPresent()
@@ -128,6 +150,11 @@ public enum FirmwareManagementDeviceStatus {
                     && uploadMessageHasConfirmedStatus(message, helper)
                     && releaseDateInPast(message, helper);
 
+        }
+
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            return false;
         }
     },
 
@@ -161,6 +188,11 @@ public enum FirmwareManagementDeviceStatus {
             return helper.getUploadOptionFromMessage(message).isPresent()
                     && (messageWithInstallOption(message, helper) || messageWithActivateOnDateOption(message, helper));
 
+        }
+
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            return false;
         }
 
         private boolean messageWithInstallOption(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
@@ -198,6 +230,11 @@ public enum FirmwareManagementDeviceStatus {
                     && releaseDateInPast(message, helper)
                     && (taskFailedButMessageNot(message, helper) || messageFailed(message, helper));
 
+        }
+
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            return false;
         }
 
         private boolean taskFailedButMessageNot(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
@@ -242,6 +279,11 @@ public enum FirmwareManagementDeviceStatus {
 
         }
 
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            return false;
+        }
+
         private boolean messageWithInstallOption(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
             ProtocolSupportedFirmwareOptions uploadOption = helper.getUploadOptionFromMessage(message).get();
             return ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER.equals(uploadOption)
@@ -284,6 +326,11 @@ public enum FirmwareManagementDeviceStatus {
                     && statusInformationTask.isPresent()
                     && FirmwareManagementDeviceUtilsImpl.BUSY_TASK_STATUSES.contains(statusInformationTask.get().getStatus());
         }
+
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            return false;
+        }
     },
 
     /**
@@ -313,6 +360,11 @@ public enum FirmwareManagementDeviceStatus {
                     && statusInformationTask.isPresent()
                     && statusInformationTask.get().isLastExecutionFailed()
                     && !helper.messageContainsActiveFirmwareVersion(message);
+        }
+
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            return false;
         }
     },
 
@@ -344,6 +396,11 @@ public enum FirmwareManagementDeviceStatus {
                     && !statusInformationTask.get().isLastExecutionFailed()
                     && !helper.messageContainsActiveFirmwareVersion(message);
         }
+
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            return false;
+        }
     },
 
     /**
@@ -372,10 +429,28 @@ public enum FirmwareManagementDeviceStatus {
                     && statusInformationTask.isPresent()
                     && helper.messageContainsActiveFirmwareVersion(message);
         }
+
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            return false;
+        }
     },
 
-    CONFIGURATION_ERROR(Constants.CONFIGURATION_ERROR),
-    CANCELLED(Constants.CANCELLED),
+    CONFIGURATION_ERROR(Constants.CONFIGURATION_ERROR){
+        @Override
+        public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+            //retry
+            return newStatus.key().equals(Constants.PENDING);
+        }
+    },
+    CANCELLED(Constants.CANCELLED){
+            @Override
+            public boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus) {
+                //retry
+                return newStatus.key().equals(Constants.PENDING);
+            }
+
+        },
     ;
 
     private String deviceInCampaignStatusKey;
@@ -391,6 +466,8 @@ public enum FirmwareManagementDeviceStatus {
     public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
         return false;
     }
+
+    public abstract boolean canTransitToStatus(FirmwareManagementDeviceStatus newStatus);
 
     protected boolean isUploadMessage(DeviceMessage<Device> message) {
         return !DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId());
@@ -503,6 +580,7 @@ public enum FirmwareManagementDeviceStatus {
                     .filter(candidate -> candidate.managementOption.equals(managementOption))
                     .findFirst();
         }
+
     }
 
     public static class Constants {

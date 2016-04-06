@@ -8,7 +8,6 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -139,6 +138,11 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toCollection(HashSet::new));
+    }
+
+    @Override
+    public FirmwareVersionFilter filterForFirmwareVersion(DeviceType deviceType) {
+        return new FirmwareVersionFilterImpl(deviceType);
     }
 
     @Override
@@ -307,8 +311,13 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
     }
 
     @Override
+    public DevicesInFirmwareCampaignFilter filterForDevicesInFirmwareCampaign() {
+        return new DevicesInFirmwareCampaignFilterImpl(this, deviceService);
+    }
+
+    @Override
     public Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter) {
-        return DefaultFinder.of(DeviceInFirmwareCampaign.class, filter.usingFirmwareService(this).usingDeviceService(deviceService).getCondition(), dataModel);
+        return DefaultFinder.of(DeviceInFirmwareCampaign.class, filter.getCondition(), dataModel);
     }
 
     public List<DeviceInFirmwareCampaignImpl> getDeviceInFirmwareCampaignsFor(Device device) {
@@ -326,9 +335,9 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
                                             .map(DeviceInFirmwareCampaignImpl::getFirmwareCampaign)
                                             .collect(Collectors.toList());
         if (campaigns.isEmpty())
-            throw CampaignForComtaskExecutionExceptions.campaigNotFound(this.thesaurus, comTaskExecution);
+            throw CampaignForComTaskExecutionExceptions.campaignNotFound(this.thesaurus, comTaskExecution);
         else if (campaigns.size() > 1)
-            throw CampaignForComtaskExecutionExceptions.campaignNotUnambiguouslyDefined(this.thesaurus, comTaskExecution);
+            throw CampaignForComTaskExecutionExceptions.campaignNotUnambiguouslyDefined(this.thesaurus, comTaskExecution);
         return campaigns.get(0);
     }
 
@@ -339,6 +348,24 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
 
     @Override
     public boolean cancelFirmwareUploadForDevice(Device device) {
+        Optional<ComTaskExecution> fwComTaskExecution = getFirmwareComtaskExecution(device);
+        return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution);
+    }
+
+    @Override
+    public boolean retryFirmwareUploadForDevice(DeviceInFirmwareCampaign deviceInFirmwareCampaign) {
+        if (deviceInFirmwareCampaign.getFirmwareCampaign().getStatus() != FirmwareCampaignStatus.ONGOING){
+            throw RetryDeviceInFirmwareCampaignExceptions.invalidState(this.thesaurus);
+        }
+        // retry
+        if (!deviceInFirmwareCampaign.getStatus().canTransitToStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING)){
+            throw RetryDeviceInFirmwareCampaignExceptions.transitionToPendingStateImpossible(this.thesaurus, deviceInFirmwareCampaign);
+        }
+        Optional<ComTaskExecution> fwComTaskExecution = getFirmwareComtaskExecution(deviceInFirmwareCampaign.getDevice());
+        return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution);
+    }
+
+    private Optional<ComTaskExecution> getFirmwareComtaskExecution(Device device){
         Optional<ComTask> fwComTask = taskService.findFirmwareComTask();
         if (fwComTask.isPresent()) {
             ComTask firmwareComTask = fwComTask.get();
@@ -348,17 +375,17 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
                             .findAny()
                             .isPresent())
                     .findAny();
-            return fwComTaskExecution.isPresent() && cancelFirmwareFirmwareUpload(device, fwComTaskExecution);
+            return fwComTaskExecution;
         } else {
-            return false;
+            return Optional.empty();
         }
     }
 
-    private boolean cancelFirmwareFirmwareUpload(Device device, Optional<ComTaskExecution> fwComTaskExecution) {
+    private boolean cancelFirmwareUpload(Optional<ComTaskExecution> fwComTaskExecution) {
         ComTaskExecution comTaskExecution1 = fwComTaskExecution.get();
         if (communicationTaskService.isComTaskStillPending(comTaskExecution1.getId())) {
             comTaskExecution1.putOnHold();
-            cancelPendingFirmwareMessages(device);
+            cancelPendingFirmwareMessages(comTaskExecution1.getDevice());
             return true;
         } else {
             return false;

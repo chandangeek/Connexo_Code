@@ -4,10 +4,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareVersionFilter;
+import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
@@ -45,7 +42,7 @@ public class FirmwareVersionImplTest extends PersistenceTest{
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + com.energyict.mdc.firmware.impl.MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
     public void uniqueVersionTest() {
         String version = "Version1";
         FirmwareVersion meterVersion1 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER).create();
@@ -60,7 +57,8 @@ public class FirmwareVersionImplTest extends PersistenceTest{
         FirmwareVersion meterVersion1 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER).create();
         FirmwareVersion meterVersion2 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION).create();
 
-        List<FirmwareVersion> firmwareVersions = inMemoryPersistence.getFirmwareService().findAllFirmwareVersions(new FirmwareVersionFilter(deviceType)).find();
+        FirmwareService firmwareService = inMemoryPersistence.getFirmwareService();
+        List<FirmwareVersion> firmwareVersions = inMemoryPersistence.getFirmwareService().findAllFirmwareVersions(firmwareService.filterForFirmwareVersion(deviceType)).find();
         assertThat(firmwareVersions).hasSize(2);
         assertThat(firmwareVersions.get(0).getFirmwareVersion()).isEqualTo(version);
         assertThat(firmwareVersions.get(1).getFirmwareVersion()).isEqualTo(version);

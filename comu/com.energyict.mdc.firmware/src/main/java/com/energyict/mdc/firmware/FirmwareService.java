@@ -7,6 +7,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.firmware.impl.DeviceInFirmwareCampaignImpl;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
 import java.util.List;
@@ -22,6 +23,8 @@ public interface FirmwareService {
     int MAX_FIRMWARE_FILE_SIZE = 50 * 1024 * 1024;
 
     // Firmware versions on a device type
+
+    FirmwareVersionFilter filterForFirmwareVersion(DeviceType deviceType);
     Finder<FirmwareVersion> findAllFirmwareVersions(FirmwareVersionFilter filter);
     Optional<FirmwareVersion> getFirmwareVersionById(long id);
     Optional<FirmwareVersion> findAndLockFirmwareVersionByIdAndVersion(long id, long version);
@@ -57,13 +60,13 @@ public interface FirmwareService {
     ActivatedFirmwareVersion newActivatedFirmwareVersionFrom(Device device, FirmwareVersion firmwareVersion, Interval interval);
     PassiveFirmwareVersion newPassiveFirmwareVersionFrom(Device device, FirmwareVersion firmwareVersion, Interval interval);
 
-
     // Firmware campaigns
     Optional<FirmwareCampaign> getFirmwareCampaignById(long id);
     Optional<FirmwareCampaign> findAndLockFirmwareCampaignByIdAndVersion(long id, long version);
     Finder<FirmwareCampaign> getFirmwareCampaigns();
     FirmwareCampaign newFirmwareCampaign(DeviceType deviceType, EndDeviceGroup endDeviceGroup);
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign);
+    DevicesInFirmwareCampaignFilter filterForDevicesInFirmwareCampaign();
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter);
 
     /**
@@ -82,6 +85,15 @@ public interface FirmwareService {
      * @return true if we did a cancel, false if no action was required
      */
     boolean cancelFirmwareUploadForDevice(Device device);
+
+    /**
+     * Tries to retry the current FirmwareComTaskExecution on the device if it was still pending.
+     *
+     * @param device the device to cancel the firmware upload
+     * @return true if we did a cancel, false if no action was required
+     */
+    boolean retryFirmwareUploadForDevice(DeviceInFirmwareCampaign deviceInFirmwareCampaign);
+
     Optional<DeviceInFirmwareCampaign> getDeviceInFirmwareCampaignsForDevice(FirmwareCampaign firmwareCampaign, Device device);
 
     /**

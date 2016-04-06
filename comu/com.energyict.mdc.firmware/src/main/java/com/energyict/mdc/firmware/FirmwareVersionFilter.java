@@ -2,47 +2,54 @@ package com.energyict.mdc.firmware;
 
 import com.energyict.mdc.device.config.DeviceType;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+/**
+ * Models the filtering that can be applied by client code to count
+ * or find {@link FirmwareVersion}s
+ * by a number of criteria that can be mixed.
+ */
 
-public class FirmwareVersionFilter {
+public interface FirmwareVersionFilter {
+    /**
+     * add a List of {@link FirmwareType} as criterion to the filter
+     * @param firmwareTypes to add as criterion
+     */
+    void addFirmwareTypes(List<FirmwareType> firmwareTypes);
 
-    private DeviceType deviceType;
-    private List<FirmwareType> firmwareTypes = new ArrayList<>();
-    private List<FirmwareStatus> firmwareStatuses = new ArrayList<>();
-    private List<String> firmwareVersions = new ArrayList<>();
+    /**
+     * add a List of {@link FirmwareStatus} as a criterion to the filter
+     * @param firmwareStatuses to add as criterion
+     */
+    void addFirmwareStatuses(List<FirmwareStatus> firmwareStatuses);
 
-    public FirmwareVersionFilter (DeviceType deviceType) {
-        this.deviceType = deviceType;
-    }
+    /**
+     * add a List of {@link FirmwareVersion} as a criterion to the filter
+     * @param firmwareVersions to add as criterion
+     */
+    void addFirmwareVersions(List<String> firmwareVersions);
 
-    public DeviceType getDeviceType() {
-        return this.deviceType;
-    }
+    /**
+     * The {@link DeviceType} criterion of the filter
+     * @return  the DeviceType of the filter
+     */
+    DeviceType getDeviceType();
 
-    public void addFirmwareTypes(List<FirmwareType> firmwareTypes) {
-        this.firmwareTypes.addAll(firmwareTypes);
-    }
 
-    public void addFirmwareStatuses(List<FirmwareStatus> firmwareStatuses) {
-        this.firmwareStatuses.addAll(firmwareStatuses);
-    }
+    /**
+     * Return the {@link FirmwareVersion} set as criterion as a list of Strings (FirmwareVersion.getFirmwareVersion)
+     * @return  the list of {@link FirmwareVersion} set as criterion
+     */
+    List<String> getFirmwareVersions();
 
-    public void addFirmwareVersions(List<String> firmwareVersions) {
-        this.firmwareVersions.addAll(firmwareVersions);
-    }
+    /**
+     * Return the List of {@link FirmwareType} set as criterion
+      * @return  the list of {@link FirmwareType} set as criterion
+     */
+    List<FirmwareType> getFirmwareTypes();
 
-    public List<String> getFirmwareVersions() {
-        return Collections.unmodifiableList(firmwareVersions);
-    }
-
-    public List<FirmwareType> getFirmwareTypes() {
-        return Collections.unmodifiableList(this.firmwareTypes);
-    }
-
-    public List<FirmwareStatus> getFirmwareStatuses() {
-        return Collections.unmodifiableList(this.firmwareStatuses);
-    }
-
+    /**
+    * Return the list of {@link FirmwareStatus} set as criterion
+    * @return  the list of {@link FirmwareStatus} set as criterion
+    */
+    List<FirmwareStatus> getFirmwareStatuses();
 }
