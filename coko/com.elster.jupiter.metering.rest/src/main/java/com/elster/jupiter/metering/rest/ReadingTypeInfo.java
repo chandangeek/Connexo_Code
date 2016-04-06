@@ -33,6 +33,7 @@ public class ReadingTypeInfo {
     public String unit;
     public String currency;
     public long version;
+    public boolean isCumulative;
 
     /* Both the fullAliasName and the separate names are provided to the FrontEnd to do smart dynamic adjustments to the alias */
     public ReadingTypeNames names;
@@ -46,6 +47,7 @@ public class ReadingTypeInfo {
         this.aliasName = readingType.getAliasName();
         this.name = readingType.getName();
         this.active = readingType.isActive();
+        this.isCumulative = readingType.isCumulative();
         this.macroPeriod = readingType.getMacroPeriod().getDescription();
         this.aggregate = readingType.getAggregate().getDescription();
         this.measuringPeriod = readingType.getMeasuringPeriod().getDescription();
