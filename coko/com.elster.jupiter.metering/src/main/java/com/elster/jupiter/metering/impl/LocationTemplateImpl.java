@@ -2,10 +2,16 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.orm.DataModel;
+
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -15,15 +21,19 @@ public final class LocationTemplateImpl implements LocationTemplate {
     private long id;
     private String templateFields;
     private String mandatoryFields;
-    private Map<String, Integer> rankings;
+    private List<String> splitLineElements = new LinkedList<>();
     private final DataModel dataModel;
-    private List<TemplateField> templateMembers = new ArrayList<>();
+    private List<TemplateField> templateMembers = new LinkedList<>();
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
     public static final ImmutableList<String> ALLOWED_LOCATION_TEMPLATE_ELEMENTS =
             ImmutableList.of("#ccod", "#cnam", "#adma", "#loc", "#subloc",
                     "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip", "#locale");
 
 
-    private enum LocationTemplateElements {
+    enum LocationTemplateElements {
         COUNTRY_CODE("#ccod"),
         COUNTRY_NAME("#cnam"),
         ADMINISTRATIVE_AREA("#adma"),
@@ -38,6 +48,10 @@ public final class LocationTemplateImpl implements LocationTemplate {
         ADDRESS_DETAIL("#addtl"),
         ZIP_CODE("#zip"),
         LOCALE("#locale");
+
+        public String getElementAbbreviation() {
+            return elementAbbreviation;
+        }
 
         private final String elementAbbreviation;
 
@@ -72,23 +86,23 @@ public final class LocationTemplateImpl implements LocationTemplate {
     @Override
     public void parseTemplate(String locationTemplate, String mandatoryFields) {
         if (locationTemplate != null && mandatoryFields != null) {
-            rankings = new HashMap<>();
-            String[] templateElements = locationTemplate.trim().split(",");
-            String[] mandatoryFieldElements = mandatoryFields.trim().split(",");
+            this.templateFields = locationTemplate.trim();
+            this.mandatoryFields = mandatoryFields.trim();
+            Arrays.asList(this.templateFields.split(",")).stream().filter(f ->
+                    f.startsWith("\\n") || f.startsWith("\\r")).forEach(e ->
+                    splitLineElements.add(e.replace("\\r", "").replace("\\n", "")
+                            .replace("\r", "").replace("\n", "")
+                            .replace("\r\n", "").replace("\n\r", "")));
+            String[] templateElements = this.templateFields.replace("\\r", "").replace("\\n", "")
+                    .replace("\r", "").replace("\n", "").replace("\r\n", "").replace("\n\r", "").split(",");
+            String[] mandatoryFieldElements = this.mandatoryFields.split(",");
             if (Arrays.asList(templateElements).containsAll(ALLOWED_LOCATION_TEMPLATE_ELEMENTS)
                     && Arrays.asList(templateElements).containsAll(Arrays.asList(mandatoryFields.trim().split(",")))) {
                 AtomicInteger index = new AtomicInteger(-1);
-
-                Arrays.asList(templateElements).stream().forEach(t ->
-                        rankings.put(LocationTemplateElements.fromAbbreviation(t).toString(), index.incrementAndGet()));
-                this.templateFields = locationTemplate.trim();
-                this.mandatoryFields = mandatoryFields.trim();
-
-                AtomicInteger index2 = new AtomicInteger(-1);
                 Arrays.asList(templateElements).stream().forEach(t -> {
                     templateMembers.forEach(tm -> {
                         if (tm.getAbbreviation().equalsIgnoreCase(t)) {
-                            tm.setRanking(index2.incrementAndGet());
+                            tm.setRanking(index.incrementAndGet());
                         }
                     });
                 });
@@ -102,15 +116,15 @@ public final class LocationTemplateImpl implements LocationTemplate {
                 });
 
             } else {
-                throw new IllegalArgumentException("Bad Template");
+                throw new IllegalArgumentException("Bad Location Template");
             }
         } else {
-            throw new IllegalArgumentException("Bad Template");
+            throw new IllegalArgumentException("Bad Location Template");
         }
     }
 
     @Inject
-    LocationTemplateImpl(DataModel dataModel) {
+    public LocationTemplateImpl(DataModel dataModel) {
         this.dataModel = dataModel;
 
     }
@@ -123,7 +137,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
         return this;
     }
 
-    static LocationTemplateImpl from(DataModel dataModel, String locationTemplate, String mandatoryFields) {
+    public static LocationTemplateImpl from(DataModel dataModel, String locationTemplate, String mandatoryFields) {
         return dataModel.getInstance(LocationTemplateImpl.class).init(locationTemplate, mandatoryFields);
     }
 
@@ -154,16 +168,12 @@ public final class LocationTemplateImpl implements LocationTemplate {
 
     @Override
     public List<String> getTemplateElementsNames() {
-        List<String> list = new ArrayList<>();
+        List<String> list = new LinkedList<>();
         Arrays.asList(templateFields.split(",")).stream().forEach(e ->
                 list.add(LocationTemplateElements.fromAbbreviation(e).toString()));
         return list;
     }
 
-    @Override
-    public Map<String, Integer> getRankings() {
-        return rankings;
-    }
 
     public String getTemplateFields() {
         return templateFields;
@@ -176,7 +186,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
 
     @Override
     public List<String> getMandatoryFieldsNames() {
-        List<String> list = new ArrayList<>();
+        List<String> list = new LinkedList<>();
         Arrays.asList(mandatoryFields.split(",")).stream().forEach(m ->
                 list.add(LocationTemplateElements.fromAbbreviation(m).toString()));
         return list;
@@ -188,13 +198,26 @@ public final class LocationTemplateImpl implements LocationTemplate {
     }
 
     @Override
-    public void setTemplateMembers(List<TemplateField> templateMembers) {
-        this.templateMembers = templateMembers;
+    public long getVersion() {
+        return version;
     }
 
-    private static final class TemplateFieldImpl implements TemplateField {
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
+    }
 
+    @Override
+    public Instant getModTime() {
+        return modTime;
+    }
 
+    @Override
+    public List<String> getSplitLineElements() {
+        return splitLineElements;
+    }
+
+    static final class TemplateFieldImpl implements TemplateField, Comparable<TemplateFieldImpl> {
         int ranking;
         boolean mandatory;
         String name;
@@ -248,6 +271,54 @@ public final class LocationTemplateImpl implements LocationTemplate {
             this.abbreviation = abbreviation;
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            TemplateFieldImpl that = (TemplateFieldImpl) o;
+
+            if (ranking != that.ranking) {
+                return false;
+            }
+            if (mandatory != that.mandatory) {
+                return false;
+            }
+            if (name != null ? !name.equals(that.name) : that.name != null) {
+                return false;
+            }
+            return abbreviation != null ? abbreviation.equals(that.abbreviation) : that.abbreviation == null;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = ranking;
+            result = 31 * result + (mandatory ? 1 : 0);
+            result = 31 * result + (name != null ? name.hashCode() : 0);
+            result = 31 * result + (abbreviation != null ? abbreviation.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "TemplateFieldImpl{" +
+                    "ranking=" + ranking +
+                    ", mandatory=" + mandatory +
+                    ", name='" + name + '\'' +
+                    ", abbreviation='" + abbreviation + '\'' +
+                    '}';
+        }
+
+        @Override
+        public int compareTo(TemplateFieldImpl templateField) {
+            int lastCmp = name.compareTo(templateField.name);
+            return (lastCmp != 0 ? lastCmp : name.compareTo(templateField.name));
+        }
     }
 
 }

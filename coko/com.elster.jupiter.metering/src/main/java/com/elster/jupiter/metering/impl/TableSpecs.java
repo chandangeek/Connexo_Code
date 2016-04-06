@@ -4,7 +4,26 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.ids.TimeSeries;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationMember;
+import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterConfiguration;
+import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
+import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -143,10 +162,11 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<LocationTemplate> table = dataModel.addTable(name(), LocationTemplate.class);
             table.map(LocationTemplateImpl.class);
-            //table.setJournalTableName("MTR_LOCATIONTEMPLATEJRNL");
+            table.setJournalTableName("MTR_LOCATIONTEMPLATEJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column templateColumn = table.column("LOCATIONTEMPLATE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("templateFields").add();
             table.column("MANDATORYFIELDS").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("mandatoryFields").add();
+            table.addAuditColumns();
             table.primaryKey("MTR_PK_LOCATIONTEMPLATE").on(idColumn).add();
             table.unique("MTR_U_LOCATIONTEMPLATE").on(templateColumn).add();
         }
@@ -157,7 +177,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<Location> table = dataModel.addTable(name(), Location.class);
             table.map(LocationImpl.class);
-            //table.setJournalTableName("MTR_LOCATIONJRNL");
+            table.setJournalTableName("MTR_LOCATIONJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.primaryKey("MTR_PK_LOCATION").on(idColumn).add();
         }
@@ -168,9 +188,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<LocationMember> table = dataModel.addTable(name(), LocationMember.class);
             table.map(LocationMemberImpl.class);
-
+            table.setJournalTableName("MTR_LOCATIONMEMBERJRNL");
             TableBuilder.buildLocationMemberTable(table, MeteringServiceImpl.getLocationTemplateMembers());
-            //table.setJournalTableName("MTR_LOCATIONMEMBERJRNL");
         }
     },
 
@@ -179,9 +198,10 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<GeoCoordinates> table = dataModel.addTable(name(), GeoCoordinates.class);
             table.map(GeoCoordinatesImpl.class);
-            //table.setJournalTableName("MTR_GEOCOORDINATESJRNL");
+            table.setJournalTableName("MTR_GEOCOORDINATESJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column coordinatesColumn = table.column("GEOCOORDINATES").sdoGeometry().notNull().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("coordinates").add();
+            table.column("GEOCOORDINATES").sdoGeometry().notNull().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("coordinates").add();
+            table.addAuditColumns();
             table.primaryKey("MTR_PK_GEOCOORDS").on(idColumn).add();
 
         }
@@ -249,7 +269,7 @@ public enum TableSpecs {
                     .on(geoCoordinatesIdColumn)
                     .references(GeoCoordinates.class)
                     .onDelete(RESTRICT)
-                    .map("coordinates")
+                    .map("geoCoordinates")
                     .add();
         }
     },
@@ -324,7 +344,7 @@ public enum TableSpecs {
                     .on(geoCoordinatesIdColumn)
                     .references(GeoCoordinates.class)
                     .onDelete(RESTRICT)
-                    .map("coordinates")
+                    .map("geoCoordinates")
                     .add();
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
         }
@@ -921,6 +941,7 @@ public enum TableSpecs {
 
             }
             table.column("DEFAULTLOCATION").bool().map("defaultLocation").add();
+            table.addAuditColumns();
             table.primaryKey("MTR_PK_LOCATION_MEMBER").on(locationIdColumn, localeColumn).add();
             table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn)
                     .references(MTR_LOCATION.name())

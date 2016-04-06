@@ -1,7 +1,15 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
@@ -19,7 +27,12 @@ import java.io.FileNotFoundException;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.metering.console", service = ConsoleCommands.class, property = {
@@ -241,7 +254,7 @@ public class ConsoleCommands {
                     i++;
                 }
                 LocationBuilder builder = meteringService.newLocationBuilder();
-                Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(location.get("locale"));
+                Optional<LocationMemberBuilder> memberBuilder = builder.getMember(location.get("locale"));
                 if (memberBuilder.isPresent()) {
                     setLocationAttributes(memberBuilder.get(), location);
                     endDevice.setLocation(builder.create());
@@ -264,7 +277,7 @@ public class ConsoleCommands {
 
     }
 
-    private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, Map<String, String> location){
+    private LocationMemberBuilder setLocationAttributes(LocationMemberBuilder builder, Map<String, String> location){
         builder.setCountryCode(location.get("countryCode"))
                 .setCountryName(location.get("countryName"))
                 .setAdministrativeArea(location.get("administrativeArea"))

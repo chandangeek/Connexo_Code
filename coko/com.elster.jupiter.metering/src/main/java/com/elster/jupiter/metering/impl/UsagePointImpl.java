@@ -5,7 +5,30 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ElectricityDetailBuilder;
+import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.GasDetailBuilder;
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.HeatDetailBuilder;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointDetailBuilder;
+import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
@@ -89,7 +112,7 @@ public class UsagePointImpl implements UsagePoint {
     private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
     private List<UsagePointConfigurationImpl> usagePointConfigurations = new ArrayList<>();
     private final Reference<Location> upLocation = ValueReference.absent();
-    private final Reference<GeoCoordinates> coordinates = ValueReference.absent();
+    private final Reference<GeoCoordinates> geoCoordinates = ValueReference.absent();
 
     private final Clock clock;
     private final DataModel dataModel;
@@ -318,20 +341,14 @@ public class UsagePointImpl implements UsagePoint {
         this.removeMetrologyConfigurationCustomPropertySetValues();
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
-        this.removeMeterActivations();
         dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
     private void removeDetail() {
-        List<UsagePointDetailImpl> detailList = this.getDetail(Range.all());
-        detailList.forEach(dataModel::remove);
+        this.getDetail(Range.all()).forEach(detail::remove);
     }
 
-    private void removeMeterActivations() {
-        List<MeterActivationImpl> maList = this.getMeterActivations();
-        maList.forEach(dataModel::remove);
-    }
 
     private void removeMetrologyConfigurationCustomPropertySetValues() {
         this.removeCustomPropertySetValues(
@@ -704,6 +721,6 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public Optional<GeoCoordinates> getGeoCoordinates() {
-        return coordinates.getOptional();
+        return geoCoordinates.getOptional();
     }
 }

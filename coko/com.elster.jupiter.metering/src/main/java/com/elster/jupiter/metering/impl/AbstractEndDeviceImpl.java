@@ -5,7 +5,14 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.LifecycleDates;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -65,7 +72,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private TemporalReference<EndDeviceLifeCycleStatus> status = Temporals.absent();
     private StateManager stateManager = new NoDeviceLifeCycle();
     private final Reference<Location> location = ValueReference.absent();
-    private final Reference<GeoCoordinates> coordinates = ValueReference.absent();
+    private final Reference<GeoCoordinates> geoCoordinates = ValueReference.absent();
 
     private final Clock clock;
     private final DataModel dataModel;
@@ -175,7 +182,12 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
 
     @Override
     public Optional<GeoCoordinates> getGeoCoordinates() {
-        return coordinates.getOptional();
+        return geoCoordinates.getOptional();
+    }
+
+    @Override
+    public void setGeoCoordintes(GeoCoordinates geoCoordinates){
+        this.geoCoordinates.set(geoCoordinates);
     }
 
     @Override

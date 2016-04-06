@@ -13,6 +13,7 @@ import com.elster.jupiter.util.geo.SpatialCoordinates;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
@@ -151,7 +152,7 @@ public interface MeteringService {
     Query<LocationMember> getLocationMemberQuery();
     void createLocationTemplate();
     LocationTemplate getLocationTemplate();
-    Optional<List<String>> getFormattedLocationMembers(long id);
+    Optional<Map<String,Boolean>> getFormattedLocationMembers(long id);
     GeoCoordinates createGeoCoordinates(String coordinates);
     Optional<GeoCoordinates> findGeoCoordinates(long id);
     Optional<GeoCoordinates> findDeviceGeoCoordinates(String mRID);

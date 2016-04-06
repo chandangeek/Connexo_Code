@@ -11,7 +11,35 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationMember;
+import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.PurgeConfiguration;
+import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
+import com.elster.jupiter.metering.ReadingTypeFilter;
+import com.elster.jupiter.metering.ReadingTypeMridFilter;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.StorerProcess;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
@@ -44,6 +72,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
+
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -59,9 +88,21 @@ import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.elster.jupiter.metering.impl.LocationTemplateImpl.LocationTemplateElements;
+import static com.elster.jupiter.metering.impl.LocationTemplateImpl.TemplateFieldImpl;
 
 import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 
@@ -105,7 +146,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
         setOrmService(ormService);
-        this.locationTemplate = createLocationTemplateDefaultData();
         setIdsService(idsService);
         setEventService(eventService);
         setPartyService(partyService);
@@ -166,7 +206,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         }
         InstallerImpl installer = new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, messageService, createAllReadingTypes, requiredReadingTypes, clock);
         installer.install();
-        new CreateLocationMemberTableOperation(dataModel,locationTemplate).execute();
+        new CreateLocationMemberTableOperation(dataModel, locationTemplate).execute();
+        new GeoCoordinatesSpatialMetaDataTableOperation(dataModel).execute();
         installer.addDefaultData();
     }
 
@@ -364,18 +405,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Activate
     public final void activate(BundleContext context) {
 
-        if (dataModel != null && context != null) {
-            String locationTemplateFields = context.getProperty(LOCATION_TEMPLATE).trim();
-            String locationTemplateMandatoryFields = context.getProperty(LOCATION_TEMPLATE_MANDATORY_FIELDS).trim();
-            locationTemplate = new LocationTemplateImpl(dataModel).init(locationTemplateFields, locationTemplateMandatoryFields);
-            locationTemplate
-                    .parseTemplate(locationTemplateFields, locationTemplateMandatoryFields);
-        } else if (dataModel.isInstalled() && getLocationTemplateFromDB().isPresent()) {
-            locationTemplate = getLocationTemplateFromDB().get();
-            locationTemplate
-                    .parseTemplate(locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields());
+        if (dataModel != null && !dataModel.isInstalled() && context != null) {
+            createNewTemplate(context);
+        } else if (context == null && locationTemplate == null) {
+            createLocationTemplateDefaultData();
         }
-        locationTemplateMembers = ImmutableList.copyOf(locationTemplate.getTemplateMembers());
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
@@ -398,6 +432,17 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class);
             }
         });
+
+        if (dataModel.isInstalled()) {
+            getLocationTemplateFromDB().ifPresent(template -> {
+                locationTemplate = template;
+                locationTemplateMembers = ImmutableList.copyOf((template.getTemplateMembers()));
+            });
+        }
+
+        if (context == null && locationTemplate == null) {
+            createDefaultLocationTemplate();
+        }
 
     }
 
@@ -460,13 +505,15 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public List<ReadingType> getAvailableEquidistantReadingTypes() {
-        return dataModel.stream(ReadingType.class).filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(true))
+        return dataModel.stream(ReadingType.class)
+                .filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(true))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ReadingType> getAvailableNonEquidistantReadingTypes() {
-        return dataModel.stream(ReadingType.class).filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(false))
+        return dataModel.stream(ReadingType.class)
+                .filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(false))
                 .collect(Collectors.toList());
     }
 
@@ -536,11 +583,16 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     // bulk insert
     public void createAllReadingTypes(List<Pair<String, String>> readingTypes) {
         List<ReadingType> availableReadingTypes = getAvailableReadingTypes();
-        List<String> availableReadingTypeCodes = availableReadingTypes.parallelStream().map(ReadingType::getMRID).collect(Collectors.toList());
-        List<Pair<String, String>> filteredReadingTypes = readingTypes.parallelStream().filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getFirst())).collect(Collectors.toList());
+        List<String> availableReadingTypeCodes = availableReadingTypes.parallelStream()
+                .map(ReadingType::getMRID)
+                .collect(Collectors.toList());
+        List<Pair<String, String>> filteredReadingTypes = readingTypes.parallelStream()
+                .filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getFirst()))
+                .collect(Collectors.toList());
 
         DecoratedStream.decorate(filteredReadingTypes.stream())
-                .map(filteredReadingType -> dataModel.getInstance(ReadingTypeImpl.class).init(filteredReadingType.getFirst(), filteredReadingType.getLast()))
+                .map(filteredReadingType -> dataModel.getInstance(ReadingTypeImpl.class)
+                        .init(filteredReadingType.getFirst(), filteredReadingType.getLast()))
                 .map(readingType -> ((ReadingType) readingType))
                 .partitionPer(1000)
                 .forEach(listPer1000 -> dataModel.mapper(ReadingType.class).persist(listPer1000));
@@ -685,12 +737,13 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
-    public Optional<List<String>> getFormattedLocationMembers(long id){
-        List<LocationMember> members = dataModel.query(LocationMember.class).select(Operator.EQUAL.compare("locationId", id));
-        List<String> formattedLocation = new ArrayList<>();
-        if(!members.isEmpty()){
+    public Optional<Map<String, Boolean>> getFormattedLocationMembers(long id) {
+        List<LocationMember> members = dataModel.query(LocationMember.class)
+                .select(Operator.EQUAL.compare("locationId", id));
+        Map<String, Boolean> formattedLocation = new LinkedHashMap<>();
+        if (!members.isEmpty()) {
             LocationMember member = members.get(0);
-            Map<String, String> memberValues = new HashMap<>();
+            Map<String, String> memberValues = new LinkedHashMap<>();
             memberValues.put("countryCode", member.getCountryCode());
             memberValues.put("countryName", member.getCountryName());
             memberValues.put("administrativeArea", member.getAdministrativeArea());
@@ -705,9 +758,14 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             memberValues.put("addressDetail", member.getAddressDetail());
             memberValues.put("zipCode", member.getZipCode());
             memberValues.put("locale", member.getLocale());
-            locationTemplate.getTemplateElementsNames().stream()
-                    .forEach(element -> {
-                        formattedLocation.add(memberValues.get(element));
+            locationTemplate.getTemplateMembers().stream()
+                    .forEach(m -> {
+                        if (locationTemplate.getSplitLineElements().contains(m.getAbbreviation())) {
+                            formattedLocation.put(m.getName(), Boolean.TRUE);
+                        } else {
+                            formattedLocation.put(m.getName(), Boolean.FALSE);
+                        }
+
                     });
         }
         return formattedLocation.isEmpty() ? Optional.empty() : Optional.of(formattedLocation);
@@ -744,7 +802,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public void createLocationTemplate() {
-        LocationTemplateImpl.from(dataModel, locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields()).doSave();
+        LocationTemplateImpl.from(dataModel, locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields())
+                .doSave();
     }
 
     @Override
@@ -755,7 +814,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public Optional<LocationTemplate> getLocationTemplateFromDB() {
         List<LocationTemplate> template = new ArrayList<>(dataModel.mapper(LocationTemplate.class).find());
         if (!template.isEmpty()) {
-            return Optional.of(template.get(0));
+            LocationTemplateImpl dbTemplate = LocationTemplateImpl
+                    .from(dataModel, template.get(0).getTemplateFields(), template.get(0).getMandatoryFields());
+            dbTemplate
+                    .parseTemplate(dbTemplate.getTemplateFields(), dbTemplate.getMandatoryFields());
+            return Optional.of(dbTemplate);
         }
         return Optional.empty();
     }
@@ -765,24 +828,33 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         return locationTemplateMembers;
     }
 
-    public LocationTemplate createLocationTemplateDefaultData() {
-        String fields = LocationTemplateImpl.ALLOWED_LOCATION_TEMPLATE_ELEMENTS.stream().
+    private void createLocationTemplateDefaultData() {
+        List<TemplateField> templateElements = new LinkedList<>();
+        AtomicInteger index = new AtomicInteger(-1);
+        Stream.of(LocationTemplateElements.values()).forEach(t ->
+                templateElements.add(new TemplateFieldImpl(t.getElementAbbreviation(), t.toString(), index.incrementAndGet(), index
+                        .intValue() % 2 == 0 ? true : false)));
+        locationTemplateMembers = ImmutableList.copyOf(templateElements);
+    }
+
+    private void createDefaultLocationTemplate() {
+        String locationElements = LocationTemplateImpl.ALLOWED_LOCATION_TEMPLATE_ELEMENTS.stream().
                 reduce((s, t) -> s + "," + t).get();
-        LocationTemplate defaultlocationTemplate = new LocationTemplateImpl(dataModel).init(fields, fields);
-        defaultlocationTemplate.parseTemplate(fields, fields);
-        return defaultlocationTemplate;
+        locationTemplate = new LocationTemplateImpl(dataModel).init(locationElements, locationElements);
+        locationTemplate
+                .parseTemplate(locationElements, locationElements);
     }
 
     @Override
     public GeoCoordinates createGeoCoordinates(String coordinates) {
         GeoCoordinatesImpl geoCoordinates = GeoCoordinatesImpl
-                .from(dataModel,new SpatialCoordinatesFactory().fromStringValue(coordinates));
+                .from(dataModel, new SpatialCoordinatesFactory().fromStringValue(coordinates));
         geoCoordinates.doSave();
         return geoCoordinates;
     }
 
     @Override
-    public Optional<GeoCoordinates> findGeoCoordinates(long id){
+    public Optional<GeoCoordinates> findGeoCoordinates(long id) {
         return dataModel.mapper(GeoCoordinates.class).getOptional(id);
     }
 
@@ -805,7 +877,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public Optional<GeoCoordinates> findUsagePointGeoCoordinates(long id) {
-        return findUsagePoint(id).isPresent() ? findUsagePoint(id).get().getGeoCoordinates(): Optional.empty();
+        return findUsagePoint(id).isPresent() ? findUsagePoint(id).get().getGeoCoordinates() : Optional.empty();
     }
 
     @SuppressWarnings("unchecked")
@@ -813,5 +885,14 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public Query<GeoCoordinates> getGeoCoordinatesQuery() {
         QueryExecutor<?> executor = dataModel.query(GeoCoordinates.class);
         return queryService.wrap((QueryExecutor<GeoCoordinates>) executor);
+    }
+
+    private void createNewTemplate(BundleContext context) {
+        String locationTemplateFields = context.getProperty(LOCATION_TEMPLATE);
+        String locationTemplateMandatoryFields = context.getProperty(LOCATION_TEMPLATE_MANDATORY_FIELDS);
+        locationTemplate = new LocationTemplateImpl(dataModel).init(locationTemplateFields, locationTemplateMandatoryFields);
+        locationTemplate
+                .parseTemplate(locationTemplateFields, locationTemplateMandatoryFields);
+        locationTemplateMembers = ImmutableList.copyOf(locationTemplate.getTemplateMembers());
     }
 }
