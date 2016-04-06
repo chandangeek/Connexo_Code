@@ -53,10 +53,10 @@ public class DeviceAttributesInfoFactory {
             if (formattedLocationMembers.isPresent()) {
                 formattedLocation = formattedLocationMembers.get().entrySet()
                         .stream()
-                        .map(e ->
-                                e.getValue() == true ?
-                                        "\\r\\n" + (e.getKey() != null ? e.getKey() : "")
-                                        : e.getKey() != null ? e.getKey() : "")
+                        .map(entry ->
+                                entry.getValue() == true ?
+                                        "\\r\\n" + (entry.getKey() != null ? entry.getKey() : "")
+                                        : entry.getKey() != null ? entry.getKey() : "")
                         .collect(Collectors.joining(", "));
             }
         }
