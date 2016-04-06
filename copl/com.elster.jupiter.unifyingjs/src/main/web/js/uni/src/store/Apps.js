@@ -7,7 +7,6 @@ Ext.define('Uni.store.Apps', {
     storeId: 'apps',
     singleton: true,
 
-
     proxy: {
         type: 'ajax',
         url: '/api/apps/apps',
