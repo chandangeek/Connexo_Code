@@ -106,6 +106,26 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 });
                 if (lines.length !== 0) {
                     tabContents.push(lines);
+                } else {
+                    me.down('tabpanel').add({
+                        layout: 'hbox',
+                        margin: '38 0 0 0',
+                        items: [
+                            {
+                                flex: 1
+                            },
+                            {
+                                html: '<span style="color:#70BB51;font-size:25px;">' +
+                                '<i class="icon-checkmark-circle" style="color:color:#70BB51;margin-right:20px;"></i>' +
+                                    Uni.I18n.translate('whatsGoingOn.everythingfine', 'UNI', 'Everything is going fine') +
+                                    '</span>'
+                            },
+                            {
+                                flex: 1
+                            }
+                        ]
+
+                    });
                 }
                 Ext.each(tabContents, function (tabContent, index) {
                     me.down('tabpanel').add({
