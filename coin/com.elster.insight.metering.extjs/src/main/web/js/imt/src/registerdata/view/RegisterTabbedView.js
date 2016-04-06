@@ -119,8 +119,7 @@ Ext.define('Imt.registerdata.view.RegisterTabbedView', {
                             	xtype: 'usage-point-management-side-menu',
                                 itemId: 'usage-point-management-side-menu',
                                 router: me.router,
-                                mRID: me.mRID,
-                                toggleId: 'registerLink', 	
+                                usagePoint: me.usagepoint
                             }
                         ]
                     }

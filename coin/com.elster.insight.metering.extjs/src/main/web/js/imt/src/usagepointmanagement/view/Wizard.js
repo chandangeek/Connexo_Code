@@ -6,7 +6,10 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
         'Imt.usagepointmanagement.view.forms.GeneralInfo'
     ],
 
-    layout: 'card',
+    layout: {
+        type: 'card',
+        deferredRender: true
+    },
 
     router: null,
     returnLink: null,

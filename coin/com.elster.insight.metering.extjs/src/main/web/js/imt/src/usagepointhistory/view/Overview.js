@@ -6,6 +6,7 @@ Ext.define('Imt.usagepointhistory.view.Overview', {
     ],
     store: 'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets',
     router: null,
+    usagePoint: null,
 
     initComponent: function () {
         var me = this;
@@ -29,7 +30,7 @@ Ext.define('Imt.usagepointhistory.view.Overview', {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
-                        mRID: me.router.arguments.mRID
+                        usagePoint: me.usagePoint
                     }
                 ]
             }
