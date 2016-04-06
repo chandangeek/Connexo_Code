@@ -235,6 +235,28 @@ public class UsagePointMetrologyConfigurationTestIT {
 
     @Test
     @Transactional
+    public void testCanFindMeterRoleForRequirement() {
+        ServiceCategory serviceCategory = getServiceCategory();
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
+        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+        serviceCategory.addMeterRole(meterRole);
+        metrologyConfiguration.addMeterRole(meterRole);
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
+        String name = "Reading type requirement";
+        FullySpecifiedReadingType readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
+                .withMeterRole(meterRole)
+                .withReadingType(readingType);
+
+        Optional<MeterRole> meterRoleRef = getMetrologyConfigurationService().findUsagePointMetrologyConfiguration(metrologyConfiguration.getId())
+                .get()
+                .getMeterRoleFor(readingTypeRequirement);
+
+        assertThat(meterRoleRef).isPresent();
+        assertThat(meterRoleRef.get()).isEqualTo(meterRole);
+    }
+
+    @Test
+    @Transactional
     public void testCanAddUsagePointRequirement() {
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
                 .newUsagePointMetrologyConfiguration("config", getServiceCategory())

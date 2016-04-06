@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
@@ -133,6 +134,9 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
     }
 
     private ExpressionNodeBuilder function(Function function, ExpressionNodeBuilder... terms) {
+        if (mode.equals(Formula.Mode.AUTO)) {
+            throw new InvalidNodeException(thesaurus, MessageSeeds.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE);
+        }
         return () -> new FunctionCallNodeImpl(
                 Arrays.stream(terms)
                         .map(ExpressionNodeBuilder::create)

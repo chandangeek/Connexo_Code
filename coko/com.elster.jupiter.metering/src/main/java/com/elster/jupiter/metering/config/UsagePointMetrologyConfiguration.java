@@ -5,6 +5,7 @@ import com.elster.jupiter.search.SearchablePropertyValue;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UsagePointMetrologyConfiguration extends MetrologyConfiguration {
 
@@ -15,6 +16,8 @@ public interface UsagePointMetrologyConfiguration extends MetrologyConfiguration
     List<MeterRole> getMeterRoles();
 
     List<ReadingTypeRequirement> getRequirements(MeterRole meterRole);
+
+    Optional<MeterRole> getMeterRoleFor(ReadingTypeRequirement readingTypeRequirement);
 
     MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name);
 

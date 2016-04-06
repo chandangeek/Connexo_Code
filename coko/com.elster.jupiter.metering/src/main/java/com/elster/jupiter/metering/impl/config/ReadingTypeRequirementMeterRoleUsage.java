@@ -15,6 +15,7 @@ public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator
 
     public enum Fields {
         METER_ROLE("meterRole"),
+        METROLOGY_CONFIGURATION("metrologyConfiguration"),
         READING_TYPE_REQUIREMENT("readingTypeRequirement"),;
 
         private final String javaFieldName;
@@ -28,6 +29,9 @@ public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator
         }
     }
 
+    // we need this field to create a reverse map reference, it possible to receive metrology configuration from reading type requirement
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Reference<UsagePointMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<MeterRole> meterRole = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -35,6 +39,7 @@ public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator
 
     public ReadingTypeRequirementMeterRoleUsage init(MeterRole meterRole, ReadingTypeRequirement readingTypeRequirement) {
         this.meterRole.set(meterRole);
+        this.metrologyConfiguration.set((UsagePointMetrologyConfiguration) readingTypeRequirement.getMetrologyConfiguration());
         this.readingTypeRequirement.set(readingTypeRequirement);
         return this;
     }

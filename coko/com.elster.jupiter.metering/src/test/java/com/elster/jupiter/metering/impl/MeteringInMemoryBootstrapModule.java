@@ -14,6 +14,7 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.aggregation.FormulaDeletionVetoEventHandler;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeDeletionVetoEventHandler;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -106,6 +107,9 @@ public class MeteringInMemoryBootstrapModule {
     private void addMessageHandlers() {
         MetrologyPurposeDeletionVetoEventHandler metrologyPurposeDeletionHandler = injector.getInstance(MetrologyPurposeDeletionVetoEventHandler.class);
         ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(metrologyPurposeDeletionHandler);
+
+        FormulaDeletionVetoEventHandler formulaDeletionHandler = injector.getInstance(FormulaDeletionVetoEventHandler.class);
+        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(formulaDeletionHandler);
     }
 
     public void deactivate() {
