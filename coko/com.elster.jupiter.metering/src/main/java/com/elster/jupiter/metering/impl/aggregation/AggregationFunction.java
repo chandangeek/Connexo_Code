@@ -4,9 +4,11 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Models the functions that can be used to aggregate energy values.
@@ -19,20 +21,50 @@ enum AggregationFunction {
     /**
      * Aggregates values of volume related {@link ReadingType}s.
      */
-    SUM,
+    SUM {
+        @Override
+        BigDecimal applyTo(BigDecimal... values) {
+            return Stream.of(values).reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+    },
 
     /**
      * Aggregates values of flow related {@link ReadingType}s.
      */
-    AVG,
+    AVG {
+        @Override
+        BigDecimal applyTo(BigDecimal... values) {
+            if (values.length == 0) {
+                return BigDecimal.ZERO;
+            } else {
+                long count = Stream.of(values).count();
+                return SUM.applyTo(values).divide(BigDecimal.valueOf(count), 6, BigDecimal.ROUND_HALF_UP);
+            }
+        }
+    },
 
-    MIN,
-    MAX,
+    MIN {
+        @Override
+        BigDecimal applyTo(BigDecimal... values) {
+            return Stream.of(values).min(BigDecimal::compareTo).get();
+        }
+    },
+    MAX {
+        @Override
+        BigDecimal applyTo(BigDecimal... values) {
+            return Stream.of(values).max(BigDecimal::compareTo).get();
+        }
+    },
 
     /**
      * Truncates localdate values
      */
-    TRUNC,
+    TRUNC {
+        @Override
+        BigDecimal applyTo(BigDecimal... values) {
+            throw new UnsupportedOperationException("LocalDate is not compatible with BigDecimal");
+        }
+    },
 
     /**
      * Aggregates flags that are bitwise encoded in long values.
@@ -57,6 +89,11 @@ enum AggregationFunction {
             stringBuilder.append("(cast(collect(distinct ");
             this.appendStringArguments(stringBuilder, arguments);
             stringBuilder.append(") as Flags_Array))");
+        }
+
+        @Override
+        BigDecimal applyTo(BigDecimal... values) {
+            throw new UnsupportedOperationException("Aggregation flags are not compatible with BigDecimal");
         }
     };
 
@@ -92,5 +129,7 @@ enum AggregationFunction {
     protected void appendStringArguments(StringBuilder stringBuilder, List<String> arguments) {
         stringBuilder.append(arguments.stream().collect(Collectors.joining(", ")));
     }
+
+    abstract BigDecimal applyTo(BigDecimal... values);
 
 }

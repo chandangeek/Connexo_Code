@@ -1,8 +1,9 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
 import com.elster.jupiter.metering.config.Formula;
@@ -83,7 +84,7 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
     }
 
     @Override
-    public List<? extends BaseReadingRecord> calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+    public CalculatedMetrologyContractData calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
         this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
         Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
@@ -91,7 +92,7 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
         this.deliverablesPerMeterActivation = new HashMap<>();
         this.getOverlappingMeterActivations(usagePoint, clippedPeriod).forEach(meterActivation -> this.prepare(meterActivation, contract, clippedPeriod, virtualFactory));
         try {
-            return this.postProcessMissings(this.execute(this.generateSql(virtualFactory)));
+            return this.postProcess(usagePoint, contract, this.execute(this.generateSql(virtualFactory)));
         }
         catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -250,7 +251,7 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
         readingTypeDeliverableForMeterActivation.finish();
     }
 
-    private List<AggregatedReadingRecord> execute(SqlBuilder sqlBuilder) throws SQLException {
+    private Map<ReadingType, List<CalculatedReadingRecord>> execute(SqlBuilder sqlBuilder) throws SQLException {
         try (Connection connection = this.getDataModel().getConnection(true)) {
             try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
                 return this.execute(statement);
@@ -258,8 +259,8 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
         }
     }
 
-    private List<? extends BaseReadingRecord> postProcessMissings(List<AggregatedReadingRecord> aggregatedReadingRecords) {
-        return aggregatedReadingRecords;
+    private CalculatedMetrologyContractData postProcess(UsagePoint usagePoint, MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, calculatedReadingRecords);
     }
 
     private DataModel getDataModel() {
@@ -270,9 +271,9 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
         return this.meteringService.getThesaurus();
     }
 
-    private List<AggregatedReadingRecord> execute(PreparedStatement statement) throws SQLException {
+    private Map<ReadingType, List<CalculatedReadingRecord>> execute(PreparedStatement statement) throws SQLException {
         try (ResultSet resultSet = statement.executeQuery()) {
-            return this.getDataModel().getInstance(AggregatedReadingRecordFactory.class).consume(resultSet);
+            return this.getDataModel().getInstance(CalculatedReadingRecordFactory.class).consume(resultSet);
         }
     }
 
