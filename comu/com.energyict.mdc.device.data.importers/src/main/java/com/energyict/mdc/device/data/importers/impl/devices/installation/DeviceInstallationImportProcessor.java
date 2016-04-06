@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
