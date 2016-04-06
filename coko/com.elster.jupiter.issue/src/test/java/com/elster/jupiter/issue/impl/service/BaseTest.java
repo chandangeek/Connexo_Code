@@ -45,6 +45,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -80,8 +81,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
 import org.mockito.Matchers;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -112,6 +116,7 @@ public abstract class BaseTest {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(TimeService.class).toInstance(mock(TimeService.class));
+            bind(SearchService.class).toInstance(mock(SearchService.class));
 
             TaskService taskService = mock(TaskService.class);
             bind(TaskService.class).toInstance(taskService);
