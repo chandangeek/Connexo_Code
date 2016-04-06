@@ -87,6 +87,7 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
                 me.down('#calendar-graph-view').record = newRecord;
                 me.down('#calendar-graph-view').drawGraph();//.chart.redraw();
                 me.loadRecord(newRecord);
+                me.fireEvent('timeofusecalendarloaded', newRecord);
             }
         })
     },
