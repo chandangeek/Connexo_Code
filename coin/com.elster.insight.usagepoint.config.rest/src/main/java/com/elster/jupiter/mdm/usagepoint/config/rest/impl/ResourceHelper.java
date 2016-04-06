@@ -35,7 +35,7 @@ public class ResourceHelper {
     }
 
     public Long getCurrentMetrologyConfigurationVersion(long id) {
-        return metrologyConfigurationService.findMetrologyConfiguration(id)
+        return metrologyConfigurationService.findUsagePointMetrologyConfiguration(id)
                 .map(MetrologyConfiguration::getVersion)
                 .orElse(null);
     }
