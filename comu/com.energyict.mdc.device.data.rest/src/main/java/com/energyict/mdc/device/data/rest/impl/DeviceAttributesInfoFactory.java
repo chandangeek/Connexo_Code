@@ -13,11 +13,12 @@ import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.impl.DeviceAttributesInfo.DeviceAttribute;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import org.osgi.service.blueprint.reflect.MapEntry;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DeviceAttributesInfoFactory {
