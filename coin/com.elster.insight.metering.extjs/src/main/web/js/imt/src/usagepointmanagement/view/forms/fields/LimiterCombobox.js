@@ -1,18 +1,18 @@
-Ext.define('Imt.usagepointmanagement.view.forms.fields.LimiterCheckbox', {
-    extend: 'Ext.form.field.Checkbox',
-    alias: 'widget.techinfo-limitercheckbox',
+Ext.define('Imt.usagepointmanagement.view.forms.fields.LimiterCombobox', {
+    extend: 'Imt.usagepointmanagement.view.forms.fields.ThreeValuesField',
+    alias: 'widget.techinfo-limiter-combo',
     name: 'limiter',
     fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter'),
     listeners: {
-        beforerender: {
+        afterrender: {
             fn: function (field) {
-                field.showChildField(field.value);
+                field.showChildField(field.value === 'YES');
             }
         },
         change: {
             fn: function (field, newValue) {
                 if (field.rendered) {
-                    field.showChildField(newValue);
+                    field.showChildField(newValue === 'YES');
                 }
             }
         }

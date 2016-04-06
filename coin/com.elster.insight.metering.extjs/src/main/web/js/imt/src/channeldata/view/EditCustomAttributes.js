@@ -17,8 +17,8 @@ Ext.define('Imt.channeldata.view.EditCustomAttributes', {
                     {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'stepsMenu',
-                        mRID: me.usagepoint,
-                        toggleId: 'registersLink'
+                        toggleId: 'registersLink',
+                        usagePoint: me.usagepoint
                     }
                 ]
             }
