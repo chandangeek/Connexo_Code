@@ -13,6 +13,8 @@ import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -44,6 +46,8 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile EstimationService estimationService;
     private volatile UsagePointDataService usagePointDataService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile ServiceCallService serviceCallService;
+    private volatile ServiceCallInfoFactory serviceCallInfoFactory;
     private volatile License license;
 
     @Override
@@ -140,6 +144,16 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.customPropertySetService = customPropertySetService;
     }
 
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setServiceCallInfoFactory(ServiceCallInfoFactory serviceCallInfoFactory) {
+        this.serviceCallInfoFactory = serviceCallInfoFactory;
+    }
+
     @Reference(target = "(com.elster.jupiter.license.application.key=" + APP_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
@@ -160,6 +174,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(estimationService).to(EstimationService.class);
             bind(usagePointDataService).to(UsagePointDataService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
+            bind(serviceCallService).to(ServiceCallService.class);
+            bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);

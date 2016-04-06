@@ -11,6 +11,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.validation.ValidationService;
 import org.mockito.Mock;
 
@@ -58,6 +60,10 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     UsagePointDataService usagePointDataService;
     @Mock
     CustomPropertySetService customPropertySetService;
+    @Mock
+    ServiceCallService serviceCallService;
+    @Mock
+    ServiceCallInfoFactory serviceCallInfoFactory;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -90,6 +96,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setValidationService(validationService);
         application.setUsagePointDataService(usagePointDataService);
         application.setCustomPropertySetService(customPropertySetService);
+        application.setServiceCallService(serviceCallService);
+        application.setServiceCallInfoFactory(serviceCallInfoFactory);
         return application;
     }
 
