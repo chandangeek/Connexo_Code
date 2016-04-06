@@ -36,9 +36,9 @@ public class SpatialCoordinates extends AbstractCoordinates {
     }
 
     protected DegreesWorldCoordinate calculateDecimalDegrees(int signPara, Integer degrees, Integer minutes, BigDecimal seconds) {
-        BigDecimal value = new BigDecimal(degrees);
-        BigDecimal sign = new BigDecimal(signPara);
-        BigDecimal secs = new BigDecimal(minutes).multiply(BigDecimal.valueOf(60)).add(seconds);
+        BigDecimal value = BigDecimal.valueOf(degrees);
+        BigDecimal sign = BigDecimal.valueOf(signPara);
+        BigDecimal secs = BigDecimal.valueOf(minutes).multiply(BigDecimal.valueOf(60)).add(seconds);
         BigDecimal result = value.add(secs.divide(BigDecimal.valueOf(3600), 20, BigDecimal.ROUND_HALF_UP));
         return new DegreesWorldCoordinate(result.multiply(sign));
     }

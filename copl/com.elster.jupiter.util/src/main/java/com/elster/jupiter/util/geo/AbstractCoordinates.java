@@ -1,5 +1,7 @@
 package com.elster.jupiter.util.geo;
 
+import java.util.Objects;
+
 public abstract class AbstractCoordinates implements Coordinates {
 
 
@@ -29,9 +31,7 @@ public abstract class AbstractCoordinates implements Coordinates {
 
     @Override
     public int hashCode() {
-        int result = getLatitude() != null ? getLatitude().hashCode() : 0;
-        result = 31 * result + (getLongitude() != null ? getLongitude().hashCode() : 0);
-        return result;
+        return Objects.hash(getLatitude(), getLongitude());
     }
 
     @Override
