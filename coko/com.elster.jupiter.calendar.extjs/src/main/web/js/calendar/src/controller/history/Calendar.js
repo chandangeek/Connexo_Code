@@ -9,12 +9,20 @@ Ext.define('Cal.controller.history.Calendar', {
             route: 'administration',
             disabled: true,
             items: {
-                timeofuse: {
+                timeofusecalendars: {
                     title: Uni.I18n.translate('general.timeOfUse', 'CAL', 'Time of use'),
                     // privileges: Sct.privileges.ServiceCallType.view,
-                    route: 'timeofuse',
+                    route: 'timeofusecalendars',
                     controller: 'Cal.controller.Calendars',
-                    action: 'showTimeOfUseOverview'
+                    action: 'showTimeOfUseOverview',
+                    items: {
+                        preview: {
+                            title: Uni.I18n.translate('general.previewTOUCalendar', 'CAL', 'Preview time of use calendar'),
+                            route: '{id}',
+                            controller: 'Cal.controller.Calendars',
+                            action: 'viewPreviewOfCalendar'
+                        }
+                    }
                 }
             }
         }

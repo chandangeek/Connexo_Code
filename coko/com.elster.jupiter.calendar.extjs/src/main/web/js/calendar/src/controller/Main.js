@@ -44,9 +44,9 @@ Ext.define('Cal.controller.Main', {
             items: [
                 {
                     text: Uni.I18n.translate('general.timeOfUseCalendars', 'CAL', 'Time of use calendars'),
-                    href: '#/administration/timeofuse',
+                    href: '#/administration/timeofusecalendars',
                     //hidden: !(Uni.Auth.hasPrivilege('privilege.view.serviceCalls') || Uni.Auth.hasPrivilege('privilege.administrate.serviceCall')),
-                    route: 'timeofuse'
+                    route: 'timeofusecalendars'
                 }
             ]
         });
