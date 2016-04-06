@@ -9,6 +9,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
        'Imt.metrologyconfiguration.store.MetrologyConfiguration',
        'Imt.metrologyconfiguration.store.LinkedValidationRulesSet',
        'Imt.metrologyconfiguration.store.LinkableValidationRulesSet',
+        'Imt.metrologyconfiguration.view.DefineMetrologyConfiguration'
     ],
     models: [
              'Imt.metrologyconfiguration.model.MetrologyConfiguration',
@@ -365,6 +366,24 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             	formErrorsPanel.show();
             }
         }
+    },
+
+    showWizard: function () {
+        var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            router = me.getController('Uni.controller.history.Router');
+
+        mainView.setLoading();
+        me.getStore('Imt.metrologyconfiguration.store.MetrologyConfiguration').load(function (records) {
+            var isPossibleAdd = records && records.length;
+
+            me.getApplication().fireEvent('changecontentevent', Ext.widget('define-metrology-configuration', {
+                itemId: 'define-metrology-configuration',
+                returnLink: router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl(),
+                isPossibleAdd: isPossibleAdd
+            }));
+            mainView.setLoading(false);
+        });
     },
 
 });
