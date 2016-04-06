@@ -19,8 +19,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -148,6 +150,8 @@ public class InMemoryPersistence {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
         }
 
     }
