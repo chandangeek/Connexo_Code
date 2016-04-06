@@ -4,8 +4,8 @@ package com.elster.jupiter.calendar.rest.impl;
 import java.util.ArrayList;
 
 public class CalendarInfoFactory {
-    private int NUMBER_OF_EVENTS = 3;
-    private int NUMBER_OF_DAYTYPES = 4;
+    private int NUMBER_OF_EVENTS = 5;
+    private int NUMBER_OF_DAYTYPES = 3;
 
     CalendarInfo fromCalendar(long id) {
         CalendarInfo calendarInfo = new CalendarInfo();
