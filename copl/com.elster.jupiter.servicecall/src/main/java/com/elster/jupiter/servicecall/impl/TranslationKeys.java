@@ -29,6 +29,7 @@ public enum TranslationKeys implements TranslationKey {
     TRANSITION_FROM_CREATED_TO_PENDING(DefaultState.CREATED.getKey()+DefaultCustomStateTransitionEventType.PENDING.getSymbol(), "Enqueue for pickup"),
     TRANSITION_FROM_CREATED_TO_SCHEDULED(DefaultState.CREATED.getKey()+DefaultCustomStateTransitionEventType.SCHEDULED.getSymbol(), "Schedule"),
     TRANSITION_FROM_CREATED_TO_REJECTED(DefaultState.CREATED.getKey()+DefaultCustomStateTransitionEventType.REJECTED.getSymbol(), "Reject"),
+    TRANSITION_FROM_CREATED_TO_CANCELLED(DefaultState.CREATED.getKey()+DefaultCustomStateTransitionEventType.CANCELLED.getSymbol(), "Cancel"),
     TRANSITION_FROM_FAILED_TO_SCHEDULED(DefaultState.FAILED.getKey()+DefaultCustomStateTransitionEventType.SCHEDULED.getSymbol(), "Reschedule"),
     TRANSITION_FROM_PARTIAL_SUCCESS_TO_SCHEDULED(DefaultState.PARTIAL_SUCCESS.getKey()+DefaultCustomStateTransitionEventType.SCHEDULED.getSymbol(), "Reschedule"),
     TRANSITION_FROM_ONGOING_TO_CANCELLED(DefaultState.ONGOING.getKey()+DefaultCustomStateTransitionEventType.CANCELLED.getSymbol(), "Cancel"),
