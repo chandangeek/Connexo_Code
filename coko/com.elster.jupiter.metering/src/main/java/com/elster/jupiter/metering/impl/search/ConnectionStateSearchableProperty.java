@@ -56,7 +56,7 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public Visibility getVisibility() {
-        return Visibility.REMOVABLE;
+        return Visibility.STICKY;
     }
 
     @Override
