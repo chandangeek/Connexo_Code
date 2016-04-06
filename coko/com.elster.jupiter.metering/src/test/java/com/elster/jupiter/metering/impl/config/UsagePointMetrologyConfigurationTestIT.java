@@ -350,4 +350,20 @@ public class UsagePointMetrologyConfigurationTestIT {
         assertThat(requirements).hasSize(1);
         assertThat(requirements.get(0)).isEqualTo(readingTypeRequirement);
     }
+
+    @Test
+    @Transactional
+    public void testCanRemoveMetrologConfigWithRequirements() {
+        ServiceCategory serviceCategory = getServiceCategory();
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
+        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+        serviceCategory.addMeterRole(meterRole);
+        metrologyConfiguration.addMeterRole(meterRole);
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
+        metrologyConfiguration.newReadingTypeRequirement("Reading type requirement").withMeterRole(meterRole).withReadingType(readingType);
+
+        metrologyConfiguration.delete();
+
+        assertThat(inMemoryBootstrapModule.getMetrologyConfigurationService().findUsagePointMetrologyConfiguration(metrologyConfiguration.getId()).isPresent()).isFalse();
+    }
 }
