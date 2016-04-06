@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
 import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.cbo.LastSeenDateInfo;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.CipheringType;
@@ -17,7 +18,6 @@ import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
@@ -277,8 +277,9 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
                     //Always include the slave information if it is present in the SAP assignment list and the G3 node list.
                     //It is the ComServer framework that will then do a smart update in EIServer, taking the readout LastSeenDate into account.
-                    DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
-                    deviceTopology.addSlaveDevice(slaveDeviceIdentifier);   //Using callHomeId as a general property
+                    DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);  //Using callHomeId as a general property
+                    LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo(G3Properties.PROP_LASTSEENDATE, BigDecimal.valueOf(g3Node.getLastSeenDate().getTime()));
+                    deviceTopology.addSlaveDevice(slaveDeviceIdentifier, lastSeenDateInfo);
                     deviceTopology.addAdditionalCollectedDeviceInfo(
                             MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                     slaveDeviceIdentifier,
@@ -304,34 +305,6 @@ public class Beacon3100 extends AbstractDlmsProtocol {
             }
         }
         return deviceTopology;
-    }
-
-    /**
-     * This node is only considered an actual slave device if:
-     * - the configuredLastSeenDate in EIServer is still empty
-     * - the read out last seen date is empty (==> always update EIServer, by design)
-     * - the read out last seen date is the same, or newer, compared to the configuredLastSeenDate in EIServer
-     * <p/>
-     * If true, the gateway link in EIServer will be created and the properties will be set.
-     * If false, the gateway link (if it exists at all) will be removed.
-     */
-    private boolean hasNewerLastSeenDate(G3Topology.G3Node g3Node, long configuredLastSeenDate) {
-        return (configuredLastSeenDate == 0) || (g3Node.getLastSeenDate() == null) || (g3Node.getLastSeenDate().getTime() >= configuredLastSeenDate);
-    }
-
-    /**
-     * Return property "LastSeenDate" on slave device with callHomeId == macAddress
-     * Return 0 if not found.
-     */
-    private long getConfiguredLastSeenDate(String macAddress) {
-        for (OfflineDevice slaveDevice : getOfflineDevice().getAllSlaveDevices()) {
-            String configuredCallHomeId = slaveDevice.getAllProperties().getStringProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
-            configuredCallHomeId = configuredCallHomeId == null ? "" : configuredCallHomeId;
-            if (macAddress.equals(configuredCallHomeId)) {
-                return slaveDevice.getAllProperties().getIntegerProperty(G3Properties.PROP_LASTSEENDATE, BigDecimal.ZERO).longValue();
-            }
-        }
-        return 0L;
     }
 
     private G3Topology.G3Node findG3Node(final String macAddress, final List<G3Topology.G3Node> g3Nodes) {
@@ -371,7 +344,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-24 18:11:11 +0100 (Thu, 24 Mar 2016)$";
+        return "$Date: 2016-04-06 17:33:00 +0200 (Wed, 06 Apr 2016)$";
     }
 
     @Override
