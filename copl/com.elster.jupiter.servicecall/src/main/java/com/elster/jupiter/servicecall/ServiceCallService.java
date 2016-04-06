@@ -84,9 +84,17 @@ public interface ServiceCallService {
     /**
      * Returns a finder which allows you to filter the found service calls
      *
-     * @return ServiceCallFinder
+     * @param serviceCallFilter a filter for servicecalls
+     * @return Finder
      */
     Finder<ServiceCall> getServiceCallFinder(ServiceCallFilter serviceCallFilter);
+
+    /**
+     * Returns a finder for servicecalls
+     *
+     * @return Finder
+     */
+    Finder<ServiceCall> getServiceCallFinder();
 
     /**
      * Returns information about the status of the children in a given service call
@@ -107,8 +115,6 @@ public interface ServiceCallService {
      * @param handler Service call handler name
      */
     Optional<ServiceCallHandler> findHandler(String handler);
-
-    ServiceCallFilter newServiceCallFilter();
 
     Set<ServiceCall> findServiceCalls(Object targetObject, Set<DefaultState> inState);
 
