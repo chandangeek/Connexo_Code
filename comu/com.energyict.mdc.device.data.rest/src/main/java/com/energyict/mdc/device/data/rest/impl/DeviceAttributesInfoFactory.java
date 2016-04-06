@@ -54,7 +54,7 @@ public class DeviceAttributesInfoFactory {
                         .stream()
                         .map(e ->
                                 e.getValue() == true ?
-                                        "\\n\\r" + (e.getKey() != null ? e.getKey() : "")
+                                        "\\r\\n" + (e.getKey() != null ? e.getKey() : "")
                                         : e.getKey() != null ? e.getKey() : "")
                         .collect(Collectors.joining(", "));
             }
