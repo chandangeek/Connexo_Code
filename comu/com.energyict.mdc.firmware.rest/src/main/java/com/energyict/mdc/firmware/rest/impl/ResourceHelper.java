@@ -6,7 +6,9 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -116,4 +118,23 @@ public class ResourceHelper {
         return deviceMessageSpecificationService.findMessageSpecById(firmwareMessageId.dbValue())
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));
     }
+
+    public void cancelDeviceInFirmwareCampaign(FirmwareCampaign campaign, Device device){
+        Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign =  firmwareService.getDeviceInFirmwareCampaignsForDevice(campaign, device);
+        deviceInFirmwareCampaign.ifPresent(deviceInFirmwareCampaign1 -> {
+            if (firmwareService.cancelFirmwareUploadForDevice(device)) {
+                deviceInFirmwareCampaign1.cancel();
+            }
+        });
+    }
+
+    public void retryDeviceInFirmwareCampaign(FirmwareCampaign campaign, Device device){
+        Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign =  firmwareService.getDeviceInFirmwareCampaignsForDevice(campaign, device);
+        deviceInFirmwareCampaign.ifPresent(deviceInFirmwareCampaign1 -> {
+            if (firmwareService.retryFirmwareUploadForDevice(deviceInFirmwareCampaign1)) {
+                deviceInFirmwareCampaign1.retry();
+            }
+        });
+    }
+
 }

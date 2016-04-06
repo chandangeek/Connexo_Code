@@ -74,7 +74,7 @@ public class FirmwareCampaignInfoFactory {
             }
             PropertyDefaultValuesProvider provider = (propertySpec, propertyType) -> {
                 if (FirmwareVersion.class.equals(propertySpec.getValueFactory().getValueType())){
-                    FirmwareVersionFilter filter = new FirmwareVersionFilter(campaign.getDeviceType());
+                    FirmwareVersionFilter filter = firmwareService.filterForFirmwareVersion(campaign.getDeviceType());
                     filter.addFirmwareTypes(Arrays.asList(campaign.getFirmwareType()));
                     filter.addFirmwareStatuses(Arrays.asList(FirmwareStatus.FINAL, FirmwareStatus.TEST));
                     return firmwareService.findAllFirmwareVersions(filter).find();

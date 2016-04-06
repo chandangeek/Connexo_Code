@@ -7,6 +7,8 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import java.time.Instant;
 
 public class DeviceInFirmwareCampaignInfo {
+
+    public long campaignId;
     public String mrid;
     public IdWithNameInfo status;
     public Instant startedOn;
@@ -15,14 +17,15 @@ public class DeviceInFirmwareCampaignInfo {
     public DeviceInFirmwareCampaignInfo() {
     }
 
-    public DeviceInFirmwareCampaignInfo(DeviceInFirmwareCampaign device, Thesaurus thesaurus) {
-        this.mrid = device.getDevice().getmRID();
-        if (device.getStatus() != null) {
+    public DeviceInFirmwareCampaignInfo(DeviceInFirmwareCampaign deviceInFirmwareCampaign, Thesaurus thesaurus) {
+        this.campaignId = deviceInFirmwareCampaign.getFirmwareCampaign().getId();
+        this.mrid = deviceInFirmwareCampaign.getDevice().getmRID();
+        if (deviceInFirmwareCampaign.getStatus() != null) {
             this.status = new IdWithNameInfo();
-            this.status.id = device.getStatus().key();
-            this.status.name = thesaurus.getString(MessageSeeds.Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + device.getStatus().key(), device.getStatus().key());
+            this.status.id = deviceInFirmwareCampaign.getStatus().key();
+            this.status.name = thesaurus.getString(MessageSeeds.Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + deviceInFirmwareCampaign.getStatus().key(), deviceInFirmwareCampaign.getStatus().key());
         }
-        this.startedOn = device.getStartedOn();
-        this.finishedOn = device.getFinishedOn();
+        this.startedOn = deviceInFirmwareCampaign.getStartedOn();
+        this.finishedOn = deviceInFirmwareCampaign.getFinishedOn();
     }
 }

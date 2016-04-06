@@ -122,7 +122,7 @@ public class FirmwareCampaignResource {
     }
 
     private DevicesInFirmwareCampaignFilter buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter){
-        DevicesInFirmwareCampaignFilter filter = new DevicesInFirmwareCampaignFilter();
+        DevicesInFirmwareCampaignFilter filter = firmwareService.filterForDevicesInFirmwareCampaign();
         if (jsonQueryFilter.hasProperty(FilterOption.status.name())) {
             filter.withStatus(jsonQueryFilter.getStringList(FilterOption.status.name()));
         }
