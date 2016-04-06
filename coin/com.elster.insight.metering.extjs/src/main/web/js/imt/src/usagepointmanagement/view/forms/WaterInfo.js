@@ -8,7 +8,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.WaterInfo', {
             hidden: true
         },
         {
-            xtype: 'checkbox',
+            xtype: 'techinfo-threevaluesfield',
             name: 'grounded',
             itemId: 'up-grounded-checkbox',
             fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
@@ -30,7 +30,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.WaterInfo', {
             value: {value: null, unit: 'm3/h', multiplier: 0}
         },
         {
-            xtype: 'techinfo-limitercheckbox',
+            xtype: 'techinfo-limiter-combo',
             itemId: 'up-limiter-limitercheckbox'
         },
         {
