@@ -1,9 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -11,19 +7,11 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.DefaultMeterRole;
-import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
-import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -54,10 +42,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -173,7 +158,8 @@ public class MetrologyConfigurationResource {
                                                                                 @Context SecurityContext securityContext,
                                                                                 @BeanParam JsonQueryParameters queryParameters,
                                                                                 @BeanParam JsonQueryFilter filter) {
-        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findUsagePointMetrologyConfiguration(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         List<ValidationRuleSetInfo> validationRuleSetsInfos =
                 ListPager
                         .of(usagePointConfigurationService.getValidationRuleSets(metrologyConfiguration))
