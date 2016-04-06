@@ -92,7 +92,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -405,7 +404,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Activate
     public final void activate(BundleContext context) {
 
-        if (dataModel != null && !dataModel.isInstalled() && context != null) {
+        if (dataModel != null && context != null) {
             createNewTemplate(context);
         } else if (context == null && locationTemplate == null) {
             createLocationTemplateDefaultData();
@@ -829,7 +828,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     private void createLocationTemplateDefaultData() {
-        List<TemplateField> templateElements = new LinkedList<>();
+        List<TemplateField> templateElements = new ArrayList<>();
         AtomicInteger index = new AtomicInteger(-1);
         Stream.of(LocationTemplateElements.values()).forEach(t ->
                 templateElements.add(new TemplateFieldImpl(t.getElementAbbreviation(), t.toString(), index.incrementAndGet(), index
@@ -838,8 +837,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     private void createDefaultLocationTemplate() {
-        String locationElements = LocationTemplateImpl.ALLOWED_LOCATION_TEMPLATE_ELEMENTS.stream().
-                reduce((s, t) -> s + "," + t).get();
+        String locationElements = LocationTemplateImpl.ALLOWED_LOCATION_TEMPLATE_ELEMENTS.stream()
+                .collect(Collectors.joining(","));
         locationTemplate = new LocationTemplateImpl(dataModel).init(locationElements, locationElements);
         locationTemplate
                 .parseTemplate(locationElements, locationElements);

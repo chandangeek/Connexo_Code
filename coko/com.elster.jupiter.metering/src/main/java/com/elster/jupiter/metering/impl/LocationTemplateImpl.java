@@ -7,9 +7,9 @@ import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,9 +21,9 @@ public final class LocationTemplateImpl implements LocationTemplate {
     private long id;
     private String templateFields;
     private String mandatoryFields;
-    private List<String> splitLineElements = new LinkedList<>();
+    private List<String> splitLineElements = new ArrayList<>();
     private final DataModel dataModel;
-    private List<TemplateField> templateMembers = new LinkedList<>();
+    private List<TemplateField> templateMembers = new ArrayList<>();
     private long version;
     private Instant createTime;
     private Instant modTime;
@@ -89,12 +89,10 @@ public final class LocationTemplateImpl implements LocationTemplate {
             this.templateFields = locationTemplate.trim();
             this.mandatoryFields = mandatoryFields.trim();
             Arrays.asList(this.templateFields.split(",")).stream().filter(f ->
-                    f.startsWith("\\n") || f.startsWith("\\r")).forEach(e ->
-                    splitLineElements.add(e.replace("\\r", "").replace("\\n", "")
-                            .replace("\r", "").replace("\n", "")
-                            .replace("\r\n", "").replace("\n\r", "")));
-            String[] templateElements = this.templateFields.replace("\\r", "").replace("\\n", "")
-                    .replace("\r", "").replace("\n", "").replace("\r\n", "").replace("\n\r", "").split(",");
+                    f.startsWith("\\n") || f.startsWith("\\r")
+                            || f.startsWith("\n") || f.startsWith("\r")).forEach(e ->
+                    splitLineElements.add(normalize(e)));
+            String[] templateElements = normalize(this.templateFields).split(",");
             String[] mandatoryFieldElements = this.mandatoryFields.split(",");
             if (Arrays.asList(templateElements).containsAll(ALLOWED_LOCATION_TEMPLATE_ELEMENTS)
                     && Arrays.asList(templateElements).containsAll(Arrays.asList(mandatoryFields.trim().split(",")))) {
@@ -168,9 +166,9 @@ public final class LocationTemplateImpl implements LocationTemplate {
 
     @Override
     public List<String> getTemplateElementsNames() {
-        List<String> list = new LinkedList<>();
+        List<String> list = new ArrayList<>();
         Arrays.asList(templateFields.split(",")).stream().forEach(e ->
-                list.add(LocationTemplateElements.fromAbbreviation(e).toString()));
+                list.add(LocationTemplateElements.fromAbbreviation(normalize(e)).toString()));
         return list;
     }
 
@@ -186,10 +184,16 @@ public final class LocationTemplateImpl implements LocationTemplate {
 
     @Override
     public List<String> getMandatoryFieldsNames() {
-        List<String> list = new LinkedList<>();
+        List<String> list = new ArrayList<>();
         Arrays.asList(mandatoryFields.split(",")).stream().forEach(m ->
                 list.add(LocationTemplateElements.fromAbbreviation(m).toString()));
         return list;
+    }
+
+    private String normalize(String input) {
+        return input.replace("\\r", "").replace("\\n", "")
+                .replace("\r", "").replace("\n", "")
+                .replace("\r\n", "").replace("\n\r", "");
     }
 
     @Override

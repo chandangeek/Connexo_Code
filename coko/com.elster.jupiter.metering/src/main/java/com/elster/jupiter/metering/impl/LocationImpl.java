@@ -70,11 +70,11 @@ public class LocationImpl implements Location {
                              String zipCode,
                              boolean defaultLocation,
                              String locale) {
-        LocationMemberImpl temp = LocationMemberImpl.from(dataModel, this.getId(), countryCode, countryName, administrativeArea, locality, subLocality,
+        LocationMemberImpl locationMember = LocationMemberImpl.from(dataModel, this.getId(), countryCode, countryName, administrativeArea, locality, subLocality,
                 streetType, streetName, streetNumber, establishmentType, establishmentName, establishmentNumber, addressDetail, zipCode,
                 defaultLocation, locale);
-        temp.doSave();
-        return temp;
+        locationMember.doSave();
+        return locationMember;
     }
 
     @Override
