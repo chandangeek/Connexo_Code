@@ -28,10 +28,12 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.pubsub.impl.PublisherImpl;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
@@ -61,6 +63,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -90,6 +93,8 @@ public class ReadingQualityImplIT {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
         }
     }
 

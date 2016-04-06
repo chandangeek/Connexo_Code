@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeDeletionVetoEventHandler;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -153,6 +154,9 @@ public class MeteringInMemoryBootstrapModule {
         return injector.getInstance(FiniteStateMachineService.class);
     }
 
+    public NlsService getNlsService() {
+        return injector.getInstance(NlsService.class);
+    }
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
