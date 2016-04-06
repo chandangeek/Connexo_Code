@@ -19,16 +19,16 @@ public class ServletWrapper extends HttpServlet  {
 		this.servlet = servlet;
 		this.threadPrincipalService = threadPrincipalService;
 	}
+
+	public void destroy() {
+		servlet.destroy();
+		super.destroy();
+	}
 	
 	@Override
 	public void init() throws ServletException {
 		super.init();
 		servlet.init(getServletConfig());
-	}
-	
-	public void destroy() {
-		servlet.destroy();
-		super.destroy();		
 	}
 	
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -45,8 +45,13 @@ public class ServletWrapper extends HttpServlet  {
     }
 
     private Locale determineLocale(RequestWrapper request) {
-        return request.getUserPrincipal().getLocale().orElse(request.getLocale());
-    }
+		// Locale of the authenticated user
+		if (request.getUserPrincipal() != null) {
+			return request.getUserPrincipal().getLocale().orElse(request.getLocale());
+		}
+
+		return request.getLocale();
+	}
 
     // returns the first two parts
 	private String getModule(HttpServletRequest request) {
