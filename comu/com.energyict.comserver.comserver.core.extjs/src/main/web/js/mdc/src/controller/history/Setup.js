@@ -2038,7 +2038,16 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'processes',
                             controller: 'Mdc.controller.setup.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                            action: 'showDeviceProcesses'
+                            action: 'showDeviceProcesses',
+                            items:{
+                                'processstart': {
+                                    title: Uni.I18n.translate('processes.startProcess', 'MDC', 'Start process'),
+                                    route: 'start',
+                                    controller: 'Mdc.controller.setup.MonitorProcesses',
+                                    privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                                    action: 'showDeviceStartProcess'
+                                }
+                            }
                         },
                         'processesrunning': {
                             title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
@@ -2054,13 +2063,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
                             action: 'showDeviceProcesses'
-                        },
-                        'processstart': {
-                            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
-                            route: 'processes/start',
-                            controller: 'Mdc.controller.setup.MonitorProcesses',
-                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                            action: 'showDeviceStartProcess'
                         }
                     }
                 }
