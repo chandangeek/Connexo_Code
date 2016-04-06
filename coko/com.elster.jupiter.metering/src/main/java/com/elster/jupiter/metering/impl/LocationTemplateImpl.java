@@ -7,7 +7,11 @@ import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -164,7 +168,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
 
     @Override
     public List<String> getTemplateElementsNames() {
-        List<String> list = new ArrayList<>();
+        List<String> list = new LinkedList<>();
         Arrays.asList(templateFields.split(",")).stream().forEach(e ->
                 list.add(LocationTemplateElements.fromAbbreviation(e).toString()));
         return list;
@@ -182,7 +186,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
 
     @Override
     public List<String> getMandatoryFieldsNames() {
-        List<String> list = new ArrayList<>();
+        List<String> list = new LinkedList<>();
         Arrays.asList(mandatoryFields.split(",")).stream().forEach(m ->
                 list.add(LocationTemplateElements.fromAbbreviation(m).toString()));
         return list;
