@@ -33,7 +33,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                 viewport.setLoading(false);
                 widget = Ext.widget('usage-point-processes-main-view', {
                     router: router,
-                    mRID: usagepoint.get('mRID'),
+                    usagePoint: usagepoint,
                     properties: {
                         variableId: 'usagePointId',
                         name: 'usagePoint',
@@ -65,7 +65,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                 me.getApplication().fireEvent('usagePointLoaded', record);
                 viewport.setLoading(false);
                 widget = Ext.widget('usage-point-processes-start', {
-                    mRID: mRID,
+                    usagePoint: record,
                     router: router,
                     properties: {
                         activeProcessesParams: {

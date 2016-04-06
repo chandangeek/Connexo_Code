@@ -6,6 +6,7 @@ Ext.define('Imt.processes.view.UsagePointStartProcess', {
         'Imt.usagepointmanagement.view.UsagePointSideMenu'
     ],
     properties: null,
+    usagePoint: null,
     initComponent: function () {
         var me = this;
         me.side = [
@@ -23,7 +24,7 @@ Ext.define('Imt.processes.view.UsagePointStartProcess', {
                                 xtype: 'usage-point-management-side-menu',
                                 itemId: 'usage-point-management-side-menu',
                                 router: me.router,
-                                mRID: me.mRID
+                                usagePoint: me.usagePoint
                             }
                         ]
                     }
