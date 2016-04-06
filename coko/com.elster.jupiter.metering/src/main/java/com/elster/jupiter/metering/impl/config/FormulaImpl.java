@@ -1,8 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -21,12 +19,10 @@ public class FormulaImpl implements ServerFormula {
     private Mode mode;
     private Reference<ExpressionNode> expressionNode = ValueReference.absent();
     private final DataModel dataModel;
-    private final EventService eventService;
 
     @Inject
-    FormulaImpl(DataModel dataModel, EventService eventService) {
+    FormulaImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.eventService = eventService;
     }
 
     public FormulaImpl init(Mode mode, ExpressionNode expressionNode) {
@@ -88,9 +84,6 @@ public class FormulaImpl implements ServerFormula {
 
     @Override
     public void delete() {
-        this.eventService.postEvent(EventType.FORMULA_DELETED.topic(), this);
-        // Event should be sent before actual deletion or SQL exception will be thrown if the formula is in use
-        // see FormulaDeletionVetoEventHandler class
         dataModel.remove(this);
     }
 
