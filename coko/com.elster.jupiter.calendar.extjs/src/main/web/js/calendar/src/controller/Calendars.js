@@ -77,27 +77,13 @@ Ext.define('Cal.controller.Calendars', {
 
     viewPreviewOfCalendar: function (id) {
         var me = this,
-            model = me.getModel('Uni.model.timeofuse.Calendar'),
             view;
 
-        model.setProxy({
-            type: 'rest',
+        view = Ext.widget('timeOfUseCalendar', {
             url: '/api/cal/calendars/timeofusecalendars',
-            timeout: 120000,
-            reader: {
-                type: 'json'
-            }
+            id: id
         });
-        model.load(id, {
-            success: function (calendar) {
-                view = Ext.widget('timeOfUseCalendar', {
-                    record: calendar,
-                    model: model
-                });
-                me.getApplication().fireEvent('changecontentevent', view);
-            }
-        });
-
+        me.getApplication().fireEvent('changecontentevent', view);
     }
 
     //updateCalendarsCounter: function () {
