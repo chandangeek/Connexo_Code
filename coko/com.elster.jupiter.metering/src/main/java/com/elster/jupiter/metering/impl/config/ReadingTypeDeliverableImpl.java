@@ -166,11 +166,15 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     }
 
     void validateReadingType(ReadingType readingType) {
+        Thesaurus thesaurus = ((ServerMetrologyConfigurationService)metrologyConfigurationService).getThesaurus();
+        if ((readingType != null) && (!readingType.isRegular())) {
+            throw new InvalidNodeException(thesaurus, MessageSeeds.IRREGULAR_READINGTYPE_IN_DELIVERABLE);
+        }
         if (readingType != null &&
                 formula.isPresent() &&
                 formula.get().getMode().equals(Formula.Mode.AUTO) &&
                 !UnitConversionSupport.isAssignable(readingType, formula.get().getExpressionNode().getDimension())) {
-            throw new InvalidNodeException(((ServerMetrologyConfigurationService)metrologyConfigurationService).getThesaurus() , MessageSeeds.NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA);
+            throw new InvalidNodeException(thesaurus , MessageSeeds.NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA);
         }
         for (ReadingTypeDeliverable deliverable : getMetrologyConfiguration().getDeliverables()) {
             if (!deliverable.equals(this)) {

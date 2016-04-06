@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
@@ -66,6 +68,38 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
                     .orElseGet(this::getDimensionFromTemplate);
         }
         return this.dimension;
+    }
+
+    public boolean isRegular() {
+        boolean wildCardForMacroPeriod = false;
+        boolean wildCardForTime = false;
+        for (PartiallySpecifiedReadingTypeAttributeValueImpl att : overriddenAttributes) {
+            if ((att.getName() == ReadingTypeTemplateAttributeName.MACRO_PERIOD) && (!wildCardForMacroPeriod)) {
+                wildCardForMacroPeriod = true;
+            }
+            if ((att.getName() == ReadingTypeTemplateAttributeName.TIME) && (!wildCardForTime)) {
+                wildCardForTime = true;
+            }
+        }
+        if (!wildCardForMacroPeriod) {
+            ReadingTypeTemplateAttribute macroPeriodAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.MACRO_PERIOD);
+            if (macroPeriodAttribute.getCode().isPresent()) {
+                int value = macroPeriodAttribute.getCode().get();
+                if ((value != MacroPeriod.DAILY.ordinal()) && (value != MacroPeriod.MONTHLY.ordinal())) {
+                    return false;
+                }
+            }
+        }
+        if (!wildCardForTime) {
+            ReadingTypeTemplateAttribute timeAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.TIME);
+            if (timeAttribute.getCode().isPresent()) {
+                int value = timeAttribute.getCode().get();
+                if (value != TimeAttribute.NOTAPPLICABLE.ordinal()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private Dimension getDimensionFromTemplate() {

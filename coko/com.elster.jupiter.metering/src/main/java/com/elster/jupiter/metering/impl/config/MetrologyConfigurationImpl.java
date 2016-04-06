@@ -295,6 +295,9 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public ReadingTypeDeliverable addReadingTypeDeliverable(String name, ReadingType readingType, Formula formula) {
+        if ((readingType != null) && (!readingType.isRegular())) {
+            throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.IRREGULAR_READINGTYPE_IN_DELIVERABLE);
+        }
         if (readingType != null && formula.getMode().equals(Formula.Mode.AUTO) &&  !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
             throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA);
         }

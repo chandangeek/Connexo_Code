@@ -481,7 +481,7 @@ public class FormulaCrudTest {
         assertThat(config != null);
         ReadingType readingTypeRequirement =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.0.12.0.41.109.0.0.0.0.0.0.0.0.0.109.0", "readingtype for requirement");
+                        "0.0.1.12.0.41.109.0.0.0.0.0.0.0.0.0.109.0", "readingtype for requirement");
         assertThat(readingTypeRequirement != null);
         config.newReadingTypeRequirement("consumption").withReadingType(readingTypeRequirement);
 
@@ -554,7 +554,7 @@ public class FormulaCrudTest {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         MetrologyConfiguration metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .newMetrologyConfiguration("Test", serviceCategory).create();
-        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "zero reading type");
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "zero reading type");
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("deliverable", readingType, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.constant(14), builder.constant(505)));
         Formula formula = deliverable.getFormula();
@@ -610,5 +610,64 @@ public class FormulaCrudTest {
             fail("No InvalidNodeException expected!");
         }
 
+    }
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testIrregularReadingTypeOfDeliverable() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config3", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType regRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0", "regRT");
+        assertThat(regRT != null);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("DelOnReg", regRT, Formula.Mode.AUTO);
+
+        try {
+            ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "Irregular readingtypes are not allowed for a deliverable.");
+        }
+    }
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testIrregularReadingTypeOfRequirement() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config2", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType regRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0", "regRT");
+        assertThat(regRT != null);
+        config.newReadingTypeRequirement("Req2").withReadingType(regRT);
+
+        assertThat(config.getRequirements().size() == 1);
+        ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                config.getRequirements().get(0).getId()).get();
+
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
+        try {
+            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "Irregular readingtypes are not allowed for a requirement.");
+        }
     }
 }

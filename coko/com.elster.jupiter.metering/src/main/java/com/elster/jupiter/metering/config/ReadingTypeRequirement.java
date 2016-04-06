@@ -72,4 +72,6 @@ public interface ReadingTypeRequirement extends HasId, HasName {
      */
     Dimension getDimension();
 
+    boolean isRegular();
+
 }
