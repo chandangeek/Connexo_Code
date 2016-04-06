@@ -98,6 +98,5 @@ public enum MessageSeeds implements MessageSeed {
         public static final String TASK_VALIDATED_SUCCESFULLY = "TaskValidatedSuccesfully";
         public static final String OVERLAPPED_PERIOD = "OverlappedPeriod";
         public static final String DEVICE_GROUP_STILL_IN_USE = "DeviceGroupStillInUse";
-
     }
 }
