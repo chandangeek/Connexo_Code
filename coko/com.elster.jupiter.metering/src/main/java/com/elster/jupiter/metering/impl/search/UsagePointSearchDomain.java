@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
@@ -112,6 +113,10 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new PhaseCodeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new ReadRouteSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new TypeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new ServicePrioritySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.meteringService
                         .getThesaurus())
         ));
@@ -172,7 +177,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
         private UsagePointFinder(Condition condition) {
             this.finder = DefaultFinder
-                    .of(UsagePoint.class, condition, meteringService.getDataModel(), UsagePointMetrologyConfiguration.class)
+                    .of(UsagePoint.class, condition, meteringService.getDataModel(), UsagePointMetrologyConfiguration.class, UsagePointDetail.class)
                     .defaultSortColumn("mRID");
         }
 
