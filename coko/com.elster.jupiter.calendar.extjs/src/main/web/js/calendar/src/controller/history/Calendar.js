@@ -20,7 +20,13 @@ Ext.define('Cal.controller.history.Calendar', {
                             title: Uni.I18n.translate('general.previewTOUCalendar', 'CAL', 'Preview time of use calendar'),
                             route: '{id}',
                             controller: 'Cal.controller.Calendars',
-                            action: 'viewPreviewOfCalendar'
+                            action: 'viewPreviewOfCalendar',
+                            callback: function (route) {
+                                this.getApplication().on('timeofusecalendarloaded', function (name) {
+                                    route.setTitle(Uni.I18n.translate('general.previewX', 'CAL', "Preview '{0}'", name));
+                                }, {single: true});
+                                return this;
+                            }
                         }
                     }
                 }
