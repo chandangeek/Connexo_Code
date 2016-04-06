@@ -177,10 +177,11 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
 
     getCategories: function (record) {
         var categories = [];
-
-        Ext.Array.each(record.get('weekTemplate'), function (weekDay) {
-            categories.push(weekDay.name);
-        });
+        if (record !== null) {
+            Ext.Array.each(record.get('weekTemplate'), function (weekDay) {
+                categories.push(weekDay.name);
+            });
+        }
 
         return categories;
     },
@@ -202,10 +203,11 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
     calculateWeekRepresentation: function (record) {
         var me = this,
             week = [];
-
-        Ext.Array.each(record.get('weekTemplate'), function (weekDay) {
-            week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', weekDay.type)));
-        });
+        if (record !== null) {
+            Ext.Array.each(record.get('weekTemplate'), function (weekDay) {
+                week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', weekDay.type)));
+            });
+        }
 
         return week;
     },

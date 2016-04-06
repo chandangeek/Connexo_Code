@@ -9,7 +9,6 @@ Ext.define('Uni.view.calendar.TimeOfUsePreview', {
 
     initComponent: function () {
         var me = this;
-        me.title = this.record.get('name');
 
         me.items = {
             xtype: 'form',
@@ -40,6 +39,8 @@ Ext.define('Uni.view.calendar.TimeOfUsePreview', {
     fillFieldContainers: function (record) {
         var me = this;
         Ext.suspendLayouts();
+
+        me.setTitle(record.get('name'));
 
         me.down('#periodField').removeAll();
         record.periods().each(function (record) {

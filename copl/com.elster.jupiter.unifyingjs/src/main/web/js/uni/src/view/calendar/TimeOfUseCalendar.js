@@ -9,6 +9,8 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
         'Uni.grid.FilterPanelTop',
         'Uni.view.calendar.TimeOfUsePreview'
     ],
+    url: null,
+    id: null,
     record: null,
     model: null,
 
@@ -18,9 +20,9 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
 
 
         me.content = {
-            title: Uni.I18n.translate('general.previewX', 'UNI', "Preview '{0}'", [me.record.get('name')]),
             xtype: 'panel',
             ui: 'large',
+            itemId: 'tou-content-panel',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -52,7 +54,6 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
             ]
         };
 
-        // this.down('#tou-filter').down('#')
         this.on('afterrender', this.prepareComponent)
         this.on('resize', this.resizeChart);
         this.callParent(arguments);
@@ -60,20 +61,29 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
 
     prepareComponent: function () {
         var me = this;
+        me.model = Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar');
 
-        me.loadRecord(me.record);
-        me.down('#tou-filter').down('#filter-apply-all').on('click', me.applyFilter, me)
+        me.model.setProxy({
+            type: 'rest',
+            url: me.url,
+            timeout: 120000,
+            reader: {
+                type: 'json'
+            }
+        });
+        me.loadNewData();
+        me.down('#tou-filter').down('#filter-apply-all').on('click', me.loadNewData, me)
     },
 
-    applyFilter: function () {
+    loadNewData: function () {
         var me = this;
-
-        me.model.load(me.record.get('id'), {
+        me.model.load(me.id, {
             params: {
                 weekOf: me.down('#weekOf').getParamValue()
             },
             success: function (newRecord) {
                 me.record = newRecord;
+                me.down('#tou-content-panel').setTitle(Uni.I18n.translate('general.previewX', 'UNI', "Preview '{0}'", newRecord.get('name')));
                 me.down('#calendar-graph-view').record = newRecord;
                 me.down('#calendar-graph-view').drawGraph();//.chart.redraw();
                 me.loadRecord(newRecord);
