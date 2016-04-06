@@ -137,6 +137,10 @@ public class MetrologyConfigurationInfoFactory {
 
     private ReadingTypeRequirementsInfo asInfo(ReadingTypeRequirement requirement) {
         ReadingTypeRequirementsInfo info = new ReadingTypeRequirementsInfo();
+        info.meterRole = ((UsagePointMetrologyConfiguration)requirement.getMetrologyConfiguration())
+                .getMeterRoleFor(requirement)
+                .map(this::asInfo)
+                .orElse(null);
         if(requirement instanceof FullySpecifiedReadingType){
             FullySpecifiedReadingType fullySpecifiedReadingType = (FullySpecifiedReadingType) requirement;
             info.readingType = new ReadingTypeInfo(fullySpecifiedReadingType.getReadingType());

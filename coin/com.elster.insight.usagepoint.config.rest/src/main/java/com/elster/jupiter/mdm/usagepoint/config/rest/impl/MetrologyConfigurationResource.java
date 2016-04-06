@@ -114,42 +114,11 @@ public class MetrologyConfigurationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Transactional
     public Response createMetrologyConfiguration(MetrologyConfigurationInfo metrologyConfigurationInfo) {
+        /*
+        Just a stub, not to break a possibility to create metrology configuration from UI
+         */
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
-        serviceCategory.addMeterRole(meterRole);
-        UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(metrologyConfigurationInfo.name, serviceCategory)
-                .create();
-        metrologyConfiguration.addMeterRole(meterRole);
-        ReadingType readingType = Optional.ofNullable(meteringService.findReadingTypes(Arrays.asList("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0"))
-                .get(0)).orElseThrow(IllegalArgumentException::new);
-        String name = "Reading type requirement";
-        metrologyConfiguration.addMeterRole(meterRole);
-
-
-        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("testD", readingType, Formula.Mode.AUTO);
-
-        MetrologyPurpose purpose = metrologyConfigurationService.getMetrologyPurposes().stream().findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Default purposes not installed"));
-        MetrologyContract contract = metrologyConfiguration.addMetrologyContract(purpose);
-        contract.addDeliverable(builder.build(builder.requirement(metrologyConfiguration.newReadingTypeRequirement(name)
-                .withMeterRole(meterRole)
-                .withReadingType(readingType))));
-
-        builder = metrologyConfiguration.newReadingTypeDeliverable("testD2", readingType, Formula.Mode.AUTO);
-        contract.addDeliverable(builder.build(builder.requirement(metrologyConfiguration.newReadingTypeRequirement("testRequirement")
-                .withMeterRole(meterRole)
-                .withReadingTypeTemplate(metrologyConfigurationService.createReadingTypeTemplate("testTemplate"+metrologyConfigurationInfo.name)
-                        .setAttribute(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.MINUTE15.getId())
-                        .setAttribute(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE.getId())
-                        .setAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, null, ReadingTypeUnit.JOULE.getId(), ReadingTypeUnit.ELECTRONVOLT.getId())
-                        .done())
-                .overrideAttribute(ReadingTypeTemplateAttributeName.MACRO_PERIOD, 8)
-                .overrideAttribute(ReadingTypeTemplateAttributeName.ACCUMULATION,1)
-        .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE,1)
-        .overrideAttribute(ReadingTypeTemplateAttributeName.CRITICAL_PEAK_PERIOD,4)
-        .overrideAttribute(ReadingTypeTemplateAttributeName.CONSUMPTION_TIER,2)
-        .overrideAttribute(ReadingTypeTemplateAttributeName.COMMODITY, 10))));
-
+        UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(metrologyConfigurationInfo.name, serviceCategory).create();
         return Response.status(Response.Status.CREATED).entity(metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration)).build();
     }
 
