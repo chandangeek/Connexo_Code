@@ -57,7 +57,7 @@ public enum TranslationKeys implements TranslationKey {
     //CPS_TECHNICAL_INSTALLATION_SUBSTATION_DESCRIPTION("usage.point.cps.tech.installation.substation.descr", ""),
     CPS_TECHNICAL_INSTALLATION_FEEDER("usage.point.cps.tech.installation.feeder", "Feeder"),
     //CPS_TECHNICAL_INSTALLATION_FEEDER_DESCRIPTION("usage.point.cps.tech.installation.name.feeder.descr", ""),
-    CPS_TECHNICAL_INSTALLATION_UTILIZATION_CATEGORY("usage.point.cps.tech.installation.utilization.category", "Utilization Category"),
+    CPS_TECHNICAL_INSTALLATION_UTILIZATION_CATEGORY("usage.point.cps.tech.installation.utilization.category", "Utilization category"),
     CPS_TECHNICAL_INSTALLATION_UTILIZATION_CATEGORY_DESCRIPTION("usage.point.cps.tech.installation.utilization.category.descr", "An indication of specific category of energy usage. Example: public lighting."),
 
     CPS_TECHNICAL_INSTALLATION_ELECTRICITY_GAS_SIMPLE_NAME("usage.point.tech.installation.electricity.gas.name", "Technical Installation (Electricity, gas)"),
