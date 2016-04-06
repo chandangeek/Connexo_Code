@@ -76,8 +76,15 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                     root: 'goingsOn'
                 }
             });
-        } else if (this.type === 'usagePoint') {
-            // set proxy
+        } else if (this.type === 'usagepoint') {
+            me.store.setProxy({
+                type: 'rest',
+                url: '/api/udr/usagepoints/'+ this.mrId +'/whatsgoingon',
+                reader: {
+                    type: 'json',
+                    root: 'goingsOn'
+                }
+            });
         }
         me.store.load({
             callback: function(){
