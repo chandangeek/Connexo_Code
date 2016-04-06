@@ -65,7 +65,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
     @Override
     public boolean isWithinComWindow () {
         ComWindow comWindowToUse = this.getConnectionTask().getCommunicationWindow();
-        Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(item -> !(item instanceof FirmwareComTaskExecution)).findFirst();
+        Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(item -> item instanceof FirmwareComTaskExecution).findFirst();
         if (firmwareComTaskExecution.isPresent()){
             FirmwareComTaskExecution comTaskExecution = (FirmwareComTaskExecution) firmwareComTaskExecution.get();
             comWindowToUse = getServiceProvider().firmwareService().getFirmwareCampaign(comTaskExecution).getComWindow();
