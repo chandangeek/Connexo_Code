@@ -25,6 +25,12 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -44,7 +50,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -60,6 +68,8 @@ public class UsagePointResource {
     private final Clock clock;
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
+    private final ServiceCallService serviceCallService;
+    private final ServiceCallInfoFactory serviceCallInfoFactory;
     private final Thesaurus thesaurus;
 
     private final Provider<ChannelResource> channelsOnUsagePointResourceProvider;
@@ -74,7 +84,7 @@ public class UsagePointResource {
     @Inject
     public UsagePointResource(RestQueryService queryService, MeteringService meteringService,
                               Clock clock,
-                              Provider<ChannelResource> channelsOnUsagePointResourceProvider,
+                              ServiceCallService serviceCallService, ServiceCallInfoFactory serviceCallInfoFactory, Provider<ChannelResource> channelsOnUsagePointResourceProvider,
                               Provider<RegisterResource> registersOnUsagePointResourceProvider,
                               UsagePointConfigurationService usagePointConfigurationService,
                               Provider<UsagePointValidationResource> usagePointValidationResourceProvider,
@@ -88,6 +98,8 @@ public class UsagePointResource {
         this.queryService = queryService;
         this.meteringService = meteringService;
         this.clock = clock;
+        this.serviceCallService = serviceCallService;
+        this.serviceCallInfoFactory = serviceCallInfoFactory;
         this.channelsOnUsagePointResourceProvider = channelsOnUsagePointResourceProvider;
         this.registersOnUsagePointResourceProvider = registersOnUsagePointResourceProvider;
         this.usagePointConfigurationService = usagePointConfigurationService;
@@ -274,5 +286,70 @@ public class UsagePointResource {
             readingTypes.addAll(meterActivation.getReadingTypes());
         }
         return readingTypes;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("{mRID}/runningservicecalls")
+    public PagedInfoList getServiceCallsFor(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
+        Set<DefaultState> states = EnumSet.of(
+                DefaultState.CREATED,
+                DefaultState.SCHEDULED,
+                DefaultState.PENDING,
+                DefaultState.PAUSED,
+                DefaultState.ONGOING,
+                DefaultState.WAITING);
+
+        serviceCallService.findServiceCalls(usagePoint, states)
+                .stream()
+                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
+
+        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+    }
+
+    @PUT
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("{mRID}/runningservicecalls/{id}")
+    public Response cancelServiceCall(@PathParam("mRID") String mrid, @PathParam("id") long serviceCallId, ServiceCallInfo info) {
+        if(info.state.id.equals("sclc.default.cancelled")) {
+            serviceCallService.getServiceCall(serviceCallId).ifPresent(ServiceCall::cancel);
+            return Response.status(Response.Status.ACCEPTED).build();
+        }
+        throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("{mRID}/servicecallhistory")
+    public PagedInfoList getServiceCallHistoryFor(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
+
+        ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
+        serviceCallService.getServiceCallFinder(filter)
+                .stream()
+                .filter(serviceCall -> serviceCall.getTargetObject().map(usagePoint::equals).orElse(false))
+                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
+
+        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+    }
+
+    @PUT
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{mRID}/servicecalls")
+    public Response cancelServiceCallsFor(@PathParam("mRID") String mrid, ServiceCallInfo serviceCallInfo) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        if (serviceCallInfo.state == null) {
+            throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
+        }
+        if (DefaultState.CANCELLED.getKey().equals(serviceCallInfo.state.id)) {
+            serviceCallService.cancelServiceCallsFor(usagePoint);
+            return Response.accepted().build();
+        }
+        throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
     }
 }
