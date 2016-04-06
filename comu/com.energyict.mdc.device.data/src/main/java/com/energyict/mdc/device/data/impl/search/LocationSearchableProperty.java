@@ -24,15 +24,13 @@ import java.util.*;
 
 public class LocationSearchableProperty extends AbstractSearchableDeviceProperty {
 
-    private final TaskService taskService;
     private final PropertySpecService propertySpecService;
     private DeviceSearchDomain domain;
 
     @Inject
-    public LocationSearchableProperty(PropertySpecService propertySpecService, TaskService taskService, Thesaurus thesaurus) {
+    public LocationSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.taskService = taskService;
     }
 
     LocationSearchableProperty init(DeviceSearchDomain domain) {
