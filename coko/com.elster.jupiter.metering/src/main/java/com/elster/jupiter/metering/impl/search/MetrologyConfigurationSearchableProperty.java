@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
@@ -18,13 +19,13 @@ import java.util.Optional;
 
 public class MetrologyConfigurationSearchableProperty implements SearchableUsagePointProperty {
 
-    private final UsagePointSearchDomain domain;
+    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private static final String FIELDNAME = "metrologyConfiguration.metrologyConfiguration";
 
-    public MetrologyConfigurationSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus) {
+    public MetrologyConfigurationSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
@@ -33,7 +34,7 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
     }
 
     @Override
-    public UsagePointSearchDomain getDomain() {
+    public SearchDomain getDomain() {
         return domain;
     }
 

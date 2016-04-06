@@ -36,8 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LocationSearchablePropertyTest {
-
+public class ServicePrioritySearchablePropertyTest {
     @Mock
     private UsagePointSearchDomain domain;
     @Mock
@@ -61,7 +60,7 @@ public class LocationSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        LocationSearchableProperty property = this.getTestInstance();
+        ServicePrioritySearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -70,10 +69,9 @@ public class LocationSearchablePropertyTest {
         assertThat(domain).isEqualTo(this.domain);
     }
 
-
     @Test
     public void testNoGroup() {
-        LocationSearchableProperty property = this.getTestInstance();
+        ServicePrioritySearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
@@ -84,18 +82,18 @@ public class LocationSearchablePropertyTest {
 
     @Test
     public void testStickyVisibility() {
-        LocationSearchableProperty property = this.getTestInstance();
+        ServicePrioritySearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
 
         // Asserts
-        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.STICKY);
+        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.REMOVABLE);
     }
 
     @Test
     public void testSingleSelection() {
-        LocationSearchableProperty property = this.getTestInstance();
+        ServicePrioritySearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -106,18 +104,18 @@ public class LocationSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
-        LocationSearchableProperty property = this.getTestInstance();
+        ServicePrioritySearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_LOCATION.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_SERVICEPRIORITY.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        LocationSearchableProperty property = this.getTestInstance();
+        ServicePrioritySearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -130,7 +128,7 @@ public class LocationSearchablePropertyTest {
 
     @Test
     public void noPossibleValuesWithoutRefresh() {
-        LocationSearchableProperty property = this.getTestInstance();
+        ServicePrioritySearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -141,7 +139,7 @@ public class LocationSearchablePropertyTest {
 
     @Test
     public void noConstraints() {
-        LocationSearchableProperty property = this.getTestInstance();
+        ServicePrioritySearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -152,7 +150,7 @@ public class LocationSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        LocationSearchableProperty property = this.getTestInstance();
+        ServicePrioritySearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -164,7 +162,7 @@ public class LocationSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void refreshWithTooManyConstrictions() {
-        LocationSearchableProperty property = this.getTestInstance();
+        ServicePrioritySearchableProperty property = this.getTestInstance();
         SearchableProperty searchableProperty = mock(SearchableProperty.class);
         SearchablePropertyConstriction constriction = SearchablePropertyConstriction.noValues(searchableProperty);
 
@@ -176,7 +174,7 @@ public class LocationSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        LocationSearchableProperty property = this.getTestInstance();
+        ServicePrioritySearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -186,7 +184,7 @@ public class LocationSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        LocationSearchableProperty property = this.getTestInstance();
+        ServicePrioritySearchableProperty property = this.getTestInstance();
         String valueToDisplay = "displayString";
 
         // Business method
@@ -196,7 +194,8 @@ public class LocationSearchablePropertyTest {
         assertThat(displayValue).isEqualTo(valueToDisplay);
     }
 
-    private LocationSearchableProperty getTestInstance() {
-        return new LocationSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private ServicePrioritySearchableProperty getTestInstance() {
+        return new ServicePrioritySearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
     }
+
 }

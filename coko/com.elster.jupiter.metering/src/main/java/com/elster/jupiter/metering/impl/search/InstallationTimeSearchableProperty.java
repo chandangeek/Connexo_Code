@@ -1,25 +1,28 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class LocationSearchableProperty implements SearchableUsagePointProperty {
+public class InstallationTimeSearchableProperty implements SearchableUsagePointProperty {
 
-    private final UsagePointSearchDomain domain;
+    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "location";
+    private static final String FIELDNAME = "installationTime";
 
-    public LocationSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public InstallationTimeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
@@ -27,7 +30,7 @@ public class LocationSearchableProperty implements SearchableUsagePointProperty 
     }
 
     @Override
-    public UsagePointSearchDomain getDomain() {
+    public SearchDomain getDomain() {
         return domain;
     }
 
@@ -44,15 +47,15 @@ public class LocationSearchableProperty implements SearchableUsagePointProperty 
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService
-                .stringSpec()
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_LOCATION)
+                .specForValuesOf(new InstantFactory())
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_INSTALLATION_TIME)
                 .fromThesaurus(this.thesaurus)
                 .finish();
     }
 
     @Override
     public Visibility getVisibility() {
-        return Visibility.STICKY;
+        return Visibility.REMOVABLE;
     }
 
     @Override
@@ -62,7 +65,7 @@ public class LocationSearchableProperty implements SearchableUsagePointProperty 
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_LOCATION.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_INSTALLATION_TIME.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -74,7 +77,7 @@ public class LocationSearchableProperty implements SearchableUsagePointProperty 
     }
 
     private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof String;
+        return value instanceof Instant;
     }
 
     @Override
@@ -93,4 +96,5 @@ public class LocationSearchableProperty implements SearchableUsagePointProperty 
     public Condition toCondition(Condition specification) {
         return specification;
     }
+
 }

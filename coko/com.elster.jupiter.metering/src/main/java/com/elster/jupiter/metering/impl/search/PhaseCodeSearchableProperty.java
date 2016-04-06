@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -15,22 +15,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Exposes the service kind enumeration
- * of a {@link com.elster.jupiter.metering.UsagePoint}
- * as a {@link SearchableProperty}.
- *
- * @author Anton Fomchenko
- * @since 2015-08-12
- */
-public class ServiceCategorySearchableProperty implements SearchableUsagePointProperty {
+public class PhaseCodeSearchableProperty  implements SearchableUsagePointProperty{
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "SERVICEKIND";
+    private static final String FIELDNAME = "usagePointDetail.phaseCode";
 
-    public ServiceCategorySearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public PhaseCodeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
@@ -53,18 +45,29 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
     }
 
     @Override
-    public Visibility getVisibility() {
-        return Visibility.REMOVABLE;
+    public PropertySpec getSpecification() {
+        return this.propertySpecService
+                .specForValuesOf(new EnumFactory(PhaseCode.class))
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_PHASECODE)
+                .fromThesaurus(this.thesaurus)
+                .addValues(PhaseCode.values())
+                .markExhaustive()
+                .finish();
     }
 
     @Override
-    public SelectionMode getSelectionMode() {
+    public SearchableProperty.Visibility getVisibility() {
+        return SearchableProperty.Visibility.REMOVABLE;
+    }
+
+    @Override
+    public SearchableProperty.SelectionMode getSelectionMode() {
         return SelectionMode.MULTI;
     }
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_PHASECODE.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -75,28 +78,18 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
         return this.toDisplayAfterValidation(value);
     }
 
+    @Override
+    public List<SearchableProperty> getConstraints() {
+        return Collections.emptyList();
+    }
+
     private boolean valueCompatibleForDisplay(Object value) {
         return value instanceof Enum;
     }
 
-    protected String toDisplayAfterValidation(Object value) {
-        ServiceKind serviceKind = (ServiceKind) value;
-        return this.thesaurus.getStringBeyondComponent(serviceKind.getKey(), serviceKind.getDefaultFormat());
-    }
-    @Override
-    public PropertySpec getSpecification() {
-        return this.propertySpecService
-                .specForValuesOf(new EnumFactory(ServiceKind.class))
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY)
-                .fromThesaurus(this.thesaurus)
-                .addValues(ServiceKind.values())
-                .markExhaustive()
-                .finish();
-    }
-
-    @Override
-    public List<SearchableProperty> getConstraints() {
-        return Collections.emptyList();
+    private String toDisplayAfterValidation(Object value){
+        PhaseCode phaseCodes = (PhaseCode) value;
+        return phaseCodes.getValue();
     }
 
     @Override
@@ -110,5 +103,4 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
     public Condition toCondition(Condition specification) {
         return specification;
     }
-
 }
