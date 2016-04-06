@@ -7,7 +7,7 @@ Ext.define('Imt.processes.view.UsagePointProcessesMainView', {
         'Bpm.monitorprocesses.view.MonitorProcessesMainView'
     ],
     router: null,
-    mRID: null,
+    usagePoint: null,
     properties: null,
 
     initComponent: function () {
@@ -27,7 +27,7 @@ Ext.define('Imt.processes.view.UsagePointProcessesMainView', {
                                 xtype: 'usage-point-management-side-menu',
                                 itemId: 'usage-point-management-side-menu',
                                 router: me.router,
-                                mRID: me.mRID
+                                usagePoint: me.usagePoint
                             }
                         ]
                     }
