@@ -361,7 +361,7 @@ public class ConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration()).parse(formulaString);
 
             deliverable.setName(name);
             deliverable.setReadingType(readingType);
@@ -398,7 +398,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration()).parse(formulaString);
 
             deliverable.getFormula().updateExpression(node);
             context.commit();
