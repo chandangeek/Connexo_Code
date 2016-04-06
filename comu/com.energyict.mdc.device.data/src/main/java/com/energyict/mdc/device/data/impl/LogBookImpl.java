@@ -48,8 +48,8 @@ public class LogBookImpl implements ServerLogBookForConfigChange {
     private long id;
     private Reference<DeviceImpl> device = ValueReference.absent();
     private Reference<LogBookSpec> logBookSpec = ValueReference.absent();
-    private Instant lastEventOccurrence;
-    private Instant latestEventAddition;
+    private Instant lastEventOccurrence;    // last event time stamp (data unitil)
+    private Instant latestEventAddition;    // last reading (next reading block start)
     private String userName;
     private long version;
     private Instant createTime;
@@ -152,6 +152,12 @@ public class LogBookImpl implements ServerLogBookForConfigChange {
             }
             return this;
 
+        }
+
+        @Override
+        public LogBook.LogBookUpdater setLastReading(Instant createTime) {
+            this.logBook.latestEventAddition = createTime;
+            return this;
         }
 
         @Override

@@ -19,7 +19,26 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LifecycleDates;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterConfiguration;
+import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -149,7 +168,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -357,23 +375,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         boolean alreadyPersistent = this.id > 0;
         if (alreadyPersistent) {
             Save.UPDATE.save(dataModel, this);
-
-           /* findKoreMeter(getMdcAmrSystem())
-                    .filter(meter -> !Objects.equals(meter.getMRID(), this.getmRID()))
-                    .ifPresent(meter -> {
-                        meter.setMRID(getmRID());
-                        if(this.location != null) {
-                            meter.setLocation(location);
-                        }
-                        if(this.geoCoordinates.isPresent()) {
-                            meter.setGeoCoordintes(geoCoordinates.get());
-                        }
-                        meter.update();
-                    });
-*/
             Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
             if (meter.isPresent()) {
-                if (!meter.get().getMRID().equals(this.getmRID())) {
+                if (meter.get().getMRID()!=null &&
+                        !meter.get().getMRID().equals(this.getmRID())) {
                     meter.get().setMRID(getmRID());
                 }
                 if (this.location != null) {
@@ -1408,13 +1413,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             ZonedDateTime.ofInstant(
                                     this.lastReadingClipped(loadProfile, requestedInterval),
                                     affectedMeterActivation.getZoneId());
-                    Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
-                    while (meterActivationInterval.contains(requestStart.toInstant())) {
-                        ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
-                        LoadProfileReadingImpl value = new LoadProfileReadingImpl();
-                        value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
-                        loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
-                        requestStart = readingTimestamp;
+                    if (!requestEnd.isBefore(requestStart)) {
+                        Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
+                        while (meterActivationInterval.contains(requestStart.toInstant())) {
+                            ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
+                            LoadProfileReadingImpl value = new LoadProfileReadingImpl();
+                            value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
+                            loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
+                            requestStart = readingTimestamp;
+                        }
                     }
                 });
         return loadProfileReadingMap;
@@ -1566,10 +1573,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private Instant lastReadingClipped(LoadProfile loadProfile, Range<Instant> interval) {
-        if (loadProfile.getLastReading().isPresent()) {
-            if (interval.contains(loadProfile.getLastReading().get())) {
-                return loadProfile.getLastReading().get();
-            } else if (interval.upperEndpoint().isBefore(loadProfile.getLastReading().get())) {
+        Instant dataUntil = Instant.EPOCH;
+        for (Channel channel : loadProfile.getChannels()) {
+            if (channel.getLastDateTime().isPresent() && channel.getLastDateTime().get().isAfter(dataUntil)) {
+                dataUntil = channel.getLastDateTime().get();
+            }
+        }
+        if (!dataUntil.equals(Instant.EPOCH)) {
+            if (interval.contains(dataUntil)) {
+                return dataUntil;
+            } else if (interval.upperEndpoint().isBefore(dataUntil)) {
                 return interval.upperEndpoint();
             } else {
                 return interval.lowerEndpoint(); // empty interval: interval is completely after last reading

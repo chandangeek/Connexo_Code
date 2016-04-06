@@ -11,15 +11,14 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-
 import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
 import javax.inject.Inject;
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 
 
 public class LocationSearchableProperty extends AbstractSearchableDeviceProperty {
