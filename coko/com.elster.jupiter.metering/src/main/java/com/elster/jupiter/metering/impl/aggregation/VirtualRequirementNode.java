@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -8,7 +10,9 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ExpressionNode} interface
@@ -66,7 +70,23 @@ class VirtualRequirementNode implements ServerExpressionNode {
             return preferredReadingType.get();
         }
         else {
+            Loggers.ANALYSIS.warning(() -> "Unable to find matching channel for the requirement '" + this.requirement.getName() + "' in meter activation " + this.meterActivation.getRange());
+            Loggers.ANALYSIS.debug(() -> verboseAvailableReadingTypesOnMeterActivation(this.meterActivation));
             return VirtualReadingType.notSupported();
+        }
+    }
+
+    private String verboseAvailableReadingTypesOnMeterActivation(MeterActivation meterActivation) {
+        List<Channel> channels = meterActivation.getChannels();
+        if (!channels.isEmpty()) {
+            return "The following reading types are available:\n\t"
+                 + channels
+                        .stream()
+                        .map(Channel::getMainReadingType)
+                        .map(ReadingType::getMRID)
+                        .collect(Collectors.joining(",\n\t"));
+        } else {
+            return "No channels are available in the meter activation";
         }
     }
 
