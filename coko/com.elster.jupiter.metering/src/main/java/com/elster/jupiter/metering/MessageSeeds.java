@@ -56,6 +56,8 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE(5009, Constants.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, "The deliverable with id ''{0}'' cannot be used because it has a different metrology configuration."),
     READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(5010, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The readingtype is not compatible with the dimension of the formula."),
     NO_FUNCTIONS_ALLOWED_IN_AUTOMODE(5011, Constants.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE, "Functions are no allowed in auto mode"),
+    NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(5012, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The new readingtype is not compatible with the dimension of the formula(s)."),
+    NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE(5012, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The new formula is not compatible with the readingtype of the deliverable."),
     ;
 
     private final int number;

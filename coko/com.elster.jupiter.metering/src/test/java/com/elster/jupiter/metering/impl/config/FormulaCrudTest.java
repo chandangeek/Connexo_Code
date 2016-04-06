@@ -561,4 +561,54 @@ public class FormulaCrudTest {
 
         formula.delete();
     }
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testUpdateReadingTypeOfDeliverable() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config2", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType conskWhRT15min =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+        assertThat(conskWhRT15min != null);
+        config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
+
+        assertThat(config.getRequirements().size() == 1);
+        ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                config.getRequirements().get(0).getId()).get();
+
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable1 = builder.build(builder.requirement(req));
+
+        ReadingType temperatureRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp");
+        try {
+            deliverable1.setReadingType(temperatureRT);
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "The new readingtype is not compatible with the dimension of the formula(s).");
+        }
+
+        ReadingType conskWhMonthlyRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhMonthlyRT");
+
+        try {
+            deliverable1.setReadingType(conskWhMonthlyRT);
+            deliverable1.update();
+            assertEquals(deliverable1.getReadingType(), conskWhMonthlyRT);
+        } catch (InvalidNodeException e) {
+            fail("No InvalidNodeException expected!");
+        }
+
+    }
 }
