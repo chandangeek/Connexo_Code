@@ -40,6 +40,7 @@ public enum TranslationSeeds implements TranslationKey {
     SERVICE_CATEGORY_DISPLAY("displayServiceCategory", "Service category"),
     CONNECTION_STATE_DISPLAY("displayConnectionState", "Connection state"),
     BILLING_READY_DISPLAY("displayAmiBillingReady", "AMI billing ready"),
+    LOCATION("locationID", "Location"),
 
     UNMEASURED(UsagePointTypeInfo.UsagePointType.UNMEASURED.name(), UsagePointTypeInfo.UsagePointType.UNMEASURED.displayName),
     SMART_DUMB(UsagePointTypeInfo.UsagePointType.SMART_DUMB.name(), UsagePointTypeInfo.UsagePointType.SMART_DUMB.displayName),

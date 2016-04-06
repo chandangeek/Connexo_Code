@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.stream.Collectors;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -21,12 +22,12 @@ public class UsagePointInfo {
     public long version;
     public long createTime;
     public long modTime;
+    public String location;
 
     public UsagePointInfo() {
     }
 
     public UsagePointInfo(UsagePoint usagePoint, Clock clock) {
-        id = usagePoint.getId();
         mRID = usagePoint.getMRID();
         serviceCategory = usagePoint.getServiceCategory().getKind();
         name = usagePoint.getName();
@@ -34,6 +35,16 @@ public class UsagePointInfo {
         version = usagePoint.getVersion();
         createTime = usagePoint.getCreateDate().toEpochMilli();
         modTime = usagePoint.getModificationDate().toEpochMilli();
+    /*    if (usagePoint.getLocationId()> 0){
+            usagePoint.getLocation()
+                .ifPresent(location -> {
+                    meteringService.getFormattedLocationMembers(location.getId())
+                            .ifPresent(formattedLocationMembers -> {
+                                location = formattedLocationMembers.stream().map(Object::toString).collect(Collectors.joining(","));
+                            });
+                });
+        }
+      */
     }
 
     public void writeTo(UsagePoint usagePoint) {
