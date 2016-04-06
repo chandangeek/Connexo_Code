@@ -220,7 +220,7 @@ public enum TableSpecs {
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
             table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
             table.column("INSTALLATIONTIME").number().notNull().conversion(ColumnConversion.NUMBER2INSTANT).map("installationTime").add();
-            Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).add();
+            Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).map("locationID").add();
             Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID").number().conversion(NUMBER2LONGNULLZERO).add();
 
             table.addAuditColumns();
