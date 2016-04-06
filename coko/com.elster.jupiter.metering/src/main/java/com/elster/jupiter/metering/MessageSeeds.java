@@ -23,6 +23,9 @@ public enum MessageSeeds implements MessageSeed {
     READINGTYPE_CREATING_FAIL(2011, "readingtype.creatingFail", "Failed creating reading types.", Level.SEVERE),
     FIELD_NOT_FOUND(2012, "readingtype.fieldNotFound", "Cannot find field {0}", Level.SEVERE),
     FIELD_TOO_LONG(2013, Constants.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
+    INVALID_VALUE(2014, Constants.INVALID_VALUE, "Value must be between {min} and {max}", Level.SEVERE),
+    INVALID_MULTIPLIER(2015, Constants.INVALID_MULTIPLIER, "Multiplier must be between {min} and {max}", Level.SEVERE),
+    INVALID_UNIT(2016, Constants.INVALID_UNIT, "Invalid unit", Level.SEVERE),
     DUPLICATE_USAGEPOINT(3001, Constants.DUPLICATE_USAGEPOINT, "MRID must be unique", Level.SEVERE),
 
     REQUIRED(4001, Constants.REQUIRED, "This field is required"),
@@ -96,6 +99,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CUSTOM_PROPERTY_SET_HAS_DIFFERENT_DOMAIN = "custom.property.set.has.different.domain";
         public static final String CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED = "custom.property.set.is.not.versioned";
         public static final String FIELD_TOO_LONG = "invalidFieldLength";
+        public static final String INVALID_VALUE = "invalidValue";
+        public static final String INVALID_MULTIPLIER = "invalidMultiplier";
+        public static final String INVALID_UNIT = "invalidUnit";
     }
 
 }

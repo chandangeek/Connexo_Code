@@ -13,10 +13,10 @@ import com.elster.jupiter.util.units.Quantity;
 public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 
 	private YesNoAnswer collar = YesNoAnswer.UNKNOWN;
-	private boolean grounded;
+	private YesNoAnswer grounded;
 	private Quantity pressure;
 	private Quantity physicalCapacity;
-	private boolean limiter;
+	private YesNoAnswer limiter;
 	private String loadLimiterType;
 	private Quantity loadLimit;
 	private YesNoAnswer bypass = YesNoAnswer.UNKNOWN;
@@ -43,7 +43,7 @@ public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 	}
 
 	@Override
-	public WaterDetailBuilder withGrounded(boolean grounded) {
+	public WaterDetailBuilder withGrounded(YesNoAnswer grounded) {
 		this.grounded = grounded;
 		return this;
 	}
@@ -61,7 +61,7 @@ public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 	}
 
 	@Override
-	public WaterDetailBuilder withLimiter(boolean limiter) {
+	public WaterDetailBuilder withLimiter(YesNoAnswer limiter) {
 		this.limiter = limiter;
 		return this;
 	}
