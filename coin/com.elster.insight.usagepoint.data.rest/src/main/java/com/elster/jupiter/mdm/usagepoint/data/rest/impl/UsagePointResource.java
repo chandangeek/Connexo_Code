@@ -14,6 +14,8 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -81,6 +83,7 @@ public class UsagePointResource {
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final ResourceHelper resourceHelper;
+    private final MetrologyConfigurationService metrologyConfigurationService;
 
     @Inject
     public UsagePointResource(RestQueryService queryService, MeteringService meteringService,
@@ -95,7 +98,8 @@ public class UsagePointResource {
                               CustomPropertySetInfoFactory customPropertySetInfoFactory,
                               ExceptionFactory exceptionFactory,
                               Thesaurus thesaurus,
-                              ResourceHelper resourceHelper) {
+                              ResourceHelper resourceHelper,
+                              MetrologyConfigurationService metrologyConfigurationService) {
         this.queryService = queryService;
         this.meteringService = meteringService;
         this.clock = clock;
@@ -112,6 +116,7 @@ public class UsagePointResource {
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @GET
@@ -172,6 +177,21 @@ public class UsagePointResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
         UsagePointInfo result = usagePointInfoFactory.from(usagePoint);
         return result;
+    }
+
+    @GET
+    @RolesAllowed({Privileges.Constants.VIEW_SERVICECATEGORY})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{mrid}/metrilogyconfigurations/linkable")
+    public UsagePointMetrologyConfigurationInfos getLinkableMetrologyConfigurations(@PathParam("mrid") String mrid) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        List<UsagePointMetrologyConfiguration> configs = this.metrologyConfigurationService
+                .findLinkableMetrologyConfigurations(usagePoint)
+                .stream()
+                .filter(mc -> !mc.getCustomPropertySets().stream().anyMatch(cas -> !cas.isEditableByCurrentUser()))
+                .collect(Collectors.toList());
+        return new UsagePointMetrologyConfigurationInfos(configs);
     }
 
     @GET

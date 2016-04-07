@@ -8,6 +8,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -58,6 +59,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile ServiceCallService serviceCallService;
     private volatile ServiceCallInfoFactory serviceCallInfoFactory;
     private volatile License license;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -171,6 +173,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.license = license;
     }
 
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -188,6 +195,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(serviceCallService).to(ServiceCallService.class);
             bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
+            bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
