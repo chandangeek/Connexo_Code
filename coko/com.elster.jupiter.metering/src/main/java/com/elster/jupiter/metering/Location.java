@@ -29,5 +29,4 @@ public interface Location {
               String locale);
 
 
-
 }

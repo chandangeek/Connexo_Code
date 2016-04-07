@@ -72,7 +72,7 @@ public class UsagePointImpl implements UsagePoint {
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
-    private String location;
+    private String serviceLocationString;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String mRID;
@@ -198,7 +198,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public String getServiceLocationString() {
-        return location;
+        return serviceLocationString;
     }
 
     @Override
@@ -313,7 +313,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setServiceLocationString(String serviceLocationString) {
-        this.location = serviceLocationString;
+        this.serviceLocationString = serviceLocationString;
     }
 
     @Override

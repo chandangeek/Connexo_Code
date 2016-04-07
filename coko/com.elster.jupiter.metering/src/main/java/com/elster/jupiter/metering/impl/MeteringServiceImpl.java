@@ -737,7 +737,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
-    public Optional<Map<String, Boolean>> getFormattedLocationMembers(long id) {
+    public Map<String, Boolean> getFormattedLocationMembers(long id) {
         List<LocationMember> members = dataModel.query(LocationMember.class)
                 .select(Operator.EQUAL.compare("locationId", id));
         Map<String, Boolean> formattedLocation = new LinkedHashMap<>();
@@ -759,18 +759,17 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             memberValues.put("zipCode", member.getZipCode());
             memberValues.put("locale", member.getLocale());
             locationTemplate.getTemplateMembers().stream()
-                    .forEach(m -> {
-                        if (locationTemplate.getSplitLineElements().contains(m.getAbbreviation())) {
-                            formattedLocation.put(m.getName(), Boolean.TRUE);
+                    .forEach(templateMember -> {
+                        if (locationTemplate.getSplitLineElements().isEmpty() || locationTemplate.getSplitLineElements().contains(templateMember.getAbbreviation())) {
+                            formattedLocation.put(memberValues.get(templateMember.getName()), Boolean.TRUE);
                         } else {
-                            formattedLocation.put(m.getName(), Boolean.FALSE);
+                            formattedLocation.put(memberValues.get(templateMember.getName()), Boolean.FALSE);
                         }
 
                     });
         }
-        return formattedLocation.isEmpty() ? Optional.empty() : Optional.of(formattedLocation);
+        return formattedLocation;
     }
-
 
     @Override
     public Optional<Location> findDeviceLocation(String mRID) {

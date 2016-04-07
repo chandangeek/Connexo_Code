@@ -1,21 +1,26 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import javax.inject.Inject;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LocationImpl implements Location {
 
     private long id;
     private final DataModel dataModel;
+    private final MeteringService meteringService;
     private List<LocationMember> members = new ArrayList<>();
 
 
     @Inject
-    LocationImpl(DataModel dataModel) {
+    LocationImpl(DataModel dataModel,  MeteringService meteringService) {
         this.dataModel = dataModel;
+        this.meteringService = meteringService;
     }
 
     LocationImpl init() {
@@ -103,5 +108,9 @@ public class LocationImpl implements Location {
         return Objects.hash(id);
     }
 
+    @Override
+    public final String toString(){
+        return meteringService.getFormattedLocationMembers(getId()).keySet().stream().map(Object::toString).collect(Collectors.joining(","));
+    }
 }
 
