@@ -10,6 +10,7 @@ public class ServiceCallTypeInfo {
     public long version;
     public String name;
     public String versionName;
+    public String handler;
     public IdWithDisplayValueInfo<String> status;
     public IdWithDisplayValueInfo<String> logLevel;
     public IdWithNameInfo serviceCallLifeCycle;

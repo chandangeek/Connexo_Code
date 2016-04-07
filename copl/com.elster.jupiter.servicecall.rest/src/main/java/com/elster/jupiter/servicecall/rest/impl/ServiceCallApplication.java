@@ -1,5 +1,6 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -11,6 +12,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.rest.whiteboard.ReferenceResolver;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -38,6 +40,7 @@ public class ServiceCallApplication extends Application implements TranslationKe
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
     private volatile ReferenceResolver referenceResolver;
+    private volatile CustomPropertySetService customPropertySetService;
 
 
     @Override
@@ -99,6 +102,11 @@ public class ServiceCallApplication extends Application implements TranslationKe
         this.referenceResolver = referenceResolver;
     }
 
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -106,13 +114,14 @@ public class ServiceCallApplication extends Application implements TranslationKe
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
-            bind(ServiceCallInfoFactory.class).to(ServiceCallInfoFactory.class);
+            bind(ServiceCallInfoFactoryImpl.class).to(ServiceCallInfoFactory.class);
             bind(ServiceCallTypeInfoFactory.class).to(ServiceCallTypeInfoFactory.class);
             bind(ServiceCallLogInfoFactory.class).to(ServiceCallLogInfoFactory.class);
             bind(serviceCallService).to(ServiceCallService.class);
             bind(transactionService).to(TransactionService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(referenceResolver).to(ReferenceResolver.class);
+            bind(customPropertySetService).to(CustomPropertySetService.class);
         }
     }
 }
