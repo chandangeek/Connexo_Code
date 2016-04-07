@@ -200,7 +200,7 @@ public class LocationResource {
     }
 
     private List<? extends LocationMember> fetchAllLocationMembers(Location location) {
-        return location.getMembers().orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return Optional.of(location.getMembers()).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private LocationMember fetchLocationMember(Location location, String locale) {
