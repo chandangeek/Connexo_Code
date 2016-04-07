@@ -29,6 +29,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mrid));
     }
 
+    public UsagePoint findAndLockUsagePointByMrIdOrThrowException(String mrid) {
+        UsagePoint up = findUsagePointByMrIdOrThrowException(mrid);
+        return meteringService.findAndLockUsagePointByIdAndVersion(up.getId(), up.getVersion()).get();
+    }
+
     public UsagePoint findUsagePointByIdOrThrowException(long id) {
         return meteringService.findUsagePoint(id)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_ID, id));

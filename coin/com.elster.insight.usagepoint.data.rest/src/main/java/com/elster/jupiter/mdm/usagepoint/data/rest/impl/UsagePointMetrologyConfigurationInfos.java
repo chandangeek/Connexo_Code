@@ -1,7 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,19 +10,18 @@ public class UsagePointMetrologyConfigurationInfos {
     public int total;
     public List<UsagePointMetrologyConfigurationInfo> metrologyConfigurations = new ArrayList<>();
 
-    UsagePointMetrologyConfigurationInfos(Iterable<? extends UsagePointMetrologyConfiguration> usagePointMetrologyConfigurations) {
+    UsagePointMetrologyConfigurationInfos(Iterable<? extends UsagePointMetrologyConfigurationInfo> usagePointMetrologyConfigurations) {
         addAll(usagePointMetrologyConfigurations);
     }
 
-    UsagePointMetrologyConfigurationInfo add(UsagePointMetrologyConfiguration usagePointMetrologyConfiguration) {
-        UsagePointMetrologyConfigurationInfo result = new UsagePointMetrologyConfigurationInfo(usagePointMetrologyConfiguration);
-        metrologyConfigurations.add(result);
+    UsagePointMetrologyConfigurationInfo add(UsagePointMetrologyConfigurationInfo usagePointMetrologyConfiguration) {
+        metrologyConfigurations.add(usagePointMetrologyConfiguration);
         total++;
-        return result;
+        return usagePointMetrologyConfiguration;
     }
 
-    void addAll(Iterable<? extends UsagePointMetrologyConfiguration> usagePointMetrologyConfigurations) {
-        for (UsagePointMetrologyConfiguration each : usagePointMetrologyConfigurations) {
+    void addAll(Iterable<? extends UsagePointMetrologyConfigurationInfo> usagePointMetrologyConfigurations) {
+        for (UsagePointMetrologyConfigurationInfo each : usagePointMetrologyConfigurations) {
             add(each);
         }
     }

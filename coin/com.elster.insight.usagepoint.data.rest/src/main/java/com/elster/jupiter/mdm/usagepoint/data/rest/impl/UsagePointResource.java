@@ -14,7 +14,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -183,15 +182,54 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_SERVICECATEGORY})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("/{mrid}/metrilogyconfigurations/linkable")
+    @Path("/{mrid}/metrologyconfiguration/linkable")
     public UsagePointMetrologyConfigurationInfos getLinkableMetrologyConfigurations(@PathParam("mrid") String mrid) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
-        List<UsagePointMetrologyConfiguration> configs = this.metrologyConfigurationService
+        List<UsagePointMetrologyConfigurationInfo> configs = this.metrologyConfigurationService
                 .findLinkableMetrologyConfigurations(usagePoint)
                 .stream()
                 .filter(mc -> !mc.getCustomPropertySets().stream().anyMatch(cas -> !cas.isEditableByCurrentUser()))
+                .map(mcinfo -> new UsagePointMetrologyConfigurationInfo(mcinfo, mcinfo.getCustomPropertySets()
+                        .stream()
+                        .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
+                        .collect(Collectors.toList())))
                 .collect(Collectors.toList());
         return new UsagePointMetrologyConfigurationInfos(configs);
+    }
+
+    @POST
+    @RolesAllowed({Privileges.Constants.VIEW_SERVICECATEGORY})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{mrid}/metrologyconfiguration")
+    public Response linkMetrologyConfigurations(UsagePointMetrologyConfigurationInfo info,
+                                                @PathParam("mrid") String mrid,
+                                                @QueryParam("validate") boolean validate,
+                                                @QueryParam("customPropertySetId") long customPropertySetId) {
+
+//        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mrid);
+//
+//        new RestValidationBuilder()
+//                .notEmpty(info.id, "id")
+//                .notEmpty(info.name, "name")
+//                .validate();
+//
+//        RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
+//                .stream()
+//                .filter(rcps -> rcps.getId() == customPropertySetId)
+//                .findAny()
+//                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
+//
+//        CustomPropertySetInfo customPropertySetInfo = info.customPropertySets.stream()
+//                .filter(cps -> cps.id == set.getId())
+//                .findFirst()
+//                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
+//
+//        customPropertySetService.validateCustomPropertySetValues(set.getCustomPropertySet(), customPropertySetInfoFactory
+//                .getCustomPropertySetValues(customPropertySetInfo, set.getCustomPropertySet()
+//                        .getPropertySpecs()));
+//        return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
+        return null;
     }
 
     @GET
