@@ -45,6 +45,9 @@ public enum PropertyTranslationKeys implements TranslationKey {
 
     USAGEPOINT_DOMAIN("usagepoint.domain", "Usage point"),
 
+    USAGEPOINT_ID("usagepoint.id", "Id"),
+    USAGEPOINT_ID_DESCRIPTION("usagepoint.id.description", "Usage point ID"),
+    USAGE_POINT_REQUIREMENT_SEARCH_DOMAIN("usage.point.requirement.search.domain", "Usage point"),
     ;
 
     private String key;

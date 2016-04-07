@@ -166,6 +166,10 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     }
 
     void validateReadingType(ReadingType readingType) {
+        validateReadingType(readingType, true);
+    }
+
+    private void validateReadingType(ReadingType readingType, boolean checkAllDeliverablesOnMetrologyConfig) {
         Thesaurus thesaurus = ((ServerMetrologyConfigurationService)metrologyConfigurationService).getThesaurus();
         if ((readingType != null) && (!readingType.isRegular())) {
             throw new InvalidNodeException(thesaurus, MessageSeeds.IRREGULAR_READINGTYPE_IN_DELIVERABLE);
@@ -176,9 +180,11 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
                 !UnitConversionSupport.isAssignable(readingType, formula.get().getExpressionNode().getDimension())) {
             throw new InvalidNodeException(thesaurus , MessageSeeds.NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA);
         }
-        for (ReadingTypeDeliverable deliverable : getMetrologyConfiguration().getDeliverables()) {
-            if (!deliverable.equals(this)) {
-                ((ReadingTypeDeliverableImpl) deliverable).validateReadingType(readingType);
+        if (checkAllDeliverablesOnMetrologyConfig) {
+            for (ReadingTypeDeliverable deliverable : getMetrologyConfiguration().getDeliverables()) {
+                if (!deliverable.equals(this)) {
+                    ((ReadingTypeDeliverableImpl) deliverable).validateReadingType(readingType, false);
+                }
             }
         }
     }

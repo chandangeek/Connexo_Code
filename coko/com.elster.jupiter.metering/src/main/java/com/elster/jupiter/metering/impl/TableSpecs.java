@@ -1107,6 +1107,7 @@ public enum TableSpecs {
             table.foreignKey("FK_RT_REQUIREMENT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
+                    .onDelete(CASCADE)
                     .map(ReadingTypeRequirementImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.RT_REQUIREMENTS.fieldName())
                     .composition()
