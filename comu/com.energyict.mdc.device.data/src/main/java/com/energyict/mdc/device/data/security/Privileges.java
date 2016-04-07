@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.security;
 
 import com.elster.jupiter.nls.TranslationKey;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,7 @@ public enum Privileges implements TranslationKey {
     ADMINISTER_DECOMMISSIONED_DEVICE_DATA(Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA, "Administrate decomissioned device data"),
     VIEW_DATA_COLLECTION_KPI(Constants.VIEW_DATA_COLLECTION_KPI, "View data collection KPI"),
     ADMINISTER_DATA_COLLECTION_KPI(Constants.ADMINISTER_DATA_COLLECTION_KPI, "Administrate data collection KPI"),
-
+    ADMINISTER_DEVICE_TIME_SLICED_CPS(Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS, "Administer device time-sliced CAS"),
     ;
 
     private final String key;
@@ -89,5 +90,7 @@ public enum Privileges implements TranslationKey {
 
         String VIEW_DATA_COLLECTION_KPI = "privilege.view.dataCollectionKpi";
         String ADMINISTER_DATA_COLLECTION_KPI = "privilege.administer.dataCollectionKpi";
+
+        String ADMINISTER_DEVICE_TIME_SLICED_CPS = "privilege.administer.device.time.sliced.cps";
     }
 }

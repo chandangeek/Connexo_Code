@@ -115,6 +115,7 @@ public class DeviceSearchDomain implements SearchDomain {
         ComTaskSearchablePropertyGroup comTaskGroup = injector.getInstance(ComTaskSearchablePropertyGroup.class);
         ConnectionSearchablePropertyGroup connectionGroup = injector.getInstance(ConnectionSearchablePropertyGroup.class);
         TransitionSearchablePropertyGroup transitionGroup = injector.getInstance(TransitionSearchablePropertyGroup.class);
+        FirmwareVersionSearchablePropertyGroup firmwareVersionGroup = injector.getInstance(FirmwareVersionSearchablePropertyGroup.class);
         return Arrays.asList(
                 injector.getInstance(MasterResourceIdentifierSearchableProperty.class).init(this),
                 injector.getInstance(SerialNumberSearchableProperty.class).init(this),
@@ -170,7 +171,8 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(TransitionShipmentDateSearchableProperty.class).init(this, transitionGroup),
                 injector.getInstance(TransitionInstallationDateSearchableProperty.class).init(this, transitionGroup),
                 injector.getInstance(TransitionDeactivationDateSearchableProperty.class).init(this, transitionGroup),
-                injector.getInstance(TransitionDecommissioningDateSearchableProperty.class).init(this, transitionGroup)
+                injector.getInstance(TransitionDecommissioningDateSearchableProperty.class).init(this, transitionGroup),
+                injector.getInstance(FirmwareVersionNameSearchableProperty.class).init(this, firmwareVersionGroup)
         );
     }
 
