@@ -1,6 +1,9 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -19,6 +22,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -36,6 +40,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
+import com.elster.jupiter.util.units.Unit;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -109,22 +114,22 @@ public class ConsoleCommands {
                     .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
             config.addMeterRole(meterRole);
 
-            ReadingType readingTypeMonthlyAplusWh = Optional.ofNullable(meteringService.findReadingTypes(Collections.singletonList("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
-                    .get(0)).orElse(meteringService.createReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
-            ReadingType readingTypeMonthlyAminusWh = Optional.ofNullable(meteringService.findReadingTypes(Collections.singletonList("13.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
-                    .get(0)).orElse(meteringService.createReadingType("13.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
-            ReadingType readingTypeYearlyAplusWh = Optional.ofNullable(meteringService.findReadingTypes(Collections.singletonList("8.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
-                    .get(0)).orElse(meteringService.createReadingType("8.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
-            ReadingType readingTypeYearlyAminusWh = Optional.ofNullable(meteringService.findReadingTypes(Collections.singletonList("8.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
-                    .get(0)).orElse(meteringService.createReadingType("8.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
-            ReadingType readingType15minAplusWh = Optional.ofNullable(meteringService.findReadingTypes(Collections.singletonList("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
-                    .get(0)).orElse(meteringService.createReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
-            ReadingType readingType15minAminusWh = Optional.ofNullable(meteringService.findReadingTypes(Collections.singletonList("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
-                    .get(0)).orElse(meteringService.createReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
-            ReadingType readingTypeHourlyAplusWh = Optional.ofNullable(meteringService.findReadingTypes(Collections.singletonList("0.0.7.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
-                    .get(0)).orElse(meteringService.createReadingType("0.0.7.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
-            ReadingType readingTypeHourlyAminusWh = Optional.ofNullable(meteringService.findReadingTypes(Collections.singletonList("0.0.7.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
-                    .get(0)).orElse(meteringService.createReadingType("0.0.7.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+            ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+            ReadingType readingTypeMonthlyAminusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+            ReadingType readingTypeYearlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+            ReadingType readingTypeYearlyAminusWh = meteringService.findReadingTypes(Collections.singletonList("11.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("11.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+            ReadingType readingType15minAplusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+            ReadingType readingType15minAminusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+            ReadingType readingTypeHourlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.7.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.0.7.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+            ReadingType readingTypeHourlyAminusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.7.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.0.7.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
 
             MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                     .orElseThrow(() -> new NoSuchElementException("Default metrology purpose not found"));
@@ -134,14 +139,23 @@ public class ConsoleCommands {
             MetrologyContract contractBilling = config.addMetrologyContract(purposeBilling);
             MetrologyContract contractInformation = config.addMetrologyContract(purposeInformation);
 
-            contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAplusWh));
-            contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAminusWh));
-            contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeYearlyAplusWh));
-            contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeYearlyAminusWh));
-            contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingType15minAplusWh));
-            contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingType15minAminusWh));
-            contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeHourlyAplusWh));
-            contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeHourlyAminusWh));
+
+            ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(name+" A+").withMeterRole(meterRole).withReadingTypeTemplate(getDeaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
+                    .overrideAttribute(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER, MetricMultiplier.KILO.getMultiplier())
+                    .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR.getId());
+
+            ReadingTypeRequirement requirementAminus = config.newReadingTypeRequirement(name+" A-").withMeterRole(meterRole).withReadingTypeTemplate(getDeaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
+                    .overrideAttribute(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER, MetricMultiplier.KILO.getMultiplier())
+                    .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR.getId());
+
+            contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAplusWh, requirementAplus));
+            contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAminusWh, requirementAminus));
+            contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeYearlyAplusWh, requirementAplus));
+            contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeYearlyAminusWh, requirementAminus));
+            contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingType15minAplusWh, requirementAplus));
+            contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingType15minAminusWh, requirementAminus));
+            contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeHourlyAplusWh, requirementAplus));
+            contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeHourlyAminusWh, requirementAminus));
 
             config.activate();
             System.out.println(config.getId() + ": " + config.getName());
@@ -149,10 +163,15 @@ public class ConsoleCommands {
         }
     }
 
-    public ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, ReadingType readingType){
-        String name = readingType.getMacroPeriod().getDescription() + " " + readingType.getAliasName();
+    private ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement requirement){
+        String name = readingType.getFullAliasName() + " " + requirement.getName();
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
-        return builder.build(builder.requirement(config.newReadingTypeRequirement(name).withReadingType(readingType)));
+        return builder.build(builder.requirement(requirement));
+    }
+
+    private ReadingTypeTemplate getDeaultReadingTypeTemplate(DefaultReadingTypeTemplate defaultReadingTypeTemplate){
+       return metrologyConfigurationService.findReadingTypeTemplate(defaultReadingTypeTemplate)
+               .orElseThrow(() -> new NoSuchElementException("Default reading type template not found"));
     }
 
     public void printDdl() {

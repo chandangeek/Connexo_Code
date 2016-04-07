@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -30,7 +31,8 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
     @Override
     public void addMeterRole(MeterRole meterRole) {
         if (!getMeterRoles().contains(meterRole)) {
-            if (!getServiceCategory().getMeterRoles().contains(meterRole)) {
+            if (!getServiceCategory().getMeterRoles().contains(meterRole)
+                    && !meterRole.equals(super.getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).orElse(null))) {
                 throw CannotManageMeterRoleOnMetrologyConfigurationException
                         .canNotAddMeterRoleWhichIsNotAssignedToServiceCategory(getMetrologyConfigurationService().getThesaurus(),
                                 meterRole.getDisplayName(), getServiceCategory().getDisplayName());

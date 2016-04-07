@@ -244,6 +244,14 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
+    public Optional<? extends ReadingTypeTemplate> findReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate) {
+        return getDataModel().query(ReadingTypeTemplateImpl.class)
+                .select(where(ReadingTypeTemplateImpl.Fields.DEFAULT_TEMPLATE.fieldName()).isEqualTo(defaultTemplate))
+                .stream()
+                .findFirst();
+    }
+
+    @Override
     public List<ReadingTypeTemplate> getReadingTypeTemplates() {
         return getDataModel().mapper(ReadingTypeTemplate.class).find();
     }
