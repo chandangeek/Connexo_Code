@@ -12,6 +12,9 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
     readOnly: true,
     submitValue: false,
     defaultType: 'displayfield',
+    stores: [
+        'Uni.property.store.TimeUnits'
+    ],
 
     initComponent: function () {
         var me = this;
@@ -22,7 +25,7 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
 
         me.callParent(arguments);
         if (me.value) {
-            Uni.util.Common.loadNecessaryStores('Uni.property.store.TimeUnits', function () {
+            Uni.util.Common.loadNecessaryStores(me.stores, function () {
                 me.setValue(me.value);
             });
         }
