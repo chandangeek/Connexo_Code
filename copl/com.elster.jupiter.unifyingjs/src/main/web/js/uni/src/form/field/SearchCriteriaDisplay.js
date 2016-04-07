@@ -1,7 +1,9 @@
 Ext.define('Uni.form.field.SearchCriteriaDisplay', {
     extend: 'Ext.form.FieldContainer',
     requires: [
-        'Uni.store.search.Properties'
+        'Uni.property.store.TimeUnits',
+        'Uni.util.Common',
+        'Uni.DateTime.formatTimeShort'
     ],
     mixins: {
         field: 'Ext.form.field.Field'
@@ -19,6 +21,9 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
         }
 
         me.callParent(arguments);
+        Uni.util.Common.loadNecessaryStores('Uni.property.store.TimeUnits', function () {
+            me.setValue(me.value);
+        });
     },
 
     setValue: function (value) {
@@ -53,13 +58,14 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
         Ext.Array.each(_.sortBy(value, 'sortOption'), function (criteria) {
             if (criteria.group && criteria.group.id !== currentGroup) {
                 items.push({
+                    itemId: 'group-label-' + criteria.group.id,
                     fieldLabel: criteria.group.displayValue,
-                    labelStyle: 'color: #1E7D9E',
-                    itemId: 'group-label-' + criteria.group.id
+                    labelStyle: 'color: #1E7D9E'
                 });
                 currentGroup = criteria.group.id;
             }
             items.push({
+                itemId: 'search-criteria-' + criteria.name,
                 fieldLabel: criteria.displayValue,
                 value: me.getDisplayValueOfCriteria(criteria),
                 htmlEncode: false
@@ -101,6 +107,8 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
     },
 
     formatValue: function (criteria, value) {
+        var timeDuration;
+
         if (criteria.selectionMode === 'multiple') {
             return Ext.Array.findBy(criteria.values, function (possibleValue) {
                 return value == possibleValue.id;
@@ -112,10 +120,17 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
                 return Uni.DateTime.formatDateShort(new Date (value));
             case 'Date:com.energyict.mdc.dynamic.DateAndTimeFactory':
                 return Uni.DateTime.formatDateTimeShort(new Date (value));
+            case 'TimeOfDay:com.energyict.mdc.dynamic.TimeOfDayFactory':
+                return Uni.DateTime.formatTimeShort(new Date (value * 60000));
             case 'Boolean:com.elster.jupiter.properties.BooleanFactory':
                 return value
                     ? Uni.I18n.translate('general.yes', 'UNI', 'Yes')
                     : Uni.I18n.translate('general.no', 'UNI', 'No');
+            case 'TimeDuration:com.energyict.mdc.dynamic.TimeDurationValueFactory':
+                timeDuration = value.split(':');
+                return timeDuration[1]
+                    + ' '
+                    + Ext.getStore('Uni.property.store.TimeUnits').find('code', timeDuration[1]).get('localizedValue');
         }
 
         return value;
