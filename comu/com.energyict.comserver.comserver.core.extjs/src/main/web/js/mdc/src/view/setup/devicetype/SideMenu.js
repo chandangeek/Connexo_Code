@@ -63,7 +63,10 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
             me.down('#logbooksLink').hide();
         });
 
+
         me.callParent(arguments);
+
+        me.executeIfNoDataLoggerSlave();
     },
 
     executeIfDataLoggerSlave: function(executeWhenDetermined) {
@@ -82,20 +85,61 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
         }
     },
 
-    executeIfNoDataLoggerSlave: function(executeWhenDetermined) {
+    executeIfNoDataLoggerSlave: function () {
         var me = this;
         if (me.isDataLoggerSlave === undefined) {
             Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
                 success: function (deviceType) {
                     me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
                     if (!me.isDataLoggerSlave) {
-                        executeWhenDetermined();
+                        me.addMenuWithFirmware();
                     }
                 }
             });
         } else if (!me.isDataLoggerSlave) {
-            executeWhenDetermined();
+            me.addMenuWithFirmware();
+        } else {
+            me.addMenuWithoutFirmware();
         }
+    },
+
+    addMenuWithFirmware: function () {
+        var me = this;
+        me.addMenuItems([{
+            title: Uni.I18n.translate('general.specifications', 'FWC', 'Specifications'),
+            items: [
+                {
+                    text: Uni.I18n.translate('general.firmwareManagementOptions', 'FWC', 'Firmware management options'),
+                    itemId: 'firmwareoptionsLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmware/options'
+                },
+                {
+                    text: Uni.I18n.translate('general.firmwareVersions', 'FWC', 'Firmware versions'),
+                    itemId: 'firmwareversionsLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmware/versions'
+                },
+                {
+                    text: Uni.I18n.translate('devicetypemenu.timeofuse', 'MDC', 'Time of use'),
+                    itemId: 'timeOfUseLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/timeofuse'
+                }
+            ]
+        }]);
+    },
+
+    addMenuWithoutFirmware: function () {
+        var me = this;
+        me.addMenuItems([{
+            title: Uni.I18n.translate('devicetypemenu.specifications', 'MDC', 'Specifications'),
+            itemId: 'specifications-menu-item',
+            items: [
+                {
+                    text: Uni.I18n.translate('devicetypemenu.timeofuse', 'MDC', 'Time of use'),
+                    itemId: 'timeOfUseLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/timeofuse'
+                }
+            ]
+        }]);
     }
 });
 
