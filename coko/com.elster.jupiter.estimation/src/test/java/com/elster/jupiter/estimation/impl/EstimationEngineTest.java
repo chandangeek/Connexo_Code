@@ -15,16 +15,8 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+
 import com.google.common.collect.Range;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -36,9 +28,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EstimationEngineTest {
@@ -46,7 +51,7 @@ public class EstimationEngineTest {
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
-    public static final ReadingQualityType SUSPECT = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT);
+    public static final ReadingQualityType SUSPECT = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT);
     @Mock
     private MeterActivation meterActivation;
     @Mock
@@ -190,9 +195,9 @@ public class EstimationEngineTest {
         when(estimationBlock1.getReadingType()).thenReturn(readingType);
         when(estimationBlock2.getReadingType()).thenReturn(readingType2);
         when(estimationBlock3.getReadingType()).thenReturn(readingType);
-        when(estimationBlock1.getReadingQualityType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 1));
-        when(estimationBlock2.getReadingQualityType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 2));
-        when(estimationBlock3.getReadingQualityType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 3));
+        when(estimationBlock1.getReadingQualityType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 1));
+        when(estimationBlock2.getReadingQualityType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2));
+        when(estimationBlock3.getReadingQualityType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 3));
         when(estimationBlock1.getChannel()).thenReturn(channel1);
         when(estimationBlock2.getChannel()).thenReturn(channel1);
         when(estimationBlock3.getChannel()).thenReturn(channel1);
@@ -220,22 +225,22 @@ public class EstimationEngineTest {
         assertThat(reading1.getValue()).isEqualTo(BigDecimal.valueOf(41));
         assertThat(reading1.getTimeStamp()).isEqualTo(start.plusHours(1).toInstant());
         assertThat(reading1.getReadingQualities()).hasSize(1);
-        assertThat(reading1.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 1));
+        assertThat(reading1.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 1));
         BaseReading reading2 = (BaseReading) list.get(1);
         assertThat(reading2.getValue()).isEqualTo(BigDecimal.valueOf(42));
         assertThat(reading2.getTimeStamp()).isEqualTo(start.plusHours(2).toInstant());
         assertThat(reading2.getReadingQualities()).hasSize(1);
-        assertThat(reading2.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 1));
+        assertThat(reading2.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 1));
         BaseReading reading3 = (BaseReading) list.get(2);
         assertThat(reading3.getValue()).isEqualTo(BigDecimal.valueOf(45));
         assertThat(reading3.getTimeStamp()).isEqualTo(start.plusHours(5).toInstant());
         assertThat(reading3.getReadingQualities()).hasSize(1);
-        assertThat(reading3.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 3));
+        assertThat(reading3.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 3));
         BaseReading reading4 = (BaseReading) list.get(3);
         assertThat(reading4.getValue()).isEqualTo(BigDecimal.valueOf(46));
         assertThat(reading4.getTimeStamp()).isEqualTo(start.plusHours(6).toInstant());
         assertThat(reading4.getReadingQualities()).hasSize(1);
-        assertThat(reading4.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 3));
+        assertThat(reading4.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 3));
 
         verify(cimChannel2).estimateReadings(readingCaptor.capture());
 
@@ -245,12 +250,12 @@ public class EstimationEngineTest {
         assertThat(reading1.getValue()).isEqualTo(BigDecimal.valueOf(43));
         assertThat(reading1.getTimeStamp()).isEqualTo(start.plusHours(3).toInstant());
         assertThat(reading1.getReadingQualities()).hasSize(1);
-        assertThat(reading1.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 2));
+        assertThat(reading1.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2));
         reading2 = (BaseReading) list.get(1);
         assertThat(reading2.getValue()).isEqualTo(BigDecimal.valueOf(44));
         assertThat(reading2.getTimeStamp()).isEqualTo(start.plusHours(4).toInstant());
         assertThat(reading2.getReadingQualities()).hasSize(1);
-        assertThat(reading2.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 2));
+        assertThat(reading2.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2));
     }
 
 
