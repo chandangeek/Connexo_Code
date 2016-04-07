@@ -1,10 +1,12 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.units.Dimension;
 import com.elster.jupiter.util.units.Unit;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 /**
@@ -179,59 +181,88 @@ public class UnitConversionSupport {
 
     /**
      * Returns an expression tree that converts a variable from
-     * the specified {@link Unit source unit} to the target Unit.
+     * the specified {@link Unit source unit} and {@link MetricMultiplier}
+     * to the target Unit and MetricMultiplier.
      *
      * @param variable The VariableReferenceNode
      * @param source The source Unit
+     * @param sourceMultiplier The source MetricMultiplier
      * @param target The target Unit
+     * @param targetMetricMultiplier The targt MetricMultiplier
      * @return The expression tree that converts from source to target unit
      * @throws UnsupportedOperationException Thrown when source and target Unit are not of the same {@link Dimension}
      */
-    static ServerExpressionNode unitConversion(VariableReferenceNode variable, ReadingTypeUnit source, ReadingTypeUnit target) {
-        if (source.equals(target)) {
+    static ServerExpressionNode unitConversion(VariableReferenceNode variable, ReadingTypeUnit source, MetricMultiplier sourceMultiplier, ReadingTypeUnit target, MetricMultiplier targetMetricMultiplier) {
+        if (source.equals(target) && sourceMultiplier.equals(targetMetricMultiplier)) {
             return variable;
         } else if (!sameDimension(source, target)) {
             throw new UnsupportedOperationException("Unit conversion from " + source + " to " + target + " is not supported yet");
         } else {
-            return unitConversion(variable, source.getUnit(), target.getUnit());
+            return unitConversion(variable, source.getUnit(), sourceMultiplier, target.getUnit(), targetMetricMultiplier);
         }
     }
 
-    private static ServerExpressionNode unitConversion(ServerExpressionNode value, Unit source, Unit target) {
+    private static ServerExpressionNode unitConversion(ServerExpressionNode value, Unit source, MetricMultiplier sourceMetricMultiplier, Unit target, MetricMultiplier targetMetricMultiplier) {
         Unit siUnit = Unit.getSIUnit(source.getDimension());
         if (source.equals(siUnit)) {
             /* Converting from SI to other
              * value = (siValue - siDelta) * siDivisor / siMultiplier. */
-            return Operator.DIVIDE.node(
-                    Operator.MULTIPLY.node(
-                            Operator.MINUS.node(
-                                    value,
-                                    target.getSiDelta()),
-                            target.getSiDivisor()),
-                    target.getSiMultiplier());
+            return fromZeroMultiplier(
+                        Operator.DIVIDE.node(
+                            Operator.MULTIPLY.node(
+                                    Operator.MINUS.node(
+                                            toZeroMultiplier(value, sourceMetricMultiplier),
+                                            target.getSiDelta()),
+                                    target.getSiDivisor()),
+                            target.getSiMultiplier()),
+                        targetMetricMultiplier);
         } else if (target.equals(siUnit)) {
             /* Converting to SI
              * siValue = (value * siMultiplier / siDivisor) + siDelta. */
-            return Operator.PLUS.node(
-                    Operator.DIVIDE.node(
-                            Operator.MULTIPLY.node(
-                                    value,
-                                    source.getSiMultiplier()),
-                            source.getSiDivisor()),
-                    source.getSiDelta());
+            return fromZeroMultiplier(
+                        Operator.PLUS.node(
+                            Operator.DIVIDE.node(
+                                    Operator.MULTIPLY.node(
+                                            toZeroMultiplier(value, sourceMetricMultiplier),
+                                            source.getSiMultiplier()),
+                                    source.getSiDivisor()),
+                            source.getSiDelta()),
+                        targetMetricMultiplier);
         } else {
             /* Convert to source to si and si to target */
             return unitConversion(
-                    unitConversion(value, source, siUnit),
-                    siUnit,
-                    target);
+                        unitConversion(
+                                value,
+                                source, sourceMetricMultiplier,
+                                siUnit, MetricMultiplier.ZERO),
+                        siUnit, MetricMultiplier.ZERO,
+                        target, targetMetricMultiplier);
+        }
+    }
+
+    private static ServerExpressionNode toZeroMultiplier(ServerExpressionNode value, MetricMultiplier multiplier) {
+        if (multiplier.equals(MetricMultiplier.ZERO)) {
+            return value;
+        } else {
+            return Operator.MULTIPLY.node(
+                    value,
+                    BigDecimal.ONE.scaleByPowerOfTen(multiplier.getMultiplier()));
+        }
+    }
+
+    private static ServerExpressionNode fromZeroMultiplier(ServerExpressionNode value, MetricMultiplier multiplier) {
+        if (multiplier.equals(MetricMultiplier.ZERO)) {
+            return value;
+        } else {
+            return Operator.DIVIDE.node(
+                    value,
+                    BigDecimal.ONE.scaleByPowerOfTen(multiplier.getMultiplier()));
         }
     }
 
     static boolean sameDimension(ReadingTypeUnit first, ReadingTypeUnit second) {
         return toDimension(first).hasSameDimensions(toDimension(second));
     }
-
 
     public static Optional<Dimension> getMultiplicationDimension(Dimension first, Dimension second) {
         return IntermediateDimension.of(first).multiply(second).getDimension();

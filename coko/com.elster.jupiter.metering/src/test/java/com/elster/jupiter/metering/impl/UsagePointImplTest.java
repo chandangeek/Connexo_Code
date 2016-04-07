@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -18,16 +19,6 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.User;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import javax.inject.Provider;
 import javax.validation.Validator;
@@ -40,6 +31,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -211,6 +213,11 @@ public class UsagePointImplTest {
         usagePoint.setServiceLocation(serviceLocation);
 
         assertThat(usagePoint.getServiceLocation()).isEqualTo(Optional.of(serviceLocation));
+    }
+
+    @Test
+    public void testGetConnectionState() {
+        assertThat(usagePoint.getConnectionState()).isEqualTo(ConnectionState.UNDER_CONSTRUCTION);
     }
 
     @Test

@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -21,8 +20,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -35,14 +35,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the {@link ServiceCategorySearchableProperty} component
- *
- * @author Anton Fomchenko
- * @since 09-09-2015
- */
+
 @RunWith(MockitoJUnitRunner.class)
-public class ServiceCategorySearchablePropertyTest {
+public class NameSearchablePropertyTest {
 
     @Mock
     private UsagePointSearchDomain domain;
@@ -67,7 +62,7 @@ public class ServiceCategorySearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -78,7 +73,7 @@ public class ServiceCategorySearchablePropertyTest {
 
     @Test
     public void testNoGroup() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
@@ -89,40 +84,40 @@ public class ServiceCategorySearchablePropertyTest {
 
     @Test
     public void testStickyVisibility() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
 
         // Asserts
-        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.STICKY);
+        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.REMOVABLE);
     }
 
     @Test
-    public void testMultiSelection() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
+    public void testSingleSelection() {
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
 
         // Asserts
-        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.MULTI);
+        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.SINGLE);
     }
 
     @Test
     public void testTranslation() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_NAME.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -130,23 +125,23 @@ public class ServiceCategorySearchablePropertyTest {
         // Asserts
         assertThat(specification).isNotNull();
         assertThat(specification.isReference()).isFalse();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Enum.class);
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(String.class);
     }
 
     @Test
-    public void hasPossibleValuesWithoutRefresh() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
+    public void noPossibleValuesWithoutRefresh() {
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
 
         // Asserts
-        assertThat(specification.getPossibleValues()).isNotNull();
+        assertThat(specification.getPossibleValues()).isNull();
     }
 
     @Test
     public void noConstraints() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -157,19 +152,19 @@ public class ServiceCategorySearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
 
         // Asserts
         PropertySpec specification = property.getSpecification();
-        assertThat(specification.getPossibleValues()).isNotNull();
+        assertThat(specification.getPossibleValues()).isNull();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void refreshWithTooManyConstrictions() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
         SearchableProperty searchableProperty = mock(SearchableProperty.class);
         SearchablePropertyConstriction constriction = SearchablePropertyConstriction.noValues(searchableProperty);
 
@@ -181,7 +176,7 @@ public class ServiceCategorySearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -189,33 +184,20 @@ public class ServiceCategorySearchablePropertyTest {
         // Asserts: see expected exception rule
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void displayString() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
+        NameSearchableProperty property = this.getTestInstance();
         String valueToDisplay = "displayString";
 
-        // Business method
-        property.toDisplay(valueToDisplay);
-
-        // Asserts: see expected exception rule
-    }
-
-    @Test
-    public void displayEnum() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
-        ServiceKind valueToDisplay = ServiceKind.ELECTRICITY;
-
-        when(this.thesaurus.getStringBeyondComponent(eq(ServiceKind.ELECTRICITY.getKey()), anyString())).thenReturn("Electricity");
-        when(this.thesaurus.getString(eq(ServiceKind.ELECTRICITY.getKey()), anyString())).thenReturn("Electricity");
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(ServiceKind.ELECTRICITY.getDisplayName(thesaurus));
+        assertThat(displayValue).isEqualTo(valueToDisplay);
     }
 
-    private ServiceCategorySearchableProperty getTestInstance() {
-        return new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private NameSearchableProperty getTestInstance() {
+        return new NameSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
     }
 
 }

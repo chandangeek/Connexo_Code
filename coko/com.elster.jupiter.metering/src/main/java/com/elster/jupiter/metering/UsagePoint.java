@@ -170,6 +170,8 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     UsagePointCustomPropertySetExtension forCustomProperties();
 
+    ConnectionState getConnectionState();
+
     void update();
 
     void delete();

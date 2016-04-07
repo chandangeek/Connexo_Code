@@ -8,18 +8,20 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
-import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -42,9 +44,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.metering.console", service = ConsoleCommands.class, property = {
         "osgi.command.scope=metering",
@@ -293,7 +295,7 @@ public class ConsoleCommands {
     }
 
     public void addRequirement() {
-        System.out.println("Usage: addRequirement <name> <reading type> <metrology configuration id>");
+        System.out.println("Usage: addRequirement <name> <reading type> [<meter role>] <metrology configuration id>");
     }
 
     public void addRequirement(String name, String readingTypeString, long metrologyConfigId) {
@@ -303,10 +305,41 @@ public class ConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
-
-            metrologyConfiguration.newReadingTypeRequirement(name)
-                    .withReadingType(readingType);
+            if (metrologyConfiguration instanceof UsagePointMetrologyConfiguration) {
+                throw new IllegalArgumentException("MetrologyConfiguration requires that you specify a meter role");
+            } else {
+                long id = metrologyConfiguration.newReadingTypeRequirement(name).withReadingType(readingType).getId();
+                System.out.println("MetrologyConfiguration created with ID: " + id);
+            }
             context.commit();
+        }
+    }
+
+    public void addRequirement(String name, String readingTypeString, String meterRoleName, long metrologyConfigId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
+            ReadingType readingType = meteringService.getReadingType(readingTypeString)
+                    .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
+            if (metrologyConfiguration instanceof UsagePointMetrologyConfiguration) {
+                try {
+                    DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(meterRoleName);
+                    MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
+                    UsagePointMetrologyConfiguration upMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfiguration;
+                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingType(readingType).getId();
+                    System.out.println("MetrologyConfiguration created with ID: " + id);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
+                    throw e;
+                }
+            } else {
+                metrologyConfiguration.newReadingTypeRequirement(name).withReadingType(readingType);
+            }
+            context.commit();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -357,7 +390,8 @@ public class ConsoleCommands {
 
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration).parse(formulaString);
 
-            ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO)).build(node);
+            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO)).build(node).getId();
+            System.out.printf("Deliverable created: " + id);
             context.commit();
         }
     }
