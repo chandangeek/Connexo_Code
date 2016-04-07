@@ -3,7 +3,7 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
     requires: [
         'Uni.property.store.TimeUnits',
         'Uni.util.Common',
-        'Uni.DateTime.formatTimeShort'
+        'Uni.DateTime'
     ],
     mixins: {
         field: 'Ext.form.field.Field'
