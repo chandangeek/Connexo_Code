@@ -98,6 +98,9 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
             if (!NON_FINAL_STATUSES.contains(this.status.key()) && this.finishedOn == null){
                 this.finishedOn = clock.instant();
             }
+            if (NON_FINAL_STATUSES.contains(this.status.key()) && this.finishedOn != null){
+                this.finishedOn = null;
+            }
         }
     }
 
