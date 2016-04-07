@@ -7,7 +7,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.firmware.impl.DeviceInFirmwareCampaignImpl;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
 import java.util.List;
@@ -89,8 +88,8 @@ public interface FirmwareService {
     /**
      * Tries to retry the current FirmwareComTaskExecution on the device if it was still pending.
      *
-     * @param device the device to cancel the firmware upload
-     * @return true if we did a cancel, false if no action was required
+     * @param deviceInFirmwareCampaign for which to retry the firmware upload
+     * @return true if we did a retry, false if no action was required
      */
     boolean retryFirmwareUploadForDevice(DeviceInFirmwareCampaign deviceInFirmwareCampaign);
 

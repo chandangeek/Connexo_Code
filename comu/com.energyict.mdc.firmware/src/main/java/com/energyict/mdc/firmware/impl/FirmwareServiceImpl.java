@@ -330,7 +330,6 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
     public FirmwareCampaign getFirmwareCampaign(FirmwareComTaskExecution comTaskExecution) {
         List<FirmwareCampaignImpl> campaigns = getDeviceInFirmwareCampaignsFor(comTaskExecution.getDevice())
                                             .stream()
-                                            .map(DeviceInFirmwareCampaignImpl.class::cast)
                                             .filter(DeviceInFirmwareCampaignImpl::hasNonFinalStatus)
                                             .map(DeviceInFirmwareCampaignImpl::getFirmwareCampaign)
                                             .collect(Collectors.toList());

@@ -450,7 +450,7 @@ public enum FirmwareManagementDeviceStatus {
                 return newStatus.key().equals(Constants.PENDING);
             }
 
-        },
+        }
     ;
 
     private String deviceInCampaignStatusKey;

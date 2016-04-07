@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -147,7 +146,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                     FirmwareManagementDeviceStatus.Group.getStatusGroupFor(uploadOption)
                             .get()
                             .getStatusBasedOnMessage(firmwareMessage.get(), helper)
-                            .ifPresent(newStatus -> setStatus(newStatus));
+                            .ifPresent(this::setStatus);
                 });
             } else {
                 setStatus(FirmwareManagementDeviceStatus.CANCELLED);
@@ -174,13 +173,13 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     }
 
     public void retry(){
+      //  startFirmwareProcess();
         setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
         save();
-        startFirmwareProcess();
     }
 
     public boolean hasNonFinalStatus(){
-        return NON_FINAL_STATUSES.contains(this.getStatus());
+        return NON_FINAL_STATUSES.contains(this.getStatus().key());
     }
 
     private void createFirmwareMessage(Optional<DeviceMessageId> firmwareMessageId) {
