@@ -80,7 +80,12 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private String sqlComment() {
-        return this.getName() + " in " + this.prettyPrintMeterActivationPeriod();
+        return this.getName() + this.prettyPrintedReadingType() + " in " + this.prettyPrintMeterActivationPeriod();
+    }
+
+    private String prettyPrintedReadingType() {
+        VirtualReadingType readingType = VirtualReadingType.from(this.getReadingType());
+        return " as " + readingType.getIntervalLength() + " " + readingType.getUnitMultiplier().getSymbol() + readingType.getUnit().getSymbol();
     }
 
     private String prettyPrintMeterActivationPeriod() {
@@ -166,7 +171,10 @@ class ReadingTypeDeliverableForMeterActivation {
                             this.targetReadingType));
             sqlBuilder.append(")");
         } else {
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
+            sqlBuilder.append(this.expressionReadingType.buildSqlUnitConversion(
+                    this.mode,
+                    this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
+                    this.targetReadingType));
         }
     }
 

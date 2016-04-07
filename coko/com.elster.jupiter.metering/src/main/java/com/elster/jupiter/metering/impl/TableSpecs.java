@@ -573,18 +573,18 @@ public enum TableSpecs {
 
             table.addDiscriminatorColumn("SERVICECATEGORY", "varchar2(1)");
 
-            table.column("GROUNDED").type("char(1)").conversion(CHAR2BOOLEAN).map("grounded").add();
+            table.column("GROUNDED").type("varchar2(7)").conversion(CHAR2ENUM).map("grounded").add();
             table.addQuantityColumns("NOMINALVOLTAGE", false, "nominalServiceVoltage");
             table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
             table.addQuantityColumns("PHYSICALCAPACITY", false, "physicalCapacity");
             table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
             table.addQuantityColumns("RATEDPOWER", false, "ratedPower");
             table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
-            table.column("LIMITER").type("char(1)").conversion(CHAR2BOOLEAN).map("limiter").add();
+            table.column("LIMITER").type("varchar2(7)").conversion(CHAR2ENUM).map("limiter").add();
             table.column("LOADLIMITERTYPE").varChar(NAME_LENGTH).map("loadLimiterType").add();
             table.addQuantityColumns("LOADLIMIT", false, "loadLimit");
             table.addQuantityColumns("PRESSURE", false, "pressure");
-            table.column("INTERRUPTIBLE").type("char(1)").conversion(CHAR2BOOLEAN).map("interruptible").add();
+            table.column("INTERRUPTIBLE").type("varchar2(7)").conversion(CHAR2ENUM).map("interruptible").add();
             table.column("COLLAR").type("varchar2(7)").conversion(CHAR2ENUM).map("collar").add();
             table.column("BYPASS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypass").add();
             table.column("BYPASSSTATUS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypassStatus").add();
@@ -1107,6 +1107,7 @@ public enum TableSpecs {
             table.foreignKey("FK_RT_REQUIREMENT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
+                    .onDelete(CASCADE)
                     .map(ReadingTypeRequirementImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.RT_REQUIREMENTS.fieldName())
                     .composition()

@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -27,11 +28,17 @@ public class ExpressionNodeParser {
     private Thesaurus thesaurus;
     private MetrologyConfigurationService metrologyConfigurationService;
     private MetrologyConfiguration metrologyConfiguration;
+    private Formula.Mode mode;
 
     public ExpressionNodeParser(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration) {
+        this(thesaurus, metrologyConfigurationService, metrologyConfiguration, Formula.Mode.AUTO);
+    }
+
+    public ExpressionNodeParser(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration, Formula.Mode mode) {
         this.thesaurus = thesaurus;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.metrologyConfiguration = metrologyConfiguration;
+        this.mode = mode;
     }
 
     private Deque<String> stack = new ArrayDeque<>();
@@ -111,6 +118,9 @@ public class ExpressionNodeParser {
             if (!readingTypeRequirement.get().getMetrologyConfiguration().equals(metrologyConfiguration)) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) readingTypeRequirement.get().getId());
             }
+            if (!readingTypeRequirement.get().isRegular()) {
+                throw new InvalidNodeException(thesaurus, MessageSeeds.IRREGULAR_READINGTYPE_IN_REQUIREMENT);
+            }
             nodes.add(new ReadingTypeRequirementNodeImpl(readingTypeRequirement.get()));
         } else {
             throw new IllegalArgumentException("No requirement found with id " + id);
@@ -132,6 +142,9 @@ public class ExpressionNodeParser {
     }
 
     private void handleFunctionNode(String function) {
+        if (mode.equals(Formula.Mode.AUTO)) {
+            throw new InvalidNodeException(thesaurus, MessageSeeds.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE);
+        }
         if (nodes.size() < 1) {
             throw new IllegalArgumentException("Operator '" + function + "' requires at least 1 argument");
         }

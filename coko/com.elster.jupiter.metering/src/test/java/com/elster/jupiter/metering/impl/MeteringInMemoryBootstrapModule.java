@@ -14,9 +14,9 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.impl.aggregation.FormulaDeletionVetoEventHandler;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeDeletionVetoEventHandler;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -25,7 +25,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -91,7 +91,8 @@ public class MeteringInMemoryBootstrapModule {
                 new NlsModule(),
                 new BasicPropertiesModule(),
                 new TimeModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new SearchModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
@@ -107,9 +108,6 @@ public class MeteringInMemoryBootstrapModule {
     private void addMessageHandlers() {
         MetrologyPurposeDeletionVetoEventHandler metrologyPurposeDeletionHandler = injector.getInstance(MetrologyPurposeDeletionVetoEventHandler.class);
         ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(metrologyPurposeDeletionHandler);
-
-        FormulaDeletionVetoEventHandler formulaDeletionHandler = injector.getInstance(FormulaDeletionVetoEventHandler.class);
-        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(formulaDeletionHandler);
     }
 
     public void deactivate() {
@@ -156,12 +154,14 @@ public class MeteringInMemoryBootstrapModule {
         return injector.getInstance(FiniteStateMachineService.class);
     }
 
+    public NlsService getNlsService() {
+        return injector.getInstance(NlsService.class);
+    }
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(SearchService.class).toInstance(mock(SearchService.class));
         }
     }
 

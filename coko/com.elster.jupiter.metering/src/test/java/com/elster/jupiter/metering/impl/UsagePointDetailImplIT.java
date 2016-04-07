@@ -23,7 +23,9 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -58,6 +60,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointDetailImplIT {
@@ -66,7 +69,7 @@ public class UsagePointDetailImplIT {
     private static final Quantity RATED_CURRENT = Unit.AMPERE.amount(BigDecimal.valueOf(14));
     private static final Quantity RATED_POWER = Unit.WATT.amount(BigDecimal.valueOf(156156));
     private static final Quantity RATED_POWER2 = Unit.WATT.amount(BigDecimal.valueOf(156157));
-    private static final Quantity LOAD = Unit.WATT_HOUR.amount(BigDecimal.ONE);
+    private static final Quantity LOAD = Unit.VOLT_AMPERE.amount(BigDecimal.valueOf(12345));
 
     private static final Instant JANUARY_2014 = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
     private static final Instant FEBRUARY_2014 = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
@@ -93,6 +96,8 @@ public class UsagePointDetailImplIT {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
         }
     }
 
@@ -274,7 +279,7 @@ public class UsagePointDetailImplIT {
         elecDetail.setCollar(YesNoAnswer.YES);
 
         //electriciy specific properties
-        elecDetail.setGrounded(true);
+        elecDetail.setGrounded(YesNoAnswer.YES);
         elecDetail.setNominalServiceVoltage(VOLTAGE);
         elecDetail.setPhaseCode(PhaseCode.ABCN);
         elecDetail.setRatedCurrent(RATED_CURRENT);
@@ -293,9 +298,9 @@ public class UsagePointDetailImplIT {
         gasDetail.setValve(YesNoAnswer.YES);
         gasDetail.setBypass(YesNoAnswer.YES);
         gasDetail.setBypassStatus(BypassStatus.OPEN);
-        gasDetail.setGrounded(true);
-        gasDetail.setInterruptible(true);
-        gasDetail.setLimiter(true);
+        gasDetail.setGrounded(YesNoAnswer.YES);
+        gasDetail.setInterruptible(YesNoAnswer.YES);
+        gasDetail.setLimiter(YesNoAnswer.YES);
         gasDetail.setLoadLimit(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)));
         gasDetail.setLoadLimiterType("LoadLimit");
         gasDetail.setPhysicalCapacity(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)));
@@ -307,7 +312,7 @@ public class UsagePointDetailImplIT {
         assertThat(elecDetail.isCollarInstalled()).isEqualTo(YesNoAnswer.YES);
 
         //electriciy specific properties
-        assertThat(elecDetail.isGrounded() == true).isTrue();
+        assertThat(elecDetail.isGrounded()).isEqualTo(YesNoAnswer.YES);
         assertThat(elecDetail.getNominalServiceVoltage().equals(VOLTAGE)).isTrue();
         assertThat(elecDetail.getPhaseCode().equals(PhaseCode.ABCN)).isTrue();
         assertThat(elecDetail.getRatedCurrent().equals(RATED_CURRENT)).isTrue();
@@ -324,9 +329,9 @@ public class UsagePointDetailImplIT {
         assertThat(gasDetail.isClamped()).isEqualTo(YesNoAnswer.YES);
         assertThat(gasDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
         assertThat(gasDetail.getBypassStatus().equals(BypassStatus.OPEN)).isTrue();
-        assertThat(gasDetail.isGrounded()).isTrue();
-        assertThat(gasDetail.isInterruptible()).isTrue();
-        assertThat(gasDetail.isLimiter()).isTrue();
+        assertThat(gasDetail.isGrounded()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.isInterruptible()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.isLimiter()).isEqualTo(YesNoAnswer.YES);
         assertThat(gasDetail.getLoadLimit().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
         assertThat(gasDetail.getLoadLimiterType().equals("LoadLimit")).isTrue();
         assertThat(gasDetail.getPhysicalCapacity().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();

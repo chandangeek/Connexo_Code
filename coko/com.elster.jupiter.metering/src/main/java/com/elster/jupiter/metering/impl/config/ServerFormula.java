@@ -10,4 +10,9 @@ import com.elster.jupiter.metering.config.Formula;
  * @since 2016-02-05 (13:00)
  */
 public interface ServerFormula extends Formula {
+
+    /**
+     * Delete this {@link Formula}
+     */
+    void delete();
 }

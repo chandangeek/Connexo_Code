@@ -60,7 +60,7 @@ public class ReadingTypeDeliverableImplTestIT {
             metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
                     .newMetrologyConfiguration("Test", serviceCategory).create();
             metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
-            readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "zero reading type");
+            readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "cons reading type");
             context.commit();
         }
     }

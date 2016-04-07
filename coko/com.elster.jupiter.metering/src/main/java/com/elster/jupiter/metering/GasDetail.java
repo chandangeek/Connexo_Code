@@ -11,9 +11,9 @@ import com.elster.jupiter.util.units.Quantity;
  * To change this template use File | Settings | File Templates.
  */
 public interface GasDetail extends UsagePointDetail {
-    boolean isGrounded();
+    YesNoAnswer isGrounded();
 
-    boolean isLimiter();
+    YesNoAnswer isLimiter();
 
     String getLoadLimiterType();
 
@@ -33,5 +33,5 @@ public interface GasDetail extends UsagePointDetail {
 
     YesNoAnswer isClamped();
 
-    boolean isInterruptible();
+    YesNoAnswer isInterruptible();
 }

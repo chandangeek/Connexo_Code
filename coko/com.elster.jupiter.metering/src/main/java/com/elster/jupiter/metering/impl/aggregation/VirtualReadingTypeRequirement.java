@@ -3,6 +3,8 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
@@ -61,7 +63,21 @@ public class VirtualReadingTypeRequirement {
     }
 
     private String sqlComment() {
-        return this.requirement.getName() + " for " + this.deliverable.getName() + " in " + this.prettyPrintMeterActivationPeriod();
+        return this.requirement.getName() + this.prettyPrintedReadingType() + " for " + this.deliverable.getName() + " in " + this.prettyPrintMeterActivationPeriod();
+    }
+
+    private String prettyPrintedReadingType() {
+        return " as " + this.readingTypeForSqlComment();
+    }
+
+    private String readingTypeForSqlComment() {
+        if (this.requirement instanceof FullySpecifiedReadingType) {
+            FullySpecifiedReadingType requirement = (FullySpecifiedReadingType) this.requirement;
+            return requirement.getReadingType().getMRID();
+        } else {
+            PartiallySpecifiedReadingType requirement = (PartiallySpecifiedReadingType) this.requirement;
+            return requirement.getReadingTypeTemplate().toString();
+        }
     }
 
     private String prettyPrintMeterActivationPeriod() {

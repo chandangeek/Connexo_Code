@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
@@ -127,10 +128,11 @@ public class InferReadingTypeTest {
     public void inferIncompatibleRequirementsInOperation() {
         InferReadingType infer = this.testInstance();
 
-        ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingType requirement1 = mock(FullySpecifiedReadingType.class);
         ReadingType requirement1ReadingType = mock(ReadingType.class);
         when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE2);   // Make sure this is not compatible with requirement 2
+        when(requirement1.getReadingType()).thenReturn(requirement1ReadingType);
         when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
@@ -139,10 +141,11 @@ public class InferReadingTypeTest {
                         requirement1,
                         this.deliverable,
                         this.meterActivation);
-        ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingType requirement2 = mock(FullySpecifiedReadingType.class);
         ReadingType requirement2ReadingType = mock(ReadingType.class);
         when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Incompatible with requirement 1
+        when(requirement2.getReadingType()).thenReturn(requirement2ReadingType);
         when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
@@ -164,10 +167,11 @@ public class InferReadingTypeTest {
     public void inferIncompatibleRequirementsInFuntionCall() {
         InferReadingType infer = this.testInstance();
 
-        ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingType requirement1 = mock(FullySpecifiedReadingType.class);
         ReadingType requirement1ReadingType = mock(ReadingType.class);
         when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE2);   // Make sure this is not compatible with requirement 2
+        when(requirement1.getReadingType()).thenReturn(requirement1ReadingType);
         when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
@@ -176,10 +180,11 @@ public class InferReadingTypeTest {
                         requirement1,
                         this.deliverable,
                         this.meterActivation);
-        ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingType requirement2 = mock(FullySpecifiedReadingType.class);
         ReadingType requirement2ReadingType = mock(ReadingType.class);
         when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Incompatible with requirement 1
+        when(requirement2.getReadingType()).thenReturn(requirement2ReadingType);
         when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(

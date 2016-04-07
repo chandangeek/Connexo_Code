@@ -7,7 +7,12 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.IsoFields;
 import java.time.temporal.TemporalAmount;
 import java.util.EnumSet;
 import java.util.Set;
@@ -38,6 +43,11 @@ public enum IntervalLength {
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.valueOf(60L);
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return instant.truncatedTo(ChronoUnit.MINUTES);
+        }
     },
     MINUTE2(Duration.ofMinutes(2)) {
         @Override
@@ -54,6 +64,11 @@ public enum IntervalLength {
         @Override
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.valueOf(30L);
+        }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateMinutes(instant, zone, 2);
         }
     },
     MINUTE3(Duration.ofMinutes(3)) {
@@ -72,6 +87,11 @@ public enum IntervalLength {
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.valueOf(20L);
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateMinutes(instant, zone, 3);
+        }
     },
     MINUTE4(Duration.ofMinutes(4)) {
         @Override
@@ -88,6 +108,11 @@ public enum IntervalLength {
         @Override
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.valueOf(15L);
+        }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateMinutes(instant, zone, 4);
         }
     },
     MINUTE5(Duration.ofMinutes(5)) {
@@ -106,6 +131,11 @@ public enum IntervalLength {
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.valueOf(12L);
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateMinutes(instant, zone, 5);
+        }
     },
     MINUTE6(Duration.ofMinutes(6)) {
         @Override
@@ -122,6 +152,11 @@ public enum IntervalLength {
         @Override
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.valueOf(10L);
+        }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateMinutes(instant, zone, 6);
         }
     },
     MINUTE10(Duration.ofMinutes(10)) {
@@ -140,6 +175,11 @@ public enum IntervalLength {
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.valueOf(6L);
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateMinutes(instant, zone, 10);
+        }
     },
     MINUTE12(Duration.ofMinutes(12)) {
         @Override
@@ -156,6 +196,11 @@ public enum IntervalLength {
         @Override
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.valueOf(5L);
+        }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateMinutes(instant, zone, 12);
         }
     },
     MINUTE15(Duration.ofMinutes(15)) {
@@ -174,6 +219,11 @@ public enum IntervalLength {
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.valueOf(4L);
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateMinutes(instant, zone, 15);
+        }
     },
     MINUTE20(Duration.ofMinutes(20)) {
         @Override
@@ -191,6 +241,11 @@ public enum IntervalLength {
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.valueOf(3L);
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateMinutes(instant, zone, 20);
+        }
     },
     MINUTE30(Duration.ofMinutes(30)) {
         @Override
@@ -207,6 +262,11 @@ public enum IntervalLength {
         @Override
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.valueOf(2L);
+        }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateMinutes(instant, zone, 30);
         }
     },
     HOUR1(Duration.ofHours(1)) {
@@ -229,6 +289,11 @@ public enum IntervalLength {
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.ONE;
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return instant.truncatedTo(ChronoUnit.HOURS);
+        }
     },
     HOUR2(Duration.ofHours(2)) {
         @Override
@@ -244,6 +309,11 @@ public enum IntervalLength {
         @Override
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.ONE.divide(BigDecimal.valueOf(2L), 1, RoundingMode.UNNECESSARY);
+        }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateHours(instant, zone, 2);
         }
     },
     HOUR3(Duration.ofHours(3)) {
@@ -261,6 +331,11 @@ public enum IntervalLength {
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.ONE.divide(BigDecimal.valueOf(3L), 20, RoundingMode.DOWN);
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateHours(instant, zone, 3);
+        }
     },
     HOUR4(Duration.ofHours(4)) {
         @Override
@@ -276,6 +351,11 @@ public enum IntervalLength {
         @Override
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.ONE.divide(BigDecimal.valueOf(4L), 2, RoundingMode.UNNECESSARY);
+        }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateHours(instant, zone, 4);
         }
     },
     HOUR6(Duration.ofHours(6)) {
@@ -293,6 +373,11 @@ public enum IntervalLength {
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.ONE.divide(BigDecimal.valueOf(6L), 20, RoundingMode.DOWN);
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateHours(instant, zone, 6);
+        }
     },
     HOUR12(Duration.ofHours(12)) {
         @Override
@@ -309,6 +394,11 @@ public enum IntervalLength {
         public BigDecimal getVolumeFlowConversionFactor() {
             return BigDecimal.ONE.divide(BigDecimal.valueOf(12L), 20, RoundingMode.DOWN);
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return this.truncateHours(instant, zone, 12);
+        }
     },
     DAY1(Period.ofDays(1)) {
         @Override
@@ -324,6 +414,11 @@ public enum IntervalLength {
         String toOracleTruncFormatModel() {
             return TruncFormatModels.DAY;
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return instant.atZone(zone).truncatedTo(ChronoUnit.DAYS).toInstant();
+        }
     },
     WEEK1(Period.ofWeeks(1)) {
         @Override
@@ -338,6 +433,19 @@ public enum IntervalLength {
         String toOracleTruncFormatModel() {
             return TruncFormatModels.WEEK;
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            ZonedDateTime zonedDateTime = instant.atZone(zone);
+            int week = zonedDateTime.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+            ZonedDateTime attempt = zonedDateTime.truncatedTo(ChronoUnit.DAYS);
+            ZonedDateTime candidate;
+            do {
+                candidate = attempt;
+                attempt = candidate.minusDays(1);
+            } while (attempt.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR) == week);
+            return candidate.toInstant();
+        }
     },
     MONTH1(Period.ofMonths(1)) {
         @Override
@@ -351,6 +459,23 @@ public enum IntervalLength {
         String toOracleTruncFormatModel() {
             return TruncFormatModels.MONTH;
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return  instant.atZone(zone).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1).toInstant();
+        }
+
+        @Override
+        Instant subtractFrom(Instant instant, ZoneId zone) {
+            ZonedDateTime zonedDateTime = instant.atZone(zone);
+            return zonedDateTime.withMonth(zonedDateTime.getMonthValue() - 1).toInstant();
+        }
+
+        @Override
+        Instant addTo(Instant instant, ZoneId zone) {
+            ZonedDateTime zonedDateTime = instant.atZone(zone);
+            return zonedDateTime.withMonth(zonedDateTime.getMonthValue() + 1).toInstant();
+        }
     },
     YEAR1(Period.ofYears(1)) {
         @Override
@@ -362,11 +487,33 @@ public enum IntervalLength {
         String toOracleTruncFormatModel() {
             return TruncFormatModels.YEAR;
         }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return instant.atZone(zone).truncatedTo(ChronoUnit.DAYS).withDayOfYear(1).toInstant();
+        }
+
+        @Override
+        Instant subtractFrom(Instant instant, ZoneId zone) {
+            ZonedDateTime zonedDateTime = instant.atZone(zone);
+            return zonedDateTime.withYear(zonedDateTime.getYear() - 1).toInstant();
+        }
+
+        @Override
+        Instant addTo(Instant instant, ZoneId zone) {
+            ZonedDateTime zonedDateTime = instant.atZone(zone);
+            return zonedDateTime.withYear(zonedDateTime.getYear() + 1).toInstant();
+        }
     },
     NOT_SUPPORTED(Duration.ofMillis(0)) {
         @Override
         protected Set<IntervalLength> multiples() {
             return EnumSet.noneOf(IntervalLength.class);
+        }
+
+        @Override
+        Instant truncate(Instant instant, ZoneId zone) {
+            return instant;
         }
     };
 
@@ -378,6 +525,32 @@ public enum IntervalLength {
 
     TemporalAmount toTemporalAmount() {
         return temporalAmount;
+    }
+
+    /**
+     * Subtracts the amount of time represented by this IntervalLength
+     * from the specified Instant.
+     * In other words, is equivalent to calling Instant.minus(toTemporalAmount());
+     *
+     * @param instant The Instant from which time will be subtracted
+     * @param zone The ZoneId
+     * @return The result of subtraction
+     */
+    Instant subtractFrom(Instant instant, ZoneId zone) {
+        return instant.minus(this.toTemporalAmount());
+    }
+
+    /**
+     * Adds the amount of time represented by this IntervalLength
+     * from the specified Instant.
+     * In other words, is equivalent to calling Instant.plus(toTemporalAmount());
+     *
+     * @param instant The Instant from which time will be subtracted
+     * @param zone The ZoneId
+     * @return The result of subtraction
+     */
+    Instant addTo(Instant instant, ZoneId zone) {
+        return instant.plus(this.toTemporalAmount());
     }
 
     /**
@@ -427,6 +600,40 @@ public enum IntervalLength {
      * @return The multiples
      */
     abstract Set<IntervalLength> multiples();
+
+    /**
+     * Returns a copy of the the specified Instant truncated to this IntervalLength.
+     * Truncation returns the biggest value that is &le; the instant
+     * that is a multiple of this IntervalLength.
+     * In other words:
+     * <pre><code>
+     *     intervalLength.truncate(timestamp).plus(intervalLength.toTemporalAmount()) &ge; instant
+     * </code></pre>
+     * @param instant The Instant wich remain unaffected by this call
+     * @param zone The ZoneId
+     * @return The copy of the Instant truncated to this IntervalLength
+     */
+    abstract Instant truncate(Instant instant, ZoneId zone);
+
+    protected Instant truncateMinutes(Instant instant, ZoneId zone, int multiples) {
+        ZonedDateTime truncateCandidate = instant.atZone(zone).truncatedTo(ChronoUnit.MINUTES);
+        int minutes = truncateCandidate.getMinute();
+        if (minutes % multiples == 0) {
+            return truncateCandidate.toInstant();
+        } else {
+            return truncateCandidate.withMinute((minutes / multiples) * multiples).toInstant();
+        }
+    }
+
+    protected Instant truncateHours(Instant instant, ZoneId zone, int multiples) {
+        ZonedDateTime candidate = instant.atZone(zone).truncatedTo(ChronoUnit.HOURS);
+        int hours = candidate.getHour();
+        if (hours % multiples == 0) {
+            return candidate.toInstant();
+        } else {
+            return candidate.withHour((hours / multiples) * multiples).toInstant();
+        }
+    }
 
     /**
      * Returns the format model for the oracle trunc function

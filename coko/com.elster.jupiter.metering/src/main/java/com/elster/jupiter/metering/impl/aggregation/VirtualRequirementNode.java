@@ -1,14 +1,20 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ExpressionNode} interface
@@ -66,7 +72,33 @@ class VirtualRequirementNode implements ServerExpressionNode {
             return preferredReadingType.get();
         }
         else {
+            Loggers.ANALYSIS.warning(() -> "Unable to find matching channel for the requirement '" + this.requirement.getName() + "-" + this.targetReadingTypeForLogging() + "' in meter activation " + this.meterActivation.getRange());
+            Loggers.ANALYSIS.debug(() -> verboseAvailableMainReadingTypesOnMeterActivation(this.meterActivation));
             return VirtualReadingType.notSupported();
+        }
+    }
+
+    private String targetReadingTypeForLogging() {
+        if (this.requirement instanceof FullySpecifiedReadingType) {
+            FullySpecifiedReadingType requirement = (FullySpecifiedReadingType) this.requirement;
+            return requirement.getReadingType().getMRID();
+        } else {
+            PartiallySpecifiedReadingType requirement = (PartiallySpecifiedReadingType) this.requirement;
+            return requirement.getReadingTypeTemplate().toString();
+        }
+    }
+
+    private String verboseAvailableMainReadingTypesOnMeterActivation(MeterActivation meterActivation) {
+        List<Channel> channels = meterActivation.getChannels();
+        if (!channels.isEmpty()) {
+            return "The following (main) reading types are available:\n\t"
+                 + channels
+                        .stream()
+                        .map(Channel::getMainReadingType)
+                        .map(ReadingType::getMRID)
+                        .collect(Collectors.joining(",\n\t"));
+        } else {
+            return "No channels are available in the meter activation";
         }
     }
 

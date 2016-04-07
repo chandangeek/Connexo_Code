@@ -9,7 +9,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.HasQuantityMultiplier;
+import com.elster.jupiter.util.units.HasQuantityUnit;
 import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.util.units.Unit;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -17,19 +20,23 @@ import java.time.Clock;
 
 public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
 
-    private boolean grounded;
+    private YesNoAnswer grounded;
+    @HasQuantityMultiplier(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_MULTIPLIER + "}")
+    @HasQuantityUnit(units =  {Unit.PASCAL}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity pressure;
+    @HasQuantityUnit(units =  {Unit.CUBIC_METER_PER_HOUR}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity physicalCapacity;
-    private boolean limiter;
+    private YesNoAnswer limiter;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
+    @HasQuantityUnit(units =  {Unit.CUBIC_METER_PER_HOUR}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity loadLimit;
     private YesNoAnswer bypass;
     private BypassStatus bypassStatus;
     private YesNoAnswer valve;
     private YesNoAnswer capped;
     private YesNoAnswer clamped;
-    private boolean interruptible;
+    private YesNoAnswer interruptible;
 
     @Inject
     GasDetailImpl(Clock clock, DataModel dataModel) {
@@ -47,12 +54,12 @@ public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
 
 
     @Override
-    public boolean isGrounded() {
+    public YesNoAnswer isGrounded() {
         return grounded;
     }
 
     @Override
-    public boolean isLimiter() {
+    public YesNoAnswer isLimiter() {
         return limiter;
     }
 
@@ -102,15 +109,15 @@ public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
     }
 
     @Override
-    public boolean isInterruptible() {
+    public YesNoAnswer isInterruptible() {
         return interruptible;
     }
 
-    public void setGrounded(boolean grounded) {
+    public void setGrounded(YesNoAnswer grounded) {
         this.grounded = grounded;
     }
 
-    public void setLimiter(boolean limiter) {
+    public void setLimiter(YesNoAnswer limiter) {
         this.limiter = limiter;
     }
 
@@ -150,7 +157,7 @@ public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
         this.clamped = clamped;
     }
 
-    public void setInterruptible(boolean interruptible) {
+    public void setInterruptible(YesNoAnswer interruptible) {
         this.interruptible = interruptible;
     }
 }
