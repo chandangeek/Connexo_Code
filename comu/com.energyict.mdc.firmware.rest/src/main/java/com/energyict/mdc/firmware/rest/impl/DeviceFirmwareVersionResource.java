@@ -14,6 +14,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 @Path("/device/{mRID}/firmwares")
 public class DeviceFirmwareVersionResource {
@@ -38,24 +39,24 @@ public class DeviceFirmwareVersionResource {
     @Transactional
     @Path("/{campaign}/cancel")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    // @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response cancelDeviceInFirmwareCampaign(@PathParam("mRID") String mRID, @PathParam("campaign") long campaignId ){
         Device device = resourceHelper.findDeviceByMridOrThrowException(mRID);
         FirmwareCampaign campaign = resourceHelper.findFirmwareCampaignOrThrowException(campaignId);
-        resourceHelper.cancelDeviceInFirmwareCampaign(campaign, device);
-        return Response.ok().build();
+        Optional<DeviceInFirmwareCampaignInfo> deviceInFirmwareCampaignInfo = resourceHelper.cancelDeviceInFirmwareCampaign(campaign, device);
+        return Response.ok(deviceInFirmwareCampaignInfo.isPresent() ? deviceInFirmwareCampaignInfo.get() : "").build();
     }
 
     @PUT
     @Transactional
     @Path("/{campaign}/retry")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    // @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response retryDeviceInFirmwareCampaign(@PathParam("mRID") String mRID, @PathParam("campaign") long campaignId ){
         Device device = resourceHelper.findDeviceByMridOrThrowException(mRID);
         FirmwareCampaign campaign = resourceHelper.findFirmwareCampaignOrThrowException(campaignId);
-        resourceHelper.retryDeviceInFirmwareCampaign(campaign, device);
-        return Response.ok().build();
+        Optional<DeviceInFirmwareCampaignInfo> deviceInFirmwareCampaignInfo = resourceHelper.retryDeviceInFirmwareCampaign(campaign, device);
+        return Response.ok(deviceInFirmwareCampaignInfo.isPresent() ? deviceInFirmwareCampaignInfo.get() : "").build();
     }
 
 }
