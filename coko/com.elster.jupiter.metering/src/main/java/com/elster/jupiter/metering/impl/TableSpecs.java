@@ -933,7 +933,7 @@ public enum TableSpecs {
                                         .alias("upper" + column.getName().substring(0, 1).toUpperCase() + column.getName().substring(1)).add();
                             } else {
                                 table.column(column.getName().toUpperCase()).varChar(Table.NAME_LENGTH).map(column.getName()).add();
-                                table.column("UPPER" + column.getName().toUpperCase()).varChar(NAME_LENGTH).notNull().as("UPPER(" + column.getName().toUpperCase() + ")")
+                                table.column("UPPER" + column.getName().toUpperCase()).varChar(NAME_LENGTH).as("UPPER(" + column.getName().toUpperCase() + ")")
                                         .alias("upper" + column.getName().substring(0, 1).toUpperCase() + column.getName().substring(1)).add();
                             }
                         }
