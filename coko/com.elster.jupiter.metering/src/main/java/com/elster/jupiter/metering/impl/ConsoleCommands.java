@@ -26,15 +26,20 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.search.ServiceCategorySearchableProperty;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -63,6 +68,7 @@ import java.util.stream.Stream;
 @Component(name = "com.elster.jupiter.metering.console", service = ConsoleCommands.class, property = {
         "osgi.command.scope=metering",
         "osgi.command.function=cxo714",
+        "osgi.command.function=cxo7142",
         "osgi.command.function=printDdl",
         "osgi.command.function=meters",
         "osgi.command.function=usagePoints",
@@ -108,7 +114,12 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                     .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
-            UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prosumer with 1 meter"+name, serviceCategory).create();
+            UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prosumer with 1 meter "+name, serviceCategory).create();
+
+
+            config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
+//            config.addUsagePointRequirement(getUsagePointRequirement("PHASECODE", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
+//            config.addUsagePointRequirement(getUsagePointRequirement("TYPE", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
 
             MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                     .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
@@ -140,13 +151,9 @@ public class ConsoleCommands {
             MetrologyContract contractInformation = config.addMetrologyContract(purposeInformation);
 
 
-            ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(name+" A+").withMeterRole(meterRole).withReadingTypeTemplate(getDeaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
-                    .overrideAttribute(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER, MetricMultiplier.KILO.getMultiplier())
-                    .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR.getId());
+            ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(name+" A+").withMeterRole(meterRole).withReadingTypeTemplate(getDeaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
-            ReadingTypeRequirement requirementAminus = config.newReadingTypeRequirement(name+" A-").withMeterRole(meterRole).withReadingTypeTemplate(getDeaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
-                    .overrideAttribute(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER, MetricMultiplier.KILO.getMultiplier())
-                    .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR.getId());
+            ReadingTypeRequirement requirementAminus = config.newReadingTypeRequirement(name+" A-").withMeterRole(meterRole).withReadingTypeTemplate(getDeaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
             contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAplusWh, requirementAplus));
             contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAminusWh, requirementAminus));
@@ -163,15 +170,94 @@ public class ConsoleCommands {
         }
     }
 
+    public void cxo7142(String name){
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
+                    .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
+            UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prosumer with 1 meter "+name, serviceCategory).create();
+
+
+            config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
+//            config.addUsagePointRequirement(getUsagePointRequirement("PHASECODE", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
+//            config.addUsagePointRequirement(getUsagePointRequirement("TYPE", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
+
+            MeterRole meterRoleConsumption = metrologyConfigurationService.findMeterRole(DefaultMeterRole.CONSUMPTION.getKey())
+                    .orElseThrow(() -> new NoSuchElementException("Consumption meter role not found"));
+            config.addMeterRole(meterRoleConsumption);
+            MeterRole meterRoleProduction = metrologyConfigurationService.findMeterRole(DefaultMeterRole.PRODUCTION.getKey())
+                    .orElseThrow(() -> new NoSuchElementException("Production meter role not found"));
+            config.addMeterRole(meterRoleProduction);
+
+            ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+            ReadingType readingTypeMonthlyAminusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+            ReadingType readingTypeYearlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+            ReadingType readingTypeYearlyAminusWh = meteringService.findReadingTypes(Collections.singletonList("11.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("11.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+            ReadingType readingType15minAplusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+            ReadingType readingType15minAminusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+            ReadingType readingTypeHourlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.7.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.0.7.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+            ReadingType readingTypeHourlyAminusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.7.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                    .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.0.7.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+
+            MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
+                    .orElseThrow(() -> new NoSuchElementException("Default metrology purpose not found"));
+            MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                    .orElseThrow(() -> new NoSuchElementException("Default metrology purpose not found"));
+
+            MetrologyContract contractBilling = config.addMetrologyContract(purposeBilling);
+            MetrologyContract contractInformation = config.addMetrologyContract(purposeInformation);
+
+
+            ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(name+" A+").withMeterRole(meterRoleConsumption).withReadingTypeTemplate(getDeaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
+
+            ReadingTypeRequirement requirementAminus = config.newReadingTypeRequirement(name+" A-").withMeterRole(meterRoleProduction).withReadingTypeTemplate(getDeaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
+
+            contractBilling.addDeliverable(buildFormulaSingleRequirementMax(config, readingTypeMonthlyAplusWh, requirementAplus, requirementAminus));
+            contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAminusWh, requirementAminus));
+            contractBilling.addDeliverable(buildFormulaSingleRequirementMax(config, readingTypeYearlyAplusWh, requirementAplus, requirementAminus));
+            contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeYearlyAminusWh, requirementAminus));
+            contractInformation.addDeliverable(buildFormulaSingleRequirementMax(config, readingType15minAplusWh, requirementAplus, requirementAminus));
+            contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingType15minAminusWh, requirementAminus));
+            contractInformation.addDeliverable(buildFormulaSingleRequirementMax(config, readingTypeHourlyAplusWh, requirementAplus, requirementAminus));
+            contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeHourlyAminusWh, requirementAminus));
+
+            config.activate();
+            System.out.println(config.getId() + ": " + config.getName());
+            context.commit();
+        }
+    }
+
+
     private ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement requirement){
         String name = readingType.getFullAliasName() + " " + requirement.getName();
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
         return builder.build(builder.requirement(requirement));
     }
 
+    private ReadingTypeDeliverable buildFormulaSingleRequirementMax(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement requirementPlus, ReadingTypeRequirement requirementMinus){
+        String name = readingType.getFullAliasName();
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.EXPERT);
+        return builder.build(builder.maximum(builder.minus(builder.requirement(requirementPlus),builder.requirement(requirementMinus)),builder.constant(0)));
+    }
+
     private ReadingTypeTemplate getDeaultReadingTypeTemplate(DefaultReadingTypeTemplate defaultReadingTypeTemplate){
        return metrologyConfigurationService.findReadingTypeTemplate(defaultReadingTypeTemplate)
                .orElseThrow(() -> new NoSuchElementException("Default reading type template not found"));
+    }
+
+    private SearchablePropertyValue.ValueBean getUsagePointRequirement(String property, SearchablePropertyOperator operator, String ... values){
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+        valueBean.propertyName = property;
+        valueBean.operator = operator;
+        valueBean.values = Arrays.asList(values);
+        return valueBean;
     }
 
     public void printDdl() {
