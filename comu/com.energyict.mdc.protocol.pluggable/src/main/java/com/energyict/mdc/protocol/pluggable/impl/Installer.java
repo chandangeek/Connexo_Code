@@ -113,8 +113,9 @@ public class Installer {
         try (InputStream inputStream = Installer.class.getResourceAsStream(propertiesLocation)) {
             if (inputStream == null) {
                 LOGGER.severe("PropertiesFile location is probably not correct :" + propertiesLocation);
+            } else {
+                mappings.load(inputStream);
             }
-            mappings.load(inputStream);
         } catch (IOException e) {
             LOGGER.severe("Could not load the properties from " + propertiesLocation);
         }
