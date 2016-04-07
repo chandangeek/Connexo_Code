@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 
 import java.util.EnumSet;
@@ -242,7 +243,7 @@ public class UnitConversionSupportTest {
         VariableReferenceNode variable = new VariableReferenceNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.KELVIN, ReadingTypeUnit.DEGREESCELSIUS);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.KELVIN, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESCELSIUS, MetricMultiplier.ZERO);
 
         // Asserts
         String conversion = expression.accept(new ExpressionNodeToString());
@@ -254,7 +255,7 @@ public class UnitConversionSupportTest {
         VariableReferenceNode variable = new VariableReferenceNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.DEGREESCELSIUS, ReadingTypeUnit.KELVIN);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.DEGREESCELSIUS, MetricMultiplier.ZERO, ReadingTypeUnit.KELVIN, MetricMultiplier.ZERO);
 
         // Asserts
         String conversion = expression.accept(new ExpressionNodeToString());
@@ -266,7 +267,7 @@ public class UnitConversionSupportTest {
         VariableReferenceNode variable = new VariableReferenceNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.KELVIN, ReadingTypeUnit.DEGREESFAHRENHEIT);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.KELVIN, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESFAHRENHEIT, MetricMultiplier.ZERO);
 
         // Asserts
         String conversion = expression.accept(new ExpressionNodeToString());
@@ -278,7 +279,7 @@ public class UnitConversionSupportTest {
         VariableReferenceNode variable = new VariableReferenceNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.DEGREESFAHRENHEIT, ReadingTypeUnit.KELVIN);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.DEGREESFAHRENHEIT, MetricMultiplier.ZERO, ReadingTypeUnit.KELVIN, MetricMultiplier.ZERO);
 
         // Asserts
         String conversion = expression.accept(new ExpressionNodeToString());
@@ -290,7 +291,7 @@ public class UnitConversionSupportTest {
         VariableReferenceNode variable = new VariableReferenceNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.INCH, ReadingTypeUnit.METER);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.INCH, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
 
         // Asserts
         String conversion = expression.accept(new ExpressionNodeToString());
@@ -302,7 +303,7 @@ public class UnitConversionSupportTest {
         VariableReferenceNode variable = new VariableReferenceNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, ReadingTypeUnit.INCH);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.INCH, MetricMultiplier.ZERO);
 
         // Asserts
         String conversion = expression.accept(new ExpressionNodeToString());
@@ -314,7 +315,7 @@ public class UnitConversionSupportTest {
         VariableReferenceNode variable = new VariableReferenceNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.FOOT, ReadingTypeUnit.METER);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.FOOT, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
 
         // Asserts
         String conversion = expression.accept(new ExpressionNodeToString());
@@ -326,7 +327,7 @@ public class UnitConversionSupportTest {
         VariableReferenceNode variable = new VariableReferenceNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, ReadingTypeUnit.FOOT);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.FOOT, MetricMultiplier.ZERO);
 
         // Asserts
         String conversion = expression.accept(new ExpressionNodeToString());
@@ -334,11 +335,35 @@ public class UnitConversionSupportTest {
     }
 
     @Test
+    public void kiloMeterToFoot() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.KILO, ReadingTypeUnit.FOOT, MetricMultiplier.ZERO);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("((1E+3 * var) / 0.3048)");
+    }
+
+    @Test
+    public void mileToFoot() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.MILE, MetricMultiplier.ZERO, ReadingTypeUnit.FOOT, MetricMultiplier.ZERO);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("((1609.344 * var) / 0.3048)");
+    }
+
+    @Test
     public void mileToMeter() {
         VariableReferenceNode variable = new VariableReferenceNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.MILE, ReadingTypeUnit.METER);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.MILE, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
 
         // Asserts
         String conversion = expression.accept(new ExpressionNodeToString());
@@ -346,15 +371,73 @@ public class UnitConversionSupportTest {
     }
 
     @Test
+    public void mileToKiloMeter() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.MILE, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.KILO);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("((1609.344 * var) / 1E+3)");
+    }
+
+    @Test
     public void meterToMile() {
         VariableReferenceNode variable = new VariableReferenceNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, ReadingTypeUnit.MILE);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.MILE, MetricMultiplier.ZERO);
 
         // Asserts
         String conversion = expression.accept(new ExpressionNodeToString());
         assertThat(conversion).isEqualTo("(var / 1609.344)");
+    }
+
+    @Test
+    public void meterToMeter() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("var");
+    }
+
+    @Test
+    public void meterToKiloMeter() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.KILO);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("(var / 1E+3)");
+    }
+
+    @Test
+    public void kiloMeterToMeter() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.KILO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("(1E+3 * var)");
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void literToCelcius() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.LITRE, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESCELSIUS, MetricMultiplier.ZERO);
+
+        // Asserts: see expected exception rule
     }
 
     private Set<ReadingTypeUnit> imperialLengthUnits() {

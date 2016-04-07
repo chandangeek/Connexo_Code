@@ -177,7 +177,9 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
                     UnitConversionSupport.unitConversion(
                             new VariableReferenceNode(expression),
                             this.getUnit(),
-                            targetReadingType.getUnit());
+                            this.getUnitMultiplier(),
+                            targetReadingType.getUnit(),
+                            targetReadingType.getUnitMultiplier());
             sqlBuilder.append(conversionExpression.accept(new ExpressionNodeToString()));
         }
     }
