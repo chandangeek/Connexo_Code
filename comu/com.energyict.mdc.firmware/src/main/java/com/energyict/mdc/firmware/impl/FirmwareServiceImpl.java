@@ -334,9 +334,9 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
                                             .map(DeviceInFirmwareCampaignImpl::getFirmwareCampaign)
                                             .collect(Collectors.toList());
         if (campaigns.isEmpty())
-            throw KampaignForComTaskExecutionExceptions.campaignNotFound(this.thesaurus, comTaskExecution);
+            throw CampaignForComTaskExecutionExceptions.campaignNotFound(this.thesaurus, comTaskExecution);
         else if (campaigns.size() > 1)
-            throw KampaignForComTaskExecutionExceptions.campaignNotUnambiguouslyDefined(this.thesaurus, comTaskExecution);
+            throw CampaignForComTaskExecutionExceptions.campaignNotUnambiguouslyDefined(this.thesaurus, comTaskExecution);
         return campaigns.get(0);
     }
 
