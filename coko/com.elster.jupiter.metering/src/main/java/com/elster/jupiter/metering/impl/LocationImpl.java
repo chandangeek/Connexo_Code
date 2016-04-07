@@ -32,8 +32,8 @@ public class LocationImpl implements Location {
     }
 
     @Override
-    public Optional<List<? extends LocationMember>> getMembers() {
-        return Optional.of(Collections.unmodifiableList(members));
+    public List<? extends LocationMember> getMembers() {
+        return Collections.unmodifiableList(members);
     }
 
     @Override

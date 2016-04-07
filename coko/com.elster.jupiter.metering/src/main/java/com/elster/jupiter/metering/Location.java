@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface Location {
 
     long getId();
-    Optional<List<? extends LocationMember>> getMembers();
+    List<? extends LocationMember> getMembers();
     Optional<LocationMember> getMember(String locale);
     void remove();
     LocationMember setMember(String countryCode,
