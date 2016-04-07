@@ -1,14 +1,16 @@
 package com.elster.jupiter.validation;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.sql.SqlBuilder;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -118,4 +120,6 @@ public interface ValidationService {
     Optional<? extends ValidationRule> findValidationRule(long id);
 
     Optional<? extends ValidationRule> findAndLockValidationRuleByIdAndVersion(long id, long version);
+
+    List<DataValidationTask> findByDeviceGroup (EndDeviceGroup endDevice, int skip, int limit);
 }

@@ -33,6 +33,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.DataValidationOccurrence;
@@ -724,6 +725,16 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     public Optional<? extends ValidationRule> findAndLockValidationRuleByIdAndVersion(long id, long version) {
         return dataModel.mapper(IValidationRule.class).lockObjectIfVersion(version, id);
     }
+
+    @Override
+    public List<DataValidationTask> findByDeviceGroup(EndDeviceGroup endDeviceGroup, int skip, int limit) {
+        return dataModel.stream(DataValidationTask.class)
+                .filter(Where.where("endDeviceGroup").isEqualTo(endDeviceGroup))
+                .skip(skip)
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
 
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);
