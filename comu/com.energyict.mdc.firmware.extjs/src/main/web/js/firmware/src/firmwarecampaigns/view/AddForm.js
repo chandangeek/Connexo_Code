@@ -221,6 +221,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             success: function (record) {
                 me.down('#firmware-management-option').showOptions(record.get('allowedOptions'), {
                     showDescription: true,
+                    showOnlyLabelForSingleItem: true,
                     disabled: deviceTypeComboDisabled
                 });
             },

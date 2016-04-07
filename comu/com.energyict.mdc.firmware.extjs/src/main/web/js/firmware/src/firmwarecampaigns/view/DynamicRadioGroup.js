@@ -61,7 +61,10 @@ Ext.define('Fwc.firmwarecampaigns.view.DynamicRadioGroup', {
             singleRadio.hide();
             me.add({
                 xtype: 'displayfield',
-                value: config.isRecord ? options[0].get('localizedValue') : options[0].localizedValue
+                value: config.isRecord ? options[0].get('localizedValue') : options[0].localizedValue,
+                afterSubTpl: config.showDescription
+                    ? '<span style="color: grey;padding: 0 0 0 19px; font-style: italic">' + msg + '</span>'
+                    : ''
             });
         }
         me.show();
