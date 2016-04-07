@@ -21,9 +21,11 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
         }
 
         me.callParent(arguments);
-        Uni.util.Common.loadNecessaryStores('Uni.property.store.TimeUnits', function () {
-            me.setValue(me.value);
-        });
+        if (me.value) {
+            Uni.util.Common.loadNecessaryStores('Uni.property.store.TimeUnits', function () {
+                me.setValue(me.value);
+            });
+        }
     },
 
     setValue: function (value) {
