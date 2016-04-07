@@ -66,38 +66,45 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
 
     doCancelDeviceInFirmwareCampaign: function (record) {
         var me = this,
-            url = record.cancelUrl(),
-            devicesStore = me.getStore('Fwc.firmwarecampaigns.store.Devices');
-
+            url = record.cancelUrl();
 
         Ext.Ajax.request({
             url: url,
             method: 'PUT',
             success: function (response) {
-                var result = Ext.JSON.decode(response.responseText);
-                if (result) {
-                    var newStatus = result['status'];
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.canceled', 'FWC', 'Firmware upload for device canceled'));
-                    record.set('status', newStatus);
-                }
+                me.doUpdateRecord(record, response.responseText);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.canceled', 'FWC', 'Firmware upload for device canceled'));
             }
         });
     },
-
     doRetryDeviceInFirmwareCampaign: function (record) {
-        var url = record.retryUrl();
+        var me = this,
+            url = record.retryUrl();
+
         Ext.Ajax.request({
             url: url,
             method: 'PUT',
             success: function (response) {
-                var result = Ext.JSON.decode(response.responseText);
-                if (result) {
-                    var newStatus = result['status'];
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.retry', 'FWC', 'Firmware upload for device rescheduled'));
-                    record.set('status', newStatus);
-                }
+                me.doUpdateRecord(record, response.responseText);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.retry', 'FWC', 'Firmware upload for device rescheduled'));
             }
         });
+    },
+    doUpdateRecord: function(record, responseText) {
+        var result = Ext.JSON.decode(responseText);
+        if (result) {
+            var status = result['status'],
+                startedOn = result['startedOn'],
+                finishedOn = result['finishedOn'];
+            record.beginEdit();
+            record.set('status', status);
+            record.set('startedOn', startedOn);
+            record.set('finishedOn', finishedOn);
+            record.endEdit();
     }
+
+}
+
+
 
 });
