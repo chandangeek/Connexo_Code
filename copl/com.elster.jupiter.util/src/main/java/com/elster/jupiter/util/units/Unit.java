@@ -390,7 +390,7 @@ public enum Unit {
         this(name, symbol, symbol, dimension);
     }
 
-    Unit(String name, String symbol, Dimension dimension,int powerOfTen) {
+    Unit(String name, String symbol, Dimension dimension, int powerOfTen) {
         this(name, symbol, symbol, dimension, powerOfTen);
     }
 
