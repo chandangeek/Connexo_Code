@@ -3,7 +3,7 @@
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>platform</artifactId>
+        <artifactId>kore</artifactId>
         <version>1.2.0-SNAPSHOT</version>
     </parent>
     <artifactId>calendar</artifactId>
@@ -21,6 +21,14 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>ids</artifactId>
         </dependency>
     </dependencies>
 </project>
