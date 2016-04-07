@@ -3,7 +3,9 @@ package com.elster.jupiter.metering.impl.search;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -37,6 +39,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMeteringService meteringService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile Thesaurus thesaurus;
 
     // For OSGi purposes
@@ -63,6 +66,10 @@ public class UsagePointSearchDomain implements SearchDomain {
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
@@ -95,8 +102,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new OutageRegionSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
+                new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
         ));
     }
 
@@ -148,6 +154,57 @@ public class UsagePointSearchDomain implements SearchDomain {
             return this.property.toCondition(this.spec.getCondition());
         }
 
+    }
+
+    private class UsagePointFinder implements Finder<UsagePoint> {
+        private final Finder<UsagePoint> finder;
+
+        private UsagePointFinder(Condition condition) {
+            this.finder = DefaultFinder
+                    .of(UsagePoint.class, condition, meteringService.getDataModel(), UsagePointMetrologyConfiguration.class)
+                    .defaultSortColumn("mRID");
+        }
+
+        @Override
+        public int count() {
+            try (Connection connection = meteringService.getDataModel().getConnection(false)) {
+                SqlBuilder countSqlBuilder = new SqlBuilder();
+                countSqlBuilder.add(asFragment("count(*)"));
+                try (PreparedStatement statement = countSqlBuilder.prepare(connection)) {
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        resultSet.next();
+                        return resultSet.getInt(1);
+                    }
+                }
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
+            }
+        }
+
+        @Override
+        public Finder<UsagePoint> paged(int start, int pageSize) {
+            return this.finder.paged(start, pageSize);
+        }
+
+        @Override
+        public Finder<UsagePoint> sorted(String sortColumn, boolean ascending) {
+            return this.finder.sorted(sortColumn, ascending);
+        }
+
+        @Override
+        public List<UsagePoint> find() {
+            return this.finder.find();
+        }
+
+        @Override
+        public Subquery asSubQuery(String... fieldNames) {
+            return this.finder.asSubQuery(fieldNames);
+        }
+
+        @Override
+        public SqlFragment asFragment(String... fieldNames) {
+            return this.finder.asFragment(fieldNames);
+        }
     }
 
 }

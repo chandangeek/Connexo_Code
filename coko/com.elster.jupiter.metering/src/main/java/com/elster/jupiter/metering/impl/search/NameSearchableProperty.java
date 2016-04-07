@@ -44,7 +44,7 @@ public class NameSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public Visibility getVisibility() {
-        return Visibility.STICKY;
+        return Visibility.REMOVABLE;
     }
 
     @Override
