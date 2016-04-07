@@ -94,6 +94,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.version = usagePoint.getVersion();
         info.createTime = usagePoint.getCreateDate().toEpochMilli();
         info.modTime = usagePoint.getModificationDate().toEpochMilli();
+        info.connectionState = new IdWithNameInfo(usagePoint.getConnectionState(), thesaurus.getFormat(ConnectionStateTranslationKeys
+                .getTranslatedKeys(usagePoint.getConnectionState())).format());
         Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(clock.instant());
         if (detailHolder.isPresent()) {
             if (detailHolder.get() instanceof ElectricityDetail) {
