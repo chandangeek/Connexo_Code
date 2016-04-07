@@ -177,7 +177,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     @Transactional
     public void testCreateIssue() {
         Instant now = Instant.now();
-        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now);
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, now);
         Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
 
@@ -218,7 +218,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     @Transactional
     public void testNotDuplicateIssueButUpdate() {
         Instant now = Instant.now();
-        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now);
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, now);
         Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
 
@@ -227,7 +227,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         IssueDataValidation issueDataValidation = issues.get(0);
         assertThat(issueDataValidation.getNotEstimatedBlocks()).hasSize(1);
 
-        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now.plus(2, ChronoUnit.MINUTES));
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, now.plus(2, ChronoUnit.MINUTES));
         message = mockCannotEstimateDataMessage(now.plus(2, ChronoUnit.MINUTES), now.plus(2, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);
 
@@ -241,7 +241,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     @Transactional
     public void testCreateNewIssueWhileHistoricalExists() {
         Instant now = Instant.now();
-        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now);
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, now);
         Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
 
@@ -270,8 +270,8 @@ public class DataValidationIssueCreationRuleTemplateTest {
 
         Message message;
         //create issue
-        ReadingQualityRecord readingQuality = channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, fixedTime);
-        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, fixedTime.plus(1, ChronoUnit.MINUTES));
+        ReadingQualityRecord readingQuality = channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, fixedTime);
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, fixedTime.plus(1, ChronoUnit.MINUTES));
         message = mockCannotEstimateDataMessage(fixedTime, fixedTime.plus(1, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
@@ -280,7 +280,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
 
         //update issue by removing one suspect interval of two
         readingQuality.delete();
-        message = mockSuspectDeletedMessage(fixedTime, channel, "3.5.258", readingType);
+        message = mockSuspectDeletedMessage(fixedTime, channel, "2.5.258", readingType);
         messageHandler.process(message);
         issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
@@ -290,7 +290,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         assertThat(issues.get(0).getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(fixedTime.plus(1, ChronoUnit.MINUTES));
 
         //resolve issue completely
-        message = mockSuspectDeletedMessage(fixedTime.plus(1, ChronoUnit.MINUTES), channel, "3.5.258", readingType);
+        message = mockSuspectDeletedMessage(fixedTime.plus(1, ChronoUnit.MINUTES), channel, "2.5.258", readingType);
         messageHandler.process(message);
         DataValidationIssueFilter filter = new DataValidationIssueFilter();
         issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
