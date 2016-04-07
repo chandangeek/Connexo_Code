@@ -28,6 +28,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -174,7 +175,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
     }
 
     private Stream<Instant> getSuspects(IReadingTypeDataExportItem item, Range<Instant> interval) {
-        return item.getReadingContainer().getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), item.getReadingType(), interval).stream()
+        return item.getReadingContainer().getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), item.getReadingType(), interval).stream()
                 .map(ReadingQualityRecord::getReadingTimestamp);
     }
 
