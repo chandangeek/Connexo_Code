@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -97,6 +98,6 @@ public class CreateMeterActivation extends TranslatableServerMicroAction {
 
     private boolean isValidationQuality(ReadingQualityRecord readingQualityRecord) {
         ReadingQualityType type = readingQualityRecord.getType();
-        return type.system().filter(QualityCodeSystem.MDM::equals).isPresent() && (type.hasReasonabilityCategory() || type.hasValidationCategory());
+        return type.system().filter(QualityCodeSystem.MDC::equals).isPresent() && (type.hasReasonabilityCategory() || type.hasValidationCategory());
     }
 }
