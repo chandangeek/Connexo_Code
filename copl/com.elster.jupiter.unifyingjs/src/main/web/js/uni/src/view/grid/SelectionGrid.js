@@ -7,15 +7,12 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 
     bottomToolbarHeight: 27,
 
-    requires: [
-        'Ext.grid.plugin.BufferedRenderer'
-    ],
-
     selType: 'checkboxmodel',
     selModel: {
         mode: 'MULTI',
         checkOnly: true,
         showHeaderCheckbox: false,
+        pruneRemoved: false,
         updateHeaderState: Ext.emptyFn
     },
 

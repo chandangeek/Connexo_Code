@@ -260,7 +260,7 @@ Ext.define('Uni.controller.Navigation', {
 
         Uni.store.MenuItems.each(function (model) {
             modelTokens = me.stripAndSplitToken(model.get('href'));
-            if (tokens[0] === modelTokens[0] || tokens[0] === model.get('portal')) {
+            if (tokens.length === 1 && (tokens[0] === modelTokens[0] || tokens[0] === model.get('portal'))) {
                 var text = '';
 
                 me.getNavigationMenu().selectMenuItem(model);
