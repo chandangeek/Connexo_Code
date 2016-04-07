@@ -7,7 +7,7 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.view.firmware.FirmwareOptionsEdit',
         'Fwc.view.firmware.FirmwareAdd',
         'Fwc.view.firmware.FirmwareEdit',
-        'Fwc.view.devicetype.SideMenu'
+        'Mdc.view.setup.devicetype.SideMenu'
     ],
 
     requires: [
