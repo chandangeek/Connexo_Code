@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -188,7 +189,7 @@ public class ConsoleCommands {
             UsagePointBuilder builder = category.newUsagePoint(upId, this.clock.instant());
             UsagePoint up = builder.withName(name).withIsSdp(true).withIsVirtual(false).create();
             up.newElectricityDetailBuilder(Instant.now())
-                    .withGrounded(true)
+                    .withGrounded(YesNoAnswer.YES)
                     .withPhaseCode(PhaseCode.UNKNOWN).create();
             meter.activate(up, Instant.parse("2014-01-01T08:00:00Z"));
             meter.update();
