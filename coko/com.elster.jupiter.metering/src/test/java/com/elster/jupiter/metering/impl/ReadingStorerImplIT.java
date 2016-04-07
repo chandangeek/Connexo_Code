@@ -30,26 +30,21 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.units.Quantity;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -60,7 +55,17 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingStorerImplIT {
@@ -73,6 +78,8 @@ public class ReadingStorerImplIT {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
         }
     }
     public static final String SECONDARY_DELTA = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";

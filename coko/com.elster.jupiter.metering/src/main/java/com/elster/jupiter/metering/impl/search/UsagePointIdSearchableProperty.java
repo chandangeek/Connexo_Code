@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
@@ -13,23 +12,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class NameSearchableProperty implements SearchableUsagePointProperty {
+public class UsagePointIdSearchableProperty implements SearchableUsagePointProperty {
+    private static final String FIELD_NAME = "id";
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "name";
 
-    public NameSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public UsagePointIdSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
+    }
+
+    @Override
+    public Condition toCondition(Condition specification) {
+        return specification;
     }
 
     @Override
     public SearchDomain getDomain() {
-        return domain;
+        return this.domain;
     }
 
     @Override
@@ -40,6 +42,21 @@ public class NameSearchableProperty implements SearchableUsagePointProperty {
     @Override
     public Optional<SearchablePropertyGroup> getGroup() {
         return Optional.empty();
+    }
+
+    @Override
+    public String getName() {
+        return FIELD_NAME;
+    }
+
+    @Override
+    public PropertySpec getSpecification() {
+        return this.propertySpecService
+                .longSpec()
+                .named(FIELD_NAME, "")
+                .describedAs("")
+                .markRequired()
+                .finish();
     }
 
     @Override
@@ -54,28 +71,12 @@ public class NameSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_NAME.getDisplayName(this.thesaurus);
+        throw unsupported();
     }
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
-        }
-        return String.valueOf(value);
-    }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof String;
-    }
-
-    @Override
-    public PropertySpec getSpecification() {
-        return this.propertySpecService
-                .stringSpec()
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_NAME)
-                .fromThesaurus(this.thesaurus)
-                .finish();
+        throw unsupported();
     }
 
     @Override
@@ -85,13 +86,10 @@ public class NameSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("No constraint to refresh");
-        }
+        // do nothing
     }
 
-    @Override
-    public Condition toCondition(Condition specification) {
-        return specification;
+    private UnsupportedOperationException unsupported() {
+        return new UnsupportedOperationException("This method is not supported for that searchable property: " + getClass().getName());
     }
 }

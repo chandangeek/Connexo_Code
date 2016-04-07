@@ -68,6 +68,9 @@ import java.util.stream.Collectors;
         "osgi.command.function=addRequirementWithTemplateReadingType",
         "osgi.command.function=deliverables",
         "osgi.command.function=addDeliverable",
+        "osgi.command.function=updateDeliverable",
+        "osgi.command.function=updateDeliverableReadingType",
+        "osgi.command.function=updateDeliverableFormula",
         "osgi.command.function=deleteDeliverable",
         "osgi.command.function=getDeliverablesOnContract",
         "osgi.command.function=addDeliverableToContract",
@@ -329,10 +332,10 @@ public class ConsoleCommands {
     }
 
     public void addDeliverable() {
-        System.out.println("Usage: addDeliverable <name> <reading type> <metrology configuration id> <formula string>");
+        System.out.println("Usage: addDeliverable  <metrology configuration id> <name> <reading type> <formula string>");
     }
 
-    public void addDeliverable(String name, String readingTypeString, long metrologyConfigId, String formulaString) {
+    public void addDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
@@ -347,6 +350,61 @@ public class ConsoleCommands {
         }
     }
 
+    public void updateDeliverable() {
+        System.out.println("Usage: updateDeliverable  <deliverable id> <name> <reading type> <formula string>");
+    }
+
+    public void updateDeliverable(long deliverableId, String name, String readingTypeString, String formulaString) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
+            ReadingType readingType = meteringService.getReadingType(readingTypeString)
+                    .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration()).parse(formulaString);
+
+            deliverable.setName(name);
+            deliverable.setReadingType(readingType);
+            deliverable.getFormula().updateExpression(node);
+
+            context.commit();
+        }
+    }
+
+    public void updateDeliverableReadingType() {
+        System.out.println("Usage: updateDeliverableReadingType  <deliverable id> <reading type>");
+    }
+
+    public void updateDeliverableReadingType(long deliverableId, String readingTypeString) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
+            ReadingType readingType = meteringService.getReadingType(readingTypeString)
+                    .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
+
+            deliverable.setReadingType(readingType);
+            context.commit();
+        }
+    }
+
+    public void updateDeliverableFormula() {
+        System.out.println("Usage: updateDeliverableFormula  <deliverable id> <formula string>");
+    }
+
+
+    public void updateDeliverableFormula(long deliverableId, String formulaString) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration()).parse(formulaString);
+
+            deliverable.getFormula().updateExpression(node);
+            context.commit();
+        }
+    }
+
     public void deleteDeliverable() {
         System.out.println("Usage: deleteDeliverable <metrology configuration id> <deliverable id>");
     }
@@ -354,16 +412,12 @@ public class ConsoleCommands {
     public void deleteDeliverable(long metrologyConfigId, long deliverableId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            try {
-                ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
-                        .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-                MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
-                        .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
-                metrologyConfiguration
-                        .removeReadingTypeDeliverable(deliverable);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
+            MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
+            metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
+            context.commit();
         }
     }
 

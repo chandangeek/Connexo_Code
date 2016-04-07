@@ -19,7 +19,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
-import com.elster.jupiter.metering.impl.aggregation.CannotDeleteFormulaException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -363,7 +362,7 @@ public class FormulaCrudTest {
         Optional<Formula> loadedFormula = service.findFormula(formulaId);
         assertThat(loadedFormula).isPresent();
         Formula myFormula = loadedFormula.get();
-        myFormula.delete();
+        ((ServerFormula) myFormula).delete();
         loadedFormula = service.findFormula(formulaId);
         assertThat(loadedFormula).isEmpty();
     }
@@ -546,20 +545,6 @@ public class FormulaCrudTest {
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessage(), "The readingtype is not compatible with the dimension of the formula.");
         }
-    }
-
-    @Test(expected = CannotDeleteFormulaException.class)
-    @Transactional
-    public void testCanNotDeleteFormulaInUse() {
-        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        MetrologyConfiguration metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
-                .newMetrologyConfiguration("Test", serviceCategory).create();
-        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "zero reading type");
-        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("deliverable", readingType, Formula.Mode.AUTO);
-        ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.constant(14), builder.constant(505)));
-        Formula formula = deliverable.getFormula();
-
-        formula.delete();
     }
 
     @Test
