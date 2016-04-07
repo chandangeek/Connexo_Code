@@ -13,7 +13,7 @@ import com.energyict.mdc.firmware.FirmwareCampaign;
  * Date: 4/04/2016
  * Time: 15:01
  */
-public class CampaignForComTaskExecutionExceptions {
+public class KampaignForComTaskExecutionExceptions {
 
     static final String NO_CAMPAIGN_FOUND_FOR_COMTASKEXECUTION = "NoCampaignFoundForComtaskExecutionX";
     static final String CAMPAIGN_NOT_UNAMBIGOUSLY_DETERMINED_FOR_COMTASKEXECUTION = "CampaignCouldNotBeDeterminedUnambiguouslyForComtaskExecutionX";

@@ -173,7 +173,6 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     }
 
     public void retry(){
-      //  startFirmwareProcess();
         setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
         save();
     }

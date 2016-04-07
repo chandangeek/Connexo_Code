@@ -334,9 +334,9 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
                                             .map(DeviceInFirmwareCampaignImpl::getFirmwareCampaign)
                                             .collect(Collectors.toList());
         if (campaigns.isEmpty())
-            throw CampaignForComTaskExecutionExceptions.campaignNotFound(this.thesaurus, comTaskExecution);
+            throw KampaignForComTaskExecutionExceptions.campaignNotFound(this.thesaurus, comTaskExecution);
         else if (campaigns.size() > 1)
-            throw CampaignForComTaskExecutionExceptions.campaignNotUnambiguouslyDefined(this.thesaurus, comTaskExecution);
+            throw KampaignForComTaskExecutionExceptions.campaignNotUnambiguouslyDefined(this.thesaurus, comTaskExecution);
         return campaigns.get(0);
     }
 
@@ -360,8 +360,8 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
         if (!deviceInFirmwareCampaign.getStatus().canTransitToStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING)){
             throw RetryDeviceInFirmwareCampaignExceptions.transitionToPendingStateImpossible(this.thesaurus, deviceInFirmwareCampaign);
         }
-        Optional<ComTaskExecution> fwComTaskExecution = getFirmwareComtaskExecution(deviceInFirmwareCampaign.getDevice());
-        return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution);
+        ((DeviceInFirmwareCampaignImpl) deviceInFirmwareCampaign).startFirmwareProcess();
+         return true;
     }
 
     private Optional<ComTaskExecution> getFirmwareComtaskExecution(Device device){
@@ -385,6 +385,16 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
         if (communicationTaskService.isComTaskStillPending(comTaskExecution1.getId())) {
             comTaskExecution1.putOnHold();
             cancelPendingFirmwareMessages(comTaskExecution1.getDevice());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean rescheduleFirmwareUpload(Optional<ComTaskExecution> fwComTaskExecution) {
+        ComTaskExecution comTaskExecution1 = fwComTaskExecution.get();
+        if (communicationTaskService.isComTaskStillPending(comTaskExecution1.getId())) {
+            comTaskExecution1.scheduleNow();
             return true;
         } else {
             return false;
