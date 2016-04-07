@@ -5,6 +5,8 @@ import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -44,6 +46,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -229,17 +232,13 @@ public class NlsServiceImpl implements NlsService, InstallService {
     }
 
     private void doInstallProvider(MessageSeedProvider provider) {
-        provider
-            .getSeeds()
-            .stream()
-            .forEach(messageSeed -> this.addTranslation(provider.getLayer(), messageSeed));
-    }
-
-    private void addTranslation(Layer layer, MessageSeed messageSeed) {
-        this.addTranslation(messageSeed.getModule(), layer.name(), messageSeed.getKey(), messageSeed.getDefaultFormat());
+        if (!provider.getSeeds().isEmpty()) {
+            this.doInstallProvider(new MessageSeedProviderAdapterForTranslationKeyProvider(provider));
+        }
     }
 
     // Published as a gogo command so be wary when refactoring
+    @SuppressWarnings("unused")
     public void addTranslation(String componentName, String layerName, String key, String defaultMessage) {
         try {
             Layer layer = Layer.valueOf(layerName);
@@ -257,6 +256,11 @@ public class NlsServiceImpl implements NlsService, InstallService {
         System.out.println("Usage : \n\n addTranslation componentName layerName key defaultMessage");
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Collections.singletonList("ORM");
+    }
+
     private NlsKeyImpl newNlsKey(String component, Layer layer, String key, String defaultFormat, boolean addDefaultMessageToDefaultLanguage) {
         NlsKeyImpl nlsKey = dataModel.getInstance(NlsKeyImpl.class).init(component, layer, key);
         nlsKey.setDefaultMessage(defaultFormat);
@@ -264,11 +268,6 @@ public class NlsServiceImpl implements NlsService, InstallService {
             nlsKey.add(Locale.ENGLISH, defaultFormat);
         }
         return nlsKey;
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Collections.singletonList("ORM");
     }
 
     @Override
@@ -390,6 +389,63 @@ public class NlsServiceImpl implements NlsService, InstallService {
             invalidate(key.getComponent(), key.getLayer());
         }
 
+    }
+
+    /**
+     * Adapts a {@link MessageSeedProvider} so that it implements
+     * the {@link TranslationKeyProvider} interface to be able to
+     * pass it to {@link ThesaurusImpl#createNewTranslationKeys}
+     * as that is clever enough to check if the key already exists.
+     */
+    private static class MessageSeedProviderAdapterForTranslationKeyProvider implements TranslationKeyProvider {
+        private final MessageSeedProvider messageSeedProvider;
+
+        private MessageSeedProviderAdapterForTranslationKeyProvider(MessageSeedProvider messageSeedProvider) {
+            this.messageSeedProvider = messageSeedProvider;
+        }
+
+        @Override
+        public String getComponentName() {
+            return this.messageSeedProvider.getSeeds().get(0).getModule();
+        }
+
+        @Override
+        public Layer getLayer() {
+            return this.messageSeedProvider.getLayer();
+        }
+
+        @Override
+        public List<TranslationKey> getKeys() {
+            return this.messageSeedProvider
+                    .getSeeds()
+                    .stream()
+                    .map(MessageSeedAdapterForTranslationKey::new)
+                    .collect(Collectors.toList());
+        }
+    }
+
+    /**
+     * Adapts a {@link MessageSeed} so that it implements
+     * the {@link TranslationKey} interface to be able
+     * to pass it {@link ThesaurusImpl#createNewTranslationKeys}
+     * as that is clever enough to check if the key already exists.
+     */
+    private static class MessageSeedAdapterForTranslationKey implements TranslationKey {
+        private final MessageSeed messageSeed;
+
+        private MessageSeedAdapterForTranslationKey(MessageSeed messageSeed) {
+            this.messageSeed = messageSeed;
+        }
+
+        @Override
+        public String getKey() {
+            return this.messageSeed.getKey();
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.messageSeed.getDefaultFormat();
+        }
     }
 
 }
