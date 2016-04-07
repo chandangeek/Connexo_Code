@@ -18,7 +18,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.metrologyconfiguration.controller.ValidationRuleSets',
         'Imt.dynamicprivileges.UsagePoint',
         'Imt.dynamicprivileges.Stores',
-        'Imt.processes.controller.MonitorProcesses'
+        'Imt.processes.controller.MonitorProcesses',
+        'Imt.servicecalls.controller.ServiceCalls'
     ],
 
     privileges: [],
