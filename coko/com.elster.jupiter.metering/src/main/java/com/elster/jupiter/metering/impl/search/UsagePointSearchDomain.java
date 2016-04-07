@@ -1,14 +1,15 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -16,11 +17,18 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +47,6 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMeteringService meteringService;
-    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile Thesaurus thesaurus;
 
     // For OSGi purposes
@@ -64,11 +71,6 @@ public class UsagePointSearchDomain implements SearchDomain {
     @Reference
     public void setMeteringService(ServerMeteringService meteringService) {
         this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
-        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference
@@ -127,7 +129,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     @Override
     public Finder<?> finderFor(List<SearchablePropertyCondition> conditions) {
-        return new UsagePointFinder(this.meteringService, this.toCondition(conditions));
+        return new UsagePointFinder(this.toCondition(conditions));
     }
 
     private Condition toCondition(List<SearchablePropertyCondition> conditions) {

@@ -126,7 +126,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_LINKED_CUSTOM_PROPERTY_SET_ON_USAGE_POINT = "no.linked.custom.property.set.on.usage.point";
         public static final String CUSTOM_PROPERTY_SET_HAS_DIFFERENT_DOMAIN = "custom.property.set.has.different.domain";
         public static final String CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED = "custom.property.set.is.not.versioned";
-        public static final String FIELD_TOO_LONG = "invalidFieldLength";
         public static final String INVALID_VALUE = "invalidValue";
         public static final String INVALID_MULTIPLIER = "invalidMultiplier";
         public static final String INVALID_UNIT = "invalidUnit";
