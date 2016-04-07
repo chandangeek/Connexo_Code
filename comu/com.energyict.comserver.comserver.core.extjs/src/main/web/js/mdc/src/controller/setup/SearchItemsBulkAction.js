@@ -10,7 +10,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         'Mdc.view.setup.searchitems.bulk.Wizard'
     ],
     requires: [
-        'Uni.view.window.Wizard'
+        'Uni.view.window.Wizard',
+        'Uni.data.reader.JsonBuffered'
     ],
     stores: [
         'Mdc.store.CommunicationSchedulesWithoutPaging',
@@ -139,12 +140,15 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
             var store = Ext.create('Ext.data.Store', {
                 buffered: true,
-                pageSize: 200,
+                pageSize: 100,
                 remoteFilter: true,
                 model: searchResults.model,
                 filters: searchResults.filters.getRange(),
                 proxy: searchResults.getProxy()
             });
+
+            // we replace reader to buffered due to our store is buffered
+            store.getProxy().setReader(Ext.create('Uni.data.reader.JsonBuffered', store.getProxy().getReader()));
 
             widget = Ext.widget('searchitems-bulk-browse', {
                 deviceStore: store
@@ -465,15 +469,15 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     changeDeviceConfigAvailable: function (filters) {
-        var result = [];
+        var result = false;
         Ext.each(filters, function (item) {
-            if (item.id === 'deviceType' || item.id === 'deviceConfiguration') {
+            if (item.id === 'deviceConfiguration') {
                 if (item.value[0].criteria.length == 1) {
-                    result.push(item.id);
+                    result = true;
                 }
             }
         });
-        return result.length == 2;
+        return result;
     },
 
     changeContent: function (nextCmp, currentCmp) {
@@ -516,22 +520,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         changeDeviceConfigForm.show();
                         changeDeviceConfigForm.getForm().clearInvalid();
 
-                        if (me.allDevices) {
-                            Ext.each(search.service.getFilters(), function (item) {
-                                switch (item.id) {
-                                    case 'deviceType':
-                                        me.deviceType = parseInt(item.value[0].criteria[0]);
-                                        break;
-                                    case 'deviceConfiguration':
-                                        me.deviceConfigId = parseInt(item.value[0].criteria[0]);
-                                        break;
-                                }
-                            });
-                        } else {
-                            var device = me.devices[0];
-                            me.deviceType = device.get('deviceTypeId');
-                            me.deviceConfigId = device.get('deviceConfigurationId');
-                        }
+                        var device = me.getDevicesGrid().getStore().getAt(0);
+
+                        me.deviceType = device.get('deviceTypeId');
+                        me.deviceConfigId = device.get('deviceConfigurationId');
 
                         configStore.getProxy().setUrl({deviceType: me.deviceType});
 
