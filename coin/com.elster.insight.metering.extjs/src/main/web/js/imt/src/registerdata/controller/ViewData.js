@@ -46,12 +46,14 @@ Ext.define('Imt.registerdata.controller.ViewData', {
          router = me.getController('Uni.controller.history.Router'),
          registerModel = me.getModel('Imt.registerdata.model.Register'),
          durationsStore = me.getStore('Imt.registerdata.store.RegisterDataDurations'),
-         pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+         pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+             usagePoint;
 	   
 	     pageMainContent.setLoading(true);
 	     
 	     Ext.ModelManager.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
 		        success: function (usagepoint) {
+                    usagePoint = usagepoint;
 		        	me.getApplication().fireEvent('usagePointLoaded', usagepoint);
 		        }
 	     });
@@ -62,6 +64,7 @@ Ext.define('Imt.registerdata.controller.ViewData', {
                         router: router, 
                         mRID: mRID, 
                         registerId: registerId,
+                      usagepoint: usagePoint,
                         filter: {
                            fromDate: new Date().getTime(),
                            duration: '1months',
@@ -152,12 +155,14 @@ Ext.define('Imt.registerdata.controller.ViewData', {
          router = me.getController('Uni.controller.history.Router'),
          registerModel = me.getModel('Imt.registerdata.model.Register'),
          durationsStore = me.getStore('Imt.registerdata.store.RegisterDataDurations'),
-         pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+         pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+             usagePoint;
 	   
 	     pageMainContent.setLoading(true);
 	     
 	     Ext.ModelManager.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
 		        success: function (usagepoint) {
+                    usagePoint = usagepoint;
 		        	router.arguments.version = usagepoint.get('version');
 		        	me.getApplication().fireEvent('usagePointLoaded', usagepoint);
 		        }
@@ -167,7 +172,8 @@ Ext.define('Imt.registerdata.controller.ViewData', {
             success: function (record) {
             	  var widget = Ext.widget('registerTabbedView', {
                         router: router, 
-                        mRID: mRID, 
+                        mRID: mRID,
+                      usagepoint: usagePoint,
                         registerId: registerId,
                         filter: {
                            fromDate: new Date().getTime(),

@@ -8,7 +8,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             hidden: true
         },
         {
-            xtype: 'checkbox',
+            xtype: 'techinfo-threevaluesfield',
             name: 'grounded',
             itemId: 'up-grounded-checkbox',
             fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
@@ -67,7 +67,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             value: {value: null, unit: 'A', multiplier: 0}
         },
         {
-            xtype: 'techinfo-limitercheckbox',
+            xtype: 'techinfo-limiter-combo',
             itemId: 'up-limiter-checkbox'
         },
         {
@@ -89,7 +89,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
         },
         {
-            xtype: 'checkbox',
+            xtype: 'techinfo-threevaluesfield',
             name: 'interruptible',
             itemId: 'up-interruptible-checkbox',
             fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible')

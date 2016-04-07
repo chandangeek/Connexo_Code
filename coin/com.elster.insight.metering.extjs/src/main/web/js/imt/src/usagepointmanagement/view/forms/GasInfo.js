@@ -8,9 +8,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.GasInfo', {
             hidden: true
         },
         {
-            xtype: 'checkbox',
+            xtype: 'techinfo-threevaluesfield',
             name: 'grounded',
-            itemId: 'up-grounded-checkbox',
+            itemId: 'up-grounded-checkbox', // Combo
             fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
         },
         {
@@ -30,7 +30,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GasInfo', {
             value: {value: null, unit: 'm3/h', multiplier: 0}
         },
         {
-            xtype: 'techinfo-limitercheckbox',
+            xtype: 'techinfo-limiter-combo',
             itemId: 'up-limiter-checkbox'
         },
         {
@@ -79,7 +79,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GasInfo', {
             fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped')
         },
         {
-            xtype: 'checkbox',
+            xtype: 'techinfo-threevaluesfield',
             name: 'interruptible',
             itemId: 'up-interruptible-checkbox',
             fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible')

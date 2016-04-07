@@ -21,8 +21,7 @@ Ext.define('Imt.registerdata.view.Setup', {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
-                   //     usagepoint: me.usagepoint,
-                        mRID: me.mRID,
+                        usagePoint: me.usagepoint,
                         toggleId: 'registerLink',
                     }
                 ]
