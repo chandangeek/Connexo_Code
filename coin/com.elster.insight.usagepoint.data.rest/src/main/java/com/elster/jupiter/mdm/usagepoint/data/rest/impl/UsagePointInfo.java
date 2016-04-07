@@ -41,7 +41,7 @@ public class UsagePointInfo {
     public long version;
     public long createTime;
     public long modTime;
-    public MetrologyConfigurationInfo metrologyConfiguration;
+    public IdWithNameInfo metrologyConfiguration;
 
     public UsagePointInfo() {
     }

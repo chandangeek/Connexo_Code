@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
@@ -19,6 +20,7 @@ import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Component(name = "insight.usagepoint.info.factory", service = {InfoFactory.class}, immediate = true)
 public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     private volatile Clock clock;
@@ -40,11 +43,12 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Inject
-    public UsagePointInfoFactory(Clock clock, Thesaurus thesaurus, MeteringService meteringService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
-        this.clock = clock;
-        this.thesaurus = thesaurus;
-        this.meteringService = meteringService;
-        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+    public UsagePointInfoFactory(Clock clock, NlsService nlsService, MeteringService meteringService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+        this();
+        this.setClock(clock);
+        this.setNlsService(nlsService);
+        this.setMeteringService(meteringService);
+        this.setCustomPropertySetInfoFactory(customPropertySetInfoFactory);
     }
 
     @Activate
@@ -67,12 +71,17 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.thesaurus = nlsService.getThesaurus(UsagePointApplication.COMPONENT_NAME, Layer.REST);
     }
 
+    @Reference
+    public void setCustomPropertySetInfoFactory(CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+    }
+
     @Override
     public UsagePointInfo from(UsagePoint usagePoint) {
         UsagePointInfo info = new UsagePointInfo();
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
-        info.serviceLocationId = usagePoint.getServiceLocationId();
+        info.serviceLocationId = usagePoint.getServiceLocation().map(ServiceLocation::getId).orElse(0L);
         info.location = usagePoint.getServiceLocationString();
         info.name = usagePoint.getName();
         info.isSdp = usagePoint.isSdp();
@@ -88,7 +97,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.connectionState = new IdWithNameInfo(usagePoint.getConnectionState(), thesaurus.getFormat(ConnectionStateTranslationKeys
                 .getTranslatedKeys(usagePoint.getConnectionState())).format());
         Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(clock.instant());
-        if(detailHolder.isPresent()) {
+        if (detailHolder.isPresent()) {
             if (detailHolder.get() instanceof ElectricityDetail) {
                 info.techInfo = new ElectricityUsagePointDetailsInfo((ElectricityDetail) detailHolder.get());
             } else if (detailHolder.get() instanceof GasDetail) {
@@ -100,7 +109,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             }
         }
         usagePoint.getMetrologyConfiguration()
-                .ifPresent(mc -> info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint));
+                .ifPresent(mc -> info.metrologyConfiguration = new IdWithNameInfo(mc.getId(), mc.getName()));
 
         UsagePointCustomPropertySetExtension customPropertySetExtension = usagePoint.forCustomProperties();
 

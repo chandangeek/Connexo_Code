@@ -31,6 +31,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -47,6 +48,7 @@ public class UsagePointApplication extends Application implements TranslationKey
 
     private volatile TransactionService transactionService;
     private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
     private volatile MeteringService meteringService;
     private volatile RestQueryService restQueryService;
     private volatile Clock clock;
@@ -86,6 +88,7 @@ public class UsagePointApplication extends Application implements TranslationKey
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
@@ -116,7 +119,6 @@ public class UsagePointApplication extends Application implements TranslationKey
     public void setMeteringGroupService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
-
 
     @Reference
     public void setRestQueryService(RestQueryService restQueryService) {
@@ -183,6 +185,7 @@ public class UsagePointApplication extends Application implements TranslationKey
         @Override
         protected void configure() {
             bind(transactionService).to(TransactionService.class);
+            bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(meteringService).to(MeteringService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);

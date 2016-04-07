@@ -5,7 +5,6 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.mdm.common.services.ListPager;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -23,6 +22,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -130,7 +130,7 @@ public class UsagePointResource {
         List<UsagePoint> list = queryUsagePoints(true, params);
 
         List<UsagePointInfo> usagePointInfos = ListPager.of(list)
-                .from(queryParameters)
+                .from(queryParameters).find()
                 .stream()
                 .map(usagePointInfoFactory::from)
                 .collect(Collectors.toList());
@@ -220,7 +220,6 @@ public class UsagePointResource {
     @Transactional
     @SuppressWarnings("unchecked")
     public Response createUsagePoint(UsagePointInfo info, @QueryParam("validate") boolean validate, @QueryParam("step") long step, @QueryParam("customPropertySetId") long customPropertySetId) {
-
         new RestValidationBuilder()
                 .notEmpty(info.mRID, "mRID")
                 .notEmpty(info.serviceCategory, "serviceCategory")
