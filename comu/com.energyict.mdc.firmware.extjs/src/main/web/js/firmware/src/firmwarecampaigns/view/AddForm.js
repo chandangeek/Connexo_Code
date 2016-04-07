@@ -80,39 +80,27 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         htmlEncode: false,
                         value: '<div class="uni-icon-info-small" style="width: 16px; height: 16px;" data-qtip="'
                         + Ext.htmlEncode(Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.title', 'FWC', 'Only devices that meet the following criteria will be included in the firmware campaign')
-                            + ':<br>-'
+                            + ':<ul><li>'
                             + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason1', 'FWC', 'Devices with as device type the selected device type')
-                            + '<br>-'
+                            + '</li><li>'
                             + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason2', 'FWC', 'Devices that are member of the selected device group at the moment the firmware campaign is added'))
-                        + '"></div>'
+                        + '</li></ul>"></div>'
                     }
                 ]
             },
             {
-                xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary'),
-                required: true,
-                layout: {
-                    type: 'hbox',
-                    align: 'stretch'
-                },
-                items: [
-                    {
-                        xtype: 'timeInHoursAndMinutes',
-                        name: 'timeBoundaryStart',
-                        itemId: 'timeBoundaryStart'
-                    },
-                    {
-                        xtype: 'displayfield',
-                        value: ' - ',
-                        margin: '0 5 0 0'
-                    },
-                    {
-                        xtype: 'timeInHoursAndMinutes',
-                        name: 'timeBoundaryEnd',
-                        itemId: 'timeBoundaryEnd'
-                    }
-                ]
+                xtype: 'timeInHoursAndMinutes',
+                fieldLabel: Uni.I18n.translate('general.timeBoundaryStart', 'FWC', 'Time boundary start'),
+                name: 'timeBoundaryStart',
+                itemId: 'timeBoundaryStart',
+                required: true
+            },
+            {
+                xtype: 'timeInHoursAndMinutes',
+                fieldLabel: Uni.I18n.translate('general.timeBoundaryEnd', 'FWC', 'Time boundary end'),
+                name: 'timeBoundaryEnd',
+                itemId: 'timeBoundaryEnd',
+                required: true
             },
             {
                 xtype: 'dynamic-radiogroup',
@@ -233,6 +221,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             success: function (record) {
                 me.down('#firmware-management-option').showOptions(record.get('allowedOptions'), {
                     showDescription: true,
+                    showOnlyLabelForSingleItem: true,
                     disabled: deviceTypeComboDisabled
                 });
             },
