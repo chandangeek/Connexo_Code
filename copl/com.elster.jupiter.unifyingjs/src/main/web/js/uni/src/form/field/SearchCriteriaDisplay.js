@@ -19,10 +19,6 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
     initComponent: function () {
         var me = this;
 
-        if (me.value) {
-            me.items = me.prepareContent(me.value);
-        }
-
         me.callParent(arguments);
         if (me.value) {
             Uni.util.Common.loadNecessaryStores(me.stores, function () {
