@@ -22,23 +22,23 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import javax.validation.ConstraintViolationException;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.Optional;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import javax.validation.ConstraintViolationException;
-
-import java.sql.SQLException;
-import java.time.Instant;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -102,8 +102,8 @@ public class PartyCrudTest {
         	PartyService partyService = getPartyService();
 			StreetAddress address = new StreetAddress();
 			address.getStreetDetail().setBuildingName("KKS");
-			address.getStreetDetail().setName("Stasegemsesteenweg");
-			address.getStreetDetail().setNumber("114");
+			address.getStreetDetail().setName("Spinnerijstraat");
+			address.getStreetDetail().setNumber("101");
          	Organization organization = partyService.newOrganization("EICT")
 					.setName("Elster")
 					.setAliasName("EnergyICT")
