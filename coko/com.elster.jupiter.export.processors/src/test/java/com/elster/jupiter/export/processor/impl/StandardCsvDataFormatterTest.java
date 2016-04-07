@@ -51,9 +51,11 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -223,8 +225,8 @@ public class StandardCsvDataFormatterTest {
         doReturn(list).when(reading).getReadingQualities();
         doReturn(list).when(reading1).getReadingQualities();
         doReturn(list).when(reading2).getReadingQualities();
-        when(readingQuality.getTypeCode()).thenReturn("3.5.259");
-        when(readingQuality1.getTypeCode()).thenReturn("3.5.258");
+        when(readingQuality.getTypeCode()).thenReturn("2.5.259");
+        when(readingQuality1.getTypeCode()).thenReturn("2.5.258");
 
         doReturn(list).when(intervalReading).getReadingQualities();
         doReturn(Arrays.asList()).when(intervalReading1).getReadingQualities();
