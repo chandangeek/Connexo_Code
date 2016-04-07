@@ -549,7 +549,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private boolean hasSuspects(CimChannel cimChannel, Range<Instant> preInterval) {
-        return !cimChannel.findActualReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), preInterval).isEmpty();
+        return !cimChannel.findActualReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), preInterval).isEmpty();
     }
 
     private Instant lastOf(List<Instant> instants) {

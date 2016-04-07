@@ -32,9 +32,12 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -56,7 +59,7 @@ public class LinearInterpolationTest {
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
-    public static final ReadingQualityType SUSPECT = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT);
+    public static final ReadingQualityType SUSPECT = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT);
     @Mock
     private Thesaurus thesaurus;
     @Mock
