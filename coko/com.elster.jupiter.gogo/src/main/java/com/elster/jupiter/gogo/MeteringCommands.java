@@ -24,6 +24,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -394,7 +395,7 @@ public class MeteringCommands {
                         QualityCodeCategory.TAMPER,
                         QualityCodeCategory.DATACOLLECTION
                 ).contains(index.category()))
-                .map(index -> Pair.of(index.getTranslationKey().getDefaultFormat(), QualityCodeSystem.MDM.ordinal() + "." + index.category().ordinal() + "." + index.index()))
+                .map(index -> Pair.of(index.getTranslationKey().getDefaultFormat(), QualityCodeSystem.MDC.ordinal() + "." + index.category().ordinal() + "." + index.index()))
                 .filter(pair -> pattern.matcher(pair.getFirst()).matches() || pattern.matcher(pair.getLast()).matches())
         .forEach(pair -> System.out.println("|\t" + String.format("%-80s", pair.getFirst()) + "\t|\t" + String.format("%-13s", pair.getLast())));
     }
