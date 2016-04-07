@@ -11,18 +11,20 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.Validator;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -77,8 +79,8 @@ public class ChannelValidatorTest {
 
     @Test
     public void testValidateRule() throws Exception {
-        setUpPreExistingQualityType(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.BATTERYLOW));
-        ReadingQualityType validationQuality = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1001);
+        setUpPreExistingQualityType(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.BATTERYLOW));
+        ReadingQualityType validationQuality = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 1001);
         setUpNewQualityType(validationQuality);
 
         doReturn(ValidationResult.SUSPECT).when(validator).validate(readingRecord);
@@ -92,7 +94,7 @@ public class ChannelValidatorTest {
 
     @Test
     public void testValidateRuleNoQualityWrittenIfExists() throws Exception {
-        ReadingQualityType validationQuality = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1001);
+        ReadingQualityType validationQuality = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 1001);
         setUpPreExistingQualityType(validationQuality);
         setUpNewQualityType(validationQuality);
 
@@ -107,7 +109,7 @@ public class ChannelValidatorTest {
 
     @Test
     public void testValidateRuleNoQualityWrittenIfExistsNonActual() throws Exception {
-        ReadingQualityType validationQuality = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1001);
+        ReadingQualityType validationQuality = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 1001);
         setUpPreExistingQualityType(validationQuality);
         setUpNewQualityType(validationQuality);
 
@@ -126,8 +128,8 @@ public class ChannelValidatorTest {
         doReturn(true).when(readingQualityRecord).isActual();
         doReturn(true).when(readingQualityRecord).hasEstimatedCategory();
 
-        setUpPreExistingQualityType(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ESTIMATEGENERIC));
-        ReadingQualityType validationQuality = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1001);
+        setUpPreExistingQualityType(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ESTIMATEGENERIC));
+        ReadingQualityType validationQuality = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 1001);
         setUpNewQualityType(validationQuality);
 
         doReturn(ValidationResult.SUSPECT).when(validator).validate(readingRecord);
@@ -144,8 +146,8 @@ public class ChannelValidatorTest {
         doReturn(true).when(readingQualityRecord).isActual();
         doReturn(true).when(readingQualityRecord).isConfirmed();
 
-        setUpPreExistingQualityType(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED));
-        ReadingQualityType validationQuality = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1001);
+        setUpPreExistingQualityType(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED));
+        ReadingQualityType validationQuality = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 1001);
         setUpNewQualityType(validationQuality);
 
         doReturn(ValidationResult.SUSPECT).when(validator).validate(readingRecord);

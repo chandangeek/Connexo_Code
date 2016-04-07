@@ -1,34 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Provider;
-import javax.validation.ConstraintViolation;
-import javax.validation.ValidatorFactory;
-
-import com.elster.jupiter.validation.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
@@ -46,8 +17,42 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRuleProperties;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.Validator;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
+
+import javax.inject.Provider;
+import javax.validation.ConstraintViolation;
+import javax.validation.ValidatorFactory;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationRuleImplTest extends EqualsContractTest {
@@ -115,7 +120,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
 
     @Before
     public void setUp() {
-        when(channel.findReadingQuality(new ReadingQualityType("3.6." + ID), DATE1)).thenReturn(Optional.<ReadingQualityRecord>empty(), Optional.of(readingQuality));        
+        when(channel.findReadingQuality(new ReadingQualityType("2.6." + ID), DATE1)).thenReturn(Optional.<ReadingQualityRecord>empty(), Optional.of(readingQuality));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(javaxValidator);
         when(javaxValidator.validate(any(javax.validation.Validator.class), any(), any())).thenReturn(new HashSet<ConstraintViolation<javax.validation.Validator>>());
