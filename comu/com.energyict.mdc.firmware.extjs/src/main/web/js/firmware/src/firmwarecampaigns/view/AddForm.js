@@ -89,30 +89,18 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 ]
             },
             {
-                xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary'),
-                required: true,
-                layout: {
-                    type: 'hbox',
-                    align: 'stretch'
-                },
-                items: [
-                    {
-                        xtype: 'timeInHoursAndMinutes',
-                        name: 'timeBoundaryStart',
-                        itemId: 'timeBoundaryStart'
-                    },
-                    {
-                        xtype: 'displayfield',
-                        value: ' - ',
-                        margin: '0 5 0 0'
-                    },
-                    {
-                        xtype: 'timeInHoursAndMinutes',
-                        name: 'timeBoundaryEnd',
-                        itemId: 'timeBoundaryEnd'
-                    }
-                ]
+                xtype: 'timeInHoursAndMinutes',
+                fieldLabel: Uni.I18n.translate('general.timeBoundaryStart', 'FWC', 'Time boundary start'),
+                name: 'timeBoundaryStart',
+                itemId: 'timeBoundaryStart',
+                required: true
+            },
+            {
+                xtype: 'timeInHoursAndMinutes',
+                fieldLabel: Uni.I18n.translate('general.timeBoundaryEnd', 'FWC', 'Time boundary end'),
+                name: 'timeBoundaryEnd',
+                itemId: 'timeBoundaryEnd',
+                required: true
             },
             {
                 xtype: 'dynamic-radiogroup',
