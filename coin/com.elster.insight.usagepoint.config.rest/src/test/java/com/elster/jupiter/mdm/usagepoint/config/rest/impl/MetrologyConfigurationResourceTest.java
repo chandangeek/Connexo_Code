@@ -3,12 +3,23 @@ package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
@@ -80,6 +91,37 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mock.getStatus()).thenReturn(status);
         when(mock.getVersion()).thenReturn(1L);
         when(mock.getDescription()).thenReturn("some description");
+
+        MeterRole role = mock(MeterRole.class);
+        when(role.getKey()).thenReturn(DefaultMeterRole.DEFAULT.getKey());
+        when(role.getDisplayName()).thenReturn(DefaultMeterRole.DEFAULT.getDefaultFormat());
+        when(mock.getMeterRoles()).thenReturn(Collections.singletonList(role));
+
+        ReadingType readingType = mock(ReadingType.class);
+
+        MetrologyContract contract = mock(MetrologyContract.class);
+        MetrologyPurpose purpose = mock(MetrologyPurpose.class);
+        when(purpose.getId()).thenReturn(1L);
+        when(purpose.getDescription()).thenReturn(DefaultMetrologyPurpose.BILLING.getDescription().getDefaultMessage());
+        when(purpose.getName()).thenReturn(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
+        ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
+        when(deliverable.getMetrologyConfiguration()).thenReturn(mock);
+        when(deliverable.getName()).thenReturn("testDeliveralble");
+        Formula formula = mock(Formula.class);
+        when(formula.getDescription()).thenReturn("testDescription");
+        ReadingTypeRequirementNode requirementNode = mock(ReadingTypeRequirementNode.class);
+        FullySpecifiedReadingType requirement = mock(FullySpecifiedReadingType.class);
+        when(requirement.getMetrologyConfiguration()).thenReturn(mock);
+        when(requirement.getReadingType()).thenReturn(readingType);
+        when(requirementNode.getReadingTypeRequirement()).thenReturn(requirement);
+        when(formula.getExpressionNode()).thenReturn(requirementNode);
+        when(deliverable.getFormula()).thenReturn(formula);
+        when(contract.getMetrologyPurpose()).thenReturn(purpose);
+        when(contract.getMetrologyConfiguration()).thenReturn(mock);
+        when(contract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
+
+
+        when(mock.getContracts()).thenReturn(Collections.singletonList(contract));
         return mock;
     }
 
@@ -114,8 +156,17 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         assertThat(jsonModel.<String>get("$.status.name")).isEqualTo("Inactive");
         assertThat(jsonModel.<String>get("$.serviceCategory.id")).isEqualTo(ServiceKind.GAS.name());
         assertThat(jsonModel.<String>get("$.serviceCategory.name")).isEqualTo(ServiceKind.GAS.getDefaultFormat());
-        assertThat(jsonModel.<List<?>>get("$.meterRoles")).isEmpty();
-        assertThat(jsonModel.<List<?>>get("$.purposes")).isEmpty();
+        assertThat(jsonModel.<List<?>>get("$.meterRoles").size()).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.meterRoles[0].id")).isEqualTo(DefaultMeterRole.DEFAULT.getKey());
+        assertThat(jsonModel.<String>get("$.meterRoles[0].name")).isEqualTo(DefaultMeterRole.DEFAULT.getDefaultFormat());
+        assertThat(jsonModel.<List<?>>get("$.purposes")).isNotEmpty();
+        assertThat(jsonModel.<List<?>>get("$.purposes").size()).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.purposes[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.purposes[0].name")).isEqualTo(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
+        assertThat(jsonModel.<List<?>>get("$.metrologyContracts")).isNotEmpty();
+        assertThat(jsonModel.<Integer>get("$.metrologyContracts[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.metrologyContracts[0].name")).isEqualTo(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
+        assertThat(jsonModel.<List<?>>get("$.metrologyContracts[0].readingTypeDeliverables")).isNotEmpty();
         assertThat(jsonModel.<Number>get("$.version")).isEqualTo(1);
     }
 

@@ -114,8 +114,8 @@ public class MetrologyConfigurationInfoFactory {
         ReadingTypeDeliverablesInfo info = new ReadingTypeDeliverablesInfo();
         info.id = readingTypeDeliverable.getId();
         info.name = readingTypeDeliverable.getName();
-        info.readingType = new ReadingTypeInfo(readingTypeDeliverable.getReadingType());
-        info.formula = asInfo(readingTypeDeliverable.getFormula());
+        info.readingType = readingTypeDeliverable.getReadingType()!=null ? new ReadingTypeInfo(readingTypeDeliverable.getReadingType()) : null;
+        info.formula = readingTypeDeliverable.getFormula()!=null ? asInfo(readingTypeDeliverable.getFormula()) : null;
         return info;
     }
 
