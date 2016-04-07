@@ -5,7 +5,6 @@ import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
