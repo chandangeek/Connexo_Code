@@ -282,7 +282,7 @@ public class ServiceCallServiceImplIT {
 
         serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
 
-        List<ServiceCall> all = serviceCallService.getServiceCallFinder(serviceCallService.newServiceCallFilter()).find();
+        List<ServiceCall> all = serviceCallService.getServiceCallFinder().find();
 
         assertThat(all).hasSize(2);
 

@@ -13,7 +13,6 @@ import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
-import com.elster.jupiter.servicecall.impl.ServiceCallFilterImpl;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -111,7 +110,6 @@ public class ServiceCallsCommands {
             serviceCallService.createServiceCallType(name, versionName)
                     .customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
                             .get(0))
-                    .handler("DisconnectHandler1")
                     .create();
             context.commit();
         }
@@ -186,7 +184,7 @@ public class ServiceCallsCommands {
     }
 
     public void serviceCalls() {
-        serviceCallService.getServiceCallFinder(new ServiceCallFilterImpl()).find()
+        serviceCallService.getServiceCallFinder().find()
                 .stream()
                 .sorted(Comparator.comparing(ServiceCall::getId))
                 .map(sc -> sc.getNumber() + " "
@@ -295,10 +293,8 @@ public class ServiceCallsCommands {
         Optional<ServiceCall> serviceCall = serviceCallService.getServiceCall(parent);
         if (!serviceCall.isPresent()) {
             System.out.println("There is no parent service call with the reference '" + parent + "'.");
-            return;
         } else if (!serviceCallType.isPresent()) {
             System.out.println("There is no service call type with name: '" + type + "' and version: '" + typeVersion + "'");
-            return;
         } else {
             ServiceCallType scType = serviceCallType.get();
             ServiceCall call = serviceCall.get();
@@ -314,7 +310,7 @@ public class ServiceCallsCommands {
     }
 
     public void log() {
-        System.out.println("usage: log <service call id> <log level> <message>");
+        System.out.println("Usage: log <service call id> <log level> <message>");
         System.out.println("e.g.   log 7231 FINE That looks good to me");
     }
 

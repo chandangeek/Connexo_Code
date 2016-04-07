@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.Arrays.fill;
 
 public class ServiceCallImpl implements ServiceCall {
