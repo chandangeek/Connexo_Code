@@ -222,7 +222,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.EXPERT;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ExpressionNode node = new ExpressionNodeParser(thesaurus, service, config).parse("constant(10)");
+        ExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse("constant(10)");
 
         Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
         long formulaId = formula.getId();
@@ -246,7 +246,7 @@ public class FormulaCrudTest {
         Function myFunction = Function.MAX;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ExpressionNode node = new ExpressionNodeParser(thesaurus, service, config).parse("max(constant(10), constant(0))");
+        ExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, config, myMode).parse("max(constant(10), constant(0))");
 
         Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
 
@@ -282,7 +282,7 @@ public class FormulaCrudTest {
         Function myFunction = Function.MAX;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ExpressionNode node = new ExpressionNodeParser(thesaurus, service, config).parse("max(constant(1), plus(constant(2), constant(3)))");
+        ExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse("max(constant(1), plus(constant(2), constant(3)))");
 
         Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
 
@@ -313,13 +313,31 @@ public class FormulaCrudTest {
     @Test
     @Transactional
     // formula by using the builder = max(10, plus(10, 0)) function call + operator call + constants
+    public void testNoFunctionsAllowedInAutoMode() {
+
+        Formula.Mode myMode = Formula.Mode.AUTO;
+        Function myFunction = Function.MAX;
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        try {
+            ExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, config, myMode).parse("max(constant(1), plus(constant(2), constant(3)))");
+
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(),"Functions are not allowed in auto mode.");
+        }
+    }
+
+    @Test
+    @Transactional
+    // formula by using the builder = max(10, plus(10, 0)) function call + operator call + constants
     public void test4LevelNodeStructureCrudUsingParser() {
 
         Formula.Mode myMode = Formula.Mode.EXPERT;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         String formulaString = "max(constant(1), min(constant(2), constant(3), constant(4)))";
-        ExpressionNode node = new ExpressionNodeParser(thesaurus, service, config).parse("max(constant(1), min(constant(2), constant(3), constant(4)))");
+        ExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, config, myMode).parse("max(constant(1), min(constant(2), constant(3), constant(4)))");
 
         Formula formula = service.newFormulaBuilder(myMode).init(node).build();
 
@@ -340,7 +358,7 @@ public class FormulaCrudTest {
     public void testParser() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         String formulaString = "multiply(sum(max(constant(10), constant(0)), constant(5), constant(3)), constant(2))";
-        ExpressionNode node = new ExpressionNodeParser(thesaurus, service, config).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, config, Formula.Mode.EXPERT).parse(formulaString);
         service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
         List<Formula> formulas = service.findFormulas();
         for (Formula f : formulas) {
@@ -349,9 +367,9 @@ public class FormulaCrudTest {
     }
 
     @Test
-    @Transactional
-    // formula = 10 (constant)
-    public void testDelete() {
+     @Transactional
+     // formula = 10 (constant)
+     public void testDelete() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
