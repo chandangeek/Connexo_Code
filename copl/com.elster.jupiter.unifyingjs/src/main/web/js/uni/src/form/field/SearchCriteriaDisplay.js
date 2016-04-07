@@ -32,7 +32,7 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
         me.value = value;
         Ext.suspendLayouts();
         me.removeAll();
-        me.add(me.prepareItems(value));
+        me.add(me.prepareContent(value));
         Ext.resumeLayouts(true);
     },
 
