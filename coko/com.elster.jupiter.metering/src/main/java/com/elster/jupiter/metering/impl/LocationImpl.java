@@ -37,8 +37,8 @@ public class LocationImpl implements Location {
     }
 
     @Override
-    public Optional<List<? extends LocationMember>> getMembers() {
-        return Optional.of(Collections.unmodifiableList(members));
+    public List<? extends LocationMember> getMembers() {
+        return Collections.unmodifiableList(members);
     }
 
     @Override
@@ -75,11 +75,11 @@ public class LocationImpl implements Location {
                              String zipCode,
                              boolean defaultLocation,
                              String locale) {
-        LocationMemberImpl temp = LocationMemberImpl.from(dataModel, this.getId(), countryCode, countryName, administrativeArea, locality, subLocality,
+        LocationMemberImpl locationMember = LocationMemberImpl.from(dataModel, this.getId(), countryCode, countryName, administrativeArea, locality, subLocality,
                 streetType, streetName, streetNumber, establishmentType, establishmentName, establishmentNumber, addressDetail, zipCode,
                 defaultLocation, locale);
-        temp.doSave();
-        return temp;
+        locationMember.doSave();
+        return locationMember;
     }
 
     @Override

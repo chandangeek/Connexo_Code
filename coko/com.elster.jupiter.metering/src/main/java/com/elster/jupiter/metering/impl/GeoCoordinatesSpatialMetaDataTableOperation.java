@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import javax.inject.Inject;
@@ -12,9 +13,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @LiteralSql
-public class GeoCoordinatesSpatialMetaDataTableOperation {
+public final class GeoCoordinatesSpatialMetaDataTableOperation {
 
-    protected static final Logger LOG = Logger.getLogger(CreateLocationMemberTableOperation.class.getName());
+    private static final Logger LOG = Logger.getLogger(CreateLocationMemberTableOperation.class.getName());
 
     private final DataModel dataModel;
 
@@ -23,19 +24,19 @@ public class GeoCoordinatesSpatialMetaDataTableOperation {
         this.dataModel = dataModel;
     }
 
-    public void execute(){
-        try (Connection conn = dataModel.getConnection(false)) {
-            PreparedStatement dropOldMetaData = buildStatement(conn, dropSpatialMetaDataSql());
-            PreparedStatement setMetData = buildStatement(conn, setSpatialMetaDataSql());
+    public void execute() {
+        try (Connection conn = dataModel.getConnection(false);
+             PreparedStatement dropOldMetaData = buildStatement(conn, dropSpatialMetaDataSql());
+             PreparedStatement setMetData = buildStatement(conn, setSpatialMetaDataSql())) {
             dropOldMetaData.execute();
             setMetData.execute();
-        } catch (SQLException sqlEx){
+        } catch (SQLException sqlEx) {
             LOG.log(Level.SEVERE, "Unable to populate MDSYS.USER_SDO_GEOM_METADATA", sqlEx);
         }
     }
 
 
-    public SqlBuilder setSpatialMetaDataSql() {
+    private SqlBuilder setSpatialMetaDataSql() {
         SqlBuilder builder = new SqlBuilder();
         builder.append("INSERT INTO mdsys.user_sdo_geom_metadata VALUES ('"
                 + TableSpecs.MTR_GEOCOORDINATES.name()
@@ -50,7 +51,7 @@ public class GeoCoordinatesSpatialMetaDataTableOperation {
     }
 
 
-    public SqlBuilder dropSpatialMetaDataSql() {
+    private SqlBuilder dropSpatialMetaDataSql() {
         SqlBuilder builder = new SqlBuilder();
         builder.append("DELETE FROM mdsys.user_sdo_geom_metadata where table_name = '"
                 + TableSpecs.MTR_GEOCOORDINATES.name()
@@ -60,11 +61,15 @@ public class GeoCoordinatesSpatialMetaDataTableOperation {
         return builder;
     }
 
-    protected PreparedStatement buildStatement(Connection connection, SqlBuilder sql) throws SQLException {
+    private PreparedStatement buildStatement(Connection connection, SqlBuilder sql) {
         if (connection == null) {
             throw new IllegalArgumentException("Connection can't be null");
         }
-        return sql.prepare(connection);
+        try {
+            return sql.prepare(connection);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
 }
