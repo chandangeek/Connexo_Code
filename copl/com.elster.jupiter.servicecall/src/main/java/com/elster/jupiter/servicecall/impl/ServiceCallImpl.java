@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.Arrays.fill;
 
 public class ServiceCallImpl implements ServiceCall {
@@ -197,7 +196,6 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public void cancel() {
         requestTransition(DefaultState.CANCELLED);
-        this.findChildren().stream().forEach(ServiceCall::cancel);
     }
 
     @Override
