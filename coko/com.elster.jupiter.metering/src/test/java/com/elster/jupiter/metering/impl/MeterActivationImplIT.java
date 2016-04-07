@@ -314,12 +314,12 @@ public class MeterActivationImplIT {
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.plusMinutes(15).toInstant(), BigDecimal.valueOf(4825, 2)));
             meterReading.addIntervalBlock(intervalBlock);
             meter.store(meterReading);
-            meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, newCutOff.minusMinutes(15).toInstant());
-            meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, newCutOff.toInstant());
-            ReadingQualityRecord readingQuality = meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, newCutOff.plusMinutes(15).toInstant());
+            meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.minusMinutes(15).toInstant());
+            meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.toInstant());
+            ReadingQualityRecord readingQuality = meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.plusMinutes(15).toInstant());
             readingQuality.makePast();
-            meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, originalCutOff.toInstant());
-            currentActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, originalCutOff.plusMinutes(15).toInstant());
+            meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, originalCutOff.toInstant());
+            currentActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, originalCutOff.plusMinutes(15).toInstant());
             ctx.commit();
         }
 

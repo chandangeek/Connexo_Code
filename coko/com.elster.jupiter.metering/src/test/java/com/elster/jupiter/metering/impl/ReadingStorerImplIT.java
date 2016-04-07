@@ -38,18 +38,11 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.units.Quantity;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -59,6 +52,15 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -526,7 +528,7 @@ public class ReadingStorerImplIT {
         assertThat(qualities).hasSize(1);
 
         ReadingQualityRecord readingQualityRecord = qualities.get(0);
-        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("3.4.1");
+        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("2.4.1");
     }
 
     @Test
@@ -572,7 +574,7 @@ public class ReadingStorerImplIT {
         assertThat(qualities).hasSize(1);
 
         ReadingQualityRecord readingQualityRecord = qualities.get(0);
-        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("3.3.4");
+        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("2.3.4");
     }
 
     private Channel createMeterAndChannelWithMultplier(ReadingType measured, ReadingType caluclated, BigDecimal multiplierValue) {
