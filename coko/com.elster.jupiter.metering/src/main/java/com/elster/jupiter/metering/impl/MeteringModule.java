@@ -17,6 +17,8 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.inject.AbstractModule;
@@ -60,6 +62,8 @@ public class MeteringModule extends AbstractModule {
         requireBinding(UserService.class);
         requireBinding(FiniteStateMachineService.class);
         requireBinding(CustomPropertySetService.class);
+        requireBinding(PropertySpecService.class);
+        requireBinding(SearchService.class);
 
         bindConstant().annotatedWith(Names.named("requiredReadingTypes")).to(readingTypes);
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);

@@ -5,12 +5,14 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
@@ -42,6 +44,7 @@ import com.elster.jupiter.util.conditions.Where;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -157,6 +160,20 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public List<UsagePointMetrologyConfiguration> findAllUsagePointMetrologyConfigurations() {
         return DefaultFinder.of(UsagePointMetrologyConfiguration.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
+    }
+
+    @Override
+    public List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint) {
+        LinkableMetrologyConfigurationFinder finder = new LinkableMetrologyConfigurationFinder(this.meteringService);
+        List<UsagePointMetrologyConfiguration> activeConfigs = getDataModel().query(UsagePointMetrologyConfiguration.class)
+                .select(where(MetrologyConfigurationImpl.Fields.STATUS.fieldName()).isEqualTo(MetrologyConfigurationStatus.ACTIVE));
+        if (!activeConfigs.isEmpty()) {
+            activeConfigs.stream()
+                    .map(config -> getDataModel().getInstance(UsagePointRequirementSqlBuilder.class).init(usagePoint, config))
+                    .forEach(finder::addBuilder);
+            return finder.find();
+        }
+        return Collections.emptyList();
     }
 
     @Override

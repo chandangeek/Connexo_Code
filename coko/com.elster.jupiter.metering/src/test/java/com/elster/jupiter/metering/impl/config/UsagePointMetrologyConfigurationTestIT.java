@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -349,5 +350,72 @@ public class UsagePointMetrologyConfigurationTestIT {
 
         assertThat(requirements).hasSize(1);
         assertThat(requirements.get(0)).isEqualTo(readingTypeRequirement);
+    }
+
+    @Test
+    @Transactional
+    public void testCanFindLinkableMetrologyConfigurations() {
+        ServiceCategory serviceCategory = getServiceCategory();
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("config", serviceCategory)
+                .create();
+        SearchablePropertyValue.ValueBean serviceKindBean = new SearchablePropertyValue.ValueBean();
+        serviceKindBean.propertyName = "SERVICEKIND";
+        serviceKindBean.operator = SearchablePropertyOperator.EQUAL;
+        serviceKindBean.values = Collections.singletonList("ELECTRICITY");
+        metrologyConfiguration.addUsagePointRequirement(serviceKindBean);
+        metrologyConfiguration.activate();
+
+        metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("config 2", serviceCategory)
+                .create();
+        serviceKindBean = new SearchablePropertyValue.ValueBean();
+        serviceKindBean.propertyName = "SERVICEKIND";
+        serviceKindBean.operator = SearchablePropertyOperator.EQUAL;
+        serviceKindBean.values = Collections.singletonList("GAS");
+        metrologyConfiguration.addUsagePointRequirement(serviceKindBean);
+        metrologyConfiguration.activate();
+
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("UsagePoint1", inMemoryBootstrapModule.getClock().instant()).create();
+        List<UsagePointMetrologyConfiguration> metrologyConfigurations = getMetrologyConfigurationService().findLinkableMetrologyConfigurations(usagePoint);
+
+        assertThat(metrologyConfigurations).hasSize(1);
+        assertThat(metrologyConfigurations.get(0)).isEqualTo(metrologyConfiguration);
+    }
+
+
+    @Test
+    @Transactional
+    public void testNoLinkableMetrologyConfigurationsForAllInactiveMetrologyConfigurations() {
+        ServiceCategory serviceCategory = getServiceCategory();
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("config", serviceCategory)
+                .create();
+        SearchablePropertyValue.ValueBean serviceKindBean = new SearchablePropertyValue.ValueBean();
+        serviceKindBean.propertyName = "SERVICEKIND";
+        serviceKindBean.operator = SearchablePropertyOperator.EQUAL;
+        serviceKindBean.values = Collections.singletonList("GAS");
+        metrologyConfiguration.addUsagePointRequirement(serviceKindBean);
+
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("UsagePoint1", inMemoryBootstrapModule.getClock().instant()).create();
+        List<UsagePointMetrologyConfiguration> metrologyConfigurations = getMetrologyConfigurationService().findLinkableMetrologyConfigurations(usagePoint);
+
+        assertThat(metrologyConfigurations).hasSize(0);
+    }
+
+    @Test
+    @Transactional
+    public void testCanRemoveMetrologConfigWithRequirements() {
+        ServiceCategory serviceCategory = getServiceCategory();
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
+        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+        serviceCategory.addMeterRole(meterRole);
+        metrologyConfiguration.addMeterRole(meterRole);
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
+        metrologyConfiguration.newReadingTypeRequirement("Reading type requirement").withMeterRole(meterRole).withReadingType(readingType);
+
+        metrologyConfiguration.delete();
+
+        assertThat(inMemoryBootstrapModule.getMetrologyConfigurationService().findUsagePointMetrologyConfiguration(metrologyConfiguration.getId()).isPresent()).isFalse();
     }
 }

@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -72,7 +73,6 @@ public class UsagePointSearchDomain implements SearchDomain {
         this.meteringService = meteringService;
     }
 
-
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
@@ -104,8 +104,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new OutageRegionSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
+                new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
         ));
     }
 
@@ -164,7 +163,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
         private UsagePointFinder(Condition condition) {
             this.finder = DefaultFinder
-                    .of(UsagePoint.class, condition, meteringService.getDataModel())
+                    .of(UsagePoint.class, condition, meteringService.getDataModel(), UsagePointMetrologyConfiguration.class)
                     .defaultSortColumn("mRID");
         }
 

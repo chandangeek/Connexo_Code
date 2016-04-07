@@ -25,7 +25,9 @@ public enum MessageSeeds implements MessageSeed {
     READINGTYPE_CREATING_FAIL(2011, "readingtype.creatingFail", "Failed creating reading types.", Level.SEVERE),
     FIELD_NOT_FOUND(2012, "readingtype.fieldNotFound", "Cannot find field {0}", Level.SEVERE),
     FIELD_TOO_LONG(2013, Constants.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
-
+    INVALID_VALUE(2014, Constants.INVALID_VALUE, "Value must be between {min} and {max}", Level.SEVERE),
+    INVALID_MULTIPLIER(2015, Constants.INVALID_MULTIPLIER, "Multiplier must be between {min} and {max}", Level.SEVERE),
+    INVALID_UNIT(2016, Constants.INVALID_UNIT, "Invalid unit", Level.SEVERE),
     DUPLICATE_USAGEPOINT(3001, Constants.DUPLICATE_USAGEPOINT, "MRID must be unique", Level.SEVERE),
 
     REQUIRED(4001, Constants.REQUIRED, "This field is required"),
@@ -55,9 +57,9 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT(5008, Constants.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, "The requirement with id ''{0}'' cannot be used because it has a different metrology configuration."),
     INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE(5009, Constants.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, "The deliverable with id ''{0}'' cannot be used because it has a different metrology configuration."),
     READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(5010, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The readingtype is not compatible with the dimension of the formula."),
-    NO_FUNCTIONS_ALLOWED_IN_AUTOMODE(5011, Constants.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE, "Functions are no allowed in auto mode"),
-    NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(5012, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The new readingtype is not compatible with the dimension of the formula(s)."),
-    NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE(5013, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The new formula is not compatible with the readingtype of the deliverable."),
+    NO_FUNCTIONS_ALLOWED_IN_AUTOMODE(5011, Constants.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE, "Functions are not allowed in auto mode."),
+    NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(5012, Constants.NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The new readingtype is not compatible with the dimension of the formula(s)."),
+    NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE(5013, Constants.NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE, "The new formula is not compatible with the readingtype of the deliverable."),
     IRREGULAR_READINGTYPE_IN_DELIVERABLE(5014, Constants.IRREGULAR_READINGTYPE_IN_DELIVERABLE, "Irregular readingtypes are not allowed for a deliverable."),
     IRREGULAR_READINGTYPE_IN_REQUIREMENT(5015, Constants.IRREGULAR_READINGTYPE_IN_REQUIREMENT, "Irregular readingtypes are not allowed for a requirement."),
     ;
@@ -124,6 +126,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_LINKED_CUSTOM_PROPERTY_SET_ON_USAGE_POINT = "no.linked.custom.property.set.on.usage.point";
         public static final String CUSTOM_PROPERTY_SET_HAS_DIFFERENT_DOMAIN = "custom.property.set.has.different.domain";
         public static final String CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED = "custom.property.set.is.not.versioned";
+        public static final String INVALID_VALUE = "invalidValue";
+        public static final String INVALID_MULTIPLIER = "invalidMultiplier";
+        public static final String INVALID_UNIT = "invalidUnit";
 
         public static final String INVALID_ARGUMENTS_FOR_MULTIPLICATION = "expression.node.invalid.arguments.multiplication";
         public static final String INVALID_ARGUMENTS_FOR_DIVISION = "expression.node.invalid.arguments.division";
@@ -142,11 +147,13 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT = "invalid.metrologyconfiguration.for.requirement";
         public static final String INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE = "invalid.metrologyconfiguration.for.deliverable";
         public static final String READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA = "readingtype.of.deliverable.incompatible.with.formula";
+        public static final String NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA = "new.readingtype.of.deliverable.incompatible.with.formula";
         public static final String DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION = "deliverable.must.have.the.same.configuration";
         public static final String REQUIREMENT_MUST_HAVE_UNIQUE_RT = "requirement.must.have.unique.rt";
         public static final String NO_FUNCTIONS_ALLOWED_IN_AUTOMODE = "no.functions.allowed.in.automode";
         public static final String CAN_NOT_DELETE_FORMULA_IN_USE = "can.not.delete.formula.in.use";
         public static final String IRREGULAR_READINGTYPE_IN_DELIVERABLE = "irregular.readingtype.not.allowed.for.deliverable";
         public static final String IRREGULAR_READINGTYPE_IN_REQUIREMENT = "irregular.readingtype.not.allowed.for.requirement";
+        public static final String NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE = "formula.not.compatible.with.readingtype.of.deliverable";
     }
 }
