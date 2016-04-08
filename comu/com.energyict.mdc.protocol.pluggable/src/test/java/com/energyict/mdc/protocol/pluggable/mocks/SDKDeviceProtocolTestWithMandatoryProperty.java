@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -361,6 +362,11 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         return collectedDataFactory.createFirmwareVersionsCollectedData(offlineDevice.getDeviceIdentifier());
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return collectedDataFactory.createBreakerStatusCollectedData(offlineDevice.getDeviceIdentifier());
     }
 
     private enum AuthenticationAccessLevelIds {
