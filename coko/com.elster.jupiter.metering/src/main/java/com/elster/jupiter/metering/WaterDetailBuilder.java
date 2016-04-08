@@ -7,13 +7,13 @@ public interface WaterDetailBuilder  extends UsagePointDetailBuilder{
 
     WaterDetailBuilder withCollar(YesNoAnswer collar);
 
-    WaterDetailBuilder withGrounded(boolean grounded);
+    WaterDetailBuilder withGrounded(YesNoAnswer grounded);
 
     WaterDetailBuilder withPressure(Quantity pressure);
 
     WaterDetailBuilder withPhysicalCapacity(Quantity physicalCapacity);
 
-    WaterDetailBuilder withLimiter(boolean limiter);
+    WaterDetailBuilder withLimiter(YesNoAnswer limiter);
 
     WaterDetailBuilder withLoadLimit(Quantity loadLimit);
 

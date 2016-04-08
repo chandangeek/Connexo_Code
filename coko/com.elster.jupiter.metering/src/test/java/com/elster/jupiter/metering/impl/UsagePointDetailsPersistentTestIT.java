@@ -68,9 +68,9 @@ public class UsagePointDetailsPersistentTestIT {
                 .withValve(YesNoAnswer.YES)
                 .withBypass(YesNoAnswer.YES)
                 .withBypassStatus(BypassStatus.OPEN)
-                .withGrounded(true)
-                .withInterruptible(true)
-                .withLimiter(true)
+                .withGrounded(YesNoAnswer.YES)
+                .withInterruptible(YesNoAnswer.YES)
+                .withLimiter(YesNoAnswer.YES)
                 .withLoadLimit(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
                 .withLoadLimiterType("LoadLimit")
                 .withPhysicalCapacity(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
@@ -92,9 +92,9 @@ public class UsagePointDetailsPersistentTestIT {
         assertThat(gasDetail.isClamped()).isEqualTo(YesNoAnswer.YES);
         assertThat(gasDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
         assertThat(gasDetail.getBypassStatus().equals(BypassStatus.OPEN)).isTrue();
-        assertThat(gasDetail.isGrounded()).isTrue();
-        assertThat(gasDetail.isInterruptible()).isTrue();
-        assertThat(gasDetail.isLimiter()).isTrue();
+        assertThat(gasDetail.isGrounded()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.isInterruptible()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.isLimiter()).isEqualTo(YesNoAnswer.YES);
         assertThat(gasDetail.getLoadLimit().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
         assertThat(gasDetail.getLoadLimiterType().equals("LoadLimit")).isTrue();
         assertThat(gasDetail.getPhysicalCapacity().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
@@ -115,8 +115,8 @@ public class UsagePointDetailsPersistentTestIT {
                 .withValve(YesNoAnswer.YES)
                 .withBypass(YesNoAnswer.YES)
                 .withBypassStatus(BypassStatus.OPEN)
-                .withGrounded(true)
-                .withLimiter(true)
+                .withGrounded(YesNoAnswer.YES)
+                .withLimiter(YesNoAnswer.YES)
                 .withLoadLimit(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
                 .withLoadLimiterType("LoadLimit")
                 .withPhysicalCapacity(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
@@ -138,8 +138,8 @@ public class UsagePointDetailsPersistentTestIT {
         assertThat(waterDetail.isClamped()).isEqualTo(YesNoAnswer.YES);
         assertThat(waterDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
         assertThat(waterDetail.getBypassStatus().equals(BypassStatus.OPEN)).isTrue();
-        assertThat(waterDetail.isGrounded()).isTrue();
-        assertThat(waterDetail.isLimiter()).isTrue();
+        assertThat(waterDetail.isGrounded()).isEqualTo(YesNoAnswer.YES);
+        assertThat(waterDetail.isLimiter()).isEqualTo(YesNoAnswer.YES);
         assertThat(waterDetail.getLoadLimit().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
         assertThat(waterDetail.getLoadLimiterType().equals("LoadLimit")).isTrue();
         assertThat(waterDetail.getPhysicalCapacity().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
@@ -158,7 +158,7 @@ public class UsagePointDetailsPersistentTestIT {
                 .withValve(YesNoAnswer.YES)
                 .withBypass(YesNoAnswer.YES)
                 .withBypassStatus(BypassStatus.OPEN)
-                .withPhysicalCapacity(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
+                .withPhysicalCapacity(Unit.WATT_HOUR.amount(BigDecimal.valueOf(123.45)))
                 .withPressure(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)))
                 .create();
 
@@ -175,7 +175,7 @@ public class UsagePointDetailsPersistentTestIT {
         //gas specific properties
         assertThat(waterDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
         assertThat(waterDetail.getBypassStatus().equals(BypassStatus.OPEN)).isTrue();
-        assertThat(waterDetail.getPhysicalCapacity().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
+        assertThat(waterDetail.getPhysicalCapacity().equals(Unit.WATT_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
         assertThat(waterDetail.getPressure().equals(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)))).isTrue();
     }
 }

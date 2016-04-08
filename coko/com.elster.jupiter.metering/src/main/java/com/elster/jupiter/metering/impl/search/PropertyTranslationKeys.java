@@ -27,6 +27,10 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_USERNAME("usagepoint.userName", "User name"),
     USAGEPOINT_VERSION("usagepoint.versionCount", "Version"),
     USAGEPOINT_SERVICEPRIORITY("usagepoint.servicePriority", "Service priority"),
+    USAGEPOINT_LOCATION("usagepoint.location", "Location"),
+    USAGEPOINT_METROLOGYCONFIGURATION("usagepoint.metrologyConfiguration", "Metrology configuration"),
+    USAGEPOINT_INSTALLATION_TIME("usagepoint.installationTime", "Installation time"),
+    USAGEPOINT_TYPE("usagepoint.type", "Type"),
 
     USAGEPOINT_CONNECTIONSTATE("usagepoint.connectionState", "Connection state"),
     USAGEPOINT_STARTTIME("usagepoint.startTime", "Start time"),
