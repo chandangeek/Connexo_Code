@@ -1,6 +1,10 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
+
+import java.time.temporal.TemporalAmount;
+import java.util.Optional;
 
 /**
  * Adds behavior to {@link Formula} that is specific
@@ -15,4 +19,9 @@ public interface ServerFormula extends Formula {
      * Delete this {@link Formula}
      */
     void delete();
+
+    /**
+     * Get the greatest interval used (as requirement) in the formula
+     */
+    IntervalLength getIntervalLength();
 }

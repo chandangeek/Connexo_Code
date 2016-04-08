@@ -60,6 +60,7 @@ public enum MessageSeeds implements MessageSeed {
     NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE(5013, Constants.NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE, "The new formula is not compatible with the readingtype of the deliverable."),
     IRREGULAR_READINGTYPE_IN_DELIVERABLE(5014, Constants.IRREGULAR_READINGTYPE_IN_DELIVERABLE, "Irregular readingtypes are not allowed for a deliverable."),
     IRREGULAR_READINGTYPE_IN_REQUIREMENT(5015, Constants.IRREGULAR_READINGTYPE_IN_REQUIREMENT, "Irregular readingtypes are not allowed for a requirement."),
+    INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS(5016, Constants.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS, "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.")
     ;
 
     private final int number;
@@ -150,5 +151,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String IRREGULAR_READINGTYPE_IN_DELIVERABLE = "irregular.readingtype.not.allowed.for.deliverable";
         public static final String IRREGULAR_READINGTYPE_IN_REQUIREMENT = "irregular.readingtype.not.allowed.for.requirement";
         public static final String NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE = "formula.not.compatible.with.readingtype.of.deliverable";
+        public static final String INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS = "interval.of.readingtype.should.be.greater.or.equal.to.interval.of.requirements";
     }
 }
