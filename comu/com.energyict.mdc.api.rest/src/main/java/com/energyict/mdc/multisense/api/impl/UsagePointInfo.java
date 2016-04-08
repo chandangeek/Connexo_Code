@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import java.time.Instant;
 import java.util.List;
 
-public class UsagePointInfo extends LinkInfo {
+public class UsagePointInfo extends LinkInfo<Long> {
 
     public String name;
     public String aliasName;

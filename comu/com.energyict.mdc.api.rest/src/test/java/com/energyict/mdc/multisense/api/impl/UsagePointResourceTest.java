@@ -36,7 +36,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
 
     @Test
     public void testGetSingleUsagePointWithFields() throws Exception {
-        UsagePoint usagePoint = mockUsagePoint(31L, "usage point");
+        UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L);
         Response response = target("/usagepoints/31").queryParam("fields", "id,name").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -50,7 +50,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
 
     @Test
     public void testGetSingleUsagePointAllFields() throws Exception {
-        UsagePoint usagePoint = mockUsagePoint(31L, "usage point");
+        UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L);
         Response response = target("/usagepoints/31").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
@@ -86,7 +86,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         info.serviceDeliveryRemark = "remark";
         info.servicePriority = "prio1";
 
-        UsagePoint usagePoint = mockUsagePoint(11L, "usage point");
+        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L);
         Response response = target("/usagepoints/11").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(usagePoint).setName("naam");
