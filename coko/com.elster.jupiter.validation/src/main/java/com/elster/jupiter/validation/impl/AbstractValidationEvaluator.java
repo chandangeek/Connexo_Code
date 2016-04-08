@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractValidationEvaluator implements ValidationEvaluator {
 
-    public static final ReadingQualityType VALIDATED_AND_OK = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
+    public static final ReadingQualityType VALIDATED_AND_OK = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.VALIDATED);
 
     public boolean isAllDataValid(MeterActivation meterActivation){
         ReadingQualityType suspect = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT);

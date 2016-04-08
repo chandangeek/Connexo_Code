@@ -512,7 +512,7 @@ public class ValidationServiceImplTest {
         assertThat(validationStatus.get(1).getReadingTimestamp()).isEqualTo(readingDate1);
         assertThat(validationStatus.get(1).completelyValidated()).isTrue();
         assertThat(validationStatus.get(1).getReadingQualities()).hasSize(1);
-        assertThat(validationStatus.get(1).getReadingQualities().iterator().next().getTypeCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
+        assertThat(validationStatus.get(1).getReadingQualities().iterator().next().getTypeCode()).isEqualTo("2.0.1");
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQualityRecord)).isEmpty();
     }
 
@@ -551,7 +551,7 @@ public class ValidationServiceImplTest {
         assertThat(validationStatus.get(1).getReadingTimestamp()).isEqualTo(readingDate1);
         assertThat(validationStatus.get(1).completelyValidated()).isTrue();
         assertThat(validationStatus.get(1).getReadingQualities()).hasSize(1);
-        assertThat(validationStatus.get(1).getReadingQualities().iterator().next().getTypeCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
+        assertThat(validationStatus.get(1).getReadingQualities().iterator().next().getTypeCode()).isEqualTo("2.0.1");
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQualityRecord)).isEmpty();
     }
 
@@ -633,7 +633,7 @@ public class ValidationServiceImplTest {
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate2);
         assertThat(validationStatus.get(0).completelyValidated()).isTrue();
         assertThat(validationStatus.get(0).getReadingQualities()).hasSize(1);
-        assertThat(validationStatus.get(0).getReadingQualities().iterator().next().getTypeCode()).isEqualTo(ReadingQualityType.MDM_VALIDATED_OK_CODE);
+        assertThat(validationStatus.get(0).getReadingQualities().iterator().next().getTypeCode()).isEqualTo("2.0.1");
         // reading1 has suspects
         assertThat(validationStatus.get(1).getReadingTimestamp()).isEqualTo(readingDate1);
         assertThat(validationStatus.get(1).completelyValidated()).isTrue();
