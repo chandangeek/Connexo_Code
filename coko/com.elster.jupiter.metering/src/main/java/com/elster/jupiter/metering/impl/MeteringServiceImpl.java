@@ -91,7 +91,9 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -736,10 +738,10 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
-    public Map<String, Boolean> getFormattedLocationMembers(long id) {
+    public List<List<String>>  getFormattedLocationMembers(long id) {
         List<LocationMember> members = dataModel.query(LocationMember.class)
                 .select(Operator.EQUAL.compare("locationId", id));
-        Map<String, Boolean> formattedLocation = new LinkedHashMap<>();
+        List<List<String>>  formattedLocation = new LinkedList<>();
         if (!members.isEmpty()) {
             LocationMember member = members.get(0);
             Map<String, String> memberValues = new LinkedHashMap<>();
@@ -757,6 +759,51 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             memberValues.put("addressDetail", member.getAddressDetail());
             memberValues.put("zipCode", member.getZipCode());
             memberValues.put("locale", member.getLocale());
+
+
+           formattedLocation = locationTemplate.getTemplateMembers()
+                    .stream()
+                    .collect(() -> {
+                                List<List<String>> list = new ArrayList<>();
+                                list.add(new ArrayList<>());
+                                return list;
+                            },
+                            (list, s) -> {
+                                if (locationTemplate.getSplitLineElements().contains(s.getAbbreviation())) {
+                                    list.add(new ArrayList<String>(){{
+                                        add(memberValues.get(s.getName()));
+                                    }});
+
+                                } else {
+                                    list.get(list.size() - 1).add(memberValues.get(s.getName()));
+                                }
+                            },
+                            (list1, list2) -> {
+                                list1.get(list1.size() - 1).addAll(list2.remove(0));
+                                list1.addAll(list2);
+                            });
+
+            /*
+
+            Map<String, Integer> lineForField = new HashMap<>();
+            locationTemplate.getTemplateMembers().stream().forEach(x -> {
+                if(locationTemplate.getSplitLineElements().contains(x.getAbbreviation())){
+                    lineForField.put(x.getAbbreviation(), lineForField.isEmpty()? 0:Collections.max(lineForField.values())+1);
+                }
+                else {
+                    lineForField.put(x.getAbbreviation(), lineForField.isEmpty()? 0:Collections.max(lineForField.values()));
+                }
+            });
+
+            Map<Integer, List<TemplateField>> x = locationTemplate.getTemplateMembers().stream().
+                    collect(Collectors.groupingBy(p -> lineForField.get(p.getAbbreviation())));
+
+
+            lineForField.stream()
+                    .collect(Collectors.partitioningBy(p -> p));
+
+            locationTemplate.getTemplateMembers().stream().map(TemplateField::getName).collect(Collectors.joining(","));
+
             locationTemplate.getTemplateMembers().stream()
                     .forEach(templateMember -> {
                         if (locationTemplate.getSplitLineElements().isEmpty() || locationTemplate.getSplitLineElements().contains(templateMember.getAbbreviation())) {
@@ -766,9 +813,14 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                         }
 
                     });
+
+                    */
         }
-        return formattedLocation;
+
+      return formattedLocation;
     }
+
+
 
     @Override
     public Optional<Location> findDeviceLocation(String mRID) {

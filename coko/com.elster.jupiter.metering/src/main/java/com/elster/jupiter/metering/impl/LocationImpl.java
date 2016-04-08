@@ -110,7 +110,9 @@ public class LocationImpl implements Location {
 
     @Override
     public final String toString(){
-        return meteringService.getFormattedLocationMembers(getId()).keySet().stream().map(Object::toString).collect(Collectors.joining(","));
+        return meteringService.getFormattedLocationMembers(getId()).stream()
+                .flatMap(List::stream).collect(Collectors.joining(","));
+
     }
 }
 

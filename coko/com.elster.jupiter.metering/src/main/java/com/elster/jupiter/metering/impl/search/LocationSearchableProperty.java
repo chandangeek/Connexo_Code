@@ -39,7 +39,7 @@ public class LocationSearchableProperty extends AbstractSearchableUsagePointProp
     private UsagePointSearchDomain domain;
     private final Thesaurus thesaurus;
     private final Clock clock;
-    private static final String FIELDNAME = "locationID";
+    private static final String FIELDNAME = "location";
 
     @Inject
     public LocationSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus, Clock clock) {
@@ -129,7 +129,7 @@ public class LocationSearchableProperty extends AbstractSearchableUsagePointProp
             public SqlFragment toFragment() {
                 return getBuilderFor(specification);
             }
-        }, new String[]{"locationID"});
+        }, new String[]{"location"});
         return specialCases;
     }
 

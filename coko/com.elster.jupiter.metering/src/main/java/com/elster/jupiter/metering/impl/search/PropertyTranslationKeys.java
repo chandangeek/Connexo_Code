@@ -44,7 +44,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_GROUP_WATER("usagepoint.group.water", "Water"),
 
     USAGEPOINT_DOMAIN("usagepoint.domain", "Usage point"),
-    USAGEPOINT_LOCATION("usagepoint.locationID", "Location")
+    USAGEPOINT_LOCATION("usagepoint.location", "Location")
 
     ;
 

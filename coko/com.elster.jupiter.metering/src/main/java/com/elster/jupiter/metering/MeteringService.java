@@ -152,7 +152,7 @@ public interface MeteringService {
     Query<LocationMember> getLocationMemberQuery();
     void createLocationTemplate();
     LocationTemplate getLocationTemplate();
-    Map<String,Boolean> getFormattedLocationMembers(long id);
+    List<List<String>> getFormattedLocationMembers(long id);
     GeoCoordinates createGeoCoordinates(String coordinates);
     Optional<GeoCoordinates> findGeoCoordinates(long id);
     Optional<GeoCoordinates> findDeviceGeoCoordinates(String mRID);

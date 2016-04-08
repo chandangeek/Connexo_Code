@@ -100,7 +100,7 @@ public class UsagePointImpl implements UsagePoint {
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
-    private long locationID;
+    private long location;
 
     private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
     private TemporalReference<UsagePointMetrologyConfiguration> metrologyConfiguration = Temporals.absent();
