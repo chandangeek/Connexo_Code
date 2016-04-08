@@ -6,25 +6,31 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
+import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
     public static final String TYPE_IDENTIFIER = "U";
+
+    private final UsagePointRequirementsSearchDomain searchDomain;
 
     private List<MetrologyConfigurationMeterRoleUsageImpl> meterRoles = new ArrayList<>();
     private List<ReadingTypeRequirementMeterRoleUsage> requirementToRoleUsages = new ArrayList<>();
     private List<UsagePointRequirement> usagePointRequirements = new ArrayList<>();
 
     @Inject
-    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
+    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, UsagePointRequirementsSearchDomain searchDomain) {
         super(metrologyConfigurationService, eventService);
+        this.searchDomain = searchDomain;
     }
 
     @Override
@@ -102,7 +108,7 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
     public UsagePointRequirement addUsagePointRequirement(SearchablePropertyValue.ValueBean valueBean) {
         Optional<UsagePointRequirementImpl> existedUsagePointRequirement = getUsagePointRequirements()
                 .stream()
-                .filter(requirement -> requirement.getSearchablePropertyName().equals(valueBean.propertyName))
+                .filter(requirement -> requirement.getSearchableProperty().getName().equals(valueBean.propertyName))
                 .findAny()
                 .map(UsagePointRequirementImpl.class::cast);
         UsagePointRequirementImpl usagePointRequirement = existedUsagePointRequirement
@@ -127,5 +133,13 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
     @Override
     public List<UsagePointRequirement> getUsagePointRequirements() {
         return Collections.unmodifiableList(this.usagePointRequirements);
+    }
+
+    public List<SearchablePropertyValue> getUsagePointRequirementSearchableProperties() {
+        Map<String, SearchablePropertyValue.ValueBean> searchableProperties = getUsagePointRequirements().stream()
+                .map(UsagePointRequirement::toValueBean)
+                .collect(Collectors.toMap(req -> req.propertyName, Function.identity()));
+        return this.searchDomain
+                .getPropertiesValues(property -> new SearchablePropertyValue(property, searchableProperties.get(property.getName())));
     }
 }

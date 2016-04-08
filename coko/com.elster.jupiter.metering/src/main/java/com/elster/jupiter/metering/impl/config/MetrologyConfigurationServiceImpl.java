@@ -165,7 +165,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint) {
         LinkableMetrologyConfigurationFinder finder = new LinkableMetrologyConfigurationFinder(this.meteringService);
-        List<UsagePointMetrologyConfiguration> activeConfigs = getDataModel().query(UsagePointMetrologyConfiguration.class)
+        List<UsagePointMetrologyConfigurationImpl> activeConfigs = getDataModel().query(UsagePointMetrologyConfigurationImpl.class)
                 .select(where(MetrologyConfigurationImpl.Fields.STATUS.fieldName()).isEqualTo(MetrologyConfigurationStatus.ACTIVE));
         if (!activeConfigs.isEmpty()) {
             activeConfigs.stream()

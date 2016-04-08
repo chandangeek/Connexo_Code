@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
@@ -26,6 +27,8 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     Thesaurus thesaurus;
     @Mock
     ServerMetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    UsagePointRequirementsSearchDomain searchDomain;
 
     private MetrologyConfigurationImpl instanceA;
 
@@ -59,7 +62,7 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
 
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
-        UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(metrologyConfigurationService, eventService);
+        UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(metrologyConfigurationService, eventService, searchDomain);
         Reflection.field("id").ofType(Long.TYPE).in(subInst).set(INSTANCE_A_ID);
         return subInst;
     }

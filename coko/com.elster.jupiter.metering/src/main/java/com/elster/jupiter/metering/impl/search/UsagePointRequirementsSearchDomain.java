@@ -55,7 +55,8 @@ public class UsagePointRequirementsSearchDomain implements SearchDomain {
     @Override
     public List<SearchableProperty> getProperties() {
         return Arrays.asList(
-                new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
+                new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new OutageRegionSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
         );
     }
 
