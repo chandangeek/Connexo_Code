@@ -150,18 +150,21 @@ public class MetrologyConfigurationInfoFactory {
             PartiallySpecifiedReadingType partiallySpecifiedReadingType = (PartiallySpecifiedReadingType) requirement;
             info.type = "partiallySpecified";
             info.readingTypePattern = new ReadingTypePatternInfo();
-            info.readingTypePattern.value = partiallySpecifiedReadingType.getStringDescription();
+            info.readingTypePattern.value = partiallySpecifiedReadingType.getDescription();
             info.readingTypePattern.attributes = new ReadingTypePatternAttributeInfo();
             info.readingTypePattern.attributes.multiplier = partiallySpecifiedReadingType
-                    .getTranslatedAttributeValue(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER)
+                    .getAttributeValue(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER)
                     .map(Collections::singletonList).orElse(null);
             info.readingTypePattern.attributes.accumulation = partiallySpecifiedReadingType
-                    .getTranslatedAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION)
+                    .getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION)
                     .map(Collections::singletonList).orElse(null);
-            info.readingTypePattern.attributes.timePeriod = partiallySpecifiedReadingType
-                    .getTranslatedTimeValue()
+            info.readingTypePattern.attributes.timePeriod =
+                    Stream.of(partiallySpecifiedReadingType.getAttributeValue(ReadingTypeTemplateAttributeName.MACRO_PERIOD),
+                            partiallySpecifiedReadingType.getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION))
+                    .flatMap(com.elster.jupiter.util.streams.Functions.asStream()).findFirst()
                     .map(Collections::singletonList).orElse(null);
-            List<String> unitValues = partiallySpecifiedReadingType.getTranslatedUnitValues();
+            List<String> unitValues = partiallySpecifiedReadingType.getAttributeValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE)
+                    .stream().flatMap(com.elster.jupiter.util.streams.Functions.asStream()).collect(Collectors.toList());
             if(!unitValues.isEmpty()){
                 info.readingTypePattern.attributes.unit = unitValues;
             }
@@ -176,20 +179,17 @@ public class MetrologyConfigurationInfoFactory {
 
         @Override
         public Void visitConstant(ConstantNode constant) {
-            constant.getChildren().forEach(n -> n.accept(this));
             return null;
         }
 
         @Override
         public Void visitRequirement(ReadingTypeRequirementNode requirement) {
             readingTypeRequirementNodes.add(requirement);
-            requirement.getChildren().forEach(n -> n.accept(this));
             return null;
         }
 
         @Override
         public Void visitDeliverable(ReadingTypeDeliverableNode deliverable) {
-            deliverable.getChildren().forEach(n -> n.accept(this));
             return null;
         }
 
