@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -35,16 +36,8 @@ public class UsagePointInfo {
         version = usagePoint.getVersion();
         createTime = usagePoint.getCreateDate().toEpochMilli();
         modTime = usagePoint.getModificationDate().toEpochMilli();
-    /*    if (usagePoint.getLocationId()> 0){
-            usagePoint.getLocation()
-                .ifPresent(location -> {
-                    meteringService.getFormattedLocationMembers(location.getId())
-                            .ifPresent(formattedLocationMembers -> {
-                                location = formattedLocationMembers.stream().map(Object::toString).collect(Collectors.joining(","));
-                            });
-                });
-        }
-      */
+        location = usagePoint.getLocation().map(Location::toString).orElse("");
+
     }
 
     public void writeTo(UsagePoint usagePoint) {
