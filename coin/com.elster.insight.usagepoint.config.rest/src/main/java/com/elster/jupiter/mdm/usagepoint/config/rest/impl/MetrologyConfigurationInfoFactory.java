@@ -3,10 +3,11 @@ package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.search.rest.SearchCriteriaVisualizationInfo;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -23,7 +24,7 @@ public class MetrologyConfigurationInfoFactory {
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
     }
 
-    public MetrologyConfigurationInfo asInfo(MetrologyConfiguration metrologyConfiguration) {
+    public MetrologyConfigurationInfo asInfo(UsagePointMetrologyConfiguration metrologyConfiguration) {
         MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
         info.id = metrologyConfiguration.getId();
         info.name = metrologyConfiguration.getName();
@@ -34,11 +35,14 @@ public class MetrologyConfigurationInfoFactory {
         //TODO init
         info.meterRoles = Collections.emptyList();
         info.purposes = Collections.emptyList();
-        info.usagePointCriteria = "";
+        info.usagePointRequirements = metrologyConfiguration.getUsagePointRequirements()
+                .stream()
+                .map(requirement -> SearchCriteriaVisualizationInfo.from(requirement.getSearchableProperty(), requirement.toValueBean()))
+                .collect(Collectors.toList());
         return info;
     }
 
-    public MetrologyConfigurationInfo asDetailedInfo(MetrologyConfiguration meterConfiguration) {
+    public MetrologyConfigurationInfo asDetailedInfo(UsagePointMetrologyConfiguration meterConfiguration) {
         MetrologyConfigurationInfo info = asInfo(meterConfiguration);
         info.customPropertySets = meterConfiguration.getCustomPropertySets()
                 .stream()
