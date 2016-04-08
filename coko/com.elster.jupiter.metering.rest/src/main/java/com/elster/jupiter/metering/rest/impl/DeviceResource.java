@@ -89,9 +89,9 @@ public class DeviceResource {
     public MeterInfos getDevice(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
         MeterInfos result = null;
         if (maySeeAny(securityContext)) {
-            Optional<Meter> ometer = meteringService.findMeter(mRID);
-            if (ometer.isPresent()) {
-                result = new MeterInfos(ometer.get());
+            Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+            if (foundMeter.isPresent()) {
+                result = new MeterInfos(foundMeter.get());
             }
         }
         return result;
@@ -104,9 +104,9 @@ public class DeviceResource {
     public LocationMemberInfos getDeviceLocation(@PathParam("mRID") String mRID, @PathParam("locale") String locale, @Context SecurityContext securityContext) {
         LocationMemberInfos result = null;
         if (maySeeAny(securityContext)) {
-            Optional<Meter> ometer = meteringService.findMeter(mRID);
-            if (ometer.isPresent()) {
-                Optional<Location> location = meteringService.findDeviceLocation(ometer.get().getMRID());
+            Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+            if (foundMeter.isPresent()) {
+                Optional<Location> location = meteringService.findDeviceLocation(foundMeter.get().getMRID());
                 if (location.isPresent()) {
                     Optional<LocationMember> locationMember = location.get().getMember(locale);
                     if (locationMember.isPresent()) {
@@ -126,12 +126,11 @@ public class DeviceResource {
     public LocationMemberInfos getDeviceLocations(@PathParam("mRID") String mRID, @PathParam("locale") String locale, @Context SecurityContext securityContext) {
         LocationMemberInfos result = null;
         if (maySeeAny(securityContext)) {
-            Optional<Meter> ometer = meteringService.findMeter(mRID);
-            if (ometer.isPresent()) {
-                Optional<Location> location = meteringService.findDeviceLocation(ometer.get().getMRID());
+            Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+            if (foundMeter.isPresent()) {
+                Optional<Location> location = meteringService.findDeviceLocation(foundMeter.get().getMRID());
                 if (location.isPresent()) {
                     result = new LocationMemberInfos(location.get().getMembers());
-
                 }
             }
         }
