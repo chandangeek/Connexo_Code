@@ -108,7 +108,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
                     */
         }
-        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().toString() : null);
+        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
     }
 
 
