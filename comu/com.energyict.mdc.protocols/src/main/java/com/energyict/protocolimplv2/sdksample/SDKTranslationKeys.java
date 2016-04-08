@@ -28,7 +28,7 @@ public enum SDKTranslationKeys implements TranslationKey {
     SDKEAN13PROPERTY(Keys.SDKEAN13PROPERTY, "An EAN13 property"),
     SDKEAN18PROPERTY(Keys.SDKEAN18PROPERTY, "An EAN18 property"),
     SDKENCRYPTEDSTRINGPROPERTY(Keys.SDKENCRYPTEDSTRINGPROPERTY, "An encrypted string property"),
-    DEFAULT_OPTIONAL_PROPERTY("SDK.defaultOptionalProperty", "Default optional propertry"),
+    DEFAULT_OPTIONAL_PROPERTY("SDK.defaultOptionalProperty", "Default optional property"),
     DELAY_AFTER_REQUEST("SDK.delay.after.request", "Delay after request"),
     ACTIVE_METER_FIRMWARE_VERSION("SDK.activeMeterFirmwareVersion", "Active meter firmware version"),
     PASSIVE_METER_FIRMWARE_VERSION("SDK.passiveMeterFirmwareVersion", "Passive meter firmware version"),
@@ -40,6 +40,7 @@ public enum SDKTranslationKeys implements TranslationKey {
     CLOCK_OFFSET_WHEN_WRITING("SDK.clockOffsetWhenWriting", "Clock offset when writing"),
     SLAVE_ONE_SERIAL_NUMBER("SDK.slaveOneSerialNumber", "Slave one serial number"),
     SLAVE_TWO_SERIAL_NUMBER("SDK.slaveTwoSerialNumber", "Slave two serial number"),
+    BREAKER_STATUS("SDK.breakerStatus", "Breaker status"),
     ;
 
     private final String key;
