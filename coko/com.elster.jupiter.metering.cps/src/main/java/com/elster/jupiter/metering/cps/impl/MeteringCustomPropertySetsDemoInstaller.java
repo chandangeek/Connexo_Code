@@ -80,11 +80,11 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
 
     @Activate
     public void activate() {
-        getMeteringCustomPropertySets().forEach(customPropertySetService::addCustomPropertySet);
     }
 
     @Override
     public void install() {
+        this.getMeteringCustomPropertySets().forEach(customPropertySetService::addCustomPropertySet);
         customPropertySetService.findActiveCustomPropertySet(UsagePointGeneralDomainExtension.class.getName())
                 .ifPresent(this::addAllSets);
 //        customPropertySetService.findActiveCustomPropertySet(UsagePointMetrologyGeneralDomExt.class.getName())
