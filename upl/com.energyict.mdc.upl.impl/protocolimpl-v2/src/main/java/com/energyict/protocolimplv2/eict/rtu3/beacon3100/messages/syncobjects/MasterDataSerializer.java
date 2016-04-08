@@ -183,15 +183,7 @@ public class MasterDataSerializer {
     }
 
     private static Beacon3100MeterDetails createMeterDetails(Device device, Device masterDevice) {
-        final String callHomeId = device.getProtocolProperties().getStringProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
-        if (callHomeId == null || callHomeId.length() != 16) {
-            throw invalidFormatException(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, (callHomeId == null ? "null" : callHomeId), "Should be 16 hex characters");
-        }
-        try {
-            ProtocolTools.getBytesFromHexString(callHomeId, "");
-        } catch (NumberFormatException | IndexOutOfBoundsException e) {
-            throw invalidFormatException(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeId, "Should be 16 hex characters");
-        }
+        final String callHomeId = parseCallHomeId(device);
 
         final int deviceTypeId = device.getConfigurationId();   //The ID of the config, instead of the device type. Since every new config represents a unique device type in the Beacon model
 
@@ -216,6 +208,22 @@ public class MasterDataSerializer {
         return new Beacon3100MeterDetails(callHomeId, deviceTypeId, deviceTimeZone, device.getSerialNumber(), wrappedPassword, wrappedAK, wrappedEK);
     }
 
+    public static String parseCallHomeId(Device device) {
+        final String callHomeId = device.getProtocolProperties().getStringProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+        if (callHomeId == null) {
+            throw missingProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+        }
+        if (callHomeId.length() != 16) {
+            throw invalidFormatException(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeId, "Should be 16 hex characters");
+        }
+        try {
+            ProtocolTools.getBytesFromHexString(callHomeId, "");
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            throw invalidFormatException(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeId, "Should be 16 hex characters");
+        }
+        return callHomeId;
+    }
+
     private static MeteringWarehouse getMeteringWarehouse() {
         final MeteringWarehouse meteringWarehouse = MeteringWarehouse.getCurrent();
         if (meteringWarehouse == null) {
@@ -226,7 +234,7 @@ public class MasterDataSerializer {
         }
     }
 
-    private static String jsonSerialize(Object object) {
+    public static String jsonSerialize(Object object) {
         ObjectMapper mapper = ObjectMapperFactory.getObjectMapper();
         StringWriter writer = new StringWriter();
         try {
@@ -575,8 +583,32 @@ public class MasterDataSerializer {
      * Iterate over every defined security set to find a certain security property.
      * If it's not defined on any security set, return null.
      */
-    private static byte[] getSecurityKey(Device device, String propertyName) {
+    public static byte[] getSecurityKey(Device device, String propertyName) {
+        return getSecurityKey(device, propertyName, null);
+    }
+
+    /**
+     * Iterate over the security sets that have the given clientMacAddress to find a certain security property.
+     * If the given clientMacAddress is null, iterate over all security sets.
+     * If the requested property is not defined on any security set, return null.
+     */
+    public static byte[] getSecurityKey(Device device, String propertyName, Integer clientMacAddress) {
+        List<SecurityPropertySet> securitySets = new ArrayList<>();
         for (SecurityPropertySet securityPropertySet : device.getConfiguration().getCommunicationConfiguration().getSecurityPropertySets()) {
+            if (clientMacAddress == null) {
+                securitySets.add(securityPropertySet);
+            } else {
+                for (SecurityProperty protocolSecurityProperty : device.getProtocolSecurityProperties(securityPropertySet)) {
+                    //Only add this security set if it is for the given clientMacAddress
+                    if (protocolSecurityProperty.getName().equals(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()) &&
+                            ((BigDecimal) protocolSecurityProperty.getValue()).intValue() == clientMacAddress) {
+                        securitySets.add(securityPropertySet);
+                    }
+                }
+            }
+        }
+
+        for (SecurityPropertySet securityPropertySet : securitySets) {
             final List<SecurityProperty> securityProperties = device.getProtocolSecurityProperties(securityPropertySet);
             for (SecurityProperty securityProperty : securityProperties) {
                 if (securityProperty.getName().equals(propertyName)) {
@@ -592,8 +624,11 @@ public class MasterDataSerializer {
         return null;
     }
 
-    private static byte[] parseKey(String propertyName, String propertyValue) {
-        if (propertyValue == null || propertyValue.length() != 32) {
+    public static byte[] parseKey(String propertyName, String propertyValue) {
+        if (propertyValue == null) {
+            throw missingProperty(propertyName);
+        }
+        if (propertyValue.length() != 32) {
             throw invalidFormatException(propertyName, "(hidden)", "Should be 32 hex characters");
         }
         try {
@@ -604,7 +639,10 @@ public class MasterDataSerializer {
     }
 
     private static byte[] parseASCIIPassword(String propertyName, String propertyValue) {
-        if (propertyValue == null || (propertyValue.length() % 8) != 0) {
+        if (propertyValue == null) {
+            throw missingProperty(propertyName);
+        }
+        if ((propertyValue.length() % 8) != 0) {
             throw invalidFormatException(propertyName, "(hidden)", "Should be a multiple of 8 ASCII characters");
         }
         try {
@@ -616,5 +654,9 @@ public class MasterDataSerializer {
 
     private static ProtocolRuntimeException invalidFormatException(String propertyName, String propertyValue, String message) {
         return DeviceConfigurationException.invalidPropertyFormat(propertyName, propertyValue, message);
+    }
+
+    private static ProtocolRuntimeException missingProperty(String propertyName) {
+        return DeviceConfigurationException.missingProperty(propertyName);
     }
 }

@@ -32,6 +32,22 @@ public class DeviceMessageConstants {
     public static final String firmwareUpdateVersionNumberAttributeName = "FirmwareDeviceMessage.upgrade.version";
     public static final String firmwareUpdateUserFileAttributeName = "FirmwareDeviceMessage.upgrade.userfile";
     public static final String firmwareUpdateImageIdentifierAttributeName = "FirmwareDeviceMessage.image.identifier";
+    public static final String deviceIdsAttributeName = "FirmwareDeviceMessage.deviceIds";
+    public static final String UnicastClientWPort = "FirmwareDeviceMessage.UnicastClientWPort";
+    public static final String BroadcastClientWPort = "FirmwareDeviceMessage.BroadcastClientWPort";
+    public static final String LogicalDeviceLSap = "FirmwareDeviceMessage.LogicalDeviceLSap";
+    public static final String SecurityLevelUnicast = "FirmwareDeviceMessage.SecurityLevelUnicast";
+    public static final String SecurityLevelBroadcast = "FirmwareDeviceMessage.SecurityLevelBroadcast";
+    public static final String SecurityPolicyBroadcast = "FirmwareDeviceMessage.SecurityPolicyBroadcast";
+    public static final String DelayAfterLastBlock = "FirmwareDeviceMessage.DelayAfterLastBlock";
+    public static final String DelayPerBlock = "FirmwareDeviceMessage.DelayPerBlock";
+    public static final String DelayBetweenBlockSentFast = "FirmwareDeviceMessage.DelayBetweenBlockSentFast";
+    public static final String DelayBetweenBlockSentSlow = "FirmwareDeviceMessage.DelayBetweenBlockSentSlow";
+    public static final String BlocksPerCycle = "FirmwareDeviceMessage.BlocksPerCycle";
+    public static final String MaxCycles = "FirmwareDeviceMessage.MaxCycles";
+    public static final String RequestedBlockSize = "FirmwareDeviceMessage.RequestedBlockSize";
+    public static final String PadLastBlock = "FirmwareDeviceMessage.PadLastBlock";
+    public static final String UseTransferredBlockStatus = "FirmwareDeviceMessage.UseTransferredBlockStatus";
     public static final String resumeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.resume";
     public static final String plcTypeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.plc";
     public static final String firmwareUpdateURLAttributeName = "FirmwareDeviceMessage.upgrade.url";
@@ -218,7 +234,7 @@ public class DeviceMessageConstants {
     public static final String autoAnswerEndTime = "NetworkConnectivityMessage.autoanswer.endtime";
 
     public static final String enableDSTAttributeName = "ClockDeviceMessage.enabledst";
-    public static final String DSTDeviationAttributeName= "ClockDeviceMessage.dst.deviation";
+    public static final String DSTDeviationAttributeName = "ClockDeviceMessage.dst.deviation";
     public static final String SetDSTAttributeName = "ClockDeviceMessage.setdst";
     public static final String StartOfDSTAttributeName = "ClockDeviceMessage.startofdst";
     public static final String EndOfDSTAttributeName = "ClockDeviceMessage.endofdst";
@@ -355,7 +371,7 @@ public class DeviceMessageConstants {
     public static final String methanePercentageAttributeName = "ConfigurationChangeDeviceMessage.methane.percentage";
     public static final String higherCalorificValueAttributeName = "ConfigurationChangeDeviceMessage.highercalorificvalue";
     public static final String billingPeriodLengthAttributeName = "ConfigurationChangeDeviceMessage.billingperiod.length";
-    public static final String setOnDemandBillingDateAttributeName= "ConfigurationChangeDeviceMessage.ondemand.billing.date";
+    public static final String setOnDemandBillingDateAttributeName = "ConfigurationChangeDeviceMessage.ondemand.billing.date";
     public static final String OnDemandBillingReasonAttributeName = "ConfigurationChangeDeviceMessage.ondemand.billing.reason";
     public static final String UnitStatusAttributeName = "ConfigurationChangeDeviceMessage.unit.status";
     public static final String IgnoreDSTAttributeName = "ConfigurationChangeDeviceMessage.ignore.dst";
@@ -687,9 +703,9 @@ public class DeviceMessageConstants {
     public static final String SPECIAL_DATE_MODE_DURATION_DATE = "ACE4000ConfigurationMessages.SPECIAL_DATE_MODE_DURATION_DATE";
     public static final String SPECIAL_BILLING_REGISTER_RECORDING = "ACE4000ConfigurationMessages.SPECIAL_BILLING_REGISTER_RECORDING";
     public static final String SPECIAL_BILLING_REGISTER_RECORDING_INTERVAL = "ACE4000ConfigurationMessages.SPECIAL_BILLING_REGISTER_RECORDING_INTERVAL";
-    public static final String SPECIAL_BILLING_REGISTER_RECORDING_MAX_NUMBER_RECORDS =  "ACE4000ConfigurationMessages.SPECIAL_BILLING_REGISTER_RECORDING_MAX_NUMBER_RECORDS";
-    public static final String SPECIAL_LOAD_PROFILE =  "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE";
-    public static final String SPECIAL_LOAD_PROFILE_INTERVAL =  "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE_INTERVAL";
-    public static final String SPECIAL_LOAD_PROFILE_MAX_NO =  "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE_MAX_NO";
-    public static final String DISPLAY_MESSAGE =  "Display_Message";
+    public static final String SPECIAL_BILLING_REGISTER_RECORDING_MAX_NUMBER_RECORDS = "ACE4000ConfigurationMessages.SPECIAL_BILLING_REGISTER_RECORDING_MAX_NUMBER_RECORDS";
+    public static final String SPECIAL_LOAD_PROFILE = "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE";
+    public static final String SPECIAL_LOAD_PROFILE_INTERVAL = "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE_INTERVAL";
+    public static final String SPECIAL_LOAD_PROFILE_MAX_NO = "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE_MAX_NO";
+    public static final String DISPLAY_MESSAGE = "Display_Message";
 }

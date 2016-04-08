@@ -19,16 +19,21 @@ import java.math.BigDecimal;
 @XmlRootElement
 public class Beacon3100ProtocolTypedProperty {
 
-    private final String name;
-    private final String value;
-    private final PropertyType type;
+    private String name;
+    private String value;
+    private PropertyType type;
+
+    //JSon constructor
+    private Beacon3100ProtocolTypedProperty() {
+
+    }
 
     public Beacon3100ProtocolTypedProperty(String name, Object value) {
         this.name = name;
 
         if (value instanceof BigDecimal) {
             type = PropertyType.BigDecimal;
-            this.value = ((BigDecimal) value).toString();
+            this.value = value.toString();
         } else if (value instanceof TimeDuration) {
             type = PropertyType.TimeDuration;
             this.value = String.valueOf(((TimeDuration) value).getMilliSeconds());
@@ -40,7 +45,7 @@ public class Beacon3100ProtocolTypedProperty {
             this.value = ((HexString) value).getContent();
         } else if (value instanceof Boolean) {
             type = PropertyType.Boolean;
-            this.value = ((Boolean) value).toString();
+            this.value = value.toString();
         } else {
             type = PropertyType.Unknown;
             this.value = value.toString();
@@ -83,7 +88,7 @@ public class Beacon3100ProtocolTypedProperty {
 
         private final int type;
 
-        private PropertyType(int type) {
+        PropertyType(int type) {
             this.type = type;
         }
 
