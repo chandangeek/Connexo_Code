@@ -245,7 +245,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         if (deviceConfigurations.length === 1) {
             Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
                 success: function (deviceType) {
-                    debugger;
                     var logBookLink = me.getDeviceConfigurationLogBookLink();
                     if (logBookLink) {
                         if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
