@@ -99,7 +99,12 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
      * {@inheritDoc}
      */
     public byte[] readResponseWithRetries(byte[] byteRequestBuffer, boolean isAlreadyEncrypted) {
-        return secureCommunicate(byteRequestBuffer, isAlreadyEncrypted, false, true);
+        //framecounter out of sync (it was already incremented in sendRequest, so decrement it)
+        aso.getSecurityContext().decrementFrameCounter();
+        byte[] response = secureCommunicate(byteRequestBuffer, isAlreadyEncrypted, false, true);
+        //response sent, increment the framecounter
+        aso.getSecurityContext().incFrameCounter();
+        return response;
     }
 
     /**
