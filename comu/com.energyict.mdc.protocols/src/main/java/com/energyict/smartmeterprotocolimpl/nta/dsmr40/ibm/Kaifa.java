@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -31,8 +32,8 @@ public class Kaifa extends E350 {
     private Dsmr40Messaging messageProtocol = null;
 
     @Inject
-    public Kaifa(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(propertySpecService, clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
+    public Kaifa(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, CalendarService calendarService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(propertySpecService, clock, topologyService, calendarService, ormClient, readingTypeUtilService, loadProfileFactory);
     }
 
     public String getProtocolDescription() {
@@ -60,7 +61,7 @@ public class Kaifa extends E350 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this, this.getClock(), this.getTopologyService()));
+            messageProtocol = new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this, this.getClock(), this.getTopologyService(), this.getCalendarService()));
         }
         return messageProtocol;
     }

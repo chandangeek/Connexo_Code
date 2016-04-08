@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -27,19 +28,22 @@ import java.time.Clock;
  */
 public class Mx382 extends AbstractSmartNtaProtocol {
 
+    private final CalendarService calendarService;
+
     @Override
     public String getProtocolDescription() {
         return "Iskraemeco Mx382 DLMS (NTA DSMR2.3)";
     }
 
     @Inject
-    public Mx382(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+    public Mx382(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, CalendarService calendarService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+        this.calendarService = calendarService;
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, this.getClock(), this.getTopologyService()));
+        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, this.getClock(), this.getTopologyService(), this.calendarService));
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {

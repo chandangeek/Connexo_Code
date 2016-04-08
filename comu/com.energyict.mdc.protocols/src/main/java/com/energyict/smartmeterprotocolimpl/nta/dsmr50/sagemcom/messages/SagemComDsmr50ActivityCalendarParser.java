@@ -1,10 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
+import com.elster.jupiter.calendar.Calendar;
+
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
-import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsmr50ActivityCalendarParser;
 
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ import java.util.List;
  */
 public class SagemComDsmr50ActivityCalendarParser extends Dsmr50ActivityCalendarParser {
 
-    public SagemComDsmr50ActivityCalendarParser(Code ct, DLMSMeterConfig meterConfig) {
-        super(ct, meterConfig);
+    public SagemComDsmr50ActivityCalendarParser(Calendar calendar, DLMSMeterConfig meterConfig) {
+        super(calendar, meterConfig);
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -14,8 +15,8 @@ import java.time.Clock;
  */
 public class KaifaDsmr40MessageExecutor extends Dsmr40MessageExecutor {
 
-    public KaifaDsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService) {
-        super(protocol, clock, topologyService);
+    public KaifaDsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService, CalendarService calendarService) {
+        super(protocol, clock, topologyService, calendarService);
     }
 
     /**

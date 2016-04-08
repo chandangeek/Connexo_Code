@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.edp.messages;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.axrdencoding.*;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
@@ -10,11 +10,17 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.util.Date;
@@ -22,7 +28,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.configUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
 
 /**
  * Class that:
@@ -73,8 +83,8 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case activityCalendarCodeTableAttributeName:
-                Code code = (Code) messageAttribute;
-                EDPActivityCalendarParser parser = new EDPActivityCalendarParser(code);
+                Calendar calendar = (Calendar) messageAttribute;
+                EDPActivityCalendarParser parser = new EDPActivityCalendarParser(calendar);
                 try {
                     parser.parse();
                 } catch (IOException e) {

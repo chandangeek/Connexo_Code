@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -38,8 +39,8 @@ public class REMIDatalogger extends E350 {
     private XemexLoadProfileBuilder loadProfileBuilder;
 
     @Inject
-    public REMIDatalogger(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(propertySpecService, clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
+    public REMIDatalogger(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, CalendarService calendarService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(propertySpecService, clock, topologyService, calendarService, ormClient, readingTypeUtilService, loadProfileFactory);
     }
 
     @Override
@@ -92,7 +93,7 @@ public class REMIDatalogger extends E350 {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new XemexMessaging(new XemexMessageExecutor(this, this.getClock(), this.getTopologyService()));
+        return new XemexMessaging(new XemexMessageExecutor(this, this.getClock(), this.getTopologyService(), this.getCalendarService()));
     }
 
     @Override

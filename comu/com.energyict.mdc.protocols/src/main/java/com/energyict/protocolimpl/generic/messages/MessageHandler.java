@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.generic.messages;
 
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -428,19 +429,17 @@ public class MessageHandler extends DefaultHandler {
 
 	/* Activity Calendar Related messages
     /**********************************************/
-
-
     private String touActivationDate = "";
     private String touCalendarName = "";
-    private String touCodeTable = "";
+    private String touCalendar = "";
     private String touUserFile = "";
-    private String touSpecialDaysCodeTable = "";
+    private String touSpecialDaysCalendar = "";
     private String deleteEntry = "";
 
     private void handleTOUMessage(Attributes attrbs) {
         this.touActivationDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_DATE));
         this.touCalendarName = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_NAME);
-        this.touCodeTable = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE);
+        this.touCalendar = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE);
         this.touUserFile = attrbs.getValue(RtuMessageConstant.TOU_ACTIVITY_USER_FILE);
     }
 
@@ -449,7 +448,7 @@ public class MessageHandler extends DefaultHandler {
     }
 
     private void handleSpecialDays(Attributes attrbs) {
-        this.touSpecialDaysCodeTable = attrbs.getValue(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE);
+        this.touSpecialDaysCalendar = attrbs.getValue(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE);
     }
 
     private void handleSpecialDaysDelete(Attributes attrbs) {
@@ -464,16 +463,16 @@ public class MessageHandler extends DefaultHandler {
         return this.touCalendarName;
     }
 
-    public String getTOUCodeTable() {
-        return this.touCodeTable;
+    public String getTOUCalendar() {
+        return this.touCalendar;
     }
 
     public String getTOUUserFile() {
         return this.touUserFile;
     }
 
-    public String getSpecialDaysCodeTable() {
-        return this.touSpecialDaysCodeTable;
+    public String getSpecialDaysCalendar() {
+        return this.touSpecialDaysCalendar;
     }
 
     public String getSpecialDayDeleteEntry() {

@@ -44,11 +44,11 @@ public class WeekProfiles extends Structure {
     /** The Sunday dayId of the current {@link com.energyict.dlms.cosem.attributeobjects.WeekProfiles} */
 	private Unsigned8 sunday;
 
-	private List dayIds;
+	private List<Long> dayIds;
 
 	public WeekProfiles(){
 		super();
-		dayIds = new ArrayList();
+		dayIds = new ArrayList<>();
         addDataType(weekProfileName);
         addDataType(monday);
         addDataType(tuesday);
@@ -97,10 +97,10 @@ public class WeekProfiles extends Structure {
 	 * Add all dayIds in order of appearance (starting Monday to Sunday)
 	 * @param dayId
 	 */
-	public void addWeekDay(int dayId, int dayIndex){
+	public void addWeekDay(long dayId, int dayIndex) {
 		dayIds.add(dayId);
         // have to increase the index with one because the weekprofileName is the first item
-        setDataType(dayIndex + 1, new Unsigned8(dayId));
+        setDataType(dayIndex + 1, new Unsigned8((int) dayId));
 	}
 
 	/**

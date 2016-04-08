@@ -1,14 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.energyict.mdc.device.topology.TopologyService;
+
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
-
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsmr50MessageExecutor;
 
@@ -27,13 +28,13 @@ import java.util.List;
  */
 public class SagemComDsmr50MessageExecutor extends Dsmr50MessageExecutor {
 
-    public SagemComDsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService) {
-        super(protocol, clock, topologyService);
+    public SagemComDsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService, CalendarService calendarService) {
+        super(protocol, clock, topologyService, calendarService);
     }
 
     @Override
-    protected ActivityCalendarMessage getActivityCalendarParser(Code ct) {
-        return new SagemComDsmr50ActivityCalendarParser(ct, getMeterConfig());
+    protected ActivityCalendarMessage getActivityCalendarParser(Calendar calendar) {
+        return new SagemComDsmr50ActivityCalendarParser(calendar, getMeterConfig());
     }
 
     /**

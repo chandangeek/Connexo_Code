@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.DayType;
+
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.codetables.CodeDayType;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.Map;
@@ -21,13 +22,13 @@ import java.util.Map;
  */
 public class Dsmr50ActivityCalendarParser extends ActivityCalendarMessage {
 
-    public Dsmr50ActivityCalendarParser(Code ct, DLMSMeterConfig meterConfig) {
-        super(ct, meterConfig);
+    public Dsmr50ActivityCalendarParser(Calendar calendar, DLMSMeterConfig meterConfig) {
+        super(calendar, meterConfig);
     }
 
     @Override
-    protected int getDayTypeName(CodeDayType cdt) {
-        return dayTypeIds.get(cdt.getId());     //Return an incremental 0-based ID
+    protected int getDayTypeName(DayType dayType) {
+        return dayTypeIds.get(dayType.getId());     //Return an incremental 0-based ID
     }
 
     /**
@@ -35,12 +36,12 @@ public class Dsmr50ActivityCalendarParser extends ActivityCalendarMessage {
      * This index number is used to create the AXDR arrays representing season profiles
      */
     @Override
-    protected Integer getSeasonProfileName(Map.Entry<OctetString, Integer> entry) {
-        return seasonIds.get(entry.getValue());
+    protected Long getSeasonProfileName(Map.Entry<OctetString, Long> entry) {
+        return Long.valueOf(periodIds.get(entry.getValue()));
     }
 
     @Override
-    protected OctetString getOctetStringFromInt(int weekProfileName) {
+    protected OctetString getOctetStringFromLong(long weekProfileName) {
         byte[] bytes = {(byte) weekProfileName};
         return OctetString.fromByteArray(bytes, bytes.length);
     }
