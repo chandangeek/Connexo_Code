@@ -37,6 +37,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.validation.ConstraintViolationException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -563,8 +565,8 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.requirement(req));
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The readingtype is not compatible with the dimension of the formula.");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
         }
     }
 
@@ -599,9 +601,10 @@ public class FormulaCrudTest {
                         "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp");
         try {
             deliverable1.setReadingType(temperatureRT);
+            deliverable1.update();
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The new readingtype is not compatible with the dimension of the formula(s).");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
         }
 
         ReadingType conskWhMonthlyRT =
@@ -652,9 +655,10 @@ public class FormulaCrudTest {
                         "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp");
         try {
             deliverable1.setReadingType(temperatureRT);
+            deliverable1.update();
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The new readingtype is not compatible with the dimension of the formula(s).");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
         }
 
         ReadingType conskWhMonthlyRT =
@@ -693,8 +697,8 @@ public class FormulaCrudTest {
         try {
             ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "Irregular readingtypes are not allowed for a deliverable.");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "Irregular readingtypes are not allowed for a deliverable.");
         }
     }
 
@@ -765,8 +769,8 @@ public class FormulaCrudTest {
         try {
             ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
         }
     }
 
@@ -851,8 +855,8 @@ public class FormulaCrudTest {
         try {
             ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
         }
     }
 
@@ -993,8 +997,8 @@ public class FormulaCrudTest {
         try {
             ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
             fail("InvalidNodeException expected!");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
         }
     }
 
@@ -1041,6 +1045,46 @@ public class FormulaCrudTest {
         } catch (InvalidNodeException e) {
             fail("No InvalidNodeException expected!");
         }
+    }
+
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testWrongUpdateReadingTypeOfDeliverableThatIsUsedInAnotherDeliverable() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config3", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType conskWhRT15min =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+        assertThat(conskWhRT15min != null);
+        config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
+
+        assertThat(config.getRequirements().size() == 1);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
+
+        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
+
+        ReadingType temperatureRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp");
+        try {
+            deliverable1.setReadingType(temperatureRT);
+            deliverable1.update();
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "The new readingtype is not compatible with the dimension of the formula(s).");
+        }
+
     }
 
 

@@ -301,7 +301,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public ReadingTypeDeliverable addReadingTypeDeliverable(String name, ReadingType readingType, Formula formula) {
-        if ((readingType != null) && (!readingType.isRegular())) {
+        /*if ((readingType != null) && (!readingType.isRegular())) {
             throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.IRREGULAR_READINGTYPE_IN_DELIVERABLE);
         }
         if (readingType != null && formula.getMode().equals(Formula.Mode.AUTO) &&  !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
@@ -316,7 +316,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
                     throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS);
                 }
             }
-        }
+        }*/
         ReadingTypeDeliverableImpl deliverable = this.metrologyConfigurationService.getDataModel().getInstance(ReadingTypeDeliverableImpl.class)
                 .init(this, name, readingType, formula);
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverable);
