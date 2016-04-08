@@ -19,7 +19,7 @@ import java.util.Set;
 @ProviderType
 public interface FirmwareService {
     String COMPONENTNAME = "FWC";
-    int MAX_FIRMWARE_FILE_SIZE = 50 * 1024 * 1024;
+    int MAX_FIRMWARE_FILE_SIZE = 150 * 1024 * 1024;
 
     // Firmware versions on a device type
 
