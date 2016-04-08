@@ -169,47 +169,49 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     actionMenu = widget.down('device-type-action-menu');
 
                 Ext.suspendLayouts();
+                if (widget.rendered) {
 
-                widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
-                    Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
-                );
-
-                deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + encodeURIComponent(deviceType.get('deviceLifeCycleId')));
-                deviceLifeCycleLink.setText(Ext.String.htmlEncode(deviceType.get('deviceLifeCycleName')));
-
-                registersLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
-                registersLink.setText(
-                    Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC',
-                        'No register types', '{0} register type', '{0} register types')
-                );
-
-                if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
-                    logBookLink.hide();
-                } else {
-                    logBookLink.show();
-                    logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
-                    logBookLink.setText(
-                        Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC',
-                            'No logbook types', '{0} logbook type', '{0} logbook types')
+                    widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+                    widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
+                        Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
                     );
-                }
 
-                loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
-                loadProfilesLink.setText(
-                    Uni.I18n.translatePlural('devicetype.loadprofiles', deviceType.get('loadProfileCount'), 'MDC',
-                        'No load profile types', '{0} load profile type', '{0} load profile types')
-                );
+                    deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + encodeURIComponent(deviceType.get('deviceLifeCycleId')));
+                    deviceLifeCycleLink.setText(Ext.String.htmlEncode(deviceType.get('deviceLifeCycleName')));
 
-                deviceConfigurationsLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/deviceconfigurations');
-                deviceConfigurationsLink.setText(
-                    Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC',
-                        'No device configurations', '{0} device configuration', '{0} device configurations')
-                );
+                    registersLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
+                    registersLink.setText(
+                        Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC',
+                            'No register types', '{0} register type', '{0} register types')
+                    );
 
-                widget.down('form').loadRecord(deviceType);
-                if (actionMenu) {
-                    actionMenu.record = deviceType;
+                    if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                        logBookLink.hide();
+                    } else {
+                        logBookLink.show();
+                        logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
+                        logBookLink.setText(
+                            Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC',
+                                'No logbook types', '{0} logbook type', '{0} logbook types')
+                        );
+                    }
+
+                    loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
+                    loadProfilesLink.setText(
+                        Uni.I18n.translatePlural('devicetype.loadprofiles', deviceType.get('loadProfileCount'), 'MDC',
+                            'No load profile types', '{0} load profile type', '{0} load profile types')
+                    );
+
+                    deviceConfigurationsLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/deviceconfigurations');
+                    deviceConfigurationsLink.setText(
+                        Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC',
+                            'No device configurations', '{0} device configuration', '{0} device configurations')
+                    );
+
+                    widget.down('form').loadRecord(deviceType);
+                    if (actionMenu) {
+                        actionMenu.record = deviceType;
+                    }
                 }
 
                 Ext.resumeLayouts(true);
@@ -518,10 +520,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
 
-                widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
-                    Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
-                );
+                if (widget.down('deviceTypeSideMenu')) {
+                    widget.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
+                    widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
+                        Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
+                    );
+                }
 
                 me.getDeviceTypeLogbookPanel().setTitle(Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'));
                 widget.setLoading(false);

@@ -651,6 +651,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showAddCustomAttributeSets'
                                         }
                                     }
+                                },
+                                timeofuse: {
+                                    title: Uni.I18n.translate('general.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
+                                    route: 'timeofuse',
+                                    privileges: Mdc.privileges.DeviceType.admin,
+                                    controller: 'Mdc.timeofuse.controller.TimeOfUse',
+                                    action: 'showTimeOfUseOverview'
                                 }
                             }
                         }

@@ -102,7 +102,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnRegister',
         'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
         'Mdc.controller.setup.MonitorProcesses',
-        'Mdc.controller.Search'
+        'Mdc.controller.Search',
+        'Mdc.timeofuse.controller.TimeOfUse'
     ],
 
     stores: [

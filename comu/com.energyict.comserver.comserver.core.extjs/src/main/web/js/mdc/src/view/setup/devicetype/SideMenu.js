@@ -59,44 +59,30 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
             }
         ];
 
-        me.executeIfDataLoggerSlave(function() {
-            me.down('#logbooksLink').hide();
-        });
-
-
-        me.callParent(arguments);
-
-        me.executeIfNoDataLoggerSlave();
-    },
-
-    executeIfDataLoggerSlave: function(executeWhenDetermined) {
-        var me = this;
         if (me.isDataLoggerSlave === undefined) {
             Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
                 success: function (deviceType) {
                     me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
                     if (me.isDataLoggerSlave) {
-                        executeWhenDetermined();
+                        me.down('#logbooksLink').hide();
+                    } else {
+                        me.executeIfNoDataLoggerSlave();
                     }
+                },
+                failure: function (deviceType) {
+                    me.executeIfNoDataLoggerSlave();
                 }
-            });
-        } else if (me.isDataLoggerSlave) {
-            executeWhenDetermined();
+
+            })
         }
+
+
+        me.callParent(arguments);
     },
 
     executeIfNoDataLoggerSlave: function () {
         var me = this;
-        if (me.isDataLoggerSlave === undefined) {
-            Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
-                success: function (deviceType) {
-                    me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
-                    if (!me.isDataLoggerSlave) {
-                        me.addMenuWithFirmware();
-                    }
-                }
-            });
-        } else if (!me.isDataLoggerSlave) {
+        if (!me.isDataLoggerSlave) {
             me.addMenuWithFirmware();
         } else {
             me.addMenuWithoutFirmware();
@@ -106,20 +92,21 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
     addMenuWithFirmware: function () {
         var me = this;
         me.addMenuItems([{
-            title: Uni.I18n.translate('general.specifications', 'FWC', 'Specifications'),
+            title: Uni.I18n.translate('general.specifications', 'MDC', 'Specifications'),
             items: [
                 {
-                    text: Uni.I18n.translate('general.firmwareManagementOptions', 'FWC', 'Firmware management options'),
+                    text: Uni.I18n.translate('general.firmwareManagementOptions', 'MDC', 'Firmware management options'),
                     itemId: 'firmwareoptionsLink',
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmware/options'
                 },
                 {
-                    text: Uni.I18n.translate('general.firmwareVersions', 'FWC', 'Firmware versions'),
+                    text: Uni.I18n.translate('general.firmwareVersions', 'MDC', 'Firmware versions'),
                     itemId: 'firmwareversionsLink',
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmware/versions'
                 },
                 {
-                    text: Uni.I18n.translate('devicetypemenu.timeofuse', 'MDC', 'Time of use'),
+                    text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
+                    privileges: Mdc.privileges.DeviceType.admin,
                     itemId: 'timeOfUseLink',
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/timeofuse'
                 }
@@ -134,12 +121,19 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
             itemId: 'specifications-menu-item',
             items: [
                 {
-                    text: Uni.I18n.translate('devicetypemenu.timeofuse', 'MDC', 'Time of use'),
+                    text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
+                    privileges: Mdc.privileges.DeviceType.admin,
                     itemId: 'timeOfUseLink',
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/timeofuse'
                 }
             ]
         }]);
+    },
+
+    setDeviceTypeLink: function (name) {
+        if (this.down('#overviewLink')) {
+            this.down('#overviewLink').setText(name);
+        }
     }
 });
 
