@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -75,7 +76,7 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     public PagedInfoList getMetrologyConfigurations(@BeanParam JsonQueryParameters queryParameters) {
-        List<MetrologyConfiguration> allMetrologyConfigurations = metrologyConfigurationService.findAllMetrologyConfigurations();
+        List<UsagePointMetrologyConfiguration> allMetrologyConfigurations = metrologyConfigurationService.findAllUsagePointMetrologyConfigurations();
         List<MetrologyConfigurationInfo> metrologyConfigurationsInfos = ListPager.of(allMetrologyConfigurations).from(queryParameters).find()
                 .stream()
                 .map(metrologyConfigurationInfoFactory::asInfo)
@@ -102,7 +103,8 @@ public class MetrologyConfigurationResource {
         Just a stub, not to break a possibility to create metrology configuration from UI
          */
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newMetrologyConfiguration(metrologyConfigurationInfo.name, serviceCategory).create();
+        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(metrologyConfigurationInfo.name, serviceCategory)
+                .create();
         return Response.status(Response.Status.CREATED).entity(metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration)).build();
     }
 
@@ -125,7 +127,7 @@ public class MetrologyConfigurationResource {
     @Transactional
     public MetrologyConfigurationInfo activateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
         info.id = id;
-        MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
         metrologyConfiguration.activate();
         return metrologyConfigurationInfoFactory.asInfo(metrologyConfiguration);
     }
@@ -137,7 +139,7 @@ public class MetrologyConfigurationResource {
     @Transactional
     public Response deleteMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
         info.id = id;
-        MetrologyConfiguration mc = resourceHelper.findAndLockMetrologyConfiguration(info);
+        UsagePointMetrologyConfiguration mc = resourceHelper.findAndLockMetrologyConfiguration(info);
         if (checkIfInUse(mc)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
@@ -157,7 +159,7 @@ public class MetrologyConfigurationResource {
                                                                                 @Context SecurityContext securityContext,
                                                                                 @BeanParam JsonQueryParameters queryParameters,
                                                                                 @BeanParam JsonQueryFilter filter) {
-        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
         List<ValidationRuleSetInfo> validationRuleSetsInfos =
                 ListPager
                         .of(usagePointConfigurationService.getValidationRuleSets(metrologyConfiguration))
@@ -178,7 +180,7 @@ public class MetrologyConfigurationResource {
                                                                            ValidationRuleSetInfos validationRuleSetInfos,
                                                                            @BeanParam JsonQueryParameters queryParameters,
                                                                            @BeanParam JsonQueryFilter filter) {
-        MetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
         List<ValidationRuleSet> currentRules = usagePointConfigurationService.getValidationRuleSets(metrologyConfiguration);
         for (ValidationRuleSetInfo vrsi : validationRuleSetInfos.ruleSets) {
             ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(vrsi.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
@@ -203,7 +205,7 @@ public class MetrologyConfigurationResource {
     public PagedInfoList getAssignableValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
                                                                                   @BeanParam JsonQueryParameters queryParameters,
                                                                                   @BeanParam JsonQueryFilter filter) {
-        MetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
         List<ValidationRuleSet> assigned = usagePointConfigurationService.getValidationRuleSets(metrologyConfiguration);
         List<ValidationRuleSet> assignableValidationRuleSets = validationService.getValidationRuleSets().stream().filter(vrs -> !assigned.contains(vrs)).collect(Collectors.toList());
 
@@ -223,7 +225,7 @@ public class MetrologyConfigurationResource {
     public PagedInfoList getMetrologyConfigCustomPropertySets(@PathParam("id") long id,
                                                               @QueryParam("linked") @DefaultValue("true") boolean linked,
                                                               @BeanParam JsonQueryParameters queryParameters) {
-        MetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
         Stream<RegisteredCustomPropertySet> customPropertySets = metrologyConfiguration.getCustomPropertySets().stream();
         if (!linked) {
             Set<String> assignedCPSIds = customPropertySets
@@ -251,7 +253,7 @@ public class MetrologyConfigurationResource {
                                                                                    @BeanParam JsonQueryParameters queryParameters,
                                                                                    MetrologyConfigurationInfo info) {
         info.id = id;
-        MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
         if (info.customPropertySets != null) {
             info.customPropertySets
                     .stream()
@@ -275,7 +277,7 @@ public class MetrologyConfigurationResource {
             info.parent.id = id;
         }
         RegisteredCustomPropertySet customPropertySet = resourceHelper.getRegisteredCustomPropertySetOrThrowException(cpsId);
-        MetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
         if (metrologyConfiguration.getCustomPropertySets().contains(customPropertySet)){
             metrologyConfiguration = resourceHelper.findAndLockCPSOnMetrologyConfiguration(info);
             metrologyConfiguration.removeCustomPropertySet(customPropertySet);

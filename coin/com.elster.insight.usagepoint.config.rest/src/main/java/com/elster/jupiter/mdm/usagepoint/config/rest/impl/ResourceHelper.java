@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 
 import javax.inject.Inject;
@@ -24,22 +25,22 @@ public class ResourceHelper {
         this.customPropertySetService = customPropertySetService;
     }
 
-    public MetrologyConfiguration getMetrologyConfigOrThrowException(long metrologyConfigId) {
-        return metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+    public UsagePointMetrologyConfiguration getMetrologyConfigOrThrowException(long metrologyConfigId) {
+        return metrologyConfigurationService.findUsagePointMetrologyConfiguration(metrologyConfigId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
-    public Optional<MetrologyConfiguration> getLockedMetrologyConfiguration(long id, long version) {
-        return metrologyConfigurationService.findAndLockMetrologyConfiguration(id, version);
+    public Optional<UsagePointMetrologyConfiguration> getLockedMetrologyConfiguration(long id, long version) {
+        return metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(id, version);
     }
 
     public Long getCurrentMetrologyConfigurationVersion(long id) {
-        return metrologyConfigurationService.findMetrologyConfiguration(id)
+        return metrologyConfigurationService.findUsagePointMetrologyConfiguration(id)
                 .map(MetrologyConfiguration::getVersion)
                 .orElse(null);
     }
 
-    public MetrologyConfiguration findAndLockMetrologyConfiguration(MetrologyConfigurationInfo info) {
+    public UsagePointMetrologyConfiguration findAndLockMetrologyConfiguration(MetrologyConfigurationInfo info) {
         return getLockedMetrologyConfiguration(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualVersion(() -> getCurrentMetrologyConfigurationVersion(info.id))
@@ -53,7 +54,7 @@ public class ResourceHelper {
     }
 
     // In fact the CPS has no version, so we rely on metrology version
-    public MetrologyConfiguration findAndLockCPSOnMetrologyConfiguration(CustomPropertySetInfo<MetrologyConfigurationInfo> info) {
+    public UsagePointMetrologyConfiguration findAndLockCPSOnMetrologyConfiguration(CustomPropertySetInfo<MetrologyConfigurationInfo> info) {
         return getLockedMetrologyConfiguration(info.parent.id, info.parent.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualParent(() -> getCurrentMetrologyConfigurationVersion(info.parent.id), info.parent.id)
