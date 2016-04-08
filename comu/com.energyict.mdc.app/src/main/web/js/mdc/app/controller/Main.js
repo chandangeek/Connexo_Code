@@ -27,7 +27,8 @@ Ext.define('MdcApp.controller.Main', {
         'Bpm.privileges.BpmManagement',
         'Dbp.privileges.DeviceProcesses',
         'Mdc.privileges.UsagePoint',
-        'Scs.privileges.ServiceCall'
+        'Scs.privileges.ServiceCall',
+        'Mdc.privileges.Monitor'
 
     ],
     applicationTitle: 'Connexo MultiSense',
@@ -59,7 +60,8 @@ Ext.define('MdcApp.controller.Main', {
         Bpm.privileges.BpmManagement.all(),
         Dbp.privileges.DeviceProcesses.all(),
         Mdc.privileges.UsagePoint.all(),
-        Scs.privileges.ServiceCall.all()
+        Scs.privileges.ServiceCall.all(),
+        Mdc.privileges.Monitor.all()
 
     ),
     controllers: [
