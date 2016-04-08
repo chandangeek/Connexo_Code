@@ -34,25 +34,17 @@ public interface PartiallySpecifiedReadingType extends ReadingTypeRequirement {
     /**
      * @return A string value based on attributes
      */
-    String getStringDescription();
+    String getDescription();
 
     /**
-     * @return A time value
+     * @return A string value of attribute
+     * Returns empty if less than one value present in the template.
      */
-    Optional<String> getTranslatedTimeValue();
+    Optional<String> getAttributeValue(ReadingTypeTemplateAttributeName attributeName);
 
     /**
-     * @return A list of translated unit values without multipliers
+     * @return A list of attribute values
+     * Returns a list with single value if values overridden by specific value.
      */
-    List<String> getTranslatedUnitValues();
-
-    /**
-     * @param attributeName attribute unique id
-     * @return An Optional object with translated value
-     */
-    Optional<String> getTranslatedAttributeValue(ReadingTypeTemplateAttributeName attributeName);
-
-
-
-
+    List<Optional<String>>  getAttributeValues(ReadingTypeTemplateAttributeName attributeName);
 }
