@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -23,6 +22,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
@@ -197,5 +197,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
             throw new InvalidNodeException(((ServerMetrologyConfigurationService)metrologyConfigurationService).getThesaurus() , MessageSeeds.NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE);
         }
     }
+
+
 
 }

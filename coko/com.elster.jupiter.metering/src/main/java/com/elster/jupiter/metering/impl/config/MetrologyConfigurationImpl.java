@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
@@ -15,6 +16,8 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -28,8 +31,11 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -301,6 +307,16 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         if (readingType != null && formula.getMode().equals(Formula.Mode.AUTO) &&  !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
             throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA);
         }
+        if (readingType != null) {
+            IntervalLength intervalLengthOfReadingType = IntervalLength.from(readingType);
+            IntervalLength intervalLengthOfFormula = ((ServerFormula) formula).getIntervalLength();
+            //if no wildcards on interval in the requirements of the fomula
+            if (!intervalLengthOfFormula.equals(IntervalLength.NOT_SUPPORTED)) {
+                if (intervalLengthOfReadingType.ordinal() < intervalLengthOfFormula.ordinal()) {
+                    throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS);
+                }
+            }
+        }
         ReadingTypeDeliverableImpl deliverable = this.metrologyConfigurationService.getDataModel().getInstance(ReadingTypeDeliverableImpl.class)
                 .init(this, name, readingType, formula);
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverable);
@@ -308,6 +324,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         touch();
         return deliverable;
     }
+
 
     @Override
     public void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
