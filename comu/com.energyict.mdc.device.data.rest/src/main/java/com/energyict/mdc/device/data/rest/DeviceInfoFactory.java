@@ -96,16 +96,17 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         Optional<GeoCoordinates> geoCoordinates = meteringService.findDeviceGeoCoordinates(device.getmRID());
         String formattedLocation = "";
         if (location.isPresent()) {
-            Optional<Map<String, Boolean>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
-            if (formattedLocationMembers.isPresent()) {
-                formattedLocation = formattedLocationMembers.get().entrySet()
-                        .stream()
-                        .map(e ->
-                                e.getValue() == true ?
-                                        "\\r\\n" + (e.getKey() != null ? e.getKey() : "")
-                                        : e.getKey() != null ? e.getKey() : "")
-                        .collect(Collectors.joining(", "));
-            }
+            formattedLocation = meteringService.findDeviceLocation(device.getmRID()).map(Location::toString).orElse("");
+            /*Map<String, Boolean> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
+            formattedLocation = formattedLocationMembers.entrySet()
+                    .stream()
+                    .map(e ->
+                            e.getValue() == true ?
+                                    "\\r\\n" + (e.getKey() != null ? e.getKey() : "")
+                                    : e.getKey() != null ? e.getKey() : "")
+                    .collect(Collectors.joining(", "));
+
+                    */
         }
         return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().toString() : null);
     }

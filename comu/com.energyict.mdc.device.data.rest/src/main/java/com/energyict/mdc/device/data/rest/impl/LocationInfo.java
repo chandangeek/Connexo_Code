@@ -19,10 +19,7 @@ public class LocationInfo {
 
     public LocationInfo(Location location){
         this.id = location.getId();
-        Optional<List<? extends LocationMember>> locationMembers = location.getMembers();
-        if(locationMembers.isPresent()){
-            addAll(locationMembers.get());
-        }
+        addAll(location.getMembers());
     }
 
     private void addAll(List<? extends LocationMember> locationMembers){

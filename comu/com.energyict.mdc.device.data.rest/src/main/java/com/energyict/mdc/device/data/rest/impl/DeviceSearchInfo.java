@@ -69,13 +69,7 @@ public class DeviceSearchInfo {
         searchInfo.decommissionDate = lifecycleDates.getRetiredDate().orElse(null);
         searchInfo.validationActive = device.forValidation().isValidationActive();
         searchInfo.hasOpenDataValidationIssues = DeviceInfo.getOpenDataValidationIssue(device, meteringService, issueService, issueDataValidationService).isPresent();
-        meteringService.findDeviceLocation(device.getmRID())
-                .ifPresent(location -> {
-                    meteringService.getFormattedLocationMembers(location.getId())
-                            .ifPresent(formattedLocationMembers -> {
-                                searchInfo.location = formattedLocationMembers.keySet().stream().map(Object::toString).collect(Collectors.joining(","));
-                            });
-                });
+        searchInfo.location = meteringService.findDeviceLocation(device.getmRID()).map(Location::toString).orElse("");
 
         return searchInfo;
     }
