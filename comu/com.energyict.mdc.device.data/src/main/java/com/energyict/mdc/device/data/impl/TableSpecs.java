@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -14,6 +15,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
@@ -529,8 +531,8 @@ public enum TableSpecs {
             table.map(DataCollectionKpiImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.column("DISPLAYRANGEVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(DataCollectionKpiImpl.Fields.DISPLAY_PERIOD.fieldName()+".count").notNull().add();
-            table.column("DISPLAYRANGEUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(DataCollectionKpiImpl.Fields.DISPLAY_PERIOD.fieldName()+".timeUnitCode").notNull().add();
+            table.column("DISPLAYRANGEVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(DataCollectionKpiImpl.Fields.DISPLAY_PERIOD.fieldName() + ".count").notNull().add();
+            table.column("DISPLAYRANGEUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(DataCollectionKpiImpl.Fields.DISPLAY_PERIOD.fieldName() + ".timeUnitCode").notNull().add();
             Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
             Column connectionKpi = table.column("CONNECTIONKPI").number().add();
             Column comTaskExecKpi = table.column("COMMUNICATIONKPI").number().add();
@@ -626,12 +628,12 @@ public enum TableSpecs {
 
             table.primaryKey("PK_DDC_DEVESTACTIVATION").on(device).add();
             table.foreignKey("FK_DDC_DEVESTACTIVATION_DEVICE")
-                 .on(device)
-                 .references(DDC_DEVICE.name())
-                 .map(DeviceEstimationImpl.Fields.DEVICE.fieldName())
-                 .reverseMap("deviceEstimation")
-                 .onDelete(CASCADE)
-                 .add();
+                    .on(device)
+                    .references(DDC_DEVICE.name())
+                    .map(DeviceEstimationImpl.Fields.DEVICE.fieldName())
+                    .reverseMap("deviceEstimation")
+                    .onDelete(CASCADE)
+                    .add();
         }
     },
 
@@ -648,18 +650,18 @@ public enum TableSpecs {
 
             table.primaryKey("PK_DDC_DEVICEESTRULESETACT").on(estimationActivationColumn, estimationRuleSetColumn).add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_RULESET")
-                 .on(estimationRuleSetColumn)
-                 .references(EstimationRuleSet.class)
-                 .map(DeviceEstimationRuleSetActivationImpl.Fields.ESTIMATIONRULESET.fieldName())
-                 .add();
+                    .on(estimationRuleSetColumn)
+                    .references(EstimationRuleSet.class)
+                    .map(DeviceEstimationRuleSetActivationImpl.Fields.ESTIMATIONRULESET.fieldName())
+                    .add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_ESTACT")
-                 .on(estimationActivationColumn)
-                 .references(DDC_DEVICEESTACTIVATION.name())
-                 .map(DeviceEstimationRuleSetActivationImpl.Fields.ESTIMATIONACTIVATION.fieldName())
-                 .reverseMap(DeviceEstimationImpl.Fields.ESTRULESETACTIVATIONS.fieldName())
-                 .composition()
-                 .onDelete(CASCADE)
-                 .add();
+                    .on(estimationActivationColumn)
+                    .references(DDC_DEVICEESTACTIVATION.name())
+                    .map(DeviceEstimationRuleSetActivationImpl.Fields.ESTIMATIONACTIVATION.fieldName())
+                    .reverseMap(DeviceEstimationImpl.Fields.ESTRULESETACTIVATIONS.fieldName())
+                    .composition()
+                    .onDelete(CASCADE)
+                    .add();
         }
     },
 
@@ -736,7 +738,27 @@ public enum TableSpecs {
 
         }
     },
-    ;
+
+    DDC_BREAKER_STATUS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ActivatedBreakerStatus> table = dataModel.addTable(name(), ActivatedBreakerStatus.class);
+            table.map(ActivatedBreakerStatusImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column deviceColumn = table.column("DEVICEID").number().notNull().add();
+            table.column("BREAKERSTATUS").number().map(ActivatedBreakerStatusImpl.Fields.BREAKER_STATUS.fieldName()).conversion(NUMBER2ENUM).notNull().add();
+            table.column("LASTCHECKED").number().map(ActivatedBreakerStatusImpl.Fields.LAST_CHECKED.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.addIntervalColumns(ActivatedBreakerStatusImpl.Fields.INTERVAL.fieldName());
+            table.addAuditColumns();
+            table.primaryKey("PK_DDC_BREAKER_STATUS").on(idColumn).add();
+            table.foreignKey("FK_DDC_BREAKER_STATUS_DEVICE")
+                    .on(deviceColumn)
+                    .map(ActivatedBreakerStatusImpl.Fields.DEVICE.fieldName())
+                    .references(DDC_DEVICE.name())
+                    .onDelete(DeleteRule.CASCADE)
+                    .add();
+        }
+    };
 
     abstract void addTo(DataModel component);
 
