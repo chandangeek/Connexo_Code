@@ -56,6 +56,7 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -785,8 +786,13 @@ public class ComServerDAOImpl implements ComServerDAO {
         });
     }
 
-    private Instant now() {
-        return this.serviceProvider.clock().instant();
+    @Override
+    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+        Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedBreakerStatus.getDeviceIdentifier());
+        optionalDevice.ifPresent(device -> {
+            BreakerStatusStorage breakerStatusStorage = new BreakerStatusStorage(getDeviceDataService(), serviceProvider.clock());
+            breakerStatusStorage.updateBreakerStatus(collectedBreakerStatus.getBreakerStatus(), device);
+        });
     }
 
     @Override
@@ -798,6 +804,10 @@ public class ComServerDAOImpl implements ComServerDAO {
         LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
         loadProfileUpdater.setLastReadingIfLater(lastReading);
         loadProfileUpdater.update();
+    }
+
+    private Instant now() {
+        return this.serviceProvider.clock().instant();
     }
 
     private enum FutureMessageState {
