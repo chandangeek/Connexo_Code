@@ -1,5 +1,6 @@
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -90,6 +91,11 @@ class MissingValuesValidator extends AbstractValidator {
     @Override
     public Optional<ReadingQualityType> getReadingQualityTypeCode() {
         return Optional.of(new ReadingQualityType(READING_QUALITY_TYPE_CODE));
+    }
+
+    @Override
+    public Optional<QualityCodeIndex> getReadingQualityCodeIndex() {
+        return Optional.of(QualityCodeIndex.KNOWNMISSINGREAD);
     }
 
     @Override

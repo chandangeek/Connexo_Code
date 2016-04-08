@@ -1,5 +1,6 @@
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
@@ -45,6 +46,11 @@ abstract class AbstractValidator implements IValidator {
 
     @Override
     public Optional<ReadingQualityType> getReadingQualityTypeCode() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<QualityCodeIndex> getReadingQualityCodeIndex(){
         return Optional.empty();
     }
 
