@@ -3,6 +3,8 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
@@ -13,15 +15,18 @@ public class ResourceHelper {
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final MetrologyConfigurationService metrologyConfigurationService;
 
     @Inject
     public ResourceHelper(MeteringService meteringService,
                           ExceptionFactory exceptionFactory,
-                          ConcurrentModificationExceptionFactory conflictFactory) {
+                          ConcurrentModificationExceptionFactory conflictFactory,
+                          MetrologyConfigurationService metrologyConfigurationService) {
         super();
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     public UsagePoint findUsagePointByMrIdOrThrowException(String mrid) {
@@ -41,6 +46,10 @@ public class ResourceHelper {
 
     public ReadingType findReadingTypeByMrIdOrThrowException(String rt_mrid) {
         return meteringService.getReadingType(rt_mrid).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_READING_TYPE_FOR_MRID, rt_mrid));
+    }
+
+    public UsagePointMetrologyConfiguration findUsagePointMetrologyConfigurationOrThrowException(long id) {
+        return metrologyConfigurationService.findUsagePointMetrologyConfiguration(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
     }
 
     public UsagePoint lockUsagePointOrThrowException(UsagePointInfo info) {

@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -197,39 +198,52 @@ public class UsagePointResource {
         return new UsagePointMetrologyConfigurationInfos(configs);
     }
 
-    @POST
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICECATEGORY})
+    @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Transactional
     @Path("/{mrid}/metrologyconfiguration")
-    public Response linkMetrologyConfigurations(UsagePointMetrologyConfigurationInfo info,
-                                                @PathParam("mrid") String mrid,
+    public Response linkMetrologyConfigurations(@PathParam("mrid") String mrid,
                                                 @QueryParam("validate") boolean validate,
-                                                @QueryParam("customPropertySetId") long customPropertySetId) {
+                                                @QueryParam("customPropertySetId") long customPropertySetId,
+                                                UsagePointMetrologyConfigurationInfo info) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mrid);
 
-//        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mrid);
-//
-//        new RestValidationBuilder()
-//                .notEmpty(info.id, "id")
-//                .notEmpty(info.name, "name")
-//                .validate();
-//
-//        RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
-//                .stream()
-//                .filter(rcps -> rcps.getId() == customPropertySetId)
-//                .findAny()
-//                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
-//
-//        CustomPropertySetInfo customPropertySetInfo = info.customPropertySets.stream()
-//                .filter(cps -> cps.id == set.getId())
-//                .findFirst()
-//                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
-//
-//        customPropertySetService.validateCustomPropertySetValues(set.getCustomPropertySet(), customPropertySetInfoFactory
-//                .getCustomPropertySetValues(customPropertySetInfo, set.getCustomPropertySet()
-//                        .getPropertySpecs()));
-//        return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
-        return null;
+        new RestValidationBuilder()
+                .notEmpty(info.id, "id")
+                .notEmpty(info.name, "name")
+                .validate();
+
+        if (validate) {
+            if (customPropertySetId > 0) {
+                RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
+                        .stream()
+                        .filter(rcps -> rcps.getId() == customPropertySetId)
+                        .findAny()
+                        .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
+
+                CustomPropertySetInfo customPropertySetInfo = info.customPropertySets.stream()
+                        .filter(cps -> cps.id == set.getId())
+                        .findFirst()
+                        .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
+
+                customPropertySetService.validateCustomPropertySetValues(set.getCustomPropertySet(), customPropertySetInfoFactory
+                        .getCustomPropertySetValues(customPropertySetInfo, set.getCustomPropertySet()
+                                .getPropertySpecs()));
+            }
+            return Response.accepted().build();
+        }
+
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findUsagePointMetrologyConfigurationOrThrowException(info.id);
+        usagePoint.apply(usagePointMetrologyConfiguration);
+        for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
+            UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
+                    .getPropertySet(customPropertySetInfo.id);
+            propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
+                    propertySet.getCustomPropertySet().getPropertySpecs()));
+        }
+        return Response.status(Response.Status.OK).entity(usagePointInfoFactory.from(usagePoint)).build();
     }
 
     @GET

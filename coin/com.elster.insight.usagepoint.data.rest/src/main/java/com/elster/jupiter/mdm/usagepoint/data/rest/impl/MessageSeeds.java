@@ -23,7 +23,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_SERVICE_CATEGORY(14, Keys.NO_SUCH_SERVICE_CATEGORY, "Service category not found"),
     NO_SUCH_TECHNICAL_INFO(15, Keys.NO_SUCH_TECHNICAL_INFO, "Technical information for {0} should be provided"),
     NO_USAGE_POINT_FOR_ID(16, Keys.NO_USAGE_POINT_FOR_ID, "No usage point with ID {0}"),
-    BAD_REQUEST(17, Keys.BAD_REQUEST, "Bad request");
+    BAD_REQUEST(17, Keys.BAD_REQUEST, "Bad request"),
+    NO_METROLOGYCONFIG_FOR_ID(18, Keys.NO_METROLOGYCONFIG_FOR_ID, "No metrology configuration with id {0}");
     private final int number;
     private final String key;
     private final String format;
@@ -77,6 +78,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String NO_SUCH_SERVICE_CATEGORY = "NoSuchServiceCtegory";
         public static final String NO_SUCH_TECHNICAL_INFO = "NoSuchTechInfo";
         public static final String BAD_REQUEST = "BadRequest";
+        public static final String NO_METROLOGYCONFIG_FOR_ID = "NoMetrologyConfigWithId";
 
     }
 
