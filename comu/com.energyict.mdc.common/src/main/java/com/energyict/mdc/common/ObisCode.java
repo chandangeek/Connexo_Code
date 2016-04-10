@@ -266,6 +266,11 @@ public class ObisCode implements Serializable {
         token = tokenizer.nextToken();
         int e = Integer.parseInt(token);
         token = tokenizer.nextToken();
+
+        if(tokenizer.hasMoreElements()) {
+            throw new IllegalArgumentException("Invalid obis format");
+        }
+
         boolean hasRelativeBillingPoint = token.startsWith("VZ");
         int f;
         if (hasRelativeBillingPoint) {
