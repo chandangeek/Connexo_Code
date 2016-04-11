@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.users.UserDirectory;
@@ -39,33 +40,24 @@ public class UserServiceImplTest {
 
     private static final String DESCRIPTION = "description";
     private static final String AUTH_NAME = "authName";
+    private static final boolean printSql = true;
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-    private static class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {       
-           bind(BundleContext.class).toInstance(mock(BundleContext.class));  
-           bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-        }
-    }
     
-    private static final boolean printSql = true;
-
     @BeforeClass
     public static void setUp() throws SQLException {
         injector = Guice.createInjector(
-        			new MockModule(), 
-        			inMemoryBootstrapModule,  
-        			new UserModule(),
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new UserModule(),
         			//new EventsModule(),
-        			//new InMemoryMessagingModule(),
-        			new DomainUtilModule(), 
-        			new OrmModule(),
-        			new UtilModule(), 
-        			new ThreadSecurityModule(), 
-        			new PubSubModule(), 
-        			new TransactionModule(printSql),
+                new InMemoryMessagingModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(printSql),
         			new NlsModule(),
                     new DataVaultModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
@@ -81,29 +73,29 @@ public class UserServiceImplTest {
 
     @Test
     public void testCreateUser() {
-    	UserService userService = injector.getInstance(UserService.class);
-    	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             UserDirectory userDirectory = userService.findDefaultUserDirectory();
-    		User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false,true);
+            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false, true);
             user.update();
 
-    		assertThat(user.getName()).isEqualTo(AUTH_NAME);
-    		assertThat(user.getDescription()).isEqualTo(DESCRIPTION);
-    		// skip ctx.commit()
-    	}
+            assertThat(user.getName()).isEqualTo(AUTH_NAME);
+            assertThat(user.getDescription()).isEqualTo(DESCRIPTION);
+            // skip ctx.commit()
+        }
 
     }
 
     @Test
     public void testCreateUserPersists() {
-    	UserService userService = injector.getInstance(UserService.class);
-    	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             UserDirectory userDirectory = userService.findDefaultUserDirectory();
-            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false,true);
-    		user.update();
+            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false, true);
+            user.update();
 
-    		assertThat(userService.findUser(AUTH_NAME).isPresent()).isTrue();
-    		// skip ctx.commit()
+            assertThat(userService.findUser(AUTH_NAME).isPresent()).isTrue();
+            // skip ctx.commit()
     	}
     }
 
@@ -128,7 +120,7 @@ public class UserServiceImplTest {
             User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false, true);
             user.update();
 
-            Optional<User> lockedUser = userService.findAndLockUserByIdAndVersion(user.getId(), user.getVersion()+1);
+            Optional<User> lockedUser = userService.findAndLockUserByIdAndVersion(user.getId(), user.getVersion() + 1);
             assertThat(lockedUser.isPresent()).isFalse();
         }
     }
@@ -154,6 +146,14 @@ public class UserServiceImplTest {
 
             Optional<Group> lockedGroup = userService.findAndLockGroupByIdAndVersion(group.getId(), group.getVersion() + 1);
             assertThat(lockedGroup.isPresent()).isFalse();
+        }
+    }
+
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
         }
     }
 

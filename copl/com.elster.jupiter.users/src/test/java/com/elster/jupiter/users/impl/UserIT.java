@@ -4,6 +4,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -41,18 +42,6 @@ import static org.fest.reflect.core.Reflection.field;
 @RunWith(MockitoJUnitRunner.class)
 public class UserIT extends EqualsContractTest {
 
-    private Injector injector;
-    private User user;
-
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private EventAdmin eventAdmin;
-    @Mock
-    private DataModel dataModel;
-    @Mock
-    UserDirectory userDirectory;
-
     //userName placeholder as equals will be tested against the PK id
     private static final String TEST_USER_NAME = "userName";
     private static final String TEST_USER_DESCRIPTION = "userDescription";
@@ -60,21 +49,17 @@ public class UserIT extends EqualsContractTest {
     private static final boolean STATUS_ACTIVE = true;
     private static final long ID = 0;
     private static final long OTHER_ID = 1;
-
-
-
-
+    @Mock
+    UserDirectory userDirectory;
+    private Injector injector;
+    private User user;
+    @Mock
+    private BundleContext bundleContext;
+    @Mock
+    private EventAdmin eventAdmin;
+    @Mock
+    private DataModel dataModel;
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-        }
-    }
 
     @Before
     public void setUp() throws SQLException {
@@ -82,6 +67,7 @@ public class UserIT extends EqualsContractTest {
             injector = Guice.createInjector(
                     new MockModule(),
                     inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
                     new DomainUtilModule(),
                     new OrmModule(),
                     new UtilModule(),
@@ -103,26 +89,19 @@ public class UserIT extends EqualsContractTest {
         });
     }
 
-
-
     @After
     public void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
-    private void setId(Object entity, long id) {
-
-        field("id").ofType(Long.TYPE).in(entity).set(id);
-    }
-
     @Override
     protected Object getInstanceA() {
-        if(user==null) {
-          user = new UserImpl(dataModel).init(userDirectory, TEST_USER_NAME,TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
+        if (user == null) {
+            user = new UserImpl(dataModel).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
             setId(user, ID);
         }
         return user;
-        }
+    }
 
     @Override
     protected Object getInstanceEqualToA() {
@@ -133,7 +112,7 @@ public class UserIT extends EqualsContractTest {
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-       User userC = new UserImpl(dataModel).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
+        User userC = new UserImpl(dataModel).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
         setId(userC, OTHER_ID);
         return Collections.singletonList(userC);
     }
@@ -146,6 +125,11 @@ public class UserIT extends EqualsContractTest {
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
         return null;
+    }
+
+    private void setId(Object entity, long id) {
+
+        field("id").ofType(Long.TYPE).in(entity).set(id);
     }
 
     @Test
@@ -175,6 +159,15 @@ public class UserIT extends EqualsContractTest {
                 assertThat(found2.get()).isNotEqualTo(user);
             }
         });
+    }
+
+    private class MockModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(EventAdmin.class).toInstance(eventAdmin);
+        }
     }
 
 }
