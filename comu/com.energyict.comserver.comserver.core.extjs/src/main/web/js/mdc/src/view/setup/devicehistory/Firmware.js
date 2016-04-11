@@ -16,12 +16,12 @@ Ext.define('Mdc.view.setup.devicehistory.Firmware', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.type', 'FWC', 'Type'),
+                header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                 dataIndex: 'firmwareType',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.activationDate', 'FWC', 'Activation date'),
+                header: Uni.I18n.translate('general.activationDate', 'MDC', 'Activation date'),
                 dataIndex: 'activationDate',
                 flex: 1,
                 renderer: function (value) {
