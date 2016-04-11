@@ -100,6 +100,10 @@ public class ExpressionNodeParser {
             if (!readingTypeDeliverable.get().getMetrologyConfiguration().equals(metrologyConfiguration)) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.get().getId());
             }
+            if ((isAutoMode() && readingTypeDeliverable.get().getFormula().getMode().equals(Formula.Mode.EXPERT)) ||
+                    (isExpertMode() && readingTypeDeliverable.get().getFormula().getMode().equals(Formula.Mode.AUTO))){
+                throw new InvalidNodeException(thesaurus, MessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
+            }
             nodes.add(new ReadingTypeDeliverableNodeImpl(readingTypeDeliverable.get()));
         } else {
             throw new IllegalArgumentException("No deliverable found with id " + id);
@@ -182,6 +186,14 @@ public class ExpressionNodeParser {
 
     private int getNumberOfArguments() {
         return argumentCounters.get(argumentCounters.size() - 1).getValue();
+    }
+
+    private boolean isAutoMode() {
+        return mode.equals(Formula.Mode.AUTO);
+    }
+
+    private boolean isExpertMode() {
+        return !isAutoMode();
     }
 
 }
