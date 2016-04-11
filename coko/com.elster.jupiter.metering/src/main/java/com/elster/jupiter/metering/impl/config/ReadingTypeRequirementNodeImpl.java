@@ -6,6 +6,9 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.Dimension;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by igh on 4/02/2016.
  */
@@ -39,5 +42,12 @@ public class ReadingTypeRequirementNodeImpl extends AbstractNode implements Read
 
     public String toString() {
         return "R(" + readingTypeRequirement.get().getId() + ")";
+    }
+
+    @Override
+    public List<ReadingTypeRequirementNode> getRequirements() {
+        List<ReadingTypeRequirementNode> result =  new ArrayList<ReadingTypeRequirementNode>();
+        result.add(this);
+        return result;
     }
 }

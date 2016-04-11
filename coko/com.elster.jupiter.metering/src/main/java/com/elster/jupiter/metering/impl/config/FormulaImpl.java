@@ -2,12 +2,19 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Created by igh on 11/02/2016.
@@ -107,6 +114,21 @@ public class FormulaImpl implements ServerFormula {
             result = result + ", formula: " + expressionNode.get().toString();
         }
         return result;
+    }
+
+    @Override
+    //return the largest requirement interval or NOT_SUPPORTED if no requirements found or if only requirements with wildcards (for interval) found
+    public IntervalLength getIntervalLength() {
+        List<ReadingTypeRequirementNode> reqNodes =
+                ((AbstractNode) this.getExpressionNode()).getRequirements();
+        Optional<IntervalLength> intervalLength = reqNodes.stream().map(
+                reqNode -> ((ReadingTypeRequirementImpl) reqNode.getReadingTypeRequirement()).getIntervalLength())
+                .filter(lentgh -> !lentgh.equals(IntervalLength.NOT_SUPPORTED))
+                .sorted((a1, a2) -> Long.compare(a2.ordinal(), a1.ordinal())).findFirst();
+        if (intervalLength.isPresent()) {
+            return intervalLength.get();
+        }
+        return IntervalLength.NOT_SUPPORTED;
     }
 
 }
