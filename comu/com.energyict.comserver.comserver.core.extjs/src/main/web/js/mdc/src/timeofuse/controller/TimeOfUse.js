@@ -9,7 +9,10 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         'Mdc.timeofuse.view.ViewCalendarSetup'
     ],
 
-    stores: [],
+    stores: [
+        'Mdc.timeofuse.store.UsedCalendars',
+        'Mdc.timeofuse.store.UnusedCalendars'
+    ],
 
     models: [
         'Mdc.model.DeviceType',
@@ -77,7 +80,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     },
 
     addAvailableCalendar: function () {
-        debugger;
+        //todo: switch from stores
     },
 
     cancelAddCalendar: function () {
