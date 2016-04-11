@@ -63,7 +63,11 @@ public class DataAggregationCommands {
         this.transactionService = transactionService;
     }
 
-    public void aggregate(String usagePointMRID, String contractPurpose, String deliverableReadingType, String startDate) {
+    public void aggregate() {
+        System.out.println("Usage: aggregate <usage point MRID> <contract purpose> <deliverable name> <start date>");
+    }
+
+    public void aggregate(String usagePointMRID, String contractPurpose, String deliverableName, String startDate) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
@@ -75,16 +79,16 @@ public class DataAggregationCommands {
                     .findFirst()
                     .orElseThrow(() -> new NoSuchElementException("No contract for purpose " + contractPurpose));
             ReadingTypeDeliverable deliverable = contract.getDeliverables().stream()
-                    .filter(d -> d.getReadingType().getMRID().equals(deliverableReadingType))
+                    .filter(d -> d.getName().equals(deliverableName))
                     .findFirst()
-                    .orElseThrow(() -> new NoSuchElementException("No deliverable on contract for reading type " + deliverableReadingType));
+                    .orElseThrow(() -> new NoSuchElementException("Deliverable not found on contract"));
 
             Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
             CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), null));
 
             data.getCalculatedDataFor(deliverable).stream()
                     .map(reading -> LocalDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault())
-                            .format(DateTimeFormatter.BASIC_ISO_DATE) + " " + reading.getQuantity(reading.getReadingType()).getValue())
+                            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + " " + reading.getQuantity(reading.getReadingType()).getValue())
                     .forEach(System.out::println);
             context.commit();
         }

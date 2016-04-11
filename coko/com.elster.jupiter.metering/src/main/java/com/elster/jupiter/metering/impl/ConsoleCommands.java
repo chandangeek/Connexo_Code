@@ -376,10 +376,14 @@ public class ConsoleCommands {
     }
 
     public void addDeliverable() {
-        System.out.println("Usage: addDeliverable  <metrology configuration id> <name> <reading type> <formula string>");
+        System.out.println("Usage: addDeliverable  <metrology configuration id> <name> <reading type> <formula string> [mode]");
     }
 
     public void addDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
+        addDeliverable(metrologyConfigId, name, readingTypeString, formulaString, "AUTO");
+    }
+
+    public void addDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString, String mode) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
@@ -389,7 +393,7 @@ public class ConsoleCommands {
 
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration).parse(formulaString);
 
-            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO)).build(node).getId();
+            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.valueOf(mode))).build(node).getId();
             System.out.println("Deliverable created: " + id);
             context.commit();
         }
