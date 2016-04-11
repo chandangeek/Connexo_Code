@@ -6,6 +6,13 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
+
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
+import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -20,7 +27,6 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
-
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
@@ -37,6 +43,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 
 @Component(name = "com.elster.jupiter.metering.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true,
         property = {"alias=/mtr", "app=SYS", "name=" + MeteringApplication.COMPONENT_NAME})
