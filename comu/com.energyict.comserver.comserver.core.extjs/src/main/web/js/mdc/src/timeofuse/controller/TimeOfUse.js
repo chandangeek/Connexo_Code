@@ -71,6 +71,8 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
 
         me.getApplication().fireEvent('changecontentevent', view);
         me.deviceTypeId = deviceTypeId;
+        view.setLoading(true);
+        view.suspendLayouts();
         me.reconfigureMenu(deviceTypeId, view);
     },
 
@@ -107,6 +109,8 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             });
         me.getApplication().fireEvent('changecontentevent', view);
         me.deviceTypeId = deviceTypeId;
+        view.setLoading(true);
+        view.suspendLayouts();
         me.reconfigureMenu(deviceTypeId, view);
 
     },
@@ -135,6 +139,8 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         }, {single: true});
         me.deviceTypeId = deviceTypeId;
         me.getApplication().fireEvent('changecontentevent', view);
+        view.setLoading(true);
+        view.suspendLayouts();
         me.reconfigureMenu(deviceTypeId, view);
 
     },
