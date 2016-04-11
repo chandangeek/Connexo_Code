@@ -36,7 +36,11 @@ public interface BpmProcessDefinition extends HasDynamicPropertiesWithValues {
 
     String getStatus();
 
+    String getAppKey();
+
     void setStatus(String status);
+
+    void setAppKey(String appKey);
 
     void save();
 

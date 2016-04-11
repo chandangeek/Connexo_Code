@@ -7,14 +7,11 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.HasValidProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +32,7 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     private String association;
     private String version;
     private String status;
+    private String appKey;
 
     // Deprecated, for 10.1 compatibility only
     private List<BpmProcessDeviceState> processDeviceStates = new ArrayList<>();
@@ -54,15 +52,16 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
         this.bpmService = bpmService;
     }
 
-    static BpmProcessDefinitionImpl from(DataModel dataModel, String processName, String association, String version, String status ){
-        return dataModel.getInstance(BpmProcessDefinitionImpl.class).init(processName, association, version, status);
+    static BpmProcessDefinitionImpl from(DataModel dataModel, String processName, String association, String version, String status, String appKey){
+        return dataModel.getInstance(BpmProcessDefinitionImpl.class).init(processName, association, version, status, appKey);
     }
 
-    private BpmProcessDefinitionImpl init(String processName, String association, String version, String status ){
+    private BpmProcessDefinitionImpl init(String processName, String association, String version, String status, String appKey ){
         this.association = association;
         this.version = version;
         this.processName = processName;
         this.status = status;
+        this.appKey = appKey;
         return this;
     }
 
@@ -125,6 +124,16 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     @Override
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @Override
+    public String getAppKey(){
+        return appKey;
+    }
+
+    @Override
+    public void setAppKey(String appKey) {
+        this.appKey = appKey;
     }
 
     @Override

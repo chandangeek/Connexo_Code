@@ -217,7 +217,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         List<BpmProcessDefinition> bpmProcessDefinitions = dataModel.query(BpmProcessDefinition.class)
                 .select(nameCondition.and(versionCondition));
         if (bpmProcessDefinitions.isEmpty()) {
-            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status);
+            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status, "MDC");
         }
         bpmProcessDefinitions.get(0).setStatus(status);
         return bpmProcessDefinitions.get(0);
@@ -236,6 +236,13 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     @Override
     public List<BpmProcessDefinition> getActiveBpmProcessDefinitions() {
         return dataModel.query(BpmProcessDefinition.class).select(Operator.EQUALIGNORECASE.compare("status", "ACTIVE"));
+    }
+
+    @Override
+    public List<BpmProcessDefinition> getActiveBpmProcessDefinitions(String appKey) {
+        Condition statusCondition = Operator.EQUALIGNORECASE.compare("status", "ACTIVE");
+        Condition appKeyCondition = Operator.EQUALIGNORECASE.compare("appKey", appKey);
+        return dataModel.query(BpmProcessDefinition.class).select(statusCondition.and(appKeyCondition));
     }
 
     @Override

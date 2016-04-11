@@ -40,6 +40,8 @@ public interface BpmService {
 
     List<BpmProcessDefinition> getActiveBpmProcessDefinitions();
 
+    List<BpmProcessDefinition> getActiveBpmProcessDefinitions(String appKey);
+
     BpmProcessPrivilege createBpmProcessPrivilege(String privilegeName, String application);
 
     @Deprecated

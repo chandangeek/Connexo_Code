@@ -9,10 +9,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
-import static com.elster.jupiter.orm.DeleteRule.CASCADE;
-import static com.elster.jupiter.orm.Table.NAME_LENGTH;
-import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 public enum TableSpecs {
 
@@ -25,6 +25,7 @@ public enum TableSpecs {
             table.column("ASSOCIATION").varChar(NAME_LENGTH).notNull().map("association").add();
             table.column("VERSION").varChar(NAME_LENGTH).notNull().map("version").add();
             table.column("STATUS").varChar(NAME_LENGTH).notNull().map("status").add();
+            table.column("APPKEY").varChar(NAME_LENGTH).notNull().map("appKey").add();
             table.primaryKey("BPM_PK_PROCESS").on(idColumn).add();
         }
     },
