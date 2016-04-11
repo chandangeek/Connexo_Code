@@ -1,7 +1,9 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
@@ -25,6 +27,7 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
@@ -121,7 +124,11 @@ public class EventPushNotificationParser {
         byte[] cipherFrame = new byte[inboundFrame.remaining()];
         inboundFrame.get(cipherFrame);
         byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00, (byte) remainingLength, (byte) securityPolicy}, cipherFrame);
-        decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportDecryption(securityContext, fullCipherFrame));
+        try {
+            decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportDecryption(securityContext, fullCipherFrame));
+        } catch (DLMSConnectionException e) {
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
         byte plainTag = decryptedFrame.get();
         if (plainTag != getCosemNotificationAPDUTag()) {
             throw DataParseException.ioException(new ProtocolException("Unexpected tag after decrypting an incoming event push notification: " + plainTag + ", expected " + getCosemNotificationAPDUTag()));

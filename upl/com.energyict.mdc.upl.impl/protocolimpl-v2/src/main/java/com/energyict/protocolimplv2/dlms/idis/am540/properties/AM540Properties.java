@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
 import com.energyict.cbo.TimeDuration;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
@@ -26,7 +27,7 @@ public class AM540Properties extends IDISProperties {
     @Override
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null) {
-            securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
+            securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), DLMSConnectionException.REASON_CONTINUE_INVALID_FRAMECOUNTER);
         }
         return securityProvider;
     }

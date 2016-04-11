@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
 import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
@@ -21,7 +22,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
 
     public Beacon3100SecurityProvider(TypedProperties properties, int authenticationDeviceAccessLevel) {
         super(properties, authenticationDeviceAccessLevel);
-        setRespondingFrameCounterHandling(new G3RespondingFrameCounterHandler());
+        setRespondingFrameCounterHandling(new G3RespondingFrameCounterHandler(DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER));
     }
 
     /**
