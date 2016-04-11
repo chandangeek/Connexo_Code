@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -180,17 +181,17 @@ public class UsagePointResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICECATEGORY})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{mrid}/metrologyconfiguration/linkable")
     public UsagePointMetrologyConfigurationInfos getLinkableMetrologyConfigurations(@PathParam("mrid") String mrid) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
-        List<UsagePointMetrologyConfigurationInfo> configs = this.metrologyConfigurationService
+        List<UsagePointMetrologyConfigurationInfo> configs = metrologyConfigurationService
                 .findLinkableMetrologyConfigurations(usagePoint)
                 .stream()
                 .filter(mc -> !mc.getCustomPropertySets().stream().anyMatch(cas -> !cas.isEditableByCurrentUser()))
-                .map(mcinfo -> new UsagePointMetrologyConfigurationInfo(mcinfo, mcinfo.getCustomPropertySets()
+                .map(mc -> new UsagePointMetrologyConfigurationInfo(mc, mc.getCustomPropertySets()
                         .stream()
                         .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
                         .collect(Collectors.toList())))
@@ -219,7 +220,7 @@ public class UsagePointResource {
             if (customPropertySetId > 0) {
                 RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
                         .stream()
-                        .filter(rcps -> rcps.getId() == customPropertySetId)
+                        .filter(rcps -> rcps.getId() == customPropertySetId && rcps.isEditableByCurrentUser())
                         .findAny()
                         .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
 
@@ -228,9 +229,7 @@ public class UsagePointResource {
                         .findFirst()
                         .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
 
-                customPropertySetService.validateCustomPropertySetValues(set.getCustomPropertySet(), customPropertySetInfoFactory
-                        .getCustomPropertySetValues(customPropertySetInfo, set.getCustomPropertySet()
-                                .getPropertySpecs()));
+                validateCasValues(set, customPropertySetInfo);
             }
             return Response.accepted().build();
         }
@@ -244,6 +243,12 @@ public class UsagePointResource {
                     propertySet.getCustomPropertySet().getPropertySpecs()));
         }
         return Response.status(Response.Status.OK).entity(usagePointInfoFactory.from(usagePoint)).build();
+    }
+
+    private void validateCasValues(RegisteredCustomPropertySet set, CustomPropertySetInfo customPropertySetInfo) {
+        List<PropertySpec> specs = set.getCustomPropertySet().getPropertySpecs();
+        customPropertySetService.validateCustomPropertySetValues(set.getCustomPropertySet(), customPropertySetInfoFactory
+                .getCustomPropertySetValues(customPropertySetInfo, specs));
     }
 
     @GET
@@ -300,9 +305,8 @@ public class UsagePointResource {
                         .filter(cps -> cps.id == set.getId())
                         .findFirst()
                         .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
-                customPropertySetService.validateCustomPropertySetValues(set.getCustomPropertySet(), customPropertySetInfoFactory
-                        .getCustomPropertySetValues(customPropertySetInfo, set.getCustomPropertySet()
-                                .getPropertySpecs()));
+
+                validateCasValues(set, customPropertySetInfo);
             }
             return Response.accepted().build();
         }

@@ -1,17 +1,19 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by akuryuk on 07.04.2016.
- */
+@XmlRootElement
 public class UsagePointMetrologyConfigurationInfos {
-    public int total;
-    public List<UsagePointMetrologyConfigurationInfo> metrologyConfigurations = new ArrayList<>();
+    public int total = 0;
+    public List<UsagePointMetrologyConfigurationInfo> metrologyConfigurations = new ArrayList<UsagePointMetrologyConfigurationInfo>();
 
     UsagePointMetrologyConfigurationInfos(Iterable<? extends UsagePointMetrologyConfigurationInfo> usagePointMetrologyConfigurations) {
         addAll(usagePointMetrologyConfigurations);
+    }
+
+    public UsagePointMetrologyConfigurationInfos() {
     }
 
     UsagePointMetrologyConfigurationInfo add(UsagePointMetrologyConfigurationInfo usagePointMetrologyConfiguration) {
