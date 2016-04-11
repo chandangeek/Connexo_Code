@@ -16,6 +16,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -49,16 +50,13 @@ public class DeviceAttributesInfoFactory {
         Optional<GeoCoordinates> geoCoordinates = meteringService.findDeviceGeoCoordinates(device.getmRID());
         String formattedLocation = "";
         if (location.isPresent()) {
-            formattedLocation = meteringService.findDeviceLocation(device.getmRID()).map(Location::toString).orElse("");
-            /*Map<String, Boolean> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
-            formattedLocation = formattedLocationMembers.entrySet()
-                    .stream()
-                    .map(e ->
-                            e.getValue() == true ?
-                                    "\\r\\n" + (e.getKey() != null ? e.getKey() : "")
-                                    : e.getKey() != null ? e.getKey() : "")
-                    .collect(Collectors.joining(", "));
-                    */
+            List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get()
+                    .getId());
+            formattedLocationMembers.stream().forEach(list ->
+                    list.stream().findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
+            formattedLocation = formattedLocationMembers.stream()
+                    .flatMap(List::stream)
+                    .collect(Collectors.joining(","));
         }
 
         info.device = DeviceInfo.from(device, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);

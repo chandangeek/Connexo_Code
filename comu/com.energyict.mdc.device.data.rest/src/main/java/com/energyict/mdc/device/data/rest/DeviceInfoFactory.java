@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.rest.impl.DeviceSearchModelTranslationKeys;
 import com.energyict.mdc.device.data.rest.impl.DeviceTopologyInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -36,7 +37,8 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private IssueDataValidationService issueDataValidationService;
     private MeteringService meteringService;
 
-    public DeviceInfoFactory() {}
+    public DeviceInfoFactory() {
+    }
 
     @Inject
     public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService) {
@@ -96,19 +98,16 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         Optional<GeoCoordinates> geoCoordinates = meteringService.findDeviceGeoCoordinates(device.getmRID());
         String formattedLocation = "";
         if (location.isPresent()) {
-            formattedLocation = meteringService.findDeviceLocation(device.getmRID()).map(Location::toString).orElse("");
-            /*Map<String, Boolean> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get().getId());
-            formattedLocation = formattedLocationMembers.entrySet()
-                    .stream()
-                    .map(e ->
-                            e.getValue() == true ?
-                                    "\\r\\n" + (e.getKey() != null ? e.getKey() : "")
-                                    : e.getKey() != null ? e.getKey() : "")
-                    .collect(Collectors.joining(", "));
-
-                    */
+            List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get()
+                    .getId());
+            formattedLocationMembers.stream().forEach(list ->
+                    list.stream().findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
+            formattedLocation = formattedLocationMembers.stream()
+                    .flatMap(List::stream)
+                    .collect(Collectors.joining(","));
         }
-        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
+        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates
+                .isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
     }
 
 
@@ -137,7 +136,8 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
         // Default columns in proper order
         infos.add(0, createDescription("location", String.class));
-        infos.add(0, new PropertyDescriptionInfo("state.name", String.class, thesaurus.getFormat(DeviceSearchModelTranslationKeys.STATE).format()));
+        infos.add(0, new PropertyDescriptionInfo("state.name", String.class, thesaurus.getFormat(DeviceSearchModelTranslationKeys.STATE)
+                .format()));
         infos.add(0, createDescription("deviceConfigurationName", String.class));
         infos.add(0, createDescription("deviceTypeName", String.class));
         infos.add(0, createDescription("serialNumber", String.class));
