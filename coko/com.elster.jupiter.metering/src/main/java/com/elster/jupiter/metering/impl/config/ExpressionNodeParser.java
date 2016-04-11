@@ -118,7 +118,7 @@ public class ExpressionNodeParser {
             if (!readingTypeRequirement.get().getMetrologyConfiguration().equals(metrologyConfiguration)) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) readingTypeRequirement.get().getId());
             }
-            if (!readingTypeRequirement.get().isRegular()) {
+            if ((mode.equals(Formula.Mode.AUTO)) && (!readingTypeRequirement.get().isRegular())) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.IRREGULAR_READINGTYPE_IN_REQUIREMENT);
             }
             nodes.add(new ReadingTypeRequirementNodeImpl(readingTypeRequirement.get()));

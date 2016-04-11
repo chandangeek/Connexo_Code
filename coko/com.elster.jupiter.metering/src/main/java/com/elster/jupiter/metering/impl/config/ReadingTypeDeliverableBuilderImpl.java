@@ -56,7 +56,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         if (!requirement.getMetrologyConfiguration().equals(metrologyConfiguration)) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) requirement.getId());
         }
-        if (!requirement.isRegular()) {
+        if ((formulaBuilder.getMode().equals(Formula.Mode.AUTO)) && (!requirement.isRegular())) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.IRREGULAR_READINGTYPE_IN_REQUIREMENT);
         }
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.requirement(requirement));
