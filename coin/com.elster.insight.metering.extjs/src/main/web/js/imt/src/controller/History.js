@@ -391,6 +391,7 @@ Ext.define('Imt.controller.History', {
                             title: Uni.I18n.translate('general.label.definemetrologyconfiguration', 'IMT', 'Define metrology configuration'),
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'showWizard',
+                            privileges: Imt.privileges.UsagePoint.admin,
                             route: 'metrologyconfiguration/define',
                         }
            			}

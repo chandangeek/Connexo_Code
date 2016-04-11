@@ -444,6 +444,9 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             }
         }
         console.log(currentStep);
+        if(currentStep == 1){
+            wizard.getRecord().customPropertySets().removeAll();
+        }
 
         wizard.clearInvalid();
         if (direction > 0) {
@@ -471,7 +474,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         wizard.setLoading();
         record = wizard.getRecord();
         modelProxy = record.getProxy();
-        record.phantom = false;       // force 'POST' method for request otherwise 'PUT' will be performed
+        record.phantom = false;       // force 'PUT' method for request otherwise 'POST' will be performed
         modelProxy.appendId = false; // remove 'id' part from request url
         record.save(Ext.apply({
             callback: function () {

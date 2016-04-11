@@ -28,10 +28,9 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                 isWizardStep: true,
                 navigationIndex: 1,
                 ui: 'large',
-                isPossibleAdd: me.isPossibleAdd,
                 defaults: {
                     labelWidth: 260,
-                    width: 610
+                    width: 680
                 },
                 items: [
                     me.isPossibleAdd ?
@@ -48,7 +47,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                     me.isPossibleAdd ?
                     {
                         xtype: 'combobox',
-                        name: 'name',
+                        name: 'metrology',
                         itemId: 'metrology-configuration-combo',
                         fieldLabel: Uni.I18n.translate('general.label.metrologyConfiguration', 'IMT', 'Metrology configuration'),
                         afterSubTpl: '<span class="field-additional-info" style="color: #686868; font-style: italic">'
@@ -109,7 +108,8 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                     itemId: 'addButton',
                     text: Uni.I18n.translate('general.add', 'IMT', 'Add'),
                     ui: 'action',
-                    action: 'add'
+                    action: 'add',
+                    hidden: !me.isPossibleAdd
                 },
                 {
                     itemId: 'wizardCancelButton',
@@ -128,7 +128,6 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
         var me = this,
             step = me.getLayout().getActiveItem();
 
-        console.log(step.navigationIndex);
         switch (step.navigationIndex) {
             case 1:
                 var combo = step.down('#metrology-configuration-combo');
