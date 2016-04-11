@@ -79,6 +79,11 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
     }
 
     @Override
+    public String getAppKey() {
+        return APP_KEY;
+    }
+
+    @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(getMetrologyConfigurationsPropertySpec());
     }
