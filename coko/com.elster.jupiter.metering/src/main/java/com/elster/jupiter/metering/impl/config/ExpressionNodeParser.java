@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
@@ -100,6 +101,10 @@ public class ExpressionNodeParser {
             if (!readingTypeDeliverable.get().getMetrologyConfiguration().equals(metrologyConfiguration)) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.get().getId());
             }
+            if ((isAutoMode() && readingTypeDeliverable.get().getFormula().getMode().equals(Formula.Mode.EXPERT)) ||
+                    (isExpertMode() && readingTypeDeliverable.get().getFormula().getMode().equals(Formula.Mode.AUTO))){
+                throw new InvalidNodeException(thesaurus, MessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
+            }
             nodes.add(new ReadingTypeDeliverableNodeImpl(readingTypeDeliverable.get()));
         } else {
             throw new IllegalArgumentException("No deliverable found with id " + id);
@@ -121,6 +126,10 @@ public class ExpressionNodeParser {
             if ((mode.equals(Formula.Mode.AUTO)) && (!readingTypeRequirement.get().isRegular())) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.IRREGULAR_READINGTYPE_IN_REQUIREMENT);
             }
+            if ((mode.equals(Formula.Mode.AUTO) && (!UnitConversionSupport.isValidForAggregation(readingTypeRequirement.get().getUnit())))) {
+                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
+            }
+
             nodes.add(new ReadingTypeRequirementNodeImpl(readingTypeRequirement.get()));
         } else {
             throw new IllegalArgumentException("No requirement found with id " + id);
@@ -182,6 +191,14 @@ public class ExpressionNodeParser {
 
     private int getNumberOfArguments() {
         return argumentCounters.get(argumentCounters.size() - 1).getValue();
+    }
+
+    private boolean isAutoMode() {
+        return mode.equals(Formula.Mode.AUTO);
+    }
+
+    private boolean isExpertMode() {
+        return !isAutoMode();
     }
 
 }

@@ -71,6 +71,7 @@ import java.util.stream.Stream;
         "osgi.command.function=addRequirementWithTemplateReadingType",
         "osgi.command.function=deliverables",
         "osgi.command.function=addDeliverable",
+        "osgi.command.function=addDeliverableExpert",
         "osgi.command.function=updateDeliverable",
         "osgi.command.function=updateDeliverableReadingType",
         "osgi.command.function=updateDeliverableFormula",
@@ -380,6 +381,14 @@ public class ConsoleCommands {
     }
 
     public void addDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
+        doAddDeliverable(metrologyConfigId, name, readingTypeString, formulaString, Formula.Mode.AUTO);
+    }
+
+    public void addDeliverableExpert(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
+        doAddDeliverable(metrologyConfigId, name, readingTypeString, formulaString, Formula.Mode.EXPERT);
+    }
+
+    public void doAddDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString, Formula.Mode mode) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
@@ -387,9 +396,9 @@ public class ConsoleCommands {
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration, mode).parse(formulaString);
 
-            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO)).build(node).getId();
+            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, mode)).build(node).getId();
             System.out.println("Deliverable created: " + id);
             context.commit();
         }
