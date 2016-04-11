@@ -155,7 +155,28 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             case 'viewpreview':
                 me.forwardToCalendarView(1);
                 break;
+            case 'remove':
+                me.showRemovalPopup();
+                break;
         }
+    },
+
+    showRemovalPopup: function () {
+        var me = this;
+
+        Ext.create('Uni.view.window.Confirmation', {
+            confirmText: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+            cancelText: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
+        }).show({
+            msg: Uni.I18n.translate('timeofuse.removeMsg', 'MDC', 'You will no longer be able to send this time of use calendar to devices of this device type..'),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", 'timeOfUseCalendar'),
+            fn: function (btn) {
+                if (btn === 'confirm') {
+                    //remove calendar
+                }
+            }
+        });
+
     },
 
     reconfigureMenu: function (deviceTypeId, view) {
