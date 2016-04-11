@@ -150,7 +150,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
                 sqlBuilder.append("(");
                 sqlBuilder.append(expression);
                 sqlBuilder.append(" * ");
-                BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(targetReadingType.getUnitMultiplier().getMultiplier() - this.getUnitMultiplier().getMultiplier());
+                BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(this.getUnitMultiplier().getMultiplier() - targetReadingType.getUnitMultiplier().getMultiplier());
                 sqlBuilder.append(multiplierConversionFactor.toString());
                 sqlBuilder.append(")");
             }
@@ -192,7 +192,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         sqlBuilder.append(operator);
         BigDecimal intervalConversionFactor = this.getIntervalLength().getVolumeFlowConversionFactor();
         if (!this.getUnitMultiplier().equals(targetReadingType.getUnitMultiplier())) {
-            BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(targetReadingType.getUnitMultiplier().getMultiplier() - this.getUnitMultiplier().getMultiplier());
+            BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(this.getUnitMultiplier().getMultiplier() - targetReadingType.getUnitMultiplier().getMultiplier());
             sqlBuilder.append(intervalConversionFactor.multiply(multiplierConversionFactor).toString());
         }
         else {
