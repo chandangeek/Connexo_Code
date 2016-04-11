@@ -108,8 +108,8 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private void appendWithClause(SqlBuilder withClauseBuilder) {
         this.appendWithSelectClause(withClauseBuilder);
-        this.appendWithFromClause(withClauseBuilder);
-        this.appendWithJoinClauses(withClauseBuilder);
+        String sourceTableName = this.appendWithFromClause(withClauseBuilder);
+        this.appendWithJoinClauses(withClauseBuilder, sourceTableName);
     }
 
     private void appendWithSelectClause(SqlBuilder withClauseBuilder) {
@@ -122,13 +122,15 @@ class ReadingTypeDeliverableForMeterActivation {
                         withClauseBuilder);
     }
 
-    private void appendWithFromClause(SqlBuilder sqlBuilderBuilder) {
+    private String appendWithFromClause(SqlBuilder sqlBuilderBuilder) {
         sqlBuilderBuilder.append("  FROM ");
-        sqlBuilderBuilder.append(this.expressionNode.accept(new FromClauseForExpressionNode()));
+        String sourceTableName = this.expressionNode.accept(new FromClauseForExpressionNode());
+        sqlBuilderBuilder.append(sourceTableName);
+        return sourceTableName;
     }
 
-    private void appendWithJoinClauses(SqlBuilder sqlBuilder) {
-        JoinClausesForExpressionNode visitor = new JoinClausesForExpressionNode("  JOIN ");
+    private void appendWithJoinClauses(SqlBuilder sqlBuilder, String sourceTableName) {
+        JoinClausesForExpressionNode visitor = new JoinClausesForExpressionNode("  JOIN ", sourceTableName);
         this.expressionNode.accept(visitor);
         Iterator<String> iterator = visitor.joinClauses().iterator();
         while (iterator.hasNext()) {
