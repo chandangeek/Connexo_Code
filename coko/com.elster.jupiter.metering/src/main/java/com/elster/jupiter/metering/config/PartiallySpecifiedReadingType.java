@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.config;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 
 import java.util.Optional;
@@ -34,4 +35,6 @@ public interface PartiallySpecifiedReadingType extends ReadingTypeRequirement {
     MacroPeriod getMacroPeriod();
 
     TimeAttribute getMeasuringPeriod();
+
+    ReadingTypeUnit getUnit();
 }

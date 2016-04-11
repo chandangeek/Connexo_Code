@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
 import com.elster.jupiter.util.units.Dimension;
 import com.elster.jupiter.util.units.Unit;
 
@@ -131,6 +132,24 @@ public class UnitConversionSupport {
 
     private static boolean isDimensionless(Dimension dim) {
         return (dim.hasSameDimensions(Dimension.DIMENSIONLESS)) && (dim != Dimension.CURRENCY);
+    }
+
+    public static boolean isValidForAggregation(ReadingType readingType) {
+        return isValidForAggregation(readingType.getUnit());
+    }
+
+    public static boolean isValidForAggregation(ReadingTypeUnit unit) {
+        return (!unit.equals(ReadingTypeUnit.BOOLEAN)) &&  //109
+                (!unit.equals(ReadingTypeUnit.BOOLEANARRAY)) &&  //110
+                (!unit.equals(ReadingTypeUnit.ENCODEDVALUE)) &&  //114
+                (!unit.equals(ReadingTypeUnit.CHARACTERS)) &&  //76
+                (!unit.equals(ReadingTypeUnit.TIMESTAMP)) && //108
+                (!unit.equals(ReadingTypeUnit.ENDDEVICEEVENTCODE)) && //118
+                (!unit.equals(ReadingTypeUnit.NOTAPPLICABLE)); //0
+    }
+
+    public static boolean isValidForAggregation(PartiallySpecifiedReadingType readingType) {
+        return isValidForAggregation(readingType.getUnit());
     }
 
     static boolean isVolumeRelated(Dimension dim) {

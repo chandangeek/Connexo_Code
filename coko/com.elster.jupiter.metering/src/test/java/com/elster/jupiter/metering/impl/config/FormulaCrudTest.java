@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -36,6 +37,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.validation.ConstraintViolationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -501,7 +504,7 @@ public class FormulaCrudTest {
         assertThat(config != null);
         ReadingType readingTypeRequirement =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.1.12.0.41.109.0.0.0.0.0.0.0.0.0.109.0", "readingtype for requirement");
+                        "0.0.1.12.0.41.109.0.0.0.0.0.0.0.0.0.281.0", "readingtype for requirement");
         assertThat(readingTypeRequirement != null);
         config.newReadingTypeRequirement("consumption").withReadingType(readingTypeRequirement);
 
@@ -563,8 +566,8 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.requirement(req));
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The readingtype is not compatible with the dimension of the formula.");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
         }
     }
 
@@ -599,9 +602,10 @@ public class FormulaCrudTest {
                         "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp");
         try {
             deliverable1.setReadingType(temperatureRT);
+            deliverable1.update();
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The new readingtype is not compatible with the dimension of the formula(s).");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
         }
 
         ReadingType conskWhMonthlyRT =
@@ -652,9 +656,10 @@ public class FormulaCrudTest {
                         "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp");
         try {
             deliverable1.setReadingType(temperatureRT);
+            deliverable1.update();
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The new readingtype is not compatible with the dimension of the formula(s).");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
         }
 
         ReadingType conskWhMonthlyRT =
@@ -693,15 +698,15 @@ public class FormulaCrudTest {
         try {
             ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "Irregular readingtypes are not allowed for a deliverable.");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "Irregular readingtypes are not allowed for a deliverable.");
         }
     }
 
     @Test
     @Transactional
     // formula = Requirement
-    public void testIrregularReadingTypeOfRequirement() {
+    public void testIrregularReadingTypeOfRequirementByBuilder() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
@@ -714,6 +719,7 @@ public class FormulaCrudTest {
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0", "regRT");
         assertThat(regRT != null);
+
         config.newReadingTypeRequirement("Req2").withReadingType(regRT);
 
         assertThat(config.getRequirements().size() == 1);
@@ -724,6 +730,45 @@ public class FormulaCrudTest {
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
         try {
             ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "Irregular readingtypes are not allowed for a requirement.");
+        }
+    }
+
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testIrregularReadingTypeOfRequirementByParser() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config2", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType regRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0", "regRT");
+        assertThat(regRT != null);
+
+        config.newReadingTypeRequirement("ReqWithIrregularRT").withReadingType(regRT);
+        ReadingType conskWhMonthlyRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhMonthlyRT");
+        assertThat(conskWhMonthlyRT != null);
+
+
+        ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                config.getRequirements().get(0).getId()).get();
+
+        try {
+            ExpressionNode node =
+                    new ExpressionNodeParser(
+                            service.getThesaurus(), service, config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
+
             fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessage(), "Irregular readingtypes are not allowed for a requirement.");
@@ -765,8 +810,8 @@ public class FormulaCrudTest {
         try {
             ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
         }
     }
 
@@ -851,8 +896,8 @@ public class FormulaCrudTest {
         try {
             ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
         }
     }
 
@@ -993,8 +1038,8 @@ public class FormulaCrudTest {
         try {
             ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
             fail("InvalidNodeException expected!");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
         }
     }
 
@@ -1042,6 +1087,275 @@ public class FormulaCrudTest {
             fail("No InvalidNodeException expected!");
         }
     }
+
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testWrongUpdateReadingTypeOfDeliverableThatIsUsedInAnotherDeliverable() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config3", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType conskWhRT15min =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+        assertThat(conskWhRT15min != null);
+        config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
+
+        assertThat(config.getRequirements().size() == 1);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
+
+        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
+
+        ReadingType temperatureRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp");
+        try {
+            deliverable1.setReadingType(temperatureRT);
+            deliverable1.update();
+            fail("InvalidNodeException expected");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
+        }
+
+    }
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testCombinationOfAutoModeAndExpertMode() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config3", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType conskWhRT15min =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+        assertThat(conskWhRT15min != null);
+        config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
+
+        assertThat(config.getRequirements().size() == 1);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
+
+
+
+        try {
+            ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.EXPERT);
+            ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "Auto mode and export mode cannot be combined.");
+        }
+
+    }
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testCombinationOfExperAndAutoMode() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config3", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType conskWhRT15min =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+        assertThat(conskWhRT15min != null);
+        config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
+
+        assertThat(config.getRequirements().size() == 1);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.EXPERT);
+        ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
+
+
+
+        try {
+            ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.AUTO);
+            ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "Auto mode and export mode cannot be combined.");
+        }
+
+    }
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testInvalidReadingTypeOfDeliverableInAutoMode() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config4", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType status =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.5.12.0.41.109.0.0.0.0.0.0.0.0.0.108.0", "status");
+        assertThat(status != null);
+
+        try {
+            ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("InvalidDeliverable", status, Formula.Mode.AUTO);
+            ReadingTypeDeliverable deliverable = builder.build(builder.constant(10));
+            fail("InvalidNodeException expected");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype for the deliverable is not valid, it should represent a numerical value.");
+        }
+    }
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testInvalidReadingTypeOfDeliverableInExpertMode() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config4", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType status =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.5.12.0.41.109.0.0.0.0.0.0.0.0.0.108.0", "status");
+        assertThat(status != null);
+
+        try {
+            ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("InvalidDeliverable", status, Formula.Mode.EXPERT);
+            ReadingTypeDeliverable deliverable = builder.build(builder.constant(10));
+        } catch (ConstraintViolationException e) {
+            fail("No invalidNodeException expected");
+        }
+    }
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testInvalidReadingTypeOfRequirementByBuilder() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config2", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType regRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.5.12.0.41.109.0.0.0.0.0.0.0.0.0.108.0", "status");
+        assertThat(regRT != null);
+
+        config.newReadingTypeRequirement("Req2").withReadingType(regRT);
+
+        assertThat(config.getRequirements().size() == 1);
+        ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                config.getRequirements().get(0).getId()).get();
+
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
+        try {
+            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "The readingtype for a requirement is not valid, it should represent a numerical value.");
+        }
+    }
+
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testInvalidReadingTypeOfRequirementByParser() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config2", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType regRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.5.12.0.41.109.0.0.0.0.0.0.0.0.0.108.0", "status");
+        assertThat(regRT != null);
+
+        config.newReadingTypeRequirement("ReqWithInvalidRT").withReadingType(regRT);
+
+        ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                config.getRequirements().get(0).getId()).get();
+
+        try {
+            ExpressionNode node =
+                    new ExpressionNodeParser(
+                            service.getThesaurus(), service, config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
+
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "The readingtype for a requirement is not valid, it should represent a numerical value.");
+        }
+    }
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testInvalidReadingTypeForRequirementTemplate() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config2", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType regRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.5.12.0.41.109.0.0.0.0.0.0.0.0.0.108.0", "status");
+        assertThat(regRT != null);
+
+        ReadingTypeTemplate template = service.createReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS)
+                .setAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.BOOLEAN.getId()).done();
+
+        config.newReadingTypeRequirement("template").withReadingTypeTemplate(template);
+
+        ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                config.getRequirements().get(0).getId()).get();
+
+        try {
+            ExpressionNode node =
+                    new ExpressionNodeParser(
+                            service.getThesaurus(), service, config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
+
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "The readingtype for a requirement is not valid, it should represent a numerical value.");
+        }
+
+    }
+
+
+
+
 
 
 }
