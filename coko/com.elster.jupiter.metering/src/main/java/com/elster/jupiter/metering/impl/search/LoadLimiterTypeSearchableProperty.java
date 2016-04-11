@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -17,19 +15,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class MetrologyConfigurationSearchableProperty implements SearchableUsagePointProperty {
+public abstract class LoadLimiterTypeSearchableProperty implements SearchableUsagePointProperty {
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
+    //  private final LimiterSearchableProperty limiterElectricitySearchableProperty;
     private final Thesaurus thesaurus;
-    private final MetrologyConfigurationService metrologyConfigurationService;
-    private static final String FIELDNAME = "metrologyConfiguration.metrologyConfiguration";
+    private final SearchablePropertyGroup group;
+    private static final String FIELDNAME = "detail.loadLimiterType";
 
-    public MetrologyConfigurationSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus) {
+    public LoadLimiterTypeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
         super();
         this.domain = domain;
+        //   this.limiterElectricitySearchableProperty = limiterElectricitySearchableProperty;
         this.propertySpecService = propertySpecService;
-        this.metrologyConfigurationService = metrologyConfigurationService;
+        this.group = group;
         this.thesaurus = thesaurus;
     }
 
@@ -45,36 +45,22 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
 
     @Override
     public Optional<SearchablePropertyGroup> getGroup() {
-        return Optional.empty();
-    }
-
-    @Override
-    public PropertySpec getSpecification() {
-        MetrologyConfiguration[] metrologyConfigurations =
-                metrologyConfigurationService.findAllMetrologyConfigurations()
-                        .stream().toArray(MetrologyConfiguration[]::new);
-        return this.propertySpecService
-                .referenceSpec(MetrologyConfiguration.class)
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION)
-                .fromThesaurus(this.thesaurus)
-                .addValues(metrologyConfigurations)
-                .markExhaustive()
-                .finish();
+        return Optional.of(this.group);
     }
 
     @Override
     public Visibility getVisibility() {
-        return Visibility.STICKY;
+        return Visibility.REMOVABLE;
     }
 
     @Override
     public SelectionMode getSelectionMode() {
-        return SelectionMode.MULTI;
+        return SelectionMode.SINGLE;
     }
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_LOAD_LIMITER_TYPE.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -82,11 +68,20 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
         if (!this.valueCompatibleForDisplay(value)) {
             throw new IllegalArgumentException("Value not compatible with domain");
         }
-        return ((MetrologyConfiguration) value).getName();
+        return String.valueOf(value);
     }
 
     private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof MetrologyConfiguration;
+        return value instanceof String;
+    }
+
+    @Override
+    public PropertySpec getSpecification() {
+        return this.propertySpecService
+                .stringSpec()
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_LOAD_LIMITER_TYPE)
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
     @Override
@@ -96,12 +91,14 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        //nothing to refresh
+        if (!constrictions.isEmpty()) {
+            throw new IllegalArgumentException("No constraint to refresh");
+        }
     }
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("metrologyConfiguration.interval")
-                .isEffective(Instant.now()));
+        return specification.and(Where.where("detail.interval").isEffective(Instant.now()));
     }
+
 }

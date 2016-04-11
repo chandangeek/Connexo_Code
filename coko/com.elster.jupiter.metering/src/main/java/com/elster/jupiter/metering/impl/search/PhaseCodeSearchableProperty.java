@@ -17,17 +17,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class PhaseCodeSearchableProperty  implements SearchableUsagePointProperty{
+public class PhaseCodeSearchableProperty implements SearchableUsagePointProperty {
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
+    private final SearchablePropertyGroup group;
     private final Thesaurus thesaurus;
     private static final String FIELDNAME = "detail.phaseCode";
 
-    public PhaseCodeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public PhaseCodeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
+        this.group = group;
         this.thesaurus = thesaurus;
     }
 
@@ -43,7 +45,7 @@ public class PhaseCodeSearchableProperty  implements SearchableUsagePointPropert
 
     @Override
     public Optional<SearchablePropertyGroup> getGroup() {
-        return Optional.empty();
+        return Optional.of(this.group);
     }
 
     @Override
@@ -82,7 +84,7 @@ public class PhaseCodeSearchableProperty  implements SearchableUsagePointPropert
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.emptyList();
+        return Collections.singletonList(new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus));
     }
 
     private boolean valueCompatibleForDisplay(Object value) {
@@ -96,9 +98,7 @@ public class PhaseCodeSearchableProperty  implements SearchableUsagePointPropert
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("No constraint to refresh");
-        }
+
     }
 
     @Override

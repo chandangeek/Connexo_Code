@@ -28,7 +28,7 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "SERVICEKIND";
+    static final String FIELDNAME = "SERVICEKIND";
 
     public ServiceCategorySearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
@@ -44,7 +44,7 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return false;
+        return true;
     }
 
     @Override
@@ -101,9 +101,6 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("No constraint to refresh");
-        }
     }
 
     @Override

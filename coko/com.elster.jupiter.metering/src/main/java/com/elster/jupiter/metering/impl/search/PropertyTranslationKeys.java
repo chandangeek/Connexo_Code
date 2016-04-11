@@ -49,6 +49,13 @@ public enum PropertyTranslationKeys implements TranslationKey {
 
     USAGEPOINT_DOMAIN("usagepoint.domain", "Usage point"),
 
+    USAGEPOINT_LIMITER("usagepoint.limiter", "Limiter"),
+    USAGEPOINT_LOAD_LIMITER_TYPE("usagepoint.load.limiter.type", "Load limiter type"),
+    USAGEPOINT_LOADLIMIT("usagepoint.loadLimit", "Load limit"),
+    USAGEPOINT_COLLAR("usagepoint.collar", "Collar"),
+    USAGEPOINT_INTERRUPTABLE("usagepoint.interruptible", "Interruptible")
+
+
     ;
 
     private String key;

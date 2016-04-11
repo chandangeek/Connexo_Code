@@ -1,14 +1,14 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -17,19 +17,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class MetrologyConfigurationSearchableProperty implements SearchableUsagePointProperty {
+public abstract class CollarSearchableProperty implements SearchableUsagePointProperty {
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private final MetrologyConfigurationService metrologyConfigurationService;
-    private static final String FIELDNAME = "metrologyConfiguration.metrologyConfiguration";
+    private final SearchablePropertyGroup group;
+    private static final String FIELDNAME = "detail.collar";
 
-    public MetrologyConfigurationSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus) {
+    public CollarSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
         super();
         this.domain = domain;
+        this.group = group;
         this.propertySpecService = propertySpecService;
-        this.metrologyConfigurationService = metrologyConfigurationService;
         this.thesaurus = thesaurus;
     }
 
@@ -45,26 +45,12 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
 
     @Override
     public Optional<SearchablePropertyGroup> getGroup() {
-        return Optional.empty();
-    }
-
-    @Override
-    public PropertySpec getSpecification() {
-        MetrologyConfiguration[] metrologyConfigurations =
-                metrologyConfigurationService.findAllMetrologyConfigurations()
-                        .stream().toArray(MetrologyConfiguration[]::new);
-        return this.propertySpecService
-                .referenceSpec(MetrologyConfiguration.class)
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION)
-                .fromThesaurus(this.thesaurus)
-                .addValues(metrologyConfigurations)
-                .markExhaustive()
-                .finish();
+        return Optional.of(this.group);
     }
 
     @Override
     public Visibility getVisibility() {
-        return Visibility.STICKY;
+        return Visibility.REMOVABLE;
     }
 
     @Override
@@ -74,7 +60,7 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_COLLAR.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -82,26 +68,39 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
         if (!this.valueCompatibleForDisplay(value)) {
             throw new IllegalArgumentException("Value not compatible with domain");
         }
-        return ((MetrologyConfiguration) value).getName();
+        return this.toDisplayAfterValidation(value);
+    }
+
+    private String toDisplayAfterValidation(Object value) {
+        YesNoAnswer yesNoAnswer = (YesNoAnswer) value;
+        return yesNoAnswer.name();
     }
 
     private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof MetrologyConfiguration;
+        return value instanceof Enum;
+    }
+
+    @Override
+    public PropertySpec getSpecification() {
+        return this.propertySpecService
+                .specForValuesOf(new EnumFactory(YesNoAnswer.class))
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_COLLAR)
+                .fromThesaurus(this.thesaurus)
+                .addValues(YesNoAnswer.values())
+                .finish();
     }
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.emptyList();
+        return Collections.singletonList(new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus));
     }
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        //nothing to refresh
     }
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("metrologyConfiguration.interval")
-                .isEffective(Instant.now()));
+        return specification.and(Where.where("detail.interval").isEffective(Instant.now()));
     }
 }
