@@ -138,7 +138,9 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
      */
     String buildSqlUnitConversion(Formula.Mode mode, String expression, VirtualReadingType targetReadingType) {
         StringBuilder sqlBuilder = new StringBuilder();
-        if (this.getUnit().equals(targetReadingType.getUnit())) {
+        if (this.isDontCare()) {
+            sqlBuilder.append(expression);
+        } else if (this.getUnit().equals(targetReadingType.getUnit())) {
             // Unit is the same, consider multiplier
             if (this.getUnitMultiplier().equals(targetReadingType.getUnitMultiplier())) {
                 // Same multiplier, just append the expression and we're done
