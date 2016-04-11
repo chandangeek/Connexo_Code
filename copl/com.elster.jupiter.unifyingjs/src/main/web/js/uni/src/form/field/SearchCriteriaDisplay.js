@@ -87,7 +87,7 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
                 displayValue += '<br><br>';
             }
 
-            if (condition.operator === 'between') {
+            if (condition.operator.toLowerCase() === 'between') {
                 displayValue = Uni.I18n.translate('searchCriteriaDisplay.between', 'UNI', 'between {0} and {1}',
                     [me.formatValue(criteria, condition.criteria[0]), me.formatValue(criteria, condition.criteria[1])],
                     false);
