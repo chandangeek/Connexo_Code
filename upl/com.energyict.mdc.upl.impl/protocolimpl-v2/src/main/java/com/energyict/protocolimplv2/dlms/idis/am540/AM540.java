@@ -24,11 +24,13 @@ import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
+import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.slaveconnections.BeaconDlmsSession;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -55,6 +57,15 @@ public class AM540 extends AM130 implements SerialNumberSupport{
     @Override
     public String getVersion() {
         return "$Date: 2016-03-23 10:22:20 +0100 (Wed, 23 Mar 2016)$";
+    }
+
+    @Override
+    protected void initDlmsSession(ComChannel comChannel) {
+        if (getDlmsSessionProperties().useBeaconGatewayDeviceDialect() || getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            setDlmsSession(new BeaconDlmsSession(comChannel, getDlmsSessionProperties()));
+        } else {
+            super.initDlmsSession(comChannel);
+        }
     }
 
     /**
@@ -110,6 +121,15 @@ public class AM540 extends AM130 implements SerialNumberSupport{
     protected void readFrameCounter(ComChannel comChannel) {
         if (!getDlmsSessionProperties().usesPublicClient()) {
             super.readFrameCounter(comChannel);
+        }
+    }
+
+    @Override
+    protected DlmsSession getPublicDlmsSession(ComChannel comChannel, IDISProperties publicClientProperties) {
+        if (getDlmsSessionProperties().useBeaconGatewayDeviceDialect() || getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            return new BeaconDlmsSession(comChannel, publicClientProperties);
+        } else {
+            return super.getPublicDlmsSession(comChannel, publicClientProperties);
         }
     }
 

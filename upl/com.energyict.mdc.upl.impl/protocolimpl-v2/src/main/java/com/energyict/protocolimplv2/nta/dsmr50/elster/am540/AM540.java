@@ -46,6 +46,7 @@ import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.slaveconnections.BeaconDlmsSession;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
@@ -99,7 +100,15 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
             hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
         }
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
+        initDlmsSession(comChannel, hhuSignOn);
+    }
+
+    private void initDlmsSession(ComChannel comChannel, HHUSignOnV2 hhuSignOn) {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect() || getDlmsSessionProperties().useBeaconGatewayDeviceDialect()) {
+            setDlmsSession(new BeaconDlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
+        } else {
+            setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
+        }
     }
 
     private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
