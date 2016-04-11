@@ -168,6 +168,31 @@ public class UsagePointSearchDomain implements SearchDomain {
                             properties.add(new RatedPowerSearchableProperty(this, this.propertySpecService, electricityGroup, this.meteringService
                                     .getThesaurus()));
                         }
+                        if (constriction.getConstrainingValues().contains(ServiceKind.GAS)) {
+                            properties.add(new LimiterGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new LoadLimiterTypeGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new PhysicalCapacityGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new BypassGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new ValveGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new CappedGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new ClampedGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new GroundedGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new InterruptibleGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new PressureGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new BypassStatusGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                        }
+
                     });
         }
 

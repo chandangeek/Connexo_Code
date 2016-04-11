@@ -1,12 +1,14 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -71,16 +73,17 @@ public abstract class GroundedSearchableProperty implements SearchableUsagePoint
     }
 
     private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Boolean;
+        return value instanceof YesNoAnswer;
     }
 
 
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService
-                .booleanSpec()
+                .specForValuesOf(new EnumFactory(YesNoAnswer.class))
                 .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_GROUNDED)
                 .fromThesaurus(this.thesaurus)
+                .addValues(YesNoAnswer.values())
                 .finish();
     }
 
@@ -91,6 +94,7 @@ public abstract class GroundedSearchableProperty implements SearchableUsagePoint
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
+        //nothing to refresh
     }
 
     @Override

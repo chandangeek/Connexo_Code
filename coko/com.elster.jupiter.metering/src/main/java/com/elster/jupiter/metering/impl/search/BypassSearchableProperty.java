@@ -1,36 +1,36 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.QuantityValueFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.units.Quantity;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class RatedCurrentSearchableProperty implements SearchableUsagePointProperty {
+public abstract class BypassSearchableProperty implements SearchableUsagePointProperty {
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private final SearchablePropertyGroup group;
-    private static final String FIELDNAME = "detail.ratedCurrent";
 
-    public RatedCurrentSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
+    static final String FIELDNAME = "detail.bypass";
+
+    public BypassSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
         super();
         this.domain = domain;
-        this.group = group;
         this.propertySpecService = propertySpecService;
+        this.group = group;
         this.thesaurus = thesaurus;
     }
 
@@ -61,7 +61,7 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_RATEDCURRENT.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_BYPASS.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -73,22 +73,23 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
     }
 
     private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Quantity;
+        return value instanceof YesNoAnswer;
     }
+
 
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService
-                .specForValuesOf(new QuantityValueFactory())
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_RATEDCURRENT)
+                .specForValuesOf(new EnumFactory(YesNoAnswer.class))
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_BYPASS)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 1, "A"))
+                .addValues(YesNoAnswer.values())
                 .finish();
     }
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.emptyList();
+        return Collections.singletonList(new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus));
     }
 
     @Override

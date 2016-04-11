@@ -1,12 +1,14 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -15,15 +17,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class InterruptableSearchableProperty implements SearchableUsagePointProperty {
+public abstract class InterruptibleSearchableProperty implements SearchableUsagePointProperty {
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private final SearchablePropertyGroup group;
-    private static final String FIELDNAME = "detail.grounded";
+    private static final String FIELDNAME = "detail.interruptible";
 
-    public InterruptableSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
+    public InterruptibleSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
@@ -58,7 +60,7 @@ public abstract class InterruptableSearchableProperty implements SearchableUsage
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_GROUNDED.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_INTERRUPTABLE.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -70,16 +72,17 @@ public abstract class InterruptableSearchableProperty implements SearchableUsage
     }
 
     private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Boolean;
+        return value instanceof YesNoAnswer;
     }
 
 
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService
-                .booleanSpec()
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_GROUNDED)
+                .specForValuesOf(new EnumFactory(YesNoAnswer.class))
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_INTERRUPTABLE)
                 .fromThesaurus(this.thesaurus)
+                .addValues(YesNoAnswer.values())
                 .finish();
     }
 
@@ -90,6 +93,7 @@ public abstract class InterruptableSearchableProperty implements SearchableUsage
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
+        //nothing to refresh
     }
 
     @Override

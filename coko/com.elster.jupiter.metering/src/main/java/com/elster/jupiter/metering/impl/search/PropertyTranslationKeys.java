@@ -53,8 +53,14 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_LOAD_LIMITER_TYPE("usagepoint.load.limiter.type", "Load limiter type"),
     USAGEPOINT_LOADLIMIT("usagepoint.loadLimit", "Load limit"),
     USAGEPOINT_COLLAR("usagepoint.collar", "Collar"),
-    USAGEPOINT_INTERRUPTABLE("usagepoint.interruptible", "Interruptible")
-
+    USAGEPOINT_INTERRUPTABLE("usagepoint.interruptible", "Interruptible"),
+    USAGEPOINT_PHYSICAL_CAPACITY("usagepoint.physicalCapacity", "Physical capacity"),
+    USAGEPOINT_BYPASS("usagepoint.bypass", "Bypass"),
+    USAGEPOINT_VALVE("usagepoint.valve", "Valve"),
+    USAGEPOINT_CAPPED("usagepoint.capped", "Capped"),
+    USAPEPOINT_CLAMPED("usagepoint.clamped", "Clamped"),
+    USAGEPOINT_PRESSURE("usagepoint.pressure", "Pressure"),
+    USAGEPOINT_BYPASS_STATUS("usagepoint.bypassStatus", "Bypass status")
 
     ;
 

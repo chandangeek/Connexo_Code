@@ -18,19 +18,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class RatedCurrentSearchableProperty implements SearchableUsagePointProperty {
-
+public abstract class PhysicalCapacitySearchableProperty implements SearchableUsagePointProperty {
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
     private final SearchablePropertyGroup group;
-    private static final String FIELDNAME = "detail.ratedCurrent";
+    private final Thesaurus thesaurus;
+    private static final String FIELDNAME = "detail.physicalCapacity";
 
-    public RatedCurrentSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
+    public PhysicalCapacitySearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
         super();
         this.domain = domain;
-        this.group = group;
         this.propertySpecService = propertySpecService;
+        this.group = group;
         this.thesaurus = thesaurus;
     }
 
@@ -50,18 +49,28 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
     }
 
     @Override
-    public Visibility getVisibility() {
-        return Visibility.REMOVABLE;
+    public PropertySpec getSpecification() {
+        return this.propertySpecService
+                .specForValuesOf(new QuantityValueFactory())
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
+                .fromThesaurus(this.thesaurus)
+                .addValues(Quantity.create(new BigDecimal(0), 1, "m3/h"))
+                .finish();
     }
 
     @Override
-    public SelectionMode getSelectionMode() {
-        return SelectionMode.SINGLE;
+    public SearchableProperty.Visibility getVisibility() {
+        return SearchableProperty.Visibility.REMOVABLE;
+    }
+
+    @Override
+    public SearchableProperty.SelectionMode getSelectionMode() {
+        return SelectionMode.MULTI;
     }
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_RATEDCURRENT.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -72,23 +81,13 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
         return String.valueOf(value);
     }
 
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Quantity;
-    }
-
-    @Override
-    public PropertySpec getSpecification() {
-        return this.propertySpecService
-                .specForValuesOf(new QuantityValueFactory())
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_RATEDCURRENT)
-                .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 1, "A"))
-                .finish();
-    }
-
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.emptyList();
+        return Collections.singletonList(new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus));
+    }
+
+    private boolean valueCompatibleForDisplay(Object value) {
+        return value instanceof Quantity;
     }
 
     @Override
