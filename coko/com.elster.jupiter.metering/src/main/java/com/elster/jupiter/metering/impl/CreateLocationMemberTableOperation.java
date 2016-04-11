@@ -31,7 +31,7 @@ public final class CreateLocationMemberTableOperation {
     public void execute() {
         try (Connection conn = dataModel.getConnection(false)) {
             locationTemplate.parseTemplate(locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields());
-            locationTemplate.getTemplateMembers().stream().filter(templateMember -> !templateMember.getName().equalsIgnoreCase("locale"))
+            locationTemplate.getTemplateMembers().stream()
                     .forEach(column -> {
                         if (column.getRanking() < locationTemplate.getTemplateMembers().size() / 2) {
                             PreparedStatement setIndexesStatement = buildStatement(conn, setIndexesSQL(column.getName()));

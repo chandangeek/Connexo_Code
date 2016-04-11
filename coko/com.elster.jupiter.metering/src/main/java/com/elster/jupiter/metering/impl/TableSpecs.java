@@ -926,7 +926,7 @@ public enum TableSpecs {
             Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
 
             if (templateMembers != null && !templateMembers.isEmpty()) {
-                templateMembers.stream().filter(f->!f.getName().equalsIgnoreCase("locale")).forEach(column -> {
+                templateMembers.stream().forEach(column -> {
                             if (column.isMandatory()) {
                                 table.column(column.getName().toUpperCase()).varChar(Table.NAME_LENGTH).notNull().map(column.getName()).add();
                                 table.column("UPPER" + column.getName().toUpperCase()).varChar(NAME_LENGTH).notNull().as("UPPER(" + column.getName().toUpperCase() + ")")

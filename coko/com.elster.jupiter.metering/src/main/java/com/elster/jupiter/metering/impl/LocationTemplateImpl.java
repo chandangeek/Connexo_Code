@@ -30,7 +30,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
     private String userName;
     public static final ImmutableList<String> ALLOWED_LOCATION_TEMPLATE_ELEMENTS =
             ImmutableList.of("#ccod", "#cnam", "#adma", "#loc", "#subloc",
-                    "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip", "#locale");
+                    "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip");
 
 
     enum LocationTemplateElements {
@@ -46,8 +46,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
         ESTABLISHMENT_NAME("#enam"),
         ESTABLISHMENT_NUMBER("#enum"),
         ADDRESS_DETAIL("#addtl"),
-        ZIP_CODE("#zip"),
-        LOCALE("#locale");
+        ZIP_CODE("#zip");
 
         public String getElementAbbreviation() {
             return elementAbbreviation;
@@ -85,15 +84,14 @@ public final class LocationTemplateImpl implements LocationTemplate {
 
     @Override
     public void parseTemplate(String locationTemplate, String mandatoryFields) {
-        if (locationTemplate != null && mandatoryFields != null) {
+        if (locationTemplate != null) {
             this.templateFields = locationTemplate.trim();
-            this.mandatoryFields = mandatoryFields.trim();
             Arrays.asList(this.templateFields.split(",")).stream().filter(f ->
                     f.startsWith("\\n") || f.startsWith("\\r")
                             || f.startsWith("\n") || f.startsWith("\r")).forEach(e ->
                     splitLineElements.add(normalize(e)));
             String[] templateElements = normalize(this.templateFields).split(",");
-            String[] mandatoryFieldElements = this.mandatoryFields.split(",");
+
             if (Arrays.asList(templateElements).containsAll(ALLOWED_LOCATION_TEMPLATE_ELEMENTS)
                     && Arrays.asList(templateElements).containsAll(Arrays.asList(mandatoryFields.trim().split(",")))) {
                 AtomicInteger index = new AtomicInteger(-1);
@@ -104,15 +102,19 @@ public final class LocationTemplateImpl implements LocationTemplate {
                         }
                     });
                 });
+                if (mandatoryFields != null && !mandatoryFields.isEmpty()) {
+                    this.mandatoryFields = mandatoryFields.trim();
+                    String[] mandatoryFieldElements = this.mandatoryFields.split(",");
 
-                Arrays.asList(mandatoryFieldElements).stream().forEach(t -> {
-                    templateMembers.forEach(tm -> {
-                        if (tm.getAbbreviation().equalsIgnoreCase(t)) {
-                            tm.setMandatory(true);
-                        }
+                    Arrays.asList(mandatoryFieldElements).stream().forEach(t -> {
+                        templateMembers.forEach(tm -> {
+                            if (tm.getAbbreviation().equalsIgnoreCase(t)) {
+                                tm.setMandatory(true);
+                            }
+                        });
                     });
-                });
 
+                }
             } else {
                 throw new IllegalArgumentException("Bad Location Template");
             }
