@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.config.ExpressionNode;
-import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.DataModel;
@@ -10,8 +9,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -92,6 +89,9 @@ public class FormulaImpl implements ServerFormula {
     @Override
     public void delete() {
         dataModel.remove(this);
+        if (this.expressionNode.isPresent()) {
+            dataModel.remove(this.expressionNode.get());
+        }
     }
 
     @Override
