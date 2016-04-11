@@ -46,16 +46,11 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -67,6 +62,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -160,14 +162,14 @@ public class ValidationOnStoreIT {
         when(validatorFactory.createTemplate(eq(CONSECUTIVE_ZEROES))).thenReturn(conseqZero);
         when(validatorFactory.create(eq(CONSECUTIVE_ZEROES), any(Map.class))).thenReturn(conseqZero);
         when(validatorFactory.create(eq(MIN_MAX), any(Map.class))).thenReturn(minMax);
-        when(minMax.getReadingQualityTypeCode()).thenReturn(Optional.empty());
+        when(minMax.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
         when(minMax.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.SUSPECT);
         when(min.getName()).thenReturn(MIN);
         when(min.getValueFactory()).thenReturn(valueFactory);
         when(max.getName()).thenReturn(MAX);
         when(max.getValueFactory()).thenReturn(valueFactory);
-        when(conseqZero.getReadingQualityTypeCode()).thenReturn(Optional.empty());
+        when(conseqZero.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(conseqZero.getPropertySpecs()).thenReturn(Arrays.asList(conZero));
         when(conZero.getName()).thenReturn(MAX_NUMBER_IN_SEQUENCE);
         when(conZero.getValueFactory()).thenReturn(valueFactory);

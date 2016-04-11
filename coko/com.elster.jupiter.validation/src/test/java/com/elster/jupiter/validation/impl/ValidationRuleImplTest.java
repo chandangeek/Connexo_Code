@@ -131,7 +131,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(validator.getPropertySpecs()).thenReturn(Arrays.asList(properySpec));
         when(properySpec.getName()).thenReturn(PROPERTY_NAME);
         when(properySpec.getValueFactory()).thenReturn(valueFactory);
-        doReturn(Optional.empty()).when(validator).getReadingQualityTypeCode();
+        doReturn(Optional.empty()).when(validator).getReadingQualityCodeIndex();
         when(channel.getIntervalReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(intervalReadingRecord));
         when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(readingRecord));        
     }

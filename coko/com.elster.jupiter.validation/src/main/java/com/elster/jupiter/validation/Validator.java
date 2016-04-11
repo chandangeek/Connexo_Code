@@ -3,7 +3,6 @@ package com.elster.jupiter.validation;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.HasDynamicProperties;
@@ -17,8 +16,6 @@ import java.util.Optional;
 
 @ConsumerType
 public interface Validator extends HasDynamicProperties {
-
-    Optional<ReadingQualityType> getReadingQualityTypeCode();
 
     Optional<QualityCodeIndex> getReadingQualityCodeIndex();
 
