@@ -1127,6 +1127,76 @@ public class FormulaCrudTest {
 
     }
 
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testCombinationOfAutoModeAndExpertMode() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config3", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType conskWhRT15min =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+        assertThat(conskWhRT15min != null);
+        config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
+
+        assertThat(config.getRequirements().size() == 1);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
+
+
+
+        try {
+            ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.EXPERT);
+            ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "Auto mode and export mode cannot be combined.");
+        }
+
+    }
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testCombinationOfExperAndAutoMode() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config3", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType conskWhRT15min =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+        assertThat(conskWhRT15min != null);
+        config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
+
+        assertThat(config.getRequirements().size() == 1);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.EXPERT);
+        ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
+
+
+
+        try {
+            ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.AUTO);
+            ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "Auto mode and export mode cannot be combined.");
+        }
+
+    }
+
 
 
 }
