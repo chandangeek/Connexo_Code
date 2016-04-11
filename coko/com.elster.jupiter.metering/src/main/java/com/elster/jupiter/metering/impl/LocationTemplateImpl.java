@@ -92,8 +92,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
                     splitLineElements.add(normalize(e)));
             String[] templateElements = normalize(this.templateFields).split(",");
 
-            if (Arrays.asList(templateElements).containsAll(ALLOWED_LOCATION_TEMPLATE_ELEMENTS)
-                    && Arrays.asList(templateElements).containsAll(Arrays.asList(mandatoryFields.trim().split(",")))) {
+            if (Arrays.asList(templateElements).containsAll(ALLOWED_LOCATION_TEMPLATE_ELEMENTS)) {
                 AtomicInteger index = new AtomicInteger(-1);
                 Arrays.asList(templateElements).stream().forEach(t -> {
                     templateMembers.forEach(tm -> {
@@ -102,7 +101,8 @@ public final class LocationTemplateImpl implements LocationTemplate {
                         }
                     });
                 });
-                if (mandatoryFields != null && !mandatoryFields.isEmpty()) {
+                if (mandatoryFields != null && !mandatoryFields.isEmpty()
+                        && Arrays.asList(templateElements).containsAll(Arrays.asList(mandatoryFields.trim().split(",")))) {
                     this.mandatoryFields = mandatoryFields.trim();
                     String[] mandatoryFieldElements = this.mandatoryFields.split(",");
 
