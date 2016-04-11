@@ -666,6 +666,20 @@ Ext.define('Mdc.controller.history.Setup', {
                                             controller: 'Mdc.timeofuse.controller.TimeOfUse',
                                             action: 'showAddCalendarsView'
 
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('tou.addTouCalendars', 'MDC', 'Edit time of use specifications'),
+                                            route: 'edit',
+                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            controller: 'Mdc.timeofuse.controller.TimeOfUse',
+                                            action: 'showEditSpecificationsScreen'
+                                        },
+                                        viewpreview: {
+                                            title: Uni.I18n.translate('tou.viewPreview', 'MDC', 'View preview'),
+                                            route: '{calendarId}/viewpreview',
+                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            controller: 'Mdc.timeofuse.controller.TimeOfUse',
+                                            action: 'showPreviewCalendarView'
                                         }
                                     }
                                 }

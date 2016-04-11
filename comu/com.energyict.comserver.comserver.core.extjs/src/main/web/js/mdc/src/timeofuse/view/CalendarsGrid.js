@@ -24,7 +24,7 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
                 xtype: 'uni-actioncolumn',
                 privileges: Scs.privileges.ServiceCall.admin,
                 menu: {
-                    xtype: 'tou-action-menu'
+                    xtype: 'tou-devicetype-action-menu'
                 },
                 flex: 0.7
             }

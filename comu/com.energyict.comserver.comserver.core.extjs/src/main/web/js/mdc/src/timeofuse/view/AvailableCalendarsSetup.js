@@ -64,19 +64,25 @@ Ext.define('Mdc.timeofuse.view.AvailableCalendarsSetup', {
         }
     ],
 
-    side: [
-        {
-            xtype: 'panel',
-            ui: 'medium',
-            items: [
-                {
-                    xtype: 'deviceTypeSideMenu',
-                    itemId: 'deviceTypeSideMenu',
-                    deviceTypeId: this.deviceTypeId,
-                    toggle: 0
-                }
-            ]
-        }
-    ]
+
+    initComponent: function () {
+        var me = this;
+
+        me.side = [
+            {
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceTypeSideMenu',
+                        itemId: 'deviceTypeSideMenu',
+                        deviceTypeId: this.deviceTypeId,
+                        toggle: 0
+                    }
+                ]
+            }
+        ];
+        me.callParent(arguments);
+    }
 
 });

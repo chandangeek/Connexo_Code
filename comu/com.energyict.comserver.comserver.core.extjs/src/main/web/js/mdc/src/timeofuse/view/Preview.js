@@ -17,7 +17,7 @@ Ext.define('Mdc.timeofuse.view.Preview', {
                 iconCls: 'x-uni-action-iconD',
                 itemId: 'touPreviewMenuButton',
                 menu: {
-                    xtype: 'tou-action-menu'
+                    xtype: 'tou-devicetype-action-menu'
                 }
             }
         ];

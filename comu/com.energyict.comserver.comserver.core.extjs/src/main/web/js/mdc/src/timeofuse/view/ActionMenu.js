@@ -1,6 +1,6 @@
 Ext.define('Mdc.timeofuse.view.ActionMenu', {
     extend: 'Ext.menu.Menu',
-    alias: 'widget.tou-action-menu',
+    alias: 'widget.tou-devicetype-action-menu',
     plain: true,
     border: false,
     shadow: false,
@@ -9,7 +9,7 @@ Ext.define('Mdc.timeofuse.view.ActionMenu', {
             itemId: 'view-preview-tou',
             text: Uni.I18n.translate('timeofuse.viewPreview', 'MDC', 'View preview'),
             //privileges: Scs.privileges.ServiceCall.admin,
-            action: 'viewpreview',
+            action: 'viewpreview'
             //visible: function() {
             //    return this.record.get('canCancel');
             //}
