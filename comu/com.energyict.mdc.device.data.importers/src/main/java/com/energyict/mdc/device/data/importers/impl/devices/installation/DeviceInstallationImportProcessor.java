@@ -58,7 +58,8 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
             endDevice.setLocation(builder.create());
         }
 
-        if(!geoCoordinatesData.isEmpty()){
+        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty()
+                && !geoCoordinatesData.contains(null)){
             endDevice.setGeoCoordintes(super.getContext().getMeteringService()
                     .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
