@@ -1372,6 +1372,22 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         },
+                        servicecalls:  {
+                            title: Uni.I18n.translate('devicemenu.serviceCalls', 'MDC', 'Service calls'),
+                            route: 'servicecalls',
+                            controller: 'Mdc.controller.setup.ServiceCalls',
+                            privileges: Mdc.privileges.Device.viewDevice,
+                            action: 'showServiceCalls',
+                            items: {
+                                history: {
+                                    title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                                    route: 'history',
+                                    privileges: Mdc.privileges.Device.viewDevice,
+                                    controller: 'Mdc.controller.setup.ServiceCalls',
+                                    action: 'showServiceCallHistory'
+                                }
+                            }
+                        },
                         changedeviceconfiguration: {
                             title: Uni.I18n.translate('devicemenu.changedeviceconfiguration', 'MDC', 'Change device configuration'),
                             route: 'changedeviceconfiguration',
@@ -2022,7 +2038,16 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'processes',
                             controller: 'Mdc.controller.setup.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                            action: 'showDeviceProcesses'
+                            action: 'showDeviceProcesses',
+                            items:{
+                                'processstart': {
+                                    title: Uni.I18n.translate('processes.startProcess', 'MDC', 'Start process'),
+                                    route: 'start',
+                                    controller: 'Mdc.controller.setup.MonitorProcesses',
+                                    privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                                    action: 'showDeviceStartProcess'
+                                }
+                            }
                         },
                         'processesrunning': {
                             title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
@@ -2038,13 +2063,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
                             action: 'showDeviceProcesses'
-                        },
-                        'processstart': {
-                            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
-                            route: 'processes/start',
-                            controller: 'Mdc.controller.setup.MonitorProcesses',
-                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                            action: 'showDeviceStartProcess'
                         }
                     }
                 }
