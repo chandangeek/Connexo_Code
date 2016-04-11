@@ -30,7 +30,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
     private String userName;
     public static final ImmutableList<String> ALLOWED_LOCATION_TEMPLATE_ELEMENTS =
             ImmutableList.of("#ccod", "#cnam", "#adma", "#loc", "#subloc",
-                    "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip");
+                    "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip", "#locale");
 
 
     enum LocationTemplateElements {
@@ -46,7 +46,8 @@ public final class LocationTemplateImpl implements LocationTemplate {
         ESTABLISHMENT_NAME("#enam"),
         ESTABLISHMENT_NUMBER("#enum"),
         ADDRESS_DETAIL("#addtl"),
-        ZIP_CODE("#zip");
+        ZIP_CODE("#zip"),
+        LOCALE("#locale");
 
         public String getElementAbbreviation() {
             return elementAbbreviation;
