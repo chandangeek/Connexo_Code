@@ -19,7 +19,6 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableList;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -94,6 +93,11 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
     @Override
     public String getType() {
         return ASSOCIATION_TYPE;
+    }
+
+    @Override
+    public String getAppKey() {
+        return APP_KEY;
     }
 
     @Override

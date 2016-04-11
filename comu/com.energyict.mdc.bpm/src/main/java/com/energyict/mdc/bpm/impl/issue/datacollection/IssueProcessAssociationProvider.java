@@ -90,6 +90,11 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
     }
 
     @Override
+    public String getAppKey() {
+        return APP_KEY;
+    }
+
+    @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(getIssueReasonPropertySpec());
