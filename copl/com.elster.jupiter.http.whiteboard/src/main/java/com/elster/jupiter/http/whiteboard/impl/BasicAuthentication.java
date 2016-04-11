@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -61,6 +62,13 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
             "index.html",
             "index-dev.html"
     };
+
+    // Rest resources return UNAUTHORIZED rather than redirecting to the login page
+    private static final String[] RESOURCES_UNAUTHORIZED = {
+            "/api/",
+            "/public/api/"
+    };
+
     private final String TOKEN_COOKIE_NAME = "X-CONNEXO-TOKEN";
 
     private volatile UserService userService;
@@ -185,6 +193,11 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
                 .execute();
     }
 
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "EVT", "DVA");
+    }
+
     private void installDataModel() {
         dataModel.install(true, true);
     }
@@ -239,14 +252,15 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
         return Optional.empty();
     }
 
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "DVA");
-    }
-
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // Set no caching for specific resources regardless of the authentication type
+        if (isCachedResource(request.getRequestURL().toString())) {
+            response.setHeader("Cache-Control", "max-age=86400");
+        } else {
+            response.setHeader("Cache-Control", "no-cache");
+        }
+
         String authentication = request.getHeader("Authorization");
         if (authentication != null && authentication.startsWith("Basic ")) {
             return doBasicAuthentication(request, response, authentication.split(" ")[1]);
@@ -258,19 +272,17 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
                 return doCookieAuthorization(tokenCookie.get(), request, response);
             } else if (unsecureAllowed(request.getRequestURI())) {
                 response.setStatus(HttpServletResponse.SC_ACCEPTED);
-                if (isCachedResource(request.getRequestURL().toString())) {
-                    response.setHeader("Cache-Control", "max-age=86400");
-                } else {
-                    response.setHeader("Cache-Control", "no-cache");
-                }
                 return true;
-            } else {
+            } else if (!shouldUnauthorize(request.getRequestURI())) {
                 String server = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
                 response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
                 response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURL());
                 return true;
+            } else {
+                // Rest resources send back UNAUTHORIZED HTTP response code
+                // rather than redirecting to login
+                return deny(request, response);
             }
-
         }
     }
 
@@ -369,21 +381,21 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
     }
 
     private boolean unsecureAllowed(String uri) {
-        for (String resource : RESOURCES_NOT_SECURED) {
-            if (uri.startsWith(resource)) {
-                return true;
-            }
-        }
-        return false;
+        return Stream.of(RESOURCES_NOT_SECURED)
+                .filter(r -> uri.startsWith(r))
+                .findAny().isPresent();
     }
 
     private boolean isCachedResource(String uri) {
-        for (String resource : RESOURCES_NOT_CACHED) {
-            if (uri.endsWith(resource)) {
-                return false;
-            }
-        }
-        return true;
+        return !Stream.of(RESOURCES_NOT_CACHED)
+                .filter(r -> uri.endsWith(r))
+                .findAny().isPresent();
+    }
+
+    private boolean shouldUnauthorize(String uri) {
+        return Stream.of(RESOURCES_UNAUTHORIZED)
+                .filter(r -> uri.startsWith(r))
+                .findAny().isPresent();
     }
 
     private Optional<Cookie> getTokenCookie(HttpServletRequest request) {

@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,12 +40,15 @@ public class AppResource {
     public List<AppInfo> getApps(@Context SecurityContext securityContext) {
         // TODO: sessions will not be used, so we need to explicitly set the security context principal on authentication
         User user = (User) securityContext.getUserPrincipal();
+        if (user != null) {
+            return whiteBoard.getApps()
+                    .stream()
+                    .filter(app -> app.isAllowed(user))
+                    .map(this::appInfo)
+                    .collect(Collectors.toList());
+        }
 
-        return whiteBoard.getApps()
-                .stream()
-                .filter(app -> app.isAllowed(user))
-                .map(this::appInfo)
-                .collect(Collectors.toList());
+        return Collections.emptyList();
     }
 
     @GET
