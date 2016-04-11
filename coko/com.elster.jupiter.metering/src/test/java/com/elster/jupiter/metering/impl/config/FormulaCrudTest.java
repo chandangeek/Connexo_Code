@@ -1081,8 +1081,8 @@ public class FormulaCrudTest {
             deliverable1.setReadingType(temperatureRT);
             deliverable1.update();
             fail("InvalidNodeException expected");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The new readingtype is not compatible with the dimension of the formula(s).");
+        } catch (ConstraintViolationException e) {
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
         }
 
     }

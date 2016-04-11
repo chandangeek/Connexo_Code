@@ -47,14 +47,14 @@ public class DeliverableValidator implements ConstraintValidator<ValidDeliverabl
                     }
                 }
             }
-            /*for (ReadingTypeDeliverable del : deliverable.getMetrologyConfiguration().getDeliverables()) {
-                if (!del.equals(this)) {
+            for (ReadingTypeDeliverable del : deliverable.getMetrologyConfiguration().getDeliverables()) {
+                if (!del.equals(deliverable)) {
                     if (formula.getMode().equals(Formula.Mode.AUTO) &&
-                            !UnitConversionSupport.isAssignable(del.getReadingType(), formula.getExpressionNode().getDimension())) {
+                            !UnitConversionSupport.isAssignable(del.getReadingType(), del.getFormula().getExpressionNode().getDimension())) {
                         throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA);
                     }
                 }
-            }*/
+            }
             return true;
         } catch (InvalidNodeException e) {
             context.disableDefaultConstraintViolation();
