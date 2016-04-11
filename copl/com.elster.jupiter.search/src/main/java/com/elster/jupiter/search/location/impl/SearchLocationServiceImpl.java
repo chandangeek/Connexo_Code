@@ -81,16 +81,16 @@ public class SearchLocationServiceImpl implements SearchLocationService {
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.dataModel = ormService.getDataModel("ORM").get();
-        locationTemplate = getAddressTemplate();
+        if ((ormService.getDataModel("ORM").get() != null) && (ormService.getDataModel("ORM").get().isInstalled())){
+            this.dataModel = ormService.getDataModel("ORM").get();
+            locationTemplate = getAddressTemplate();
+        };
     }
 
     @Override
     public Map<Long, String> findLocations(String locationPart) {
         Map<Long, String> result = new HashMap<>();
-
         String[] templateMembers = locationTemplate.split(",");
-
 
         SqlBuilder locationBuilder = new SqlBuilder();
         locationBuilder.append("select * from (");
