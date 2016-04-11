@@ -10,7 +10,7 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
         'Uni.view.calendar.TimeOfUsePreview'
     ],
     url: null,
-    id: null,
+    calendarId: null,
     record: null,
     model: null,
 
@@ -77,16 +77,18 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
 
     loadNewData: function () {
         var me = this;
-        me.model.load(me.id, {
+        me.model.load(me.calendarId, {
             params: {
                 weekOf: me.down('#weekOf').getParamValue()
             },
             success: function (newRecord) {
                 me.record = newRecord;
-                me.down('#tou-content-panel').setTitle(Uni.I18n.translate('general.previewX', 'UNI', "Preview '{0}'", newRecord.get('name')));
-                me.down('#calendar-graph-view').record = newRecord;
-                me.down('#calendar-graph-view').drawGraph();//.chart.redraw();
-                me.loadRecord(newRecord);
+                if (me.rendered) {
+                    me.down('#tou-content-panel').setTitle(Uni.I18n.translate('general.previewX', 'UNI', "Preview '{0}'", newRecord.get('name')));
+                    me.down('#calendar-graph-view').record = newRecord;
+                    me.down('#calendar-graph-view').drawGraph();//.chart.redraw();
+                    me.loadRecord(newRecord);
+                }
                 me.fireEvent('timeofusecalendarloaded', newRecord);
             }
         })
