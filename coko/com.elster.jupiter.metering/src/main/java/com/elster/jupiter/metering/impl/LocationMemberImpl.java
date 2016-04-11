@@ -27,8 +27,6 @@ public class LocationMemberImpl implements LocationMember {
     private final DataModel dataModel;
     private Instant createTime;
     private Instant modTime;
-    private long version;
-    private String userName;
 
     @Inject
     LocationMemberImpl(DataModel dataModel) {
@@ -165,11 +163,6 @@ public class LocationMemberImpl implements LocationMember {
     @Override
     public boolean isDefaultLocation() {
         return defaultLocation;
-    }
-
-    @Override
-    public long getVersion() {
-        return version;
     }
 
     @Override
