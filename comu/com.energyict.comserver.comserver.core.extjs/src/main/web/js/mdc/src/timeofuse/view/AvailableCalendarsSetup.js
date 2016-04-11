@@ -5,7 +5,8 @@ Ext.define('Mdc.timeofuse.view.AvailableCalendarsSetup', {
 
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Mdc.timeofuse.view.AvailableCalendarsGrid'
+        'Mdc.timeofuse.view.AvailableCalendarsGrid',
+        'Mdc.view.setup.devicetype.SideMenu'
     ],
 
     content: [
@@ -61,5 +62,21 @@ Ext.define('Mdc.timeofuse.view.AvailableCalendarsSetup', {
                 }
             ]
         }
+    ],
+
+    side: [
+        {
+            xtype: 'panel',
+            ui: 'medium',
+            items: [
+                {
+                    xtype: 'deviceTypeSideMenu',
+                    itemId: 'deviceTypeSideMenu',
+                    deviceTypeId: this.deviceTypeId,
+                    toggle: 0
+                }
+            ]
+        }
     ]
+
 });

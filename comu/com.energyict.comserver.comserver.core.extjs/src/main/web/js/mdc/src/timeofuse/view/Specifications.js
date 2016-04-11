@@ -3,7 +3,8 @@ Ext.define('Mdc.timeofuse.view.Specifications', {
     alias: 'widget.tou-specifications-preview-panel',
     frame: false,
     requires: [
-        'Mdc.timeofuse.view.SpecificationsForm'
+        'Mdc.timeofuse.view.SpecificationsForm',
+        'Mdc.timeofuse.view.SpecificationsActionMenu'
     ],
 
     initComponent: function () {
@@ -15,9 +16,9 @@ Ext.define('Mdc.timeofuse.view.Specifications', {
                 //privileges: Scs.privileges.ServiceCall.admin,
                 iconCls: 'x-uni-action-iconD',
                 itemId: 'touSpecificationsButton',
-                //menu: {
-                //    xtype: 'scs-action-menu'
-                //}
+                menu: {
+                    xtype: 'tou-spec-action-menu'
+                }
             }
         ];
 

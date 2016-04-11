@@ -37,16 +37,11 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('timeofuse.pagingtoolbartop.displayMsg', 'SCS', '{0} Time of use calendars'),
                 items: [
-                    //{
-                    //    xtype: 'button',
-                    //    text: Uni.I18n.translate('general.Actions', 'SCS', 'Actions'),
-                    //    iconCls: 'x-uni-action-iconD',
-                    //    itemId: 'cancelAllServiceCallsButton',
-                    //    menu: {
-                    //        xtype: 'cancel-all-action-menu'
-                    //    },
-                    //    hidden: me.cancelAllHidden
-                    //}
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('tou.addTouCalendars', 'MDC', 'Add time of use calendars'),
+                        itemId: 'add-tou-calendars-btn'
+                    }
                 ]
 
             }

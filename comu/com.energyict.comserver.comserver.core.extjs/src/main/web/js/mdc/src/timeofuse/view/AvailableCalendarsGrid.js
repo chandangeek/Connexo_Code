@@ -1,4 +1,4 @@
-Ext.define('Mdc.timeofuse.view.AvailableCalendersGrid', {
+Ext.define('Mdc.timeofuse.view.AvailableCalendarsGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.tou-available-cal-grd',
     requires: [
