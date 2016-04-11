@@ -1,6 +1,8 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointPropertySet;
@@ -129,4 +131,16 @@ public class UsagePointCustomPropertySetInfoFactory extends SelectableFieldFacto
         });
         return map;
     }
+
+    public CustomPropertySetValues getValues(UsagePointCustomPropertySetInfo propertySetInfo, UsagePointPropertySet propertySet) {
+        CustomPropertySetInfo customPropertySetInfo = new CustomPropertySetInfo();
+        customPropertySetInfo.isVersioned = propertySetInfo.isVersioned;
+        customPropertySetInfo.startTime = propertySetInfo.startTime;
+        customPropertySetInfo.endTime = propertySetInfo.endTime;
+        customPropertySetInfo.properties = propertySetInfo.properties;
+
+        return customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, propertySet.getCustomPropertySet()
+                .getPropertySpecs());
+    }
+
 }

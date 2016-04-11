@@ -1,15 +1,21 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.rest.impl.SimplePropertyType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -101,6 +107,19 @@ public class UsagePointCustomPropertySetResourceTest extends MultisensePublicApi
         assertThat(model.<Boolean>get("$.properties[0].required")).isEqualTo(true);
         assertThat(model.<String>get("$.link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("$.link.href")).isEqualTo("http://localhost:9998/usagepoints/123/custompropertysets/31");
+    }
+
+    @Test
+    public void testUpdateCustomPropertySet() throws Exception {
+        UsagePointCustomPropertySetInfo info = new UsagePointCustomPropertySetInfo();
+        PropertyValueInfo<String> propertyValueInfo = new PropertyValueInfo<>("NewName", "name", true);
+        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null);
+        PropertyValueInfo<BigDecimal> propertyValueInfo2 = new PropertyValueInfo<>(BigDecimal.valueOf(99), BigDecimal.valueOf(18), true);
+        PropertyTypeInfo propertyTypeInfo2 = new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null);
+        info.properties = Arrays.asList(new PropertyInfo("name", "string.property", propertyValueInfo, propertyTypeInfo, true),
+                new PropertyInfo("age", "decimal.property", propertyValueInfo2, propertyTypeInfo2, true));
+        Response response = target("/usagepoints/123/custompropertysets/31").request().put(Entity.json(info));
+
     }
 
     @Test
