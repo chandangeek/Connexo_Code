@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -8,10 +10,7 @@ import java.time.Instant;
 import java.util.List;
 
 @ProviderType
-public interface MetrologyConfiguration {
-    long getId();
-
-    String getName();
+public interface MetrologyConfiguration extends HasId, HasName {
 
     void updateName(String name);
 

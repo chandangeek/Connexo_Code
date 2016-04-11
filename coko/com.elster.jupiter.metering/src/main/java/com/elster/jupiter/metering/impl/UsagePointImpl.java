@@ -29,6 +29,29 @@ import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ConnectionState;
+import com.elster.jupiter.metering.ElectricityDetailBuilder;
+import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.GasDetailBuilder;
+import com.elster.jupiter.metering.HeatDetailBuilder;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointDetailBuilder;
+import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
@@ -43,8 +66,9 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -59,6 +83,12 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -521,6 +551,11 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public ConnectionState getConnectionState() {
+        return ConnectionState.UNDER_CONSTRUCTION;
+    }
+
+    @Override
     public Optional<UsagePointDetailImpl> getDetail(Instant instant) {
         return detail.effective(instant);
     }
@@ -722,5 +757,22 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public Optional<GeoCoordinates> getGeoCoordinates() {
         return geoCoordinates.getOptional();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UsagePointImpl usagePoint = (UsagePointImpl) o;
+        return id == usagePoint.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

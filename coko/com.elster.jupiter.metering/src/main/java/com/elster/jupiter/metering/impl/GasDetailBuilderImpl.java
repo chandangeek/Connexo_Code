@@ -13,10 +13,10 @@ import com.elster.jupiter.util.units.Quantity;
 public class GasDetailBuilderImpl implements GasDetailBuilder {
 
     private YesNoAnswer collar = YesNoAnswer.UNKNOWN;
-    private boolean grounded;
+    private YesNoAnswer grounded;
     private Quantity pressure;
     private Quantity physicalCapacity;
-    private boolean limiter;
+    private YesNoAnswer limiter;
     private String loadLimiterType;
     private Quantity loadLimit;
     private YesNoAnswer bypass = YesNoAnswer.UNKNOWN;
@@ -24,7 +24,7 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
     private YesNoAnswer valve = YesNoAnswer.UNKNOWN;
     private YesNoAnswer capped = YesNoAnswer.UNKNOWN;
     private YesNoAnswer clamped = YesNoAnswer.UNKNOWN;
-    private boolean interruptible;
+    private YesNoAnswer interruptible;
 
     private UsagePoint usagePoint;
     private Interval interval;
@@ -43,7 +43,7 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
     }
 
     @Override
-    public GasDetailBuilder withGrounded(boolean grounded) {
+    public GasDetailBuilder withGrounded(YesNoAnswer grounded) {
         this.grounded = grounded;
         return this;
     }
@@ -61,7 +61,7 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
     }
 
     @Override
-    public GasDetailBuilder withLimiter(boolean limiter) {
+    public GasDetailBuilder withLimiter(YesNoAnswer limiter) {
         this.limiter = limiter;
         return this;
     }
@@ -109,7 +109,7 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
     }
 
     @Override
-    public GasDetailBuilder withInterruptible(boolean interruptible) {
+    public GasDetailBuilder withInterruptible(YesNoAnswer interruptible) {
         this.interruptible = interruptible;
         return this;
     }

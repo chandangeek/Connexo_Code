@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.HasQuantityMultiplier;
 import com.elster.jupiter.util.units.HasQuantityUnit;
@@ -19,7 +20,7 @@ import java.time.Clock;
 
 public class ElectricityDetailImpl extends UsagePointDetailImpl implements ElectricityDetail {
 
-    private boolean grounded;
+    private YesNoAnswer grounded;
     @HasQuantityMultiplier(min = 0, max = 9, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_MULTIPLIER + "}")
     @HasQuantityUnit(units =  {Unit.VOLT}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity nominalServiceVoltage;
@@ -33,12 +34,12 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
     @HasQuantityMultiplier(min = -3, max = 9, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_MULTIPLIER + "}")
     @HasQuantityUnit(units =  {Unit.AMPERE, Unit.VOLT_AMPERE}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity estimatedLoad;
-    private boolean limiter;
+    private YesNoAnswer limiter;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
     @HasQuantityUnit(units =  {Unit.WATT, Unit.VOLT_AMPERE}, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_UNIT + "}")
     private Quantity loadLimit;
-    private boolean interruptible;
+    private YesNoAnswer interruptible;
 
     @Inject
     ElectricityDetailImpl(Clock clock, DataModel dataModel) {
@@ -56,7 +57,7 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
     }
 
     @Override
-    public boolean isGrounded() {
+    public YesNoAnswer isGrounded() {
         return grounded;
     }
     @Override
@@ -81,7 +82,7 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
     }
 
     @Override
-    public boolean isLimiter() {
+    public YesNoAnswer isLimiter() {
         return limiter;
     }
 
@@ -96,11 +97,11 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
     }
 
     @Override
-    public boolean isInterruptible() {
+    public YesNoAnswer isInterruptible() {
         return interruptible;
     }
 
-    public void setGrounded(boolean grounded) {
+    public void setGrounded(YesNoAnswer grounded) {
         this.grounded = grounded;
     }
 
@@ -124,7 +125,7 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
         this.estimatedLoad = estimatedLoad;
     }
 
-    public void setLimiter(boolean limiter) {
+    public void setLimiter(YesNoAnswer limiter) {
         this.limiter = limiter;
     }
 
@@ -136,7 +137,7 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
         this.loadLimit = loadLimit;
     }
 
-    public void setInterruptible(boolean interruptible) {
+    public void setInterruptible(YesNoAnswer interruptible) {
         this.interruptible = interruptible;
     }
 }
