@@ -10,7 +10,17 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'serviceCategory', type: 'string'},
         {name: 'name', type: 'string'},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
-        {name: 'location', type: 'string'},
+        {
+            name: 'geoCoordinates',
+            type: 'auto'
+        },
+        {
+            name: 'location',
+            type: 'auto',
+            convert: function (value, record) {
+                return value != ""? value.replace(/(?:\\r\\n|\\r|\\n)/g, '<br>') : record.get('geoCoordinates');
+            }
+        },
         {name: 'version', type: 'int'},
         {
             name: 'typeOfUsagePoint',
