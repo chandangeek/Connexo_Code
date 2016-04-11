@@ -8,7 +8,7 @@ package com.energyict.mdc.protocol.api.device.data;
  */
 public enum BreakerStatus {
 
-    CONNECTED,
     DISCONNECTED,
+    CONNECTED,
     ARMED;
 }
