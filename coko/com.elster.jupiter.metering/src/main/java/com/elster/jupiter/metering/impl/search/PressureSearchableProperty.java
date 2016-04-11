@@ -18,15 +18,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class RatedCurrentSearchableProperty implements SearchableUsagePointProperty {
+public abstract class PressureSearchableProperty implements SearchableUsagePointProperty {
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private final SearchablePropertyGroup group;
-    private static final String FIELDNAME = "detail.ratedCurrent";
+    private static final String FIELDNAME = "detail.pressure";
 
-    public RatedCurrentSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
+    public PressureSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.group = group;
@@ -61,7 +61,7 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_RATEDCURRENT.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_PRESSURE.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
                 .specForValuesOf(new QuantityValueFactory())
                 .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_RATEDCURRENT)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 1, "A"))
+                .addValues(Quantity.create(new BigDecimal(0), 1, "Pa"))
                 .finish();
     }
 
