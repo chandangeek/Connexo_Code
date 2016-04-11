@@ -465,6 +465,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         if (!this.serviceRegistrations.isEmpty()) {
             this.serviceRegistrations.forEach(ServiceRegistration::unregister);
         }
+        if (this.usagePointRequirementsSearchDomain != null) {
+            this.searchService.unregister(this.usagePointRequirementsSearchDomain);
+        }
     }
 
     @Override

@@ -119,14 +119,12 @@ public class UsagePointSearchDomain implements SearchDomain {
         return searchableProperties;
     }
 
-
     private List<SearchableProperty> getServiceCategoryDynamicProperties(Collection<SearchablePropertyConstriction> constrictions) {
         List<SearchableProperty> properties = this.getProperties();
         ElectricityAttributesSearchablePropertyGroup electricityGroup = new ElectricityAttributesSearchablePropertyGroup(this.meteringService.getThesaurus());
         if (!constrictions.isEmpty()) {
             constrictions.stream()
-                    .filter(constriction -> ServiceCategorySearchableProperty.FIELDNAME.equals(constriction.getConstrainingProperty()
-                            .getName()))
+                    .filter(constriction -> ServiceCategorySearchableProperty.FIELDNAME.equals(constriction.getConstrainingProperty().getName()))
                     .findAny()
                     .ifPresent(constriction -> {
                         if (constriction.getConstrainingValues().contains(ServiceKind.ELECTRICITY)) {
@@ -142,8 +140,8 @@ public class UsagePointSearchDomain implements SearchDomain {
                                     .getThesaurus()));
                             properties.add(new LimiterElectricitySearchableProperty(this, this.propertySpecService, this.meteringService
                                     .getThesaurus()));
-//                            properties.add(new RatedPowerSearchableProperty(this, this.propertySpecService, electricityGroup, this.meteringService
-//                                    .getThesaurus()));
+                            properties.add(new RatedPowerSearchableProperty(this, this.propertySpecService, electricityGroup, this.meteringService
+                                    .getThesaurus()));
                         }
                     });
         }
