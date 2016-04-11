@@ -201,6 +201,15 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     }
 
     @Override
+    public ReadingTypeUnit getUnit() {
+        ReadingTypeTemplateAttribute unitAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE);
+        if (unitAttribute.getCode().isPresent()) {
+            return ReadingTypeUnit.get(unitAttribute.getCode().get());
+        }
+        return ReadingTypeUnit.NOTAPPLICABLE;
+    }
+
+    @Override
     public IntervalLength getIntervalLength() {
         return IntervalLength.from(this);
     }

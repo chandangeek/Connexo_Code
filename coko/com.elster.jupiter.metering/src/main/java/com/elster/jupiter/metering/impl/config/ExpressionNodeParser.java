@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
@@ -125,6 +126,10 @@ public class ExpressionNodeParser {
             if ((mode.equals(Formula.Mode.AUTO)) && (!readingTypeRequirement.get().isRegular())) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.IRREGULAR_READINGTYPE_IN_REQUIREMENT);
             }
+            if ((mode.equals(Formula.Mode.AUTO) && (!UnitConversionSupport.isValidForAggregation(readingTypeRequirement.get().getUnit())))) {
+                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
+            }
+
             nodes.add(new ReadingTypeRequirementNodeImpl(readingTypeRequirement.get()));
         } else {
             throw new IllegalArgumentException("No requirement found with id " + id);

@@ -29,12 +29,17 @@ public class DeliverableValidator implements ConstraintValidator<ValidDeliverabl
     @Override
     public boolean isValid(ReadingTypeDeliverable deliverable, ConstraintValidatorContext context) {
         try {
-            ReadingType readingType = deliverable.getReadingType();
-            if ((readingType != null) && (!readingType.isRegular())) {
-                throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.IRREGULAR_READINGTYPE_IN_DELIVERABLE);
-            }
             Formula formula = deliverable.getFormula();
-            if (readingType != null && formula.getMode().equals(Formula.Mode.AUTO) &&  !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
+            ReadingType readingType = deliverable.getReadingType();
+            if ((readingType != null) && formula.getMode().equals(Formula.Mode.AUTO)) {
+                if (!readingType.isRegular()) {
+                    throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.IRREGULAR_READINGTYPE_IN_DELIVERABLE);
+                }
+                if (!UnitConversionSupport.isValidForAggregation(readingType)) {
+                    throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_IN_DELIVERABLE);
+                }
+            }
+            if ((readingType != null) && formula.getMode().equals(Formula.Mode.AUTO) &&  !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
                 throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA);
             }
             if (readingType != null) {
