@@ -3,7 +3,9 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
     alias: 'widget.define-metrology-configuration-wizard',
 
     requires: [
-        //'Imt.usagepointmanagement.view.forms.GeneralInfo'
+        'Uni.util.FormErrorMessage',
+        'Uni.util.FormEmptyMessage',
+        'Uni.form.field.DateTime'
     ],
 
     layout: {
@@ -29,8 +31,58 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                 isPossibleAdd: me.isPossibleAdd,
                 defaults: {
                     labelWidth: 260,
-                    width: 595
-                }
+                    width: 610
+                },
+                items: [
+                    me.isPossibleAdd ?
+                    {
+                        itemId: 'general-info-warning',
+                        xtype: 'uni-form-error-message',
+                        hidden: true
+                    } :
+                    {
+                        itemId: 'not-possible-add',
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('metrologyConfiguration.wizard.notPossibleDefine', 'IMT', "You can't define metrology configuration for the usage point because of no available metrology configurations.")
+                    },
+                    me.isPossibleAdd ?
+                    {
+                        xtype: 'combobox',
+                        name: 'name',
+                        itemId: 'metrology-configuration-combo',
+                        fieldLabel: Uni.I18n.translate('general.label.metrologyConfiguration', 'IMT', 'Metrology configuration'),
+                        afterSubTpl: '<span class="field-additional-info" style="color: #686868; font-style: italic">'
+                        + Uni.I18n.translate('metrologyConfiguration.wizard.clarification', 'IMT', 'The metrology configurations applicable to the usage point.')
+                        + '</span>',
+                        required: true,
+                        store: 'Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations',
+                        displayField: 'name',
+                        valueField: 'id',
+                        queryMode: 'local',
+                        forceSelection: true,
+                        emptyText: Uni.I18n.translate('metrologyConfiguration.wizard.emptyText', 'IMT', 'Select metrology configuration...'),
+                        listeners: {
+                            errorchange: {
+                                fn: function (field, error) {
+                                    if (field.rendered) {
+                                        field.getEl().down('.field-additional-info').setDisplayed(Ext.isEmpty(error));
+                                    }
+                                }
+                            }
+                        }
+                    } :
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'up-service-category-displayfield',
+                        fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Metrology configuration'),
+                        required: true,
+                        htmlEncode: false,
+                        style: 'font-style: italic',
+                        value: '<span style="color: #686868; font-style: italic">'
+                        + Uni.I18n.translate('metrologyConfiguration.wizard.noAvailable', 'IMT', 'No available metrology configuration')
+                        + '</span>'
+                    },
+                ]
             }
         ];
 
@@ -51,14 +103,13 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                     ui: 'action',
                     action: 'step-next',
                     navigationBtn: true,
-                    hidden: !me.isPossibleAdd
+                    hidden: true
                 },
                 {
                     itemId: 'addButton',
                     text: Uni.I18n.translate('general.add', 'IMT', 'Add'),
                     ui: 'action',
-                    action: 'add',
-                    hidden: true
+                    action: 'add'
                 },
                 {
                     itemId: 'wizardCancelButton',
@@ -77,14 +128,14 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
         var me = this,
             step = me.getLayout().getActiveItem();
 
+        console.log(step.navigationIndex);
         switch (step.navigationIndex) {
             case 1:
+                var combo = step.down('#metrology-configuration-combo');
+                me.getRecord().set('id',combo.getValue());
+                me.getRecord().set('name',combo.getRawValue());
                 me.callParent(arguments);
                 break;
-            //case 2:
-            //    step.updateRecord();
-            //    me.getRecord().set('techInfo', step.getRecord().getData());
-            //    break;
             default:
                 step.updateRecord();
                 me.getRecord().customPropertySets().add(step.getRecord());

@@ -378,14 +378,20 @@ Ext.define('Imt.controller.History', {
                                }, {single: true});
                                return this;
                             },
-                            items: {
-                                define: {
-                                    title: Uni.I18n.translate('general.label.definemetrologyconfiguration', 'IMT', 'Define metrology configuration'),
-                                    controller: 'Imt.metrologyconfiguration.controller.Edit',
-                                    action: 'showWizard',
-                                    route: 'define',
-                                }
-                            }
+                            //items: {
+                            //    define: {
+                            //        title: Uni.I18n.translate('general.label.definemetrologyconfiguration', 'IMT', 'Define metrology configuration'),
+                            //        controller: 'Imt.metrologyconfiguration.controller.Edit',
+                            //        action: 'showWizard',
+                            //        route: 'define',
+                            //    }
+                            //}
+                        },
+                        definemetrology: {
+                            title: Uni.I18n.translate('general.label.definemetrologyconfiguration', 'IMT', 'Define metrology configuration'),
+                            controller: 'Imt.metrologyconfiguration.controller.Edit',
+                            action: 'showWizard',
+                            route: 'metrologyconfiguration/define',
                         }
            			}
            		},
