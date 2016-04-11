@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
 import com.elster.jupiter.metering.Meter;
@@ -54,7 +55,8 @@ import java.util.stream.IntStream;
         "osgi.command.function=explain",
         "osgi.command.function=addEvents",
         "osgi.command.function=locationTemplate",
-        "osgi.command.function=addLocation"
+        "osgi.command.function=addLocation",
+        "osgi.command.function=addGeoCoordinates"
 
 }, immediate = true)
 public class ConsoleCommands {
@@ -282,6 +284,23 @@ public class ConsoleCommands {
                 .forEach(element -> System.out.print(element + " "));
         System.out.println();
 
+    }
+
+    public void addGeoCoordinates() {
+        System.out.print("Example : addGeoCoordinates Device_mRID latitude longitude ");
+        System.out.println();
+    }
+
+    public void addGeoCoordinates(String mRID, String latitude, String longitude) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            EndDevice endDevice = meteringService.findEndDevice(mRID)
+                    .orElseThrow(() -> new RuntimeException("No device with mRID " + mRID + "!"));
+            GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude);
+            endDevice.setGeoCoordintes(geoCoordinates);
+            endDevice.update();
+            context.commit();
+        }
     }
 
     private LocationMemberBuilder setLocationAttributes(LocationMemberBuilder builder, Map<String, String> location) {
