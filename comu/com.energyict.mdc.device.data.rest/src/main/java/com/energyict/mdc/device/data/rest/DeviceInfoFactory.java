@@ -118,8 +118,10 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     @Override
     public List<PropertyDescriptionInfo> modelStructure() {
-        List<PropertyDescriptionInfo> infos = new ArrayList<>(21);
+        List<PropertyDescriptionInfo> infos = new ArrayList<>(23);
         infos.add(createDescription("batch", String.class));
+        infos.add(createDescription("deviceTypeId", Long.class));
+        infos.add(createDescription("deviceConfigurationId", Long.class));
         infos.add(createDescription("hasOpenDataCollectionIssues", Boolean.class));
         infos.add(createDescription("serviceCategory", String.class));
         infos.add(createDescription("usagePoint", String.class));

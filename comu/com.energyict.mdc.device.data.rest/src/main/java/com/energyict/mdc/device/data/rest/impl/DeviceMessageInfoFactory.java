@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -22,6 +23,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -45,14 +47,13 @@ public class DeviceMessageInfoFactory {
     public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
-        info.trackingId = deviceMessage.getTrackingId();
+        info.trackingIdAndName = new IdWithNameInfo(deviceMessage.getTrackingId(), "");
         if (deviceMessage.getTrackingCategory() != null) {
             info.trackingCategory = new DeviceMessageInfo.TrackingCategoryInfo();
             info.trackingCategory.id = deviceMessage.getTrackingCategory().getKey();
             info.trackingCategory.name = thesaurus.getFormat(deviceMessage.getTrackingCategory()).format();
-            info.trackingCategory.activeLink = isActive(deviceMessage.getTrackingId(), deviceMessage.getTrackingCategory());
+            info.trackingCategory.activeLink = isActive(deviceMessage.getTrackingId(), deviceMessage.getTrackingCategory(), info);
         }
-
         info.messageSpecification = new DeviceMessageSpecInfo();
         info.messageSpecification.id = deviceMessage.getSpecification().getId().name();
         info.messageSpecification.name = deviceMessage.getSpecification().getName();
@@ -109,14 +110,18 @@ public class DeviceMessageInfoFactory {
         return info;
     }
 
-    private boolean isActive(String trackingId, TrackingCategory trackingCategory) {
+    private boolean isActive(String trackingId, TrackingCategory trackingCategory, DeviceMessageInfo info) {
         switch (trackingCategory) {
             case serviceCall:
                 try {
                     long id = Long.parseLong(trackingId);
-                    return serviceCallService.getServiceCall(id).isPresent();
+                    Optional<ServiceCall> serviceCall = serviceCallService.getServiceCall(id);
+                    if(serviceCall.isPresent()) {
+                        info.trackingIdAndName = new IdWithNameInfo(serviceCall.get().getId(), serviceCall.get().getNumber());
+                    }
+                    return serviceCall.isPresent();
                 } catch (Exception e) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TRACKING_ID, "trackingId");
+                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TRACKING_ID, "trackingIdAndName");
                 }
             case manual:
             default:

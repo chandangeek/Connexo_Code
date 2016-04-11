@@ -23,7 +23,9 @@ public class DeviceSearchInfo {
     public String mRID;
     public String serialNumber;
     public String deviceTypeName;
+    public long deviceTypeId;
     public String deviceConfigurationName;
+    public long deviceConfigurationId;
     public DeviceLifeCycleStateInfo state;
     public String batch;
     public Boolean hasOpenDataCollectionIssues;
@@ -47,7 +49,9 @@ public class DeviceSearchInfo {
         searchInfo.mRID = device.getmRID();
         searchInfo.serialNumber = device.getSerialNumber();
         searchInfo.deviceTypeName = device.getDeviceType().getName();
+        searchInfo.deviceTypeId = device.getDeviceType().getId();
         searchInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
+        searchInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
         State deviceState = device.getState();
         searchInfo.state = new DeviceLifeCycleStateInfo(thesaurus, null, deviceState);
         searchInfo.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
