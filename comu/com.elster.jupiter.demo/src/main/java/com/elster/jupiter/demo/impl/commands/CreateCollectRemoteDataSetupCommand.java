@@ -1,6 +1,7 @@
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.builders.device.SetValidateOnStorePostBuilder;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -57,6 +58,7 @@ public class CreateCollectRemoteDataSetupCommand {
     private Integer devicesPerType = null;
     private int deviceCounter = 0;
     private Location location;
+    private GeoCoordinates geoCoordinates;
 
     @Inject
     public CreateCollectRemoteDataSetupCommand(
@@ -91,6 +93,8 @@ public class CreateCollectRemoteDataSetupCommand {
     public void setLocation(Location location){
         this.location = location;
     }
+
+    public void setGeoCoordinates(GeoCoordinates geoCoordinates) {this.geoCoordinates = geoCoordinates;}
 
     public void run(){
         paramersCheck();
@@ -206,7 +210,7 @@ public class CreateCollectRemoteDataSetupCommand {
             deviceCounter++;
             String serialNumber = "01000001" + String.format("%04d", deviceCounter);
             String mrid = Constants.Device.STANDARD_PREFIX +  serialNumber;
-            createDevice(configuration, mrid, serialNumber, deviceTypeTpl, location);
+            createDevice(configuration, mrid, serialNumber, deviceTypeTpl, location, geoCoordinates);
         }
     }
 
@@ -219,12 +223,13 @@ public class CreateCollectRemoteDataSetupCommand {
         return configuration;
     }
 
-    private void createDevice(DeviceConfiguration configuration, String mrid, String serialNumber, DeviceTypeTpl deviceTypeTpl, Location location){
+    private void createDevice(DeviceConfiguration configuration, String mrid, String serialNumber, DeviceTypeTpl deviceTypeTpl, Location location, GeoCoordinates geoCoordinates){
         Builders.from(DeviceBuilder.class)
                 .withMrid(mrid)
                 .withSerialNumber(serialNumber)
                 .withDeviceConfiguration(configuration)
                 .withLocation(location)
+                .withGeoCoordinates(geoCoordinates)
                 .withComSchedules(Collections.singletonList(Builders.from(ComScheduleTpl.DAILY_READ_ALL).get()))
                 .withPostBuilder(this.connectionsDevicePostBuilderProvider.get().withComPortPool(Builders.from(deviceTypeTpl.getPoolTpl()).get()).withHost(this.host))
                 .withPostBuilder(new SecurityPropertiesDevicePostBuilder())

@@ -4,6 +4,7 @@ import com.elster.jupiter.demo.impl.commands.*;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.search.SearchService;
@@ -75,8 +76,10 @@ import javax.inject.Inject;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.security.Principal;
+import java.text.DecimalFormat;
 import java.time.Clock;
 import java.util.Map;
+import java.util.Random;
 
 @Component(name = "com.elster.jupiter.demo", service = {DemoServiceImpl.class}, property = {
         "osgi.command.scope=demo",
@@ -649,6 +652,7 @@ public class DemoServiceImpl {
             command.setHost(host);
             command.setStartDate(startDate);
             command.setLocation(createLocation());
+            command.setGeoCoordinates(createGeoCoordinates());
             if (numberOfDevicesPerType == null) {
                 command.setDevicesPerType(null);
             } else {
@@ -681,6 +685,17 @@ public class DemoServiceImpl {
                 .isDaultLocation(true)
                 .setLocale("locale");
         return builder;
+    }
+
+    private GeoCoordinates createGeoCoordinates(){
+        double minLatitude = -90.00;
+        double maxLatitude = 90.00;
+        double minLongitude = 0.00;
+        double maxLongitude = 180.00;
+        DecimalFormat df = new DecimalFormat("#.#####");
+        String latitude = df.format(minLatitude + (Math.random() * ((maxLatitude - minLatitude) + 1)));
+        String longitude = df.format(minLongitude + (double)(Math.random() * ((maxLongitude - minLongitude) + 1)));
+        return meteringService.createGeoCoordinates(latitude + ":" +longitude);
     }
 
     @SuppressWarnings("unused")
