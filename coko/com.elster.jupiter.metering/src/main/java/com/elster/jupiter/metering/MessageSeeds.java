@@ -58,10 +58,11 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE(5009, Constants.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, "The deliverable with id ''{0}'' cannot be used because it has a different metrology configuration."),
     READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(5010, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The readingtype is not compatible with the dimension of the formula."),
     NO_FUNCTIONS_ALLOWED_IN_AUTOMODE(5011, Constants.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE, "Functions are not allowed in auto mode."),
-    NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(5012, Constants.NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The new readingtype is not compatible with the dimension of the formula(s)."),
-    NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE(5013, Constants.NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE, "The new formula is not compatible with the readingtype of the deliverable."),
-    IRREGULAR_READINGTYPE_IN_DELIVERABLE(5014, Constants.IRREGULAR_READINGTYPE_IN_DELIVERABLE, "Irregular readingtypes are not allowed for a deliverable."),
-    IRREGULAR_READINGTYPE_IN_REQUIREMENT(5015, Constants.IRREGULAR_READINGTYPE_IN_REQUIREMENT, "Irregular readingtypes are not allowed for a requirement."),
+    //NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(5012, Constants.NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The new readingtype is not compatible with the dimension of the formula(s)."),
+    //NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE(5013, Constants.NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE, "The new formula is not compatible with the readingtype of the deliverable."),
+    IRREGULAR_READINGTYPE_IN_DELIVERABLE(5012, Constants.IRREGULAR_READINGTYPE_IN_DELIVERABLE, "Irregular readingtypes are not allowed for a deliverable."),
+    IRREGULAR_READINGTYPE_IN_REQUIREMENT(5013, Constants.IRREGULAR_READINGTYPE_IN_REQUIREMENT, "Irregular readingtypes are not allowed for a requirement."),
+    INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS(5014, Constants.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS, "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.")
     ;
 
     private final int number;
@@ -147,13 +148,14 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT = "invalid.metrologyconfiguration.for.requirement";
         public static final String INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE = "invalid.metrologyconfiguration.for.deliverable";
         public static final String READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA = "readingtype.of.deliverable.incompatible.with.formula";
-        public static final String NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA = "new.readingtype.of.deliverable.incompatible.with.formula";
+        //public static final String NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA = "new.readingtype.of.deliverable.incompatible.with.formula";
         public static final String DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION = "deliverable.must.have.the.same.configuration";
         public static final String REQUIREMENT_MUST_HAVE_UNIQUE_RT = "requirement.must.have.unique.rt";
         public static final String NO_FUNCTIONS_ALLOWED_IN_AUTOMODE = "no.functions.allowed.in.automode";
         public static final String CAN_NOT_DELETE_FORMULA_IN_USE = "can.not.delete.formula.in.use";
         public static final String IRREGULAR_READINGTYPE_IN_DELIVERABLE = "irregular.readingtype.not.allowed.for.deliverable";
         public static final String IRREGULAR_READINGTYPE_IN_REQUIREMENT = "irregular.readingtype.not.allowed.for.requirement";
-        public static final String NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE = "formula.not.compatible.with.readingtype.of.deliverable";
+        //public static final String NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE = "formula.not.compatible.with.readingtype.of.deliverable";
+        public static final String INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS = "interval.of.readingtype.should.be.greater.or.equal.to.interval.of.requirements";
     }
 }

@@ -4,12 +4,15 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.aggregation.IntermediateDimension;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.units.Dimension;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -100,4 +103,5 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
                     ((AbstractNode) getRightOperand()).getIntermediateDimension());
         }
     }
+
 }

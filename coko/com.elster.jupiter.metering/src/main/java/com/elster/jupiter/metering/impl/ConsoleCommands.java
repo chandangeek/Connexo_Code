@@ -66,6 +66,7 @@ import java.util.stream.Stream;
         "osgi.command.function=addEvents",
         "osgi.command.function=formulas",
         "osgi.command.function=addMetrologyConfig",
+        "osgi.command.function=deleteMetrologyConfig",
         "osgi.command.function=addRequirement",
         "osgi.command.function=addRequirementWithTemplateReadingType",
         "osgi.command.function=deliverables",
@@ -276,6 +277,16 @@ public class ConsoleCommands {
         }
     }
 
+    public void deleteMetrologyConfig(long id) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            metrologyConfigurationService.findMetrologyConfiguration(id)
+                    .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"))
+                    .delete();
+            context.commit();
+        }
+    }
+
     public void metrologyConfigs() {
         for (MetrologyConfiguration config : metrologyConfigurationService.findAllMetrologyConfigurations()) {
             System.out.println(config.getId() + ": " + config.getName());
@@ -297,7 +308,7 @@ public class ConsoleCommands {
                 throw new IllegalArgumentException("MetrologyConfiguration requires that you specify a meter role");
             } else {
                 long id = metrologyConfiguration.newReadingTypeRequirement(name).withReadingType(readingType).getId();
-                System.out.println("MetrologyConfiguration created with ID: " + id);
+                System.out.println("Requirement created with id: " + id);
             }
             context.commit();
         }
@@ -316,7 +327,7 @@ public class ConsoleCommands {
                     MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
                     UsagePointMetrologyConfiguration upMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfiguration;
                     long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingType(readingType).getId();
-                    System.out.println("MetrologyConfiguration created with ID: " + id);
+                    System.out.println("Requirment created with id: " + id);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
                     throw e;
@@ -379,7 +390,7 @@ public class ConsoleCommands {
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration).parse(formulaString);
 
             long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO)).build(node).getId();
-            System.out.printf("Deliverable created: " + id);
+            System.out.println("Deliverable created: " + id);
             context.commit();
         }
     }
@@ -400,6 +411,7 @@ public class ConsoleCommands {
             deliverable.setName(name);
             deliverable.setReadingType(readingType);
             deliverable.getFormula().updateExpression(node);
+            deliverable.update();
 
             context.commit();
         }
@@ -412,13 +424,18 @@ public class ConsoleCommands {
     public void updateDeliverableReadingType(long deliverableId, String readingTypeString) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
-                    .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-            ReadingType readingType = meteringService.getReadingType(readingTypeString)
-                    .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
+            try {
+                ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
+                        .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
+                ReadingType readingType = meteringService.getReadingType(readingTypeString)
+                        .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
-            deliverable.setReadingType(readingType);
-            context.commit();
+                deliverable.setReadingType(readingType);
+                deliverable.update();
+                context.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -435,6 +452,7 @@ public class ConsoleCommands {
             ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration()).parse(formulaString);
 
             deliverable.getFormula().updateExpression(node);
+            deliverable.update();
             context.commit();
         }
     }

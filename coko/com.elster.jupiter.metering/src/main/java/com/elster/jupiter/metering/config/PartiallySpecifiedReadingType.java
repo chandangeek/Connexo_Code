@@ -1,6 +1,10 @@
 package com.elster.jupiter.metering.config;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.TimeAttribute;
+
+import java.util.Optional;
 
 @ProviderType
 public interface PartiallySpecifiedReadingType extends ReadingTypeRequirement {
@@ -26,4 +30,8 @@ public interface PartiallySpecifiedReadingType extends ReadingTypeRequirement {
      * @return A source template
      */
     ReadingTypeTemplate getReadingTypeTemplate();
+
+    MacroPeriod getMacroPeriod();
+
+    TimeAttribute getMeasuringPeriod();
 }

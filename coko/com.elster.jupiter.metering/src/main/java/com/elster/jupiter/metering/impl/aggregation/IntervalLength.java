@@ -1,7 +1,14 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.impl.config.AbstractNode;
+import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementImpl;
+import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.math.BigDecimal;
@@ -15,6 +22,8 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.time.temporal.TemporalAmount;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -657,10 +666,19 @@ public enum IntervalLength {
         throw new UnsupportedOperationException("Volume to flow conversion is not (yet) supported for " + this.name());
     }
 
-    public static IntervalLength from(ReadingType readingType) {
-        switch (readingType.getMacroPeriod()) {
+    public static IntervalLength from(PartiallySpecifiedReadingType readingType) {
+        MacroPeriod macroPeriod = readingType.getMacroPeriod();
+        TimeAttribute measuringPeriod = readingType.getMeasuringPeriod();
+        if ((macroPeriod.equals(MacroPeriod.NOTAPPLICABLE)) && (measuringPeriod.equals(TimeAttribute.NOTAPPLICABLE))) {
+            return IntervalLength.NOT_SUPPORTED;
+        }
+        return from(macroPeriod, measuringPeriod);
+    }
+
+    public static IntervalLength from(MacroPeriod macroPeriod, TimeAttribute timeAttribute) {
+        switch (macroPeriod) {
             case NOTAPPLICABLE: {
-                return fromMeasurementPeriod(readingType.getMeasuringPeriod());
+                return fromMeasurementPeriod(timeAttribute);
             }
             case DAILY: {
                 return DAY1;
@@ -675,9 +693,13 @@ public enum IntervalLength {
             case SEASONAL: // Intentional fall-through
             case SPECIFIEDPERIOD: // Intentional fall-through
             default: {
-                throw new IllegalArgumentException("Unknown or unsupported macro period: " + readingType.getMacroPeriod().name());
+                throw new IllegalArgumentException("Unknown or unsupported macro period: " + macroPeriod.name());
             }
         }
+    }
+
+    public static IntervalLength from(ReadingType readingType) {
+        return from(readingType.getMacroPeriod(), readingType.getMeasuringPeriod());
     }
 
     private static IntervalLength fromMeasurementPeriod(TimeAttribute measurementPeriod) {
