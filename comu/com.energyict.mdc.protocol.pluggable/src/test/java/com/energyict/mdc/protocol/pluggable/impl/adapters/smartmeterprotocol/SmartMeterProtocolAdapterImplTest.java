@@ -22,6 +22,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -50,12 +52,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDevic
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.HhuEnabledSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -64,12 +60,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests for the {@link SmartMeterProtocolAdapterImpl}.
@@ -592,7 +601,7 @@ public class SmartMeterProtocolAdapterImplTest {
     @Test
     public void getFirmwareVersionLegacyExceptionTest() throws IOException {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
-        IOException expectedException = createGetFirmwareVersionIOException();
+        IOException expectedException = createLegacyIOException();
         when(smartMeterProtocol.getFirmwareVersion()).thenThrow(expectedException);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
@@ -603,15 +612,57 @@ public class SmartMeterProtocolAdapterImplTest {
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class);
         when(collectedDataFactory.createFirmwareVersionsCollectedData(deviceIdentifier)).thenReturn(collectedFirmwareVersion);
         try {
-            CollectedFirmwareVersion firmwareVersions = smartMeterProtocolAdapter.getFirmwareVersions();
+            smartMeterProtocolAdapter.getFirmwareVersions();
             fail("Shoud not get here!");
         } catch (LegacyProtocolException e) {
             assertThat(e.getCause()).isEqualTo(expectedException);
         }
     }
 
-    private IOException createGetFirmwareVersionIOException() {
+    private IOException createLegacyIOException() {
         return new IOException("MyExpectedIoException");
+    }
+
+    @Test
+    public void getBreakerStatusTest() throws IOException {
+        BreakerStatus myBreakerStatus = BreakerStatus.ARMED;
+        SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
+        when(smartMeterProtocol.getBreakerStatus()).thenReturn(Optional.of(myBreakerStatus));
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
+        CollectedBreakerStatus collectedBreakerStatus = mock(CollectedBreakerStatus.class);
+        when(collectedDataFactory.createBreakerStatusCollectedData(deviceIdentifier)).thenReturn(collectedBreakerStatus);
+
+        // Business method
+        CollectedBreakerStatus breakerStatus = smartMeterProtocolAdapter.getBreakerStatus();
+
+        // Asserts
+        verify(collectedBreakerStatus).setBreakerStatus(myBreakerStatus);
+    }
+
+    @Test
+    public void getBreakerStatusLegacyExceptionTest() throws IOException {
+        SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
+        IOException expectedException = createLegacyIOException();
+        when(smartMeterProtocol.getBreakerStatus()).thenThrow(expectedException);
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        SmartMeterProtocolAdapterImpl smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
+        smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
+        CollectedBreakerStatus collectedBreakerStatus = mock(CollectedBreakerStatus.class);
+        when(collectedDataFactory.createBreakerStatusCollectedData(deviceIdentifier)).thenReturn(collectedBreakerStatus);
+
+        // Business method
+        try {
+            smartMeterProtocolAdapter.getBreakerStatus();
+            fail("Shoud not get here!");
+        } catch (LegacyProtocolException e) {
+            assertThat(e.getCause()).isEqualTo(expectedException);
+        }
     }
 
     protected SmartMeterProtocolAdapterImpl newSmartMeterProtocolAdapter(SmartMeterProtocol smartMeterProtocol) {

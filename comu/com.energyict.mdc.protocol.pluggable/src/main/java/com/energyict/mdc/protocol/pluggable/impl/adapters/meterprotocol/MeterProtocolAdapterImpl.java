@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -600,6 +601,14 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
         CollectedBreakerStatus breakerStatusCollectedData = this.collectedDataFactory.createBreakerStatusCollectedData(this.offlineDevice.getDeviceIdentifier());
-        return breakerStatusCollectedData;  // Default implementation, leaving breakerStatus optional empty
+        try {
+            Optional<BreakerStatus> breakerStatus = this.getMeterProtocol().getBreakerStatus();
+            if (breakerStatus.isPresent()) {
+                breakerStatusCollectedData.setBreakerStatus(breakerStatus.get());
+            }
+        } catch (IOException e) {
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
+        }
+        return breakerStatusCollectedData;
     }
 }

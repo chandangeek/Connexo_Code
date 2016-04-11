@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
@@ -584,6 +585,14 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
         CollectedBreakerStatus breakerStatusCollectedData = this.collectedDataFactory.createBreakerStatusCollectedData(this.offlineDevice.getDeviceIdentifier());
-        return breakerStatusCollectedData;  // Default implementation, leaving breakerStatus optional empty
+        try {
+            Optional<BreakerStatus> breakerStatus = this.getSmartMeterProtocol().getBreakerStatus();
+            if (breakerStatus.isPresent()) {
+                breakerStatusCollectedData.setBreakerStatus(breakerStatus.get());
+            }
+        } catch (IOException e) {
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
+        }
+        return breakerStatusCollectedData;
     }
 }
