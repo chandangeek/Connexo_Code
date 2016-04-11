@@ -22,8 +22,9 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -220,7 +221,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testGetReadingQualityTypeCode() {
-        assertThat(thresholdValidator.getReadingQualityTypeCode().isPresent()).isFalse();
+        assertThat(thresholdValidator.getReadingQualityCodeIndex().isPresent()).isFalse();
     }
 
 }
