@@ -82,7 +82,7 @@ Ext.define('Cal.controller.Calendars', {
 
         view = Ext.widget('timeOfUseCalendar', {
             url: '/api/cal/calendars/timeofusecalendars',
-            id: id
+            calendarId: id
         });
         view.on('timeofusecalendarloaded', function (newRecord) {
             me.getApplication().fireEvent('timeofusecalendarloaded', newRecord.get('name'))
