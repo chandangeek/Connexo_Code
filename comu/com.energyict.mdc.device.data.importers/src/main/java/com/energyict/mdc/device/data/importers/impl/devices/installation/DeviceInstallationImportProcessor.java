@@ -35,26 +35,33 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
 
     @Override
     protected void beforeTransition(Device device, DeviceInstallationImportRecord data) throws ProcessorException {
-        LocationBuilder builder = super.getContext().getMeteringService().newLocationBuilder();
+        List<String> locationData = data.getLocation();
+        List<String> geoCoordinatesData = data.getGeoCoordinates();
         EndDevice endDevice = super.getContext().getMeteringService().findEndDevice(data.getDeviceMRID())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
-        Map<String, Integer> ranking = super.getContext()
-                .getMeteringService()
-                .getLocationTemplate()
-                .getTemplateMembers()
-                .stream()
-                .collect(Collectors.toMap(TemplateField::getName,
-                        TemplateField::getRanking));
-        Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(data.getLocation()
-                .get(ranking.get("locale")));
-        if (memberBuilder.isPresent()) {
-            setLocationAttributes(memberBuilder.get(), data, ranking);
-        } else {
-            setLocationAttributes(builder.member(), data, ranking).add();
+        if(locationData!=null && !locationData.isEmpty()){
+            LocationBuilder builder = super.getContext().getMeteringService().newLocationBuilder();
+            Map<String, Integer> ranking = super.getContext()
+                    .getMeteringService()
+                    .getLocationTemplate()
+                    .getTemplateMembers()
+                    .stream()
+                    .collect(Collectors.toMap(TemplateField::getName,
+                            TemplateField::getRanking));
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData
+                    .get(ranking.get("locale")));
+            if (memberBuilder.isPresent()) {
+                setLocationAttributes(memberBuilder.get(), data, ranking);
+            } else {
+                setLocationAttributes(builder.member(), data, ranking).add();
+            }
+            endDevice.setLocation(builder.create());
         }
-        endDevice.setLocation(builder.create());
-        endDevice.setGeoCoordintes(super.getContext().getMeteringService()
-                .createGeoCoordinates(data.getGeoCoordinates().stream().reduce((s, t) -> s + ":" + t).get()));
+
+        if(!geoCoordinatesData.isEmpty()){
+            endDevice.setGeoCoordintes(super.getContext().getMeteringService()
+                    .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
+        }
         endDevice.update();
     }
 
