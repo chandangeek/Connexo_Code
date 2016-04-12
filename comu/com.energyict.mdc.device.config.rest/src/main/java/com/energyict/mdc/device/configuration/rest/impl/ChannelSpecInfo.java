@@ -11,6 +11,7 @@ import java.util.List;
 public class ChannelSpecInfo {
     public long id;
     public String name;
+    public boolean useMultiplier;
 
     public static List<ChannelSpecInfo> from(List<ChannelSpec> channelSpecList) {
         if (channelSpecList == null) {
@@ -27,6 +28,7 @@ public class ChannelSpecInfo {
         ChannelSpecInfo info = new ChannelSpecInfo();
         info.id = channelSpec.getId();
         info.name = channelSpec.getReadingType().getFullAliasName();
+        info.useMultiplier = channelSpec.isUseMultiplier();
         return info;
     }
 }
