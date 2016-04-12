@@ -7,21 +7,24 @@ import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class UsagePointImportRecord extends FileImportRecordWithCustomProperties {
     //General
     private String mRID;
     private String serviceKind;
-    private Long serviceLocationID;
-    private String serviceLocationString;
     private String name;
     private Instant installationTime;
     private String outageRegion;
     private String readRoute;
     private String servicePriority;
     private String serviceDeliveryRemark;
+    private List<String> location = new ArrayList<>();
+    private String latitude;
+    private String longitude;
 
     //Technical
 
@@ -80,20 +83,23 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
         this.serviceKind = serviceKind != null ? serviceKind.toUpperCase() : null;
     }
 
-    public Optional<Long> getServiceLocationID() {
-        return Optional.ofNullable(serviceLocationID);
+    public List<String> getLocation() {
+        return location;
     }
 
-    public void setServiceLocationID(Long serviceLocationID) {
-        this.serviceLocationID = serviceLocationID;
+    public void addLocation(String location) {
+        this.location.add(location);
     }
 
-    public Optional<String> getServiceLocationString() {
-        return Optional.ofNullable(serviceLocationString);
+    public List<String> getGeoCoordinates() {
+        return Arrays.asList(latitude,longitude);
     }
 
-    public void setServiceLocationString(String serviceLocationString) {
-        this.serviceLocationString = serviceLocationString;
+    public void setLatitude(String latitude){
+        this.latitude = latitude;
+    }
+    public void setLongitude(String longitude){
+        this.longitude = longitude;
     }
 
     public Optional<String> getName() {

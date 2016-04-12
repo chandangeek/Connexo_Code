@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 
+import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetDescription;
 import com.elster.jupiter.metering.imports.impl.FieldParser;
 import com.elster.jupiter.metering.imports.impl.FileImportDescription;
@@ -63,10 +64,33 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
                 .withName("serviceKind")
                 .markMandatory()
                 .build());
-        fields.put("serviceLocationID", CommonField.withParser(numberParser)
-                .withSetter(number -> record.setServiceLocationID(number != null ? number.longValue() : null))
-                .withName("serviceLocationID")
+        fields.put("latitude", CommonField.withParser(stringParser)
+                .withSetter(record::setLatitude)
+                .withName("latitude")
                 .build());
+        fields.put("longitude", CommonField.withParser(stringParser)
+                .withSetter(record::setLongitude)
+                .withName("longitude")
+                .build());
+        context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+                .sorted((t1,t2)->Integer.compare(t1.getRanking(),t2.getRanking()))
+                .map(LocationTemplate.TemplateField::getName)
+                .forEach(s-> {
+                    if(context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+                            .filter(m->m.isMandatory()).anyMatch(m -> m.getName().equals(s))){
+                        fields.put(s, CommonField.withParser(stringParser)
+                                .withSetter(record::addLocation)
+                                .withName(s)
+                                .markMandatory()
+                                .build());
+                    }else{
+                        fields.put(s, CommonField.withParser(stringParser)
+                                .withSetter(record::addLocation)
+                                .withName(s)
+                                .build());
+                    }
+                });
+
         fields.put("name", CommonField.withParser(stringParser)
                 .withSetter(record::setName)
                 .withName("name")
@@ -74,10 +98,6 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
         fields.put("installationTime", CommonField.withParser(dateParser)
                 .withSetter(record::setInstallationTime)
                 .withName("installationTime")
-                .build());
-        fields.put("serviceLocationString", CommonField.withParser(stringParser)
-                .withSetter(record::setServiceLocationString)
-                .withName("serviceLocationString")
                 .build());
         fields.put("outageregion", CommonField.withParser(stringParser)
                 .withSetter(record::setOutageRegion)

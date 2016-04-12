@@ -8,6 +8,8 @@ import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.HeatDetailBuilder;
+import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -24,7 +26,6 @@ import com.elster.jupiter.metering.imports.impl.FileImportProcessor;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
-import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.Range;
 
@@ -32,8 +33,10 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 public class UsagePointsImportProcessor implements FileImportProcessor<UsagePointImportRecord> {
@@ -48,17 +51,17 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
     @Override
     public void process(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
         try {
-                validate(data, logger);
+            validate(data, logger);
 
-                UsagePoint usagePoint = getUsagePoint(data, logger);
+            UsagePoint usagePoint = getUsagePoint(data, logger);
 
-                if (usagePoint.getDetail(context.getClock().instant()).isPresent()) {
-                    updateDetails(usagePoint, data, logger).create();
-                } else {
-                    createDetails(usagePoint, data, logger).create();
-                }
+            if (usagePoint.getDetail(context.getClock().instant()).isPresent()) {
+                updateDetails(usagePoint, data, logger).create();
+            } else {
+                createDetails(usagePoint, data, logger).create();
+            }
 
-                addCustomPropertySetValues(usagePoint, data, logger);
+            addCustomPropertySetValues(usagePoint, data, logger);
 
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
@@ -176,13 +179,32 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
 
     private UsagePoint createUsagePoint(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data, FileImportLogger logger) {
         usagePointBuilder.withIsSdp(false);
-        if (!data.getServiceLocationString().isPresent()) {
-            usagePointBuilder.withIsVirtual(true);
-            logger.warning(MessageSeeds.IMPORT_USAGEPOINT_SERVICELOCATION_INVALID, data.getLineNumber());
-        } else {
-            usagePointBuilder.withIsVirtual(false);
-            usagePointBuilder.withServiceLocationString(data.getServiceLocationString().get());
+        boolean isVirtual = true;
+        List<String> locationData = data.getLocation();
+        List<String> geoCoordinatesData = data.getGeoCoordinates();
+
+        if(locationData != null && !locationData.isEmpty()) {
+            LocationBuilder builder = context.getMeteringService().newLocationBuilder();
+            Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
+
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData
+                    .get(ranking.get("locale")));
+            if (memberBuilder.isPresent()) {
+                setLocationAttributes(memberBuilder.get(), data, ranking);
+            } else {
+                setLocationAttributes(builder.member(), data, ranking).add();
+            }
+            usagePointBuilder.withLocation(builder.create());
+            isVirtual = false;
         }
+
+        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)){
+            usagePointBuilder.withGeoCoordinates((context.getMeteringService()
+                    .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get())));
+            isVirtual = false;
+        }
+        usagePointBuilder.withIsVirtual(isVirtual);
         usagePointBuilder.withName(data.getName().orElse(null));
         usagePointBuilder.withOutageRegion(data.getOutageRegion().orElse(null));
         usagePointBuilder.withReadRoute(data.getReadRoute().orElse(null));
@@ -192,9 +214,26 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
     }
 
     private UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data, FileImportLogger logger) {
-        if (data.getServiceLocationString().isPresent()) {
-            usagePoint.setVirtual(false);
-            usagePoint.setServiceLocationString(data.getServiceLocationString().get());
+        List<String> locationData = data.getLocation();
+        List<String> geoCoordinatesData = data.getGeoCoordinates();
+        if(locationData != null && !locationData.isEmpty()) {
+            LocationBuilder builder = context.getMeteringService().newLocationBuilder();
+            Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
+
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData
+                    .get(ranking.get("locale")));
+            if (memberBuilder.isPresent()) {
+                setLocationAttributes(memberBuilder.get(), data, ranking);
+            } else {
+                setLocationAttributes(builder.member(), data, ranking).add();
+            }
+            usagePoint.setUpLocation(builder.create());
+        }
+        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty()
+                && !geoCoordinatesData.contains(null)){
+            usagePoint.setGeoCoordinates(context.getMeteringService()
+                    .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
         usagePoint.setName(data.getName().orElse(null));
         usagePoint.setOutageRegion(data.getOutageRegion().orElse(null));
@@ -436,5 +475,24 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         } else {
             return getRangeToCreate(customPropertySetRecord);
         }
+    }
+
+    private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, UsagePointImportRecord data, Map<String, Integer> ranking) {
+        builder.setCountryCode(data.getLocation().get(ranking.get("countryCode")))
+                .setCountryName(data.getLocation().get(ranking.get("countryName")))
+                .setAdministrativeArea(data.getLocation().get(ranking.get("administrativeArea")))
+                .setLocality(data.getLocation().get(ranking.get("locality")))
+                .setSubLocality(data.getLocation().get(ranking.get("subLocality")))
+                .setStreetType(data.getLocation().get(ranking.get("streetType")))
+                .setStreetName(data.getLocation().get(ranking.get("streetName")))
+                .setStreetNumber(data.getLocation().get(ranking.get("streetNumber")))
+                .setEstablishmentType(data.getLocation().get(ranking.get("establishmentType")))
+                .setEstablishmentName(data.getLocation().get(ranking.get("establishmentName")))
+                .setEstablishmentNumber(data.getLocation().get(ranking.get("establishmentNumber")))
+                .setAddressDetail(data.getLocation().get(ranking.get("addressDetail")))
+                .setZipCode(data.getLocation().get(ranking.get("zipCode")))
+                .isDaultLocation(true)
+                .setLocale(data.getLocation().get(ranking.get("locale")));
+        return builder;
     }
 }
