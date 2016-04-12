@@ -6,7 +6,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.Dimension;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,8 +46,12 @@ public class ReadingTypeRequirementNodeImpl extends AbstractNode implements Read
 
     @Override
     public List<ReadingTypeRequirementNode> getRequirements() {
-        List<ReadingTypeRequirementNode> result =  new ArrayList<ReadingTypeRequirementNode>();
-        result.add(this);
-        return result;
+        return Collections.singletonList(this);
     }
+
+    @Override
+    public void validate() {
+        // No validation for constants
+    }
+
 }

@@ -50,7 +50,9 @@ public class ConstantNodeImpl extends AbstractNode implements ConstantNode {
         return new ArrayList<ReadingTypeRequirementNode>();
     }
 
-
-
+    @Override
+    public void validate() {
+        // No validation for constants
+    }
 
 }

@@ -289,10 +289,10 @@ public class ReadingTypeTemplateInstaller {
 
     private static class Template {
 
-        private final ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter updater;
+        private final ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter setter;
 
         Template(ServerMetrologyConfigurationService metrologyConfigurationService, DefaultReadingTypeTemplate defaultTemplate) {
-            this.updater = metrologyConfigurationService.createReadingTypeTemplate(defaultTemplate);
+            this.setter = metrologyConfigurationService.createReadingTypeTemplate(defaultTemplate);
         }
 
         @SafeVarargs
@@ -302,13 +302,14 @@ public class ReadingTypeTemplateInstaller {
                 for (int i = 0; i < values.length; i++) {
                     possibleValues[i] = ReadingTypeTemplateAttributeName.getCodeFromAttributeValue(attr.getDefinition(), values[i]);
                 }
-                this.updater.setAttribute(attr, values.length == 1 ? possibleValues[0] : null, possibleValues);
+                this.setter.setAttribute(attr, values.length == 1 ? possibleValues[0] : null, possibleValues);
             }
             return this;
         }
 
         void done() {
-            this.updater.done();
+            this.setter.done();
         }
     }
+
 }

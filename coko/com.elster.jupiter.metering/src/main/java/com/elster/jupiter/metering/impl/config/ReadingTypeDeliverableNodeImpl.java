@@ -47,4 +47,10 @@ public class ReadingTypeDeliverableNodeImpl extends AbstractNode implements Read
     public List<ReadingTypeRequirementNode> getRequirements() {
         return ((AbstractNode) readingTypeDeliverable.get().getFormula().getExpressionNode()).getRequirements();
     }
+
+    @Override
+    public void validate() {
+        // No validation for constants
+    }
+
 }

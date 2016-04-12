@@ -42,9 +42,12 @@ public abstract class AbstractNode implements ExpressionNode {
     public AbstractNode(List<? extends ExpressionNode> children) {
         this();
         this.children.addAll(children);
-        children.stream()
-                .map(AbstractNode.class::cast)
-                .forEach(child -> child.setParent(this));
+        int argumentIndex = 1;
+        for (ExpressionNode child : children) {
+            AbstractNode childNode = (AbstractNode) child;
+            childNode.setParent(this);
+            childNode.setArgumentIndex(argumentIndex++);
+        }
     }
 
     public AbstractNode(List<AbstractNode> children, AbstractNode parentNode) {
@@ -64,6 +67,10 @@ public abstract class AbstractNode implements ExpressionNode {
 
     public void setParent(AbstractNode parent) {
         this.parent.set(parent);
+    }
+
+    private void setArgumentIndex(long argumentIndex) {
+        this.argumentIndex = argumentIndex;
     }
 
     @Override
@@ -93,18 +100,12 @@ public abstract class AbstractNode implements ExpressionNode {
         return Objects.hash(id);
     }
 
-
     @Override
     public void save(DataModel dataModel) {
         doSave(dataModel);
         for (ExpressionNode node : children) {
             node.save(dataModel);
         }
-    }
-
-    @Override
-    public void validate() {
-
     }
 
     void doSave(DataModel dataModel) {
@@ -114,7 +115,6 @@ public abstract class AbstractNode implements ExpressionNode {
             doUpdate(dataModel);
         }
     }
-
 
     private void persist(DataModel dataModel) {
         Save.CREATE.save(dataModel, this);
@@ -140,7 +140,5 @@ public abstract class AbstractNode implements ExpressionNode {
         }
         return result;
     }
-
-
 
 }

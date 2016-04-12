@@ -883,8 +883,7 @@ public enum TableSpecs {
 
             // parent node
             Column parentColumn = table.column("PARENTID").number().conversion(NUMBER2LONG).add();
-
-            Column argumentIndex = table.column("ARGUMENTINDEX").number().notNull().map("argumentIndex").conversion(NUMBER2INT).add();
+            table.column("ARGUMENTINDEX").number().notNull().map("argumentIndex").conversion(NUMBER2INT).add();
 
             //OperationNodeImpl operator value
             table.column("OPERATOR").number().conversion(ColumnConversion.NUMBER2ENUM).map("operator").add();
