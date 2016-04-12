@@ -6,6 +6,7 @@ import java.util.Optional;
 public class TimeDurationInfo {
     public long count;
     public String timeUnit = TimeDuration.TimeUnit.SECONDS.getDescription();
+    public int asSeconds;
 
     public TimeDurationInfo() {
     }
@@ -17,18 +18,19 @@ public class TimeDurationInfo {
     public TimeDurationInfo(TimeDuration timeDuration) {
         this.count=timeDuration.getCount();
         this.timeUnit=TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode());
+        this.asSeconds = timeDuration.getSeconds();
     }
 
     public TimeDurationInfo(long seconds) {
         this.count=seconds;
         this.timeUnit=TimeDuration.TimeUnit.SECONDS.getDescription();
+        this.asSeconds = (int)seconds;
     }
 
     public static TimeDurationInfo of(TimeDuration timeDurationOrNull) {
         if (timeDurationOrNull == null) {
             return null;
-        }
-        else {
+        } else {
             return new TimeDurationInfo(timeDurationOrNull);
         }
     }
@@ -36,8 +38,7 @@ public class TimeDurationInfo {
     public static TimeDurationInfo of(Optional<TimeDuration> timeDurationOrNull) {
         if (!timeDurationOrNull.isPresent()) {
             return null;
-        }
-        else {
+        } else {
             return new TimeDurationInfo(timeDurationOrNull.get());
         }
     }
