@@ -1369,52 +1369,6 @@ public class FormulaCrudTest {
         assertThat(formula.toString().equals("minus(10, 5)"));
     }
 
-    @Test
-    @Transactional
-    // formula = max(10, 0) function call + constants
-    public void testMinusWithrequiementsUsingParser() {
-        Formula.Mode myMode = Formula.Mode.AUTO;
-        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
-
-        Optional<ServiceCategory> serviceCategory =
-                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
-        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
-                service.newMetrologyConfiguration("config2", serviceCategory.get());
-        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
-
-        ReadingType thirtyMinTR =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR");
-
-        ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
-
-        assertThat(thirtyMinTR != null);
-        assertThat(fifteenMinRT != null);
-
-        config.newReadingTypeRequirement("15MinRT").withReadingType(fifteenMinRT);
-        config.newReadingTypeRequirement("30MinRT").withReadingType(thirtyMinTR);
-
-        assertThat(config.getRequirements().size() == 2);
-        ReadingTypeRequirement req1 = service.findReadingTypeRequirement(
-                config.getRequirements().get(0).getId()).get();
-        ReadingTypeRequirement req2 = service.findReadingTypeRequirement(
-                config.getRequirements().get(1).getId()).get();
-
-
-
-        ExpressionNode node =
-                new ExpressionNodeParser(service.getThesaurus(), service, config, myMode)
-                        .parse("minus(R(" + req1.getId() + "), R(" + req2.getId() + "))");
-
-        Formula formula = service.newFormulaBuilder(myMode).init(node).build();
-        assertThat(formula.toString().equals("minus(R(" + req1.getId() + "), R(" + req2.getId() + "))"));
-    }
-
-
 
     @Test
     @Transactional
@@ -1551,5 +1505,38 @@ public class FormulaCrudTest {
     }
 
 
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testDivisionByConstant() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config3", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+
+        ReadingType fifteenMinRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+
+        assertThat(fifteenMinRT != null);
+        config.newReadingTypeRequirement("15Min").withReadingType(fifteenMinRT);
+
+        assertThat(config.getRequirements().size() == 1);
+        ReadingTypeRequirement req = service.findReadingTypeRequirement(
+                config.getRequirements().get(0).getId()).get();
+
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("monthly", fifteenMinRT, Formula.Mode.AUTO);
+        try {
+            ReadingTypeDeliverable deliverable = builder.build(builder.divide(builder.requirement(req), builder.constant(10)));
+            //ReadingTypeDeliverable deliverable = builder.build(builder.divide(builder.constant(10), builder.requirement(req)));
+        } catch (InvalidNodeException e) {
+            fail("No InvalidNodeException expected!");
+        }
+    }
 
 }

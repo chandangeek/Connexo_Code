@@ -80,7 +80,7 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
             ReadingTypeTemplateAttribute macroPeriodAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.MACRO_PERIOD);
             if (macroPeriodAttribute.getCode().isPresent()) {
                 int value = macroPeriodAttribute.getCode().get();
-                if ((value != MacroPeriod.DAILY.ordinal()) && (value != MacroPeriod.MONTHLY.ordinal())) {
+                if ((value != MacroPeriod.DAILY.getId()) && (value != MacroPeriod.MONTHLY.getId())) {
                     return false;
                 }
             }
@@ -89,7 +89,7 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
             ReadingTypeTemplateAttribute timeAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.TIME);
             if (timeAttribute.getCode().isPresent()) {
                 int value = timeAttribute.getCode().get();
-                if (value == TimeAttribute.NOTAPPLICABLE.ordinal()) {
+                if (value == TimeAttribute.NOTAPPLICABLE.getId()) {
                     return false;
                 }
             }
@@ -180,9 +180,9 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
         ReadingTypeTemplateAttribute macroPeriodAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.MACRO_PERIOD);
         if (macroPeriodAttribute.getCode().isPresent()) {
             int macroPeriod = macroPeriodAttribute.getCode().get();
-            if (macroPeriod == MacroPeriod.DAILY.ordinal()) {
+            if (macroPeriod == MacroPeriod.DAILY.getId()) {
                 return MacroPeriod.DAILY;
-            } else if (macroPeriod == MacroPeriod.MONTHLY.ordinal()) {
+            } else if (macroPeriod == MacroPeriod.MONTHLY.getId()) {
                 return MacroPeriod.MONTHLY;
             } else {
                 return MacroPeriod.NOTAPPLICABLE;
