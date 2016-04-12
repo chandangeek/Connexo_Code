@@ -108,8 +108,8 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private void appendWithClause(SqlBuilder withClauseBuilder) {
         this.appendWithSelectClause(withClauseBuilder);
-        this.appendWithFromClause(withClauseBuilder);
-        this.appendWithJoinClauses(withClauseBuilder);
+        String sourceTableName = this.appendWithFromClause(withClauseBuilder);
+        this.appendWithJoinClauses(withClauseBuilder, sourceTableName);
     }
 
     private void appendWithSelectClause(SqlBuilder withClauseBuilder) {
@@ -122,13 +122,19 @@ class ReadingTypeDeliverableForMeterActivation {
                         withClauseBuilder);
     }
 
-    private void appendWithFromClause(SqlBuilder sqlBuilderBuilder) {
+    private String appendWithFromClause(SqlBuilder sqlBuilderBuilder) {
         sqlBuilderBuilder.append("  FROM ");
-        sqlBuilderBuilder.append(this.expressionNode.accept(new FromClauseForExpressionNode()));
+        String sourceTableName = this.expressionNode.accept(new FromClauseForExpressionNode());
+        if (sourceTableName == null) {
+            // Expression is not backed by a requirement or deliverable that produces a timeline
+            sourceTableName = "dual";
+        }
+        sqlBuilderBuilder.append(sourceTableName);
+        return sourceTableName;
     }
 
-    private void appendWithJoinClauses(SqlBuilder sqlBuilder) {
-        JoinClausesForExpressionNode visitor = new JoinClausesForExpressionNode("  JOIN ");
+    private void appendWithJoinClauses(SqlBuilder sqlBuilder, String sourceTableName) {
+        JoinClausesForExpressionNode visitor = new JoinClausesForExpressionNode("  JOIN ", sourceTableName);
         this.expressionNode.accept(visitor);
         Iterator<String> iterator = visitor.joinClauses().iterator();
         while (iterator.hasNext()) {
@@ -143,7 +149,7 @@ class ReadingTypeDeliverableForMeterActivation {
     private void appendWithGroupByClause(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" GROUP BY ");
         String sqlName = this.expressionNode.accept(new LocalDateFromExpressionNode());
-        this.appendTrucatedTimeline(sqlBuilder, sqlName);
+        this.appendTruncatedTimeline(sqlBuilder, sqlName);
     }
 
     private void appendSelectClause(SqlBuilder sqlBuilder) {
@@ -184,7 +190,7 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
-            this.appendTrucatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+            this.appendTruncatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
             sqlBuilder.append(", ");
             sqlBuilder.append(AggregationFunction.MAX.sqlName());
             sqlBuilder.append("(");
@@ -199,7 +205,7 @@ class ReadingTypeDeliverableForMeterActivation {
         }
     }
 
-    private void appendTrucatedTimeline(SqlBuilder sqlBuilder, String sqlName) {
+    private void appendTruncatedTimeline(SqlBuilder sqlBuilder, String sqlName) {
         sqlBuilder.append("TRUNC(");
         sqlBuilder.append(sqlName);
         sqlBuilder.append(", '");
@@ -238,11 +244,12 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private void appendGroupByClause(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" GROUP BY ");
-        this.appendTrucatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+        this.appendTruncatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
     }
 
     private boolean resultValueNeedsTimeBasedAggregation() {
-        return Formula.Mode.AUTO.equals(this.mode)
+        return !this.expressionReadingType.isDontCare()
+            && Formula.Mode.AUTO.equals(this.mode)
             && this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength();
     }
 

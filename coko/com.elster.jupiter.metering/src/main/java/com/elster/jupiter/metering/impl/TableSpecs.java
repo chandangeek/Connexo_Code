@@ -1320,6 +1320,7 @@ public enum TableSpecs {
             table.foreignKey("MTR_DELIVERABLE_TO_FORMULA")
                     .references(Formula.class)
                     .on(formulaColumn)
+                    .onDelete(CASCADE)
                     .map(ReadingTypeDeliverableImpl.Fields.FORMULA.fieldName())
                     .add();
         }
@@ -1435,11 +1436,13 @@ public enum TableSpecs {
             table.foreignKey("MTR_FORMULA_TO_DELIVERABLE")
                     .references(MTR_RT_DELIVERABLE.name())
                     .on(readingTypeDeliverableColumn)
+                    .onDelete(CASCADE)
                     .map("readingTypeDeliverable")
                     .add();
             table.foreignKey("MTR_FORMULA_TO_RT_REQ")
                     .references(MTR_RT_REQUIREMENT.name())
                     .on(readingTypeRequirementColumn)
+                    .onDelete(CASCADE)
                     .map("readingTypeRequirement")
                     .add();
         }
