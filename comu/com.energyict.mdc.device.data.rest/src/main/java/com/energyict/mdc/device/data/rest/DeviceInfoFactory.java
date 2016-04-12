@@ -144,7 +144,6 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         infos.add(0, createDescription("deviceTypeName", String.class));
         infos.add(0, createDescription("serialNumber", String.class));
         infos.add(0, createDescription("mRID", String.class));
-        infos.add(0, createDescription("geoCoordinates", String.class));
         return infos;
     }
 
