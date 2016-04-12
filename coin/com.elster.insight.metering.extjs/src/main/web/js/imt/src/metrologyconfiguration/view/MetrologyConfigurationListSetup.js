@@ -31,14 +31,15 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup', {
                             title: Uni.I18n.translate('metrologyconfiguration.list.empty', 'IMT', 'No metrology configurations found'),
                             reasons: [
                                 Uni.I18n.translate('metrologyconfiguration.list.undefined', 'IMT', 'No metrology configurations have been defined yet.')
-                            ],
-                            stepItems: [
-                                {
-                                    text: Uni.I18n.translate('metrologyconfiguration.general.add', 'IMT', 'Add metrology configuration'),
-                                    privileges: Imt.privileges.MetrologyConfig.admin,
-                                    href: '#/administration/metrologyconfiguration/add'
-                                }
                             ]
+                            // out of scope CXO-517
+                            //stepItems: [
+                            //    {
+                            //        text: Uni.I18n.translate('metrologyconfiguration.general.add', 'IMT', 'Add metrology configuration'),
+                            //        privileges: Imt.privileges.MetrologyConfig.admin,
+                            //        href: '#/administration/metrologyconfiguration/add'
+                            //    }
+                            //]
                         },
                         previewComponent: {
                             xtype: 'metrology-config-details',

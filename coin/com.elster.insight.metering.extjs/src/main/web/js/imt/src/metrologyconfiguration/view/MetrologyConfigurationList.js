@@ -33,15 +33,16 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
                 renderer: function (value) {
                     return value ? value.name : '';
                 }
-            },
-
-            {
-                xtype: 'uni-actioncolumn',
-                privileges: Imt.privileges.MetrologyConfig.admin,
-                menu: {
-                    xtype: 'metrology-configuration-action-menu'
-                }
             }
+            // out of scope CXO-517
+            //{
+            //    xtype: 'uni-actioncolumn',
+            //    privileges: Imt.privileges.MetrologyConfig.admin,
+            //    menu: {
+            //        xtype: 'metrology-configuration-action-menu',
+            //        itemId: 'metrology-configuration-list-action-menu'
+            //    }
+            //}
         ];
         me.dockedItems = [
             {
@@ -52,16 +53,17 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
                 displayMoreMsg: Uni.I18n.translate('metrologyconfiguration.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} metrologyconfigurations'),
                 emptyMsg: Uni.I18n.translate('metrologyconfiguration.pagingtoolbartop.emptyMsg', 'IMT', 'There are no metrology configurations to display'),
                 noBottomPaging: true,
-                usesExactCount: true,
-                items: [
-                    {
-                        text: Uni.I18n.translate('metrologyconfiguration.button.add', 'IMT', 'Add metrology configuration'),
-                        itemId: 'createMetrologyConfiguration',
-                        xtype: 'button',
-                        privileges: Imt.privileges.MetrologyConfig.admin,
-                        action: 'createMetrologyConfiguration'
-                    }
-                ]
+                usesExactCount: true
+                // out of scope CXO-517
+                //items: [
+                //    {
+                //        text: Uni.I18n.translate('metrologyconfiguration.button.add', 'IMT', 'Add metrology configuration'),
+                //        itemId: 'createMetrologyConfiguration',
+                //        xtype: 'button',
+                //        privileges: Imt.privileges.MetrologyConfig.admin,
+                //        action: 'createMetrologyConfiguration'
+                //    }
+                //]
             }
         ];
         me.callParent(arguments);
