@@ -72,7 +72,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
             return preferredReadingType.get();
         }
         else {
-            Loggers.ANALYSIS.warning(() -> "Unable to find matching channel for the requirement '" + this.requirement.getName() + "-" + this.targetReadingTypeForLogging() + "' in meter activation " + this.meterActivation.getRange());
+            Loggers.ANALYSIS.severe(() -> "Unable to find matching channel for the requirement '" + this.requirement.getName() + "-" + this.targetReadingTypeForLogging() + "' in meter activation " + this.meterActivation.getRange());
             Loggers.ANALYSIS.debug(() -> verboseAvailableMainReadingTypesOnMeterActivation(this.meterActivation));
             return VirtualReadingType.notSupported();
         }
