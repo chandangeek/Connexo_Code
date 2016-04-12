@@ -184,6 +184,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         return (Dsmr50Properties) dlmsProperties;
     }
 
+
     /**
      * Add extra retries to the association request.
      * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
@@ -382,7 +383,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-23 10:22:20 +0100 (Wed, 23 Mar 2016)$";
+        return "$Date: 2016-04-11 14:21:55 +0200 (Mon, 11 Apr 2016)$";
     }
 
     @Override

@@ -23,6 +23,7 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540PLCRegisterMapper;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 
 import java.io.IOException;
@@ -59,6 +60,9 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
 
             if (obisCode.equals(G3NetworkManagement.getDefaultObisCode())) {
                 final CollectedRegister incompatibleRegister = createIncompatibleRegister(register, "Register with obiscode " + obisCode + " cannot be read out, use the path request message for this.");
+                collectedRegisters.add(incompatibleRegister);
+            } else if (register.getObisCode().equals(Beacon3100Messaging.MULTICAST_METER_PROGRESS)) {
+                final CollectedRegister incompatibleRegister = createIncompatibleRegister(register, "Register with obiscode " + register.getObisCode() + " cannot be read out, use the 'read DC multicast progress' message on the Beacon protocol for this.");
                 collectedRegisters.add(incompatibleRegister);
             } else if (getPLCRegisterMapper().getG3Mapping(obisCode) != null) {
                 try {
