@@ -12,13 +12,12 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.tasks.TaskService;
+
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 
 
 public class LocationSearchableProperty extends AbstractSearchableDeviceProperty {
@@ -58,7 +57,6 @@ public class LocationSearchableProperty extends AbstractSearchableDeviceProperty
                 .stringSpec()
                 .named(DeviceFields.LOCATION.fieldName(), this.getNameTranslationKey())
                 .fromThesaurus(this.getThesaurus())
-                //             .markExhaustive()
                 .finish();
     }
 
@@ -106,7 +104,6 @@ public class LocationSearchableProperty extends AbstractSearchableDeviceProperty
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-
         SqlBuilder builder = new SqlBuilder();
         builder.append(JoinClauseBuilder.Aliases.END_DEVICE + ".LOCATIONID IN (");
         builder.append(" select locOut.LOCATIONID from mtr_locationmember locOut right join ");
@@ -127,6 +124,4 @@ public class LocationSearchableProperty extends AbstractSearchableDeviceProperty
 
         return builder;
     }
-
-
 }
