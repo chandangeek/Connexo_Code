@@ -103,8 +103,8 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
             formattedLocationMembers.stream().skip(1).forEach(list ->
                     list.stream().findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
             formattedLocation = formattedLocationMembers.stream()
-                    .flatMap(List::stream)
-                    .collect(Collectors.joining(","));
+                    .flatMap(List::stream).filter(Objects::nonNull)
+                    .collect(Collectors.joining(", "));
         }
         return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates
                 .isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);

@@ -55,8 +55,8 @@ public class DeviceAttributesInfoFactory {
             formattedLocationMembers.stream().skip(1).forEach(list ->
                     list.stream().findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
             formattedLocation = formattedLocationMembers.stream()
-                    .flatMap(List::stream)
-                    .collect(Collectors.joining(","));
+                    .flatMap(List::stream).filter(Objects::nonNull)
+                    .collect(Collectors.joining(", "));
         }
 
         info.device = DeviceInfo.from(device, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
