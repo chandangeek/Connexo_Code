@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -23,6 +24,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     private Interval interval;
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
+    private Reference<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = ValueReference.absent();
 
     @Inject
     public EffectiveMetrologyConfigurationOnUsagePointImpl(DataModel dataModel) {
@@ -40,6 +42,11 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     @Override
     public MetrologyConfiguration getMetrologyConfiguration() {
         return metrologyConfiguration.get();
+    }
+
+    @Override
+    public UsagePointMetrologyConfiguration getUsagePointMetrologyConfiguration() {
+        return usagePointMetrologyConfiguration.get();
     }
 
     @Override

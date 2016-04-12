@@ -29,6 +29,7 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.nls.Thesaurus;
@@ -464,9 +465,20 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public Optional<UsagePointMetrologyConfiguration> getUsagePointMetrologyConfiguration() {
+        return this.getUsagePointMetrologyConfiguration(this.clock.instant());
+    }
+
+    @Override
     public Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when) {
         return this.metrologyConfiguration.effective(when)
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
+    }
+
+    @Override
+    public Optional<UsagePointMetrologyConfiguration> getUsagePointMetrologyConfiguration(Instant when) {
+        return this.metrologyConfiguration.effective(when)
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getUsagePointMetrologyConfiguration);
     }
 
     @Override
