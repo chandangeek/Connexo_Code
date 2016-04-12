@@ -1680,6 +1680,20 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: Mdc.privileges.DeviceConfigurationEstimations.view,
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore
                         },
+                        timeofuse: {
+                            title: Uni.I18n.translate('general.timeOfUseCalendars', 'MDC', 'Time of  use calendars'),
+                            route: 'timeofuse',
+                            controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
+                            action: 'showTimeOfUseOverview',
+                            items: {
+                                viewpreview: {
+                                    title: Uni.I18n.translate('tou.viewPreview', 'MDC', 'View preview'),
+                                    route: '{calendarId}/viewpreview',
+                                    controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
+                                    action: 'showPreviewCalendarView'
+                                }
+                            }
+                        },
                         communicationschedules: {
                             title: Uni.I18n.translate('general.communicationPlanning', 'MDC', 'Communication planning'),
                             route: 'communicationplanning',
