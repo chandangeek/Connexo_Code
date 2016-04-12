@@ -55,7 +55,7 @@ public abstract class CollarSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public SelectionMode getSelectionMode() {
-        return SelectionMode.MULTI;
+        return SelectionMode.SINGLE;
     }
 
     @Override
@@ -87,6 +87,7 @@ public abstract class CollarSearchableProperty implements SearchableUsagePointPr
                 .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_COLLAR)
                 .fromThesaurus(this.thesaurus)
                 .addValues(YesNoAnswer.values())
+                .markExhaustive()
                 .finish();
     }
 

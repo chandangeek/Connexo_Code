@@ -55,7 +55,7 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public SearchableProperty.SelectionMode getSelectionMode() {
-        return SearchableProperty.SelectionMode.SINGLE;
+        return SearchableProperty.SelectionMode.MULTI;
     }
 
     @Override

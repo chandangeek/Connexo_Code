@@ -159,6 +159,8 @@ public class UsagePointSearchDomain implements SearchDomain {
                                     .getThesaurus()));
                             properties.add(new InterruptibleElectricitySearchableProperty(this, this.propertySpecService, this.meteringService
                                     .getThesaurus()));
+                            properties.add(new LoadLimitElectricitySearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
                             properties.add(new EstimatedLoadSearchableProperty(this, this.propertySpecService, electricityGroup, this.meteringService
                                     .getThesaurus()));
                             properties.add(new PhaseCodeSearchableProperty(this, this.propertySpecService, electricityGroup, this.meteringService
@@ -169,7 +171,11 @@ public class UsagePointSearchDomain implements SearchDomain {
                                     .getThesaurus()));
                         }
                         if (constriction.getConstrainingValues().contains(ServiceKind.GAS)) {
+                            properties.add(new CollarGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
                             properties.add(new LimiterGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new LoadLimitGasSearchableProperty(this, this.propertySpecService, this.meteringService
                                     .getThesaurus()));
                             properties.add(new LoadLimiterTypeGasSearchableProperty(this, this.propertySpecService, this.meteringService
                                     .getThesaurus()));
@@ -190,6 +196,32 @@ public class UsagePointSearchDomain implements SearchDomain {
                             properties.add(new PressureGasSearchableProperty(this, this.propertySpecService, this.meteringService
                                     .getThesaurus()));
                             properties.add(new BypassStatusGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                        }
+                        if (constriction.getConstrainingValues().contains(ServiceKind.WATER)) {
+                            properties.add(new LimiterWaterSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new LoadLimiterTypeWaterSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new LoadLimitWaterSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new CollarWaterSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new PhysicalCapacityWaterSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new BypassWaterSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new ValveWaterSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new CappedWaterSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new ClampedWaterSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new BypassStatusWaterSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new GroundedWaterSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
+                            properties.add(new PressureWaterSearchableProperty(this, this.propertySpecService, this.meteringService
                                     .getThesaurus()));
                         }
 

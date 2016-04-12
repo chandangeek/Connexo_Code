@@ -24,7 +24,7 @@ public abstract class CappedSearchableProperty implements SearchableUsagePointPr
     private final Thesaurus thesaurus;
     private final SearchablePropertyGroup group;
 
-    static final String FIELDNAME = "detail.valve";
+    static final String FIELDNAME = "detail.capped";
 
     public CappedSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
         this.domain = domain;
@@ -83,6 +83,7 @@ public abstract class CappedSearchableProperty implements SearchableUsagePointPr
                 .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_CAPPED)
                 .fromThesaurus(this.thesaurus)
                 .addValues(YesNoAnswer.values())
+                .markExhaustive()
                 .finish();
     }
 

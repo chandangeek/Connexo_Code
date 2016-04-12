@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -13,6 +11,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
@@ -36,7 +35,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MetrologyConfigurationSearchablePropertyTest {
+public class LimiterWaterSearchablePropertyTest {
+
     @Mock
     private UsagePointSearchDomain domain;
     @Mock
@@ -47,10 +47,6 @@ public class MetrologyConfigurationSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
-    @Mock
-    MetrologyConfiguration metrologyConfiguration;
-    @Mock
-    MetrologyConfigurationService metrologyConfigurationService;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -64,7 +60,7 @@ public class MetrologyConfigurationSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+        LimiterWaterSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -74,65 +70,65 @@ public class MetrologyConfigurationSearchablePropertyTest {
     }
 
     @Test
-    public void testNoGroup() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+    public void testWaterGroup() {
+        LimiterWaterSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
 
         // Asserts
-        assertThat(group).isEmpty();
+        assertThat(group.get().getClass()).isEqualTo(WaterAttributesSearchablePropertyGroup.class);
     }
 
     @Test
-    public void testStickyVisibility() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+    public void testRemovableVisibility() {
+        LimiterWaterSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
 
         // Asserts
-        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.STICKY);
+        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.REMOVABLE);
     }
 
     @Test
     public void testSingleSelection() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+        LimiterWaterSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
 
         // Asserts
-        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.MULTI);
+        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.SINGLE);
     }
 
     @Test
     public void testTranslation() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+        LimiterWaterSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_LIMITER.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+        LimiterWaterSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
 
         // Asserts
         assertThat(specification).isNotNull();
-        assertThat(specification.isReference()).isTrue();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(MetrologyConfiguration.class);
+        assertThat(specification.isReference()).isFalse();
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Enum.class);
     }
 
     @Test
-    public void getPossibleValues() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+    public void possibleValuesWithoutRefresh() {
+        LimiterWaterSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -142,19 +138,19 @@ public class MetrologyConfigurationSearchablePropertyTest {
     }
 
     @Test
-    public void noConstraints() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+    public void hasConstraints() {
+        LimiterWaterSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
 
         // Asserts
-        assertThat(constraints).isEmpty();
+        assertThat(constraints).isNotEmpty();
     }
 
     @Test
     public void refreshWithoutConstrictions() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+        LimiterWaterSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -166,7 +162,7 @@ public class MetrologyConfigurationSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+        LimiterWaterSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -176,16 +172,18 @@ public class MetrologyConfigurationSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
-        when(metrologyConfiguration.getName()).thenReturn("name");
+        LimiterWaterSearchableProperty property = this.getTestInstance();
+        YesNoAnswer valueToDisplay = YesNoAnswer.NO;
+
         // Business method
-        String displayValue = property.toDisplay(metrologyConfiguration);
+        String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(metrologyConfiguration.getName());
+        assertThat(displayValue).isEqualTo(valueToDisplay.toString());
     }
 
-    private MetrologyConfigurationSearchableProperty getTestInstance() {
-        return new MetrologyConfigurationSearchableProperty(this.domain, this.propertySpecService, this.metrologyConfigurationService, this.thesaurus);
+    private LimiterWaterSearchableProperty getTestInstance() {
+        return new LimiterWaterSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
     }
+
 }

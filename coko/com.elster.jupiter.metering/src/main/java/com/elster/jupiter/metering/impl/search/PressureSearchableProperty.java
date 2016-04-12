@@ -88,7 +88,7 @@ public abstract class PressureSearchableProperty implements SearchableUsagePoint
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.emptyList();
+        return Collections.singletonList(new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus));
     }
 
     @Override

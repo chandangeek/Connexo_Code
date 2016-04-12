@@ -83,6 +83,7 @@ public abstract class ValveSearchableProperty implements SearchableUsagePointPro
                 .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_VALVE)
                 .fromThesaurus(this.thesaurus)
                 .addValues(YesNoAnswer.values())
+                .markExhaustive()
                 .finish();
     }
 

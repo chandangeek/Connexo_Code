@@ -84,6 +84,7 @@ public abstract class GroundedSearchableProperty implements SearchableUsagePoint
                 .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_GROUNDED)
                 .fromThesaurus(this.thesaurus)
                 .addValues(YesNoAnswer.values())
+                .markExhaustive()
                 .finish();
     }
 

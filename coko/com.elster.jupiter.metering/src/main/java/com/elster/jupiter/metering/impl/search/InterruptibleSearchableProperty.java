@@ -83,6 +83,7 @@ public abstract class InterruptibleSearchableProperty implements SearchableUsage
                 .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_INTERRUPTABLE)
                 .fromThesaurus(this.thesaurus)
                 .addValues(YesNoAnswer.values())
+                .markExhaustive()
                 .finish();
     }
 

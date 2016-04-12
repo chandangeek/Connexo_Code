@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
+public abstract class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
@@ -88,14 +88,12 @@ public class LoadLimitSearchableProperty implements SearchableUsagePointProperty
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.emptyList();
+        return Collections.singletonList(new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus));
     }
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("No constraint to refresh");
-        }
+        //nothing to refresh
     }
 
     @Override

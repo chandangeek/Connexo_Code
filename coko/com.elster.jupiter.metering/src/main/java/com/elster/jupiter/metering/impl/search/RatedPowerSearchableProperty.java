@@ -93,7 +93,7 @@ public class RatedPowerSearchableProperty implements SearchableUsagePointPropert
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-
+        //nothing to refresh
     }
 
     @Override

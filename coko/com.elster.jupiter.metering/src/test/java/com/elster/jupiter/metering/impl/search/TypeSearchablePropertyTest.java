@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -36,7 +34,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MetrologyConfigurationSearchablePropertyTest {
+public class TypeSearchablePropertyTest {
+
     @Mock
     private UsagePointSearchDomain domain;
     @Mock
@@ -47,10 +46,6 @@ public class MetrologyConfigurationSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
-    @Mock
-    MetrologyConfiguration metrologyConfiguration;
-    @Mock
-    MetrologyConfigurationService metrologyConfigurationService;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -64,7 +59,7 @@ public class MetrologyConfigurationSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+        TypeSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -74,8 +69,8 @@ public class MetrologyConfigurationSearchablePropertyTest {
     }
 
     @Test
-    public void testNoGroup() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+    public void testHasNoGroup() {
+        TypeSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
@@ -85,19 +80,19 @@ public class MetrologyConfigurationSearchablePropertyTest {
     }
 
     @Test
-    public void testStickyVisibility() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+    public void testRemovableVisibility() {
+        TypeSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
 
         // Asserts
-        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.STICKY);
+        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.REMOVABLE);
     }
 
     @Test
     public void testSingleSelection() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+        TypeSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -108,31 +103,31 @@ public class MetrologyConfigurationSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+        TypeSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_TYPE.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+        TypeSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
 
         // Asserts
         assertThat(specification).isNotNull();
-        assertThat(specification.isReference()).isTrue();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(MetrologyConfiguration.class);
+        assertThat(specification.isReference()).isFalse();
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Enum.class);
     }
 
     @Test
-    public void getPossibleValues() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+    public void possibleValuesWithoutRefresh() {
+        TypeSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -142,8 +137,8 @@ public class MetrologyConfigurationSearchablePropertyTest {
     }
 
     @Test
-    public void noConstraints() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+    public void hasConstraints() {
+        TypeSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -154,7 +149,7 @@ public class MetrologyConfigurationSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+        TypeSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -166,7 +161,7 @@ public class MetrologyConfigurationSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
+        TypeSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -174,18 +169,8 @@ public class MetrologyConfigurationSearchablePropertyTest {
         // Asserts: see expected exception rule
     }
 
-    @Test
-    public void displayString() {
-        MetrologyConfigurationSearchableProperty property = this.getTestInstance();
-        when(metrologyConfiguration.getName()).thenReturn("name");
-        // Business method
-        String displayValue = property.toDisplay(metrologyConfiguration);
-
-        // Asserts
-        assertThat(displayValue).isEqualTo(metrologyConfiguration.getName());
+    private TypeSearchableProperty getTestInstance() {
+        return new TypeSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
     }
 
-    private MetrologyConfigurationSearchableProperty getTestInstance() {
-        return new MetrologyConfigurationSearchableProperty(this.domain, this.propertySpecService, this.metrologyConfigurationService, this.thesaurus);
-    }
 }

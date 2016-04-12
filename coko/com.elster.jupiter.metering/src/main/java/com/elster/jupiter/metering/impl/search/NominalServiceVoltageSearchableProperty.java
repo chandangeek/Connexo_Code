@@ -88,7 +88,7 @@ public class NominalServiceVoltageSearchableProperty implements SearchableUsageP
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.emptyList();
+        return Collections.singletonList(new ServiceCategorySearchableProperty(domain, propertySpecService, thesaurus));
     }
 
     @Override

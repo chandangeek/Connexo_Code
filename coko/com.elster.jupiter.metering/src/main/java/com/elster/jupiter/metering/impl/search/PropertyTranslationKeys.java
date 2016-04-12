@@ -58,7 +58,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_BYPASS("usagepoint.bypass", "Bypass"),
     USAGEPOINT_VALVE("usagepoint.valve", "Valve"),
     USAGEPOINT_CAPPED("usagepoint.capped", "Capped"),
-    USAPEPOINT_CLAMPED("usagepoint.clamped", "Clamped"),
+    USAGEPOINT_CLAMPED("usagepoint.clamped", "Clamped"),
     USAGEPOINT_PRESSURE("usagepoint.pressure", "Pressure"),
     USAGEPOINT_BYPASS_STATUS("usagepoint.bypassStatus", "Bypass status")
 

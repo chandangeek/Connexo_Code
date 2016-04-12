@@ -60,7 +60,7 @@ public abstract class ClampedSearchableProperty implements SearchableUsagePointP
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAPEPOINT_CLAMPED.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_CLAMPED.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -80,9 +80,10 @@ public abstract class ClampedSearchableProperty implements SearchableUsagePointP
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .specForValuesOf(new EnumFactory(YesNoAnswer.class))
-                .named(FIELDNAME, PropertyTranslationKeys.USAPEPOINT_CLAMPED)
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_CLAMPED)
                 .fromThesaurus(this.thesaurus)
                 .addValues(YesNoAnswer.values())
+                .markExhaustive()
                 .finish();
     }
 

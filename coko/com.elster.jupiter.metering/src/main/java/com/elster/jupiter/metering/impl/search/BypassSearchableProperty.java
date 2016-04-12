@@ -84,6 +84,7 @@ public abstract class BypassSearchableProperty implements SearchableUsagePointPr
                 .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_BYPASS)
                 .fromThesaurus(this.thesaurus)
                 .addValues(YesNoAnswer.values())
+                .markExhaustive()
                 .finish();
     }
 

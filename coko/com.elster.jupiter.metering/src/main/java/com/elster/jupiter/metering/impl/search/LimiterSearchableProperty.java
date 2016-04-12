@@ -83,6 +83,7 @@ public abstract class LimiterSearchableProperty implements SearchableUsagePointP
                 .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_LIMITER)
                 .fromThesaurus(this.thesaurus)
                 .addValues(YesNoAnswer.values())
+                .markExhaustive()
                 .finish();
     }
 
