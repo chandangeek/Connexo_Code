@@ -21,7 +21,8 @@ public class Installer {
         ExceptionCatcher.executing(
                 this::createMeterRoles,
                 this::createMetrologyPurposes,
-                this::createReadingTypeTemplates
+                this::createReadingTypeTemplates,
+                this::createMetrologyConfigurations
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
     }
@@ -53,5 +54,9 @@ public class Installer {
 
     private void createReadingTypeTemplates() {
         new ReadingTypeTemplateInstaller(metrologyConfigurationService).install();
+    }
+
+    private void createMetrologyConfigurations() {
+        new MetrologyConfigurationInstaller(metrologyConfigurationService, meteringService).install();
     }
 }

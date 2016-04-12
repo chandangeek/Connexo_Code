@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.config.ExpressionNode;
-import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.DataModel;
@@ -10,11 +9,10 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by igh on 11/02/2016.
@@ -92,6 +90,9 @@ public class FormulaImpl implements ServerFormula {
     @Override
     public void delete() {
         dataModel.remove(this);
+        if (this.expressionNode.isPresent()) {
+            dataModel.remove(this.expressionNode.get());
+        }
     }
 
     @Override
@@ -123,12 +124,21 @@ public class FormulaImpl implements ServerFormula {
                 ((AbstractNode) this.getExpressionNode()).getRequirements();
         Optional<IntervalLength> intervalLength = reqNodes.stream().map(
                 reqNode -> ((ReadingTypeRequirementImpl) reqNode.getReadingTypeRequirement()).getIntervalLength())
-                .filter(lentgh -> !lentgh.equals(IntervalLength.NOT_SUPPORTED))
+                .filter(length -> !length.equals(IntervalLength.NOT_SUPPORTED))
                 .sorted((a1, a2) -> Long.compare(a2.ordinal(), a1.ordinal())).findFirst();
         if (intervalLength.isPresent()) {
             return intervalLength.get();
         }
         return IntervalLength.NOT_SUPPORTED;
+    }
+
+    @Override
+    public List<IntervalLength> getIntervalLengths() {
+        List<ReadingTypeRequirementNode> reqNodes =
+                ((AbstractNode) this.getExpressionNode()).getRequirements();
+        return reqNodes.stream().map(
+                reqNode -> ((ReadingTypeRequirementImpl) reqNode.getReadingTypeRequirement()).getIntervalLength())
+                .filter(length -> !length.equals(IntervalLength.NOT_SUPPORTED)).collect(Collectors.toList());
     }
 
 }

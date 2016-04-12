@@ -1,9 +1,13 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -11,26 +15,36 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
+import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.search.ServiceCategorySearchableProperty;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.units.Unit;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -41,8 +55,11 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,6 +88,7 @@ import java.util.stream.Stream;
         "osgi.command.function=addRequirementWithTemplateReadingType",
         "osgi.command.function=deliverables",
         "osgi.command.function=addDeliverable",
+        "osgi.command.function=addDeliverableExpert",
         "osgi.command.function=updateDeliverable",
         "osgi.command.function=updateDeliverableReadingType",
         "osgi.command.function=updateDeliverableFormula",
@@ -380,6 +398,14 @@ public class ConsoleCommands {
     }
 
     public void addDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
+        doAddDeliverable(metrologyConfigId, name, readingTypeString, formulaString, Formula.Mode.AUTO);
+    }
+
+    public void addDeliverableExpert(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
+        doAddDeliverable(metrologyConfigId, name, readingTypeString, formulaString, Formula.Mode.EXPERT);
+    }
+
+    public void doAddDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString, Formula.Mode mode) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
@@ -387,9 +413,9 @@ public class ConsoleCommands {
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration, mode).parse(formulaString);
 
-            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO)).build(node).getId();
+            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, mode)).build(node).getId();
             System.out.println("Deliverable created: " + id);
             context.commit();
         }

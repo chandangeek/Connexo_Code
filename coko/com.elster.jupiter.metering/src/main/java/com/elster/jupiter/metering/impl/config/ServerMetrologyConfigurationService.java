@@ -29,6 +29,8 @@ public interface ServerMetrologyConfigurationService extends MetrologyConfigurat
 
     ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter createReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate);
 
+    Optional<? extends ReadingTypeTemplate> findReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate);
+
     Optional<Formula> findFormula(long id);
 
     List<Formula> findFormulas();
