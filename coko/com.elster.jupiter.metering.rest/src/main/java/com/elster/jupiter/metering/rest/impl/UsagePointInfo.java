@@ -29,6 +29,7 @@ public class UsagePointInfo {
     }
 
     public UsagePointInfo(UsagePoint usagePoint, Clock clock) {
+        id = usagePoint.getId();
         mRID = usagePoint.getMRID();
         serviceCategory = usagePoint.getServiceCategory().getKind();
         name = usagePoint.getName();
