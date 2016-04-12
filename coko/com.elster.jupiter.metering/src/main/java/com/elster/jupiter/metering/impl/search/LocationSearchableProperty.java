@@ -123,7 +123,6 @@ public class LocationSearchableProperty extends AbstractSearchableUsagePointProp
 
     @Override
     public Condition toCondition(Condition specification) {
-
         Condition specialCases = ListOperator.IN.contains(new Subquery() {
             @Override
             public SqlFragment toFragment() {
