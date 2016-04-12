@@ -148,6 +148,10 @@ public class UnitConversionSupport {
                 (!unit.equals(ReadingTypeUnit.NOTAPPLICABLE)); //0
     }
 
+    public static boolean isAssignable(IntervalLength deliverableIntervalLength, IntervalLength formulaIntervalLength) {
+        return deliverableIntervalLength.isMultipleOf(formulaIntervalLength);
+    }
+
     public static boolean isValidForAggregation(PartiallySpecifiedReadingType readingType) {
         return isValidForAggregation(readingType.getUnit());
     }

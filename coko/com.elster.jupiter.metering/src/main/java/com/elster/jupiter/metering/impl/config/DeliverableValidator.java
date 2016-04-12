@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.List;
 
 
 public class DeliverableValidator implements ConstraintValidator<ValidDeliverable, ReadingTypeDeliverable> {
@@ -45,10 +46,18 @@ public class DeliverableValidator implements ConstraintValidator<ValidDeliverabl
             if (readingType != null) {
                 IntervalLength intervalLengthOfReadingType = IntervalLength.from(readingType);
                 IntervalLength intervalLengthOfFormula = ((ServerFormula) formula).getIntervalLength();
-                //if no wildcards on interval in the requirements of the fomula
+                //if no wildcards on interval in the requirements of the formula
                 if (!intervalLengthOfFormula.equals(IntervalLength.NOT_SUPPORTED)) {
                     if (intervalLengthOfReadingType.ordinal() < intervalLengthOfFormula.ordinal()) {
                         throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS);
+                    }
+                    List<IntervalLength> lengths = ((ServerFormula) formula).getIntervalLengths();
+                    for (IntervalLength length : lengths) {
+                        if (!UnitConversionSupport.isAssignable(intervalLengthOfReadingType, length)) {
+                            throw new InvalidNodeException(
+                                    metrologyConfigurationService.getThesaurus(),
+                                    MessageSeeds.INCOMPATIBLE_INTERVAL_LENGTHS, length.toString(), intervalLengthOfReadingType.toString());
+                        }
                     }
                 }
             }
