@@ -100,7 +100,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         if (location.isPresent()) {
             List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get()
                     .getId());
-            formattedLocationMembers.stream().forEach(list ->
+            formattedLocationMembers.stream().skip(1).forEach(list ->
                     list.stream().findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
             formattedLocation = formattedLocationMembers.stream()
                     .flatMap(List::stream)
