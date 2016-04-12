@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -9,7 +10,9 @@ import com.elster.jupiter.util.units.Dimension;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.temporal.TemporalAmount;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -73,5 +76,8 @@ public interface ReadingTypeRequirement extends HasId, HasName {
     Dimension getDimension();
 
     boolean isRegular();
+
+    ReadingTypeUnit getUnit();
+
 
 }

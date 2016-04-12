@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
+import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -172,4 +173,6 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     public int hashCode() {
         return Long.hashCode(this.id);
     }
+
+    public abstract IntervalLength getIntervalLength();
 }

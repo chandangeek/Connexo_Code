@@ -4,10 +4,12 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.units.Dimension;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -77,5 +79,7 @@ public class FunctionCallNodeImpl extends AbstractNode implements FunctionCallNo
     public Dimension getDimension() {
         return this.getChildren().get(0).getDimension();
     }
+
+
 
 }

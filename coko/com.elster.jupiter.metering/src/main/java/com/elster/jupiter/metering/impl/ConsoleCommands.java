@@ -44,7 +44,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.elster.jupiter.util.units.Unit;
 
 import org.osgi.service.component.annotations.Component;
@@ -91,6 +90,7 @@ import java.util.stream.Stream;
         "osgi.command.function=addRequirementWithTemplateReadingType",
         "osgi.command.function=deliverables",
         "osgi.command.function=addDeliverable",
+        "osgi.command.function=addDeliverableExpert",
         "osgi.command.function=updateDeliverable",
         "osgi.command.function=updateDeliverableReadingType",
         "osgi.command.function=updateDeliverableFormula",
@@ -480,7 +480,7 @@ public class ConsoleCommands {
                 throw new IllegalArgumentException("MetrologyConfiguration requires that you specify a meter role");
             } else {
                 long id = metrologyConfiguration.newReadingTypeRequirement(name).withReadingType(readingType).getId();
-                System.out.println("MetrologyConfiguration created with ID: " + id);
+                System.out.println("Requirement created with id: " + id);
             }
             context.commit();
         }
@@ -499,7 +499,7 @@ public class ConsoleCommands {
                     MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
                     UsagePointMetrologyConfiguration upMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfiguration;
                     long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingType(readingType).getId();
-                    System.out.println("MetrologyConfiguration created with ID: " + id);
+                    System.out.println("Requirment created with id: " + id);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
                     throw e;
@@ -552,6 +552,14 @@ public class ConsoleCommands {
     }
 
     public void addDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
+        doAddDeliverable(metrologyConfigId, name, readingTypeString, formulaString, Formula.Mode.AUTO);
+    }
+
+    public void addDeliverableExpert(long metrologyConfigId, String name, String readingTypeString, String formulaString) {
+        doAddDeliverable(metrologyConfigId, name, readingTypeString, formulaString, Formula.Mode.EXPERT);
+    }
+
+    public void doAddDeliverable(long metrologyConfigId, String name, String readingTypeString, String formulaString, Formula.Mode mode) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
@@ -559,10 +567,10 @@ public class ConsoleCommands {
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration, mode).parse(formulaString);
 
-            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO)).build(node).getId();
-            System.out.printf("Deliverable created: " + id);
+            long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, mode)).build(node).getId();
+            System.out.println("Deliverable created: " + id);
             context.commit();
         }
     }
