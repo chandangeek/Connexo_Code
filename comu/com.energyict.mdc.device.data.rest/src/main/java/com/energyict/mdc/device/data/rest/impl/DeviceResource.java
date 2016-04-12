@@ -301,8 +301,8 @@ public class DeviceResource {
     @Path("/{mRID}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id, @Context SecurityContext securityContext) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+    public DeviceInfo findDeviceBymRID(@PathParam("mRID") String mrid, @Context SecurityContext securityContext) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
@@ -664,13 +664,20 @@ public class DeviceResource {
     @GET @Transactional
     @Path("/{mRID}/dataloggerslaves")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getDataLoggerSlaves(@PathParam("mRID") String id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+    public PagedInfoList getDataLoggerSlaves(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        return PagedInfoList.fromPagedList("dataLoggerSlaveDevices", getDataLoggerSlavesForDevice(device), queryParameters);
+    }
 
-        // TODO: get the data logger slaves from this device
-
-        List<DeviceTopologyInfo> slavesList = new ArrayList<>();
-        return PagedInfoList.fromPagedList("dataLoggerSlaveDevices", slavesList, queryParameters);
+    private List<DeviceTopologyInfo> getDataLoggerSlavesForDevice(Device device) {
+        List<DeviceTopologyInfo> dataLoggerSlaves = new ArrayList<>();
+        if (device.getDeviceConfiguration().isDataloggerEnabled()) {
+            // TODO: get the data logger slaves from this device
+//            Device slaveDevice = resourceHelper.findDeviceByMrIdOrThrowException("GDE_simple_slave2");
+//            DeviceTopologyInfo info = DeviceTopologyInfo.from(slaveDevice, Optional.of(slaveDevice.getCreateTime()));
+//            dataLoggerSlaves.add(info);
+        }
+        return dataLoggerSlaves;
     }
 
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {

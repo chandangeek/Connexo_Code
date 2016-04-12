@@ -72,7 +72,8 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.deviceTypeName = device.getDeviceType().getName();
         deviceInfo.deviceConfigurationId = deviceConfiguration.getId();
         deviceInfo.deviceConfigurationName = deviceConfiguration.getName();
-        deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId();
+        deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass()!=null
+            ? device.getDeviceType().getDeviceProtocolPluggableClass().getId() : 0;
         deviceInfo.yearOfCertification = device.getYearOfCertification();
         deviceInfo.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
 
