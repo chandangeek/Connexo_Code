@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 
 import java.time.temporal.TemporalAmount;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -24,4 +25,9 @@ public interface ServerFormula extends Formula {
      * Get the greatest interval used (as requirement) in the formula
      */
     IntervalLength getIntervalLength();
+
+    /**
+     * Get all intervals used (as requirement) in the formula
+     */
+    List<IntervalLength> getIntervalLengths();
 }

@@ -63,7 +63,8 @@ public enum MessageSeeds implements MessageSeed {
     INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS(5014, Constants.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS, "The interval of the output reading type should be larger or equal to interval of the requirements in the formula."),
     AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED(5015, Constants.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED, "Auto mode and export mode cannot be combined."),
     INVALID_READINGTYPE_IN_DELIVERABLE(5016, Constants.INVALID_READINGTYPE_IN_DELIVERABLE, "The readingtype for the deliverable is not valid, it should represent a numerical value."),
-    INVALID_READINGTYPE_IN_REQUIREMENT(5017, Constants.INVALID_READINGTYPE_IN_REQUIREMENT, "The readingtype for a requirement is not valid, it should represent a numerical value.");
+    INVALID_READINGTYPE_IN_REQUIREMENT(5017, Constants.INVALID_READINGTYPE_IN_REQUIREMENT, "The readingtype for a requirement is not valid, it should represent a numerical value."),
+    INCOMPATIBLE_INTERVAL_LENGTHS(5018, Constants.INCOMPATIBLE_INTERVAL_LENGTHS, "''{0}'' values cannot be aggregated to ''{1}'' values.")
     ;
 
     private final int number;
@@ -159,5 +160,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED = "auto.and.expert.mode.cannot.be.combined";
         public static final String INVALID_READINGTYPE_IN_DELIVERABLE = "invalid.readingtype.in.deliverable";
         public static final String INVALID_READINGTYPE_IN_REQUIREMENT = "invalid.readingtype.in.requirement";
+        public static final String INCOMPATIBLE_INTERVAL_LENGTHS = "incompatible.intervallengths";
+
     }
 }
