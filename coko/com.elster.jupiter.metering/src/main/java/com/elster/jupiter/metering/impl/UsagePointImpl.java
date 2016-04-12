@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.GasDetailBuilder;
@@ -13,29 +14,6 @@ import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingContainer;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceLocation;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.metering.UsagePointConfiguration;
-import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
-import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.UsagePointDetailBuilder;
-import com.elster.jupiter.metering.WaterDetailBuilder;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.ConnectionState;
-import com.elster.jupiter.metering.ElectricityDetailBuilder;
-import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.GasDetailBuilder;
-import com.elster.jupiter.metering.HeatDetailBuilder;
-import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -66,9 +44,8 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -80,11 +57,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -749,6 +721,11 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public void setUpLocation(Location location){
+        this.upLocation.set(location);
+    }
+
+    @Override
     public long getGeoCoordinatesId() {
         Optional<GeoCoordinates> coordinates = getGeoCoordinates();
         return coordinates.isPresent() ? coordinates.get().getId() : 0L;
@@ -757,6 +734,11 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public Optional<GeoCoordinates> getGeoCoordinates() {
         return geoCoordinates.getOptional();
+    }
+
+    @Override
+    public void setGeoCoordinates(GeoCoordinates geoCoordinates){
+        this.geoCoordinates.set(geoCoordinates);
     }
 
     @Override
