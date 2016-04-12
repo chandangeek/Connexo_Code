@@ -162,6 +162,7 @@ public enum TableSpecs {
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
                     .map(FirmwareCampaignPropertyImpl.Fields.CAMPAIGN.fieldName())
+                    .onDelete(DeleteRule.CASCADE)
                     .reverseMap(FirmwareCampaignImpl.Fields.PROPERTIES.fieldName())
                     .composition()
                     .add();
@@ -187,6 +188,7 @@ public enum TableSpecs {
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
                     .map(DevicesInFirmwareCampaignStatusImpl.Fields.CAMPAIGN.fieldName())
+                    .onDelete(DeleteRule.CASCADE)
                     .reverseMap(FirmwareCampaignImpl.Fields.DEVICES_STATUS.fieldName())
                     .composition()
                     .add();

@@ -8,11 +8,13 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -71,6 +73,15 @@ public class FirmwareCampaignTest extends PersistenceTest {
     public void testInitWithNullGroup() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(getDeviceTypeMock(), null);
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
+        Save.CREATE.validate(firmwareService.getDataModel(), firmwareCampaign);
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = "{" + com.energyict.mdc.firmware.impl.MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "comWindow", strict = false)
+    public void testInitWithNullComWindow() {
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+        FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(getDeviceTypeMock(), mock(EndDeviceGroup.class));
         Save.CREATE.validate(firmwareService.getDataModel(), firmwareCampaign);
     }
 
@@ -78,6 +89,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+
         Set<DeviceMessageId> supportedMessages = new HashSet<>();
         Collections.addAll(supportedMessages,
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE,
@@ -99,6 +111,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         firmwareCampaign.setFirmwareType(FirmwareType.METER);
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
         firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, String.valueOf(firmwareVersion.getId()));
         Save.UPDATE.validate(firmwareService.getDataModel(), firmwareCampaign);
         //assert no errors
@@ -147,6 +160,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         firmwareCampaign.setFirmwareType(FirmwareType.METER);
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
         Save.CREATE.validate(firmwareService.getDataModel(), firmwareCampaign);
     }
 
@@ -160,6 +174,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         firmwareCampaign.setFirmwareType(FirmwareType.METER);
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
         firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, String.valueOf(firmwareVersion.getId()));
         Save.CREATE.validate(firmwareService.getDataModel(), firmwareCampaign);
         // assert no errors
@@ -175,9 +190,165 @@ public class FirmwareCampaignTest extends PersistenceTest {
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         firmwareCampaign.setFirmwareType(FirmwareType.METER);
         firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, String.valueOf(Integer.MAX_VALUE));
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
         Save.CREATE.validate(firmwareService.getDataModel(), firmwareCampaign);
         // assert no errors
     }
+
+    @Test
+    @Transactional
+    public void testOngoingStatus() {
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+        DeviceType deviceType = this.createDeviceType();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
+        firmwareCampaign.setName("firmware campaign 1");
+        firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        firmwareCampaign.setFirmwareType(FirmwareType.METER);
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
+        firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, String.valueOf(firmwareVersion.getId()));
+
+        firmwareCampaign.save();
+
+        FirmwareCampaign campaign = inMemoryPersistence.getFirmwareService().getFirmwareCampaignById(firmwareCampaign.getId()).get();
+        assertThat(campaign.getStatus()).isEqualTo(FirmwareCampaignStatus.ONGOING);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateStatistics() {
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+        DeviceType deviceType = this.createDeviceType();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
+        firmwareCampaign.setName("firmware campaign 1");
+        firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        firmwareCampaign.setFirmwareType(FirmwareType.METER);
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
+        firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, String.valueOf(firmwareVersion.getId()));
+
+        firmwareCampaign.save();
+
+        ((FirmwareCampaignImpl) firmwareCampaign).updateStatistic();
+
+        FirmwareCampaignImpl campaignAfterUpdate = (FirmwareCampaignImpl) inMemoryPersistence.getFirmwareService().getFirmwareCampaignById(firmwareCampaign.getId()).get();
+        assertThat(campaignAfterUpdate.getStatus()).isEqualTo(FirmwareCampaignStatus.COMPLETE);
+    }
+
+    @Test
+    @Transactional
+    public void testCancelStatistics() {
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+        DeviceType deviceType = this.createDeviceType();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
+        firmwareCampaign.setName("firmware campaign 1");
+        firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        firmwareCampaign.setFirmwareType(FirmwareType.METER);
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
+        firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, String.valueOf(firmwareVersion.getId()));
+
+        firmwareCampaign.save();
+
+        ((FirmwareCampaignImpl) firmwareCampaign).cancel();
+
+        FirmwareCampaignImpl campaignAfterUpdate = (FirmwareCampaignImpl) inMemoryPersistence.getFirmwareService().getFirmwareCampaignById(firmwareCampaign.getId()).get();
+        assertThat(campaignAfterUpdate.getStatus()).isEqualTo(FirmwareCampaignStatus.CANCELLED);
+    }
+
+
+    @Test
+    @Transactional
+    public void testSimpleRemoval() {
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+        DeviceType deviceType = this.createDeviceType();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
+        firmwareCampaign.setName("firmware campaign 1");
+        firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        firmwareCampaign.setFirmwareType(FirmwareType.METER);
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
+        firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, String.valueOf(firmwareVersion.getId()));
+        firmwareCampaign.save();
+
+        FirmwareCampaign campaign = inMemoryPersistence.getFirmwareService().getFirmwareCampaignById(firmwareCampaign.getId()).get();
+        campaign.delete();
+        // assert no errors
+    }
+
+    @Test
+    @Transactional
+    public void testRemovalOngoingCampaign() {
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+        DeviceType deviceType = this.createDeviceType();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
+        firmwareCampaign.setName("firmware campaign 1");
+        firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        firmwareCampaign.setFirmwareType(FirmwareType.METER);
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
+        firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, String.valueOf(firmwareVersion.getId()));
+
+        firmwareCampaign.save();
+
+        ((FirmwareCampaignImpl) firmwareCampaign).updateStatistic();
+
+        FirmwareCampaignImpl campaignAfterUpdate = (FirmwareCampaignImpl) inMemoryPersistence.getFirmwareService().getFirmwareCampaignById(firmwareCampaign.getId()).get();
+        campaignAfterUpdate.delete();
+    }
+
+    @Test
+    @Transactional
+    public void testRemoveCanceledCampaign() {
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+        DeviceType deviceType = this.createDeviceType();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
+        firmwareCampaign.setName("firmware campaign 1");
+        firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        firmwareCampaign.setFirmwareType(FirmwareType.METER);
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
+        firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, String.valueOf(firmwareVersion.getId()));
+
+        firmwareCampaign.save();
+
+        ((FirmwareCampaignImpl) firmwareCampaign).cancel();
+
+        FirmwareCampaignImpl campaignAfterUpdate = (FirmwareCampaignImpl) inMemoryPersistence.getFirmwareService().getFirmwareCampaignById(firmwareCampaign.getId()).get();
+        campaignAfterUpdate.delete();
+    }
+/*
+    @Test
+    @Transactional
+    public void testRemovalOngoingCampaignWithDevices() {
+        FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
+        DeviceType deviceType = this.createDeviceType();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "1", FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareCampaign firmwareCampaign = firmwareService.newFirmwareCampaign(deviceType, mock(EndDeviceGroup.class));
+        firmwareCampaign.setName("firmware campaign 1");
+        firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
+        firmwareCampaign.setFirmwareType(FirmwareType.METER);
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
+        firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, String.valueOf(firmwareVersion.getId()));
+
+        firmwareCampaign.save();
+
+        ((FirmwareCampaignImpl) firmwareCampaign).updateStatistic();
+
+        DeviceImpl device = mock(DeviceImpl.class);
+        when(device.getId()).thenReturn(123L);
+
+        DeviceInFirmwareCampaignImpl deviceInFirmwareCampaign = inMemoryPersistence.getFirmwareService().getDataModel().getInstance(DeviceInFirmwareCampaignImpl.class);
+        deviceInFirmwareCampaign.init(firmwareCampaign, device );
+        deviceInFirmwareCampaign.setStatus(FirmwareManagementDeviceStatus.ACTIVATION_PENDING);
+        inMemoryPersistence.getFirmwareService().getDataModel().persist(deviceInFirmwareCampaign);
+        deviceInFirmwareCampaign.startFirmwareProcess();
+
+        FirmwareCampaignImpl campaignAfterUpdate = (FirmwareCampaignImpl) inMemoryPersistence.getFirmwareService().getFirmwareCampaignById(firmwareCampaign.getId()).get();
+        campaignAfterUpdate.delete();
+    }
+
+ */
 
     @Test
     @Transactional
@@ -202,6 +373,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
         firmwareCampaign.setName("firmware campaign 1");
         firmwareCampaign.setManagementOption(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         firmwareCampaign.setFirmwareType(FirmwareType.METER);
+        firmwareCampaign.setComWindow(mock(ComWindow.class));
         firmwareCampaign.addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, String.valueOf(firmwareVersion.getId()));
         doReturn(Optional.of(firmwareCampaign)).when(inMemoryPersistence.getFirmwareService()).getFirmwareCampaignById(1L);
         MeteringGroupsService meteringGroupsService = mock(MeteringGroupsService.class);

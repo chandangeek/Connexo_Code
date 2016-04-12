@@ -47,15 +47,6 @@ public class DevicesInFirmwareCampaignFilterTest {
         assertThat(((Comparison)condition).getValues()[0]).isEqualTo(firmwareCampaign);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testForCampaignFirmwareStatusNotSet(){
-        when(firmwareService.getFirmwareCampaignById(1L)).thenReturn(Optional.of(firmwareCampaign));
-        when(firmwareCampaign.getId()).thenReturn(1L);
-
-        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
-                                    .withFirmwareCampaignId(this.firmwareCampaign.getId())
-                                    .getCondition();
-    }
 
     @Test(expected = BadFilterException.class)
     public void testForCampaignNotFound(){
@@ -149,17 +140,6 @@ public class DevicesInFirmwareCampaignFilterTest {
         assertThat(((Comparison)condition).getFieldName()).isEqualToIgnoringCase(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName());
         assertThat(((Comparison)condition).getOperator()).isEqualTo(Operator.EQUAL);
         assertThat(((Comparison)condition).getValues()[0]).isEqualTo(FirmwareManagementDeviceStatus.CANCELLED);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testSingleDeviceWithFilterNotCorrectlyInitiated(){
-        when(deviceService.findDeviceById(1L)).thenReturn(Optional.of(device1));
-        when(device1.getId()).thenReturn(1L);
-
-        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
-                                    .withDeviceIds(Collections.singletonList(device1.getId()))
-                                    .getCondition();
-
     }
 
     @Test
