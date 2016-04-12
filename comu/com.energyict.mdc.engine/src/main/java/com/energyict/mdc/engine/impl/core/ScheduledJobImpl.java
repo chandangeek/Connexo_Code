@@ -64,13 +64,17 @@ public abstract class ScheduledJobImpl extends JobExecution {
 
     @Override
     public boolean isWithinComWindow () {
+        return this.isWithinComWindow(getComWindow());
+    }
+
+    private ComWindow getComWindow(){
         ComWindow comWindowToUse = this.getConnectionTask().getCommunicationWindow();
         Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(item -> item instanceof FirmwareComTaskExecution).findFirst();
         if (firmwareComTaskExecution.isPresent()){
             FirmwareComTaskExecution comTaskExecution = (FirmwareComTaskExecution) firmwareComTaskExecution.get();
             comWindowToUse = getServiceProvider().firmwareService().getFirmwareCampaign(comTaskExecution).getComWindow();
         }
-        return this.isWithinComWindow(comWindowToUse);
+        return comWindowToUse;
     }
 
     private boolean isWithinComWindow (ComWindow comWindow) {
@@ -93,7 +97,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
                         .flatMap(each -> each.getComTasks().stream())
                         .count();
         this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
-        this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + this.getConnectionTask().getCommunicationWindow());
+        this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
         this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this));
         this.completeSuccessfulComSession();
     }

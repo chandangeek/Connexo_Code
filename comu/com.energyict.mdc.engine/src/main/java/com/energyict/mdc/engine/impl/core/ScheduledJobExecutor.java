@@ -112,15 +112,17 @@ public abstract class ScheduledJobExecutor {
         public synchronized ValidationReturnStatus perform() {
             if (!this.job.isStillPending()) {
                 return ValidationReturnStatus.NOT_PENDING_ANYMORE;
-            } else if (this.job.isWithinComWindow()) {
-                if (this.job.attemptLock()) {
-                    return ValidationReturnStatus.ATTEMPT_LOCK_SUCCESS;
-                }
-                else {
-                    return ValidationReturnStatus.ATTEMPT_LOCK_FAILED;
-                }
             } else {
-                return ValidationReturnStatus.JOB_OUTSIDE_COM_WINDOW;
+                boolean attemptLock = this.job.attemptLock();
+                if (this.job.isWithinComWindow()) {
+                    if (attemptLock) {
+                        return ValidationReturnStatus.ATTEMPT_LOCK_SUCCESS;
+                    } else {
+                        return ValidationReturnStatus.ATTEMPT_LOCK_FAILED;
+                    }
+                } else {
+                    return ValidationReturnStatus.JOB_OUTSIDE_COM_WINDOW;
+                }
             }
         }
     }
