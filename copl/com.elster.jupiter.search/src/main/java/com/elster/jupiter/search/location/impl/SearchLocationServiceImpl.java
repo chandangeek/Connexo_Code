@@ -125,7 +125,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                             e.printStackTrace();
                         }
                     }
-                    result.put(resultSet.getLong("LOCATIONID"), formatedMembers.stream().map(Object::toString).collect(Collectors.joining(",")));
+                    result.put(resultSet.getLong("LOCATIONID"), formatedMembers.stream().map(Object::toString).collect(Collectors.joining(", ")));
                 }
             }
         } catch (Exception e) {
