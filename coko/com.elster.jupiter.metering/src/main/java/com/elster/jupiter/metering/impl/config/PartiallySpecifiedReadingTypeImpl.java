@@ -215,21 +215,23 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     }
 
     private boolean hasWildCardForTime() {
-        for (PartiallySpecifiedReadingTypeAttributeValueImpl att : overriddenAttributes) {
-            if (att.getName() == ReadingTypeTemplateAttributeName.TIME)  {
-                return true;
-            }
-        }
-        return false;
+        return hasWildcardFor(ReadingTypeTemplateAttributeName.TIME);
     }
 
     private boolean hasWildCardForMacroPeriod() {
-        for (PartiallySpecifiedReadingTypeAttributeValueImpl att : overriddenAttributes) {
-            if (att.getName() == ReadingTypeTemplateAttributeName.MACRO_PERIOD)  {
-                return true;
-            }
-        }
-        return false;
+        return hasWildcardFor(ReadingTypeTemplateAttributeName.MACRO_PERIOD);
+    }
+
+    private boolean hasWildcardFor(ReadingTypeTemplateAttributeName attribute) {
+        ReadingTypeTemplateAttribute templateAttribute = this.getReadingTypeTemplate().getAttribute(attribute);
+        // 1. attribute definition allows wildcards
+        // 2. user doesn't override this attribute in PartiallySpecifiedReadingType (because if he does this attribute has value)
+        // 3. there is no value for that attribute in template
+        // 4. there is no possible values for that attribute in template
+        return attribute.getDefinition().canBeWildcard() && !this.overriddenAttributes.stream()
+                .map(PartiallySpecifiedReadingTypeAttributeValueImpl::getName)
+                .anyMatch(attribute::equals)
+                && !templateAttribute.getCode().isPresent() && templateAttribute.getPossibleValues().isEmpty();
     }
 
 }
