@@ -362,7 +362,7 @@ public enum ReadingTypeTemplateAttributeName {
 
         @Override
         public Function<ReadingTypeUnit, TranslationKey> getTranslationProvider() {
-            return ReadingTypeTranslationKeys.UnitFields::new;
+            return ReadingTypeTranslationKeys.Unit::new;
         }
 
         @Override

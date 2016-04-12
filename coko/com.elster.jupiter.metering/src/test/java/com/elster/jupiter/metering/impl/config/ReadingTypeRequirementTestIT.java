@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.transaction.TransactionContext;
 
+import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -355,5 +356,13 @@ public class ReadingTypeRequirementTestIT {
         FullySpecifiedReadingType rtr2 = metrologyConfiguration2.newReadingTypeRequirement("Name 2").withReadingType(readingType);
 
         assertThat(rtr1).isNotEqualTo(rtr2);
+    }
+
+    @Test
+    @Transactional
+    public void testCanMatchCommodity() {
+        ReadingTypeTemplate aPlus = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS).done();
+        ReadingType rt = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "commodity-test");
+        Assertions.assertThat(aPlus.matches(rt)).isTrue();
     }
 }

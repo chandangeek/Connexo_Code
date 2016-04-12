@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
@@ -83,4 +84,10 @@ public class FullySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl im
     public IntervalLength getIntervalLength() {
         return IntervalLength.from(readingType.get());
     }
+
+    @Override
+    public ReadingTypeUnit getUnit() {
+        return getReadingType().getUnit();
+    }
+
 }

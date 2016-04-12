@@ -2,8 +2,12 @@ package com.elster.jupiter.metering.config;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 
+import java.util.Optional;
+
+import java.util.List;
 import java.util.Optional;
 
 @ProviderType
@@ -34,4 +38,23 @@ public interface PartiallySpecifiedReadingType extends ReadingTypeRequirement {
     MacroPeriod getMacroPeriod();
 
     TimeAttribute getMeasuringPeriod();
+
+    ReadingTypeUnit getUnit();
+
+    /**
+     * @return A string value based on attributes
+     */
+    String getDescription();
+
+    /**
+     * @return A string value of attribute
+     * Returns empty if less than one value present in the template.
+     */
+    Optional<String> getAttributeValue(ReadingTypeTemplateAttributeName attributeName);
+
+    /**
+     * @return A list of attribute values
+     * Returns a list with single value if values overridden by specific value.
+     */
+    List<Optional<String>>  getAttributeValues(ReadingTypeTemplateAttributeName attributeName);
 }

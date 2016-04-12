@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
@@ -62,6 +63,9 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         }
         if ((isAutoMode()) && (!requirement.isRegular())) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.IRREGULAR_READINGTYPE_IN_REQUIREMENT);
+        }
+        if ((isAutoMode()) && (!UnitConversionSupport.isValidForAggregation(requirement.getUnit()))) {
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
         }
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.requirement(requirement));
     }
