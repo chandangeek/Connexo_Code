@@ -28,6 +28,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -120,8 +121,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             formattedLocationMembers.stream().skip(1).forEach(list ->
                     list.stream().findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
             formattedLocation = formattedLocationMembers.stream()
-                    .flatMap(List::stream)
-                    .collect(Collectors.joining(","));
+                    .flatMap(List::stream).filter(Objects::nonNull)
+                    .collect(Collectors.joining(", "));
         }
         info.location = formattedLocation;
         return info;
