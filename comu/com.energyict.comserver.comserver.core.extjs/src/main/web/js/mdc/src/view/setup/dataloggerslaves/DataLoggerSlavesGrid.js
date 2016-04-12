@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.DataLoggerSlaves'
+        'Mdc.store.DataLoggerSlaves',
+        'Mdc.view.setup.dataloggerslaves.DataLoggerSlavesActionMenu'
     ],
 
     initComponent: function () {
@@ -43,6 +44,13 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'dataloggerslaves-action-menu',
+                    itemId: 'mdc-dataloggerslaves-action-menu'
+                }
             }
         ];
 
@@ -54,7 +62,16 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} data logger slaves'),
                 displayMoreMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} data logger slaves'),
-                emptyMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.emptyMsg', 'MDC', 'There are no data logger slaves to display')
+                emptyMsg: Uni.I18n.translate('dataLoggerSlaves.pagingtoolbartop.emptyMsg', 'MDC', 'There are no data logger slaves to display'),
+                items: [
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('dataLoggerSlaves.linkSlave', 'MDC', 'Link slave'),
+                        itemId: 'mdc-dataloggerslavesgrid-link-slave-btn'
+                        //privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                        //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions,
+                    }
+                ]
             },
             {
                 xtype: 'pagingtoolbarbottom',

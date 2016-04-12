@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep1', {
                                 typeAhead: true,
                                 autoSelect: true,
                                 displayField: 'mRID',
-                                valueField: 'id',
+                                valueField: 'mRID',
                                 emptyText: Uni.I18n.translate('general.selectADataLoggerSlave', 'MDC', 'Select a data logger slave...'),
                                 msgTarget: 'under',
                                 margin: '20 0 0 0'

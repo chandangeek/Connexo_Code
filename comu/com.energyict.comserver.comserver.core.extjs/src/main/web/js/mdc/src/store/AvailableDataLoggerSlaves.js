@@ -7,7 +7,7 @@ Ext.define('Mdc.store.AvailableDataLoggerSlaves', {
 
     model: 'Mdc.model.Device',
     storeId: 'AvailableDataLoggerSlaves',
-
+    remoteSort: true,
     proxy: {
         type: 'rest',
         url: '../../api/ddr/devices',

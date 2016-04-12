@@ -4,8 +4,8 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
 
     requires: [
         'Mdc.view.setup.dataloggerslaves.LinkWizardStep1',
-        'Mdc.view.setup.dataloggerslaves.LinkWizardStep2'
-        //'Mdc.view.setup.devicegroup.Step3',
+        'Mdc.view.setup.dataloggerslaves.LinkWizardStep2',
+        'Mdc.view.setup.dataloggerslaves.LinkWizardStep3'
         //'Mdc.view.setup.devicegroup.Step4'
     ],
 
@@ -30,13 +30,13 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
                 itemId: 'mdc-dataloggerslave-link-wizard-step2',
                 title: Uni.I18n.translate('linkwizard.step2.title', 'MDC', 'Step 2: Map channels'),
                 navigationIndex: 2
+            },
+            {
+                xtype: 'dataloggerslave-link-wizard-step3',
+                itemId: 'mdc-dataloggerslave-link-wizard-step3',
+                title: Uni.I18n.translate('linkwizard.step3.title', 'MDC', 'Step 3: Map registers'),
+                navigationIndex: 3
             }
-            //{
-            //    xtype: 'device-group-wizard-step3',
-            //    itemId: 'devicegroup-wizard-step3',
-            //    title: Uni.I18n.translate('devicegroup.wizard.step3title', 'MDC', 'Step 3 of 4: Confirmation'),
-            //    navigationIndex: 3
-            //},
             //{
             //    xtype: 'device-group-wizard-step4',
             //    itemId: 'devicegroup-wizard-step4',
