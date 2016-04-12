@@ -36,7 +36,7 @@ public class CreateDemoDataCommand {
     private String startDate;
     private Integer devicesPerType = null;
     private Location location;
-    private GeoCoordinates geoCoordinates;
+    //private GeoCoordinates geoCoordinates;
 
     @Inject
     public CreateDemoDataCommand(
@@ -80,10 +80,10 @@ public class CreateDemoDataCommand {
         this.location = location;
     }
 
-    public void setGeoCoordinates(GeoCoordinates geoCoordinates){
-        this.geoCoordinates = geoCoordinates;
+   /* public void setGeoCoordinates(GeoCoordinates geoCoordinates){
+       this.geoCoordinates = geoCoordinates;
     }
-
+    */
     public void setStartDate(String startDate) {
         this.startDate = startDate;
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.parse(this.startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault());
@@ -154,7 +154,7 @@ public class CreateDemoDataCommand {
         command.setHost(this.host);
         command.setDevicesPerType(this.devicesPerType);
         command.setLocation(location);
-        command.setGeoCoordinates(geoCoordinates);
+        //command.setGeoCoordinates(geoCoordinates);
         command.run();
     }
 

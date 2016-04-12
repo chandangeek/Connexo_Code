@@ -652,7 +652,7 @@ public class DemoServiceImpl {
             command.setHost(host);
             command.setStartDate(startDate);
             command.setLocation(createLocation());
-            command.setGeoCoordinates(createGeoCoordinates());
+            //command.setGeoCoordinates(createGeoCoordinates());
             if (numberOfDevicesPerType == null) {
                 command.setDevicesPerType(null);
             } else {
@@ -687,7 +687,7 @@ public class DemoServiceImpl {
         return builder;
     }
 
-    private GeoCoordinates createGeoCoordinates(){
+   /* private GeoCoordinates createGeoCoordinates(){
         double minLatitude = -90.00;
         double maxLatitude = 90.00;
         double minLongitude = 0.00;
@@ -696,7 +696,7 @@ public class DemoServiceImpl {
         String latitude = df.format(minLatitude + (Math.random() * ((maxLatitude - minLatitude) + 1)));
         String longitude = df.format(minLongitude + (double)(Math.random() * ((maxLongitude - minLongitude) + 1)));
         return meteringService.createGeoCoordinates(latitude + ":" +longitude);
-    }
+    } */
 
     @SuppressWarnings("unused")
     public void createCollectRemoteDataSetup(String comServerName, String host){
