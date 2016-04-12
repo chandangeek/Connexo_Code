@@ -1,8 +1,5 @@
 Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm', {
     extend: 'Ext.form.Panel',
-    requires: [
-        'Uni.form.field.SearchCriteriaDisplay'
-    ],
     alias: 'widget.metrology-config-details-form',
     router: null,
     displayPurposes: true,
