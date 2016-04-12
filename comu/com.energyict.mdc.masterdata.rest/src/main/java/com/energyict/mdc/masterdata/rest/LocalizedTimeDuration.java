@@ -44,6 +44,7 @@ public class LocalizedTimeDuration {
     public static class TimeDurationInfo {
         public int id;
         public String name;
+        public int asSeconds;
     }
 
     public static class Adapter extends XmlAdapter<TimeDurationInfo, TimeDuration> {
@@ -60,6 +61,7 @@ public class LocalizedTimeDuration {
                 if (durationEntry.getValue().getTimeDuration().equals(timeDuration)){
                     TimeDurationInfo info = new TimeDurationInfo();
                     info.id = durationEntry.getKey();
+                    info.asSeconds = durationEntry.getValue().getTimeDuration().getSeconds();
                     return info;
                 }
             }
