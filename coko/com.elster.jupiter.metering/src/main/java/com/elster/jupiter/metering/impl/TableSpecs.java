@@ -72,6 +72,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTWRAPPER;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -1029,7 +1030,7 @@ public enum TableSpecs {
                     .add();
             table.column(ReadingTypeTemplateAttributeImpl.Fields.CODE.name())
                     .number()
-                    .conversion(NUMBER2INT)
+                    .conversion(NUMBER2INTWRAPPER)
                     .map(ReadingTypeTemplateAttributeImpl.Fields.CODE.fieldName())
                     .add();
 
