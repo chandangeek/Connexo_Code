@@ -90,6 +90,9 @@ public class SearchLocationServiceImpl implements SearchLocationService {
     @Override
     public Map<Long, String> findLocations(String locationPart) {
         Map<Long, String> result = new HashMap<>();
+        locationTemplate = locationTemplate.replace("\\r", "").replace("\\n", "")
+                .replace("\r", "").replace("\n", "")
+                .replace("\r\n", "").replace("\n\r", "");
         String[] templateMembers = locationTemplate.split(",");
 
         SqlBuilder locationBuilder = new SqlBuilder();
@@ -111,6 +114,9 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                     List<String> formatedMembers = new ArrayList<>();
                     for (String identifier : templateMembers) {
                         try {
+                            if (identifier.compareToIgnoreCase("#locale") == 0)
+                                continue;
+
                             String value = resultSet.getString(templateMap.get(identifier));
                             if (value != null && !value.isEmpty()) {
                                 formatedMembers.add(value);
