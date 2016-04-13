@@ -8,6 +8,8 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
+import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -15,9 +17,6 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
-import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.UsagePointDetailBuilder;
-import com.elster.jupiter.metering.imports.impl.parsers.BooleanParser;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -51,6 +50,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
@@ -124,12 +124,130 @@ public class UsagePointProcessorTest {
     @Mock
     private FileImportOccurrence fileImportOccurrenceIncorrect;
 
+    @Mock
+    private LocationTemplate locationTemplate;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldCountryCode;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldCountryName;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldAdministrativeArea;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldEstablishmentType;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldLocality;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldSubLocality;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldStreetType;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldStreetName;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldStreetNumber;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldLocale;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldEstablishmentName;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldEstablishmentNumber;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldAddressDetail;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldZipCode;
+
+    @Mock
+    private LocationBuilder locationBuilder;
+
+    @Mock
+    private LocationBuilder.LocationMemberBuilder locationMemberBuilder;
+
 
     private MeteringDataImporterContext context;
 
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
+
+        when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
+        when(templateFieldZipCode.getName()).thenReturn("zipCode");
+        when(templateFieldZipCode.isMandatory()).thenReturn(false);
+        when(templateFieldZipCode.getRanking()).thenReturn(13);
+        when(templateFieldAddressDetail.getName()).thenReturn("addressDetail");
+        when(templateFieldAddressDetail.isMandatory()).thenReturn(false);
+        when(templateFieldAddressDetail.getRanking()).thenReturn(12);
+        when(templateFieldEstablishmentNumber.getName()).thenReturn("establishmentNumber");
+        when(templateFieldEstablishmentNumber.isMandatory()).thenReturn(false);
+        when(templateFieldEstablishmentNumber.getRanking()).thenReturn(11);
+        when(templateFieldEstablishmentName.getName()).thenReturn("establishmentName");
+        when(templateFieldEstablishmentName.isMandatory()).thenReturn(false);
+        when(templateFieldEstablishmentName.getRanking()).thenReturn(10);
+        when(templateFieldCountryCode.getName()).thenReturn("countryCode");
+        when(templateFieldCountryCode.isMandatory()).thenReturn(false);
+        when(templateFieldCountryCode.getRanking()).thenReturn(0);
+        when(templateFieldCountryName.getName()).thenReturn("countryName");
+        when(templateFieldCountryName.isMandatory()).thenReturn(false);
+        when(templateFieldCountryName.getRanking()).thenReturn(1);
+        when(templateFieldAdministrativeArea.getName()).thenReturn("administrativeArea");
+        when(templateFieldAdministrativeArea.isMandatory()).thenReturn(false);
+        when(templateFieldAdministrativeArea.getRanking()).thenReturn(2);
+        when(templateFieldEstablishmentType.getName()).thenReturn("establishmentType");
+        when(templateFieldEstablishmentType.isMandatory()).thenReturn(false);
+        when(templateFieldEstablishmentType.getRanking()).thenReturn(8);
+        when(templateFieldLocality.getName()).thenReturn("locality");
+        when(templateFieldLocality.isMandatory()).thenReturn(false);
+        when(templateFieldLocality.getRanking()).thenReturn(3);
+        when(templateFieldSubLocality.getName()).thenReturn("subLocality");
+        when(templateFieldSubLocality.isMandatory()).thenReturn(false);
+        when(templateFieldSubLocality.getRanking()).thenReturn(4);
+        when(templateFieldStreetType.getName()).thenReturn("streetType");
+        when(templateFieldStreetType.isMandatory()).thenReturn(false);
+        when(templateFieldStreetType.getRanking()).thenReturn(5);
+        when(templateFieldStreetName.getName()).thenReturn("streetName");
+        when(templateFieldStreetName.isMandatory()).thenReturn(false);
+        when(templateFieldStreetName.getRanking()).thenReturn(6);
+        when(templateFieldStreetNumber.getName()).thenReturn("streetNumber");
+        when(templateFieldStreetNumber.isMandatory()).thenReturn(false);
+        when(templateFieldStreetNumber.getRanking()).thenReturn(7);
+        when(templateFieldLocale.getName()).thenReturn("locale");
+        when(templateFieldLocale.isMandatory()).thenReturn(false);
+        when(templateFieldLocale.getRanking()).thenReturn(9);
+        when(locationTemplate.getTemplateMembers()).thenReturn(Arrays.asList(templateFieldCountryCode, templateFieldCountryName, templateFieldAdministrativeArea,
+                templateFieldSubLocality, templateFieldLocality, templateFieldStreetType, templateFieldStreetName, templateFieldStreetNumber, templateFieldEstablishmentType, templateFieldLocale,
+                templateFieldEstablishmentName, templateFieldEstablishmentNumber, templateFieldAddressDetail, templateFieldZipCode));
+        when(meteringService.newLocationBuilder()).thenReturn(locationBuilder);
+        when(locationBuilder.getMember(anyString())).thenReturn(Optional.empty());
+        when(locationBuilder.member()).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
+
         when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.empty());
         when(meteringService.getServiceCategory(Matchers.any(ServiceKind.class))).thenReturn(Optional.ofNullable(serviceCategoryTwo));
         when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);

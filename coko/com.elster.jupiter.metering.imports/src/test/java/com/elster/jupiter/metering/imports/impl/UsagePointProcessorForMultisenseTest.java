@@ -5,6 +5,7 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -40,15 +41,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.verification.Calls;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.calls;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -119,12 +117,92 @@ public class UsagePointProcessorForMultisenseTest {
     @Mock
     private FileImportOccurrence fileImportOccurrenceFail;
 
+    @Mock
+    private LocationTemplate locationTemplate;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldCountryCode;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldCountryName;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldAdministrativeArea;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldEstablishmentType;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldLocality;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldSubLocality;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldStreetType;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldStreetName;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldStreetNumber;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldLocale;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldEstablishmentName;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldEstablishmentNumber;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldAddressDetail;
+
+    @Mock
+    private LocationTemplate.TemplateField templateFieldZipCode;
+
+
 
     private MeteringDataImporterContext context;
 
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
+
+
+        when(templateFieldZipCode.getName()).thenReturn("zipCode");
+        when(templateFieldZipCode.isMandatory()).thenReturn(false);
+        when(templateFieldAddressDetail.getName()).thenReturn("addressDetail");
+        when(templateFieldAddressDetail.isMandatory()).thenReturn(false);
+        when(templateFieldEstablishmentNumber.getName()).thenReturn("establishmentNumber");
+        when(templateFieldEstablishmentNumber.isMandatory()).thenReturn(false);
+        when(templateFieldEstablishmentName.getName()).thenReturn("establishmentName");
+        when(templateFieldEstablishmentName.isMandatory()).thenReturn(false);
+        when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
+        when(templateFieldCountryCode.getName()).thenReturn("countryCode");
+        when(templateFieldCountryCode.isMandatory()).thenReturn(false);
+        when(templateFieldCountryName.getName()).thenReturn("countryName");
+        when(templateFieldCountryName.isMandatory()).thenReturn(false);
+        when(templateFieldAdministrativeArea.getName()).thenReturn("administrativeArea");
+        when(templateFieldAdministrativeArea.isMandatory()).thenReturn(false);
+        when(templateFieldEstablishmentType.getName()).thenReturn("establishmentType");
+        when(templateFieldEstablishmentType.isMandatory()).thenReturn(false);
+        when(templateFieldLocality.getName()).thenReturn("locality");
+        when(templateFieldLocality.isMandatory()).thenReturn(false);
+        when(templateFieldSubLocality.getName()).thenReturn("subLocality");
+        when(templateFieldSubLocality.isMandatory()).thenReturn(false);
+        when(templateFieldStreetType.getName()).thenReturn("streetType");
+        when(templateFieldStreetType.isMandatory()).thenReturn(false);
+        when(templateFieldStreetName.getName()).thenReturn("streetName");
+        when(templateFieldStreetName.isMandatory()).thenReturn(false);
+        when(templateFieldStreetNumber.getName()).thenReturn("streetNumber");
+        when(templateFieldStreetNumber.isMandatory()).thenReturn(false);
+        when(templateFieldLocale.getName()).thenReturn("locale");
+        when(templateFieldLocale.isMandatory()).thenReturn(false);
+        when(locationTemplate.getTemplateMembers()).thenReturn(Arrays.asList(templateFieldCountryCode, templateFieldCountryName, templateFieldAdministrativeArea,
+                templateFieldSubLocality, templateFieldLocality, templateFieldStreetType, templateFieldStreetName, templateFieldStreetNumber, templateFieldEstablishmentType, templateFieldLocale));
+
         when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.empty());
         when(meteringService.getServiceCategory(Matchers.any(ServiceKind.class))).thenReturn(Optional.ofNullable(serviceCategoryTwo));
         when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);
