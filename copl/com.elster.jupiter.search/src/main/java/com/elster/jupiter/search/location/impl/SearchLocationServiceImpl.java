@@ -44,7 +44,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
     private volatile DataModel dataModel;
     private String locationTemplate;
 
-    // For OSGi purposes
+    @Inject
     public SearchLocationServiceImpl() {
         super();
     }
@@ -72,64 +72,63 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         });
     }
 
-    // For testing purposes
-    @Inject
-    //   public SearchLocationServiceImpl() {
-    //      this();
-    //       this.setSearchMonitor(searchMonitor);
-    //   }
-
     @Reference
     public void setOrmService(OrmService ormService) {
-        if ((ormService.getDataModel("ORM").get() != null) && (ormService.getDataModel("ORM").get().isInstalled())){
+        if ((ormService.getDataModel("ORM").get() != null) && (ormService.getDataModel("ORM").get().isInstalled())) {
             this.dataModel = ormService.getDataModel("ORM").get();
             locationTemplate = getAddressTemplate();
-        };
+        }
+        ;
     }
 
     @Override
     public Map<Long, String> findLocations(String locationPart) {
         Map<Long, String> result = new HashMap<>();
-        locationTemplate = locationTemplate.replace("\\r", "").replace("\\n", "")
-                .replace("\r", "").replace("\n", "")
-                .replace("\r\n", "").replace("\n\r", "");
-        String[] templateMembers = locationTemplate.split(",");
 
-        SqlBuilder locationBuilder = new SqlBuilder();
-        locationBuilder.append("select * from (");
-        locationBuilder.append(" select min(LOCATIONID) LOCATIONID, COUNTRYCODE, COUNTRYNAME, ADMINISTRATIVEAREA, LOCALITY,");
-        locationBuilder.append("    SUBLOCALITY, STREETTYPE, STREETNAME, STREETNUMBER, ");
-        locationBuilder.append("    ESTABLISHMENTTYPE, ESTABLISHMENTNAME, ESTABLISHMENTNUMBER, ADDRESSDETAIL, ZIPCODE ");
-        locationBuilder.append(" from MTR_LOCATIONMEMBER ");
-        locationBuilder.append(this.getWhereClause(locationPart));
-        locationBuilder.append(" group by COUNTRYCODE, COUNTRYNAME, ADMINISTRATIVEAREA, LOCALITY, SUBLOCALITY, STREETTYPE, ");
-        locationBuilder.append("    STREETNAME, STREETNUMBER, ESTABLISHMENTTYPE, ESTABLISHMENTNAME, ESTABLISHMENTNUMBER, ");
-        locationBuilder.append("    ADDRESSDETAIL, ZIPCODE");
-        locationBuilder.append(") WHERE ROWNUM <=5");
+        if (locationTemplate != null) {
 
-        try (Connection connection = dataModel.getConnection(false);
-             PreparedStatement statement = locationBuilder.prepare(connection)) {
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    List<String> formatedMembers = new ArrayList<>();
-                    for (String identifier : templateMembers) {
-                        try {
-                            if (identifier.compareToIgnoreCase("#locale") == 0)
-                                continue;
+            locationTemplate = locationTemplate.replace("\\r", "").replace("\\n", "")
+                    .replace("\r", "").replace("\n", "")
+                    .replace("\r\n", "").replace("\n\r", "");
+            String[] templateMembers = locationTemplate.split(",");
 
-                            String value = resultSet.getString(templateMap.get(identifier));
-                            if (value != null && !value.isEmpty()) {
-                                formatedMembers.add(value);
+            SqlBuilder locationBuilder = new SqlBuilder();
+            locationBuilder.append("select * from (");
+            locationBuilder.append(" select min(LOCATIONID) LOCATIONID, COUNTRYCODE, COUNTRYNAME, ADMINISTRATIVEAREA, LOCALITY,");
+            locationBuilder.append("    SUBLOCALITY, STREETTYPE, STREETNAME, STREETNUMBER, ");
+            locationBuilder.append("    ESTABLISHMENTTYPE, ESTABLISHMENTNAME, ESTABLISHMENTNUMBER, ADDRESSDETAIL, ZIPCODE ");
+            locationBuilder.append(" from MTR_LOCATIONMEMBER ");
+            locationBuilder.append(this.getWhereClause(locationPart));
+            locationBuilder.append(" group by COUNTRYCODE, COUNTRYNAME, ADMINISTRATIVEAREA, LOCALITY, SUBLOCALITY, STREETTYPE, ");
+            locationBuilder.append("    STREETNAME, STREETNUMBER, ESTABLISHMENTTYPE, ESTABLISHMENTNAME, ESTABLISHMENTNUMBER, ");
+            locationBuilder.append("    ADDRESSDETAIL, ZIPCODE");
+            locationBuilder.append(") WHERE ROWNUM <=5");
+
+            try (Connection connection = dataModel.getConnection(false);
+                 PreparedStatement statement = locationBuilder.prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        List<String> formatedMembers = new ArrayList<>();
+                        for (String identifier : templateMembers) {
+                            try {
+                                if (identifier.compareToIgnoreCase("#locale") == 0) {
+                                    continue;
+                                }
+
+                                String value = resultSet.getString(templateMap.get(identifier));
+                                if (value != null && !value.isEmpty()) {
+                                    formatedMembers.add(value);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
+                        result.put(resultSet.getLong("LOCATIONID"), formatedMembers.stream().map(Object::toString).collect(Collectors.joining(", ")));
                     }
-                    result.put(resultSet.getLong("LOCATIONID"), formatedMembers.stream().map(Object::toString).collect(Collectors.joining(", ")));
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         return result
@@ -165,7 +164,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
             if ((i == mapLocationPart.length - 1) && (!locationPart.endsWith(","))) {
                 resultClause.add(String.format("upper%s LIKE UPPER('%%%s%%')", templateMap.get("#" + item), part));
             } else {
-                if (part.isEmpty()){
+                if (part.isEmpty()) {
                     resultClause.add(String.format("upper%s is null", templateMap.get("#" + item)));
                 } else {
                     resultClause.add(String.format("upper%s = UPPER('%s')", templateMap.get("#" + item), part));
