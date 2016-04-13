@@ -25,6 +25,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.metering.aggregation.console", service = DataAggregationCommands.class, property = {
         "osgi.command.scope=dag",
@@ -89,6 +90,7 @@ public class DataAggregationCommands {
             CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), null));
 
             data.getCalculatedDataFor(deliverable).stream()
+                    .filter(reading -> Optional.ofNullable(reading.getQuantity(reading.getReadingType())).isPresent())
                     .map(reading -> LocalDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault())
                             .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + " " + this.getValue(reading))
                     .forEach(System.out::println);
