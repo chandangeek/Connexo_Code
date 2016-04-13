@@ -22,7 +22,7 @@ Ext.define('Mdc.service.Search', {
         }
         else {
             column.renderer = function (value, metaData, record) {
-                metaData.tdAttr = 'data-qtip="' + value + '"';
+                metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(value) + '"';
                 return value;
             }
         }
