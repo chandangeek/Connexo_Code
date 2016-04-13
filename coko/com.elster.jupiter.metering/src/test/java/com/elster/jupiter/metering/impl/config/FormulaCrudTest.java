@@ -24,8 +24,8 @@ import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.transaction.TransactionService;
 
+import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -37,8 +37,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.validation.ConstraintViolationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -75,40 +73,35 @@ public class FormulaCrudTest {
         return inMemoryBootstrapModule.getMetrologyConfigurationService();
     }
 
-    private TransactionService getTransactionService() {
-        return inMemoryBootstrapModule.getTransactionService();
-    }
-
     @Test
     @Transactional
     // formula = Requirement
     public void testRequirementNodeCrud() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType readingType =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.1.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype");
-        assertThat(readingType != null);
+        assertThat(readingType).isNotNull();
         config.newReadingTypeRequirement("Aplus").withReadingType(readingType);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
         ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
         ExpressionNodeBuilder nodeBuilder = builder.requirement(req);
         Formula formula = builder.init(nodeBuilder).build();
-        assertThat(formula.getExpressionNode() instanceof ReadingTypeRequirementNode);
+        assertThat(formula.getExpressionNode()).isInstanceOf(ReadingTypeRequirementNode.class);
         ReadingTypeRequirementNode reqNode = (ReadingTypeRequirementNode) formula.getExpressionNode();
-        assertThat(reqNode.getReadingTypeRequirement().equals(req));
+        assertThat(reqNode.getReadingTypeRequirement()).isEqualTo(req);
     }
 
     @Test
@@ -126,14 +119,12 @@ public class FormulaCrudTest {
         Optional<Formula> loadedFormula = service.findFormula(formulaId);
         assertThat(loadedFormula).isPresent();
         Formula myFormula = loadedFormula.get();
-        assertThat(myFormula.getId() == formulaId);
-        assertThat(myFormula.getMode().equals(myMode));
+        assertThat(myFormula.getId()).isEqualTo(formulaId);
+        assertThat(myFormula.getMode()).isEqualTo(myMode);
         ExpressionNode myNode = myFormula.getExpressionNode();
-        ConstantNode node = (ConstantNode) nodeBuilder.create();
-        assertThat(myNode.equals(node));
         assertThat(myNode).isInstanceOf(ConstantNodeImpl.class);
         ConstantNode constantNode = (ConstantNode) myNode;
-        assertThat(constantNode.getValue().equals(BigDecimal.TEN));
+        assertThat(constantNode.getValue()).isEqualTo(BigDecimal.TEN);
     }
 
     @Test
@@ -155,14 +146,12 @@ public class FormulaCrudTest {
         Optional<Formula> loadedFormula = service.findFormula(formulaId);
         assertThat(loadedFormula).isPresent();
         Formula myFormula = loadedFormula.get();
-        assertThat(myFormula.getId() == formulaId);
-        assertThat(myFormula.getMode().equals(myMode));
+        assertThat(myFormula.getId()).isEqualTo(formulaId);
+        assertThat(myFormula.getMode()).isEqualTo(myMode);
         ExpressionNode myNode = myFormula.getExpressionNode();
-        FunctionCallNodeImpl node = (FunctionCallNodeImpl) nodeBuilder.create();
-        assertThat(myNode.equals(node));
         assertThat(myNode).isInstanceOf(FunctionCallNodeImpl.class);
         FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
-        assertThat(functionCallNode.getFunction().equals(myFunction));
+        assertThat(functionCallNode.getFunction()).isEqualTo(myFunction);
         List<ExpressionNode> children = functionCallNode.getChildren();
         assertThat(children).hasSize(2);
         ExpressionNode child1 = children.get(0);
@@ -170,11 +159,10 @@ public class FormulaCrudTest {
         assertThat(child1).isInstanceOf(ConstantNodeImpl.class);
         assertThat(child2).isInstanceOf(ConstantNodeImpl.class);
         ConstantNode constant1 = (ConstantNode) child1;
-        assertThat(constant1.getValue().equals(BigDecimal.TEN));
+        assertThat(constant1.getValue()).isEqualTo(BigDecimal.TEN);
         ConstantNode constant2 = (ConstantNode) child2;
-        assertThat(constant2.getValue().equals(BigDecimal.ZERO));
+        assertThat(constant2.getValue()).isEqualTo(BigDecimal.ZERO);
     }
-
 
     @Test
     @Transactional
@@ -194,21 +182,17 @@ public class FormulaCrudTest {
                         builder.constant(0)));
         Formula formula = builder.init(nodeBuilder).build();
 
-
         long formulaId = formula.getId();
         Optional<Formula> loadedFormula = service.findFormula(formulaId);
         assertThat(loadedFormula).isPresent();
         Formula myFormula = loadedFormula.get();
-        assertThat(myFormula.getId() == formulaId);
-        assertThat(myFormula.getMode().equals(myMode));
+        assertThat(myFormula.getId()).isEqualTo(formulaId);
+        assertThat(myFormula.getMode()).isEqualTo(myMode);
         ExpressionNode myNode = myFormula.getExpressionNode();
 
-        FunctionCallNodeImpl node = (FunctionCallNodeImpl) nodeBuilder.create();
-
-        assertThat(myNode.equals(node));
         assertThat(myNode).isInstanceOf(FunctionCallNodeImpl.class);
         FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
-        assertThat(functionCallNode.getFunction().equals(myFunction));
+        assertThat(functionCallNode.getFunction()).isEqualTo(myFunction);
         List<ExpressionNode> children = functionCallNode.getChildren();
         assertThat(children).hasSize(2);
         ExpressionNode child1 = children.get(0);
@@ -216,9 +200,9 @@ public class FormulaCrudTest {
         assertThat(child1).isInstanceOf(ConstantNodeImpl.class);
         assertThat(child2).isInstanceOf(OperationNodeImpl.class);
         ConstantNode constant = (ConstantNode) child1;
-        assertThat(constant.getValue().equals(BigDecimal.TEN));
+        assertThat(constant.getValue()).isEqualTo(BigDecimal.TEN);
         OperationNodeImpl operation = (OperationNodeImpl) child2;
-        assertThat(operation.getOperator().equals(Operator.PLUS));
+        assertThat(operation.getOperator()).isEqualTo(Operator.PLUS);
     }
 
     @Test
@@ -235,13 +219,13 @@ public class FormulaCrudTest {
         Optional<Formula> loadedFormula = service.findFormula(formulaId);
         assertThat(loadedFormula).isPresent();
         Formula myFormula = loadedFormula.get();
-        assertThat(myFormula.getId() == formulaId);
-        assertThat(myFormula.getMode().equals(myMode));
+        assertThat(myFormula.getId()).isEqualTo(formulaId);
+        assertThat(myFormula.getMode()).isEqualTo(myMode);
         ExpressionNode myNode = myFormula.getExpressionNode();
-        assertThat(myNode.equals(node));
+        assertThat(myNode).isEqualTo(node);
         assertThat(myNode).isInstanceOf(ConstantNodeImpl.class);
         ConstantNode constantNode = (ConstantNode) myNode;
-        assertThat(constantNode.getValue().equals(BigDecimal.TEN));
+        assertThat(constantNode.getValue()).isEqualTo(BigDecimal.TEN);
     }
 
     @Test
@@ -260,13 +244,13 @@ public class FormulaCrudTest {
         Optional<Formula> loadedFormula = service.findFormula(formulaId);
         assertThat(loadedFormula).isPresent();
         Formula myFormula = loadedFormula.get();
-        assertThat(myFormula.getId() == formulaId);
-        assertThat(myFormula.getMode().equals(myMode));
+        assertThat(myFormula.getId()).isEqualTo(formulaId);
+        assertThat(myFormula.getMode()).isEqualTo(myMode);
         ExpressionNode myNode = myFormula.getExpressionNode();
-        assertThat(myNode.equals(node));
+        assertThat(myNode).isEqualTo(node);
         assertThat(myNode).isInstanceOf(FunctionCallNodeImpl.class);
         FunctionCallNodeImpl functionCallNode = (FunctionCallNodeImpl) myNode;
-        assertThat(functionCallNode.getFunction().equals(myFunction));
+        assertThat(functionCallNode.getFunction()).isEqualTo(myFunction);
         List<ExpressionNode> children = functionCallNode.getChildren();
         assertThat(children).hasSize(2);
         ExpressionNode child1 = children.get(0);
@@ -274,9 +258,9 @@ public class FormulaCrudTest {
         assertThat(child1).isInstanceOf(ConstantNodeImpl.class);
         assertThat(child2).isInstanceOf(ConstantNodeImpl.class);
         ConstantNode constant1 = (ConstantNode) child1;
-        assertThat(constant1.getValue().equals(BigDecimal.TEN));
+        assertThat(constant1.getValue()).isEqualTo(BigDecimal.TEN);
         ConstantNode constant2 = (ConstantNode) child2;
-        assertThat(constant2.getValue().equals(BigDecimal.ZERO));
+        assertThat(constant2.getValue()).isEqualTo(BigDecimal.ZERO);
     }
 
     @Test
@@ -296,14 +280,14 @@ public class FormulaCrudTest {
         Optional<Formula> loadedFormula = service.findFormula(formulaId);
         assertThat(loadedFormula).isPresent();
         Formula myFormula = loadedFormula.get();
-        assertThat(myFormula.getId() == formulaId);
-        assertThat(myFormula.getMode().equals(myMode));
+        assertThat(myFormula.getId()).isEqualTo(formulaId);
+        assertThat(myFormula.getMode()).isEqualTo(myMode);
         ExpressionNode myNode = myFormula.getExpressionNode();
 
-        assertThat(myNode.equals(node));
+        assertThat(myNode).isEqualTo(node);
         assertThat(myNode).isInstanceOf(FunctionCallNodeImpl.class);
         FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
-        assertThat(functionCallNode.getFunction().equals(myFunction));
+        assertThat(functionCallNode.getFunction()).isEqualTo(myFunction);
         List<ExpressionNode> children = functionCallNode.getChildren();
         assertThat(children).hasSize(2);
         ExpressionNode child1 = children.get(0);
@@ -311,26 +295,28 @@ public class FormulaCrudTest {
         assertThat(child1).isInstanceOf(ConstantNodeImpl.class);
         assertThat(child2).isInstanceOf(OperationNodeImpl.class);
         ConstantNode constant = (ConstantNode) child1;
-        assertThat(constant.getValue().equals(BigDecimal.TEN));
+        assertThat(constant.getValue()).isEqualTo(BigDecimal.ONE);
         OperationNode operation = (OperationNode) child2;
-        assertThat(operation.getOperator().equals(Operator.PLUS));
+        assertThat(operation.getOperator()).isEqualTo(Operator.PLUS);
+        assertThat(operation.getChildren()).hasSize(2);
+        assertThat(operation.getLeftOperand()).isInstanceOf(ConstantNode.class);
+        assertThat(((ConstantNode) operation.getLeftOperand()).getValue()).isEqualTo(BigDecimal.valueOf(2));
+        assertThat(operation.getRightOperand()).isInstanceOf(ConstantNode.class);
+        assertThat(((ConstantNode) operation.getRightOperand()).getValue()).isEqualTo(BigDecimal.valueOf(3));
     }
 
-    @Test
+    @Test(expected = InvalidNodeException.class)
     @Transactional
     // formula by using the builder = max(10, plus(10, 0)) function call + operator call + constants
     public void testNoFunctionsAllowedInAutoMode() {
-
         Formula.Mode myMode = Formula.Mode.AUTO;
-        Function myFunction = Function.MAX;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         try {
-            ExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, config, myMode).parse("max(constant(1), plus(constant(2), constant(3)))");
-
-            fail("InvalidNodeException expected");
+            new ExpressionNodeParser(service.getThesaurus(), service, config, myMode).parse("max(constant(1), plus(constant(2), constant(3)))");
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessage(),"Functions are not allowed in auto mode.");
+            throw e;
         }
     }
 
@@ -338,7 +324,6 @@ public class FormulaCrudTest {
     @Transactional
     // formula by using the builder = max(10, plus(10, 0)) function call + operator call + constants
     public void test4LevelNodeStructureCrudUsingParser() {
-
         Formula.Mode myMode = Formula.Mode.EXPERT;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
@@ -351,12 +336,12 @@ public class FormulaCrudTest {
         Optional<Formula> loadedFormula = service.findFormula(formulaId);
         assertThat(loadedFormula).isPresent();
         Formula myFormula = loadedFormula.get();
-        assertThat(myFormula.getId() == formulaId);
-        assertThat(myFormula.getMode().equals(myMode));
+        assertThat(myFormula.getId()).isEqualTo(formulaId);
+        assertThat(myFormula.getMode()).isEqualTo(myMode);
         ExpressionNode myNode = myFormula.getExpressionNode();
 
-        assertThat(myNode.equals(node));
-        assertThat(myNode.toString().equals(formulaString));
+        assertThat(myNode).isEqualTo(node);
+        assertThat(myNode.toString()).isEqualTo(formulaString);
     }
 
     @Test
@@ -412,13 +397,13 @@ public class FormulaCrudTest {
         loadedFormula = service.findFormula(formulaId);
         assertThat(loadedFormula).isPresent();
         myFormula = loadedFormula.get();
-        assertThat(myFormula.getId() == formulaId);
-        assertThat(myFormula.getMode().equals(Formula.Mode.EXPERT));
+        assertThat(myFormula.getId()).isEqualTo(formulaId);
+        assertThat(myFormula.getMode()).isEqualTo(Formula.Mode.EXPERT);
         ExpressionNode myNode = myFormula.getExpressionNode();
-        assertThat(myNode.equals(newExpression));
+        assertThat(myNode).isEqualTo(newExpression);
         assertThat(myNode).isInstanceOf(ConstantNodeImpl.class);
         ConstantNode constantNode = (ConstantNode) myNode;
-        assertThat(constantNode.getValue().equals(new BigDecimal(99)));
+        assertThat(constantNode.getValue()).isEqualTo(new BigDecimal(99));
     }
 
     @Test
@@ -430,45 +415,42 @@ public class FormulaCrudTest {
 
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("test5", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.3.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
-        assertThat(readingType != null);
+        assertThat(readingType).isNotNull();
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, myMode);
 
         ReadingTypeDeliverable deliverable = builder.build(builder.maximum(builder.constant(10), builder.constant(20)));
-        assertThat(deliverable.getFormula().getExpressionNode().toString().equals("max(constant(10), constant(20))"));
+        assertThat(deliverable.getFormula().getExpressionNode().toString()).isEqualTo("max(constant(10), constant(20))");
     }
 
-
-    @Test
+    @Test(expected = InvalidNodeException.class)
     @Transactional
     // formula = Requirement
     public void createDeliverableWithRequirementThatIsOnADifferentMetrologyConfig() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("test", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType readingType =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "test");
-        assertThat(readingType != null);
+        assertThat(readingType).isNotNull();
         config.newReadingTypeRequirement("Aplus").withReadingType(readingType);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
-
 
         metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("test2", serviceCategory.get());
@@ -479,14 +461,11 @@ public class FormulaCrudTest {
 
         try {
             builder.build(builder.requirement(req));
-            fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessage(), "The requirement with id '" + req.getId() + "' cannot be used because it has a different metrology configuration.");
+            throw e;
         }
-
-
     }
-
 
     @Test
     @Transactional
@@ -494,80 +473,70 @@ public class FormulaCrudTest {
     public void createDeliverableOnARequirementThatIsDimensionless() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("test3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType readingTypeRequirement =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.12.0.41.109.0.0.0.0.0.0.0.0.0.281.0", "readingtype for requirement");
-        assertThat(readingTypeRequirement != null);
+        assertThat(readingTypeRequirement).isNotNull();
         config.newReadingTypeRequirement("consumption").withReadingType(readingTypeRequirement);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
-
 
         ReadingType readingTypeDeliverable =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype for deliverable");
-        assertThat(readingTypeDeliverable != null);
+        assertThat(readingTypeDeliverable).isNotNull();
 
         ReadingTypeDeliverableBuilder builder =
                 config.newReadingTypeDeliverable("deliverable", readingTypeDeliverable, Formula.Mode.AUTO);
 
-        try {
-            builder.build(builder.requirement(req));
-        } catch (InvalidNodeException e) {
-            fail("No InvalidNodeException expected!");
-        }
-
-
+        builder.build(builder.requirement(req));
     }
 
-    @Test
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     // formula = Requirement
     public void createDeliverableOnARequirementWithIncompatibleReadingType() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("test4", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType readingTypeRequirement =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "readingtype for requirement2");
-        assertThat(readingTypeRequirement != null);
+        assertThat(readingTypeRequirement).isNotNull();
         config.newReadingTypeRequirement("cons").withReadingType(readingTypeRequirement);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
-
 
         ReadingType readingTypeDeliverable =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "11.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype for deliverable2");
-        assertThat(readingTypeDeliverable != null);
+        assertThat(readingTypeDeliverable).isNotNull();
 
         ReadingTypeDeliverableBuilder builder =
                 config.newReadingTypeDeliverable("deliverable", readingTypeDeliverable, Formula.Mode.AUTO);
 
         try {
             builder.build(builder.requirement(req));
-            fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
+            throw e;
         }
     }
 
@@ -578,18 +547,18 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config2", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
-        assertThat(conskWhRT15min != null);
+        assertThat(conskWhRT15min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
@@ -603,7 +572,7 @@ public class FormulaCrudTest {
         try {
             deliverable1.setReadingType(temperatureRT);
             deliverable1.update();
-            fail("InvalidNodeException expected");
+            fail("ConstraintViolationException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
         }
@@ -629,27 +598,26 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
-        assertThat(conskWhRT15min != null);
+        assertThat(conskWhRT15min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
-
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", conskWhRT15min, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.requirement(req));
 
         ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Del2", conskWhRT15min, Formula.Mode.AUTO);
-        ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
+        builder2.build(builder2.deliverable(deliverable1));
 
         ReadingType temperatureRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -673,121 +641,114 @@ public class FormulaCrudTest {
         } catch (InvalidNodeException e) {
             fail("No InvalidNodeException expected!");
         }
-
     }
 
-    @Test
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     // formula = Requirement
     public void testIrregularReadingTypeOfDeliverable() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType regRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0", "regRT");
-        assertThat(regRT != null);
+        assertThat(regRT).isNotNull();
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("DelOnReg", regRT, Formula.Mode.AUTO);
 
         try {
-            ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
-            fail("InvalidNodeException expected");
+            builder.build(builder.constant(10));
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "Irregular readingtypes are not allowed for a deliverable.");
+            throw e;
         }
     }
 
-    @Test
+    @Test(expected = InvalidNodeException.class)
     @Transactional
     // formula = Requirement
     public void testIrregularReadingTypeOfRequirementByBuilder() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config2", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType regRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0", "regRT");
-        assertThat(regRT != null);
+        assertThat(regRT).isNotNull();
 
         config.newReadingTypeRequirement("Req2").withReadingType(regRT);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
         try {
-            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
-            fail("InvalidNodeException expected");
+            builder.build(builder.requirement(req));
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessage(), "Irregular readingtypes are not allowed for a requirement.");
+            throw e;
         }
     }
 
-
-    @Test
+    @Test(expected = InvalidNodeException.class)
     @Transactional
     // formula = Requirement
     public void testIrregularReadingTypeOfRequirementByParser() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config2", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType regRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0", "regRT");
-        assertThat(regRT != null);
+        assertThat(regRT).isNotNull();
 
         config.newReadingTypeRequirement("ReqWithIrregularRT").withReadingType(regRT);
         ReadingType conskWhMonthlyRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhMonthlyRT");
-        assertThat(conskWhMonthlyRT != null);
-
+        assertThat(conskWhMonthlyRT).isNotNull();
 
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
         try {
-            ExpressionNode node =
-                    new ExpressionNodeParser(
-                            service.getThesaurus(), service, config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
-
-            fail("InvalidNodeException expected");
+            new ExpressionNodeParser(service.getThesaurus(), service, config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessage(), "Irregular readingtypes are not allowed for a requirement.");
+            throw e;
         }
     }
 
-
-    @Test
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     // formula = Requirement
     public void test15MinDeliverableOnMonthlyRequirement() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
 
         ReadingType monthly =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -797,21 +758,20 @@ public class FormulaCrudTest {
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
 
-        assertThat(monthly != null);
-        assertThat(fifteenMinRT != null);
+        assertThat(monthly).isNotNull();
+        assertThat(fifteenMinRT).isNotNull();
         config.newReadingTypeRequirement("monthly").withReadingType(monthly);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
-
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("fifteenMinDeliverable", fifteenMinRT, Formula.Mode.AUTO);
         try {
-            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
-            fail("InvalidNodeException expected");
+            builder.build(builder.requirement(req));
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+            throw e;
         }
     }
 
@@ -822,11 +782,11 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
 
         ReadingType monthly =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -836,35 +796,30 @@ public class FormulaCrudTest {
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
 
-        assertThat(monthly != null);
-        assertThat(fifteenMinRT != null);
+        assertThat(monthly).isNotNull();
+        assertThat(fifteenMinRT).isNotNull();
         config.newReadingTypeRequirement("15Min").withReadingType(fifteenMinRT);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
-
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("monthly", monthly, Formula.Mode.AUTO);
-        try {
-            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
-        } catch (InvalidNodeException e) {
-            fail("No InvalidNodeException expected!");
-        }
+        builder.build(builder.requirement(req));
     }
 
-    @Test
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     // formula = Requirement
     public void test30MinDeliverableOn15MinAnd60MinRequirement() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
 
         ReadingType thirtyMinTR =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -878,42 +833,40 @@ public class FormulaCrudTest {
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "sixtyMinRT");
 
-        assertThat(thirtyMinTR != null);
-        assertThat(fifteenMinRT != null);
-        assertThat(sixtyMinRT != null);
+        assertThat(thirtyMinTR).isNotNull();
+        assertThat(fifteenMinRT).isNotNull();
+        assertThat(sixtyMinRT).isNotNull();
 
         config.newReadingTypeRequirement("sixtyMinRT").withReadingType(sixtyMinRT);
         config.newReadingTypeRequirement("fifteenMinRT").withReadingType(fifteenMinRT);
 
-        assertThat(config.getRequirements().size() == 2);
+        assertThat(config.getRequirements()).hasSize(2);
         ReadingTypeRequirement req1 = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
         ReadingTypeRequirement req2 = service.findReadingTypeRequirement(
                 config.getRequirements().get(1).getId()).get();
 
-
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
         try {
-            ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
-            fail("InvalidNodeException expected");
+            builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+            throw e;
         }
     }
 
-
-    @Test
+    @Test(expected=ConstraintViolationException.class)
     @Transactional
     // formula = Requirement
     public void test30MinDeliverableOn15MinAndWildcardRequirement() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
 
         ReadingType thirtyMinTR =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -923,8 +876,8 @@ public class FormulaCrudTest {
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
 
-        assertThat(thirtyMinTR != null);
-        assertThat(fifteenMinRT != null);
+        assertThat(thirtyMinTR).isNotNull();
+        assertThat(fifteenMinRT).isNotNull();
 
         config.newReadingTypeRequirement("fifteenMinRT").withReadingType(fifteenMinRT);
 
@@ -932,35 +885,34 @@ public class FormulaCrudTest {
 
         config.newReadingTypeRequirement("template").withReadingTypeTemplate(template);
 
-        assertThat(config.getRequirements().size() == 2);
+        assertThat(config.getRequirements()).hasSize(2);
         ReadingTypeRequirement req1 = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
         ReadingTypeRequirement req2 = service.findReadingTypeRequirement(
                 config.getRequirements().get(1).getId()).get();
 
-
         //30 min = 15 min + *
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
         try {
             ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
-            fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "MINUTE15 values cannot be aggregated to MINUTE30 values.");
+            throw e;
         }
     }
 
-    @Test
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     // formula = Requirement
     public void test30MinDeliverableOn15MinAnd5MinRequirementWithWildcard() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
 
         ReadingType thirtyMinTR =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -970,8 +922,8 @@ public class FormulaCrudTest {
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
 
-        assertThat(thirtyMinTR != null);
-        assertThat(fifteenMinRT != null);
+        assertThat(thirtyMinTR).isNotNull();
+        assertThat(fifteenMinRT).isNotNull();
 
         config.newReadingTypeRequirement("fifteenMinRT").withReadingType(fifteenMinRT);
 
@@ -980,7 +932,7 @@ public class FormulaCrudTest {
 
         config.newReadingTypeRequirement("template").withReadingTypeTemplate(template);
 
-        assertThat(config.getRequirements().size() == 2);
+        assertThat(config.getRequirements()).hasSize(2);
         ReadingTypeRequirement req1 = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
         ReadingTypeRequirement req2 = service.findReadingTypeRequirement(
@@ -990,24 +942,24 @@ public class FormulaCrudTest {
         //30 min = 15 min + 5min
             ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
             ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
-            fail("InvalidNodeException expected!");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "MINUTE15 values cannot be aggregated to MINUTE30 values.");
+            throw e;
         }
     }
 
-    @Test
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     // formula = Requirement
     public void test30MinDeliverableOn15MinAnd60MinRequirementWithWildcard() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
 
         ReadingType thirtyMinTR =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -1017,8 +969,8 @@ public class FormulaCrudTest {
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
 
-        assertThat(thirtyMinTR != null);
-        assertThat(fifteenMinRT != null);
+        assertThat(thirtyMinTR).isNotNull();
+        assertThat(fifteenMinRT).isNotNull();
 
         config.newReadingTypeRequirement("fifteenMinRT").withReadingType(fifteenMinRT);
 
@@ -1027,20 +979,19 @@ public class FormulaCrudTest {
 
         config.newReadingTypeRequirement("template").withReadingTypeTemplate(template);
 
-        assertThat(config.getRequirements().size() == 2);
+        assertThat(config.getRequirements()).hasSize(2);
         ReadingTypeRequirement req1 = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
         ReadingTypeRequirement req2 = service.findReadingTypeRequirement(
                 config.getRequirements().get(1).getId()).get();
 
-
         //30 min = 15 min + 5min
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
         try {
-            ReadingTypeDeliverable deliverable = builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
-            fail("InvalidNodeException expected!");
+            builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+            throw e;
         }
     }
 
@@ -1051,11 +1002,11 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
 
         ReadingType monthly =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -1069,52 +1020,46 @@ public class FormulaCrudTest {
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "60MinTR");
 
-        assertThat(monthly != null);
-        assertThat(fifteenMinRT != null);
-        assertThat(sixtyMinTR != null);
+        assertThat(monthly).isNotNull();
+        assertThat(fifteenMinRT).isNotNull();
+        assertThat(sixtyMinTR).isNotNull();
         config.newReadingTypeRequirement("15Min").withReadingType(fifteenMinRT);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
         ReadingTypeRequirement req = service.findReadingTypeRequirement(
                 config.getRequirements().get(0).getId()).get();
 
-
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("thirtyMinDelivrable", sixtyMinTR, Formula.Mode.AUTO);
-        try {
-            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
-            ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("monthlyDelivrable", monthly, Formula.Mode.AUTO);
-            ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable));
-        } catch (InvalidNodeException e) {
-            fail("No InvalidNodeException expected!");
-        }
+        ReadingTypeDeliverable deliverable = builder.build(builder.requirement(req));
+        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("monthlyDelivrable", monthly, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable));
     }
 
-
-    @Test
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     // formula = Requirement
     public void testWrongUpdateReadingTypeOfDeliverableThatIsUsedInAnotherDeliverable() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
-        assertThat(conskWhRT15min != null);
+        assertThat(conskWhRT15min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
 
         ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.AUTO);
-        ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
+        builder2.build(builder2.deliverable(deliverable1));
 
         ReadingType temperatureRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -1122,106 +1067,99 @@ public class FormulaCrudTest {
         try {
             deliverable1.setReadingType(temperatureRT);
             deliverable1.update();
-            fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
+            throw e;
         }
-
     }
 
-    @Test
+    @Test(expected = InvalidNodeException.class)
     @Transactional
     // formula = Requirement
     public void testCombinationOfAutoModeAndExpertMode() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
-        assertThat(conskWhRT15min != null);
+        assertThat(conskWhRT15min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
 
-
-
         try {
             ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.EXPERT);
-            ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
-            fail("InvalidNodeException expected");
+            builder2.build(builder2.deliverable(deliverable1));
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessage(), "Auto mode and export mode cannot be combined.");
+            throw e;
         }
-
     }
 
-    @Test
+    @Test(expected = InvalidNodeException.class)
     @Transactional
     // formula = Requirement
     public void testCombinationOfExperAndAutoMode() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
-        assertThat(conskWhRT15min != null);
+        assertThat(conskWhRT15min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
-        assertThat(config.getRequirements().size() == 1);
+        assertThat(config.getRequirements()).hasSize(1);
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.EXPERT);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
 
-
-
         try {
             ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.AUTO);
-            ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
-            fail("InvalidNodeException expected");
+            builder2.build(builder2.deliverable(deliverable1));
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessage(), "Auto mode and export mode cannot be combined.");
+            throw e;
         }
-
     }
 
-    @Test
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     // formula = Requirement
     public void testInvalidReadingTypeOfDeliverableInAutoMode() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config4", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType status =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.5.12.0.41.109.0.0.0.0.0.0.0.0.0.108.0", "status");
-        assertThat(status != null);
+        assertThat(status).isNotNull();
 
         try {
             ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("InvalidDeliverable", status, Formula.Mode.AUTO);
             ReadingTypeDeliverable deliverable = builder.build(builder.constant(10));
-            fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype for the deliverable is not valid, it should represent a numerical value.");
+            throw e;
         }
     }
 
@@ -1232,22 +1170,18 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory.isPresent());
+        assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config4", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config != null);
+        assertThat(config).isNotNull();
         ReadingType status =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.5.12.0.41.109.0.0.0.0.0.0.0.0.0.108.0", "status");
-        assertThat(status != null);
+        assertThat(status).isNotNull();
 
-        try {
-            ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("InvalidDeliverable", status, Formula.Mode.EXPERT);
-            ReadingTypeDeliverable deliverable = builder.build(builder.constant(10));
-        } catch (ConstraintViolationException e) {
-            fail("No invalidNodeException expected");
-        }
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("InvalidDeliverable", status, Formula.Mode.EXPERT);
+        ReadingTypeDeliverable deliverable = builder.build(builder.constant(10));
     }
 
     @Test

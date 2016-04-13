@@ -72,6 +72,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTWRAPPER;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -883,8 +884,7 @@ public enum TableSpecs {
 
             // parent node
             Column parentColumn = table.column("PARENTID").number().conversion(NUMBER2LONG).add();
-
-            Column argumentIndex = table.column("ARGUMENTINDEX").number().notNull().map("argumentIndex").conversion(NUMBER2INT).add();
+            table.column("ARGUMENTINDEX").number().notNull().map("argumentIndex").conversion(NUMBER2INT).add();
 
             //OperationNodeImpl operator value
             table.column("OPERATOR").number().conversion(ColumnConversion.NUMBER2ENUM).map("operator").add();
@@ -1029,7 +1029,7 @@ public enum TableSpecs {
                     .add();
             table.column(ReadingTypeTemplateAttributeImpl.Fields.CODE.name())
                     .number()
-                    .conversion(NUMBER2INT)
+                    .conversion(NUMBER2INTWRAPPER)
                     .map(ReadingTypeTemplateAttributeImpl.Fields.CODE.fieldName())
                     .add();
 

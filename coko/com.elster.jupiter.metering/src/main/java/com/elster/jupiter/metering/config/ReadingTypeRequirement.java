@@ -10,9 +10,7 @@ import com.elster.jupiter.util.units.Dimension;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.time.temporal.TemporalAmount;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -78,6 +76,5 @@ public interface ReadingTypeRequirement extends HasId, HasName {
     boolean isRegular();
 
     ReadingTypeUnit getUnit();
-
 
 }

@@ -138,10 +138,11 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
             throw new InvalidNodeException(thesaurus, MessageSeeds.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE);
         }
         return () -> new FunctionCallNodeImpl(
-                Arrays.stream(terms)
-                        .map(ExpressionNodeBuilder::create)
-                        .collect(Collectors.toList()),
-                        function, thesaurus);
+                        Arrays.stream(terms)
+                            .map(ExpressionNodeBuilder::create)
+                            .collect(Collectors.toList()),
+                        function,
+                        thesaurus);
     }
 
     public void setNodebuilder(ExpressionNodeBuilder nodebuilder) {

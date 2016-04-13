@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -15,6 +14,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.impl.ReadingTypeTranslationKeys;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.Collections;
 import java.util.Currency;
@@ -361,7 +362,7 @@ public enum ReadingTypeTemplateAttributeName {
 
         @Override
         public Function<ReadingTypeUnit, TranslationKey> getTranslationProvider() {
-            return ReadingTypeTranslationKeys.UnitFields::new;
+            return ReadingTypeTranslationKeys.Unit::new;
         }
 
         @Override
@@ -426,7 +427,7 @@ public enum ReadingTypeTemplateAttributeName {
     }
 
     @ProviderType
-    public static abstract class ReadingTypeAttribute<T> {
+    public abstract static class ReadingTypeAttribute<T> {
         private final Class<T> clazz;
 
         public ReadingTypeAttribute(Class<T> clazz) {
@@ -455,7 +456,7 @@ public enum ReadingTypeTemplateAttributeName {
     }
 
     private abstract static class IntegerReadingTypeAttribute extends ReadingTypeAttribute<Integer> {
-        public IntegerReadingTypeAttribute() {
+        IntegerReadingTypeAttribute() {
             super(Integer.class);
         }
 
@@ -474,4 +475,5 @@ public enum ReadingTypeTemplateAttributeName {
             return value -> new SimpleTranslationKey(getType().getName() + "." + String.valueOf(value), String.valueOf(value));
         }
     }
+
 }
