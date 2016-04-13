@@ -443,7 +443,6 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 nextStep = button;
             }
         }
-        console.log(currentStep);
         if(currentStep == 1){
             wizard.getRecord().customPropertySets().removeAll();
         }
