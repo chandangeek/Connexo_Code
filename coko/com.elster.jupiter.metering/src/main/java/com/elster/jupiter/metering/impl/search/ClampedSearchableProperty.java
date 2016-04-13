@@ -55,7 +55,7 @@ public abstract class ClampedSearchableProperty implements SearchableUsagePointP
 
     @Override
     public SearchableProperty.SelectionMode getSelectionMode() {
-        return SearchableProperty.SelectionMode.SINGLE;
+        return SelectionMode.MULTI;
     }
 
     @Override

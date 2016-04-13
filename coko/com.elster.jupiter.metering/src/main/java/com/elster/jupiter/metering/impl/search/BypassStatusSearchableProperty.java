@@ -55,7 +55,7 @@ public abstract class BypassStatusSearchableProperty implements SearchableUsageP
 
     @Override
     public SelectionMode getSelectionMode() {
-        return SelectionMode.SINGLE;
+        return SelectionMode.MULTI;
     }
 
     @Override

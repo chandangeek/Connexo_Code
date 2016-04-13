@@ -56,7 +56,7 @@ public abstract class PressureSearchableProperty implements SearchableUsagePoint
 
     @Override
     public SelectionMode getSelectionMode() {
-        return SelectionMode.SINGLE;
+        return SelectionMode.MULTI;
     }
 
     @Override

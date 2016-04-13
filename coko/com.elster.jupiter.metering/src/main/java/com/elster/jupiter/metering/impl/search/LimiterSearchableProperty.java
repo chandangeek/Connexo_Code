@@ -55,7 +55,7 @@ public abstract class LimiterSearchableProperty implements SearchableUsagePointP
 
     @Override
     public SelectionMode getSelectionMode() {
-        return SelectionMode.SINGLE;
+        return SelectionMode.MULTI;
     }
 
     @Override

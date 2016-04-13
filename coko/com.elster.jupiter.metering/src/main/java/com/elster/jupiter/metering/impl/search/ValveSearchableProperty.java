@@ -55,7 +55,7 @@ public abstract class ValveSearchableProperty implements SearchableUsagePointPro
 
     @Override
     public SelectionMode getSelectionMode() {
-        return SelectionMode.SINGLE;
+        return SelectionMode.MULTI;
     }
 
     @Override

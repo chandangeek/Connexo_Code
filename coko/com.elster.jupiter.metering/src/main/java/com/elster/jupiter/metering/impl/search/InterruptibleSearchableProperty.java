@@ -55,7 +55,7 @@ public abstract class InterruptibleSearchableProperty implements SearchableUsage
 
     @Override
     public SelectionMode getSelectionMode() {
-        return SelectionMode.SINGLE;
+        return SelectionMode.MULTI;
     }
 
     @Override

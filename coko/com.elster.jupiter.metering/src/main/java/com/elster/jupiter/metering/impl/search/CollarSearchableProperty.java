@@ -55,7 +55,7 @@ public abstract class CollarSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public SelectionMode getSelectionMode() {
-        return SelectionMode.SINGLE;
+        return SelectionMode.MULTI;
     }
 
     @Override

@@ -19,7 +19,6 @@ public abstract class LoadLimiterTypeSearchableProperty implements SearchableUsa
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
-    //  private final LimiterSearchableProperty limiterElectricitySearchableProperty;
     private final Thesaurus thesaurus;
     private final SearchablePropertyGroup group;
     private static final String FIELDNAME = "detail.loadLimiterType";
@@ -27,7 +26,6 @@ public abstract class LoadLimiterTypeSearchableProperty implements SearchableUsa
     public LoadLimiterTypeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
         super();
         this.domain = domain;
-        //   this.limiterElectricitySearchableProperty = limiterElectricitySearchableProperty;
         this.propertySpecService = propertySpecService;
         this.group = group;
         this.thesaurus = thesaurus;

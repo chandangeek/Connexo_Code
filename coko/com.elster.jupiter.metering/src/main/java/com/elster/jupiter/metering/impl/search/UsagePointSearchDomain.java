@@ -142,7 +142,6 @@ public class UsagePointSearchDomain implements SearchDomain {
         return searchableProperties;
     }
 
-
     private List<SearchableProperty> getServiceCategoryDynamicProperties(Collection<SearchablePropertyConstriction> constrictions) {
         List<SearchableProperty> properties = this.getProperties();
         ElectricityAttributesSearchablePropertyGroup electricityGroup = new ElectricityAttributesSearchablePropertyGroup(this.thesaurus);
