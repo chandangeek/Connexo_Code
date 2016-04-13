@@ -122,8 +122,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFo
 
         me.editForm = {
             xtype: 'gas-info-form',
-            itemId: 'edit-form',
-            defaults: me.editDefaults
+            itemId: 'edit-form'
         };
 
         me.callParent();

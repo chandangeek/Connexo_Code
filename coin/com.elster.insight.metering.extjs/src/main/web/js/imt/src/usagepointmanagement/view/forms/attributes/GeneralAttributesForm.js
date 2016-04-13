@@ -15,7 +15,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                 itemId: 'fld-up-mRID',
                 fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID'),
                 renderer: function (value) {
-                    return value ? value : '-';
+                    return value ? Ext.htmlEncode(value) : '-';
                 }
             },
 

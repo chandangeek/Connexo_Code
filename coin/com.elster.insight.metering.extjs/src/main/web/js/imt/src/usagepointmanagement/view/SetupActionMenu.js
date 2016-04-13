@@ -16,7 +16,7 @@ Ext.define('Imt.usagepointmanagement.view.SetupActionMenu', {
                     itemId: 'action-menu-item-start-proc',
                     privileges: Dbp.privileges.DeviceProcesses.assignOrExecute,
                     text: Uni.I18n.translate('usagepoint.process.startProcess', 'IMT', 'Start process'),
-                    href: me.router.getRoute('usagepoints/view/processstart').buildUrl({mRID: me.mRID})
+                    href: me.router.getRoute('usagepoints/view/processes/processstart').buildUrl({mRID: me.mRID})
                 }
             ];
         }
