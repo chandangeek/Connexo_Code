@@ -6,7 +6,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -103,7 +103,7 @@ public class ComServerDAOImplTest {
     @Mock
     private FirmwareService firmwareService;
     @Mock
-    private DeviceDataModelService deviceDataModelService;
+    private DeviceService deviceDataModelService;
 
     private ComServerDAO comServerDAO;
 
@@ -117,7 +117,7 @@ public class ComServerDAOImplTest {
         when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
         when(this.serviceProvider.topologyService()).thenReturn(this.topologyService);
         when(this.serviceProvider.firmwareService()).thenReturn(this.firmwareService);
-        when(this.serviceProvider.deviceDataModelService()).thenReturn(this.deviceDataModelService);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceDataModelService);
         when(this.serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(this.engineConfigurationService.findComServerBySystemName()).thenReturn(Optional.<ComServer>of(this.comServer));
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(this.comServer));
