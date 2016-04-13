@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnMapping;
@@ -20,12 +21,16 @@ import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,6 +46,8 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2NOW;
 import static com.elster.jupiter.util.Checks.is;
+import static com.elster.jupiter.util.Ranges.intersection;
+import static com.elster.jupiter.util.streams.Currying.test;
 
 public class TableImpl<T> implements Table<T> {
 
@@ -56,6 +63,7 @@ public class TableImpl<T> implements Table<T> {
 	private boolean cached;
     private boolean autoInstall = true;
     private int indexOrganized = -1;
+    private transient RangeSet<Version> versions = TreeRangeSet.<Version>create().complement();
 
 	// associations
 	private final Reference<DataModelImpl> dataModel = ValueReference.absent();
@@ -117,12 +125,28 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public List<ColumnImpl> getColumns() {
-        return ImmutableList.copyOf(columns);
+        return getColumns(getDataModel().getVersion());
+    }
+
+    @Override
+    public List<ColumnImpl> getColumns(Version version) {
+        return columns
+                .stream()
+                .filter(test(Column::isInVersion).with(version))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<TableConstraintImpl> getConstraints() {
-        return ImmutableList.copyOf(constraints);
+        return getConstraints(getDataModel().getVersion());
+    }
+
+    @Override
+    public List<TableConstraintImpl> getConstraints(Version version) {
+        return constraints
+                .stream()
+                .filter(tableConstraint -> tableConstraint.isInVersion(version))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -164,7 +188,7 @@ public class TableImpl<T> implements Table<T> {
         activeBuilder = false;
         if (column.getFieldName() != null) {
             for (ColumnImpl existing : columns) {
-                if (is(existing.getFieldName()).equalTo(column.getFieldName())) {
+                if (is(existing.getFieldName()).equalTo(column.getFieldName()) && !intersection(existing.versions(), column.versions()).isEmpty()) {
                     throw new IllegalTableMappingException("Table " + getName() + ", column " + column.getName() + " : column " + existing.getName() + " already maps to field " + existing.getFieldName());
                 }
             }
@@ -175,7 +199,11 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public java.util.Optional<ColumnImpl> getColumn(String name) {
-    	return columns.stream().filter((column) -> column.getName().equalsIgnoreCase(name)).findFirst();
+    	return columns
+                .stream()
+                .filter((column) -> column.getName().equalsIgnoreCase(name))
+                .filter(test(Column::isInVersion).with(getDataModel().getVersion()))
+                .findFirst();
     }
 
     @Override
@@ -189,14 +217,17 @@ public class TableImpl<T> implements Table<T> {
     }
 
     @Override
+    public List<ForeignKeyConstraintImpl> getForeignKeyConstraints(Version version) {
+        return getConstraints(version)
+                .stream()
+                .filter(TableConstraint::isForeignKey)
+                .map(ForeignKeyConstraintImpl.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ForeignKeyConstraintImpl> getForeignKeyConstraints() {
-        ImmutableList.Builder<ForeignKeyConstraintImpl> builder = ImmutableList.builder();
-        for (TableConstraintImpl each : constraints) {
-            if (each.isForeignKey()) {
-                builder.add((ForeignKeyConstraintImpl) each);
-            }
-        }
-        return builder.build();
+        return getForeignKeyConstraints(getDataModel().getVersion());
     }
 
     public ForeignKeyConstraintImpl getConstraintForField(String fieldName) {
@@ -210,8 +241,11 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public List<ColumnImpl> getPrimaryKeyColumns() {
-        TableConstraintImpl primaryKeyConstraint = getPrimaryKeyConstraint();
-        return primaryKeyConstraint == null ? null : primaryKeyConstraint.getColumns();
+        PrimaryKeyConstraintImpl primaryKeyConstraint = getPrimaryKeyConstraint();
+        return primaryKeyConstraint == null ? null : primaryKeyConstraint.getColumns()
+                .stream()
+                .filter(test(Column::isInVersion).with(getDataModel().getVersion()))
+                .collect(Collectors.toList());
     }
 
     boolean isPrimaryKeyColumn(Column column) {
@@ -248,15 +282,20 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public List<String> getDdl() {
-        return new TableDdlGenerator(this,getDataModel().getSqlDialect()).getDdl();
+        return new TableDdlGenerator(this,getDataModel().getSqlDialect(), getDataModel().getVersion()).getDdl();
     }
 
-    public List<String> upgradeDdl(TableImpl<?> toTable) {
-        return new TableDdlGenerator(this,getDataModel().getSqlDialect()).upgradeDdl(toTable);
+    @Override
+    public List<String> getDdl(Version version) {
+        return new TableDdlGenerator(this,getDataModel().getSqlDialect(), version).getDdl();
     }
 
-    public List<String> upgradeSequenceDdl(ColumnImpl column, long startValue) {
-        return new TableDdlGenerator(this,getDataModel().getSqlDialect()).upgradeSequenceDdl(column, startValue);
+    public List<String> upgradeDdl(TableImpl<?> toTable, Version version) {
+        return new TableDdlGenerator(this,getDataModel().getSqlDialect(), version).upgradeDdl(toTable);
+    }
+
+    public List<String> upgradeSequenceDdl(ColumnImpl column, long startValue, Version version) {
+        return new TableDdlGenerator(this,getDataModel().getSqlDialect(), version).upgradeSequenceDdl(column, startValue);
     }
 
 
@@ -829,10 +868,16 @@ public class TableImpl<T> implements Table<T> {
 	}
 
 	List<IndexImpl> getIndexes() {
-		return Collections.unmodifiableList(indexes);
+		return getIndexes(getDataModel().getVersion());
 	}
 
-	public List<ColumnImpl> getRealColumns() {
+    List<IndexImpl> getIndexes(Version version) {
+        return indexes.stream()
+                .filter(index -> index.isInVersion(version))
+                .collect(Collectors.toList());
+    }
+
+    public List<ColumnImpl> getRealColumns() {
 		return realColumns;
 	}
 
@@ -923,6 +968,37 @@ public class TableImpl<T> implements Table<T> {
 		}
 		return PartitionMethod.NONE;
 	}
+
+    @Override
+    public Table<T> since(Version version) {
+        versions = ImmutableRangeSet.of(Range.atLeast(version));
+        return this;
+    }
+
+    @Override
+    public Table<T> upTo(Version version) {
+        versions = ImmutableRangeSet.of(Range.lessThan(version));
+        return this;
+    }
+
+    @Override
+    public Table<T> during(Range... ranges) {
+        ImmutableRangeSet.Builder<Version> builder = ImmutableRangeSet.builder();
+        Arrays.stream(ranges)
+                .forEach(builder::add);
+        versions = builder.build();
+        return this;
+    }
+
+    @Override
+    public boolean isInVersion(Version version) {
+        return versions.contains(version);
+    }
+
+    public RangeSet<Version> getVersions() {
+        return versions;
+    }
+
 }
 
 

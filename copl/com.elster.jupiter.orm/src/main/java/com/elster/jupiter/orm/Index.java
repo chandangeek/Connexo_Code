@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
 
 import java.util.List;
 
@@ -16,6 +17,14 @@ public interface Index {
     int getCompress();
 
     Table<?> getTable();
+
+    boolean isInVersion(Version version);
+
+    Index since(Version version);
+
+    Index upTo(Version version);
+
+    Index during(Range... ranges);
 
     @ProviderType
     public interface Builder {

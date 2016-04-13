@@ -1,6 +1,10 @@
 package com.elster.jupiter.orm;
 
+import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+import com.elster.jupiter.orm.impl.TableConstraintImpl;
+
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
@@ -29,10 +33,12 @@ public interface Table<T> {
 
     Index.Builder index(String name);
 
+    List<String> getDdl(Version version);
+
     /*
-     * adds a column that is incremented on every update
-     * that will be used for optimistic lock checks
-     */
+         * adds a column that is incremented on every update
+         * that will be used for optimistic lock checks
+         */
     Column addVersionCountColumn(String name, String dbType, String fieldName);
 
     /*
@@ -126,6 +132,8 @@ public interface Table<T> {
     // meta data api
     List<String> getDdl();
 
+    List<TableConstraintImpl> getConstraints(Version version);
+
     DataModel getDataModel();
 
     String getSchema();
@@ -142,6 +150,7 @@ public interface Table<T> {
 
     boolean isIndexOrganized();
     List<? extends Column> getColumns();
+    List<? extends Column> getColumns(Version version);
     Optional<? extends Column> getColumn(String name);
     List<? extends TableConstraint> getConstraints();
 
@@ -150,6 +159,8 @@ public interface Table<T> {
 
     TableConstraint getPrimaryKeyConstraint();
     List<? extends Column> getPrimaryKeyColumns();
+
+    List<ForeignKeyConstraintImpl> getForeignKeyConstraints(Version version);
 
     List<? extends ForeignKeyConstraint> getForeignKeyConstraints();
 
@@ -168,4 +179,11 @@ public interface Table<T> {
 	void dropData(Instant upTo, Logger logger);
 	LifeCycleClass lifeCycleClass();
 
+    boolean isInVersion(Version version);
+
+    Table<T> since(Version version);
+
+    Table<T> upTo(Version version);
+
+    Table<T> during(Range... ranges);
 }

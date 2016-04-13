@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
 
 /*
  * Models a foreign key.
@@ -46,6 +47,14 @@ public interface ForeignKeyConstraint extends TableConstraint {
 		Builder refPartition();
 		Builder noDdl();
 		ForeignKeyConstraint add();
+
+		Builder since(Version version);
+
+		Builder upTo(Version version);
+
+		Builder during(Range... ranges);
+
+		Builder previously(ForeignKeyConstraint foreignKeyConstraint);
 	}
 
 }

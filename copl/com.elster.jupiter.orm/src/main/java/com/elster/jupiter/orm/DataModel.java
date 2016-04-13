@@ -1,11 +1,12 @@
 package com.elster.jupiter.orm;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.associations.RefAny;
+import com.elster.jupiter.orm.impl.TableImpl;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.inject.Module;
 
 import javax.validation.ValidatorFactory;
-
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -68,9 +69,11 @@ public interface DataModel {
      */
     RefAny asRefAny(Object object);
 
+    TableImpl<?> getTable(String tableName, Version version);
+
     /*
-     * Adds a table in the default schema of the database user to the DataModel that maps to the type specified by the second argument
-     */
+         * Adds a table in the default schema of the database user to the DataModel that maps to the type specified by the second argument
+         */
     <T> Table<T> addTable(String name, Class<T> api);
 
     /*
@@ -106,6 +109,8 @@ public interface DataModel {
 
     List<? extends Table<?>> getTables();
 
+    List<? extends Table<?>> getTables(Version version);
+
     Table<?> getTable(String name);
 
     void install(boolean executeDdl, boolean store);
@@ -123,4 +128,6 @@ public interface DataModel {
 	 * obtain a PartitionCreator for the table with the given name
 	 */
 	PartitionCreator partitionCreator(String tableName, Logger logger);
+
+    Version getVersion();
 }
