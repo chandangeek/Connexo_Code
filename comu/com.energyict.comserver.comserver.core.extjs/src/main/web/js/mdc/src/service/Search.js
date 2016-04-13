@@ -14,7 +14,7 @@ Ext.define('Mdc.service.Search', {
                 }
             } else if (me.searchDomain.getId() === 'com.elster.jupiter.metering.UsagePoint') {
                 column.renderer = function (value, metaData, record) {
-                    var url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: record.get('id')});
+                    var url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: encodeURIComponent(value)});
                     metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';
                     return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
                 }

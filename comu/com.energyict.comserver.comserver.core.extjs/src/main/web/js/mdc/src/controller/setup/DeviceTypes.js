@@ -332,13 +332,13 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 typeField.disable();
                 commProtocolField.disable();
                 infoPanel.show();
-                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg1', 'MDC', "Since this device type has one or more device configurations only the fields 'Name' and 'Device life cycle' are editable"))
+                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg1', 'MDC', 'This device type has one or more device configurations. Only fields name and device life cycle are editable'))
             } else {
                 typeField.disable();
                 commProtocolField.disable();
                 lifeCycleField.disable();
                 infoPanel.show();
-                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg2', 'MDC', 'Since this device type has one or more active device configurations only the name field is editable'))
+                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg2', 'MDC', 'This device type has one or more active device configurations. Only the name field is editable'))
             }
         } else {
             typeField.enable();
