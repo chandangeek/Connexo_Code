@@ -1,4 +1,4 @@
-package com.energyict.mdc.servicecall.example;
+package com.energyict.mdc.servicecall.examples;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -6,7 +6,6 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -14,29 +13,27 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
 import com.google.inject.Module;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Created by bvn on 2/15/16.
- */
-@Component(name = "com.energyict.servicecall.devicegroup.certification.customPropertySet",
+@Component(name = "com.energyict.servicecall.DeviceMRIDCustomPropertySet",
         service = CustomPropertySet.class,
         immediate = true)
-public class DeviceGroupCertificationCustomPropertySet implements CustomPropertySet<ServiceCall, DeviceGroupCertificationDomainExtension> {
+public class DevicePointMRIDCustomPropertySet implements CustomPropertySet<ServiceCall, DeviceMRIDDomainExtension> {
 
-    public DeviceGroupCertificationCustomPropertySet() {
+    public DevicePointMRIDCustomPropertySet() {
     }
 
     @Inject
-    public DeviceGroupCertificationCustomPropertySet(CustomPropertySetService customPropertySetService) {
+    public DevicePointMRIDCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
+        this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
     }
 
@@ -52,9 +49,14 @@ public class DeviceGroupCertificationCustomPropertySet implements CustomProperty
         // PATCH; required for proper startup; do not delete
     }
 
+    @Activate
+    public void activate() {
+        System.out.println("DeviceMRIDCustomPropertySet activating");
+    }
+
     @Override
     public String getName() {
-        return DeviceGroupCertificationCustomPropertySet.class.getSimpleName();
+        return DevicePointMRIDCustomPropertySet.class.getSimpleName();
     }
 
     @Override
@@ -63,7 +65,7 @@ public class DeviceGroupCertificationCustomPropertySet implements CustomProperty
     }
 
     @Override
-    public PersistenceSupport<ServiceCall, DeviceGroupCertificationDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<ServiceCall, DeviceMRIDDomainExtension> getPersistenceSupport() {
         return new MyPersistenceSupport();
     }
 
@@ -89,30 +91,23 @@ public class DeviceGroupCertificationCustomPropertySet implements CustomProperty
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(
+        return Collections.singletonList(
                 this.propertySpecService
-                        .longSpec()
-                        .named(DeviceGroupCertificationDomainExtension.FieldNames.DEVICE_GROUP_ID.javaName(), DeviceGroupCertificationDomainExtension.FieldNames.DEVICE_GROUP_ID
+                        .stringSpec()
+                        .named(DeviceMRIDDomainExtension.FieldNames.MRID.javaName(), DeviceMRIDDomainExtension.FieldNames.MRID
                                 .javaName())
-                        .describedAs("Device group id")
-                        .setDefaultValue(-1L)
-                        .finish(),
-                this.propertySpecService
-                        .longSpec()
-                        .named(DeviceGroupCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName(), DeviceGroupCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION
-                                .javaName())
-                        .describedAs("Year of certification")
-                        .setDefaultValue(-1L)
+                        .describedAs("Device mRID")
+                        .setDefaultValue("no mRID")
                         .finish());
     }
 
-    private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, DeviceGroupCertificationDomainExtension> {
-        private final String TABLE_NAME = "SCS_CPS_DEVGRP_CER";
-        private final String FK = "FK_SCS_CPS_DEVGRP_CER";
+    private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, DeviceMRIDDomainExtension> {
+        private final String TABLE_NAME = "TVN_SCS_CPS_DV";
+        private final String FK = "FK_SCS_CPS_DV";
 
         @Override
         public String componentName() {
-            return "DeviceGroupCertification";
+            return "DeviceMRID";
         }
 
         @Override
@@ -122,7 +117,7 @@ public class DeviceGroupCertificationCustomPropertySet implements CustomProperty
 
         @Override
         public String domainFieldName() {
-            return DeviceGroupCertificationDomainExtension.FieldNames.DOMAIN.javaName();
+            return DeviceMRIDDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -131,8 +126,8 @@ public class DeviceGroupCertificationCustomPropertySet implements CustomProperty
         }
 
         @Override
-        public Class<DeviceGroupCertificationDomainExtension> persistenceClass() {
-            return DeviceGroupCertificationDomainExtension.class;
+        public Class<DeviceMRIDDomainExtension> persistenceClass() {
+            return DeviceMRIDDomainExtension.class;
         }
 
         @Override
@@ -148,17 +143,9 @@ public class DeviceGroupCertificationCustomPropertySet implements CustomProperty
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(DeviceGroupCertificationDomainExtension.FieldNames.DEVICE_GROUP_ID.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2LONG)
-                    .map(DeviceGroupCertificationDomainExtension.FieldNames.DEVICE_GROUP_ID.javaName())
-                    .notNull()
-                    .add();
-            table
-                    .column(DeviceGroupCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2LONG)
-                    .map(DeviceGroupCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName())
+                    .column(DeviceMRIDDomainExtension.FieldNames.MRID.databaseName())
+                    .varChar()
+                    .map(DeviceMRIDDomainExtension.FieldNames.MRID.javaName())
                     .notNull()
                     .add();
         }

@@ -1,4 +1,4 @@
-package com.energyict.mdc.servicecall.example;
+package com.energyict.mdc.servicecall.examples;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;

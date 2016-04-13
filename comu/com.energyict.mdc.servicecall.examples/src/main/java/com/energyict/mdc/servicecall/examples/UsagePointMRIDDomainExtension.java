@@ -1,20 +1,19 @@
-package com.energyict.mdc.servicecall.example;
+package com.energyict.mdc.servicecall.examples;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 
-/**
- * Created by bvn on 2/15/16.
- */
-public class DeviceCertificationDomainExtension implements PersistentDomainExtension<ServiceCall> {
+import javax.validation.constraints.Size;
 
+public class UsagePointMRIDDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
-        DEVICE_ID("deviceId", "device_id"),
-        YEAR_OF_CERTIFICATION("yearOfCertification", "year");
+        MRID("mRID", "up_mrid");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -36,10 +35,10 @@ public class DeviceCertificationDomainExtension implements PersistentDomainExten
     private Reference<ServiceCall> serviceCall = Reference.empty();
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
-    private long deviceId;
-    private long yearOfCertification;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
+    private String mRID;
 
-    public DeviceCertificationDomainExtension() {
+    public UsagePointMRIDDomainExtension() {
         super();
     }
 
@@ -47,33 +46,23 @@ public class DeviceCertificationDomainExtension implements PersistentDomainExten
         return registeredCustomPropertySet.get();
     }
 
-    public long getDeviceId() {
-        return deviceId;
+    public String getMRID() {
+        return mRID;
     }
 
-    public void setDeviceId(long deviceId) {
-        this.deviceId = deviceId;
-    }
-
-    public long getYearOfCertification() {
-        return yearOfCertification;
-    }
-
-    public void setYearOfCertification(long yearOfCertification) {
-        this.yearOfCertification = yearOfCertification;
+    public void setMRID(String mRID) {
+        this.mRID = mRID;
     }
 
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setDeviceId((long) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
-        this.setYearOfCertification((long) propertyValues.getProperty(FieldNames.YEAR_OF_CERTIFICATION.javaName()));
+        this.setMRID((String) propertyValues.getProperty(FieldNames.MRID.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
-        propertySetValues.setProperty(FieldNames.YEAR_OF_CERTIFICATION.javaName(), this.getYearOfCertification());
+        propertySetValues.setProperty(FieldNames.MRID.javaName(), this.getMRID());
     }
 
     @Override

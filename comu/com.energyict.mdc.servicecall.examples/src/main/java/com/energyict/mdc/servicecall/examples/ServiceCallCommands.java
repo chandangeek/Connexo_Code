@@ -1,4 +1,4 @@
-package com.energyict.mdc.servicecall.example;
+package com.energyict.mdc.servicecall.examples;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -8,8 +8,10 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.data.Device;
@@ -20,8 +22,10 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Scanner;
 
 /**
  * Created by bvn on 3/4/16.
@@ -33,7 +37,8 @@ import java.util.Optional;
                 "osgi.command.function=hook",
                 "osgi.command.function=crash",
                 "osgi.command.function=createTrackedCommand",
-                "osgi.command.function=createDeviceServiceCall"
+                "osgi.command.function=createDeviceServiceCall",
+                "osgi.command.function=createServiceCallDemoData"
         }, immediate = true)
 public class ServiceCallCommands {
     public static final String HANDLER_NAME = "yearUpdater";
@@ -284,6 +289,99 @@ public class ServiceCallCommands {
 
                 System.out.println("Service call with reference '" + serviceCall.getNumber() + "' has been created");
             }
+        }
+    }
+
+    public void createServiceCallDemoData() {
+        ServiceCallLifeCycle simpleLifecycle = getSimpleLifecycle();
+        createServiceCallTypes(simpleLifecycle);
+    }
+
+    private ServiceCallLifeCycle createSimpleLifecycle() {
+        threadPrincipalService.set(() -> "Console");
+        System.out.println("Creating simple service call life cycle.");
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallLifeCycle simplLifeCycle = serviceCallService.createServiceCallLifeCycle("Simple")
+                    .remove(DefaultState.CANCELLED)
+                    .remove(DefaultState.SCHEDULED)
+                    .remove(DefaultState.WAITING)
+                    .remove(DefaultState.PAUSED)
+                    .remove(DefaultState.PARTIAL_SUCCESS)
+                    .remove(DefaultState.REJECTED)
+                    .create();
+
+            context.commit();
+            return simplLifeCycle;
+        }
+    }
+
+    private ServiceCallLifeCycle getSimpleLifecycle() {
+        return serviceCallService.getServiceCallLifeCycle("Simple")
+                .orElseGet(() -> createSimpleLifecycle());
+    }
+
+    private void createServiceCallTypes(ServiceCallLifeCycle simpleLifecycle) {
+        threadPrincipalService.set(() -> "Console");
+        InputStream source = getResourceAsStream("ServiceCallTypes.csv");
+        try (Scanner scanner = new Scanner(source)) {
+            while (scanner.hasNextLine()) {
+                parseRecord(scanner.nextLine(), simpleLifecycle);
+            }
+        }
+    }
+
+    private InputStream getResourceAsStream(String name) {
+        return getClass().getClassLoader().getResourceAsStream(name);
+    }
+
+    private void parseRecord(String record, ServiceCallLifeCycle simpleLifecycle) {
+        String[] columns = record.split(";");
+        try (TransactionContext context = transactionService.getContext()) {
+            RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
+                    .stream()
+                    .filter(cps -> cps.getCustomPropertySet()
+                            .getName()
+                            .equals(UsagePointMRIDCustomPropertySet.class.getSimpleName()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Could not find my custom property set"));
+
+
+            LogLevel level = getLogLevel(columns[3]);
+            ServiceCallType serviceCallType = serviceCallService.findServiceCallType(columns[0], columns[1])
+                    .orElseGet(() -> getServiceCallTypeBuilder(columns[0], columns[1], columns[4], simpleLifecycle)
+                            .handler("NullPointerHandler")
+                            .logLevel(level)
+                            .customPropertySet(customPropertySet)
+                            .create());
+            if ("deprecated".equals(columns[2])) {
+                serviceCallType.deprecate();
+            }
+            context.commit();
+        }
+    }
+
+    private ServiceCallTypeBuilder getServiceCallTypeBuilder(String name, String version, String lifeCycleName, ServiceCallLifeCycle simpleLifecycle) {
+        System.out.println("Creating service call type '" + name + "'");
+        return "simple".equals(lifeCycleName) ? serviceCallService.createServiceCallType(name, version, simpleLifecycle) :
+                serviceCallService.createServiceCallType(name, version);
+    }
+
+    private LogLevel getLogLevel(String loglevel) {
+        switch (loglevel) {
+            case "severe":
+                return LogLevel.SEVERE;
+            case "info":
+                return LogLevel.INFO;
+            case "config":
+                return LogLevel.CONFIG;
+            case "fine":
+                return LogLevel.FINE;
+            case "finer":
+                return LogLevel.FINER;
+            case "finest":
+                return LogLevel.FINEST;
+            default:
+                return LogLevel.WARNING;
         }
     }
 

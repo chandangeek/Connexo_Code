@@ -1,4 +1,4 @@
-package com.energyict.mdc.servicecall.example;
+package com.energyict.mdc.servicecall.examples;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -27,16 +27,16 @@ import java.util.Set;
 /**
  * Created by bvn on 2/15/16.
  */
-@Component(name = "com.energyict.servicecall.device.certification.customPropertySet",
+@Component(name = "com.energyict.servicecall.devicegroup.certification.customPropertySet",
         service = CustomPropertySet.class,
         immediate = true)
-public class DeviceCertificationCustomPropertySet implements CustomPropertySet<ServiceCall, DeviceCertificationDomainExtension> {
+public class DeviceGroupCertificationCustomPropertySet implements CustomPropertySet<ServiceCall, DeviceGroupCertificationDomainExtension> {
 
-    public DeviceCertificationCustomPropertySet() {
+    public DeviceGroupCertificationCustomPropertySet() {
     }
 
     @Inject
-    public DeviceCertificationCustomPropertySet(CustomPropertySetService customPropertySetService) {
+    public DeviceGroupCertificationCustomPropertySet(CustomPropertySetService customPropertySetService) {
         customPropertySetService.addCustomPropertySet(this);
     }
 
@@ -54,7 +54,7 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
 
     @Override
     public String getName() {
-        return DeviceCertificationCustomPropertySet.class.getSimpleName();
+        return DeviceGroupCertificationCustomPropertySet.class.getSimpleName();
     }
 
     @Override
@@ -63,7 +63,7 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
     }
 
     @Override
-    public PersistenceSupport<ServiceCall, DeviceCertificationDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<ServiceCall, DeviceGroupCertificationDomainExtension> getPersistenceSupport() {
         return new MyPersistenceSupport();
     }
 
@@ -92,27 +92,27 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
         return Arrays.asList(
                 this.propertySpecService
                         .longSpec()
-                        .named(DeviceCertificationDomainExtension.FieldNames.DEVICE_ID.javaName(), DeviceCertificationDomainExtension.FieldNames.DEVICE_ID
+                        .named(DeviceGroupCertificationDomainExtension.FieldNames.DEVICE_GROUP_ID.javaName(), DeviceGroupCertificationDomainExtension.FieldNames.DEVICE_GROUP_ID
                                 .javaName())
-                        .describedAs("Device id")
+                        .describedAs("Device group id")
                         .setDefaultValue(-1L)
                         .finish(),
                 this.propertySpecService
                         .longSpec()
-                        .named(DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName(), DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION
+                        .named(DeviceGroupCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName(), DeviceGroupCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION
                                 .javaName())
                         .describedAs("Year of certification")
                         .setDefaultValue(-1L)
                         .finish());
     }
 
-    private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, DeviceCertificationDomainExtension> {
-        private final String TABLE_NAME = "SCS_CPS_DEV_CER";
-        private final String FK = "FK_SCS_CPS_DEV_CER";
+    private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, DeviceGroupCertificationDomainExtension> {
+        private final String TABLE_NAME = "SCS_CPS_DEVGRP_CER";
+        private final String FK = "FK_SCS_CPS_DEVGRP_CER";
 
         @Override
         public String componentName() {
-            return "DeviceCertification";
+            return "DeviceGroupCertification";
         }
 
         @Override
@@ -122,7 +122,7 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
 
         @Override
         public String domainFieldName() {
-            return DeviceCertificationDomainExtension.FieldNames.DOMAIN.javaName();
+            return DeviceGroupCertificationDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -131,8 +131,8 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
         }
 
         @Override
-        public Class<DeviceCertificationDomainExtension> persistenceClass() {
-            return DeviceCertificationDomainExtension.class;
+        public Class<DeviceGroupCertificationDomainExtension> persistenceClass() {
+            return DeviceGroupCertificationDomainExtension.class;
         }
 
         @Override
@@ -148,17 +148,17 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(DeviceCertificationDomainExtension.FieldNames.DEVICE_ID.databaseName())
+                    .column(DeviceGroupCertificationDomainExtension.FieldNames.DEVICE_GROUP_ID.databaseName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
-                    .map(DeviceCertificationDomainExtension.FieldNames.DEVICE_ID.javaName())
+                    .map(DeviceGroupCertificationDomainExtension.FieldNames.DEVICE_GROUP_ID.javaName())
                     .notNull()
                     .add();
             table
-                    .column(DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.databaseName())
+                    .column(DeviceGroupCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.databaseName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
-                    .map(DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName())
+                    .map(DeviceGroupCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName())
                     .notNull()
                     .add();
         }
