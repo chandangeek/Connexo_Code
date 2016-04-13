@@ -162,7 +162,10 @@ Ext.define('Imt.usagepointmanagement.view.Attributes', {
                 itemId: itemId,
                 title: name,
                 viewDefaults: me.viewDefaults,
-                editDefaults: me.editDefaults,
+                editDefaults: {
+                    labelWidth: me.editDefaults.labelWidth,
+                    width: 191
+                },
                 record: cps,
                 hasEditMode: hasEditMode,
                 router: me.router

@@ -12,11 +12,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.BaseInfo', {
         'Imt.usagepointmanagement.view.forms.fields.LoadLimitField'
     ],
 
-    defaults: {
-        labelWidth: 260,
-        width: 595
-    },
-
     predefinedRecord: null,
 
     initComponent: function () {

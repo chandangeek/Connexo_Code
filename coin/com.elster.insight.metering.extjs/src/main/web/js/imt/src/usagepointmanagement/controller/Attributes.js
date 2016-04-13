@@ -31,7 +31,8 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
         me.control({
             '#usage-point-attributes view-edit-form': {
                 save: me.saveAttributes,
-                edit: me.editAttributes
+                edit: me.editAttributes,
+                canceledit: me.cancelEditAttributes
             },
             '#usage-point-attributes #usage-point-attributes-actions-menu': {
                 click: me.chooseAction
@@ -79,16 +80,21 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
     chooseAction: function (menu, item) {
         var me = this;
 
-        me.editAttributes(me.getPage().down('component[itemId=' + item.linkedForm + "]"));
+        me.editAttributes(me.getPage().down('[itemId=' + item.linkedForm + ']'));
     },
 
     editAttributes: function (form) {
         var me = this,
-            editedForm = me.getPage().down('[displayMode=edit]'),
+            page = me.getPage(),
+            editedForm = page.down('[displayMode=edit]'),
+            menu = page.down('#usage-point-attributes-actions-menu'),
             confirmationWindow;
 
         if (!editedForm) {
+            Ext.suspendLayouts();
             form.switchDisplayMode('edit');
+            menu.down('[linkedForm=' + form.itemId + ']').hide();
+            Ext.resumeLayouts(true);
         } else if (editedForm.itemId !== form.itemId) {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.editGeneralInformation.discard', 'IMT', 'Discard'),
@@ -96,6 +102,8 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
                     Ext.suspendLayouts();
                     editedForm.switchDisplayMode('view');
                     form.switchDisplayMode('edit');
+                    menu.down('[linkedForm=' + form.itemId + ']').hide();
+                    menu.down('[linkedForm=' + editedForm.itemId + ']').show();
                     confirmationWindow.destroy();
                     Ext.resumeLayouts(true);
                 }
@@ -106,6 +114,16 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
                 title: Uni.I18n.translate('general.editGeneralInformation.discardChanges', 'IMT', "Discard '{0}' changes?", [editedForm.title])
             });
         }
+    },
+
+    cancelEditAttributes: function (form) {
+        var me = this,
+            menu = me.getPage().down('#usage-point-attributes-actions-menu');
+
+        Ext.suspendLayouts();
+        form.switchDisplayMode('view');
+        menu.down('[linkedForm=' + form.itemId + ']').show();
+        Ext.resumeLayouts(true);
     },
 
     saveAttributes: function (form) {
