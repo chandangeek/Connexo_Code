@@ -305,7 +305,7 @@ public class CreateCollectRemoteDataSetupCommand {
                 .setAddressDetail(addressDetailList.get((int)(Math.random() * (addressDetailList.size()-1))))
                 .setZipCode(zipCodeList.get((int)(Math.random() * (zipCodeList.size()-1))))
                 .isDaultLocation(false)
-                .setLocale("locale");
+                .setLocale("en_US");
         return builder;
     }
 
