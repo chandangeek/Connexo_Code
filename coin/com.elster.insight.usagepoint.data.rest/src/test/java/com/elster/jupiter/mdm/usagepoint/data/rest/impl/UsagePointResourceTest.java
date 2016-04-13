@@ -302,7 +302,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         CustomPropertySetInfo info = new CustomPropertySetInfo();
         info.id = registeredCustomPropertySet.getId();
         when(customPropertySetInfoFactory.getGeneralAndPropertiesInfo(any(RegisteredCustomPropertySet.class))).thenReturn(info);
-        UsagePointMetrologyConfigurationInfos metrologyConfigs = target("usagepoints/test/metrologyconfiguration/linkable").request().get(UsagePointMetrologyConfigurationInfos.class);
+        MetrologyConfigurationInfos metrologyConfigs = target("usagepoints/test/metrologyconfiguration/linkable").request().get(MetrologyConfigurationInfos.class);
         assertThat(metrologyConfigs.total == 1);
         assertThat(metrologyConfigs.metrologyConfigurations.get(0).id == 1);
         assertThat(metrologyConfigs.metrologyConfigurations.get(0).customPropertySets.get(0).id == 1);
@@ -313,7 +313,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
         casInfo.id = 1L;
 
-        UsagePointMetrologyConfigurationInfo usagePointMetrologyConfigurationInfo = new UsagePointMetrologyConfigurationInfo();
+        MetrologyConfigurationInfo usagePointMetrologyConfigurationInfo = new MetrologyConfigurationInfo();
         usagePointMetrologyConfigurationInfo.id = 1L;
         usagePointMetrologyConfigurationInfo.name = "Test";
         usagePointMetrologyConfigurationInfo.customPropertySets = Arrays.asList(casInfo);

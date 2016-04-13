@@ -185,18 +185,18 @@ public class UsagePointResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{mrid}/metrologyconfiguration/linkable")
-    public UsagePointMetrologyConfigurationInfos getLinkableMetrologyConfigurations(@PathParam("mrid") String mrid) {
+    public MetrologyConfigurationInfos getLinkableMetrologyConfigurations(@PathParam("mrid") String mrid) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
-        List<UsagePointMetrologyConfigurationInfo> configs = metrologyConfigurationService
+        List<MetrologyConfigurationInfo> configs = metrologyConfigurationService
                 .findLinkableMetrologyConfigurations(usagePoint)
                 .stream()
                 .filter(mc -> !mc.getCustomPropertySets().stream().anyMatch(cas -> !cas.isEditableByCurrentUser()))
-                .map(mc -> new UsagePointMetrologyConfigurationInfo(mc, mc.getCustomPropertySets()
+                .map(mc -> new MetrologyConfigurationInfo(mc, mc.getCustomPropertySets()
                         .stream()
                         .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
                         .collect(Collectors.toList())))
                 .collect(Collectors.toList());
-        return new UsagePointMetrologyConfigurationInfos(configs);
+        return new MetrologyConfigurationInfos(configs);
     }
 
     @PUT
@@ -208,7 +208,7 @@ public class UsagePointResource {
     public Response linkMetrologyConfigurations(@PathParam("mrid") String mrid,
                                                 @QueryParam("validate") boolean validate,
                                                 @QueryParam("customPropertySetId") long customPropertySetId,
-                                                UsagePointMetrologyConfigurationInfo info) {
+                                                MetrologyConfigurationInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mrid);
 
         new RestValidationBuilder()
