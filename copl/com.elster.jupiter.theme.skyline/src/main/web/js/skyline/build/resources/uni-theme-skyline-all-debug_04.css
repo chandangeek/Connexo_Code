@@ -8408,7 +8408,7 @@ div.x-form-spinner-down {
 
 /* line 20, ../../sass/src/form/Label.scss */
 .uni-form-item-label-required {
-  background-image: url("images/form/mandatory.png");
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAJCAYAAADkZNYtAAAAOUlEQVR4XmMgBTBhU/B/nu1/gorvTK/8j4/PiM9UxqTDjBiK8VkN00SqyZhuhikA0TA34wEw0ykEAF2UH7azK5DQAAAAAElFTkSuQmCC");
   background-repeat: no-repeat;
   background-position: right;
 }
