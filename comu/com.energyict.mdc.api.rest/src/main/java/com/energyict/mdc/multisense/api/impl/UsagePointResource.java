@@ -137,18 +137,7 @@ public class UsagePointResource {
         if (usagePointInfo.serviceKind == null) {
             exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.FIELD_MISSING, "serviceKind");
         }
-        UsagePoint usagePoint = meteringService.getServiceCategory(usagePointInfo.serviceKind)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CATEGORY))
-                .newUsagePoint(usagePointInfo.mrid, usagePointInfo.installationTime)
-                .withAliasName(usagePointInfo.aliasName)
-                .withDescription(usagePointInfo.description)
-                .withName(usagePointInfo.name)
-                .withOutageRegion(usagePointInfo.outageRegion)
-                .withReadRoute(usagePointInfo.readRoute)
-                .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
-                .withServiceLocationString(usagePointInfo.location)
-                .withServicePriority(usagePointInfo.servicePriority)
-                .create();
+        UsagePoint usagePoint = usagePointInfoFactory.createUsagePoint(usagePointInfo);
 
         URI uri = uriInfo.getBaseUriBuilder().
                 path(UsagePointResource.class).
