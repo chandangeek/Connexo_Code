@@ -324,6 +324,7 @@ public class ServiceCallCommands {
         threadPrincipalService.set(() -> "Console");
         InputStream source = getResourceAsStream("ServiceCallTypes.csv");
         try (Scanner scanner = new Scanner(source)) {
+            scanner.nextLine();
             while (scanner.hasNextLine()) {
                 parseRecord(scanner.nextLine(), simpleLifecycle);
             }
@@ -337,22 +338,28 @@ public class ServiceCallCommands {
     private void parseRecord(String record, ServiceCallLifeCycle simpleLifecycle) {
         String[] columns = record.split(";");
         try (TransactionContext context = transactionService.getContext()) {
-            RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
-                    .stream()
-                    .filter(cps -> cps.getCustomPropertySet()
-                            .getName()
-                            .equals(UsagePointMRIDCustomPropertySet.class.getSimpleName()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalStateException("Could not find my custom property set"));
 
-
+            RegisteredCustomPropertySet customPropertySet = null;
+            if (columns.length > 5) {
+                customPropertySet = getCustomPropertySet(columns[5]);
+            }
             LogLevel level = getLogLevel(columns[3]);
-            ServiceCallType serviceCallType = serviceCallService.findServiceCallType(columns[0], columns[1])
-                    .orElseGet(() -> getServiceCallTypeBuilder(columns[0], columns[1], columns[4], simpleLifecycle)
-                            .handler("NullPointerHandler")
-                            .logLevel(level)
-                            .customPropertySet(customPropertySet)
-                            .create());
+            ServiceCallType serviceCallType;
+            if (customPropertySet != null) {
+                final RegisteredCustomPropertySet finalCustomPropertySet = customPropertySet;
+                serviceCallType = serviceCallService.findServiceCallType(columns[0], columns[1])
+                        .orElseGet(() -> getServiceCallTypeBuilder(columns[0], columns[1], columns[4], simpleLifecycle)
+                                .handler("NullPointerHandler")
+                                .logLevel(level)
+                                .customPropertySet(finalCustomPropertySet)
+                                .create());
+            } else {
+                serviceCallType = serviceCallService.findServiceCallType(columns[0], columns[1])
+                        .orElseGet(() -> getServiceCallTypeBuilder(columns[0], columns[1], columns[4], simpleLifecycle)
+                                .handler("NullPointerHandler")
+                                .logLevel(level)
+                                .create());
+            }
             if ("deprecated".equals(columns[2])) {
                 serviceCallType.deprecate();
             }
@@ -383,6 +390,28 @@ public class ServiceCallCommands {
             default:
                 return LogLevel.WARNING;
         }
+    }
+
+    private RegisteredCustomPropertySet getCustomPropertySet(String set) {
+        String name = "";
+        if ("DEVICE".equals(set)) {
+            name = DevicePointMRIDCustomPropertySet.class.getSimpleName();
+        } else if ("UP".equals(set)) {
+            name = UsagePointMRIDCustomPropertySet.class.getSimpleName();
+        }
+
+        if (!name.equals("")) {
+            final String finalName = name;
+            return customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
+                    .stream()
+                    .filter(cps -> cps.getCustomPropertySet()
+                            .getName()
+                            .equals(finalName))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Could not find my custom property set"));
+        }
+
+        return null;
     }
 
 }
