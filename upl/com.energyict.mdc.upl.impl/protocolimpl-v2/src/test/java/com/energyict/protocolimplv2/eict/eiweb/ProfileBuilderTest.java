@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.LittleEndianOutputStream;
+import com.energyict.protocolimpl.utils.LittleEndianOutputStream;
 import com.energyict.cbo.TimeConstants;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.MdwInterface;

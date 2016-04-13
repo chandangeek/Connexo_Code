@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.LittleEndianInputStream;
+import com.energyict.protocolimpl.utils.LittleEndianInputStream;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cim.EndDeviceEventTypeMapping;

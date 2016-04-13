@@ -8,16 +8,17 @@ package com.energyict.protocolimpl.rtuplusbus;
 
 import java.io.*;
 import java.util.*;
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.cbo.NestedIOException;
+import java.util.logging.Logger;
+
+import com.energyict.protocolimpl.utils.LittleEndianInputStream;
+
 /**
  *
  * @author  Koen
  */
 public class RtuPlusSettings {
-    
-    private static final int DEBUG=0;
-    
+
+    private Logger logger = Logger.getLogger(getClass().getName());
     String name;
     long password1=-1,password2=-1;
     String modemInit;
@@ -39,9 +40,7 @@ public class RtuPlusSettings {
     }
     
     public void parse(byte[] rtuPlusSettingsFrame) {
-        if (DEBUG>=1) {
-            System.out.println("KV_DEBUG> versionLength="+rtuPlusSettingsFrame.length);
-        }
+        logger.finest("KV_DEBUG> versionLength="+rtuPlusSettingsFrame.length);
         ByteArrayInputStream bais = new ByteArrayInputStream(rtuPlusSettingsFrame);
         fillFields( new LittleEndianInputStream(bais));
     }

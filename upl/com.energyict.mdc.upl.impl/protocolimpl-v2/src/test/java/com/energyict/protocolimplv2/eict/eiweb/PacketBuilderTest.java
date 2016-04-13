@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.LittleEndianOutputStream;
+import com.energyict.protocolimpl.utils.LittleEndianOutputStream;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
