@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
@@ -12,6 +13,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.RangeInstantBuilder;
+import com.elster.jupiter.util.units.Quantity;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -90,9 +92,18 @@ public class DataAggregationCommands {
             data.getCalculatedDataFor(deliverable).stream()
                     .filter(reading -> Optional.ofNullable(reading.getQuantity(reading.getReadingType())).isPresent())
                     .map(reading -> LocalDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault())
-                            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + " " + reading.getQuantity(reading.getReadingType()).getValue())
+                            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + " " + this.getValue(reading))
                     .forEach(System.out::println);
             context.commit();
+        }
+    }
+
+    private String getValue(BaseReadingRecord reading) {
+        Quantity quantity = reading.getQuantity(reading.getReadingType());
+        if (quantity != null) {
+            return quantity.getValue().toString();
+        } else {
+            return "";
         }
     }
 

@@ -12,12 +12,10 @@ import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.Range;
 
-import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
@@ -59,7 +57,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             CalculatedReadingRecord merged = new CalculatedReadingRecord();
             merged.readingTypeMRID = r1.readingTypeMRID;
             merged.readingType = r1.readingType;
-            merged.rawValue = VirtualReadingType.from(r1.readingType).aggregationFunction().applyTo(r1.rawValue, r2.rawValue);
+            merged.rawValue = mergeValue(VirtualReadingType.from(r1.readingType).aggregationFunction(), r1.rawValue, r2.rawValue);
             merged.value = merged.readingType.toQuantity(merged.rawValue);
             merged.localDate = r1.localDate;
             merged.timestamp = mergedTimestamp;
@@ -69,6 +67,16 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             return merged;
         } else {
             return merge(r2, r1, mergedTimestamp);
+        }
+    }
+
+    private static BigDecimal mergeValue(AggregationFunction function, BigDecimal v1, BigDecimal v2) {
+        if (v1 != null && v2!= null) {
+            return function.applyTo(v1, v2);
+        } else if (v1 == null) {
+            return v2;
+        } else {
+            return v1;
         }
     }
 
