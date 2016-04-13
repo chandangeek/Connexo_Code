@@ -177,6 +177,8 @@ public class UsagePointSearchDomain implements SearchDomain {
                                     .getThesaurus()));
                             properties.add(new LoadLimitGasSearchableProperty(this, this.propertySpecService, this.meteringService
                                     .getThesaurus()));
+                            properties.add(new LimiterGasSearchableProperty(this, this.propertySpecService, this.meteringService
+                                    .getThesaurus()));
                             properties.add(new LoadLimiterTypeGasSearchableProperty(this, this.propertySpecService, this.meteringService
                                     .getThesaurus()));
                             properties.add(new PhysicalCapacityGasSearchableProperty(this, this.propertySpecService, this.meteringService
@@ -224,7 +226,6 @@ public class UsagePointSearchDomain implements SearchDomain {
                             properties.add(new PressureWaterSearchableProperty(this, this.propertySpecService, this.meteringService
                                     .getThesaurus()));
                         }
-
                     });
         }
 

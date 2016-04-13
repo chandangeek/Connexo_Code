@@ -50,10 +50,10 @@ public abstract class PhysicalCapacitySearchableProperty implements SearchableUs
 
     @Override
     public PropertySpec getSpecification() {
-        return this.getPropertySpecService()
+        return this.propertySpecService
                 .specForValuesOf(new QuantityValueFactory())
                 .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
-                .fromThesaurus(this.getThesaurus())
+                .fromThesaurus(this.thesaurus)
                 .addValues(Quantity.create(new BigDecimal(0), 1, "m3/h"))
                 .finish();
     }
@@ -98,13 +98,5 @@ public abstract class PhysicalCapacitySearchableProperty implements SearchableUs
     @Override
     public Condition toCondition(Condition specification) {
         return specification.and(Where.where("detail.interval").isEffective(Instant.now()));
-    }
-
-    public PropertySpecService getPropertySpecService() {
-        return this.propertySpecService;
-    }
-
-    public Thesaurus getThesaurus() {
-        return this.thesaurus;
     }
 }
