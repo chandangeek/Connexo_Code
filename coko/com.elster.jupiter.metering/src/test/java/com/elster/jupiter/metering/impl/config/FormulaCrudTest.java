@@ -606,7 +606,14 @@ public class FormulaCrudTest {
         ReadingType conskWhRT15min =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+
+
+        ReadingType conskWhRT60min =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhRT60min");
+
         assertThat(conskWhRT15min).isNotNull();
+        assertThat(conskWhRT60min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
         assertThat(config.getRequirements()).hasSize(1);
@@ -616,7 +623,7 @@ public class FormulaCrudTest {
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", conskWhRT15min, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.requirement(req));
 
-        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Del2", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Del2", conskWhRT60min, Formula.Mode.AUTO);
         builder2.build(builder2.deliverable(deliverable1));
 
         ReadingType temperatureRT =
@@ -1050,7 +1057,12 @@ public class FormulaCrudTest {
         ReadingType conskWhRT15min =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+
+        ReadingType conskWhRT60min =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhRT60min");
         assertThat(conskWhRT15min).isNotNull();
+        assertThat(conskWhRT60min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
         assertThat(config.getRequirements()).hasSize(1);
@@ -1058,7 +1070,7 @@ public class FormulaCrudTest {
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Deliverable1", conskWhRT15min, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
 
-        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT15min, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT60min, Formula.Mode.AUTO);
         builder2.build(builder2.deliverable(deliverable1));
 
         ReadingType temperatureRT =
@@ -1540,6 +1552,42 @@ public class FormulaCrudTest {
 
     }
 
+
+
+
+    @Test
+    @Transactional
+    // formula = Requirement
+    public void testMultipleDeliverableWithSamereadingTypeOnSameMetrologyConfig() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory.isPresent());
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config11", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config != null);
+        ReadingType AplusRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
+
+        assertThat(AplusRT != null);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
+
+        ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Del2", AplusRT, Formula.Mode.AUTO);
+
+        try {
+            ReadingTypeDeliverable deliverable2 = builder2.build(builder2.constant(10));
+            fail("ReadingTypeAlreadyUsedOnMetrologyConfiguration expected");
+        } catch (ReadingTypeAlreadyUsedOnMetrologyConfiguration e) {
+            assertEquals(e.getMessage(), "The readingtype is already used for another deliverable on this metrology configuration.");
+        }
+
+
+
+    }
 
 
 }
