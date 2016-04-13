@@ -6,18 +6,26 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.schema.ExistingColumn;
 import com.elster.jupiter.orm.schema.ExistingConstraint;
+
 import com.google.common.base.CaseFormat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ConstraintImpl implements ExistingConstraint {
 
+    private static final Pattern REF_PATTERN = Pattern.compile(".* REFERENCES (?:\\w+\\.)?(\\w+)\\(.*");
     private String name;
+    private String typeName;
     private Type type;
+    private String uniqueIndexName;
 
     private Reference<TableImpl> table = ValueReference.absent();
-    private Reference<ConstraintImpl> referencedConstraint = ValueReference.absent();
+    private String referencedIndex;
+    private String sql;
     private List<ConstraintColumnImpl> columns = new ArrayList<>();
 
 
@@ -28,17 +36,23 @@ public class ConstraintImpl implements ExistingConstraint {
 
     @Override
     public boolean hasDefinition() {
-        return type.needsCode();
+        return type().needsCode();
     }
 
     @Override
     public String getType() {
-        return type.getCodeName();
+        return type().getCodeName();
     }
 
     @Override
     public String getReferencedTableName() {
-        return referencedConstraint.get().getTable().getName();
+        if (Type.R.equals(type)) {
+            Matcher matcher = REF_PATTERN.matcher(sql);
+            if (matcher.matches()) {
+                return matcher.group(1);
+            }
+        }
+        return table.get().getName();
     }
 
     TableImpl getTable() {
@@ -46,7 +60,7 @@ public class ConstraintImpl implements ExistingConstraint {
     }
 
     boolean contains(ColumnImpl column) {
-        if (type.needsCode()) {
+        if (type().needsCode()) {
             for (ConstraintColumnImpl each : columns) {
                 if (each.getColumnName().equals(column.getName())) {
                     return true;
@@ -58,6 +72,12 @@ public class ConstraintImpl implements ExistingConstraint {
         }
     }
 
+    private Type type() {
+        if (type == null) {
+            type = Type.forString(typeName).orElse(null);
+        }
+        return type;
+    }
 
     public void addTo(Table table) {
         type.buildOn(table, this);
@@ -76,9 +96,9 @@ public class ConstraintImpl implements ExistingConstraint {
                 for (ExistingColumn existingColumn : constraint.getColumns()) {
                     columns[i++] = getColumn(table.getColumns(), existingColumn.getName());
                 }
-                table.foreignKey(constraint.getName()).on(constraint.getColumns().toArray(columns))
-                        .references(constraint.referencedConstraint.get().getTable().getName())
-                        .map(constraint.getVariableName(constraint.referencedConstraint.get().getTable().getName())).add();
+                table.foreignKey(constraint.getName()).on(columns)
+                        .references(constraint.getReferencedTableName())
+                        .map(constraint.getVariableName(constraint.getReferencedTableName())).add();
 
             }
         },
@@ -145,22 +165,42 @@ public class ConstraintImpl implements ExistingConstraint {
             return codeName;
         }
 
+        static Optional<Type> forString(String typeName) {
+            switch (typeName) {
+                case "REFERENTIAL":
+                    return Optional.of(R);
+                case "PRIMARY KEY":
+                    return Optional.of(P);
+                case "UNIQUE":
+                    return Optional.of(U);
+                default:
+                    return Optional.empty();
+            }
+        }
+
         abstract void buildOn(Table<?> table, ConstraintImpl constraint);
     }
 
     public boolean isTableConstraint() {
-        return type.needsCode();
+        return type().needsCode();
     }
 
     public boolean isForeignKey() {
-        return type == Type.R;
+        return type() == Type.R;
     }
 
     public boolean isPrimaryKey() {
-        return type == Type.P;
+        return type() == Type.P;
+    }
+
+    public boolean isUniqueConstraint() {
+        return type() == Type.U;
     }
 
     public List<ExistingColumn> getColumns() {
+        if (isPrimaryKey() || isUniqueConstraint()) {
+            return getTable().getIndexColumns(uniqueIndexName);
+        }
         List<ExistingColumn> result = new ArrayList<>(columns.size());
         for (ConstraintColumnImpl constraintColumn : columns) {
             result.add(table.get().getColumn(constraintColumn.getColumnName()));

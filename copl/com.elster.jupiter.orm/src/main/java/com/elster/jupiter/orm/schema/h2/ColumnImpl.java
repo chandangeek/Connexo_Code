@@ -5,8 +5,10 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.schema.ExistingColumn;
+
 import com.google.common.base.Joiner;
 
+import java.sql.Types;
 import java.util.List;
 
 public class ColumnImpl implements ExistingColumn {
@@ -16,7 +18,7 @@ public class ColumnImpl implements ExistingColumn {
     private String name;
     @SuppressWarnings("unused")
     private int position;
-    private String dataType;
+    private int dataType;
     private int dataLength;
     private boolean nullable;
     private int characterLength;
@@ -37,7 +39,7 @@ public class ColumnImpl implements ExistingColumn {
             if (!nullable) {
                 column.notNull();
             }
-            if (dataType.equals("DATE")) {
+            if (dataType == Types.DATE) {
                 if (name.equals("CREDATE")) {
                     column.insert("SYSDATE").skipOnUpdate();
                 }
@@ -52,17 +54,17 @@ public class ColumnImpl implements ExistingColumn {
 
     private void callTypeApi(Column.Builder column) {
         switch (dataType) {
-            case "VARCHAR2":
+            case Types.VARCHAR:
                 column.varChar(characterLength);
                 return;
-            case "NUMBER":
+            case Types.NUMERIC:
                 column.number();
                 return;
-            case "DATE":
+            case Types.DATE:
                 column.type("DATE");
                 return;
             default:
-                column.type(dataType);
+                column.type(toString(dataType));
                 return;
         }
     }
@@ -96,14 +98,93 @@ public class ColumnImpl implements ExistingColumn {
 
     public String getTypeApi() {
         switch (dataType) {
-            case "VARCHAR2":
+            case Types.VARCHAR:
                 return Joiner.on("").join("varChar(", dataLength, ")");
-            case "NUMBER":
+            case Types.NUMERIC:
                 return "number()";
-            case "DATE":
+            case Types.DATE:
                 return "type(\"DATE\")";
             default:
-                return Joiner.on("").join("type(\"", dataType, "(", dataLength, ")\")");
+                return Joiner.on("").join("type(\"", toString(dataType), "(", dataLength, ")\")");
+        }
+    }
+
+    private String toString(int type) {
+        switch (type) {
+            case 2003:
+                return "ARRAY";
+            case -5:
+                return "BIGINT";
+            case -2:
+                return "BINARY";
+            case -7:
+                return "BIT";
+            case 2004:
+                return "BLOB";
+            case 16:
+                return "BOOLEAN";
+            case 1:
+                return "CHAR";
+            case 2005:
+                return "CLOB";
+            case 70:
+                return "DATALINK";
+            case 91:
+                return "DATE";
+            case 3:
+                return "DECIMAL";
+            case 2001:
+                return "DISTINCT";
+            case 8:
+                return "DOUBLE";
+            case 6:
+                return "FLOAT";
+            case 4:
+                return "INTEGER";
+            case 2000:
+                return "JAVA_OBJECT";
+            case -16:
+                return "LONGNVARCHAR";
+            case -4:
+                return "LONGVARBINARY";
+            case -1:
+                return "LONGVARCHAR";
+            case -15:
+                return "NCHAR";
+            case 2011:
+                return "NCLOB";
+            case 0:
+                return "NULL";
+            case 2:
+                return "NUMERIC";
+            case -9:
+                return "NVARCHAR";
+            case 1111:
+                return "OTHER";
+            case 7:
+                return "REAL";
+            case 2006:
+                return "REF";
+            case -8:
+                return "ROWID";
+            case 5:
+                return "SMALLINT";
+            case 2009:
+                return "SQLXML";
+            case 2002:
+                return "STRUCT";
+            case 92:
+                return "TIME";
+            case 93:
+                return "TIMESTAMP";
+            case -6:
+                return "TINYINT";
+            case -3:
+                return "VARBINARY";
+            case 12:
+                return "VARCHAR";
+            default:
+                throw new IllegalArgumentException();
         }
     }
 

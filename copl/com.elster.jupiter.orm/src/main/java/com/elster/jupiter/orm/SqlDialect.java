@@ -24,7 +24,17 @@ public enum SqlDialect {
 		public boolean hasIndexCompression() {
 			return false;
 		}
-    }, 
+
+		@Override
+		public String renameColumnSyntax() {
+			return "ALTER TABLE {0} ALTER COLUMN {1} RENAME TO {2}";
+		}
+
+        @Override
+        public boolean allowsConstraintRename() {
+            return false;
+        }
+    },
     /*
      * Oracle Enterprise Edition with partitioning option
      */
@@ -72,7 +82,8 @@ public enum SqlDialect {
 		public boolean hasIndexCompression() {
 			return true;
 		}
-    };
+
+	};
     
     abstract public String rowId();
     
@@ -81,4 +92,16 @@ public enum SqlDialect {
     abstract public boolean hasIndexOrganizedTables();
     
     abstract public boolean hasIndexCompression();
+
+	public String renameColumnSyntax() {
+		return "ALTER TABLE {0} RENAME COLUMN {1} TO {2}";
+	}
+
+	public String renameConstraintSyntax() {
+		return "ALTER TABLE {0} RENAME CONSTRAINT {1} TO {2}";
+	}
+
+    public boolean allowsConstraintRename() {
+        return true;
+    }
 }

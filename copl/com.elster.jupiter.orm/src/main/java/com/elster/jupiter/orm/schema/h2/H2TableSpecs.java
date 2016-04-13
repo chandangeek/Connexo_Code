@@ -45,13 +45,13 @@ public enum H2TableSpecs implements SchemaInfoProvider.TableSpec {
             table.map(ConstraintImpl.class);
             Column nameColumn = table.column("CONSTRAINT_NAME").varChar(128).notNull().map("name").add();
             Column tableColumn = table.column("TABLE_NAME").varChar(128).notNull().add();
-            table.column("CONSTRAINT_TYPE").varChar(1).notNull().conversion(ColumnConversion.CHAR2ENUM).map("type").add();
-            // Column referencedConstraint = table.column("R_CONSTRAINT_NAME").varChar(128).add();
+            table.column("CONSTRAINT_TYPE").varChar(1).notNull().map("typeName").add();
+            table.column("UNIQUE_INDEX_NAME").varChar(128).map("uniqueIndexName").add();
+            Column referencedIndex = table.column("UNIQUE_INDEX_NAME").varChar(128).map("referencedIndex").add();
+            Column sql = table.column("SQL").varChar(128).map("sql").add();
             table.primaryKey("PK_USERCONSTRAINTS").on(nameColumn).add();
             table.foreignKey("FK_CONSTRAINTTABLE").on(tableColumn).references(TABLES.name())
                     .map("table").reverseMap("constraints").add();
-            //table.foreignKey("FK_CONSTRAINTCONSTRAINT").on(referencedConstraint).references(USER_CONSTRAINTS.name())
-            //      .map("referencedConstraint").add();
         }
     },
     CROSS_REFERENCES {
@@ -60,11 +60,25 @@ public enum H2TableSpecs implements SchemaInfoProvider.TableSpec {
             Table<ConstraintColumnImpl> table = dataModel.addTable("INFORMATION_SCHEMA", name(), ConstraintColumnImpl.class);
             table.map(ConstraintColumnImpl.class);
             Column constraint = table.column("FK_NAME").varChar(128).notNull().add();
-            Column column = table.column("PKCOLUMN_NAME").varChar(128).notNull().map("columnName").add();
+            Column column = table.column("FKCOLUMN_NAME").varChar(128).notNull().map("columnName").add();
             table.column("ORDINAL_POSITION").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("position").add();
             table.primaryKey("PK_USERCONSCOLUMNS").on(constraint, column).add();
             table.foreignKey("FK_CONSCOLUMNSCONSTRAINT").on(constraint).references(CONSTRAINTS.name())
                     .map("constraint").reverseMap("columns").reverseMapOrder("position").add();
+        }
+    },
+    INDEXES {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<IndexColumnImpl> table = dataModel.addTable("INFORMATION_SCHEMA", name(), IndexColumnImpl.class);
+            table.map(IndexColumnImpl.class);
+            Column tableColumn = table.column("TABLE_NAME").varChar(128).notNull().add();
+            Column indexNameColumn = table.column("INDEX_NAME").varChar(128).notNull().map("indexName").add();
+            Column column = table.column("COLUMN_NAME").varChar(128).notNull().map("columnName").add();
+            table.column("ORDINAL_POSITION").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("position").add();
+            table.primaryKey("PK_INDEXCOLUMNS").on(tableColumn, indexNameColumn, column).add();
+            table.foreignKey("FK_INDEXCOLUMNSCONSTRAINT").on(tableColumn).references(TABLES.name())
+                    .map("table").reverseMap("indexColumns").reverseMapOrder("position").add();
         }
     };
 

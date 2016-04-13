@@ -107,7 +107,7 @@ public enum ColumnConversionImpl {
 		
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
-			return "Y".equals(rs.getString(index));
+			return "Y".equals(rs.getString(index)) || "YES".equalsIgnoreCase(rs.getString(index));
 		}
 		
 		@Override

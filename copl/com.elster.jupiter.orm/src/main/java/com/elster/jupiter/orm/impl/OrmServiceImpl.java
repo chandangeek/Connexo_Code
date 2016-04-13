@@ -1,11 +1,13 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TransactionRequiredException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -97,7 +99,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
 
     @Override
     public DataModelImpl newDataModel(String name, String description) {
-        return new DataModelImpl(this).init(name, description);
+        return new DataModelImpl(this).init(name, description, Version.latest());
     }
 
     public void register(DataModelImpl dataModel) {
@@ -334,6 +336,11 @@ public class OrmServiceImpl implements OrmService, InstallService {
 	public void createPartitions(Instant upTo, Logger logger) {
 		dataModels.values().forEach(dataModel -> dataModel.createPartitions(upTo, logger));
 	}
+
+    @Override
+    public DataModelUpgrader getDataModelUpgrader() {
+        return new DataModelUpgraderImpl(schemaInfoProvider, this);
+    }
 
     public FileSystem getFileSystem() {
         return fileSystem;

@@ -9,15 +9,17 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TableImpl implements ExistingTable {
 
     private String name;
     private List<ColumnImpl> columns = new ArrayList<>();
+    private List<IndexColumnImpl> indexColumns = new ArrayList<>();
     private List<ConstraintImpl> constraints = new ArrayList<>();
-
 
     @Override
     public String getName() {
@@ -73,5 +75,13 @@ public class TableImpl implements ExistingTable {
     @Override
     public List<? extends ExistingIndex> getIndexes() {
         return Collections.emptyList();
+    }
+
+    public List<ExistingColumn> getIndexColumns(String indexName) {
+        return indexColumns.stream()
+                .filter(indexColumn -> indexColumn.getIndexName().equals(indexName))
+                .sorted(Comparator.comparing(IndexColumnImpl::getPosition))
+                .map(IndexColumnImpl::getColumn)
+                .collect(Collectors.toList());
     }
 }
