@@ -257,7 +257,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public synchronized ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, final ComServer comServer) {
+    public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, final ComServer comServer) {
         Optional reloaded = refreshConnectionTask(connectionTask);
         if (reloaded.isPresent()){
             return getConnectionTaskService().attemptLockConnectionTask((ScheduledConnectionTask) reloaded.get(), comServer);
@@ -266,7 +266,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public synchronized void unlock(ScheduledConnectionTask connectionTask) {
+    public void unlock(ScheduledConnectionTask connectionTask) {
         Optional reloaded = refreshConnectionTask(connectionTask);
         if (reloaded.isPresent()) {
             getConnectionTaskService().unlockConnectionTask((ScheduledConnectionTask) reloaded.get());
@@ -389,21 +389,21 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public synchronized boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
+    public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
         return getConnectionTaskService().attemptLockConnectionTask(connectionTask, comServer) != null;
     }
 
-    public synchronized void unlock(final OutboundConnectionTask connectionTask) {
+    public void unlock(final OutboundConnectionTask connectionTask) {
         getConnectionTaskService().unlockConnectionTask(connectionTask);
     }
 
     @Override
-    public synchronized boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
+    public boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
         return getCommunicationTaskService().attemptLockComTaskExecution(comTaskExecution, comPort) != null;
     }
 
     @Override
-    public synchronized void unlock(final ComTaskExecution comTaskExecution) {
+    public void unlock(final ComTaskExecution comTaskExecution) {
         getCommunicationTaskService().unlockComTaskExecution(comTaskExecution);
     }
 
@@ -572,7 +572,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public synchronized <T> T executeTransaction(Transaction<T> transaction) {
+    public <T> T executeTransaction(Transaction<T> transaction) {
         return getTransactionService().execute(transaction);
     }
 
