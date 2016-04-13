@@ -20,7 +20,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
             viewForm,
             editForm;
 
-        me.addEvents('save');
+        me.addEvents('save', 'edit', 'canceledit');
 
         if (Ext.isArray(me.viewForm)) {
             viewForm = {
@@ -75,7 +75,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
                         ui: 'link',
                         action: 'cancel',
                         handler: function () {
-                            me.switchDisplayMode('view');
+                            me.fireEvent('canceledit', me);
                         }
                     }
                 ]

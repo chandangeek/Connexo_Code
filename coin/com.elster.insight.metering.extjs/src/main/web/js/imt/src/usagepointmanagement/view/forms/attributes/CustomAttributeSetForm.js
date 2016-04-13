@@ -6,8 +6,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.CustomAttributeSetFor
     ],
     alias: 'widget.custom-attribute-set-form',
 
-    editDefaults: {},
-
     initComponent: function () {
         var me = this;
 
@@ -21,11 +19,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.CustomAttributeSetFor
 
         me.editForm = {
             xtype: 'property-form',
-            itemId: 'edit-form',
-            defaults: {
-                labelWidth: me.editDefaults.labelWidth,
-                width: 128
-            }
+            itemId: 'edit-form'
         };
 
         me.callParent();

@@ -160,7 +160,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
         me.doRequest({
             success: function (record) {
-                router.getRoute('usagepoints/view').forward({mRID: record.get('mRID')});
+                router.getRoute('usagepoints/view').forward({mRID: encodeURIComponent(record.get('mRID'))});
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagepoint.add.successMsg', 'MDC', "Usage point added"));
             }
         });
@@ -229,7 +229,11 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 navigationIndex: 2,
                 ui: 'large',
                 isWizardStep: true,
-                predefinedRecord: Ext.create(category.model)
+                predefinedRecord: Ext.create(category.model),
+                defaults: {
+                    labelWidth: 260,
+                    width: 595
+                }
             };
             me.updateSteps(step2, field.findRecordByValue(newValue));
         }
