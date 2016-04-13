@@ -651,8 +651,9 @@ public class DemoServiceImpl {
             command.setComServerName(comServerName);
             command.setHost(host);
             command.setStartDate(startDate);
-            command.setLocation(createLocation());
-            //command.setGeoCoordinates(createGeoCoordinates());
+            if(!dataModel.getSqlDialect().name().equalsIgnoreCase("H2")){
+                command.setGeoCoordinates(meteringService.createGeoCoordinates("40.7922408:-74.4462162"));
+            }
             if (numberOfDevicesPerType == null) {
                 command.setDevicesPerType(null);
             } else {
@@ -661,42 +662,6 @@ public class DemoServiceImpl {
             command.run();
         });
     }
-
-    private Location createLocation(){
-        LocationBuilder builder = meteringService.newLocationBuilder();
-        setLocationAttributes(builder.member()).add();
-        return builder.create();
-    }
-
-    private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder){
-        builder.setCountryCode("US")
-                .setCountryName("United States")
-                .setAdministrativeArea("New Jersey")
-                .setLocality("New Jersey")
-                .setSubLocality("Morris Plains")
-                .setStreetType("street")
-                .setStreetName("Tabor Ave")
-                .setStreetNumber("115")
-                .setEstablishmentType("building")
-                .setEstablishmentName("HON")
-                .setEstablishmentNumber("1")
-                .setAddressDetail("HONEYWELL HEADQUARTERS")
-                .setZipCode("07950")
-                .isDaultLocation(true)
-                .setLocale("locale");
-        return builder;
-    }
-
-   /* private GeoCoordinates createGeoCoordinates(){
-        double minLatitude = -90.00;
-        double maxLatitude = 90.00;
-        double minLongitude = 0.00;
-        double maxLongitude = 180.00;
-        DecimalFormat df = new DecimalFormat("#.#####");
-        String latitude = df.format(minLatitude + (Math.random() * ((maxLatitude - minLatitude) + 1)));
-        String longitude = df.format(minLongitude + (double)(Math.random() * ((maxLongitude - minLongitude) + 1)));
-        return meteringService.createGeoCoordinates(latitude + ":" +longitude);
-    } */
 
     @SuppressWarnings("unused")
     public void createCollectRemoteDataSetup(String comServerName, String host){

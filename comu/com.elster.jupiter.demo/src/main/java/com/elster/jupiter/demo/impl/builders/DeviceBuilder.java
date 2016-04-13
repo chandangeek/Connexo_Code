@@ -22,7 +22,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private List<ComSchedule> comSchedules;
     private int yearOfCertification;
     private Location location;
-   // private GeoCoordinates geoCoordiantes;
+    private GeoCoordinates geoCoordiantes;
 
     private List<Consumer<Device>> postBuilders;
 
@@ -44,10 +44,10 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         return this;
     }
 
-   /* public DeviceBuilder withGeoCoordinates(GeoCoordinates geoCoordiantes){
+    public DeviceBuilder withGeoCoordinates(GeoCoordinates geoCoordiantes){
         this.geoCoordiantes = geoCoordiantes;
         return this;
-    } */
+    }
 
     public DeviceBuilder withSerialNumber(String serialNumber){
         this.serialNumber = serialNumber;
@@ -86,7 +86,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
             }
         }
         device.setLocation(location);
-       // device.setGeoCoordintes(geoCoordiantes);
+        device.setGeoCoordintes(geoCoordiantes);
         device.save();
         applyPostBuilders(device);
         return device;
