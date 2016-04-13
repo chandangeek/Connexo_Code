@@ -18,7 +18,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
             name: 'location',
             type: 'auto',
             convert: function (value, record) {
-                return value != ""? value.replace(/(?:\\r\\n|\\r|\\n)/g, '<br>') : record.get('geoCoordinates');
+                return value != ""? value : record.get('geoCoordinates');
             }
         },
         {name: 'version', type: 'int'},
