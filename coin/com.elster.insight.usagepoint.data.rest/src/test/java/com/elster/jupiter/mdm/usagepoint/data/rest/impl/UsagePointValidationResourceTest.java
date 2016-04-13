@@ -59,6 +59,8 @@ public class UsagePointValidationResourceTest extends UsagePointDataRestApplicat
     @Before
     public void setUp1() {
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findUsagePointLocation("MRID")).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointGeoCoordinates("MRID")).thenReturn(Optional.empty());
 
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
