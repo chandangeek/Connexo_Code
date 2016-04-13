@@ -31,7 +31,8 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         {ref: 'deviceTypeCombo', selector: '#deviceAddType'},
         {ref: 'deviceConfigCombo', selector: '#deviceAddConfig'},
         {ref: 'step2FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step2-errors'},
-        {ref: 'step3FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step3-errors'}
+        {ref: 'step3FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step3-errors'},
+        {ref: 'step4FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step4-errors'}
     ],
 
     init: function () {
@@ -48,7 +49,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             '#mdc-dataloggerslave-link-wizard button[navigationBtn=true]': {
                 click: this.moveTo
             },
-            '#mdc-dataloggerslave-link-wizard #mdc-link-dataloggerslave-navigation-menu': {
+            'dataloggerslave-link-container #mdc-link-dataloggerslave-navigation-menu': {
                 movetostep: this.moveTo
             },
             '#mdc-dataloggerslaves-action-menu': {
@@ -194,6 +195,12 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 break;
             case 3:
                 me.validateStep3(function() {
+                    me.prepareStep4();
+                    doCallback();
+                });
+                break;
+            case 4:
+                me.validateStep4(function() {
                     doCallback();
                 });
                 break;
@@ -241,13 +248,22 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 cancelBtn.show();
                 break;
             case 4:
+                me.getStep4FormErrorMessage().hide();
+                nextBtn.show();
+                backBtn.show();
+                backBtn.enable();
+                confirmBtn.hide();
+                finishBtn.hide();
+                cancelBtn.show();
+                break;
+            case 5:
                 navigationMenu.jumpBack = false;
                 nextBtn.hide();
                 backBtn.hide();
                 confirmBtn.hide();
                 finishBtn.hide();
                 cancelBtn.hide();
-                me.prepareStep4(wizard, finishBtn, navigationMenu);
+                //me.prepareStep4(wizard, finishBtn, navigationMenu);
                 break;
         }
     },
@@ -475,6 +491,63 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
     validateStep3: function(callback) {
         // Check if ALL registers of the slave are mapped to DIFFERENT data logger registers
+        var me = this,
+            wizard = me.getWizard(),
+            step3ErrorMsg = me.getStep3FormErrorMessage(),
+            i, counter = 0,
+            registerCombo,
+            errorsFound = false,
+            registersMapped = {},
+            endMethod = function() {
+                step3ErrorMsg.hide();
+                if (Ext.isFunction(callback)) {
+                    callback();
+                }
+            };
+
+        step3ErrorMsg.hide();
+        for (i=0; true; i++) {
+            counter++;
+            registerCombo = wizard.down('#mdc-step3-register-combo-'+counter);
+            if (Ext.isEmpty(registerCombo)) {
+                break;
+            }
+            if (Ext.isEmpty(registerCombo.getValue())) {
+                if (!errorsFound) {
+                    errorsFound = true;
+                    step3ErrorMsg.show();
+                }
+                registerCombo.markInvalid(Uni.I18n.translate('general.requiredField', 'MDC', 'This is a required field'));
+            } else {
+                if (registerCombo.getValue() in registersMapped) {
+                    if (!errorsFound) {
+                        errorsFound = true;
+                        step3ErrorMsg.show();
+                    }
+                    registerCombo.markInvalid(Uni.I18n.translate('general.registerAlreadyMapped', 'MDC', 'This register is already mapped'));
+                } else {
+                    registersMapped[registerCombo.getValue()] = true;
+                }
+            }
+        }
+
+        if (!errorsFound) {
+            endMethod();
+        }
+    },
+
+    prepareStep4: function() {
+        // Determine the arrival date to suggest
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            dataLoggerMRID = router.arguments.mRID,
+            wizard = me.getWizard();
+
+        wizard.down('dataloggerslave-link-wizard-step4').initialize(new Date());
+    },
+
+    validateStep4: function(callback) {
+
     },
 
     onActionMenuClicked: function (menu, item) {

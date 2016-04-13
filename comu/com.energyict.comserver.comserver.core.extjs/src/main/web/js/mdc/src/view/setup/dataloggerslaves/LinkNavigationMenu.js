@@ -5,7 +5,6 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkNavigationMenu', {
     jumpBack: true,
     ui: 'medium',
     padding: '0 0 0 0',
-    isEdit: false,
     title: Uni.I18n.translate('general.linkDataLoggerSlave', 'MDC', 'Link data logger slave'),
 
     initComponent: function () {
