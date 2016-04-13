@@ -344,19 +344,34 @@ public class ConsoleCommands {
     }
 
     public void addRequirementWithTemplateReadingType() {
-        System.out.println("Usage: addRequirementWithTemplateReadingType <name> <reading type template> <metrology configuration id>");
+        System.out.println("Usage: addRequirementWithTemplateReadingType <name> <reading type template> <meter role> <metrology configuration id>");
     }
 
-    public void addRequirementWithTemplateReadingType(String name, String defaultTemplate, long metrologyConfigId) {
+    public void addRequirementWithTemplateReadingType(String name, String defaultTemplate, String meterRoleName, long metrologyConfigId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
                     .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"));
             ReadingTypeTemplate template = metrologyConfigurationService.createReadingTypeTemplate(DefaultReadingTypeTemplate.valueOf(defaultTemplate)).done();
 
-            metrologyConfiguration.newReadingTypeRequirement(name)
-                    .withReadingTypeTemplate(template);
+            if (metrologyConfiguration instanceof UsagePointMetrologyConfiguration) {
+                try {
+                    DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(meterRoleName);
+                    MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
+                    UsagePointMetrologyConfiguration upMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfiguration;
+                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingTypeTemplate(template).getId();
+                    System.out.println("Requirment created with id: " + id);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
+                    throw e;
+                }
+            } else {
+                metrologyConfiguration.newReadingTypeRequirement(name).withReadingTypeTemplate(template);
+            }
             context.commit();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 
