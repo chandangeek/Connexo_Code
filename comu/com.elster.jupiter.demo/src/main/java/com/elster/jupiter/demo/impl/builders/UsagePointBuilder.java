@@ -1,5 +1,7 @@
 package com.elster.jupiter.demo.impl.builders;
 
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -17,6 +19,8 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
     private String mRID;
     private ServiceKind serviceKind = ServiceKind.ELECTRICITY;
     private Instant installationTime;
+    private Location location;
+    private GeoCoordinates geoCoordiantes;
 
     public UsagePointBuilder(MeteringService meteringService){
         super(UsagePointBuilder.class);
@@ -38,6 +42,16 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
         return this;
     }
 
+    public UsagePointBuilder withLocation(Location location){
+        this.location = location;
+        return this;
+    }
+
+    public UsagePointBuilder withGeoCoordinates(GeoCoordinates geoCoordiantes){
+        this.geoCoordiantes = geoCoordiantes;
+        return this;
+    }
+
     @Override
     public Optional<UsagePoint> find() {
         if (this.mRID == null) {
@@ -48,6 +62,7 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
 
     @Override
     public UsagePoint create() {
-        return meteringService.getServiceCategory(serviceKind).get().newUsagePoint(mRID, installationTime).withName(getName()).create();
+        return meteringService.getServiceCategory(serviceKind).get().newUsagePoint(mRID, installationTime)
+                .withName(getName()).withLocation(location).withGeoCoordinates(geoCoordiantes).create();
     }
 }
