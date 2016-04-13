@@ -97,21 +97,19 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
                 .describedAs(TranslationKeys.CPS_TECHNICAL_INSTALLATION_DISTANCE_FROM_THE_SUBSTATION_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .addValues(Quantity.create(new BigDecimal(0), 1, "m"))
+                .addValues(Quantity.create(new BigDecimal(0), 0, "m"),
+                        Quantity.create(new BigDecimal(0), 3, "m"))
                 .finish();
         PropertySpec feederSpec = propertySpecService
                 .stringSpec()
                 .named(UsagePointTechInstElectrDE.Fields.FEEDER.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_FEEDER)
                 .fromThesaurus(this.getThesaurus())
                 .finish();
-        PropertySpec utilizationCategorySpec = propertySpecService
-                .specForValuesOf(new QuantityValueFactory())
+        PropertySpec utilizationCategorySpec = this.propertySpecService
+                .stringSpec()
                 .named(UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_UTILIZATION_CATEGORY)
-                .describedAs(TranslationKeys.CPS_TECHNICAL_INSTALLATION_UTILIZATION_CATEGORY_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues(Quantity.create(new BigDecimal(0), 1, "m"))
                 .finish();
-
         return Arrays.asList(
                 distanceFromTheSubstationSpec,
                 feederSpec,
@@ -169,8 +167,10 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
                     .varChar(255)
                     .map(UsagePointTechInstElectrDE.Fields.FEEDER.javaName())
                     .add();
-            table.addQuantityColumns(UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY.databaseName(), false, UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY
-                    .javaName());
+            table.column(UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY.databaseName())
+                    .varChar(255)
+                    .map(UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY.javaName())
+                    .add();
         }
     }
 }

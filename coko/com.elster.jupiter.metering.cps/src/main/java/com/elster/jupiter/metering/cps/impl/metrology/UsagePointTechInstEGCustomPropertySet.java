@@ -95,7 +95,7 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
                 .named(UsagePointTechInstEGDomExt.Fields.LOSS_FACTOR.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_LOSS_FACTOR)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_INSTALLATION_LOSS_FACTOR_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues(Quantity.create(new BigDecimal(0), 1, "%"))
+                .addValues(Quantity.create(new BigDecimal(0), 0, "%"))
                 .finish();
 
         return Arrays.asList(lossFactorSpec);

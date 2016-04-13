@@ -87,7 +87,13 @@ public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, U
                 .specForValuesOf(new QuantityValueFactory())
                 .named(UsagePointContrElectrDomExt.Fields.CONTRACTED_POWER.javaName(), TranslationKeys.CPS_CUSTOM_CONTRACTUAL_CONTRACTED_POWER)
                 .fromThesaurus(this.getThesaurus())
-                .addValues(Quantity.create(new BigDecimal(0), 1, "W"))
+                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
+                       // Quantity.create(new BigDecimal(0), 1, "W"),
+                       // Quantity.create(new BigDecimal(0), 2, "W"),
+                        Quantity.create(new BigDecimal(0), 3, "W"),
+                        Quantity.create(new BigDecimal(0), 6, "W"),
+                        Quantity.create(new BigDecimal(0), 9, "W"),
+                        Quantity.create(new BigDecimal(0), 12, "W"))
                 .finish();
         return Arrays.asList(contractedPowerSpec);
     }
