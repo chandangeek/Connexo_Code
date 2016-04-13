@@ -69,6 +69,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
          * that is compatible with the target interval. */
         Optional<VirtualReadingType> preferredReadingType = new MatchingChannelSelector(this.requirement, this.meterActivation).getPreferredReadingType(this.getTargetReadingType());
         if (preferredReadingType.isPresent()) {
+            Loggers.ANALYSIS.debug(() -> "Preferred reading type for requirement " + this.requirement.getName() + " in meter activation " + this.meterActivation.getRange() + ":" + preferredReadingType.get().toString());
             return preferredReadingType.get();
         }
         else {

@@ -158,6 +158,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
                 sqlBuilder.append(expression);
             }
             else {
+                Loggers.SQL.debug(() -> "Rescaling " + expression + " from " + this.getUnitMultiplier() + " to " + targetReadingType.getUnitMultiplier());
                 sqlBuilder.append("(");
                 sqlBuilder.append(expression);
                 sqlBuilder.append(" * ");
@@ -193,11 +194,14 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
                             this.getUnitMultiplier(),
                             targetReadingType.getUnit(),
                             targetReadingType.getUnitMultiplier());
-            sqlBuilder.append(conversionExpression.accept(new ExpressionNodeToString()));
+            String convertedExpression = conversionExpression.accept(new ExpressionNodeToString());
+            Loggers.SQL.debug(() -> "Applying unit conversion to " + expression + " to convert from " + this.toString() + " to " + targetReadingType.toString() + " using: " + convertedExpression);
+            sqlBuilder.append(convertedExpression);
         }
     }
 
     private void applyVolumeFlowConversion(String expression, String operator, VirtualReadingType targetReadingType, StringBuilder sqlBuilder) {
+        Loggers.SQL.debug(() -> "Applying volume to flow conversion to " + expression + " using operator " + operator + " to convert from " + this.toString() + " to " + targetReadingType.toString());
         sqlBuilder.append("(");
         sqlBuilder.append(expression);
         sqlBuilder.append(operator);

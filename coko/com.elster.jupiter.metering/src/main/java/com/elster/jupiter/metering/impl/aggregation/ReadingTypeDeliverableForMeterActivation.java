@@ -168,6 +168,10 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private void appendValueToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
+            Loggers.SQL.debug(() ->
+                    "Statement for deliverable " + this.deliverable.getName() + " in meter activation " + this.meterActivation.getRange() +
+                    " requires time based aggregation because raw data interval length is " + this.expressionReadingType.getIntervalLength() +
+                    " and target interval length is " + this.targetReadingType.getIntervalLength());
             sqlBuilder.append(this.defaultValueAggregationFunctionFor(this.targetReadingType).sqlName());
             sqlBuilder.append("(");
             sqlBuilder.append(
@@ -177,10 +181,15 @@ class ReadingTypeDeliverableForMeterActivation {
                             this.targetReadingType));
             sqlBuilder.append(")");
         } else {
-            sqlBuilder.append(this.expressionReadingType.buildSqlUnitConversion(
-                    this.mode,
-                    this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
-                    this.targetReadingType));
+            if (this.expressionReadingType.equalsIgnoreCommodity(this.targetReadingType)) {
+                sqlBuilder.append(
+                        this.expressionReadingType.buildSqlUnitConversion(
+                                this.mode,
+                                this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
+                                this.targetReadingType));
+            } else {
+                this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
+            }
         }
     }
 
@@ -190,6 +199,7 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
+            Loggers.SQL.debug(() -> "Truncating timeline for deliverable " + this.deliverable.getName() + " in meter activation " + this.meterActivation.getRange() + " to ");
             this.appendTruncatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
             sqlBuilder.append(", ");
             sqlBuilder.append(AggregationFunction.MAX.sqlName());
@@ -206,6 +216,7 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendTruncatedTimeline(SqlBuilder sqlBuilder, String sqlName) {
+        Loggers.SQL.debug(() -> "Truncating " + sqlName + " to " + this.targetReadingType.getIntervalLength().toOracleTruncFormatModel());
         sqlBuilder.append("TRUNC(");
         sqlBuilder.append(sqlName);
         sqlBuilder.append(", '");
