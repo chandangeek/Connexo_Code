@@ -111,7 +111,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues()))
                 .collect(Collectors.toList());
 
-        meteringService.findDeviceGeoCoordinates(usagePoint.getMRID()).ifPresent(coordinates -> info.geoCoordinates = coordinates.getCoordinates().toString());
+        meteringService.findUsagePointGeoCoordinates(usagePoint.getMRID()).ifPresent(coordinates -> info.geoCoordinates = coordinates.getCoordinates().toString());
 
         Optional<Location> location = meteringService.findUsagePointLocation(usagePoint.getMRID());
         String formattedLocation = "";
