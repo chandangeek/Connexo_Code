@@ -2,7 +2,11 @@
   border-color: $tip-border-color;
   background-color: $tip-background-color;
   border-radius: $tip-border-radius
+}
 
+.#{$prefix}tip-header {
+  color: $tip-header-color;
+  padding-left: 10px;
 }
 
 .#{$prefix}tip-body {
