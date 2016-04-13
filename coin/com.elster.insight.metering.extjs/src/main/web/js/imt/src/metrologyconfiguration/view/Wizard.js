@@ -47,7 +47,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                     me.isPossibleAdd ?
                     {
                         xtype: 'combobox',
-                        name: 'metrology',
+                        name: 'id',
                         itemId: 'metrology-configuration-combo',
                         fieldLabel: Uni.I18n.translate('general.label.metrologyConfiguration', 'IMT', 'Metrology configuration'),
                         afterSubTpl: '<span class="field-additional-info" style="color: #686868; font-style: italic">'

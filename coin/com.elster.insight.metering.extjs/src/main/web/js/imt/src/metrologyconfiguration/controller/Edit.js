@@ -400,11 +400,12 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 store.getProxy().setUrl(mRID);
                 configurationModel.getProxy().setUrl(mRID);
                 me.getStore('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations').load(function (records) {
-                    var isPossibleAdd = records && records.length;
+                    var isPossibleAdd = records && records.length,
+                        fromLandingPage = !!router.queryParams.fromLandingPage;
 
                     me.getApplication().fireEvent('changecontentevent', Ext.widget('define-metrology-configuration', {
                         itemId: 'define-metrology-configuration',
-                        returnLink: router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl(),
+                        returnLink: fromLandingPage ? router.getRoute('usagepoints/view').buildUrl() : router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl(),
                         isPossibleAdd: isPossibleAdd
                     }));
                     me.getWizard().loadRecord(Ext.create('Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration'));
