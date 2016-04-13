@@ -128,9 +128,13 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     Optional<Location> getLocation();
 
+    void setUpLocation(Location location);
+
     long getGeoCoordinatesId();
 
     Optional<GeoCoordinates> getGeoCoordinates();
+
+    void setGeoCoordinates(GeoCoordinates geoCoordinates);
 
     /**
      * Applies the specified {@link MetrologyConfiguration} to this UsagePoint
