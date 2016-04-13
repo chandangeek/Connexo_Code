@@ -29,16 +29,14 @@ import static org.mockito.Mockito.*;
 
 public class UsagePointValidationResourceTest extends UsagePointDataRestApplicationJerseyTest {
 
-    @Rule
-    public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
-
     public static final long DEVICE_ID = 56854L;
     public static final String CHANNEL_MRID1 = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     public static final String REGISTER_MRID1 = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     public static final Instant NOW = ZonedDateTime.of(2015, 12, 10, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
     public static final Instant LAST_READING = ZonedDateTime.of(2015, 12, 9, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
     private static long intervalStart = 1410774630000L;
-
+    @Rule
+    public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
     @Mock
     private ValidationEvaluator evaluator;
     @Mock
@@ -59,8 +57,8 @@ public class UsagePointValidationResourceTest extends UsagePointDataRestApplicat
     @Before
     public void setUp1() {
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
-        when(meteringService.findUsagePointLocation("MRID")).thenReturn(Optional.empty());
-        when(meteringService.findUsagePointGeoCoordinates("MRID")).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointLocation(anyString())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointGeoCoordinates(anyString())).thenReturn(Optional.empty());
 
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
