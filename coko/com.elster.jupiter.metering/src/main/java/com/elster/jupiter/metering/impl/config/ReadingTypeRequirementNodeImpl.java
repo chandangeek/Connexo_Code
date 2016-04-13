@@ -1,11 +1,13 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.Dimension;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,6 +49,11 @@ public class ReadingTypeRequirementNodeImpl extends AbstractNode implements Read
     @Override
     public List<ReadingTypeRequirementNode> getRequirements() {
         return Collections.singletonList(this);
+    }
+
+    @Override
+    public List<ReadingTypeDeliverableNode> getDeliverables() {
+        return new ArrayList<ReadingTypeDeliverableNode>();
     }
 
     @Override

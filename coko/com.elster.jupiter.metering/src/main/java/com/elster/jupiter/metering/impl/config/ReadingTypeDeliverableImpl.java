@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -20,6 +21,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Optional;
 
 
 @ValidDeliverable(groups = { Save.Create.class, Save.Update.class })
@@ -111,8 +113,26 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     @Override
     public void setReadingType(ReadingType readingType) {
+        doSetReadingType(readingType);
+        ReadingTypeDeliverable deliverableToUpdate =  this.getMetrologyConfiguration().getDeliverables().stream().filter(del -> del.equals(this)).findAny().orElse(null);
+        if (deliverableToUpdate != null) {
+            //to check for invalid formulas where this deliverable is used by the ValidDeliverable class
+            ((ReadingTypeDeliverableImpl) deliverableToUpdate).doSetReadingType(readingType);
+        }
+        //to check for invalid formulas where this deliverable is used by the ValidDeliverable class
+        for (ReadingTypeDeliverable deliverable : this.getMetrologyConfiguration().getDeliverables()) {
+            for (ReadingTypeDeliverableNode deliverableNode : ((AbstractNode) deliverable.getFormula().getExpressionNode()).getDeliverables()) {
+                if (deliverableNode.getReadingTypeDeliverable().equals(this)) {
+                    ((ReadingTypeDeliverableImpl) deliverableNode.getReadingTypeDeliverable()).doSetReadingType(readingType);
+                }
+            }
+        }
+    }
+
+    private void doSetReadingType(ReadingType readingType) {
         this.readingType.set(readingType);
     }
+
 
     @Override
     public void setFormula(Formula formula) {
