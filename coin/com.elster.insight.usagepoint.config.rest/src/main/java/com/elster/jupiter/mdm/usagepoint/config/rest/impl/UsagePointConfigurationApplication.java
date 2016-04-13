@@ -5,11 +5,17 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.mdm.common.rest.ExceptionFactory;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -17,7 +23,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component(name = "com.elster.insight.ucr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/ucr", "app=INS", "name=" + UsagePointConfigurationApplication.COMPONENT_NAME})
 public class UsagePointConfigurationApplication extends Application implements TranslationKeyProvider {
@@ -34,6 +45,7 @@ public class UsagePointConfigurationApplication extends Application implements T
     private volatile ValidationService validationService;
     private volatile License license;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile MeteringService meteringService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -108,8 +120,12 @@ public class UsagePointConfigurationApplication extends Application implements T
         this.customPropertySetService = customPropertySetService;
     }
 
-    class HK2Binder extends AbstractBinder {
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
 
+    class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
             bind(MetrologyConfigurationResource.class).to(MetrologyConfigurationResource.class);
@@ -126,6 +142,7 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
+            bind(meteringService).to(MeteringService.class);
         }
     }
 }

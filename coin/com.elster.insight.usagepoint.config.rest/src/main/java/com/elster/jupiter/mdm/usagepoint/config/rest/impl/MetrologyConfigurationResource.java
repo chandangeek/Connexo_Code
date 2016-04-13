@@ -8,6 +8,8 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.mdm.common.services.ListPager;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfo;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.security.Privileges;
@@ -22,11 +24,23 @@ import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,15 +55,23 @@ public class MetrologyConfigurationResource {
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
+    private final MeteringService meteringService;
 
     @Inject
-    public MetrologyConfigurationResource(ResourceHelper resourceHelper, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService, CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory, MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory) {
+    public MetrologyConfigurationResource(ResourceHelper resourceHelper,
+                                          UsagePointConfigurationService usagePointConfigurationService,
+                                          ValidationService validationService,
+                                          CustomPropertySetService customPropertySetService,
+                                          CustomPropertySetInfoFactory customPropertySetInfoFactory,
+                                          MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory,
+                                          MeteringService meteringService) {
         this.resourceHelper = resourceHelper;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.validationService = validationService;
         this.customPropertySetService = customPropertySetService;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
+        this.meteringService = meteringService;
     }
 
     @GET
@@ -219,9 +241,16 @@ public class MetrologyConfigurationResource {
                     .map(RegisteredCustomPropertySet::getCustomPropertySet)
                     .map(CustomPropertySet::getId)
                     .collect(Collectors.toSet());
+
+            Set<String> serviceCatCPSIds = Arrays.stream(ServiceKind.values()).map(meteringService::getServiceCategory).flatMap(sc -> sc.isPresent() ? Stream.of(sc.get()) : Stream.empty())
+                    .flatMap(sc -> sc.getCustomPropertySets().stream()).map(RegisteredCustomPropertySet::getCustomPropertySet)
+                    .map(CustomPropertySet::getId)
+                    .collect(Collectors.toSet());
+
             customPropertySets = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
                     .stream()
-                    .filter(cps -> !assignedCPSIds.contains(cps.getCustomPropertySet().getId()));
+                    .filter(cps -> !assignedCPSIds.contains(cps.getCustomPropertySet().getId()))
+                    .filter(cps -> !serviceCatCPSIds.contains(cps.getCustomPropertySet().getId()));
         }
         List<?> infos = customPropertySets
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)

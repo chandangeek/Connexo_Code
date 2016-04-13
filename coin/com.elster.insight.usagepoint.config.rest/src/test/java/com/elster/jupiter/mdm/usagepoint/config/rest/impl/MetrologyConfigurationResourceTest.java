@@ -4,25 +4,40 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfo;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class MetrologyConfigurationResourceTest extends UsagePointConfigurationRestApplicationJerseyTest {
 
@@ -30,6 +45,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     private MetrologyConfiguration config1, config2;
     @Mock
     private ValidationRuleSet vrs, vrs2;
+    @Mock
+    private ServiceCategory serviceCategory;
 
     @Before
     public void setUpStubs() {
@@ -237,11 +254,24 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(rcps2.getCustomPropertySet()).thenReturn(cps2);
         when(rcps2.isViewableByCurrentUser()).thenReturn(true);
 
+        CustomPropertySet cps3 = mock(CustomPropertySet.class);
+        when(cps3.getId()).thenReturn("ServiceCatCPS");
+        when(cps3.getDomainClass()).thenReturn(UsagePoint.class);
+
+        RegisteredCustomPropertySet rcps3 = mock(RegisteredCustomPropertySet.class);
+        when(rcps3.getId()).thenReturn(777L);
+        when(rcps3.getCustomPropertySet()).thenReturn(cps3);
+        when(rcps3.isViewableByCurrentUser()).thenReturn(true);
+
         MetrologyConfiguration mConfig = mock(MetrologyConfiguration.class);
         when(mConfig.getId()).thenReturn(mConfigId);
         when(mConfig.isActive()).thenReturn(false);
         when(mConfig.getVersion()).thenReturn(1L);
         when(mConfig.getCustomPropertySets()).thenReturn(Arrays.asList(rcps1));
+
+        when(meteringService.getServiceCategory(any(ServiceKind.class))).thenReturn(Optional.of(serviceCategory));
+        when(serviceCategory.getCustomPropertySets()).thenReturn(Stream.of(rcps3).collect(Collectors.toList()));
+        when(rcps3.getCustomPropertySet()).thenReturn(cps3);
 
         when(usagePointConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
         when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Arrays.asList(rcps1, rcps2));
@@ -251,6 +281,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         assertThat(model.<Number>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.customPropertySets")).hasSize(1);
         assertThat(model.<Number>get("$.customPropertySets[0].id")).isEqualTo(789);
+        assertThat(model.<Number>get("$.customPropertySets[0].id")).isNotEqualTo(777);
         assertThat(model.<String>get("$.customPropertySets[0].customPropertySetId")).isEqualTo("AnotherCPS");
         verify(mConfig).getCustomPropertySets();
         verify(rcps2, atLeastOnce()).isViewableByCurrentUser();

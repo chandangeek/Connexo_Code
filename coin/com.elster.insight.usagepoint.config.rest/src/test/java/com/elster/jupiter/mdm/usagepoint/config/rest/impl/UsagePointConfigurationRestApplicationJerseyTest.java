@@ -1,17 +1,29 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
-import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.Currency;
+
+import org.mockito.Mock;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -32,6 +44,8 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
     UsagePointConfigurationService usagePointConfigurationService;
     @Mock
     CustomPropertySetService customPropertySetService;
+    @Mock
+    MeteringService meteringService;
 
     @Override
     protected Application getApplication() {
@@ -43,6 +57,7 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
         application.setClockService(clock);
         application.setUsagePointConfigurationService(usagePointConfigurationService);
         application.setCustomPropertySetService(customPropertySetService);
+        application.setMeteringService(meteringService);
         return application;
     }
 
