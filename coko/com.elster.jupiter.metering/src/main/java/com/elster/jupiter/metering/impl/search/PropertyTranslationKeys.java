@@ -46,6 +46,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_GROUP_ELECTRICITY("usagepoint.group.electricity", "Electricity"),
     USAGEPOINT_GROUP_GAS("usagepoint.group.gas", "Gas"),
     USAGEPOINT_GROUP_WATER("usagepoint.group.water", "Water"),
+    USAGEPOINT_GROUP_HEAT("usagepoint.group.heat", "Heat"),
 
     USAGEPOINT_DOMAIN("usagepoint.domain", "Usage point"),
 

@@ -66,14 +66,10 @@ public abstract class PressureSearchableProperty implements SearchableUsagePoint
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof Quantity) {
+            return value.toString();
         }
-        return String.valueOf(value);
-    }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Quantity;
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
     @Override
@@ -88,7 +84,7 @@ public abstract class PressureSearchableProperty implements SearchableUsagePoint
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.singletonList(new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus));
+        return Collections.singletonList(new ServiceCategorySearchableProperty(domain, propertySpecService, thesaurus));
     }
 
     @Override

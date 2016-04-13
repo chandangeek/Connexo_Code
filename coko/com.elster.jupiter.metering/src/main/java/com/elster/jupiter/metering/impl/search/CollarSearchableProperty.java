@@ -45,7 +45,7 @@ public abstract class CollarSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public Optional<SearchablePropertyGroup> getGroup() {
-        return Optional.of(this.group);
+        return Optional.of(group);
     }
 
     @Override
@@ -60,32 +60,23 @@ public abstract class CollarSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_COLLAR.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_COLLAR.getDisplayName(thesaurus);
     }
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof YesNoAnswer) {
+            return ((YesNoAnswer) value).name();
         }
-        return this.toDisplayAfterValidation(value);
-    }
-
-    private String toDisplayAfterValidation(Object value) {
-        YesNoAnswer yesNoAnswer = (YesNoAnswer) value;
-        return yesNoAnswer.name();
-    }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Enum;
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService
+        return propertySpecService
                 .specForValuesOf(new EnumFactory(YesNoAnswer.class))
                 .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_COLLAR)
-                .fromThesaurus(this.thesaurus)
+                .fromThesaurus(thesaurus)
                 .addValues(YesNoAnswer.values())
                 .markExhaustive()
                 .finish();
@@ -93,7 +84,7 @@ public abstract class CollarSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.singletonList(new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus));
+        return Collections.singletonList(new ServiceCategorySearchableProperty(domain, propertySpecService, thesaurus));
     }
 
     @Override

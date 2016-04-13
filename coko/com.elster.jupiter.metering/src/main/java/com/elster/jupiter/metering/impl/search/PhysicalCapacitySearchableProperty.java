@@ -75,19 +75,15 @@ public abstract class PhysicalCapacitySearchableProperty implements SearchableUs
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof Quantity) {
+            return value.toString();
         }
-        return String.valueOf(value);
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.singletonList(new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus));
-    }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Quantity;
+        return Collections.singletonList(new ServiceCategorySearchableProperty(domain, propertySpecService, thesaurus));
     }
 
     @Override
