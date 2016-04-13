@@ -2,6 +2,8 @@ package com.elster.jupiter.util;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -174,4 +176,17 @@ public class Ranges {
         }
         return ifBoth.apply(start, end);
     }
+
+    public static <C extends Comparable<? super C>> RangeSet<C> intersection(RangeSet<C> a, RangeSet<C> b) {
+        if (a.enclosesAll(b)) {
+            return b;
+        }
+        if (b.enclosesAll(a)) {
+            return a;
+        }
+        TreeRangeSet<C> copy = TreeRangeSet.create(a);
+        copy.removeAll(b.complement());
+        return copy;
+    }
+
 }
