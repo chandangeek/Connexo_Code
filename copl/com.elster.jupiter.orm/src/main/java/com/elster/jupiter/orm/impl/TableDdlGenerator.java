@@ -63,7 +63,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
 
     private String getTableDdl() {
         StringBuilder sb = new StringBuilder("create table ");
-        sb.append(table.getQualifiedName());
+        sb.append(table.getQualifiedName(version));
         sb.append("(");
         doAppendColumns(sb, table.getColumns(version), true, true);
         for (TableConstraintImpl constraint : table.getConstraints(version)) {
@@ -337,7 +337,16 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         if (toTable.hasJournal() && !table.hasJournal()) {
             result.add(getJournalTableDdl(toTable));
         }
+        // name
+        if (!table.getName().equals(toTable.getName(version))) {
+            result.add(getRenameDdl(toTable));
+        }
+
         return result;
+    }
+
+    private String getRenameDdl(TableImpl<?> toTable) {
+        return "alter table " + table.getName() + " rename to " + toTable.getName(version);
     }
 
     private String getRenameConstraintDdl(TableConstraintImpl fromConstraint, TableConstraintImpl toConstraint) {

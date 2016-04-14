@@ -32,25 +32,25 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
 
     @Override
     public void upgrade(DataModel dataModel, Version version) {
-        DataModelImpl current = getCurrentDataModel(dataModel, version);
+        DataModelImpl current = getCurrentDataModel((DataModelImpl) dataModel, version);
         upgradeTo(current, (DataModelImpl) dataModel, version);
 
     }
 
-    private DataModelImpl getCurrentDataModel(DataModel model, Version version) {
+    private DataModelImpl getCurrentDataModel(DataModelImpl model, Version version) {
         DataModelImpl currentDataModel = ormService.newDataModel("UPG", "Upgrade  of " + model.getName());
         DataModel schemaMetaDataModel = getSchemaDataModel();
 
         Set<String> processedTables = new HashSet<>();
         if (schemaMetaDataModel != null) {
-            for (Table<?> table : model.getTables(version)) {
-                Optional<ExistingTable> existingJournalTable = Optional.empty();
-                if (table.hasJournal()) {
-                    existingJournalTable = schemaMetaDataModel.mapper(ExistingTable.class)
-                            .getEager(table.getJournalTableName());
-                }
-                addTableToExistingModel(currentDataModel, schemaMetaDataModel, table.getName(), (existingJournalTable
-                        .isPresent() ? existingJournalTable.get().getName() : null), processedTables);
+            for (TableImpl<?> table : model.getTables(version)) {
+                String existingJournalTableName =
+                        table.hasJournal()
+                                ? schemaMetaDataModel.mapper(ExistingTable.class).getEager(table.getJournalTableName()).map(ExistingTable::getName).orElse(null)
+                                : null;
+                table.getHistoricalNames()
+                        .stream()
+                        .forEach(tableName -> addTableToExistingModel(currentDataModel, schemaMetaDataModel, tableName, existingJournalTableName, processedTables));
             }
         }
         return currentDataModel;
@@ -110,7 +110,12 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
     }
 
     private void tryUpgradeTo(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version, Statement statement) throws SQLException {
-        TableImpl<?> fromTable = fromDataModel.getTable(toTable.getName(), version);
+        TableImpl<?> fromTable = fromDataModel.getTable(toTable.getName(version), version);
+        if (fromTable == null) {
+            fromTable = toTable.previousTo(version)
+                    .map(previousVersion -> fromDataModel.getTable(toTable.getName(previousVersion), previousVersion))
+                    .orElse(null);
+        }
         if (fromTable != null) {
             upgradeTable(toTable, statement, fromTable, version);
         } else {

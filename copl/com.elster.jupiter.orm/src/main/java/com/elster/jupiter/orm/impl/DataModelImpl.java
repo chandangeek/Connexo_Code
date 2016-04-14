@@ -193,7 +193,6 @@ public class DataModelImpl implements DataModel {
 
     }
 
-
     private void upgradeTo(DataModelImpl toDataModel, Version version) {
         try (Connection connection = getConnection(false);
              Statement statement = connection.createStatement()) {

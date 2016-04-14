@@ -160,10 +160,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallFirstVersion() throws SQLException {
+    public void testInstall1stVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        firstVersionsCode(dataModel);
+        the1stVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
@@ -179,10 +179,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallSecondVersionFromScratch() throws SQLException {
+    public void testInstall2ndVersionFromScratch() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        secondVersionsCode(dataModel);
+        the2ndVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
@@ -199,10 +199,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallFirstVersionThenUpgradeToSecond() throws SQLException {
+    public void testUpgradeTo2ndVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        secondVersionsCode(dataModel);
+        the2ndVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(1, 0));
@@ -230,10 +230,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallThirdVersionFromScratch() throws SQLException {
+    public void testInstall3rdVersionFromScratch() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        thirdVersionsCode(dataModel);
+        the3rdVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
@@ -257,10 +257,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallFourthVersionFromScratch() throws SQLException {
+    public void testInstall4thVersionFromScratch() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        fourthVersionsCode(dataModel);
+        the4thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
@@ -284,10 +284,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallFifthVersionFromScratch() throws SQLException {
+    public void testInstall5thVersionFromScratch() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        fifthVersionsCode(dataModel);
+        the5thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
@@ -320,10 +320,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallSeventhVersionFromScratch() throws SQLException {
+    public void testInstall7thVersionFromScratch() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        seventhVersionsCode(dataModel);
+        the7thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
@@ -340,10 +340,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallEighthVersionFromScratch() throws SQLException {
+    public void testInstall8thVersionFromScratch() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        eighthVersionsCode(dataModel);
+        the8thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
@@ -361,10 +361,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallNinthVersionFromScratch() throws SQLException {
+    public void testInstall9thVersionFromScratch() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        ninthVersionsCode(dataModel);
+        the9thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
@@ -381,10 +381,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallTenthVersionFromScratch() throws SQLException {
+    public void testInstall10thVersionFromScratch() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        tenthVersionsCode(dataModel);
+        the10thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
@@ -398,10 +398,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallEleventhVersionFromScratch() throws SQLException {
+    public void testInstall11thVersionFromScratch() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        eleventhVersionsCode(dataModel);
+        the11thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
@@ -419,10 +419,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallTWelfthVersionFromScratch() throws SQLException {
+    public void testInstall12thVersionFromScratch() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        twelfthVersionsCode(dataModel);
+        the12thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
@@ -439,10 +439,31 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testInstallSixthVersionFromScratch() throws SQLException {
+    public void testInstall13thVersionFromScratch() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        sixthVersionsCode(dataModel);
+        the13thVersionsCode(dataModel);
+        dataModel.register();
+
+        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+
+        try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_ROLE")) {
+                ResultSet resultSet = preparedStatement.executeQuery();
+                assertThat(resultSet.findColumn("ID")).isEqualTo(1);
+                assertThat(resultSet.findColumn("NAME")).isEqualTo(2);
+                assertThat(resultSet.findColumn("LEAD")).isEqualTo(3);
+                assertThat(resultSet.findColumn("MOVIE")).isEqualTo(4);
+                assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(4);
+            }
+        }
+    }
+
+    @Test
+    public void testInstall6thVersionFromScratch() throws SQLException {
+        DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
+
+        the6thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
@@ -474,10 +495,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testUpgradeToThirdVersion() throws SQLException {
+    public void testUpgradeTo3rdVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        thirdVersionsCode(dataModel);
+        the3rdVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(2, 0));
@@ -513,10 +534,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testUpgradeToFourthVersion() throws SQLException {
+    public void testUpgradeTo4thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        fourthVersionsCode(dataModel);
+        the4thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(3, 0));
@@ -559,10 +580,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testUpgradeToFifthVersion() throws SQLException {
+    public void testUpgradeTo5thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        fifthVersionsCode(dataModel);
+        the5thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(4, 0));
@@ -595,10 +616,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testUpgradeToSixthVersion() throws SQLException {
+    public void testUpgradeTo6thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        sixthVersionsCode(dataModel);
+        the6thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(5, 0));
@@ -631,10 +652,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testUpgradeToSeventhVersion() throws SQLException {
+    public void testUpgradeTo7thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        seventhVersionsCode(dataModel);
+        the7thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(6, 0));
@@ -663,10 +684,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testUpgradeToEighthVersion() throws SQLException {
+    public void testUpgradeTo8thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        eighthVersionsCode(dataModel);
+        the8thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(7, 0));
@@ -697,10 +718,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testUpgradeToNinthVersion() throws SQLException {
+    public void testUpgradeTo9thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        ninthVersionsCode(dataModel);
+        the9thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(8, 0));
@@ -729,10 +750,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testUpgradeToTenthVersion() throws SQLException {
+    public void testUpgradeTo10thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        tenthVersionsCode(dataModel);
+        the10thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(9, 0));
@@ -760,10 +781,10 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testUpgradeToEleventhVersion() throws SQLException {
+    public void testUpgradeTo11thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        eleventhVersionsCode(dataModel);
+        the11thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(10, 0));
@@ -792,10 +813,44 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
-    public void testUpgradeToTwelfthVersion() throws SQLException {
+    public void testUpgradeTo13thVersion() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
-        twelfthVersionsCode(dataModel);
+        the13thVersionsCode(dataModel);
+        dataModel.register();
+
+        ormService.getDataModelUpgrader().upgrade(dataModel, version(12, 0));
+
+        try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_ACTOR")) {
+                ResultSet resultSet = preparedStatement.executeQuery();
+                assertThat(resultSet.findColumn("ID")).isEqualTo(1);
+                assertThat(resultSet.findColumn("NAME")).isEqualTo(2);
+                assertThat(resultSet.findColumn("LEAD")).isEqualTo(3);
+                assertThat(resultSet.findColumn("MOVIE")).isEqualTo(4);
+                assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(4);
+            }
+        }
+
+        ormService.getDataModelUpgrader().upgrade(dataModel, version(13, 0));
+
+        try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_ROLE")) {
+                ResultSet resultSet = preparedStatement.executeQuery();
+                assertThat(resultSet.findColumn("ID")).isEqualTo(1);
+                assertThat(resultSet.findColumn("NAME")).isEqualTo(2);
+                assertThat(resultSet.findColumn("LEAD")).isEqualTo(3);
+                assertThat(resultSet.findColumn("MOVIE")).isEqualTo(4);
+                assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(4);
+            }
+        }
+    }
+
+    @Test
+    public void testUpgradeTo12thVersion() throws SQLException {
+        DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
+
+        the12thVersionsCode(dataModel);
         dataModel.register();
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(11, 0));
@@ -822,7 +877,7 @@ public class TableDdlGeneratorIT {
         }
     }
 
-    private void firstVersionsCode(DataModel dataModel) {
+    private void the1stVersionsCode(DataModel dataModel) {
         Table<Movie1> movieTable = dataModel.addTable("TST_MOVIE", Movie1.class);
         movieTable.map(Movie1.class);
         Column idColumn = movieTable.addAutoIdColumn();
@@ -831,7 +886,7 @@ public class TableDdlGeneratorIT {
     }
 
     // adds a column
-    private void secondVersionsCode(DataModel dataModel) {
+    private void the2ndVersionsCode(DataModel dataModel) {
         Table<Movie2> movieTable = dataModel.addTable("TST_MOVIE", Movie2.class);
         movieTable.map(Movie2.class);
         Column idColumn = movieTable.addAutoIdColumn();
@@ -841,7 +896,7 @@ public class TableDdlGeneratorIT {
     }
 
     // adds an actor table
-    private void thirdVersionsCode(DataModel dataModel) {
+    private void the3rdVersionsCode(DataModel dataModel) {
         {
             Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
             movieTable.map(Movie3.class);
@@ -863,7 +918,7 @@ public class TableDdlGeneratorIT {
     }
 
     // renames a column
-    private void fourthVersionsCode(DataModel dataModel) {
+    private void the4thVersionsCode(DataModel dataModel) {
         {
             Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
             movieTable.map(Movie3.class);
@@ -895,7 +950,7 @@ public class TableDdlGeneratorIT {
     }
 
     // renames a foreign key constraint
-    private void fifthVersionsCode(DataModel dataModel) {
+    private void the5thVersionsCode(DataModel dataModel) {
         {
             Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
             movieTable.map(Movie3.class);
@@ -939,7 +994,7 @@ public class TableDdlGeneratorIT {
     }
 
     // renames a PK constraint
-    private void sixthVersionsCode(DataModel dataModel) {
+    private void the6thVersionsCode(DataModel dataModel) {
         {
             Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
             movieTable.map(Movie3.class);
@@ -987,7 +1042,7 @@ public class TableDdlGeneratorIT {
     }
 
     // adds a Unique constraint
-    private void seventhVersionsCode(DataModel dataModel) {
+    private void the7thVersionsCode(DataModel dataModel) {
         {
             Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
             movieTable.map(Movie3.class);
@@ -1036,7 +1091,7 @@ public class TableDdlGeneratorIT {
     }
 
     // renames a Unique constraint
-    private void eighthVersionsCode(DataModel dataModel) {
+    private void the8thVersionsCode(DataModel dataModel) {
         {
             Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
             movieTable.map(Movie3.class);
@@ -1093,7 +1148,7 @@ public class TableDdlGeneratorIT {
     }
 
     // drops a Unique constraint
-    private void ninthVersionsCode(DataModel dataModel) {
+    private void the9thVersionsCode(DataModel dataModel) {
         {
             Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
             movieTable.map(Movie3.class);
@@ -1150,7 +1205,7 @@ public class TableDdlGeneratorIT {
     }
 
     // drops a FK constraint
-    private void tenthVersionsCode(DataModel dataModel) {
+    private void the10thVersionsCode(DataModel dataModel) {
         {
             Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
             movieTable.map(Movie3.class);
@@ -1208,7 +1263,7 @@ public class TableDdlGeneratorIT {
     }
 
     // adds a non null column
-    private void eleventhVersionsCode(DataModel dataModel) {
+    private void the11thVersionsCode(DataModel dataModel) {
         {
             Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
             movieTable.map(Movie3.class);
@@ -1267,7 +1322,7 @@ public class TableDdlGeneratorIT {
     }
 
     // makes a nullable column non null
-    private void twelfthVersionsCode(DataModel dataModel) {
+    private void the12thVersionsCode(DataModel dataModel) {
         {
             Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
             movieTable.map(Movie3.class);
@@ -1333,4 +1388,71 @@ public class TableDdlGeneratorIT {
         }
     }
 
+    // makes a nullable column non null
+    private void the13thVersionsCode(DataModel dataModel) {
+        {
+            Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
+            movieTable.map(Movie3.class);
+            Column idColumn = movieTable.addAutoIdColumn();
+            Column titleColumn = movieTable.column("TITLE").map("title").varChar(80).add();
+            Column directorColumn1 = movieTable.column("DIRECTOR")
+                    .map("director")
+                    .varChar(80)
+                    .during(Range.closedOpen(version(2, 0), version(4, 0)))
+                    .add();
+            Column directorColumn2 = movieTable.column("MAIN_DIRECTOR")
+                    .map("director")
+                    .varChar(80)
+                    .during(Range.closedOpen(version(4, 0), version(12, 0)))
+                    .previously(directorColumn1)
+                    .add();
+            movieTable.column("MAIN_DIRECTOR")
+                    .map("director")
+                    .varChar(80)
+                    .notNull()
+                    .since(version(12, 0))
+                    .installValue("'<unknown>'")
+                    .previously(directorColumn2)
+                    .add();
+            PrimaryKeyConstraint primaryKey1 = movieTable.primaryKey("TST_MOVIE_PK")
+                    .on(idColumn)
+                    .upTo(version(6, 0))
+                    .add();
+            UniqueConstraint uniqueTitle = movieTable.unique("TST_U_MOVIETITLE")
+                    .on(titleColumn)
+                    .during(Range.closedOpen(version(7, 0), version(8, 0)))
+                    .add();
+            movieTable.unique("TST_U_TITLE")
+                    .on(titleColumn)
+                    .during(Range.closedOpen(version(8, 0), version(9, 0)))
+                    .previously(uniqueTitle)
+                    .add();
+            movieTable.primaryKey("TST_MOVIE_PK_1").on(idColumn).since(version(6, 0)).previously(primaryKey1).add();
+        }
+        {
+            Table<Actor3> actorTable = dataModel.addTable("TST_ROLE", Actor3.class);
+            actorTable.map(Actor3.class);
+            actorTable.since(version(3, 0));
+            actorTable.previouslyNamed(Range.lessThan(version(13, 0)), "TST_ACTOR");
+            Column idColumn = actorTable.addAutoIdColumn();
+            actorTable.column("NAME").map("name").notNull().varChar(80).add();
+            actorTable.column("MOVIE").number().notNull().upTo(version(10, 0)).add();
+            actorTable.column("LEAD").bool().installValue("'N'").map("lead").since(version(11, 0)).add();
+            Column movieColumn = actorTable.column("MOVIE").number().notNull().map("movie").since(version(10, 0)).add();
+            ForeignKeyConstraint actorInMovie = actorTable.foreignKey("TST_FK_ACTOR_IN_MOVIE")
+                    .on(movieColumn)
+                    .references(Movie3.class)
+                    .map("movie")
+                    .upTo(version(5, 0))
+                    .add();
+            actorTable.foreignKey("TST_FK_ACTS_IN_MOVIE")
+                    .on(movieColumn)
+                    .references(Movie3.class)
+                    .map("movie")
+                    .during(Range.closedOpen(version(5, 0), version(10, 0)))
+                    .previously(actorInMovie)
+                    .add();
+            actorTable.primaryKey("TST_ACTOR_PK").on(idColumn).add();
+        }
+    }
 }
