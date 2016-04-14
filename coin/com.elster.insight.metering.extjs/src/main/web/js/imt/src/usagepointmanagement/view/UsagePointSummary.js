@@ -40,7 +40,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
             name: 'location',
             fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location'),
             renderer: function (value) {
-                return value ? value : '-';
+                return value ? Ext.String.htmlEncode(value).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>') : '-';
             }
         },
         {
