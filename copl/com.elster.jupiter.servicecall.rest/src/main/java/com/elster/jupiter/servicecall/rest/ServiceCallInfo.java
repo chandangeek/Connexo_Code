@@ -2,10 +2,9 @@ package com.elster.jupiter.servicecall.rest;
 
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.servicecall.rest.impl.ServiceCallChildrenInfo;
-import com.elster.jupiter.servicecall.rest.impl.ServiceCallCustomPropertySetInfo;
 import com.elster.jupiter.rest.whiteboard.ReferenceInfo;
-
+import com.elster.jupiter.servicecall.rest.impl.ServiceCallCustomPropertySetInfo;
+import com.elster.jupiter.servicecall.rest.impl.ServiceCallChildrenInfo;
 import java.util.List;
 
 public class ServiceCallInfo {
@@ -22,6 +21,7 @@ public class ServiceCallInfo {
     public List<IdWithNameInfo> parents;
     public List<ServiceCallChildrenInfo> children;
     public String type;
+    public long typeId;
     public long numberOfChildren;
     public List<ServiceCallCustomPropertySetInfo> customPropertySets;
     public boolean canCancel;

@@ -2,14 +2,22 @@ package com.elster.jupiter.servicecall.rest.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.whiteboard.ReferenceInfo;
 import com.elster.jupiter.rest.whiteboard.ReferenceResolver;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -21,19 +29,38 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ServiceCallInfoFactory {
+@Component(name = "com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory",
+        immediate = true,
+        service = ServiceCallInfoFactory.class)
+public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
 
-    private final Thesaurus thesaurus;
-    private final PropertyUtils propertyUtils;
-    private final ReferenceResolver referenceResolver;
+    private Thesaurus thesaurus;
+    private PropertyUtils propertyUtils;
+    private ReferenceResolver referenceResolver;
+
+    //osgi
+    public ServiceCallInfoFactoryImpl() {
+        propertyUtils = new PropertyUtils();
+    }
 
     @Inject
-    public ServiceCallInfoFactory(Thesaurus thesaurus, PropertyUtils propertyUtils, ReferenceResolver referenceResolver) {
+    public ServiceCallInfoFactoryImpl(Thesaurus thesaurus, PropertyUtils propertyUtils, ReferenceResolver referenceResolver) {
         this.thesaurus = thesaurus;
         this.propertyUtils = propertyUtils;
         this.referenceResolver = referenceResolver;
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(ServiceCallApplication.COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setReferenceResolver(ReferenceResolver referenceResolver) {
+        this.referenceResolver = referenceResolver;
+    }
+
+    @Override
     public ServiceCallInfo detailed(ServiceCall serviceCall, Map<DefaultState, Long> childrenInformation) {
         ServiceCallInfo serviceCallInfo = summarized(serviceCall);
         Optional<Instant> lastCompletedOptional = serviceCall.getLastCompletedTime();
@@ -50,6 +77,7 @@ public class ServiceCallInfoFactory {
         return serviceCallInfo;
     }
 
+    @Override
     public ServiceCallInfo summarized(ServiceCall serviceCall) {
         ServiceCallInfo serviceCallInfo = new ServiceCallInfo();
         serviceCallInfo.id = serviceCall.getId();
@@ -61,8 +89,37 @@ public class ServiceCallInfoFactory {
         serviceCallInfo.externalReference = serviceCall.getExternalReference()
                 .isPresent() ? serviceCall.getExternalReference().get() : null;
         serviceCallInfo.type = serviceCall.getType().getName();
+        serviceCallInfo.typeId = serviceCall.getType().getId();
         serviceCallInfo.canCancel = serviceCall.canTransitionTo(DefaultState.CANCELLED);
         return serviceCallInfo;
+    }
+
+    @Override
+    public ServiceCallFilter convertToServiceCallFilter(JsonQueryFilter filter) {
+        ServiceCallFilter serviceCallFilter = new ServiceCallFilterImpl();
+        if (filter.hasProperty("name")) {
+            serviceCallFilter.setReference(filter.getString("name"));
+        }
+        if (filter.hasProperty("type")) {
+            serviceCallFilter.setTypes(filter.getStringList("type"));
+        }
+        if(filter.hasProperty("status")) {
+            serviceCallFilter.setStates(filter.getStringList("status"));
+        }
+        if (filter.hasProperty("receivedDateFrom")) {
+            serviceCallFilter.setReceivedDateFrom(filter.getInstant("receivedDateFrom"));
+        }
+        if (filter.hasProperty("receivedDateTo")) {
+            serviceCallFilter.setReceivedDateTo(filter.getInstant("receivedDateTo"));
+        }
+        if (filter.hasProperty("modificationDateFrom")) {
+            serviceCallFilter.setModificationDateFrom(filter.getInstant("modificationDateFrom"));
+        }
+        if (filter.hasProperty("modificationDateTo")) {
+            serviceCallFilter.setModificationDateTo(filter.getInstant("modificationDateTo"));
+        }
+
+        return serviceCallFilter;
     }
 
     private void addParents(ServiceCallInfo serviceCallInfo, Optional<ServiceCall> parent) {

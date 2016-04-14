@@ -47,6 +47,7 @@ public class ServiceCallFieldResource {
     public List<IdWithDisplayValueInfo<String>> getStates(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithDisplayValueInfo<String>> states = Arrays.stream(DefaultState.values())
                 .map(state -> new IdWithDisplayValueInfo<>(state.name(), state.getDisplayName(this.thesaurus)))
+                .sorted((s1, s2) -> s1.displayValue.compareTo(s2.displayValue))
                 .collect(toList());
         return states;
     }
