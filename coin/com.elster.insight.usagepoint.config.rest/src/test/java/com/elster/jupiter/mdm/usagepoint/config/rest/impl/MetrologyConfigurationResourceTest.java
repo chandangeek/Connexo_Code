@@ -54,6 +54,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     private UsagePointMetrologyConfiguration config1, config2;
     @Mock
     private ValidationRuleSet vrs, vrs2;
+    @Mock
+    private ServiceCategory serviceCategory;
 
     @Before
     public void setUpStubs() {
@@ -266,13 +268,26 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(rcps2.getCustomPropertySet()).thenReturn(cps2);
         when(rcps2.isViewableByCurrentUser()).thenReturn(true);
 
-        UsagePointMetrologyConfiguration mConfig = mock(UsagePointMetrologyConfiguration.class);
+        CustomPropertySet cps3 = mock(CustomPropertySet.class);
+        when(cps3.getId()).thenReturn("ServiceCatCPS");
+        when(cps3.getDomainClass()).thenReturn(UsagePoint.class);
+
+        RegisteredCustomPropertySet rcps3 = mock(RegisteredCustomPropertySet.class);
+        when(rcps3.getId()).thenReturn(777L);
+        when(rcps3.getCustomPropertySet()).thenReturn(cps3);
+        when(rcps3.isViewableByCurrentUser()).thenReturn(true);
+
+        UsagePointMetrologyConfiguration mConfig = mock(MetrologyConfiguration.class);
         when(mConfig.getId()).thenReturn(mConfigId);
         when(mConfig.isActive()).thenReturn(false);
         when(mConfig.getVersion()).thenReturn(1L);
         when(mConfig.getCustomPropertySets()).thenReturn(Arrays.asList(rcps1));
 
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
+        when(meteringService.getServiceCategory(any(ServiceKind.class))).thenReturn(Optional.of(serviceCategory));
+        when(serviceCategory.getCustomPropertySets()).thenReturn(Stream.of(rcps3).collect(Collectors.toList()));
+        when(rcps3.getCustomPropertySet()).thenReturn(cps3);
+
+        when(usagePointConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
         when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Arrays.asList(rcps1, rcps2));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").queryParam("linked", false).request().get();
@@ -280,6 +295,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         assertThat(model.<Number>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.customPropertySets")).hasSize(1);
         assertThat(model.<Number>get("$.customPropertySets[0].id")).isEqualTo(789);
+        assertThat(model.<Number>get("$.customPropertySets[0].id")).isNotEqualTo(777);
         assertThat(model.<String>get("$.customPropertySets[0].customPropertySetId")).isEqualTo("AnotherCPS");
         verify(mConfig).getCustomPropertySets();
         verify(rcps2, atLeastOnce()).isViewableByCurrentUser();

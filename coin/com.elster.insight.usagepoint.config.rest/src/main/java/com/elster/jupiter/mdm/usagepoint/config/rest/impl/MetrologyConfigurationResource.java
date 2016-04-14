@@ -6,8 +6,11 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfo;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -42,6 +45,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,6 +61,7 @@ public class MetrologyConfigurationResource {
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
+    private final MeteringService meteringService;
 
     private final MetrologyConfigurationService metrologyConfigurationService;
 
@@ -232,9 +237,16 @@ public class MetrologyConfigurationResource {
                     .map(RegisteredCustomPropertySet::getCustomPropertySet)
                     .map(CustomPropertySet::getId)
                     .collect(Collectors.toSet());
+
+            Set<String> serviceCatCPSIds = Arrays.stream(ServiceKind.values()).map(meteringService::getServiceCategory).flatMap(sc -> sc.isPresent() ? Stream.of(sc.get()) : Stream.empty())
+                    .flatMap(sc -> sc.getCustomPropertySets().stream()).map(RegisteredCustomPropertySet::getCustomPropertySet)
+                    .map(CustomPropertySet::getId)
+                    .collect(Collectors.toSet());
+
             customPropertySets = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
                     .stream()
-                    .filter(cps -> !assignedCPSIds.contains(cps.getCustomPropertySet().getId()));
+                    .filter(cps -> !assignedCPSIds.contains(cps.getCustomPropertySet().getId()))
+                    .filter(cps -> !serviceCatCPSIds.contains(cps.getCustomPropertySet().getId()));
         }
         List<?> infos = customPropertySets
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)

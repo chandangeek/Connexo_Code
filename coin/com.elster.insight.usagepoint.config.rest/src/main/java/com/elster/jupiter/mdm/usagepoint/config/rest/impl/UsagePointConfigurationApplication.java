@@ -133,7 +133,6 @@ public class UsagePointConfigurationApplication extends Application implements T
     }
 
     class HK2Binder extends AbstractBinder {
-
         @Override
         protected void configure() {
             bind(MetrologyConfigurationResource.class).to(MetrologyConfigurationResource.class);
@@ -152,6 +151,7 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
+            bind(meteringService).to(MeteringService.class);
         }
     }
 }
