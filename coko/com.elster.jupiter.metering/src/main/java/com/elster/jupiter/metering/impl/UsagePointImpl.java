@@ -101,7 +101,6 @@ public class UsagePointImpl implements UsagePoint {
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
-    @SuppressWarnings("unused")
     private long location;
 
     private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
@@ -711,8 +710,9 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public long getLocationId() {
-        Optional<Location> location = getLocation();
-        return location.isPresent() ? location.get().getId() : 0L;
+//        Optional<Location> location = getLocation();
+//        return location.isPresent() ? location.get().getId() : 0L;
+        return location;
     }
 
     @Override
@@ -721,8 +721,8 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void setUpLocation(Location location){
-        this.upLocation.set(location);
+    public void setLocation(long locationId){
+        this.location = locationId;
     }
 
     @Override
