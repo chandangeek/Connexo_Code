@@ -23,6 +23,6 @@ public class ElectricityAttributesSearchablePropertyGroup implements SearchableP
 
     @Override
     public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.USAGEPOINT_GROUP_ELECTRICITY).format();
+        return PropertyTranslationKeys.USAGEPOINT_GROUP_ELECTRICITY.getDisplayName(thesaurus);
     }
 }

@@ -66,7 +66,7 @@ public abstract class BypassStatusSearchableProperty implements SearchableUsageP
     @Override
     public String toDisplay(Object value) {
         if (value instanceof BypassStatus) {
-            return ((BypassStatus) value).getDisplayValue();
+            return ((BypassStatus) value).getDisplayValue(thesaurus);
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }

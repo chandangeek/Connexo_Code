@@ -23,6 +23,6 @@ public class WaterAttributesSearchablePropertyGroup implements SearchablePropert
 
     @Override
     public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.USAGEPOINT_GROUP_WATER).format();
+        return PropertyTranslationKeys.USAGEPOINT_GROUP_WATER.getDisplayName(thesaurus);
     }
 }

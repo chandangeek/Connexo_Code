@@ -79,14 +79,10 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof MetrologyConfiguration) {
+            return ((MetrologyConfiguration) value).getName();
         }
-        return ((MetrologyConfiguration) value).getName();
-    }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof MetrologyConfiguration;
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
     @Override

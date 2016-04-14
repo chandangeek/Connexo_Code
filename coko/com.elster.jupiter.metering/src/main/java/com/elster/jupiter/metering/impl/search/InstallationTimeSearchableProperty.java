@@ -70,14 +70,10 @@ public class InstallationTimeSearchableProperty implements SearchableUsagePointP
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof Instant) {
+            return value.toString();
         }
-        return String.valueOf(value);
-    }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Instant;
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
     @Override

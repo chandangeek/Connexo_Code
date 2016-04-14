@@ -23,6 +23,6 @@ public class GasAttributesSearchablePropertyGroup implements SearchablePropertyG
 
     @Override
     public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.USAGEPOINT_GROUP_GAS).format();
+        return PropertyTranslationKeys.USAGEPOINT_GROUP_GAS.getDisplayName(thesaurus);
     }
 }

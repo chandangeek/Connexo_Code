@@ -66,14 +66,10 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof Quantity) {
+            return value.toString();
         }
-        return String.valueOf(value);
-    }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Quantity;
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
     @Override

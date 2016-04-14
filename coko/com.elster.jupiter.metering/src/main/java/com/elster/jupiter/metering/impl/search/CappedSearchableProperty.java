@@ -65,16 +65,11 @@ public abstract class CappedSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof YesNoAnswer) {
+            return ((YesNoAnswer) value).name();
         }
-        return String.valueOf(value);
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof YesNoAnswer;
-    }
-
 
     @Override
     public PropertySpec getSpecification() {

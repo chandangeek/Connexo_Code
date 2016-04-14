@@ -5,7 +5,7 @@ public enum ConnectionState {
     CONNECTED("connected"),
     PHYSICALLY_DISCONNECTED("physicallyDisconnected"),
     LOGICALLY_DISCONNECTED("logicallyDisconnected"),
-    DEMOLISHED("demiolished");
+    DEMOLISHED("demolished");
 
     private String id;
 

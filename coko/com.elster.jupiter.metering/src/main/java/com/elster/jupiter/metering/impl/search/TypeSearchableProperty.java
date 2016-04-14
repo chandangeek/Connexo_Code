@@ -65,19 +65,10 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof UsagePointTypes) {
+            return ((UsagePointTypes) value).getValue();
         }
-        return this.toDisplayAfterValidation(value);
-    }
-
-    private String toDisplayAfterValidation(Object value) {
-        UsagePointTypes usagePointTypes = (UsagePointTypes) value;
-        return usagePointTypes.getValue();
-    }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Enum;
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
     @Override

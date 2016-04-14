@@ -65,15 +65,12 @@ public abstract class LimiterSearchableProperty implements SearchableUsagePointP
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof YesNoAnswer) {
+            return ((YesNoAnswer) value).name();
         }
-        return String.valueOf(value);
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof YesNoAnswer;
-    }
 
 
     @Override

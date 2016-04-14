@@ -23,6 +23,6 @@ public class ThermalAttributesSearchablePropertyGroup implements SearchablePrope
 
     @Override
     public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.USAGEPOINT_GROUP_HEAT).format();
+        return PropertyTranslationKeys.USAGEPOINT_GROUP_HEAT.getDisplayName(thesaurus);
     }
 }

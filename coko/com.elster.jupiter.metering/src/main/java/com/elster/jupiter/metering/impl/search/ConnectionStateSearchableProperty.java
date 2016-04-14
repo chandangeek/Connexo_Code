@@ -71,19 +71,11 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof UsagePointConnectedKind) {
+            UsagePointConnectedKind usagePoint = (UsagePointConnectedKind) value;
+            return this.thesaurus.getStringBeyondComponent(usagePoint.getKey(), usagePoint.getDefaultFormat());
         }
-        return this.toDisplayAfterValidation(value);
-    }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Enum;
-    }
-
-    protected String toDisplayAfterValidation(Object value) {
-        UsagePointConnectedKind usagePoint = (UsagePointConnectedKind) value;
-        return this.thesaurus.getStringBeyondComponent(usagePoint.getKey(), usagePoint.getDefaultFormat());
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
     @Override
