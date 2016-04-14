@@ -12,12 +12,12 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "serviceKind", visible = false)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "serviceKind", visible = false)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ElectricityTechnicalInfo.class, name = "ELECTRICITY"),
-        @JsonSubTypes.Type(value = HeatTechnicalInfo.class, name = "HEAT"),
-        @JsonSubTypes.Type(value = WaterTechnicalInfo.class, name = "WATER"),
-        @JsonSubTypes.Type(value = GasTechnicalInfo.class, name = "GAS")})
+        @JsonSubTypes.Type(value = ElectricityUsagePointInfo.class, name = "Electricity"),
+        @JsonSubTypes.Type(value = HeatUsagePointInfo.class, name = "Heat"),
+        @JsonSubTypes.Type(value = WaterUsagePointInfo.class, name = "Water"),
+        @JsonSubTypes.Type(value = GasUsagePointInfo.class, name = "Gas")})
 abstract public class UsagePointInfo extends LinkInfo<Long> {
 
     public String name;
@@ -30,7 +30,7 @@ abstract public class UsagePointInfo extends LinkInfo<Long> {
     public String servicePriority;
     public Instant installationTime;
     public String serviceDeliveryRemark;
-    public ServiceKind serviceKind;
+//    public String serviceKind;
 
     public List<LinkInfo> meterActivations;
     public List<LinkInfo> accountabilities;

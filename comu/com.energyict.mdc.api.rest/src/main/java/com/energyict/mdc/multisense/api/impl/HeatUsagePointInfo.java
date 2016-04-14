@@ -12,39 +12,28 @@ import java.time.Clock;
 /**
  * Created by bvn on 4/11/16.
  */
-public class WaterTechnicalInfo extends UsagePointInfo {
-    public YesNoAnswer grounded;
+public class HeatUsagePointInfo extends UsagePointInfo {
     public Quantity pressure;
     public Quantity physicalCapacity;
-    public YesNoAnswer limiter;
-    public String loadLimiterType;
-    public Quantity loadLimit;
     public YesNoAnswer bypass;
     public BypassStatus bypassStatus;
     public YesNoAnswer valve;
-    public YesNoAnswer capped;
-    public YesNoAnswer clamped;
 
     @Override
     public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Clock clock) {
-        return usagePoint.newWaterDetailBuilder(clock.instant())
+        return usagePoint.newHeatDetailBuilder(clock.instant())
                 .withCollar(collar)
-                .withGrounded(grounded)
                 .withPressure(pressure)
                 .withPhysicalCapacity(physicalCapacity)
-                .withLimiter(limiter)
-                .withLoadLimit(loadLimit)
-                .withLoadLimiterType(loadLimiterType)
                 .withBypass(bypass)
                 .withBypassStatus(bypassStatus)
-                .withValve(valve)
-                .withCap(capped)
-                .withClamp(clamped);
+                .withValve(valve);
     }
 
     @Override
     ServiceKind getServiceKind() {
-        return ServiceKind.WATER;
+        return ServiceKind.HEAT;
     }
+
 
 }

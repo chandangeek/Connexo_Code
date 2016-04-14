@@ -134,9 +134,9 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
     public Response createUsagePoint(UsagePointInfo usagePointInfo, @Context UriInfo uriInfo) {
-        if (usagePointInfo.serviceKind == null) {
-            exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.FIELD_MISSING, "serviceKind");
-        }
+//        if (usagePointInfo.serviceKind == null) {
+//            exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.FIELD_MISSING, "serviceKind");
+//        }
         UsagePoint usagePoint = usagePointInfoFactory.createUsagePoint(usagePointInfo);
 
         URI uri = uriInfo.getBaseUriBuilder().
