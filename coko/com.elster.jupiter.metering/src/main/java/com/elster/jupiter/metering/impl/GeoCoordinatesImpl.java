@@ -15,10 +15,8 @@ public class GeoCoordinatesImpl implements GeoCoordinates {
     private long id;
     private final DataModel dataModel;
     private SpatialCoordinates coordinates;
-    private long version;
     private Instant createTime;
     private Instant modTime;
-    private String userName;
 
     @Inject
     GeoCoordinatesImpl(DataModel dataModel) {
@@ -48,11 +46,6 @@ public class GeoCoordinatesImpl implements GeoCoordinates {
     @Override
     public void setCoordinates(SpatialCoordinates coordinates) {
         this.coordinates = coordinates;
-    }
-
-    @Override
-    public long getVersion() {
-        return version;
     }
 
     @Override

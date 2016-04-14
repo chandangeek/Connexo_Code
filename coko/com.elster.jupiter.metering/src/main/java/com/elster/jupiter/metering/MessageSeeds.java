@@ -27,6 +27,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_MULTIPLIER(2015, Constants.INVALID_MULTIPLIER, "Multiplier must be between {min} and {max}", Level.SEVERE),
     INVALID_UNIT(2016, Constants.INVALID_UNIT, "Invalid unit", Level.SEVERE),
     DUPLICATE_USAGEPOINT(3001, Constants.DUPLICATE_USAGEPOINT, "MRID must be unique", Level.SEVERE),
+    NO_USAGE_POINT_FOR_MRID(2, Constants.NO_USAGE_POINT_FOR_MRID, "No usage point with MRID {0}"),
 
     REQUIRED(4001, Constants.REQUIRED, "This field is required"),
     FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION(4002, Constants.FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION, "You cannot manage custom attribute sets because metrology configuration is active."),
@@ -104,6 +105,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_VALUE = "invalidValue";
         public static final String INVALID_MULTIPLIER = "invalidMultiplier";
         public static final String INVALID_UNIT = "invalidUnit";
+        public static final String NO_USAGE_POINT_FOR_MRID = "NoUsagePointForMRID";
         public static final String NO_SUCH_LOCATION = "no.such.location";
         public static final String DUPLICATE_LOCATION_ENTRY = "duplicate.address.entry";
     }

@@ -758,11 +758,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             memberValues.put("establishmentNumber", member.getEstablishmentNumber());
             memberValues.put("addressDetail", member.getAddressDetail());
             memberValues.put("zipCode", member.getZipCode());
-            memberValues.put("locale", member.getLocale());
-
 
            formattedLocation = locationTemplate.getTemplateMembers()
-                    .stream()
+                    .stream().filter(m -> !m.getName().equalsIgnoreCase("locale"))
                     .collect(() -> {
                                 List<List<String>> list = new ArrayList<>();
                                 list.add(new ArrayList<>());
@@ -782,39 +780,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                                 list1.get(list1.size() - 1).addAll(list2.remove(0));
                                 list1.addAll(list2);
                             });
-
-            /*
-
-            Map<String, Integer> lineForField = new HashMap<>();
-            locationTemplate.getTemplateMembers().stream().forEach(x -> {
-                if(locationTemplate.getSplitLineElements().contains(x.getAbbreviation())){
-                    lineForField.put(x.getAbbreviation(), lineForField.isEmpty()? 0:Collections.max(lineForField.values())+1);
-                }
-                else {
-                    lineForField.put(x.getAbbreviation(), lineForField.isEmpty()? 0:Collections.max(lineForField.values()));
-                }
-            });
-
-            Map<Integer, List<TemplateField>> x = locationTemplate.getTemplateMembers().stream().
-                    collect(Collectors.groupingBy(p -> lineForField.get(p.getAbbreviation())));
-
-
-            lineForField.stream()
-                    .collect(Collectors.partitioningBy(p -> p));
-
-            locationTemplate.getTemplateMembers().stream().map(TemplateField::getName).collect(Collectors.joining(","));
-
-            locationTemplate.getTemplateMembers().stream()
-                    .forEach(templateMember -> {
-                        if (locationTemplate.getSplitLineElements().isEmpty() || locationTemplate.getSplitLineElements().contains(templateMember.getAbbreviation())) {
-                            formattedLocation.put(memberValues.get(templateMember.getName()), Boolean.TRUE);
-                        } else {
-                            formattedLocation.put(memberValues.get(templateMember.getName()), Boolean.FALSE);
-                        }
-
-                    });
-
-                    */
         }
 
       return formattedLocation;

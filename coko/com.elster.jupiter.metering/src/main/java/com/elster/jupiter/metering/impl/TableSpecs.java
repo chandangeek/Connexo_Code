@@ -215,7 +215,6 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<Location> table = dataModel.addTable(name(), Location.class);
             table.map(LocationImpl.class);
-            table.setJournalTableName("MTR_LOCATIONJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.primaryKey("MTR_PK_LOCATION").on(idColumn).add();
         }
@@ -226,7 +225,6 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<LocationMember> table = dataModel.addTable(name(), LocationMember.class);
             table.map(LocationMemberImpl.class);
-            table.setJournalTableName("MTR_LOCATIONMEMBERJRNL");
             TableBuilder.buildLocationMemberTable(table, MeteringServiceImpl.getLocationTemplateMembers());
         }
     },
@@ -236,7 +234,6 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<GeoCoordinates> table = dataModel.addTable(name(), GeoCoordinates.class);
             table.map(GeoCoordinatesImpl.class);
-            table.setJournalTableName("MTR_GEOCOORDINATESJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.column("GEOCOORDINATES")
                     .sdoGeometry()
@@ -244,7 +241,8 @@ public enum TableSpecs {
                     .conversion(SDOGEOMETRY2SPATIALGEOOBJ)
                     .map("coordinates")
                     .add();
-            table.addAuditColumns();
+            table.addCreateTimeColumn("CREATETIME", "createTime");
+            table.addModTimeColumn("MODTIME", "modTime");
             table.primaryKey("MTR_PK_GEOCOORDS").on(idColumn).add();
 
         }
@@ -298,6 +296,7 @@ public enum TableSpecs {
             Column locationIdColumn = table.column("LOCATIONID")
                     .number()
                     .conversion(NUMBER2LONGNULLZERO)
+                    .map("location")
                     .add();
             Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID")
                     .number()
@@ -356,6 +355,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EndDevice> table = dataModel.addTable(name(), EndDevice.class);
             table.map(EndDeviceImpl.IMPLEMENTERS);
+            table.setJournalTableName("MTR_ENDDEVICEJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("ENDDEVICETYPE", "char(1)");
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
@@ -1152,7 +1152,8 @@ public enum TableSpecs {
 
             }
             table.column("DEFAULTLOCATION").bool().map("defaultLocation").add();
-            table.addAuditColumns();
+            table.addCreateTimeColumn("CREATETIME", "createTime");
+            table.addModTimeColumn("MODTIME", "modTime");
             table.primaryKey("MTR_PK_LOCATION_MEMBER").on(locationIdColumn, localeColumn).add();
             table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn)
                     .references(MTR_LOCATION.name())

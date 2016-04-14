@@ -36,8 +36,6 @@ public interface LocationMember {
 
     boolean isDefaultLocation();
 
-    long getVersion();
-
     Instant getCreateTime();
 
     Instant getModTime();

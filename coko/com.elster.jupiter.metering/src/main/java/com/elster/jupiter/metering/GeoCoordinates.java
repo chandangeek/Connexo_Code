@@ -15,8 +15,6 @@ public interface GeoCoordinates {
 
     void setCoordinates(SpatialCoordinates coordinates);
 
-    long getVersion();
-
     Instant getCreateTime();
 
     Instant getModTime();

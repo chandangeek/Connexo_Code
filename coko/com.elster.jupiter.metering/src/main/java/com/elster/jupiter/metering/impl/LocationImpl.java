@@ -111,7 +111,7 @@ public class LocationImpl implements Location {
     @Override
     public final String toString(){
         return meteringService.getFormattedLocationMembers(getId()).stream()
-                .flatMap(List::stream).collect(Collectors.joining(","));
+                .flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.joining(", "));
 
     }
 }
