@@ -185,6 +185,5 @@ public interface MeteringService {
     Optional<GeoCoordinates> findUsagePointGeoCoordinates(String mRID);
     Optional<GeoCoordinates> findUsagePointGeoCoordinates(long id);
     Query<GeoCoordinates> getGeoCoordinatesQuery();
-}
 
 }

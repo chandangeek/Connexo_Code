@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -88,7 +89,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -102,7 +102,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -116,9 +115,6 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.metering.impl.LocationTemplateImpl.LocationTemplateElements;
 import static com.elster.jupiter.metering.impl.LocationTemplateImpl.TemplateFieldImpl;
-
-import com.elster.jupiter.metering.LocationTemplate.TemplateField;
-
 import static com.elster.jupiter.util.conditions.Where.where;
 
 
@@ -438,9 +434,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Activate
     public final void activate(BundleContext bundleContext) {
-        if (dataModel != null && context != null) {
-            createNewTemplate(context);
-        } else if (context == null && locationTemplate == null) {
+        if (dataModel != null && bundleContext != null) {
+            createNewTemplate(bundleContext);
+        } else if (bundleContext == null && locationTemplate == null) {
             createLocationTemplateDefaultData();
         }
         for (TableSpecs spec : TableSpecs.values()) {
@@ -483,7 +479,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             });
         }
 
-        if (context == null && locationTemplate == null) {
+        if (bundleContext == null && locationTemplate == null) {
             createDefaultLocationTemplate();
         }
 
@@ -875,13 +871,10 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
       return formattedLocation;
     }
 
-
-
     @Override
     public Optional<Location> findDeviceLocation(String mRID) {
         return findMeter(mRID).isPresent() ? findMeter(mRID).get().getLocation() : Optional.empty();
     }
-
 
     @Override
     public Optional<Location> findDeviceLocation(long id) {
@@ -937,8 +930,12 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         List<TemplateField> templateElements = new ArrayList<>();
         AtomicInteger index = new AtomicInteger(-1);
         Stream.of(LocationTemplateElements.values()).forEach(t ->
-                templateElements.add(new TemplateFieldImpl(t.getElementAbbreviation(), t.toString(), index.incrementAndGet(), index
-                        .intValue() % 2 == 0 ? true : false)));
+                templateElements.add(
+                        new TemplateFieldImpl(
+                                t.getElementAbbreviation(),
+                                t.toString(),
+                                index.incrementAndGet(),
+                                index .intValue() % 2 == 0 ? true : false)));
         locationTemplateMembers = ImmutableList.copyOf(templateElements);
     }
 

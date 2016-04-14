@@ -49,7 +49,7 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_DELETE_FORMULA_IN_USE(4016, Constants.CAN_NOT_DELETE_FORMULA_IN_USE, "This formula is in use and can not be deleted."),
     READING_TYPE_FOR_DELIVERABLE_ALREADY_USED(4017, Constants.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED, "The readingtype is already used for another deliverable on this metrology configuration."),
     NO_SUCH_LOCATION(4018, Constants.NO_SUCH_LOCATION,"Location not found"),
-    DUPLICATE_LOCATION_ENTRY(4019, Constants.DUPLICATE_LOCATION_ENTRY,"You attempted to enter a duplicate location address. Please check again or perform an editing.");
+    DUPLICATE_LOCATION_ENTRY(4019, Constants.DUPLICATE_LOCATION_ENTRY,"You attempted to enter a duplicate location address. Please check again or perform an editing."),
 
     INVALID_ARGUMENTS_FOR_MULTIPLICATION(5001, Constants.INVALID_ARGUMENTS_FOR_MULTIPLICATION, "Dimensions from multiplication arguments do not result in a valid dimension."),
     INVALID_ARGUMENTS_FOR_DIVISION(5002, Constants.INVALID_ARGUMENTS_FOR_DIVISION, "Dimensions from division arguments do not result in a valid dimension."),
@@ -169,6 +169,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_READINGTYPE_IN_REQUIREMENT = "invalid.readingtype.in.requirement";
         public static final String INCOMPATIBLE_INTERVAL_LENGTHS = "incompatible.intervallengths";
         public static final String READING_TYPE_FOR_DELIVERABLE_ALREADY_USED = "reading.type.already.used.for.deliverable.on.same.metrologyconfig";
-
     }
+
 }
