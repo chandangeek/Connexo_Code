@@ -2,12 +2,15 @@ package com.energyict.mdc.servicecall.examples;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -24,6 +27,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.io.InputStream;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -56,6 +61,7 @@ public class ServiceCallCommands {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringGroupsService meteringGroupService;
+    private volatile MeteringService meteringService;
 
     @Reference
     public void setMeteringGroupService(MeteringGroupsService meteringGroupService) {
@@ -85,6 +91,11 @@ public class ServiceCallCommands {
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     public void updateYearOfCertification() {
@@ -396,7 +407,7 @@ public class ServiceCallCommands {
     private RegisteredCustomPropertySet getCustomPropertySet(String set) {
         String name = "";
         if ("DEVICE".equals(set)) {
-            name = DevicePointMRIDCustomPropertySet.class.getSimpleName();
+            name = DeviceMRIDCustomPropertySet.class.getSimpleName();
         } else if ("UP".equals(set)) {
             name = UsagePointMRIDCustomPropertySet.class.getSimpleName();
         }
@@ -420,16 +431,137 @@ public class ServiceCallCommands {
         InputStream source = getResourceAsStream("ServiceCalls.csv");
         try (Scanner scanner = new Scanner(source)) {
             scanner.nextLine();
+            List<Long> serviceCallIds = new ArrayList<>(5);
+            serviceCallIds.add(0L);
+            int counter = 1;
             while (scanner.hasNextLine()) {
-                parseServiceCallRecord(scanner.nextLine());
+                parseServiceCallRecord(scanner.nextLine(), counter, serviceCallIds);
+                counter ++;
             }
         }
     }
 
-    private void parseServiceCallRecord(String record) {
+    private void parseServiceCallRecord(String record, int counter, List<Long> serviceCallIds) {
         String[] columns = record.split(";", -1);
-        if (columns[0].equals("test")) {
+        String externalRef = columns[0];
+        String serviceCallType = columns[1];
+        String version = columns[2];
+        String origin = columns[3];
+        String state = columns[4];
+        String customAttributes = columns[5];
+        String parent = columns[6];
+        String object = columns[7];
+        Optional<ServiceCallType> optionalServiceCallType = serviceCallService.findServiceCallType(serviceCallType,version);
+        ServiceCallBuilder serviceCallBuilder = getServiceCallBuilder(serviceCallIds, parent, optionalServiceCallType);
+        try (TransactionContext context = transactionService.getContext()) {
+            if (serviceCallBuilder != null) {
+                if (!externalRef.equals("")) {
+                    serviceCallBuilder.externalReference(externalRef);
+                }
+                if (!origin.equals("")) {
+                    serviceCallBuilder.origin(origin);
+                }
+                addTargetObject(object, serviceCallBuilder);
+                addCustomAttributes(customAttributes, serviceCallBuilder);
+                ServiceCall serviceCall = serviceCallBuilder.create();
+                transitionServiceCall(serviceCall, state);
+                serviceCallIds.add(counter, serviceCall.getId());
+            }
+            context.commit();
+        }
+    }
 
+    private void addTargetObject(String object, ServiceCallBuilder serviceCallBuilder) {
+        if (!object.equals("")) {
+            if (object.startsWith("UP")) {
+                Optional<UsagePoint> usagePoint = meteringService.findUsagePoint(object);
+                usagePoint.ifPresent(up -> serviceCallBuilder.targetObject(up));
+            }
+            if (object.startsWith("SP")) {
+                Optional<Device> device = deviceService.findByUniqueMrid(object);
+                device.ifPresent(d -> serviceCallBuilder.targetObject(d));
+            }
+        }
+    }
+
+    private void addCustomAttributes(String customAttributes, ServiceCallBuilder serviceCallBuilder) {
+        String[] attributes = customAttributes.split(":", -1);
+        if(attributes.length != 2) {
+            return;
+        }
+        if(attributes[0].equals("UP")) {
+            UsagePointMRIDDomainExtension extension = new UsagePointMRIDDomainExtension();
+            extension.setMRID(attributes[1]);
+            serviceCallBuilder.extendedWith(extension);
+        } else if (attributes[0].equals("DV")) {
+            DeviceMRIDDomainExtension extension = new DeviceMRIDDomainExtension();
+            extension.setMRID(attributes[1]);
+            serviceCallBuilder.extendedWith(extension);
+        }
+    }
+
+    private ServiceCallBuilder getServiceCallBuilder(List<Long> serviceCallIds, String parent, Optional<ServiceCallType> optionalServiceCallType) {
+        if(parent.equals("")) {
+           if(optionalServiceCallType.isPresent()) {
+               return optionalServiceCallType.get().newServiceCall();
+           }
+        } else {
+            try {
+                Optional<ServiceCall> serviceCallOptional = serviceCallService.getServiceCall(serviceCallIds.get(Integer.parseInt(parent)));
+                if(serviceCallOptional.isPresent() && optionalServiceCallType.isPresent()) {
+                    return serviceCallOptional.get().newChildCall(optionalServiceCallType.get());
+                }
+            } catch (Exception e) {
+                System.out.println("Can't parse '" + parent + "' to a number.");
+            }
+        }
+        return null;
+    }
+
+    private DefaultState getState(String state) {
+        switch (state) {
+            case "created":
+                return DefaultState.CREATED;
+            case "rejected":
+                return DefaultState.REJECTED;
+            case "pending":
+                return DefaultState.PENDING;
+            case "ongoing":
+                return DefaultState.ONGOING;
+            case "paused":
+                return DefaultState.PAUSED;
+            case "waiting":
+                return DefaultState.WAITING;
+            case "scheduled":
+                return DefaultState.SCHEDULED;
+            case "cancelled":
+                return DefaultState.CANCELLED;
+            case "success":
+                return DefaultState.SUCCESSFUL;
+            case "partialsuccess":
+                return DefaultState.PARTIAL_SUCCESS;
+            case "failed":
+                return DefaultState.FAILED;
+        }
+        return null;
+    }
+
+    private void transitionServiceCall(ServiceCall serviceCall, String state) {
+        switch (state) {
+            case "created":
+                return;
+            case "ongoing":
+                serviceCall.requestTransition(DefaultState.PENDING);
+                break;
+            case "failed":case "paused":case "partialsuccess":case "cancelled":
+            case "waiting":case "success":
+                serviceCall.requestTransition(DefaultState.PENDING);
+                serviceCall.requestTransition(DefaultState.ONGOING);
+                break;
+        }
+        DefaultState defaultState = getState(state);
+        if(defaultState != null) {
+            serviceCall.requestTransition(defaultState);
         }
     }
 

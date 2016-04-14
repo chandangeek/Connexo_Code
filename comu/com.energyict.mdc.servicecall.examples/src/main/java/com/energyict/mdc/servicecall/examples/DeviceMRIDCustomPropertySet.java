@@ -26,13 +26,13 @@ import java.util.Set;
 @Component(name = "com.energyict.servicecall.DeviceMRIDCustomPropertySet",
         service = CustomPropertySet.class,
         immediate = true)
-public class DevicePointMRIDCustomPropertySet implements CustomPropertySet<ServiceCall, DeviceMRIDDomainExtension> {
+public class DeviceMRIDCustomPropertySet implements CustomPropertySet<ServiceCall, DeviceMRIDDomainExtension> {
 
-    public DevicePointMRIDCustomPropertySet() {
+    public DeviceMRIDCustomPropertySet() {
     }
 
     @Inject
-    public DevicePointMRIDCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
+    public DeviceMRIDCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
         this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
     }
@@ -56,7 +56,7 @@ public class DevicePointMRIDCustomPropertySet implements CustomPropertySet<Servi
 
     @Override
     public String getName() {
-        return DevicePointMRIDCustomPropertySet.class.getSimpleName();
+        return DeviceMRIDCustomPropertySet.class.getSimpleName();
     }
 
     @Override
