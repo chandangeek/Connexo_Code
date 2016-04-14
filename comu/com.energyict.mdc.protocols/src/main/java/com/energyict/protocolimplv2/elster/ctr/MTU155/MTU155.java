@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -486,6 +487,11 @@ public class MTU155 implements DeviceProtocol {
         CollectedFirmwareVersion firmwareVersionsCollectedData = collectedDataFactory.createFirmwareVersionsCollectedData(getDeviceIdentifier());
         firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getRequestFactory().getIdentificationStructure().getVf().getValue(0).getStringValue());
         return firmwareVersionsCollectedData;
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return collectedDataFactory.createBreakerStatusCollectedData(offlineDevice.getDeviceIdentifier());
     }
 
 }

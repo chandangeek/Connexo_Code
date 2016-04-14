@@ -20,6 +20,8 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -348,7 +350,8 @@ public class SDKDeviceProtocol implements DeviceProtocol {
                 new SDKStandardProtocolDialect(this.thesaurus, this.propertySpecService),
                 new SDKTimeProtocolDialect(this.thesaurus, this.propertySpecService),
                 new SDKTopologyTaskProtocolDialect(this.thesaurus, this.propertySpecService),
-                new SDKFirmwareProtocolDialect(this.thesaurus, this.propertySpecService)
+                new SDKFirmwareProtocolDialect(this.thesaurus, this.propertySpecService),
+                new SDKBreakerProtocolDialect(this.thesaurus, this.propertySpecService)
         );
     }
 
@@ -496,4 +499,12 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         return true;
     }
 
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        CollectedBreakerStatus breakerStatusCollectedData = collectedDataFactory.createBreakerStatusCollectedData(offlineDevice.getDeviceIdentifier());
+        String breakerStatus = (String) this.typedProperties.getProperty(SDKBreakerDialectProperties.ActualFields.BREAKER_STATUS.propertySpecName(), "CONNECTED");
+        breakerStatusCollectedData.setBreakerStatus(BreakerStatus.valueOf(breakerStatus.toUpperCase()));
+        simulateRealCommunicationIfApplicable();
+        return breakerStatusCollectedData;
+    }
 }
