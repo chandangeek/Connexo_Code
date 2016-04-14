@@ -135,7 +135,44 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
                     if (success) {
                         me.onSuccessSaving(operation.action, model.get('comServerType'));
                     } else {
-                        me.onFailureSaving(operation.response);
+                        var json = Ext.decode(operation.response.responseText);
+                        if (json && json.errors) {
+
+                            if(form.down('#num-monitor-port').value == null)
+                                form.down('#num-monitor-port').markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
+                            if(form.down('#num-event-uri-port').value == null)
+                                form.down('#num-event-uri-port').markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
+
+                            var errorsToShow = [];
+
+                            Ext.each(json.errors, function (item) {
+                                switch (item.id) {
+                                    case 'statusUri':
+                                    case 'eventRegistrationUri':
+                                        item.id ='serverName';
+                                        item.msg = Uni.I18n.translate('general.required.field', 'MDC', 'This field is required');
+                                        errorsToShow.push(item);
+                                        break;
+                                    case 'schedulingInterPollDelay':
+                                        item.id ='schedulingInterPollDelay[count]';
+                                        item.msg = Uni.I18n.translate('comServer.formFieldErr.minimalAcceptableValue60sec', 'MDC', 'Minimal acceptable value is 60 seconds')
+                                        errorsToShow.push(item);
+                                        break;
+                                    case 'changesInterPollDelay':
+                                        item.id='changesInterPollDelay[count]';
+                                        item.msg = Uni.I18n.translate('comServer.formFieldErr.minimalAcceptableValue60sec', 'MDC', 'Minimal acceptable value is 60 seconds')
+                                        errorsToShow.push(item);
+                                        break;
+                                    default:
+                                        errorsToShow.push(item);
+
+                                }
+                            });
+
+                            form.getForm().markInvalid(errorsToShow);
+                            formErrorsPanel.show();
+                        }
+
                     }
                 }
             });
