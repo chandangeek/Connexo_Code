@@ -68,7 +68,7 @@ public class SearchablePropertyConstrictionTest {
     @Test
     public void withValues() {
         // Business method
-        SearchablePropertyConstriction constriction = SearchablePropertyConstriction.withValues(this.idSearchProperty, Arrays.asList(ID1_VALUE, ID2_VALUE, ID3_VALUE));
+        SearchablePropertyConstriction constriction = SearchablePropertyConstriction.withValues(this.idSearchProperty, ID1_VALUE, ID2_VALUE, ID3_VALUE);
 
         // Asserts
         assertThat(constriction.getConstrainingProperty()).isEqualTo(this.idSearchProperty);

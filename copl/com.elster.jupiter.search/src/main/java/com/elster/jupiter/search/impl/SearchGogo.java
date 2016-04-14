@@ -127,7 +127,7 @@ public class SearchGogo {
                 if (constrictingValue == null) {
                     throw new IllegalArgumentException("Value '" + keyAndValue[1] + "' for property '" + property.getName() + "' is not valid");
                 }
-                return SearchablePropertyConstriction.withValues(property, Arrays.asList(constrictingValue));
+                return SearchablePropertyConstriction.withValues(property, constrictingValue);
             }
             catch (NoSuchElementException e) {
                 throw new IllegalArgumentException("Value '" + keyAndValue[1] + "' for property '" + property.getName() + "' is not valid");
