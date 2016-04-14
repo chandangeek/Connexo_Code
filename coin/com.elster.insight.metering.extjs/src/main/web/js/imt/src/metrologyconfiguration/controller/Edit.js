@@ -422,7 +422,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             wizardLayout = wizard.getLayout(),
             stepView = wizardLayout.getActiveItem(),
             currentStep = stepView.navigationIndex,
-            validationParams = {validate: false},
+            validationParams = {validate: true},
             direction,
             nextStep,
             changeStep = function () {
@@ -452,7 +452,6 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         if (direction > 0) {
             if (stepView.xtype === 'cps-info-form') {
                 validationParams.customPropertySetId = stepView.getRecord().getId();
-                validationParams.validate = true;
             }
             me.doRequest({
                 params: validationParams,
@@ -535,21 +534,23 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         for (var j = 1; j < currentMenuItems.length; j++) {
             navigation.remove(currentMenuItems[j], true);
         }
-        configuration.customPropertySets().each(function (record) {
-            stepNumber++;
-            stepsToAdd.push({
-                xtype: 'cps-info-form',
-                title: Uni.I18n.translate('metrologyConfiguration.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, record.get('name')]),
-                navigationIndex: stepNumber,
-                itemId: 'define-metrology-configuration-step' + stepNumber,
-                ui: 'large',
-                isWizardStep: true,
-                predefinedRecord: record
+        if(configuration){
+            configuration.customPropertySets().each(function (record) {
+                stepNumber++;
+                stepsToAdd.push({
+                    xtype: 'cps-info-form',
+                    title: Uni.I18n.translate('metrologyConfiguration.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, record.get('name')]),
+                    navigationIndex: stepNumber,
+                    itemId: 'define-metrology-configuration-step' + stepNumber,
+                    ui: 'large',
+                    isWizardStep: true,
+                    predefinedRecord: record
+                });
+                navigationItemsToAdd.push({
+                    text: record.get('name')
+                });
             });
-            navigationItemsToAdd.push({
-                text: record.get('name')
-            });
-        });
+        }
 
         if(navigationItemsToAdd.length){
             addBtn.hide();
