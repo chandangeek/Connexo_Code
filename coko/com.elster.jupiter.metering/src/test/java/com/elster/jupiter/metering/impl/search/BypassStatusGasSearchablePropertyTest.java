@@ -92,14 +92,14 @@ public class BypassStatusGasSearchablePropertyTest {
     }
 
     @Test
-    public void testSingleSelection() {
+    public void testMultiSelection() {
         BypassStatusGasSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
 
         // Asserts
-        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.SINGLE);
+        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.MULTI);
     }
 
     @Test
@@ -179,7 +179,7 @@ public class BypassStatusGasSearchablePropertyTest {
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(valueToDisplay.toString());
+        assertThat(displayValue).isEqualTo(valueToDisplay.getDisplayValue(this.thesaurus));
     }
 
     private BypassStatusGasSearchableProperty getTestInstance() {

@@ -92,14 +92,14 @@ public class PressureGasSearchablePropertyTest {
     }
 
     @Test
-    public void testSingleSelection() {
+    public void testMultiSelection() {
         PressureGasSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
 
         // Asserts
-        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.SINGLE);
+        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.MULTI);
     }
 
     @Test

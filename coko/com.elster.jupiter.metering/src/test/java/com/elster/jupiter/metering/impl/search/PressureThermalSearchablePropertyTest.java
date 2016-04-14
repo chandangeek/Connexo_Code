@@ -11,9 +11,9 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
+import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ValveGasSearchablePropertyTest {
+public class PressureThermalSearchablePropertyTest {
 
     @Mock
     private UsagePointSearchDomain domain;
@@ -60,7 +60,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        PressureThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -70,19 +70,19 @@ public class ValveGasSearchablePropertyTest {
     }
 
     @Test
-    public void testGasGroup() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+    public void testThermalGroup() {
+        PressureThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
 
         // Asserts
-        assertThat(group.get().getClass()).isEqualTo(GasAttributesSearchablePropertyGroup.class);
+        assertThat(group.get().getClass()).isEqualTo(ThermalAttributesSearchablePropertyGroup.class);
     }
 
     @Test
     public void testRemovableVisibility() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        PressureThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
@@ -93,7 +93,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void testMultiSelection() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        PressureThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -104,18 +104,18 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        PressureThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_VALVE.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_PRESSURE.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        PressureThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -123,12 +123,12 @@ public class ValveGasSearchablePropertyTest {
         // Asserts
         assertThat(specification).isNotNull();
         assertThat(specification.isReference()).isFalse();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Enum.class);
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Quantity.class);
     }
 
     @Test
     public void possibleValuesWithoutRefresh() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        PressureThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -139,7 +139,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void hasConstraints() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        PressureThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -150,7 +150,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        PressureThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -162,7 +162,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        PressureThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -172,8 +172,8 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        ValveGasSearchableProperty property = this.getTestInstance();
-        YesNoAnswer valueToDisplay = YesNoAnswer.YES;
+        PressureThermalSearchableProperty property = this.getTestInstance();
+        Quantity valueToDisplay = Quantity.create(new BigDecimal(0), 1, "Pa");
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
@@ -182,8 +182,7 @@ public class ValveGasSearchablePropertyTest {
         assertThat(displayValue).isEqualTo(valueToDisplay.toString());
     }
 
-    private ValveGasSearchableProperty getTestInstance() {
-        return new ValveGasSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private PressureThermalSearchableProperty getTestInstance() {
+        return new PressureThermalSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
     }
-
 }

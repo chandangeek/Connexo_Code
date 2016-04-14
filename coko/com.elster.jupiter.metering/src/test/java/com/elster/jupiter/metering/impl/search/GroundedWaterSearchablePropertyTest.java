@@ -92,14 +92,14 @@ public class GroundedWaterSearchablePropertyTest {
     }
 
     @Test
-    public void testSingleSelection() {
+    public void testMultiSelection() {
         GroundedWaterSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
 
         // Asserts
-        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.SINGLE);
+        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.MULTI);
     }
 
     @Test
