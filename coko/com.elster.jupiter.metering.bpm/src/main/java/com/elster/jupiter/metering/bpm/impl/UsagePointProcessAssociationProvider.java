@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.bpm.impl;
 
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
@@ -80,7 +81,7 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(getMetrologyConfigurationsPropertySpec());
+        return Arrays.asList(getMetrologyConfigurationsPropertySpec(), getConnectionStatePropertySpec());
     }
 
     private PropertySpec getMetrologyConfigurationsPropertySpec() {
@@ -94,6 +95,23 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
         return this.propertySpecService
                 .specForValuesOf(new MetrologyConfigurationInfoValueFactory())
                 .named(TranslationKeys.METROLOGY_CONFIGURATION_PROPERTY.getKey(), TranslationKeys.METROLOGY_CONFIGURATION_PROPERTY)
+                .fromThesaurus(this.thesaurus)
+                .addValues(possibleValues)
+                .markRequired()
+                .markMultiValued(",")
+                .markExhaustive(PropertySelectionMode.LIST)
+                .finish();
+    }
+
+    private PropertySpec getConnectionStatePropertySpec() {
+        ConnectionStateInfo[] possibleValues =
+                Arrays.stream(ConnectionState.values())
+                        .map(s -> new ConnectionStateInfo(s, thesaurus))
+                        .toArray(ConnectionStateInfo[]::new);
+
+        return this.propertySpecService
+                .specForValuesOf(new ConnectionStateInfoValueFactory())
+                .named(TranslationKeys.CONNECTION_STATE_PROPERTY.getKey(), TranslationKeys.CONNECTION_STATE_PROPERTY)
                 .fromThesaurus(this.thesaurus)
                 .addValues(possibleValues)
                 .markRequired()
@@ -169,6 +187,64 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
         @Override
         public String getName() {
             return metrologyConfiguration.getName();
+        }
+    }
+
+    @XmlRootElement
+    private static class ConnectionStateInfo extends HasIdAndName {
+
+        private ConnectionState connectionState;
+        private Thesaurus thesaurus;
+
+        public ConnectionStateInfo(ConnectionState connectionState, Thesaurus thesaurus) {
+            this.connectionState = connectionState;
+            this.thesaurus = thesaurus;
+        }
+
+        @Override
+        public Object getId() {
+            return connectionState.getId();
+        }
+
+        @Override
+        public String getName() {
+            return thesaurus.getString("connectionState." + connectionState.getId(), connectionState.getId());
+        }
+    }
+
+    class ConnectionStateInfoValueFactory extends AbstractValueFactory<HasIdAndName> {
+        @Override
+        public HasIdAndName fromStringValue(String stringValue) {
+            return Arrays.stream(ConnectionState.values())
+                    .filter(s -> s.getId().equals(stringValue))
+                    .findFirst()
+                    .map(s -> new ConnectionStateInfo(s, thesaurus))
+                    .orElse(null);
+        }
+
+        @Override
+        public String toStringValue(HasIdAndName object) {
+            return String.valueOf(object.getId());
+        }
+
+        @Override
+        public Class<HasIdAndName> getValueType() {
+            return HasIdAndName.class;
+        }
+
+        @Override
+        public HasIdAndName valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(HasIdAndName object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        protected int getJdbcType() {
+            return Types.VARCHAR;
         }
     }
 }
