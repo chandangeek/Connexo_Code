@@ -1,5 +1,11 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventOrAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
+import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.TimeAttribute;
 
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
@@ -21,7 +27,6 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
-
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
@@ -32,6 +37,12 @@ import org.osgi.service.component.annotations.Reference;
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,7 +72,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
                 MeteringFieldResource.class,
                 ServiceCategoryResource.class,
                 EndDeviceEventTypeResource.class,
-                RestValidationExceptionMapper.class);
+                RestValidationExceptionMapper.class,
+                LocationResource.class);
     }
 
     @Reference

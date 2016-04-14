@@ -69,6 +69,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         infos.add(createDescription(TranslationSeeds.MRID, String.class));
         infos.add(createDescription(TranslationSeeds.SERVICE_CATEGORY_DISPLAY, String.class));
         infos.add(createDescription(TranslationSeeds.NAME, String.class));
+        infos.add(createDescription(TranslationSeeds.LOCATION, String.class));
         return infos;
     }
 
