@@ -47,16 +47,6 @@ public class ReadingTypeRequirementNodeImpl extends AbstractNode implements Read
     }
 
     @Override
-    public List<ReadingTypeRequirementNode> getRequirements() {
-        return Collections.singletonList(this);
-    }
-
-    @Override
-    public List<ReadingTypeDeliverableNode> getDeliverables() {
-        return new ArrayList<ReadingTypeDeliverableNode>();
-    }
-
-    @Override
     public void validate() {
         // No validation for constants
     }
