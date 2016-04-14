@@ -1,6 +1,9 @@
 package com.elster.jupiter.orm.fields.impl;
 
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.units.Unit;
 
@@ -436,6 +439,29 @@ public enum ColumnConversionImpl {
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			String fileName = rs.getString(index);
 			return fileName == null ? null : convert(column, fileName);
+		}
+	},
+
+	SDOGEOMETRY2SPATIALGEOOBJ {
+		@Override
+		public Object convert(ColumnImpl column, String in) {
+
+			return in == null ? null : new SpatialCoordinatesFactory().fromStringValue(in);
+		}
+
+		@Override
+		public Object convertToDb(ColumnImpl column, Object value){
+			try {
+				return value == null ? null : new SpatialCoordinatesFactory().valueToDb((SpatialCoordinates) value,column.getTable().getDataModel().getConnection(false));
+			} catch (SQLException e) {
+				throw new UnderlyingSQLFailedException(e);
+			}
+		}
+
+		@Override
+		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
+			Object sdoGeometry = rs.getObject(index);
+			return sdoGeometry == null ? null : new SpatialCoordinatesFactory().valueFromDb(rs.getObject(index));
 		}
 	};
 

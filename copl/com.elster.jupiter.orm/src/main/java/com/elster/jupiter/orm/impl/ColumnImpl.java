@@ -580,6 +580,11 @@ public class ColumnImpl implements Column {
         }
 
         @Override
+        public Builder sdoGeometry() {
+            return this.type("SDO_GEOMETRY");
+        }
+
+        @Override
         public Builder varChar(int length) {
             if (length < 1) {
                 throw new IllegalArgumentException("Illegal length: " + length);

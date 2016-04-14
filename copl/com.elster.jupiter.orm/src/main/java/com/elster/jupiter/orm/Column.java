@@ -49,6 +49,7 @@ public interface Column {
 		Builder number();
 		Builder varChar(int length);
 		Builder varChar();
+		Builder sdoGeometry();
 
 		Builder audited();
 
