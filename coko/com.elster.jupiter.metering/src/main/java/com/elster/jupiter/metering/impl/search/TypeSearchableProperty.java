@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -17,7 +18,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public class TypeSearchableProperty implements SearchableUsagePointProperty {
 
@@ -66,7 +66,7 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
     @Override
     public String toDisplay(Object value) {
         if (value instanceof UsagePointTypes) {
-            return ((UsagePointTypes) value).getValue();
+            return ((UsagePointTypes) value).getDisplayName(thesaurus);
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
@@ -96,63 +96,60 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public Condition toCondition(Condition specification) {
-        return Arrays.asList(((Comparison) specification).getValues()).stream()
+        return Arrays.stream(((Comparison) specification).getValues())
                 .map(UsagePointTypes.class::cast).map(result -> {
-                    Condition condition = null;
-                    if (result.getValue().equalsIgnoreCase("Measured SDP")) {
-                        condition = Where.where("isVirtual")
-                                .isEqualTo(true)
-                                .and(Where.where("isSdp").isEqualTo(true));
+                    switch (result) {
+                        case MEASURED_SDP:
+                            return Where.where("isVirtual").isEqualTo(true)
+                                    .and(Where.where("isSdp").isEqualTo(true));
+                        case UNMEASURED_SDP:
+                            return Where.where("isVirtual").isEqualTo(false)
+                                    .and(Where.where("isSdp").isEqualTo(true));
+                        case MEASURED_NON_SDP:
+                            return Where.where("isVirtual").isEqualTo(true)
+                                    .and(Where.where("isSdp").isEqualTo(false));
+                        case UNMEASURED_NON_SDP:
+                            return Where.where("isVirtual").isEqualTo(false)
+                                    .and(Where.where("isSdp").isEqualTo(false));
+                        default:
+                            throw new IllegalArgumentException("");
                     }
-                    if (result.getValue().equalsIgnoreCase("Measured non-SDP")) {
-                        condition = Where.where("isVirtual")
-                                .isEqualTo(true)
-                                .and(Where.where("isSdp").isEqualTo(false));
-                    }
-                    if (result.getValue().equalsIgnoreCase("Unmeasured SDP")) {
-                        condition = Where.where("isVirtual")
-                                .isEqualTo(false)
-                                .and(Where.where("isSdp").isEqualTo(true));
-                    }
-                    if (result.getValue().equalsIgnoreCase("Unmeasured non-SDP")) {
-                        condition = Where.where("isVirtual")
-                                .isEqualTo(false)
-                                .and(Where.where("isSdp").isEqualTo(false));
-                    }
-                    return condition;
-                }).findAny().orElseThrow(null);
+                }).findAny().orElseThrow(IllegalArgumentException::new);
     }
 
-    private enum UsagePointTypes {
-        MEASURED_SDP {
-            @Override
-            public String getValue() {
-                return "Measured SDP";
-            }
-        },
-        UNMEASURED_SDP {
-            @Override
-            public String getValue() {
-                return "Unmeasured SDP";
-            }
-        },
-        MEASURED_NON_SDP {
-            @Override
-            public String getValue() {
-                return "Measured non-SDP";
-            }
-        },
-        UNMEASURED_NON_SDP {
-            @Override
-            public String getValue() {
-                return "Unmeasured non-SDP";
-            }
-        };
-
-        public abstract String getValue();
+    public static TranslationKey[] getTranslationKeys() {
+        return UsagePointTypes.values();
     }
 
-    static class TypeValueFactory extends AbstractValueFactory<Enum> {
+    private enum UsagePointTypes implements TranslationKey {
+        MEASURED_SDP("usagePoint.type.measuredSDP", "Measured SDP"),
+        UNMEASURED_SDP("usagePoint.type.unmeasuredSDP", "Unmeasured SDP"),
+        MEASURED_NON_SDP("usagePoint.type.measuredNonSDP", "Measured non-SDP"),
+        UNMEASURED_NON_SDP("usagePoint.type.unmeasuredNonSDP", "Unmeasured non-SDP");
+
+        private String key, value;
+
+        private UsagePointTypes(String translationKey, String defaultValue) {
+            key = translationKey;
+            value = defaultValue;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return value;
+        }
+
+        String getDisplayName(Thesaurus thesaurus) {
+            return thesaurus.getString(key, value);
+        }
+    }
+
+    private static class TypeValueFactory extends AbstractValueFactory<Enum> {
 
         @Override
         protected int getJdbcType() {
@@ -161,7 +158,7 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
 
         @Override
         public Enum fromStringValue(String stringValue) {
-            return Stream.of(UsagePointTypes.values())
+            return Arrays.stream(UsagePointTypes.values())
                     .filter(enumValue -> stringValue.equalsIgnoreCase(enumValue.name()))
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
