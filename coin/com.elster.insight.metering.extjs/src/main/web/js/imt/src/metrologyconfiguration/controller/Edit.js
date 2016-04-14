@@ -555,6 +555,9 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         if(navigationItemsToAdd.length){
             addBtn.hide();
             nextBtn.show();
+        } else {
+            addBtn.show();
+            nextBtn.hide();
         }
 
         navigation.add(navigationItemsToAdd);
