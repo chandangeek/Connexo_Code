@@ -1,8 +1,11 @@
 package com.elster.jupiter.servicecall;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.time.Instant;
 import java.util.List;
 
+@ConsumerType
 public interface ServiceCallFilter {
 
     void setReference(String reference);
@@ -21,6 +24,8 @@ public interface ServiceCallFilter {
 
     void setParent(ServiceCall serviceCall);
 
+    void setTargetObject(Object object);
+
     String getReference();
 
     List<String> getTypes();
@@ -36,4 +41,6 @@ public interface ServiceCallFilter {
     Instant getModificationDateTo();
 
     ServiceCall getParent();
+
+    Object getTargetObject();
 }
