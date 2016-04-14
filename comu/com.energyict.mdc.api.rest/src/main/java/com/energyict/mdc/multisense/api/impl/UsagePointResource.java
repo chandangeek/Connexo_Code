@@ -168,7 +168,9 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
-        return usagePointInfoFactory.getAvailableFields().stream().sorted().collect(toList());
+        List<String> fields = usagePointInfoFactory.getAvailableFields().stream().sorted().collect(toList());
+        fields.add("serviceKind"); // Jackson type property
+        return fields;
     }
 
 

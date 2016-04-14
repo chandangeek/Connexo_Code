@@ -2,6 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.rest.impl.SimplePropertyType;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
@@ -32,7 +33,7 @@ public class UsagePointCustomPropertySetResourceTest extends MultisensePublicApi
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        UsagePoint usagePoint = mockUsagePoint(123L, "up001", 5L);
+        UsagePoint usagePoint = mockUsagePoint(123L, "up001", 5L, ServiceKind.ELECTRICITY);
         UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
         CustomPropertySet cps = mockCustomPropertySet("PersonPropertySet", "Person");
         when(usagePoint.forCustomProperties()).thenReturn(extension);

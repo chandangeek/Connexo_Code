@@ -21,11 +21,17 @@ import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointPropertySet;
+import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -105,6 +111,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.longThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -627,13 +634,13 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return mock;
     }
 
-    protected UsagePoint mockUsagePoint(long id, String name, long version) {
+    protected UsagePoint mockUsagePoint(long id, String name, long version, ServiceKind serviceKind) {
         UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
         when(extension.getAllPropertySets()).thenReturn(Collections.emptyList());
-        return mockUsagePoint(id, name, version, extension);
+        return mockUsagePoint(id, name, version, extension, serviceKind);
     }
 
-    private UsagePoint mockUsagePoint(long id, String name, long version, UsagePointCustomPropertySetExtension extension) {
+    private UsagePoint mockUsagePoint(long id, String name, long version, UsagePointCustomPropertySetExtension extension, ServiceKind serviceKind) {
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(usagePoint.getId()).thenReturn(id);
         when(usagePoint.getVersion()).thenReturn(version);
@@ -643,6 +650,26 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(usagePoint.getOutageRegion()).thenReturn("outage region");
         when(usagePoint.getReadRoute()).thenReturn("read route");
         when(usagePoint.getServiceLocationString()).thenReturn("location");
+        ServiceCategory serviceCategory = mock(ServiceCategory.class);
+        when(serviceCategory.getKind()).thenReturn(serviceKind);
+        when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
+        UsagePointDetail detail;
+        switch (serviceKind) {
+            case ELECTRICITY:
+                detail = mock(ElectricityDetail.class);
+                break;
+            case GAS:
+                detail = mock(GasDetail.class);
+                break;
+            case WATER:
+                detail = mock(WaterDetail.class);
+                break;
+            default:
+                detail = null;
+                break;
+        }
+
+        doReturn(Optional.ofNullable(detail)).when(usagePoint).getDetail(any(Instant.class));
         when(usagePoint.getMRID()).thenReturn("MRID");
         when(usagePoint.getInstallationTime()).thenReturn(LocalDateTime.of(2016, 3, 20, 11, 0)
                 .toInstant(ZoneOffset.UTC));

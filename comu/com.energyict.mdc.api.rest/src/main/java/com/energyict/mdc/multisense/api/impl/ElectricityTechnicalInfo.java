@@ -1,6 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.util.YesNoAnswer;
@@ -11,7 +12,7 @@ import java.time.Clock;
 /**
  * Created by bvn on 4/11/16.
  */
-public class ElectricityTechnicalInfo extends UsagePointTechnicalInfo {
+public class ElectricityTechnicalInfo extends UsagePointInfo {
     public Quantity nominalServiceVoltage;
     public PhaseCode phaseCode;
     public Quantity ratedCurrent;
@@ -36,5 +37,10 @@ public class ElectricityTechnicalInfo extends UsagePointTechnicalInfo {
                 .withLoadLimiterType(loadLimiterType)
                 .withLoadLimit(loadLimit)
                 .withInterruptible(interruptible);
+    }
+
+    @Override
+    ServiceKind getServiceKind() {
+        return ServiceKind.ELECTRICITY;
     }
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.util.YesNoAnswer;
@@ -14,4 +15,6 @@ public abstract class UsagePointTechnicalInfo {
     public YesNoAnswer collar;
 
     abstract UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Clock clock);
+
+    abstract ServiceKind getServiceKind();
 }
