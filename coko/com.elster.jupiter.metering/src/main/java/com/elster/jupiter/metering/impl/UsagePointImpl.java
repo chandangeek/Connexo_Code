@@ -92,6 +92,7 @@ public class UsagePointImpl implements UsagePoint {
     private Instant installationTime;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceDeliveryRemark;
+    private ConnectionState connectionState = ConnectionState.UNDER_CONSTRUCTION;
     private long version;
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -513,7 +514,12 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public ConnectionState getConnectionState() {
-        return ConnectionState.UNDER_CONSTRUCTION;
+        return connectionState;
+    }
+
+    @Override
+    public void setConnectionState(ConnectionState connectionState) {
+        connectionState = connectionState;
     }
 
     @Override

@@ -172,6 +172,8 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     ConnectionState getConnectionState();
 
+    void setConnectionState(ConnectionState connectionState);
+
     void update();
 
     void delete();
