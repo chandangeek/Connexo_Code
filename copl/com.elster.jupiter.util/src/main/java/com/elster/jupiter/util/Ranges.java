@@ -5,6 +5,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -189,4 +190,11 @@ public class Ranges {
         return copy;
     }
 
+    public static <C extends Comparable<? super C>> Optional<C> lowerBound(Range<C> range) {
+        return range.hasLowerBound() ? Optional.of(range.lowerEndpoint()) : Optional.empty();
+    }
+
+    public static <C extends Comparable<? super C>> Optional<C> upperBound(Range<C> range) {
+        return range.hasUpperBound() ? Optional.of(range.upperEndpoint()) : Optional.empty();
+    }
 }
