@@ -228,7 +228,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             } else {
                 setLocationAttributes(builder.member(), data, ranking).add();
             }
-            usagePoint.setUpLocation(builder.create());
+            usagePoint.setLocation(builder.create().getId());
         }
         if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty()
                 && !geoCoordinatesData.contains(null)){
