@@ -2,12 +2,18 @@ Ext.define('Scs.view.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.servicecalls-grid',
     store: 'Scs.store.ServiceCalls',
+    menuItemId: '',
     router: null,
+    actionMenuHidden: false,
+    cancelAllHidden: true,
+    usesExactCount: false,
+    defaultPageSize: 10,
     requires: [
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Scs.view.ActionMenu'
+        'Scs.view.ActionMenu',
+        'Scs.view.object.CancelAllActionMenu'
     ],
 
     initComponent: function () {
@@ -21,7 +27,7 @@ Ext.define('Scs.view.Grid', {
                      url += record.get('id');
                      return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                  },
-                 flex: 0.6
+                 flex: 1
             },
             {
                 header: Uni.I18n.translate('servicecalls.externalReference', 'SCS', 'External reference'),
@@ -36,7 +42,7 @@ Ext.define('Scs.view.Grid', {
             {
                 header: Uni.I18n.translate('general.status', 'SCS', 'Status'),
                 dataIndex: 'state',
-                flex: 1,
+                flex: 0.8,
                 renderer: function(value) {
                     if(value.displayValue) {
                         return value.displayValue;
@@ -60,9 +66,11 @@ Ext.define('Scs.view.Grid', {
                 privileges: Scs.privileges.ServiceCall.admin,
                 menu: {
                     xtype: 'scs-action-menu',
-                    itemId: 'scs-action-menu'
+                    itemId: me.menuItemId
                 },
-                isDisabled: me.fnIsDisabled
+                isDisabled: me.fnIsDisabled,
+                hidden: me.actionMenuHidden,
+                flex: 0.7
             }
         ];
 
@@ -74,14 +82,30 @@ Ext.define('Scs.view.Grid', {
                 displayMsg: Uni.I18n.translate('serviceCalls.pagingtoolbartop.displayMsg', 'SCS', '{0} - {1} of {2} service calls'),
                 displayMoreMsg: Uni.I18n.translate('serviceCalls.pagingtoolbartop.displayMoreMsg', 'SCS', '{0} - {1} of more than {2} service calls'),
                 emptyMsg: Uni.I18n.translate('serviceCalls.pagingtoolbartop.emptyMsg', 'SCS', 'There are no service calls to display'),
+                usesExactCount: me.usesExactCount,
+                items: [
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.Actions', 'SCS', 'Actions'),
+                        privileges: Scs.privileges.ServiceCall.admin,
+                        iconCls: 'x-uni-action-iconD',
+                        itemId: 'cancelAllServiceCallsButton',
+                        menu: {
+                            xtype: 'cancel-all-action-menu'
+                        },
+                        hidden: me.cancelAllHidden
+                    }
+                ]
+
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('serviceCalls.pagingtoolbarbottom.itemsPerPage', 'SCS', 'Service calls per page'),
-                dock: 'bottom'
+                dock: 'bottom',
+                defaultPageSize: me.defaultPageSize
             }
-        ]
+        ];
 
         me.callParent(arguments);
     },

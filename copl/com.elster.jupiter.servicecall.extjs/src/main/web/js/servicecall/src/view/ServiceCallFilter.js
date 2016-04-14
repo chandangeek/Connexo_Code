@@ -2,6 +2,8 @@ Ext.define('Scs.view.ServiceCallFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     store: 'Scs.store.ServiceCalls',
     alias: 'widget.service-call-filter',
+    modDateHidden: false,
+    filterDefault: {},
 
     stores: [
         'Scs.store.ServiceCallTypes',
@@ -40,6 +42,8 @@ Ext.define('Scs.view.ServiceCallFilter', {
                 dataIndex: 'creationTime',
                 dataIndexFrom: 'receivedDateFrom',
                 dataIndexTo: 'receivedDateTo',
+                defaultFromDate: me.filterDefault.fromDate,
+                defaultToDate: me.filterDefault.toDate,
                 text: Uni.I18n.translate('general.receivedDate', 'SCS', 'Received date')
             },
             {
@@ -47,7 +51,8 @@ Ext.define('Scs.view.ServiceCallFilter', {
                 dataIndex: 'lastModificationTime',
                 dataIndexFrom: 'modificationDateFrom',
                 dataIndexTo: 'modificationDateTo',
-                text: Uni.I18n.translate('general.modificationDate', 'SCS', 'Modification date')
+                text: Uni.I18n.translate('general.modificationDate', 'SCS', 'Modification date'),
+                hidden: me.modDateHidden
             }
         ];
 

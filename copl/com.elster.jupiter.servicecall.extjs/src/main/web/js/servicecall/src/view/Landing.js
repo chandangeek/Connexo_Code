@@ -14,39 +14,41 @@ Ext.define('Scs.view.Landing', {
         var me = this;
 
         me.content = {
-            ui: 'large',
             title: me.serviceCallId,
+            xtype: 'panel',
+            ui: 'large',
+            itemId: 'usagePointSetupPanel',
+            layout: {
+                type: 'vbox',
+                align: 'stretch',
+            },
+            tools: [
+                {
+                    xtype: 'button',
+                    privileges: Scs.privileges.ServiceCall.admin,
+                    text: Uni.I18n.translate('general.actions', 'SCS', 'Actions'),
+                    iconCls: 'x-uni-action-iconD',
+                    disabled: !me.record.get('canCancel'),
+                    itemId: 'scAtionButton',
+                    margin: '0 20 0 0',
+                    menu: {
+                        xtype: 'scs-action-menu',
+                        record: me.record,
+                    }
+                }
+            ],
             items: [
                 {
-                    tools: [
-                        {
-                            xtype: 'button',
-                            privileges: Scs.privileges.ServiceCall.admin,
-                            text: Uni.I18n.translate('general.actions', 'SCS', 'Actions'),
-                            iconCls: 'x-uni-action-iconD',
-                            disabled: !me.record.get('canCancel'),
-                            itemId: 'scAtionButton',
-                            margin: '20 0 0 0',
-                            menu: {
-                                xtype: 'scs-action-menu',
-                                record: me.record,
-                            }
-                        }
-                    ],
-                    flex: 1,
-                    items: [
-                        {
-                            xtype: 'servicecalls-preview-form',
-                            itemId: 'service-call-landing-page-form',
-                            router: me.router,
-                            detailed: true
-                        },
-                        {
-                            xtype: 'scs-log-setup',
-                            itemId: 'serviceCallLog'
-                        }
-                    ]
+                    xtype: 'servicecalls-preview-form',
+                    itemId: 'service-call-landing-page-form',
+                    router: me.router,
+                    detailed: true
+                },
+                {
+                    xtype: 'scs-log-setup',
+                    itemId: 'serviceCallLog'
                 }
+
 
             ]
         };
