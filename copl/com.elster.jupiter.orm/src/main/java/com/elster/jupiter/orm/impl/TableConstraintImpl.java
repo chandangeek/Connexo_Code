@@ -163,6 +163,10 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
         return sb.toString();
     }
 
+    RangeSet<Version> versions() {
+        return ImmutableRangeSet.copyOf(versions);
+    }
+
     void validate() {
         Objects.requireNonNull(getTable());
         Objects.requireNonNull(name);

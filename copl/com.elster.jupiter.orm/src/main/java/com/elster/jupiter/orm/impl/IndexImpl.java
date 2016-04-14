@@ -71,6 +71,10 @@ public class IndexImpl implements Index {
         return true;
     }
 
+    RangeSet<Version> versions() {
+        return ImmutableRangeSet.copyOf(versions);
+    }
+
     static class BuilderImpl implements Index.Builder {
         private IndexImpl index;
 

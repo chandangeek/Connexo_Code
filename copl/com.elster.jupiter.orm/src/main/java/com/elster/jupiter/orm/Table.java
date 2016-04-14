@@ -149,6 +149,9 @@ public interface Table<T> {
     boolean isCached();
 
     boolean isIndexOrganized();
+
+    String getQualifiedName(Version version);
+
     List<? extends Column> getColumns();
     List<? extends Column> getColumns(Version version);
     Optional<? extends Column> getColumn(String name);
@@ -186,4 +189,8 @@ public interface Table<T> {
     Table<T> upTo(Version version);
 
     Table<T> during(Range... ranges);
+
+    void previouslyNamed(Range<Version> versionRange, String name);
+
+    String getName(Version version);
 }

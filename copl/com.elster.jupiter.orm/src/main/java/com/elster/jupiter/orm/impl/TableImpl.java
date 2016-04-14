@@ -18,12 +18,15 @@ import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
 import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
 import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
+import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeMap;
 import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeMap;
 import com.google.common.collect.TreeRangeSet;
 
 import java.lang.reflect.Field;
@@ -31,12 +34,18 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2CURRENCY;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2PRINCIPAL;
@@ -47,48 +56,51 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2NOW;
 import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.Ranges.intersection;
+import static com.elster.jupiter.util.Ranges.lowerBound;
+import static com.elster.jupiter.util.Ranges.upperBound;
 import static com.elster.jupiter.util.streams.Currying.test;
 
 public class TableImpl<T> implements Table<T> {
 
-	static final String JOURNALTIMECOLUMNNAME = "JOURNALTIME";
-	static final String MODTIMECOLUMNAME = "MODTIME";
+    static final String JOURNALTIMECOLUMNNAME = "JOURNALTIME";
+    static final String MODTIMECOLUMNAME = "MODTIME";
 
-	// persistent fields
-	private String schema;
-	private String name;
-	@SuppressWarnings("unused")
-	private int position;
-	private String journalTableName;
-	private boolean cached;
+    // persistent fields
+    private String schema;
+    private String name;
+    @SuppressWarnings("unused")
+    private int position;
+    private String journalTableName;
+    private boolean cached;
     private boolean autoInstall = true;
     private int indexOrganized = -1;
     private transient RangeSet<Version> versions = TreeRangeSet.<Version>create().complement();
+    private RangeMap<Version, String> nameHistory = TreeRangeMap.create();
 
-	// associations
-	private final Reference<DataModelImpl> dataModel = ValueReference.absent();
-	private final List<ColumnImpl> columns = new ArrayList<>();
-	private final List<TableConstraintImpl> constraints = new ArrayList<>();
-	private final List<IndexImpl> indexes = new ArrayList<>();
+    // associations
+    private final Reference<DataModelImpl> dataModel = ValueReference.absent();
+    private final List<ColumnImpl> columns = new ArrayList<>();
+    private final List<TableConstraintImpl> constraints = new ArrayList<>();
+    private final List<IndexImpl> indexes = new ArrayList<>();
 
-	private Optional<Column> partitionColumn = Optional.empty();
-	private LifeCycleClass lifeCycleClass = LifeCycleClass.NONE;
+    private Optional<Column> partitionColumn = Optional.empty();
+    private LifeCycleClass lifeCycleClass = LifeCycleClass.NONE;
 
-	// mapping
-	private DataMapperType<T> mapperType;
+    // mapping
+    private DataMapperType<T> mapperType;
 
-	// transient, protection against forgetting to call add() on a builder
-	private boolean activeBuilder;
-	private Class<T> api;
-	private List<Class> alternativeApis = new ArrayList<>();
-	private TableCache<T> cache;
+    // transient, protection against forgetting to call add() on a builder
+    private boolean activeBuilder;
+    private Class<T> api;
+    private List<Class> alternativeApis = new ArrayList<>();
+    private TableCache<T> cache;
 
-	// cached fields , initialized when the table's datamodel is registered with the orm service.
-	private List<ForeignKeyConstraintImpl> referenceConstraints;
-	private List<ForeignKeyConstraintImpl> reverseMappedConstraints;
-	private List<ColumnImpl> realColumns;
+    // cached fields , initialized when the table's datamodel is registered with the orm service.
+    private List<ForeignKeyConstraintImpl> referenceConstraints;
+    private List<ForeignKeyConstraintImpl> reverseMappedConstraints;
+    private List<ColumnImpl> realColumns;
 
-	TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
+    TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
         assert !is(name).emptyOrOnlyWhiteSpace();
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
             throw new IllegalArgumentException("Name " + name + " too long");
@@ -117,6 +129,11 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public String getQualifiedName() {
         return getQualifiedName(name);
+    }
+
+    @Override
+    public String getQualifiedName(Version version) {
+        return getQualifiedName(getName(version));
     }
 
     String getQualifiedName(String value) {
@@ -188,8 +205,10 @@ public class TableImpl<T> implements Table<T> {
         activeBuilder = false;
         if (column.getFieldName() != null) {
             for (ColumnImpl existing : columns) {
-                if (is(existing.getFieldName()).equalTo(column.getFieldName()) && !intersection(existing.versions(), column.versions()).isEmpty()) {
-                    throw new IllegalTableMappingException("Table " + getName() + ", column " + column.getName() + " : column " + existing.getName() + " already maps to field " + existing.getFieldName());
+                if (is(existing.getFieldName()).equalTo(column.getFieldName()) && !intersection(existing.versions(), column
+                        .versions()).isEmpty()) {
+                    throw new IllegalTableMappingException("Table " + getName() + ", column " + column.getName() + " : column " + existing
+                            .getName() + " already maps to field " + existing.getFieldName());
                 }
             }
         }
@@ -199,7 +218,7 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public java.util.Optional<ColumnImpl> getColumn(String name) {
-    	return columns
+        return columns
                 .stream()
                 .filter((column) -> column.getName().equalsIgnoreCase(name))
                 .filter(test(Column::isInVersion).with(getDataModel().getVersion()))
@@ -282,25 +301,25 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public List<String> getDdl() {
-        return new TableDdlGenerator(this,getDataModel().getSqlDialect(), getDataModel().getVersion()).getDdl();
+        return new TableDdlGenerator(this, getDataModel().getSqlDialect(), getDataModel().getVersion()).getDdl();
     }
 
     @Override
     public List<String> getDdl(Version version) {
-        return new TableDdlGenerator(this,getDataModel().getSqlDialect(), version).getDdl();
+        return new TableDdlGenerator(this, getDataModel().getSqlDialect(), version).getDdl();
     }
 
     public List<String> upgradeDdl(TableImpl<?> toTable, Version version) {
-        return new TableDdlGenerator(this,getDataModel().getSqlDialect(), version).upgradeDdl(toTable);
+        return new TableDdlGenerator(this, getDataModel().getSqlDialect(), version).upgradeDdl(toTable);
     }
 
     public List<String> upgradeSequenceDdl(ColumnImpl column, long startValue, Version version) {
-        return new TableDdlGenerator(this,getDataModel().getSqlDialect(), version).upgradeSequenceDdl(column, startValue);
+        return new TableDdlGenerator(this, getDataModel().getSqlDialect(), version).upgradeSequenceDdl(column, startValue);
     }
 
 
     String getExtraJournalPrimaryKeyColumnNames() {
-    	String base = JOURNALTIMECOLUMNNAME;
+        String base = JOURNALTIMECOLUMNNAME;
         Column[] versionColumns = getVersionColumns();
         return versionColumns.length > 0 ? String.join(",", base, versionColumns[0].getName()) : base;
     }
@@ -356,7 +375,7 @@ public class TableImpl<T> implements Table<T> {
 
     boolean supportsApi(Class<?> potentialApi) {
         return potentialApi.equals(this.getApi())
-            || this.alternativeApis.stream().anyMatch(alternativeApi -> alternativeApi.equals(potentialApi));
+                || this.alternativeApis.stream().anyMatch(alternativeApi -> alternativeApi.equals(potentialApi));
     }
 
     @Override
@@ -385,8 +404,8 @@ public class TableImpl<T> implements Table<T> {
         addAllRelated(related);
         related.remove(0);
         DataMapperImpl<?>[] mappers = new DataMapperImpl<?>[related.size()];
-        for (int i = 0 ; i < related.size() ; i++) {
-        	mappers[i] = related.get(i).getDataMapper();
+        for (int i = 0; i < related.size(); i++) {
+            mappers[i] = related.get(i).getDataMapper();
         }
         return getDataMapper(type).with(mappers);
     }
@@ -444,7 +463,13 @@ public class TableImpl<T> implements Table<T> {
         if (sequence.length() > ColumnConversion.CATALOGNAMELIMIT) {
             throw new IllegalStateException("Name " + sequence + " too long");
         }
-        return column("ID").number().notNull().conversion(ColumnConversion.NUMBER2LONG).sequence(name + "ID").skipOnUpdate().map("id").add();
+        return column("ID").number()
+                .notNull()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .sequence(name + "ID")
+                .skipOnUpdate()
+                .map("id")
+                .add();
     }
 
     @Override
@@ -464,8 +489,16 @@ public class TableImpl<T> implements Table<T> {
     public List<Column> addQuantityColumns(String name, boolean notNull, String fieldName) {
         ImmutableList.Builder<Column> builder = ImmutableList.builder();
         builder.add(column(name + "VALUE").number().notNull(notNull).map(fieldName + ".value").add());
-        builder.add(column(name + "MULTIPLIER").number().notNull(notNull).conversion(NUMBER2INTWRAPPER).map(fieldName + ".multiplier").add());
-        builder.add(column(name + "UNIT").varChar(8).notNull(notNull).conversion(CHAR2UNIT).map(fieldName + ".unit").add());
+        builder.add(column(name + "MULTIPLIER").number()
+                .notNull(notNull)
+                .conversion(NUMBER2INTWRAPPER)
+                .map(fieldName + ".multiplier")
+                .add());
+        builder.add(column(name + "UNIT").varChar(8)
+                .notNull(notNull)
+                .conversion(CHAR2UNIT)
+                .map(fieldName + ".unit")
+                .add());
         return builder.build();
     }
 
@@ -473,7 +506,11 @@ public class TableImpl<T> implements Table<T> {
     public ImmutableList<Column> addMoneyColumns(String name, boolean notNull, String fieldName) {
         ImmutableList.Builder<Column> builder = ImmutableList.builder();
         builder.add(column(name + "VALUE").number().notNull(notNull).map(fieldName + ".value").add());
-        builder.add(column(name + "CURRENCY").number().notNull(notNull).conversion(CHAR2CURRENCY).map(fieldName + ".currency").add());
+        builder.add(column(name + "CURRENCY").number()
+                .notNull(notNull)
+                .conversion(CHAR2CURRENCY)
+                .map(fieldName + ".currency")
+                .add());
         return builder.build();
     }
 
@@ -484,7 +521,11 @@ public class TableImpl<T> implements Table<T> {
         builder.add(column(name + "CMP").varChar(23).notNull(notNull).map(fieldName + ".component").add());
         builder.add(column(name + "TABLE").varChar(28).notNull(notNull).map(fieldName + ".table").add());
         builder.add(column(name + "KEY").varChar(255).notNull(notNull).map(fieldName + ".key").add());
-        builder.add(column(name + "ID").number().notNull(notNull).conversion(NUMBER2LONGNULLZERO).map(fieldName + ".id").add());
+        builder.add(column(name + "ID").number()
+                .notNull(notNull)
+                .conversion(NUMBER2LONGNULLZERO)
+                .map(fieldName + ".id")
+                .add());
         return builder.build();
     }
 
@@ -501,7 +542,8 @@ public class TableImpl<T> implements Table<T> {
             throw new IllegalTableMappingException("Table " + getName() + " : column names cannot be null.");
         }
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
-            throw new IllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
+            throw new IllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name
+                    .length() + ".");
         }
         activeBuilder = true;
         return new ColumnImpl.BuilderImpl(ColumnImpl.from(this, name));
@@ -633,18 +675,18 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public void indexOrganized(int compressCount) {
-    	if (compressCount < 0) {
-    		throw new IllegalArgumentException();
-    	}
+        if (compressCount < 0) {
+            throw new IllegalArgumentException();
+        }
         this.indexOrganized = compressCount;
 
     }
 
     public int getIotCompressCount() {
-    	if (indexOrganized < 0) {
-    		throw new IllegalStateException();
-    	}
-    	return indexOrganized;
+        if (indexOrganized < 0) {
+            throw new IllegalStateException();
+        }
+        return indexOrganized;
     }
 
     @Override
@@ -685,42 +727,43 @@ public class TableImpl<T> implements Table<T> {
         }
     }
 
-	void prepare() {
-		checkActiveBuilder();
-		checkMapperTypeIsSet();
-		PrimaryKeyConstraintImpl primaryKey = Objects.requireNonNull(getPrimaryKeyConstraint(),"Table '" + getName() + "' : No primary key defined");
-		List<ColumnImpl> primaryKeyColumns = primaryKey.getColumns();
-		for (int i = 0 ; i < primaryKeyColumns.size() ; i++) {
-			if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
-				throw new IllegalStateException(MessageFormat.format("Table '{0}' : Primary key columns must be defined first and in order", getName()));
-			}
-		}
+    void prepare() {
+        checkActiveBuilder();
+        checkMapperTypeIsSet();
+        PrimaryKeyConstraintImpl primaryKey = Objects.requireNonNull(getPrimaryKeyConstraint(), "Table '" + getName() + "' : No primary key defined");
+        List<ColumnImpl> primaryKeyColumns = primaryKey.getColumns();
+        for (int i = 0; i < primaryKeyColumns.size(); i++) {
+            if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
+                throw new IllegalStateException(MessageFormat.format("Table '{0}' : Primary key columns must be defined first and in order", getName()));
+            }
+        }
         getForeignKeyConstraints().forEach(ForeignKeyConstraintImpl::prepare);
-		buildReferenceConstraints();
-		buildReverseMappedConstraints();
-		realColumns = new ArrayList<>();
-		for (ColumnImpl column : getColumns()) {
-			if (!column.isVirtual()) {
-				checkMapped(column);
-				realColumns.add(column);
-			}
-		}
-		cache = isCached() ? new TableCache.TupleCache<>(this) : new TableCache.NoCache<>();
-	}
+        buildReferenceConstraints();
+        buildReverseMappedConstraints();
+        realColumns = new ArrayList<>();
+        for (ColumnImpl column : getColumns()) {
+            if (!column.isVirtual()) {
+                checkMapped(column);
+                realColumns.add(column);
+            }
+        }
+        cache = isCached() ? new TableCache.TupleCache<>(this) : new TableCache.NoCache<>();
+    }
 
-	private void checkMapped (Column column) {
-		if (column.getFieldName() == null) {
-			for (ForeignKeyConstraintImpl constraint : getReferenceConstraints()) {
-				if (constraint.hasColumn(column)) {
-					return;
-				}
-			}
-		} else {
+    private void checkMapped(Column column) {
+        if (column.getFieldName() == null) {
+            for (ForeignKeyConstraintImpl constraint : getReferenceConstraints()) {
+                if (constraint.hasColumn(column)) {
+                    return;
+                }
+            }
+        } else {
             try {
                 if (getMapperType().getType(column.getFieldName()) == null) {
                     throw new IllegalStateException(
-                        Joiner.on(" ").
-                            join("Table " + getName() + " : No field available for column", column.getName(), "mapped by", column.getFieldName()));
+                            Joiner.on(" ").
+                                    join("Table " + getName() + " : No field available for column", column.getName(), "mapped by", column
+                                            .getFieldName()));
                 } else {
                     return;
                 }
@@ -728,38 +771,38 @@ public class TableImpl<T> implements Table<T> {
                 throw new IllegalStateException("Table " + getName() + " Column " + column.getName() + " : " + e.toString(), e);
             }
         }
-		throw new IllegalTableMappingException("Table " + getName() + " : Column " + column.getName() + " has no mapping");
-	}
+        throw new IllegalTableMappingException("Table " + getName() + " : Column " + column.getName() + " has no mapping");
+    }
 
-	private void buildReferenceConstraints() {
-		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
-		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
-			if (getMapperType().isReference(constraint.getFieldName())) {
-				getMapperType().getField(constraint.getFieldName());
-				builder.add(constraint);
-			}
-		}
-		this.referenceConstraints = builder.build();
-	}
+    private void buildReferenceConstraints() {
+        ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
+        for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
+            if (getMapperType().isReference(constraint.getFieldName())) {
+                getMapperType().getField(constraint.getFieldName());
+                builder.add(constraint);
+            }
+        }
+        this.referenceConstraints = builder.build();
+    }
 
-	private List<ForeignKeyConstraintImpl> getReverseConstraints() {
-		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
-		for (TableImpl<?> table : getDataModel().getTables()) {
-			if (!table.equals(this)) {
-				for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
-					if (each.getReferencedTable().equals(this)) {
-						builder.add(each);
-					}
-				}
-			}
-		}
-		return builder.build();
-	}
+    private List<ForeignKeyConstraintImpl> getReverseConstraints() {
+        ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
+        for (TableImpl<?> table : getDataModel().getTables()) {
+            if (!table.equals(this)) {
+                for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
+                    if (each.getReferencedTable().equals(this)) {
+                        builder.add(each);
+                    }
+                }
+            }
+        }
+        return builder.build();
+    }
 
     @Override
     public boolean maps(Class<?> clazz) {
         return api.isAssignableFrom(clazz)
-            || this.alternativeApis.stream().anyMatch(alternativeApi -> alternativeApi.isAssignableFrom(clazz));
+                || this.alternativeApis.stream().anyMatch(alternativeApi -> alternativeApi.isAssignableFrom(clazz));
     }
 
     public DomainMapper getDomainMapper() {
@@ -832,44 +875,44 @@ public class TableImpl<T> implements Table<T> {
     }
 
     Optional<ColumnImpl> getDiscriminator() {
-		for (ColumnImpl column : columns) {
-			if (column.isDiscriminator()) {
-				return Optional.of(column);
-			}
-		}
-		return Optional.empty();
-	}
+        for (ColumnImpl column : columns) {
+            if (column.isDiscriminator()) {
+                return Optional.of(column);
+            }
+        }
+        return Optional.empty();
+    }
 
-	Class<? extends T> classCast(Class<?> in) {
-		return in.asSubclass(api);
-	}
+    Class<? extends T> classCast(Class<?> in) {
+        return in.asSubclass(api);
+    }
 
-	private boolean hasAutoChange() {
-		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
-			DeleteRule rule = constraint.getDeleteRule();
-			if (!rule.equals(DeleteRule.RESTRICT)) {
-				return true;
-			}
-		}
-		return false;
-	}
+    private boolean hasAutoChange() {
+        for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
+            DeleteRule rule = constraint.getDeleteRule();
+            if (!rule.equals(DeleteRule.RESTRICT)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	@Override
-	public IndexImpl.BuilderImpl index(String name) {
-		checkActiveBuilder();
-		activeBuilder = true;
-		return new IndexImpl.BuilderImpl(this,name);
-	}
+    @Override
+    public IndexImpl.BuilderImpl index(String name) {
+        checkActiveBuilder();
+        activeBuilder = true;
+        return new IndexImpl.BuilderImpl(this, name);
+    }
 
-	IndexImpl add(IndexImpl index) {
-		activeBuilder = false;
-		this.indexes.add(index);
-		return index;
-	}
+    IndexImpl add(IndexImpl index) {
+        activeBuilder = false;
+        this.indexes.add(index);
+        return index;
+    }
 
-	List<IndexImpl> getIndexes() {
-		return getIndexes(getDataModel().getVersion());
-	}
+    List<IndexImpl> getIndexes() {
+        return getIndexes(getDataModel().getVersion());
+    }
 
     List<IndexImpl> getIndexes(Version version) {
         return indexes.stream()
@@ -878,8 +921,8 @@ public class TableImpl<T> implements Table<T> {
     }
 
     public List<ColumnImpl> getRealColumns() {
-		return realColumns;
-	}
+        return realColumns;
+    }
 
     IndexImpl getIndex(String name) {
         for (IndexImpl index : indexes) {
@@ -908,66 +951,66 @@ public class TableImpl<T> implements Table<T> {
         return null;
     }
 
-	@Override
-	public void dropJournal(Instant upTo, Logger logger) {
-		if (getJournalTableName() == null) {
-			return;
-		}
-		drop(getJournalTableName(), upTo, logger);
-	}
+    @Override
+    public void dropJournal(Instant upTo, Logger logger) {
+        if (getJournalTableName() == null) {
+            return;
+        }
+        drop(getJournalTableName(), upTo, logger);
+    }
 
-	@Override
-	public void dropData(Instant upTo, Logger logger) {
-		drop(getName(),upTo, logger);
-	}
+    @Override
+    public void dropData(Instant upTo, Logger logger) {
+        drop(getName(), upTo, logger);
+    }
 
-	private void drop(String tableName, Instant upTo, Logger logger) {
-		if (!getDataModel().getSqlDialect().hasPartitioning()) {
-			// todo sql delete
-			return;
-		}
-		getDataModel().dataDropper(tableName,logger).drop(upTo);
-	}
+    private void drop(String tableName, Instant upTo, Logger logger) {
+        if (!getDataModel().getSqlDialect().hasPartitioning()) {
+            // todo sql delete
+            return;
+        }
+        getDataModel().dataDropper(tableName, logger).drop(upTo);
+    }
 
-	@Override
-	public void partitionOn(Column column) {
-		this.partitionColumn = Optional.of(column);
-	}
+    @Override
+    public void partitionOn(Column column) {
+        this.partitionColumn = Optional.of(column);
+    }
 
-	@Override
-	public void autoPartitionOn(Column column, LifeCycleClass lifeCycleClass) {
-		if (Objects.requireNonNull(lifeCycleClass) == LifeCycleClass.NONE) {
-			throw new IllegalArgumentException();
-		}
-		partitionOn(column);
-		this.lifeCycleClass = lifeCycleClass;
-	}
+    @Override
+    public void autoPartitionOn(Column column, LifeCycleClass lifeCycleClass) {
+        if (Objects.requireNonNull(lifeCycleClass) == LifeCycleClass.NONE) {
+            throw new IllegalArgumentException();
+        }
+        partitionOn(column);
+        this.lifeCycleClass = lifeCycleClass;
+    }
 
-	public Optional<Column> partitionColumn() {
-		return partitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
-	}
+    public Optional<Column> partitionColumn() {
+        return partitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
+    }
 
-	@Override
-	public LifeCycleClass lifeCycleClass() {
-		return lifeCycleClass;
-	}
+    @Override
+    public LifeCycleClass lifeCycleClass() {
+        return lifeCycleClass;
+    }
 
-	Optional<ForeignKeyConstraintImpl> refPartitionConstraint() {
-		return getForeignKeyConstraints().stream()
-			.filter(ForeignKeyConstraintImpl::isRefPartition)
-			.findFirst()
-			.filter(constraint -> getDataModel().getSqlDialect().hasPartitioning());
-	}
+    Optional<ForeignKeyConstraintImpl> refPartitionConstraint() {
+        return getForeignKeyConstraints().stream()
+                .filter(ForeignKeyConstraintImpl::isRefPartition)
+                .findFirst()
+                .filter(constraint -> getDataModel().getSqlDialect().hasPartitioning());
+    }
 
-	PartitionMethod getPartitionMethod() {
-		if (partitionColumn().isPresent()) {
-			return (isIndexOrganized() || !getReverseConstraints().isEmpty()) ? PartitionMethod.RANGE : PartitionMethod.INTERVAL;
-		}
-		if (refPartitionConstraint().isPresent()) {
-			return PartitionMethod.REFERENCE;
-		}
-		return PartitionMethod.NONE;
-	}
+    PartitionMethod getPartitionMethod() {
+        if (partitionColumn().isPresent()) {
+            return (isIndexOrganized() || !getReverseConstraints().isEmpty()) ? PartitionMethod.RANGE : PartitionMethod.INTERVAL;
+        }
+        if (refPartitionConstraint().isPresent()) {
+            return PartitionMethod.REFERENCE;
+        }
+        return PartitionMethod.NONE;
+    }
 
     @Override
     public Table<T> since(Version version) {
@@ -997,6 +1040,52 @@ public class TableImpl<T> implements Table<T> {
 
     public RangeSet<Version> getVersions() {
         return versions;
+    }
+
+    @Override
+    public void previouslyNamed(Range<Version> versionRange, String name) {
+        nameHistory.put(versionRange, name);
+    }
+
+    @Override
+    public String getName(Version version) {
+        String previousName = nameHistory.get(version);
+        return previousName != null ? previousName : name;
+    }
+
+    Optional<Version> previousTo(Version version) {
+        SortedSet<Version> knownVersions = new TreeSet<>();
+        versions.asRanges()
+                .stream()
+                .flatMap(range -> Stream.of(lowerBound(range), upperBound(range)))
+                .flatMap(Functions.asStream())
+                .forEach(knownVersions::add);
+        nameHistory.asMapOfRanges()
+                .keySet()
+                .stream()
+                .flatMap(range -> Stream.of(lowerBound(range), upperBound(range)))
+                .flatMap(Functions.asStream())
+                .forEach(knownVersions::add);
+        addToKnownVersions(knownVersions, columns.stream().map(ColumnImpl::versions));
+        addToKnownVersions(knownVersions, constraints.stream().map(TableConstraintImpl::versions));
+        addToKnownVersions(knownVersions, indexes.stream().map(IndexImpl::versions));
+        SortedSet<Version> previousVersions = knownVersions.headSet(version);
+        return previousVersions.isEmpty() ? Optional.empty() : Optional.of(previousVersions.last());
+    }
+
+    private void addToKnownVersions(SortedSet<Version> knownVersions, Stream<RangeSet<Version>> rangeSetStream) {
+        rangeSetStream
+                .map(RangeSet::asRanges)
+                .flatMap(Collection::stream)
+                .flatMap(range -> Stream.of(lowerBound(range), upperBound(range)))
+                .flatMap(Functions.asStream())
+                .forEach(knownVersions::add);
+    }
+
+    Set<String> getHistoricalNames() {
+        Set<String> set = new HashSet<>(nameHistory.asMapOfRanges().values());
+        set.add(name);
+        return set;
     }
 
 }
