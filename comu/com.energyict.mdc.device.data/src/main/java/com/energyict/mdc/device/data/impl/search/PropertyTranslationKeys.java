@@ -88,7 +88,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
 
     CONNECTION_TASK_DIRECTION_INBOUND("device.connection.direction.inbound", "Inbound"),
     CONNECTION_TASK_DIRECTION_OUTBOUND("device.connection.direction.outbound", "Outbound"),
-
+    DEVICE_LOCATION("device.location", "Location"),
     FIRMWARE("device.firmware","Firmware") ,
     FIRMWARE_VERSION("device.firmware.version", "Firmware version")
     ;
