@@ -295,6 +295,7 @@ public class ServiceCallCommands {
     public void createServiceCallDemoData() {
         ServiceCallLifeCycle simpleLifecycle = getSimpleLifecycle();
         createServiceCallTypes(simpleLifecycle);
+        createServiceCalls();
     }
 
     private ServiceCallLifeCycle createSimpleLifecycle() {
@@ -412,6 +413,24 @@ public class ServiceCallCommands {
         }
 
         return null;
+    }
+
+    private void createServiceCalls() {
+        threadPrincipalService.set(() -> "Console");
+        InputStream source = getResourceAsStream("ServiceCalls.csv");
+        try (Scanner scanner = new Scanner(source)) {
+            scanner.nextLine();
+            while (scanner.hasNextLine()) {
+                parseServiceCallRecord(scanner.nextLine());
+            }
+        }
+    }
+
+    private void parseServiceCallRecord(String record) {
+        String[] columns = record.split(";", -1);
+        if (columns[0].equals("test")) {
+
+        }
     }
 
 }

@@ -1,0 +1,17 @@
+External reference;Type;Version;Origin;Status;Custom attributes;Parent;Object
+ID111111;DisconnectRequest;1.0;CustomerA;success;UP:UP_0001;;UP_0001
+ID123456;DisconnectGroupRequest;1.0;CustomerA;ongoing;;;;
+ID123456;DisconnectRequest;2.0;CustomerA;pending;UP:UP_0001;2;UP_0001
+ID123456;DisconnectRequest;2.0;CustomerA;ongoing;UP:UP_0002;2;UP_0002
+ID123456;DisconnectRequest;2.0;CustomerA;failed;UP:UP_0003;1;UP_0003
+CUST546;BillingDataRequest;1.0;;scheduled;;;;
+;CIMEndDeviceConfig;3.0;CustomerB;paused;DV:SPE010000010001;;SPE010000010001
+20160415;PushMeterReadings;1.1;Connexo;ongoing;;;;
+20160415;PushMeterReadings;1.1;Connexo;success;;;SPE010000010111
+20160415;PushMeterReadings;1.1;Connexo;ongoing;;;SPE010000010112
+20160415;PushMeterReadings;1.1;Connexo;pending;;;SPE010000010113
+20160415;PushMeterReadings;1.1;Connexo;pending;;;SPE010000010114
+SYS15984;CIMUsagePointConfig;1.2;CustomerC;partialsuccess;;;UP_0004
+SYS98756;CIMGetCustomerConfig;2.1;CustomerC;created;;;;
+NET65478;PushEvents;1.5;Connexo;success;;;SPE010000010004
+EXT57896;GetMeterReadings;1.7;CustomerD;pending;;;SPE010000010005
