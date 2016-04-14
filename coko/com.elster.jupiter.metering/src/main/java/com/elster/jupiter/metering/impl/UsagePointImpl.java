@@ -10,8 +10,10 @@ import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.GasDetailBuilder;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -72,7 +74,7 @@ public class UsagePointImpl implements UsagePoint {
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
-    private String location;
+    private String serviceLocationString;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String mRID;
@@ -100,6 +102,8 @@ public class UsagePointImpl implements UsagePoint {
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
+    private long location;
 
     private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
     private TemporalReference<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration = Temporals.absent();
@@ -110,6 +114,8 @@ public class UsagePointImpl implements UsagePoint {
     private final List<MeterActivationImpl> meterActivations = new ArrayList<>();
     private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
     private List<UsagePointConfigurationImpl> usagePointConfigurations = new ArrayList<>();
+    private final Reference<Location> upLocation = ValueReference.absent();
+    private final Reference<GeoCoordinates> geoCoordinates = ValueReference.absent();
 
     private final Clock clock;
     private final DataModel dataModel;
@@ -189,7 +195,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public String getServiceLocationString() {
-        return location;
+        return serviceLocationString;
     }
 
     @Override
@@ -304,7 +310,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setServiceLocationString(String serviceLocationString) {
-        this.location = serviceLocationString;
+        this.serviceLocationString = serviceLocationString;
     }
 
     @Override
@@ -339,7 +345,6 @@ public class UsagePointImpl implements UsagePoint {
     private void removeDetail() {
         this.getDetail(Range.all()).forEach(detail::remove);
     }
-
 
 
     private void removeMetrologyConfigurationCustomPropertySetValues() {
@@ -702,6 +707,38 @@ public class UsagePointImpl implements UsagePoint {
                 .filter(usagePointConfiguration -> usagePointConfiguration.isEffectiveAt(time))
                 .map(UsagePointConfiguration.class::cast)
                 .findAny();
+    }
+
+    @Override
+    public long getLocationId() {
+        Optional<Location> location = getLocation();
+        return location.isPresent() ? location.get().getId() : 0L;
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        return upLocation.getOptional();
+    }
+
+    @Override
+    public void setUpLocation(Location location){
+        this.upLocation.set(location);
+    }
+
+    @Override
+    public long getGeoCoordinatesId() {
+        Optional<GeoCoordinates> coordinates = getGeoCoordinates();
+        return coordinates.isPresent() ? coordinates.get().getId() : 0L;
+    }
+
+    @Override
+    public Optional<GeoCoordinates> getGeoCoordinates() {
+        return geoCoordinates.getOptional();
+    }
+
+    @Override
+    public void setGeoCoordinates(GeoCoordinates geoCoordinates){
+        this.geoCoordinates.set(geoCoordinates);
     }
 
     @Override

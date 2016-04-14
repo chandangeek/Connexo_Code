@@ -6,6 +6,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.DeliverableNodesFromExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -21,7 +22,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
-import java.util.Optional;
+import java.util.List;
 
 
 @ValidDeliverable(groups = { Save.Create.class, Save.Update.class })
@@ -115,13 +116,15 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     public void setReadingType(ReadingType readingType) {
         doSetReadingType(readingType);
         ReadingTypeDeliverable deliverableToUpdate =  this.getMetrologyConfiguration().getDeliverables().stream().filter(del -> del.equals(this)).findAny().orElse(null);
+        // following code is necessary because to be able check for invalid formulas where this deliverable is used (check is done by the ValidDeliverable class)
+        // we also need to set the new readingtype in the expression nodes (ReadingTypeDeliveryNodes) in the formulas that use the deliverable that is updated.
+        // Otherwise they still contains the old readingtypes, because the nodes contains copies of the deliverables, no references (ORM framework)
         if (deliverableToUpdate != null) {
-            //to check for invalid formulas where this deliverable is used by the ValidDeliverable class
-            ((ReadingTypeDeliverableImpl) deliverableToUpdate).doSetReadingType(readingType);
+            //((ReadingTypeDeliverableImpl) deliverableToUpdate).doSetReadingType(readingType);
         }
-        //to check for invalid formulas where this deliverable is used by the ValidDeliverable class
         for (ReadingTypeDeliverable deliverable : this.getMetrologyConfiguration().getDeliverables()) {
-            for (ReadingTypeDeliverableNode deliverableNode : ((AbstractNode) deliverable.getFormula().getExpressionNode()).getDeliverables()) {
+            List<ReadingTypeDeliverableNode> deliverableNodes = deliverable.getFormula().getExpressionNode().accept(new DeliverableNodesFromExpressionNode());
+            for (ReadingTypeDeliverableNode deliverableNode : deliverableNodes) {
                 if (deliverableNode.getReadingTypeDeliverable().equals(this)) {
                     ((ReadingTypeDeliverableImpl) deliverableNode.getReadingTypeDeliverable()).doSetReadingType(readingType);
                 }

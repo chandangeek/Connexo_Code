@@ -9,7 +9,9 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.LifecycleDates;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
@@ -60,6 +62,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private Instant createTime;
     private Instant obsoleteTime;
     private Instant modTime;
+
     @SuppressWarnings("unused")
     private String userName;
 
@@ -68,6 +71,8 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
     private TemporalReference<EndDeviceLifeCycleStatus> status = Temporals.absent();
     private StateManager stateManager = new NoDeviceLifeCycle();
+    private final Reference<Location> location = ValueReference.absent();
+    private final Reference<GeoCoordinates> geoCoordinates = ValueReference.absent();
 
     private final Clock clock;
     private final DataModel dataModel;
@@ -151,6 +156,38 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     @Override
     public ElectronicAddress getElectronicAddress() {
         return electronicAddress == null ? null : electronicAddress.copy();
+    }
+
+    @Override
+    public long getLocationId() {
+        Optional<Location> location = getLocation();
+        return location.isPresent() ? location.get().getId() : 0L;
+    }
+
+    @Override
+    public void setLocation(Location location){
+        this.location.set(location);
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        return location.getOptional();
+    }
+
+    @Override
+    public long getGeoCoordinatesId() {
+        Optional<GeoCoordinates> coordinates = getGeoCoordinates();
+        return coordinates.isPresent() ? coordinates.get().getId() : 0L;
+    }
+
+    @Override
+    public Optional<GeoCoordinates> getGeoCoordinates() {
+        return geoCoordinates.getOptional();
+    }
+
+    @Override
+    public void setGeoCoordintes(GeoCoordinates geoCoordinates){
+        this.geoCoordinates.set(geoCoordinates);
     }
 
     @Override
