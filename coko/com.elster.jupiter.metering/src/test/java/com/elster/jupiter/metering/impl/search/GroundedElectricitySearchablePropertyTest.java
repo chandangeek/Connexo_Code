@@ -91,14 +91,14 @@ public class GroundedElectricitySearchablePropertyTest {
     }
 
     @Test
-    public void testSingleSelection() {
+    public void testMultiSelection() {
         GroundedElectricitySearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
 
         // Asserts
-        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.SINGLE);
+        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.MULTI);
     }
 
     @Test

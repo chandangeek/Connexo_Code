@@ -35,8 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ValveGasSearchablePropertyTest {
-
+public class ValveThermalSearchablePropertyTest {
     @Mock
     private UsagePointSearchDomain domain;
     @Mock
@@ -60,7 +59,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        ValveThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -70,19 +69,19 @@ public class ValveGasSearchablePropertyTest {
     }
 
     @Test
-    public void testGasGroup() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+    public void testThermalGroup() {
+        ValveThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
 
         // Asserts
-        assertThat(group.get().getClass()).isEqualTo(GasAttributesSearchablePropertyGroup.class);
+        assertThat(group.get().getClass()).isEqualTo(ThermalAttributesSearchablePropertyGroup.class);
     }
 
     @Test
     public void testRemovableVisibility() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        ValveThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
@@ -93,7 +92,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void testMultiSelection() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        ValveThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -104,7 +103,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        ValveThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
@@ -115,7 +114,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void specificationIsNotAReference() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        ValveThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -128,7 +127,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void possibleValuesWithoutRefresh() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        ValveThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -139,7 +138,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void hasConstraints() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        ValveThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -150,7 +149,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        ValveThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -162,7 +161,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        ValveThermalSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -172,7 +171,7 @@ public class ValveGasSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        ValveGasSearchableProperty property = this.getTestInstance();
+        ValveThermalSearchableProperty property = this.getTestInstance();
         YesNoAnswer valueToDisplay = YesNoAnswer.YES;
 
         // Business method
@@ -182,8 +181,7 @@ public class ValveGasSearchablePropertyTest {
         assertThat(displayValue).isEqualTo(valueToDisplay.toString());
     }
 
-    private ValveGasSearchableProperty getTestInstance() {
-        return new ValveGasSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private ValveThermalSearchableProperty getTestInstance() {
+        return new ValveThermalSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
     }
-
 }
