@@ -7,7 +7,7 @@ import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 
-import java.time.Clock;
+import java.time.Instant;
 
 /**
  * Created by bvn on 4/11/16.
@@ -20,8 +20,8 @@ public class HeatUsagePointInfo extends UsagePointInfo {
     public YesNoAnswer valve;
 
     @Override
-    public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Clock clock) {
-        return usagePoint.newHeatDetailBuilder(clock.instant())
+    public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Instant instant) {
+        return usagePoint.newHeatDetailBuilder(instant)
                 .withCollar(collar)
                 .withPressure(pressure)
                 .withPhysicalCapacity(physicalCapacity)

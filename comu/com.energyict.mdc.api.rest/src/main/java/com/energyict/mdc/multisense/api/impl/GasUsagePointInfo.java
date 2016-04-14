@@ -7,7 +7,7 @@ import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 
-import java.time.Clock;
+import java.time.Instant;
 
 /**
  * Created by bvn on 4/11/16.
@@ -26,8 +26,8 @@ public class GasUsagePointInfo extends UsagePointInfo {
     public YesNoAnswer interruptible;
 
     @Override
-    public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Clock clock) {
-        return usagePoint.newGasDetailBuilder(clock.instant())
+    public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Instant instant) {
+        return usagePoint.newGasDetailBuilder(instant)
                 .withCollar(collar)
                 .withGrounded(grounded)
                 .withPressure(pressure)

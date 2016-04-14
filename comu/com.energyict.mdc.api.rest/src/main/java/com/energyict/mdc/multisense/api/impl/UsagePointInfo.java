@@ -8,7 +8,6 @@ import com.elster.jupiter.util.YesNoAnswer;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 
@@ -39,7 +38,7 @@ abstract public class UsagePointInfo extends LinkInfo<Long> {
     public YesNoAnswer grounded;
     public YesNoAnswer collar;
 
-    abstract UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Clock clock);
+    abstract UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Instant instant);
 
     abstract ServiceKind getServiceKind();
 

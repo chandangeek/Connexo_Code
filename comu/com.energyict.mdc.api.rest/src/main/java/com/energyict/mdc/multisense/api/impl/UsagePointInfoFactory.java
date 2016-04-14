@@ -303,7 +303,8 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 .withServiceLocationString(usagePointInfo.location)
                 .withServicePriority(usagePointInfo.servicePriority)
                 .create();
-        UsagePointDetailBuilder builder = usagePointInfo.createDetail(usagePoint, clock);
+
+        UsagePointDetailBuilder builder = usagePointInfo.createDetail(usagePoint, clock.instant());
         builder.validate();
         builder.create();
         return usagePoint;

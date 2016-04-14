@@ -1,8 +1,10 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.HeatDetail;
@@ -266,9 +268,9 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
     }
 
     @Test
-    public void testUpdateUsagePoint() throws Exception {
+    public void testUpdateElectricityUsagePoint() throws Exception {
         Instant now = Instant.now(clock);
-        UsagePointInfo info = new ElectricityUsagePointInfo();
+        ElectricityUsagePointInfo info = new ElectricityUsagePointInfo();
         info.id = 999L;
         info.version = 2L;
         info.aliasName = "alias";
@@ -281,7 +283,23 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         info.serviceDeliveryRemark = "remark";
         info.servicePriority = "prio1";
 
+        info.collar = YesNoAnswer.YES;
+        info.grounded = YesNoAnswer.YES;
+        info.estimatedLoad = Quantity.create(BigDecimal.valueOf(1), "W");
+        info.interruptible = YesNoAnswer.YES;
+        info.limiter = YesNoAnswer.YES;
+        info.loadLimit = Quantity.create(BigDecimal.valueOf(2), "W");
+        info.loadLimiterType = "typel";
+        info.nominalServiceVoltage = Quantity.create(BigDecimal.valueOf(3), "W");
+        info.phaseCode = PhaseCode.AB;
+        info.ratedCurrent = Quantity.create(BigDecimal.valueOf(4), "W");
+        info.ratedPower = Quantity.create(BigDecimal.valueOf(5), "W");
+
         UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
+        ElectricityDetailBuilder electricityDetailBuilder = FakeBuilder.initBuilderStub(electricityDetail, ElectricityDetailBuilder.class);
+        when(usagePoint.newElectricityDetailBuilder(any())).thenReturn(electricityDetailBuilder);
+
         Response response = target("/usagepoints/11").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(usagePoint).setName("naam");
@@ -293,6 +311,18 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         verify(usagePoint).setServiceDeliveryRemark("remark");
         verify(usagePoint).setServicePriority("prio1");
         verify(usagePoint).update();
+        verify(electricityDetailBuilder).withCollar(YesNoAnswer.YES);
+        verify(electricityDetailBuilder).withGrounded(YesNoAnswer.YES);
+        verify(electricityDetailBuilder).withEstimatedLoad(info.estimatedLoad);
+        verify(electricityDetailBuilder).withInterruptible(YesNoAnswer.YES);
+        verify(electricityDetailBuilder).withLimiter(YesNoAnswer.YES);
+        verify(electricityDetailBuilder).withLoadLimit(info.loadLimit);
+        verify(electricityDetailBuilder).withLoadLimiterType("typel");
+        verify(electricityDetailBuilder).withNominalServiceVoltage(info.nominalServiceVoltage);
+        verify(electricityDetailBuilder).withPhaseCode(PhaseCode.AB);
+        verify(electricityDetailBuilder).withRatedCurrent(info.ratedCurrent);
+        verify(electricityDetailBuilder).withRatedPower(info.ratedPower);
+        verify(electricityDetailBuilder).create();
     }
 
     @Test
