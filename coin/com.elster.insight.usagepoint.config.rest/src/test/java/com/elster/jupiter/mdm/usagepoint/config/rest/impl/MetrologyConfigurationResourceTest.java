@@ -16,7 +16,6 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
@@ -35,12 +34,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
@@ -51,16 +53,14 @@ import static org.mockito.Mockito.when;
 public class MetrologyConfigurationResourceTest extends UsagePointConfigurationRestApplicationJerseyTest {
 
     @Mock
-    private UsagePointMetrologyConfiguration config1, config2;
-    @Mock
     private ValidationRuleSet vrs, vrs2;
     @Mock
     private ServiceCategory serviceCategory;
 
     @Before
     public void setUpStubs() {
-        config1 = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE);
-        config2 = mockMetrologyConfiguration(2L, "config2", ServiceKind.WATER, MetrologyConfigurationStatus.ACTIVE);
+        UsagePointMetrologyConfiguration config1 = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE);
+        UsagePointMetrologyConfiguration config2 = mockMetrologyConfiguration(2L, "config2", ServiceKind.WATER, MetrologyConfigurationStatus.ACTIVE);
 
         when(metrologyConfigurationService.findAllUsagePointMetrologyConfigurations()).thenReturn(Arrays.asList(config1, config2));
         when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(1)).thenReturn(Optional.of(config1));
@@ -121,7 +121,6 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(contract.getMetrologyPurpose()).thenReturn(purpose);
         when(contract.getMetrologyConfiguration()).thenReturn(mock);
         when(contract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
-
 
         when(mock.getContracts()).thenReturn(Collections.singletonList(contract));
         return mock;
@@ -234,7 +233,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mConfig.getId()).thenReturn(mConfigId);
         when(mConfig.isActive()).thenReturn(false);
         when(mConfig.getVersion()).thenReturn(1L);
-        when(mConfig.getCustomPropertySets()).thenReturn(Arrays.asList(rcps));
+        when(mConfig.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
         when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").request().get();
@@ -277,17 +276,17 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(rcps3.getCustomPropertySet()).thenReturn(cps3);
         when(rcps3.isViewableByCurrentUser()).thenReturn(true);
 
-        UsagePointMetrologyConfiguration mConfig = mock(MetrologyConfiguration.class);
+        UsagePointMetrologyConfiguration mConfig = mock(UsagePointMetrologyConfiguration.class);
         when(mConfig.getId()).thenReturn(mConfigId);
         when(mConfig.isActive()).thenReturn(false);
         when(mConfig.getVersion()).thenReturn(1L);
-        when(mConfig.getCustomPropertySets()).thenReturn(Arrays.asList(rcps1));
+        when(mConfig.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps1));
 
         when(meteringService.getServiceCategory(any(ServiceKind.class))).thenReturn(Optional.of(serviceCategory));
         when(serviceCategory.getCustomPropertySets()).thenReturn(Stream.of(rcps3).collect(Collectors.toList()));
         when(rcps3.getCustomPropertySet()).thenReturn(cps3);
 
-        when(usagePointConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
+        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
         when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Arrays.asList(rcps1, rcps2));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").queryParam("linked", false).request().get();
@@ -323,7 +322,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         UsagePointMetrologyConfiguration mConfig = mockMetrologyConfiguration(1L, "name", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE);
         when(mConfig.isActive()).thenReturn(false);
         when(mConfig.getVersion()).thenReturn(1L);
-        when(mConfig.getCustomPropertySets()).thenReturn(Arrays.asList(rcps));
+        when(mConfig.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
 
         when(customPropertySetService.findActiveCustomPropertySet("TestSPCId")).thenReturn(Optional.of(rcps));
         when(metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(mConfigId, info.version)).thenReturn(Optional
@@ -387,7 +386,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(mConfigId, parent.version)).thenReturn(Optional
                 .of(mConfig));
 
-        Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets/TestSPCId").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        target("/metrologyconfigurations/" + mConfigId + "/custompropertysets/TestSPCId").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         verify(mConfig).removeCustomPropertySet(rcps);
         verify(mConfig, atLeastOnce()).getCustomPropertySets();
     }
