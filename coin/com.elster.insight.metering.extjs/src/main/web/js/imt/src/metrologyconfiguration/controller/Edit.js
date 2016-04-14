@@ -534,6 +534,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         for (var j = 1; j < currentMenuItems.length; j++) {
             navigation.remove(currentMenuItems[j], true);
         }
+        wizard.getRecord().customPropertySets().removeAll();
         if(configuration){
             configuration.customPropertySets().each(function (record) {
                 stepNumber++;
