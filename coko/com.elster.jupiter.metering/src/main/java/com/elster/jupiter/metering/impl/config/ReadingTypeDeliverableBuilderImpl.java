@@ -135,6 +135,15 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     }
 
     @Override
+    public FormulaBuilder safeDivide(FormulaBuilder dividend, FormulaBuilder divisor, FormulaBuilder zeroReplacement) {
+        return new FormulaAndExpressionNodeBuilder(
+                formulaBuilder.safeDivide(
+                        (FormulaAndExpressionNodeBuilder) dividend,
+                        (FormulaAndExpressionNodeBuilder) divisor,
+                        (FormulaAndExpressionNodeBuilder) zeroReplacement));
+    }
+
+    @Override
     public FormulaBuilder multiply(FormulaBuilder multiplier, FormulaBuilder multiplicand) {
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.multiply((FormulaAndExpressionNodeBuilder) multiplier, (FormulaAndExpressionNodeBuilder) multiplicand));
     }

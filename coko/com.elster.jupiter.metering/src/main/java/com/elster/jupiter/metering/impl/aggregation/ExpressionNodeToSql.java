@@ -39,9 +39,12 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
     @Override
     public SqlFragment visitOperation(OperationNode operationNode) {
         SqlBuilder fragment = new SqlBuilder("(");
-        fragment.add(operationNode.getLeftOperand().accept(this));
-        operationNode.getOperator().appendTo(fragment);
-        fragment.add(operationNode.getRightOperand().accept(this));
+        operationNode
+                .getOperator()
+                .appendTo(
+                        fragment,
+                        operationNode.getLeftOperand().accept(this),
+                        operationNode.getRightOperand().accept(this));
         fragment.append(")");
         return fragment;
     }

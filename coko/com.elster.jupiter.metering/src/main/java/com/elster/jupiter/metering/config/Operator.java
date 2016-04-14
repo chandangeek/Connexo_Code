@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering.config;
 
-import com.elster.jupiter.util.sql.SqlBuilder;
-
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,32 +13,11 @@ import java.util.stream.Stream;
  * @since 2016-02-04
  */
 public enum Operator {
-    PLUS {
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" + ");
-        }
-    },
-    MINUS {
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" - ");
-        }
-    },
-    MULTIPLY {
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" * ");
-        }
-    },
-    DIVIDE {
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" / ");
-        }
-    };
-
-    public abstract void appendTo(SqlBuilder sqlBuilder);
+    PLUS,
+    MINUS,
+    MULTIPLY,
+    DIVIDE,
+    SAFE_DIVIDE;
 
     public String toString() {
         return this.name().toLowerCase();

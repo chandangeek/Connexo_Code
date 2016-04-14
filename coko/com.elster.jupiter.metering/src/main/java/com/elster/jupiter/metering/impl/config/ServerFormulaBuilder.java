@@ -26,6 +26,7 @@ public interface ServerFormulaBuilder extends FormulaBuilder {
     ExpressionNodeBuilder plus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2);
     ExpressionNodeBuilder minus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2);
     ExpressionNodeBuilder divide(ExpressionNodeBuilder dividend, ExpressionNodeBuilder divisor);
+    ExpressionNodeBuilder safeDivide(ExpressionNodeBuilder dividend, ExpressionNodeBuilder divisor, ExpressionNodeBuilder zeroReplacementNode);
     ExpressionNodeBuilder multiply(ExpressionNodeBuilder multiplier, ExpressionNodeBuilder multiplicand);
     ExpressionNodeBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable);
     ExpressionNodeBuilder requirement(ReadingTypeRequirement value);

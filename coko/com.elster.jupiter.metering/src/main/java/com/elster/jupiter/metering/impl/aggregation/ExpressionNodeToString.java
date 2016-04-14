@@ -34,9 +34,12 @@ public class ExpressionNodeToString implements ServerExpressionNode.Visitor<Stri
     @Override
     public String visitOperation(OperationNode operationNode) {
         StringBuilder fragment = new StringBuilder("(");
-        fragment.append(operationNode.getLeftOperand().accept(this));
-        operationNode.getOperator().appendTo(fragment);
-        fragment.append(operationNode.getRightOperand().accept(this));
+        operationNode
+                .getOperator()
+                .appendTo(
+                        fragment,
+                        operationNode.getLeftOperand().accept(this),
+                        operationNode.getRightOperand().accept(this));
         fragment.append(")");
         return fragment.toString();
     }
