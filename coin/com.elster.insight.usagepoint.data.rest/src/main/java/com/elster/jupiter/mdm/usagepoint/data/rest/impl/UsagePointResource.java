@@ -193,6 +193,7 @@ public class UsagePointResource {
                 .filter(mc -> !mc.getCustomPropertySets().stream().anyMatch(cas -> !cas.isEditableByCurrentUser()))
                 .map(mc -> new MetrologyConfigurationInfo(mc, mc.getCustomPropertySets()
                         .stream()
+                        .sorted((a, b) -> a.getCustomPropertySet().getName().compareToIgnoreCase(b.getCustomPropertySet().getName()))
                         .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
                         .collect(Collectors.toList())))
                 .collect(Collectors.toList());
