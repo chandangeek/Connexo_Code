@@ -535,7 +535,11 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.requirement(req));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
+                    "The readingtype \"" + readingTypeDeliverable .getMRID() + " (" + readingTypeDeliverable.getFullAliasName() +
+                            ")\" is not compatible with the dimension of the formula of deliverable \"" +
+                            "deliverable" + " = R(" +  req.getId() + ")"
+                            + "\".");
             throw e;
         }
     }
@@ -574,7 +578,11 @@ public class FormulaCrudTest {
             deliverable1.update();
             fail("ConstraintViolationException expected");
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
+                    "The readingtype \"" + temperatureRT .getMRID() + " (" + temperatureRT.getFullAliasName() +
+                            ")\" is not compatible with the dimension of the formula of deliverable \"" +
+                            deliverable1.getName() + " = " +  deliverable1.getFormula().getExpressionNode().toString()
+                    + "\".");
         }
 
         ReadingType conskWhMonthlyRT =
@@ -634,7 +642,11 @@ public class FormulaCrudTest {
             deliverable1.update();
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
+                    "The readingtype \"" + temperatureRT .getMRID() + " (" + temperatureRT.getFullAliasName() +
+                            ")\" is not compatible with the dimension of the formula of deliverable \"" +
+                            deliverable1.getName() + " = " +  deliverable1.getFormula().getExpressionNode().toString()
+                            + "\".");
         }
 
         ReadingType conskWhMonthlyRT =
@@ -1071,7 +1083,7 @@ public class FormulaCrudTest {
         ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
 
         ReadingTypeDeliverableBuilder builder2 = config.newReadingTypeDeliverable("Deliverable2", conskWhRT60min, Formula.Mode.AUTO);
-        builder2.build(builder2.deliverable(deliverable1));
+        ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
 
         ReadingType temperatureRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
@@ -1080,7 +1092,11 @@ public class FormulaCrudTest {
             deliverable1.setReadingType(temperatureRT);
             deliverable1.update();
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
+                    "The readingtype \"" + conskWhRT60min.getMRID() + " (" + conskWhRT60min.getFullAliasName() +
+                            ")\" is not compatible with the dimension of the formula of deliverable \"" +
+                            deliverable2.getName() + " = " +  deliverable2.getFormula().getExpressionNode().toString()
+                            + "\".");
             throw e;
         }
     }
@@ -1545,7 +1561,11 @@ public class FormulaCrudTest {
             deliverable1.update();
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
+                    "The readingtype \"" + otherRT .getMRID() + " (" + otherRT.getFullAliasName() +
+                            ")\" is not compatible with the dimension of the formula of deliverable \"" +
+                            deliverable2.getName() + " = " +  deliverable2.getFormula().getExpressionNode().toString()
+                            + "\".");
         }
     }
 
@@ -1610,7 +1630,11 @@ public class FormulaCrudTest {
             toUpdate.update();
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The readingtype is not compatible with the dimension of the formula.");
+            assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
+                    "The readingtype \"" + otherRT .getMRID() + " (" + otherRT.getFullAliasName() +
+                            ")\" is not compatible with the dimension of the formula of deliverable \"" +
+                            deliverable2.getName() + " = " +  deliverable2.getFormula().getExpressionNode().toString()
+                            + "\".");
         }
 
 

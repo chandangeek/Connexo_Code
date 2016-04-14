@@ -41,7 +41,8 @@ public class DeliverableValidator implements ConstraintValidator<ValidDeliverabl
                 }
             }
             if ((readingType != null) && formula.getMode().equals(Formula.Mode.AUTO) &&  !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
-                throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA);
+                throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA,
+                        readingType.getMRID() + " (" + readingType.getFullAliasName() + ")", deliverable.getFormula().getExpressionNode().toString(),  deliverable.getName());
             }
             if (readingType != null) {
                 IntervalLength intervalLengthOfReadingType = IntervalLength.from(readingType);
@@ -65,7 +66,11 @@ public class DeliverableValidator implements ConstraintValidator<ValidDeliverabl
                 if (!del.equals(deliverable)) {
                     if (formula.getMode().equals(Formula.Mode.AUTO) &&
                             !UnitConversionSupport.isAssignable(del.getReadingType(), del.getFormula().getExpressionNode().getDimension())) {
-                        throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA);
+                        throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(),
+                                MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA,
+                                del.getReadingType().getMRID() + " (" + del.getReadingType().getFullAliasName() + ")",
+                                del.getFormula().getExpressionNode().toString(),
+                                del.getName());
                     }
                 }
             }
