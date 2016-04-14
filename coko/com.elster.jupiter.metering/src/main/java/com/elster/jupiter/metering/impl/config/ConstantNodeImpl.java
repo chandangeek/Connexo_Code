@@ -46,15 +46,6 @@ public class ConstantNodeImpl extends AbstractNode implements ConstantNode {
        return Dimension.DIMENSIONLESS;
     }
 
-    @Override
-     public List<ReadingTypeRequirementNode> getRequirements() {
-        return new ArrayList<ReadingTypeRequirementNode>();
-    }
-
-    @Override
-    public List<ReadingTypeDeliverableNode> getDeliverables() {
-        return new ArrayList<ReadingTypeDeliverableNode>();
-    }
 
     @Override
     public void validate() {
