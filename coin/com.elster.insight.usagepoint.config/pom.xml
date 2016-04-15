@@ -80,13 +80,13 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>search</artifactId>
-            <scope>test</scope>
+            <artifactId>ids</artifactId>
         </dependency>
 
+        <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>ids</artifactId>
+            <artifactId>search</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -102,6 +102,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>appserver</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -147,6 +152,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
