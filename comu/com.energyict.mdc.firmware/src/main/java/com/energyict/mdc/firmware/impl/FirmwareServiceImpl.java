@@ -33,7 +33,22 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.DeviceFirmwareHistory;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
+import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignStatus;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
+import com.energyict.mdc.firmware.FirmwareType;
+import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionBuilder;
+import com.energyict.mdc.firmware.FirmwareVersionFilter;
+import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -327,17 +342,13 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
     }
 
     @Override
-    public FirmwareCampaign getFirmwareCampaign(FirmwareComTaskExecution comTaskExecution) {
-        List<FirmwareCampaignImpl> campaigns = getDeviceInFirmwareCampaignsFor(comTaskExecution.getDevice())
-                                            .stream()
-                                            .filter(DeviceInFirmwareCampaignImpl::hasNonFinalStatus)
-                                            .map(DeviceInFirmwareCampaignImpl::getFirmwareCampaign)
-                                            .collect(Collectors.toList());
-        if (campaigns.isEmpty())
-            throw CampaignForComTaskExecutionExceptions.campaignNotFound(this.thesaurus, comTaskExecution);
-        else if (campaigns.size() > 1)
-            throw CampaignForComTaskExecutionExceptions.campaignNotUnambiguouslyDefined(this.thesaurus, comTaskExecution);
-        return campaigns.get(0);
+    public Optional<FirmwareCampaign> getFirmwareCampaign(FirmwareComTaskExecution comTaskExecution) {
+        Optional<FirmwareCampaignImpl> firmwareCampaign = getDeviceInFirmwareCampaignsFor(comTaskExecution.getDevice())
+                .stream()
+                .filter(DeviceInFirmwareCampaignImpl::hasNonFinalStatus)
+                .map(DeviceInFirmwareCampaignImpl::getFirmwareCampaign)
+                .findAny();
+        return Optional.ofNullable(firmwareCampaign.orElse(null));
     }
 
     @Override
@@ -382,7 +393,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
 
     private boolean cancelFirmwareUpload(Optional<ComTaskExecution> fwComTaskExecution) {
         ComTaskExecution comTaskExecution1 = fwComTaskExecution.get();
-        if (communicationTaskService.isComTaskStillPending(comTaskExecution1.getId())) {
+        if (comTaskExecution1.getNextExecutionTimestamp() != null) {
             comTaskExecution1.putOnHold();
             cancelPendingFirmwareMessages(comTaskExecution1.getDevice());
             return true;
@@ -393,7 +404,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
 
     private boolean rescheduleFirmwareUpload(Optional<ComTaskExecution> fwComTaskExecution) {
         ComTaskExecution comTaskExecution1 = fwComTaskExecution.get();
-        if (communicationTaskService.isComTaskStillPending(comTaskExecution1.getId())) {
+        if (comTaskExecution1.getNextExecutionTimestamp() != null) {
             comTaskExecution1.scheduleNow();
             return true;
         } else {

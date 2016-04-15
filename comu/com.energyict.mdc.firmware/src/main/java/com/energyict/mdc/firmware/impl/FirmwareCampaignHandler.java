@@ -15,6 +15,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignStatus;
+
 import org.osgi.service.event.EventConstants;
 
 import java.time.Instant;
@@ -58,14 +59,17 @@ public class FirmwareCampaignHandler implements MessageHandler {
                     Optional<EndDeviceGroup> deviceGroup = context.getMeteringGroupsService().findEndDeviceGroup(deviceGroupId);
                     if (deviceGroup.isPresent()) {
                         UpdatableHolder<Boolean> hasDevices = new UpdatableHolder<>(false);
+                        UpdatableHolder<Integer> count = new UpdatableHolder<>(0);
                         getDevicesOfGroupAndType(deviceGroup.get(), firmwareCampaign.getDeviceType(), context)
                                 .filter(filterDevicesByAllowedStates())
                                 .forEach(device -> {
                                     // Just a managed bean wrapper, no actual creation
                                     hasDevices.update(true);
+                                    count.update(count.get() + 1);
                                     DeviceInFirmwareCampaignImpl wrapper = getDeviceInFirmwareCampaignWrapper(context, firmwareCampaign, device);
                                     context.getEventService().postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_CREATED.topic(), wrapper);
                                 });
+                        ((FirmwareCampaignImpl) firmwareCampaign).updateNumberOfDevices(count.get());
                         if (!hasDevices.get()) {
                             cancelCampaign(context, firmwareCampaign);
                         }
@@ -92,6 +96,19 @@ public class FirmwareCampaignHandler implements MessageHandler {
 
             private void cancelCampaign(FirmwareCampaignHandlerContext context, FirmwareCampaign firmwareCampaign) {
                 context.getFirmwareService().cancelFirmwareCampaign(firmwareCampaign);
+            }
+        },
+        FIRMWARE_CAMPAIGN_UPDATED(EventType.FIRMWARE_CAMPAIGN_TIMEBOUNDARIES_UPDATED.topic()) {
+            @Override
+            public void handle(Map<String, Object> properties, FirmwareCampaignHandlerContext context) {
+                long firmwareCampaignId = ((Number) properties.get("id")).longValue();
+                Optional<FirmwareCampaign> firmwareCampaign = context.getFirmwareService().getFirmwareCampaignById(firmwareCampaignId);
+                context.getFirmwareService().getDevicesForFirmwareCampaign(firmwareCampaign.get()).stream()
+                        .forEach(deviceInFirmwareCampaign -> {
+                                    DeviceInFirmwareCampaignImpl wrapper = getDeviceInFirmwareCampaignWrapper(context, firmwareCampaign.get(), deviceInFirmwareCampaign.getDevice());
+                                    context.getEventService().postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATE_TIME_BOUNDARIES.topic(), wrapper);
+                                }
+                        );
             }
         },
         FIRMWARE_CAMPAIGN_CANCELLED(EventType.FIRMWARE_CAMPAIGN_CANCELLED.topic()) {
@@ -154,6 +171,19 @@ public class FirmwareCampaignHandler implements MessageHandler {
                             deviceInFirmwareCampaign1.cancel();
                         }
                     });
+                }
+            }
+        },
+        DEVICE_IN_FIRMWARE_CAMPAIGN_TIMEBOUNDARIES_UPDATED(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATE_TIME_BOUNDARIES.topic()) {
+            @Override
+            public void handle(Map<String, Object> properties, FirmwareCampaignHandlerContext context) {
+                long firmwareCampaignId = ((Number) properties.get("firmwareCampaignId")).longValue();
+                long deviceId = ((Number) properties.get("deviceId")).longValue();
+                Optional<FirmwareCampaign> firmwareCampaignRef = context.getFirmwareService().getFirmwareCampaignById(firmwareCampaignId);
+                Optional<Device> deviceRef = context.getDeviceService().findDeviceById(deviceId);
+                if (firmwareCampaignRef.isPresent() && deviceRef.isPresent()) {
+                    Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = context.getFirmwareService().getDeviceInFirmwareCampaignsForDevice(firmwareCampaignRef.get(), deviceRef.get());
+                    deviceInFirmwareCampaign.ifPresent(DeviceInFirmwareCampaign::updateTimeBoundaries);
                 }
             }
         };

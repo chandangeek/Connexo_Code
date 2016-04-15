@@ -1,6 +1,5 @@
 package com.energyict.mdc.firmware;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
@@ -8,6 +7,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -73,7 +74,7 @@ public interface FirmwareService {
      * @param comTaskExecution as a result of the firmware campaing
      * @return
      */
-    FirmwareCampaign getFirmwareCampaign(FirmwareComTaskExecution comTaskExecution);
+    Optional<FirmwareCampaign> getFirmwareCampaign(FirmwareComTaskExecution comTaskExecution);
 
     void cancelFirmwareCampaign(FirmwareCampaign firmwareCampaign);
 

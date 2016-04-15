@@ -13,4 +13,5 @@ public interface DeviceInFirmwareCampaign {
     Instant getFinishedOn();
     void cancel();
     void retry();
+    void updateTimeBoundaries();
 }

@@ -27,7 +27,8 @@ public enum FirmwareManagementDeviceStatus {
         public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             return isUploadMessage(message)
                     && FirmwareManagementDeviceUtilsImpl.PENDING_STATUSES.contains(message.getStatus())
-                    && checkReleaseDate(message, helper);
+                    && checkReleaseDate(message, helper)
+                    && helper.firmwareTaskIsScheduled();
         }
 
         @Override
