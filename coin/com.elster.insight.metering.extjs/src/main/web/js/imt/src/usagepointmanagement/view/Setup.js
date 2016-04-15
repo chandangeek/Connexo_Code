@@ -10,6 +10,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
 
     router: null,
     usagePoint: null,
+    purposes: null,
 
     initComponent: function () {
         var me = this;
@@ -103,7 +104,8 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
-                        usagePoint: me.usagePoint
+                        usagePoint: me.usagePoint,
+                        purposes: me.purposes
                     }
                 ]
             }

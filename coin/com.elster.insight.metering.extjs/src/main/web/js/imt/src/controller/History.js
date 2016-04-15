@@ -378,6 +378,23 @@ Ext.define('Imt.controller.History', {
                                }, {single: true});       
                                return this;
                            }  
+                        },
+                        purpose: {
+                            title: Uni.I18n.translate('general.label.purpose', 'IMT', 'Purpose'),
+                            route: 'purpose/{purposeId}',
+                            controller: 'Imt.purpose.controller.Purpose',
+                            action: 'showOutputs',
+                            callback: function (route) {
+                                var me = this;
+                                this.getApplication().on('purposesLoaded', function (purposes) {
+                                    var purpose = _.find(purposes, function(p){return p.getId() == me.arguments.purposeId});
+                                    if (purpose) {
+                                        route.setTitle(purpose.get('name'));
+                                    }
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
                         }
            			}
            		},

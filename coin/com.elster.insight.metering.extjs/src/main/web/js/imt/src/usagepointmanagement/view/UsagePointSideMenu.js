@@ -7,6 +7,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
     alias: 'widget.usage-point-management-side-menu',
     router: null,
     usagePoint: null,
+    purposes: null,
     
     initComponent: function () {
         var me = this,
@@ -50,6 +51,27 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                 ]
             }
         ];
+
+        if (me.purposes) {
+            var items = [];
+            me.purposes.map(function(purpose) {
+                if (true || purpose.get('active')) {
+                    items.push({
+                        text: purpose.get('name'),
+                        itemId: 'usage-point-pupose-' + purpose.getId(),
+                        href: me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.getId()})
+                    });
+                }
+            });
+
+            if (items.length) {
+                me.menuItems.push({
+                    title: 'menu',
+                    text: Uni.I18n.translate('usagepoint.menu.data', 'IMT', 'Data'),
+                    items: items
+                })
+            }
+        }
 
         if (me.usagePoint) {
             iconStyle = "color: #686868;font-size: 16px;";
