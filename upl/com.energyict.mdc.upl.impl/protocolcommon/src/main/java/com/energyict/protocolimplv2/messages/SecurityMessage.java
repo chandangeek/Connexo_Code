@@ -158,8 +158,28 @@ public enum SecurityMessage implements DeviceMessageSpec {
     CHANGE_SECURITY_SUITE(36,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.securitySuiteAttributeName, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.valueOf(2))
     ),
-    EXPORT_CERTIFICATE(37,
+    EXPORT_END_DEVICE_CERTIFICATE(37,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues()),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.certificateAliasAttributeName)
+    ),
+    EXPORT_SUB_CA_CERTIFICATES(38),
+    EXPORT_ROOT_CA_CERTIFICATE(39),
+    IMPORT_CERTIFICATE(40,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.certificateAliasAttributeName)
+    ),
+    DELETE_CERTIFICATE_BY_TYPE(41,
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateEntityAttributeName, CertificateEntity.getPossibleValues()),
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues()),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.commonNameAttributeName)
+    ),
+    DELETE_CERTIFICATE_BY_SERIAL_NUMBER(42,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.meterSerialNumberAttributeName),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.certificateIssuerAttributeName)
+    ),
+    GENERATE_KEY_PAIR(43,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues())
+    ),
+    GENERATE_CSR(44,
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues())
     );
 
@@ -232,7 +252,7 @@ public enum SecurityMessage implements DeviceMessageSpec {
         }
 
         public static String[] getPossibleValues() {
-            return new String[]{Server.name(), CertificationAuthority.name()};
+            return new String[]{Server.name(), Client.name(), CertificationAuthority.name()};
         }
 
         public static CertificateEntity fromName(String name) {
@@ -272,7 +292,7 @@ public enum SecurityMessage implements DeviceMessageSpec {
         }
 
         public static String[] getPossibleValues() {
-            return new String[]{DigitalSignature.name(), KeyAgreement.name(), TLS.name(), Other.name()};
+            return new String[]{DigitalSignature.name(), KeyAgreement.name(), TLS.name()};
         }
 
         public static CertificateType fromName(String name) {

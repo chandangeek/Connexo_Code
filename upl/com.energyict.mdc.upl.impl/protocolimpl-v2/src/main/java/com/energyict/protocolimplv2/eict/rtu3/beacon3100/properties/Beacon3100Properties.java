@@ -95,7 +95,7 @@ public class Beacon3100Properties extends DlmsProperties {
     @Override
     protected int doGetDataTransportSecurityLevel() {
         if (getSecurityPropertySet() instanceof AdvancedDeviceProtocolSecurityPropertySet) {
-            if (getSecuritySuite() == 0) {
+            if (getSecuritySuite() <= 0) {
                 //Suite 0 uses the old field, EncryptionDeviceAccessLevel. It is either 0, 1, 2 or 3.
                 return super.doGetDataTransportSecurityLevel();
             } else {

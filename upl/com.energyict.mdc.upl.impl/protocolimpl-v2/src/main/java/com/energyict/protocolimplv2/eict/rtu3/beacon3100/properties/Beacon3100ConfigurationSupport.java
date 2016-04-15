@@ -36,6 +36,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(clientPrivateSigningKeyPropertySpec());
         optionalProperties.add(clientPrivateKeyAgreementKeyPropertySpec());
         optionalProperties.add(clientSigningCertificate());
+        optionalProperties.add(serverTLSCertificate());
         optionalProperties.add(callingAPTitlePropertySpec());
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
@@ -61,6 +62,13 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      */
     private PropertySpec clientSigningCertificate() {
         return PropertySpecFactory.certificateAliasPropertySpec(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE);
+    }
+
+    /**
+     * The TLS certificate of the server. Not actively used in the protocols.
+     */
+    private PropertySpec serverTLSCertificate() {
+        return PropertySpecFactory.certificateAliasPropertySpec(DlmsSessionProperties.SERVER_TLS_CERTIFICATE);
     }
 
     /**
