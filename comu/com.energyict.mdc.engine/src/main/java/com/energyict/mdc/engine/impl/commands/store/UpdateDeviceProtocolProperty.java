@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
@@ -14,9 +16,7 @@ import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -73,14 +73,12 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl<UpdateDevice
     }
 
     @Override
-    protected Optional<UpdateDeviceProtocolPropertyEvent> newEvent(Issue issue) {
+    protected Optional<UpdateDeviceProtocolPropertyEvent> newEvent(List<Issue> issues) {
         UpdateDeviceProtocolPropertyEvent event  =  new UpdateDeviceProtocolPropertyEvent(new ComServerEventServiceProvider(),
                 deviceIdentifier,
                 propertySpec,
                 propertyValue);
-        if (issue != null){
-            event.setIssue(issue);
-        }
+        event.addIssues(issues);
         return Optional.of(event);
     }
 

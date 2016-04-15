@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.impl.events.datastorage.CollectedFirmwareVersion
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -44,11 +45,9 @@ public class CollectedFirmwareVersionDeviceCommand extends DeviceCommandImpl<Col
         return fwVersion -> builder.addProperty(propertyName).append(fwVersion);
     }
 
-    protected Optional<CollectedFirmwareVersionEvent> newEvent(Issue issue) {
+    protected Optional<CollectedFirmwareVersionEvent> newEvent(List<Issue> issues) {
         CollectedFirmwareVersionEvent event  =  new CollectedFirmwareVersionEvent(new ComServerEventServiceProvider(), collectedFirmwareVersions);
-        if (issue != null){
-            event.setIssue(issue);
-        }
+        event.addIssues(issues);
         return Optional.of(event);
     }
 

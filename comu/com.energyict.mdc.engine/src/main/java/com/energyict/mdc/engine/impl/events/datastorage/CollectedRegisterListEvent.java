@@ -3,7 +3,9 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.CollectedRegisterListDeviceCommand;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -24,7 +26,7 @@ public class CollectedRegisterListEvent extends AbstractCollectedDataProcessingE
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {
-        CollectedRegisterList registerList =  getPayload();
+        CollectedRegisterList registerList = getPayload();
        writer.key("collectedRegisterList");
 
         writer.object();

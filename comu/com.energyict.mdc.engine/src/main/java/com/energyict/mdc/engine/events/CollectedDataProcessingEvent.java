@@ -2,6 +2,8 @@ package com.energyict.mdc.engine.events;
 
 import com.energyict.mdc.issues.Issue;
 
+import java.util.List;
+
 /**
  * {@link ComServerEvent} related to data storage
  * Published once a DeviceCommand has been executed and the data coming from the device has been stored in the database.
@@ -18,7 +20,9 @@ public interface CollectedDataProcessingEvent extends ComServerEvent, LoggingEve
     }
 
     String getDescription();
-    boolean hasIssue();
-    Issue getIssue();
+
+    boolean hasIssues();
+
+    List<Issue> getIssues();
 
 }

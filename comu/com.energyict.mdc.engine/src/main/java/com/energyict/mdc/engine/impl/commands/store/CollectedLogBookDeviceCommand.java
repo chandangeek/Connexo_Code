@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -12,8 +13,7 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-import com.elster.jupiter.util.Pair;
-
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -72,11 +72,9 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl<CollectedLo
         return ComServer.LogLevel.INFO;
     }
 
-    protected Optional<CollectedLogBookEvent> newEvent(Issue issue) {
+    protected Optional<CollectedLogBookEvent> newEvent(List<Issue> issues) {
         CollectedLogBookEvent event  =  new CollectedLogBookEvent(new ComServerEventServiceProvider(), deviceLogBook);
-        if (issue != null){
-            event.setIssue(issue);
-        }
+        event.addIssues(issues);
         return Optional.of(event);
     }
 

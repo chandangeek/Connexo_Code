@@ -3,13 +3,14 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceIpAddressEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -55,11 +56,9 @@ public class UpdateDeviceIpAddress extends DeviceCommandImpl<UpdateDeviceIpAddre
         }
     }
 
-    protected Optional<UpdateDeviceIpAddressEvent> newEvent(Issue issue) {
+    protected Optional<UpdateDeviceIpAddressEvent> newEvent(List<Issue> issues) {
         UpdateDeviceIpAddressEvent event  =  new UpdateDeviceIpAddressEvent(new ComServerEventServiceProvider(), this.deviceIdentifier);
-        if (issue != null){
-            event.setIssue(issue);
-        }
+        event.addIssues(issues);
         return Optional.of(event);
     }
 

@@ -2,10 +2,12 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedMessageListEvent;
-import com.energyict.mdc.engine.impl.meterdata.*;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
+import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
+import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -85,11 +87,9 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
         }
     }
 
-    protected Optional<CollectedMessageListEvent> newEvent(Issue issue) {
+    protected Optional<CollectedMessageListEvent> newEvent(List<Issue> issues) {
         CollectedMessageListEvent event  =  new CollectedMessageListEvent(new ComServerEventServiceProvider(), deviceProtocolMessageList);
-        if (issue != null){
-            event.setIssue(issue);
-        }
+        event.addIssues(issues);
         return Optional.of(event);
     }
 
