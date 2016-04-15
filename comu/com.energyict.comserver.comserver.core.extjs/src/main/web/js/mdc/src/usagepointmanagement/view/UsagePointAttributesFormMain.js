@@ -27,7 +27,7 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                     {
                         name: 'mRID',
                         itemId: 'fld-up-mRID',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.mrid', 'MDC', 'MRID')
+                        fieldLabel: Uni.I18n.translate('usagePoint.generalAttributes.mrid', 'MDC', 'MRID')
                     },
                     {
                         name: 'name',

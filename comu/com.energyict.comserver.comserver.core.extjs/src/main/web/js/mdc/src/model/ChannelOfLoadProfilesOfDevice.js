@@ -11,11 +11,12 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
         {name: 'calculatedReadingType', type: 'auto'},
         {name: 'obisCode', type: 'string'},
         {name: 'multiplier', type: 'auto'},
+        {name: 'useMultiplier', type: 'boolean'},
         {name: 'overflowValue', type: 'int'},
         {name: 'nbrOfFractionDigits', type: 'int'},
         {name: 'flowUnit', type: 'string'},
-        {name: 'lastReading', dateFormat: 'time', type: 'date'},
-        {name: 'lastValueTimestamp', dateFormat: 'time', type: 'date'},
+        {name: 'lastReading', type: 'long', useNull: true},
+        {name: 'lastValueTimestamp', type: 'long', useNull: true},
         {name: 'lastChecked', dateFormat: 'time', type: 'date'},
         {name: 'validationInfo', type: 'auto'},
         {name: 'loadProfileId', type: 'auto'},
@@ -74,9 +75,11 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
             name: 'lastValueTimestamp_formatted',
             persist: false,
             mapping: function (data) {
-                return data.lastReading && data.lastValueTimestamp
-                    ? Uni.DateTime.formatDateTimeLong(new Date(data.lastValueTimestamp))
-                    : '';
+                if (data.lastReading && data.lastValueTimestamp) {
+                    var date = new Date(data.lastValueTimestamp);
+                    return Uni.DateTime.formatDateLong(date) + ' - ' + Uni.DateTime.formatTimeShort(date)
+                }
+                return '-';
             }
         }
     ],

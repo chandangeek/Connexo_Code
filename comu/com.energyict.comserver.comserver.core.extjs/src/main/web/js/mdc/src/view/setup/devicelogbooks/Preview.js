@@ -15,8 +15,27 @@ Ext.define('Mdc.view.setup.devicelogbooks.Preview', {
         me.items = {
             xtype: 'deviceLogbooksPreviewForm'
         };
+
+        if (Mdc.privileges.Device.canAdministrateDeviceData()) {
+            me.tools = [
+                {
+                    xtype: 'button',
+                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    itemId: 'actionButton',
+                    iconCls: 'x-uni-action-iconD',
+                    menu: {
+                        xtype: 'deviceLogbooksActionMenu'
+                    }
+                }
+            ];
+        }
+
         me.callParent(arguments)
+    },
+
+    setLogbook: function(logbookRecord) {
+        this.setTitle(logbookRecord.get('name'));
+        this.down('#deviceLogbooksActionMenu').record = logbookRecord;
+        this.down('#deviceLogbooksPreviewForm').loadRecord(logbookRecord);
     }
-
-
 });

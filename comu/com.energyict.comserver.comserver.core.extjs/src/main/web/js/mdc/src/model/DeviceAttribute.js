@@ -31,6 +31,17 @@ Ext.define('Mdc.model.DeviceAttribute', {
 
                 return res
             }
+        },
+        {
+            name: 'geoCoordinates',
+            type: 'auto'
+        },
+        {
+            name: 'location',
+            type: 'auto',
+            convert: function (value, record) {
+                return value.displayValue != ""? value.displayValue : record.get('geoCoordinates').displayValue;
+            }
         }
     ],
 

@@ -30,6 +30,7 @@ Ext.define('Mdc.privileges.Device', {
                     'privilege.execute.processes.lvl.2',
                     'privilege.execute.processes.lvl.3',
                     'privilege.execute.processes.lvl.4'],
+    adminTimeSlicedCps: ['privilege.administer.device.time.sliced.cps'],
 
     all: function() {
         return Ext.Array.merge(Mdc.privileges.Device.viewDevice,
@@ -81,5 +82,11 @@ Ext.define('Mdc.privileges.Device', {
     },
     canViewProcessMenu: function() {
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.deviceProcesses) && Uni.Auth.checkPrivileges(Mdc.privileges.Device.deviceExecuteProcesses);
+    },
+    canAdministrateTimeSlicedCps: function(){
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.adminTimeSlicedCps);
+    },
+    hasFullAdministrateTimeSlicedCps: function(){
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.adminTimeSlicedCps) && Uni.Auth.checkPrivileges(Mdc.privileges.Device.administrateDeviceData);
     }
 });
