@@ -314,6 +314,11 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     @Override
+    public ConnectionTask attemptLockConnectionTask(long id) {
+        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).lock(id);
+    }
+
+    @Override
     public void unlockConnectionTask(ConnectionTask connectionTask) {
         this.unlockConnectionTask((ConnectionTaskImpl) connectionTask);
     }

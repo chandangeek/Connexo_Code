@@ -165,6 +165,8 @@ public interface ConnectionTaskService {
      */
     <T extends ConnectionTask> T attemptLockConnectionTask(T connectionTask, ComServer comServer);
 
+    <T extends ConnectionTask> T attemptLockConnectionTask(long id);
+
     /**
      * Removes the business lock on the specified {@link ConnectionTask},
      * making it available for other {@link ComServer}s to execute the ConnectionTask.

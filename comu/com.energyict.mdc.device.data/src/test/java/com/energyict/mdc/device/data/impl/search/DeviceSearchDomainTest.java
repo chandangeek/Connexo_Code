@@ -217,6 +217,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(TransitionInstallationDateSearchableProperty.class);
         verify(this.dataModel).getInstance(TransitionDeactivationDateSearchableProperty.class);
         verify(this.dataModel).getInstance(TransitionDecommissioningDateSearchableProperty.class);
+        verify(this.dataModel).getInstance(FirmwareVersionNameSearchableProperty.class);
     }
 
     public void getPropertiesWithEmptyListOfConstrictions() {

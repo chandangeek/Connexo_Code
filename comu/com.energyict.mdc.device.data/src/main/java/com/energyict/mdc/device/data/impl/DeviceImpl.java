@@ -23,9 +23,11 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LifecycleDates;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
@@ -257,12 +259,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     private transient DeviceValidationImpl deviceValidation;
     private final Reference<DeviceEstimation> deviceEstimation = ValueReference.absent();
+    private final Reference<GeoCoordinates> geoCoordinates = ValueReference.absent();
 
     private transient Optional<Meter> meter = Optional.empty();
     private transient AmrSystem amrSystem;
     private transient Optional<MeterActivation> currentMeterActivation = Optional.empty();
     private transient MultiplierType multiplierType;
     private transient BigDecimal multiplier;
+    private Location location;
+
 
     @Inject
     public DeviceImpl(
@@ -346,17 +351,45 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public Location getLocation() {
+        return this.location;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+
+    @Override
+    public Optional<GeoCoordinates> getGeoCoordinates() {
+        return geoCoordinates.getOptional();
+    }
+
+    @Override
+    public void setGeoCoordintes(GeoCoordinates geoCoordinates) {
+        this.geoCoordinates.set(geoCoordinates);
+    }
+
+    @Override
     public void save() {
         boolean alreadyPersistent = this.id > 0;
         if (alreadyPersistent) {
             Save.UPDATE.save(dataModel, this);
-            findKoreMeter(getMdcAmrSystem())
-                    .filter(meter -> !Objects.equals(meter.getMRID(), this.getmRID()))
-                    .ifPresent(meter -> {
-                        meter.setMRID(getmRID());
-                        meter.update();
-                    });
-
+            Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
+            meter.ifPresent( foundMeter -> {
+                if (foundMeter.getMRID()!=null &&
+                        !foundMeter.getMRID().equals(this.getmRID())) {
+                    foundMeter.setMRID(getmRID());
+                }
+                if (this.location != null) {
+                    foundMeter.setLocation(location);
+                }
+                if (this.geoCoordinates.isPresent()) {
+                    foundMeter.setGeoCoordintes(geoCoordinates.get());
+                }
+                foundMeter.update();
+            });
             this.saveDirtySecurityProperties();
             this.saveDirtyConnectionProperties();
             this.saveNewAndDirtyDialectProperties();
@@ -364,6 +397,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             Save.CREATE.save(dataModel, this);
             Meter meter = this.createKoreMeter();
+            if (this.location != null) {
+                meter.setLocation(location);
+            }
+            if (this.geoCoordinates.isPresent()) {
+                meter.setGeoCoordintes(geoCoordinates.get());
+            }
             this.createMeterConfiguration(meter, this.clock.instant(), false);
             this.saveNewDialectProperties();
             this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
@@ -761,7 +800,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             validateStartDateOfNewMultiplier(now, startDateMultiplier);
             boolean validMultiplierValue = multiplier.compareTo(BigDecimal.ONE) == 1;
             MeterActivation newMeterActivation = activate(startDateMultiplier.orElse(now), validMultiplierValue);
-            if(validMultiplierValue){
+            if (validMultiplierValue) {
                 newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier);
             }
             createMeterConfiguration(findOrCreateKoreMeter(getMdcAmrSystem()), startDateMultiplier.orElse(now), validMultiplierValue);
@@ -1375,13 +1414,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             ZonedDateTime.ofInstant(
                                     this.lastReadingClipped(loadProfile, requestedInterval),
                                     affectedMeterActivation.getZoneId());
-                    Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
-                    while (meterActivationInterval.contains(requestStart.toInstant())) {
-                        ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
-                        LoadProfileReadingImpl value = new LoadProfileReadingImpl();
-                        value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
-                        loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
-                        requestStart = readingTimestamp;
+                    if (!requestEnd.isBefore(requestStart)) {
+                        Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
+                        while (meterActivationInterval.contains(requestStart.toInstant())) {
+                            ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
+                            LoadProfileReadingImpl value = new LoadProfileReadingImpl();
+                            value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
+                            loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
+                            requestStart = readingTimestamp;
+                        }
                     }
                 });
         return loadProfileReadingMap;
@@ -1533,10 +1574,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private Instant lastReadingClipped(LoadProfile loadProfile, Range<Instant> interval) {
-        if (loadProfile.getLastReading().isPresent()) {
-            if (interval.contains(loadProfile.getLastReading().get())) {
-                return loadProfile.getLastReading().get();
-            } else if (interval.upperEndpoint().isBefore(loadProfile.getLastReading().get())) {
+        Instant dataUntil = Instant.EPOCH;
+        for (Channel channel : loadProfile.getChannels()) {
+            if (channel.getLastDateTime().isPresent() && channel.getLastDateTime().get().isAfter(dataUntil)) {
+                dataUntil = channel.getLastDateTime().get();
+            }
+        }
+        if (!dataUntil.equals(Instant.EPOCH)) {
+            if (interval.contains(dataUntil)) {
+                return dataUntil;
+            } else if (interval.upperEndpoint().isBefore(dataUntil)) {
                 return interval.upperEndpoint();
             } else {
                 return interval.lowerEndpoint(); // empty interval: interval is completely after last reading
@@ -2567,5 +2614,22 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         public void save() {
             // Since there were no dates to start with, there is nothing to save
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        DeviceImpl device = (DeviceImpl) o;
+        return id == device.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
