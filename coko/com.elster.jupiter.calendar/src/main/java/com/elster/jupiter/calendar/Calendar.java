@@ -5,6 +5,7 @@ import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Year;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -37,6 +38,20 @@ import java.util.TimeZone;
  */
 @ProviderType
 public interface Calendar extends HasId, HasName {
+
+    /**
+     * Gets the Year on which this Calendar starts producing {@link Event}s.
+     *
+     * @return The start of this Calendar
+     */
+    Year getStart();
+
+    /**
+     * Gets the last Year during which this Calendar produces {@link Event}s.
+     *
+     * @return The start of this Calendar
+     */
+    Year getEnd();
 
     /**
      * Gets the TimeZone that was used to defined the occurrences
