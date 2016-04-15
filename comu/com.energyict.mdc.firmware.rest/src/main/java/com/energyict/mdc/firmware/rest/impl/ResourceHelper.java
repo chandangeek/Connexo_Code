@@ -126,21 +126,23 @@ public class ResourceHelper {
     public Optional<DeviceInFirmwareCampaignInfo> cancelDeviceInFirmwareCampaign(FirmwareCampaign campaign, Device device) {
         Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareService.getDeviceInFirmwareCampaignsForDevice(campaign, device);
         if (deviceInFirmwareCampaign.isPresent()) {
-            if (firmwareService.cancelFirmwareUploadForDevice(device)) {
-                deviceInFirmwareCampaign.get().cancel();
-            }
+            firmwareService.cancelFirmwareUploadForDevice(device);
+            deviceInFirmwareCampaign.get().cancel();
+            return Optional.of(new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.get(),thesaurus));
+        } else {
+            return Optional.empty();
         }
-        return (deviceInFirmwareCampaign.isPresent() ? Optional.of(new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.get(),thesaurus)) : Optional.empty());
     }
 
     public Optional<DeviceInFirmwareCampaignInfo> retryDeviceInFirmwareCampaign(FirmwareCampaign campaign, Device device) {
         Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareService.getDeviceInFirmwareCampaignsForDevice(campaign, device);
         if (deviceInFirmwareCampaign.isPresent()) {
-            if (firmwareService.retryFirmwareUploadForDevice(deviceInFirmwareCampaign.get())) {
-                deviceInFirmwareCampaign.get().retry();
-            }
+            firmwareService.retryFirmwareUploadForDevice(deviceInFirmwareCampaign.get());
+            deviceInFirmwareCampaign.get().retry();
+            return Optional.of(new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.get(),thesaurus));
+        } else {
+            return Optional.empty();
         }
-        return (deviceInFirmwareCampaign.isPresent() ? Optional.of(new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.get(),thesaurus)) : Optional.empty());
     }
 
 }
