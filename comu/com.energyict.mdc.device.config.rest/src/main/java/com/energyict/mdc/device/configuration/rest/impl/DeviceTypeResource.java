@@ -144,8 +144,10 @@ public class DeviceTypeResource {
         deviceTypeInfo.id = id;
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(deviceTypeInfo);
         deviceType.setName(deviceTypeInfo.name);
-        deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
         deviceType.setDeviceTypePurpose(getDeviceTypePurpose(deviceTypeInfo));
+        if (!deviceType.isDataloggerSlave()) {
+            deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
+        }
         if (deviceTypeInfo.registerTypes != null) {
             updateRegisterTypeAssociations(deviceType, deviceTypeInfo.registerTypes);
         }
