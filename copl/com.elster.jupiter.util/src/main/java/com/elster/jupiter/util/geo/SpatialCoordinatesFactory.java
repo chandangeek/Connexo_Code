@@ -93,8 +93,8 @@ public class SpatialCoordinatesFactory {
 
         if (Arrays.asList(parts)
                 .stream()
-                .anyMatch(element -> element.split(",").length > 1
-                        || element.split(".").length > 1)) {
+                .anyMatch(element -> element.split(",").length > 2
+                        || element.split(".").length > 2)) {
             return null;
         }
 
