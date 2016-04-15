@@ -12,25 +12,32 @@ import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class ClampedSearchableProperty implements SearchableUsagePointProperty {
+public class ClampedSearchableProperty implements SearchableUsagePointProperty {
 
-    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private final SearchablePropertyGroup group;
+
+    private SearchDomain domain;
+    private SearchablePropertyGroup group;
 
     static final String FIELDNAME = "detail.clamped";
 
-    public ClampedSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
-        this.domain = domain;
+    @Inject
+    public ClampedSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
-        this.group = group;
         this.thesaurus = thesaurus;
+    }
+
+    ClampedSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group) {
+        this.domain = domain;
+        this.group = group;
+        return this;
     }
 
     @Override

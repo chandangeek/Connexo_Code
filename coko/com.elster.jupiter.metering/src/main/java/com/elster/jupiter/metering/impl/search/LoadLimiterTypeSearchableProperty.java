@@ -10,25 +10,31 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class LoadLimiterTypeSearchableProperty implements SearchableUsagePointProperty {
+public class LoadLimiterTypeSearchableProperty implements SearchableUsagePointProperty {
 
-    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private final SearchablePropertyGroup group;
+
+    private SearchDomain domain;
+    private SearchablePropertyGroup group;
     private static final String FIELDNAME = "detail.loadLimiterType";
 
-    public LoadLimiterTypeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
-        super();
-        this.domain = domain;
+    @Inject
+    public LoadLimiterTypeSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
-        this.group = group;
         this.thesaurus = thesaurus;
+    }
+
+    LoadLimiterTypeSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group) {
+        this.domain = domain;
+        this.group = group;
+        return this;
     }
 
     @Override
@@ -80,14 +86,12 @@ public abstract class LoadLimiterTypeSearchableProperty implements SearchableUsa
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.emptyList();
+        return Collections.singletonList(new LimiterSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.group));
     }
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("No constraint to refresh");
-        }
+        //nothing to refresh
     }
 
     @Override

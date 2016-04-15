@@ -12,25 +12,32 @@ import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class CappedSearchableProperty implements SearchableUsagePointProperty {
+public class CappedSearchableProperty implements SearchableUsagePointProperty {
 
-    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private final SearchablePropertyGroup group;
+
+    private SearchablePropertyGroup group;
+    private SearchDomain domain;
 
     static final String FIELDNAME = "detail.capped";
 
-    public CappedSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
-        this.domain = domain;
+    @Inject
+    public CappedSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
-        this.group = group;
         this.thesaurus = thesaurus;
+    }
+
+    CappedSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group) {
+        this.domain = domain;
+        this.group = group;
+        return this;
     }
 
     @Override

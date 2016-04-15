@@ -12,25 +12,31 @@ import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class LimiterSearchableProperty implements SearchableUsagePointProperty {
+public class LimiterSearchableProperty implements SearchableUsagePointProperty {
 
-    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private final SearchablePropertyGroup group;
+
+    private SearchDomain domain;
+    private SearchablePropertyGroup group;
     private static final String FIELDNAME = "detail.limiter";
 
-    public LimiterSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
-        super();
-        this.domain = domain;
+    @Inject
+    public LimiterSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
-        this.group = group;
         this.thesaurus = thesaurus;
+    }
+
+    LimiterSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group) {
+        this.domain = domain;
+        this.group = group;
+        return this;
     }
 
     @Override
@@ -40,7 +46,7 @@ public abstract class LimiterSearchableProperty implements SearchableUsagePointP
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return false;
+        return true;
     }
 
     @Override
@@ -70,7 +76,6 @@ public abstract class LimiterSearchableProperty implements SearchableUsagePointP
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
-
 
 
     @Override

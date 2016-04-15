@@ -12,6 +12,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.units.Quantity;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
@@ -20,20 +21,24 @@ import java.util.Optional;
 
 public class RatedPowerSearchableProperty implements SearchableUsagePointProperty {
 
-    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private final SearchablePropertyGroup group;
-    private static final String FIELDNAME = "detail.ratedPower";
 
-    public RatedPowerSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
-        super();
-        this.domain = domain;
-        this.group = group;
+    private SearchDomain domain;
+    private SearchablePropertyGroup group;
+    private static final String FIELD_NAME = "detail.ratedPower";
+
+    @Inject
+    public RatedPowerSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
 
+    RatedPowerSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group){
+        this.domain = domain;
+        this.group = group;
+        return this;
+    }
     @Override
     public SearchDomain getDomain() {
         return domain;
@@ -76,7 +81,7 @@ public class RatedPowerSearchableProperty implements SearchableUsagePointPropert
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .specForValuesOf(new QuantityValueFactory())
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_RATEDPOWER)
+                .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_RATEDPOWER)
                 .fromThesaurus(this.thesaurus)
                 .addValues(Quantity.create(new BigDecimal(0), 1, "W"))
                 .finish();

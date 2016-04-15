@@ -12,25 +12,31 @@ import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class CollarSearchableProperty implements SearchableUsagePointProperty {
+public class CollarSearchableProperty implements SearchableUsagePointProperty {
 
-    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private final SearchablePropertyGroup group;
+
+    private SearchDomain domain;
+    private SearchablePropertyGroup group;
     private static final String FIELDNAME = "detail.collar";
 
-    public CollarSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
-        super();
-        this.domain = domain;
-        this.group = group;
+    @Inject
+    public CollarSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+    }
+
+    CollarSearchableProperty init(SearchDomain searchDomain, SearchablePropertyGroup group) {
+        this.domain = searchDomain;
+        this.group = group;
+        return this;
     }
 
     @Override

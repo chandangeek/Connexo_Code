@@ -28,7 +28,7 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    static final String FIELDNAME = "SERVICEKIND";
+    static final String FIELD_NAME = "SERVICEKIND";
 
     public ServiceCategorySearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
@@ -80,7 +80,7 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .specForValuesOf(new EnumFactory(ServiceKind.class))
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY)
+                .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY)
                 .fromThesaurus(this.thesaurus)
                 .addValues(ServiceKind.values())
                 .markExhaustive()

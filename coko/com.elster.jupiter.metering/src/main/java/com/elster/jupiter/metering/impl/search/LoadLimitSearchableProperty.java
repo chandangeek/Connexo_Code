@@ -12,26 +12,32 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.units.Quantity;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
+public class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
 
-    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private final SearchablePropertyGroup group;
+
+    private SearchDomain domain;
+    private SearchablePropertyGroup group;
     private static final String FIELDNAME = "detail.loadLimit";
 
-    public LoadLimitSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
-        super();
-        this.domain = domain;
-        this.group = group;
+    @Inject
+    public LoadLimitSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+    }
+
+    LoadLimitSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group) {
+        this.domain = domain;
+        this.group = group;
+        return this;
     }
 
     @Override
@@ -41,7 +47,7 @@ public abstract class LoadLimitSearchableProperty implements SearchableUsagePoin
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return false;
+        return true;
     }
 
     @Override

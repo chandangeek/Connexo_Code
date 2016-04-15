@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
@@ -35,13 +36,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -140,61 +138,105 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     private List<SearchableProperty> getServiceCategoryDynamicProperties(Collection<SearchablePropertyConstriction> constrictions) {
         List<SearchableProperty> properties = new ArrayList<>();
+        DataModel injector = this.meteringService.getDataModel();
+        ElectricityAttributesSearchablePropertyGroup electricityGroup = injector.getInstance(ElectricityAttributesSearchablePropertyGroup.class);
+        GasAttributesSearchablePropertyGroup gasGroup = injector.getInstance(GasAttributesSearchablePropertyGroup.class);
+        WaterAttributesSearchablePropertyGroup waterGroup = injector.getInstance(WaterAttributesSearchablePropertyGroup.class);
+        ThermalAttributesSearchablePropertyGroup thermalGroup = injector.getInstance(ThermalAttributesSearchablePropertyGroup.class);
         constrictions.stream()
-                .filter(constriction -> ServiceCategorySearchableProperty.FIELDNAME
+                .filter(constriction -> ServiceCategorySearchableProperty.FIELD_NAME
                         .equals(constriction.getConstrainingProperty().getName()))
                 .findAny()
                 .ifPresent(constriction -> constriction.getConstrainingValues().forEach(value -> {
                     if (value instanceof ServiceKind) {
                         switch ((ServiceKind) value) {
                             case ELECTRICITY:
-                                ElectricityAttributesSearchablePropertyGroup electricityGroup = new ElectricityAttributesSearchablePropertyGroup(thesaurus);
-                                properties.add(new GroundedElectricitySearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new CollarElectricitySearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new InterruptibleElectricitySearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new LoadLimitElectricitySearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new EstimatedLoadSearchableProperty(this, propertySpecService, electricityGroup, meteringService.getThesaurus()));
-                                properties.add(new PhaseCodeSearchableProperty(this, propertySpecService, electricityGroup, meteringService.getThesaurus()));
-                                properties.add(new LimiterElectricitySearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new RatedPowerSearchableProperty(this, propertySpecService, electricityGroup, meteringService.getThesaurus()));
+                                properties.add(injector.getInstance(GroundedSearchableProperty.class)
+                                        .init(this, electricityGroup));
+                                properties.add(injector.getInstance(InterruptibleSearchableProperty.class)
+                                        .init(this, electricityGroup));
+                                properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
+                                        .init(this, electricityGroup));
+                                properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
+                                        .init(this, electricityGroup));
+                                properties.add(injector.getInstance(EstimatedLoadSearchableProperty.class)
+                                        .init(this, electricityGroup));
+                                properties.add(injector.getInstance(PhaseCodeSearchableProperty.class)
+                                        .init(this, electricityGroup));
+                                properties.add(injector.getInstance(LimiterSearchableProperty.class)
+                                        .init(this, electricityGroup));
+                                properties.add(injector.getInstance(RatedPowerSearchableProperty.class)
+                                        .init(this, electricityGroup));
+                                properties.add(injector.getInstance(RatedCurrentSearchableProperty.class)
+                                        .init(this, electricityGroup));
                                 break;
                             case GAS:
-                                properties.add(new CollarGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new LimiterGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new LoadLimitGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new LimiterGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new LoadLimiterTypeGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new PhysicalCapacityGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new BypassGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new ValveGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new CappedGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new ClampedGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new GroundedGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new InterruptibleGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new PressureGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new BypassStatusGasSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
+                                properties.add(injector.getInstance(CollarSearchableProperty.class)
+                                        .init(this, gasGroup));
+                                properties.add(injector.getInstance(LimiterSearchableProperty.class)
+                                        .init(this, gasGroup));
+                                properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
+                                        .init(this, gasGroup));
+                                properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
+                                        .init(this, gasGroup));
+                                properties.add(injector.getInstance(PhysicalCapacitySearchableProperty.class)
+                                        .init(this, gasGroup));
+                                properties.add(injector.getInstance(BypassSearchableProperty.class)
+                                        .init(this, gasGroup));
+                                properties.add(injector.getInstance(ValveSearchableProperty.class)
+                                        .init(this, gasGroup));
+                                properties.add(injector.getInstance(CappedSearchableProperty.class)
+                                        .init(this, gasGroup));
+                                properties.add(injector.getInstance(ClampedSearchableProperty.class)
+                                        .init(this, gasGroup));
+                                properties.add(injector.getInstance(GroundedSearchableProperty.class)
+                                        .init(this, gasGroup));
+                                properties.add(injector.getInstance(InterruptibleSearchableProperty.class)
+                                        .init(this, gasGroup));
+                                properties.add(injector.getInstance(PressureSearchableProperty.class)
+                                        .init(this, gasGroup));
+                                properties.add(injector.getInstance(BypassStatusSearchableProperty.class)
+                                        .init(this, gasGroup));
                                 break;
                             case WATER:
-                                properties.add(new LimiterWaterSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new LoadLimiterTypeWaterSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new LoadLimitWaterSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new CollarWaterSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new PhysicalCapacityWaterSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new BypassWaterSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new ValveWaterSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new CappedWaterSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new ClampedWaterSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new BypassStatusWaterSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new GroundedWaterSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new PressureWaterSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
+                                properties.add(injector.getInstance(CollarSearchableProperty.class)
+                                        .init(this, waterGroup));
+                                properties.add(injector.getInstance(LimiterSearchableProperty.class)
+                                        .init(this, waterGroup));
+                                properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
+                                        .init(this, waterGroup));
+                                properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
+                                        .init(this, waterGroup));
+                                properties.add(injector.getInstance(PhysicalCapacitySearchableProperty.class)
+                                        .init(this, waterGroup));
+                                properties.add(injector.getInstance(BypassSearchableProperty.class)
+                                        .init(this, waterGroup));
+                                properties.add(injector.getInstance(ValveSearchableProperty.class)
+                                        .init(this, waterGroup));
+                                properties.add(injector.getInstance(CappedSearchableProperty.class)
+                                        .init(this, waterGroup));
+                                properties.add(injector.getInstance(ClampedSearchableProperty.class)
+                                        .init(this, waterGroup));
+                                properties.add(injector.getInstance(BypassStatusSearchableProperty.class)
+                                        .init(this, waterGroup));
+                                properties.add(injector.getInstance(GroundedSearchableProperty.class)
+                                        .init(this, waterGroup));
+                                properties.add(injector.getInstance(PressureSearchableProperty.class)
+                                        .init(this, waterGroup));
                                 break;
                             case HEAT:
-                                properties.add(new CollarThermalSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new PhysicalCapacityThermalSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new BypassThermalSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new ValveThermalSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new BypassStatusThermalSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
-                                properties.add(new PressureThermalSearchableProperty(this, propertySpecService, meteringService.getThesaurus()));
+                                properties.add(injector.getInstance(CollarSearchableProperty.class)
+                                        .init(this, thermalGroup));
+                                properties.add(injector.getInstance(PhysicalCapacitySearchableProperty.class)
+                                        .init(this, thermalGroup));
+                                properties.add(injector.getInstance(BypassSearchableProperty.class)
+                                        .init(this, thermalGroup));
+                                properties.add(injector.getInstance(ValveSearchableProperty.class)
+                                        .init(this, thermalGroup));
+                                properties.add(injector.getInstance(BypassStatusSearchableProperty.class)
+                                        .init(this, thermalGroup));
+                                properties.add(injector.getInstance(PressureSearchableProperty.class)
+                                        .init(this, thermalGroup));
                         }
                     } else {
                         throw new IllegalArgumentException("Value is not compatible with the property");

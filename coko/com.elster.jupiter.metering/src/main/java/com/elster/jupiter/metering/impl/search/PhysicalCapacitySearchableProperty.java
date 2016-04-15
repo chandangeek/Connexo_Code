@@ -12,25 +12,32 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.units.Quantity;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class PhysicalCapacitySearchableProperty implements SearchableUsagePointProperty {
-    private final SearchDomain domain;
+public class PhysicalCapacitySearchableProperty implements SearchableUsagePointProperty {
+
     private final PropertySpecService propertySpecService;
-    private final SearchablePropertyGroup group;
     private final Thesaurus thesaurus;
+
+    private SearchDomain domain;
+    private SearchablePropertyGroup group;
     private static final String FIELDNAME = "detail.physicalCapacity";
 
-    public PhysicalCapacitySearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
-        super();
-        this.domain = domain;
+    @Inject
+    public PhysicalCapacitySearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
-        this.group = group;
         this.thesaurus = thesaurus;
+    }
+
+    PhysicalCapacitySearchableProperty init(SearchDomain domain, SearchablePropertyGroup group) {
+        this.domain = domain;
+        this.group = group;
+        return this;
     }
 
     @Override

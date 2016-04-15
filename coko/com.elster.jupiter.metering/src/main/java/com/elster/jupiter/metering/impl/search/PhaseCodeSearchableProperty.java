@@ -12,6 +12,7 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -19,20 +20,25 @@ import java.util.Optional;
 
 public class PhaseCodeSearchableProperty implements SearchableUsagePointProperty {
 
-    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
-    private final SearchablePropertyGroup group;
     private final Thesaurus thesaurus;
+
+
+    private SearchablePropertyGroup group;
+    private SearchDomain domain;
     private static final String FIELDNAME = "detail.phaseCode";
 
-    public PhaseCodeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
-        super();
-        this.domain = domain;
+    @Inject
+    public PhaseCodeSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
-        this.group = group;
         this.thesaurus = thesaurus;
     }
 
+    PhaseCodeSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group) {
+        this.domain = domain;
+        this.group = group;
+        return this;
+    }
     @Override
     public SearchDomain getDomain() {
         return domain;
