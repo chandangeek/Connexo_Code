@@ -10,8 +10,8 @@ Ext.define('Imt.servicecategories.controller.ServiceCategories', {
 
     refs: [
         {
-            ref: 'casPanel',
-            selector: '#service-categories-setup #service-categories-cas-panel'
+            ref: 'serviceCategoryPreview',
+            selector: '#service-categories-setup #service-category-preview'
         },
         {
             ref: 'casPreview',
@@ -44,10 +44,13 @@ Ext.define('Imt.servicecategories.controller.ServiceCategories', {
 
     showServiceCategoryPreview: function (selectionModel, record) {
         var me = this,
-            casPanel = me.getCasPanel(),
+            serviceCategoryPreview = me.getServiceCategoryPreview(),
             store = me.getStore('Imt.servicecategories.store.CAS');
 
-        casPanel.setTitle(record.get('displayName'));
+        Ext.suspendLayouts();
+        serviceCategoryPreview.setTitle(record.get('displayName'));
+        serviceCategoryPreview.loadRecord(record);
+        Ext.resumeLayouts(true);
         store.getProxy().setUrl(record.getId());
         store.load();
     },
