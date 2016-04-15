@@ -3,6 +3,7 @@ package com.elster.jupiter.search.rest.impl;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.util.HasId;
 
@@ -87,7 +88,7 @@ public class SearchCriterionInfoFactory {
         return nameFilterPredicate;
     }
 
-    private IdWithDisplayValueInfo asJsonValueObject(String name, Object valueObject) {
+    public static IdWithDisplayValueInfo asJsonValueObject(String name, Object valueObject) {
         IdWithDisplayValueInfo info = new IdWithDisplayValueInfo();
         info.displayValue = name;
         info.id = name; // support for dynamic attributes, whose possible values don't match these classes
