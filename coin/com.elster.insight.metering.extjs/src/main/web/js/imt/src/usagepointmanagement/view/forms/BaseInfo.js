@@ -7,15 +7,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.BaseInfo', {
         'Imt.usagepointmanagement.view.forms.fields.ThreeValuesField',
         'Imt.usagepointmanagement.view.forms.fields.BypassField',
         'Imt.usagepointmanagement.view.forms.fields.BypassStatusCombobox',
-        'Imt.usagepointmanagement.view.forms.fields.LimiterCheckbox',
+        'Imt.usagepointmanagement.view.forms.fields.LimiterCombobox',
         'Imt.usagepointmanagement.view.forms.fields.LoadLimiterTypeField',
         'Imt.usagepointmanagement.view.forms.fields.LoadLimitField'
     ],
-
-    defaults: {
-        labelWidth: 260,
-        width: 595
-    },
 
     predefinedRecord: null,
 

@@ -102,21 +102,21 @@ Ext.define('Imt.controller.History', {
                             }
                         },
                         'processes': {
-                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+                            title: Uni.I18n.translate('processes.title', 'IMT', 'Processes'),
                             route: 'processes',
                             controller: 'Imt.processes.controller.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             action: 'showUsagePointProcesses'
                         },
                         'processesrunning': {
-                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+                            title: Uni.I18n.translate('processes.title', 'IMT', 'Processes'),
                             route: 'running',
                             controller: 'Imt.processes.controller.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             action: 'showUsagePointProcesses'
                         },
                         'processeshistory': {
-                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+                            title: Uni.I18n.translate('processes.title', 'IMT', 'Processes'),
                             route: 'processes/history',
                             controller: 'Imt.processes.controller.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
@@ -124,11 +124,27 @@ Ext.define('Imt.controller.History', {
                             action: 'showUsagePointProcesses'
                         },
                         'processstart': {
-                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+                            title: Uni.I18n.translate('processes.title', 'IMT', 'Processes'),
                             route: 'processes/start',
                             controller: 'Imt.processes.controller.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             action: 'showUsagePointStartProcess'
+                        },
+                        servicecalls: {
+                            title: Uni.I18n.translate('general.serviceCalls', 'IMT', 'Service calls'),
+                            route: 'servicecalls',
+                            controller: 'Imt.servicecalls.controller.ServiceCalls',
+                            privileges: Imt.privileges.UsagePoint.view,
+                            action: 'showServiceCalls',
+                            items: {
+                                history: {
+                                    title: Uni.I18n.translate('general.history', 'IMT', 'History'),
+                                    route: 'history',
+                                    privileges: Imt.privileges.UsagePoint.view,
+                                    controller: 'Imt.servicecalls.controller.ServiceCalls',
+                                    action: 'showServiceCallHistory'
+                                }
+                            }
                         },
                         channels: {
                             title: Uni.I18n.translate('general.channels', 'IMT', 'Channels'),
