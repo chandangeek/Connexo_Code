@@ -5,6 +5,8 @@ import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComPort;
 
+import java.time.Instant;
+
 /**
  * Adds behavior to ComTaskExecution that is private
  * to the server side implementation.
@@ -45,6 +47,12 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
      * @see #getExecutingComPort()
      */
     void executionFailed();
+
+    /**
+     * Notifies this ComTaskExecution that it should be rescheduled based on the given date
+     * @param rescheduleDate the given reschedule date (additional restrictions can be applicable)
+     */
+    void executionRescheduled(Instant rescheduleDate);
 
     /**
      * Notifies this ComTaskExecution that execution has been started
