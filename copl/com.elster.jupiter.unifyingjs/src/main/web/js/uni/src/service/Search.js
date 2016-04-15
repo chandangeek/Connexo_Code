@@ -106,8 +106,8 @@ Ext.define('Uni.service.Search', {
     },
 
     defaultColumns: {
-        'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state.name'],
-        'com.elster.jupiter.metering.UsagePoint': ['mRID', 'displayServiceCategory', 'displayConnectionState', 'openIssues']
+        'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state.name', 'location'],
+        'com.elster.jupiter.metering.UsagePoint': ['mRID', 'displayServiceCategory', 'displayConnectionState', 'openIssues', 'location']
     },
 
     getDomain: function() {
@@ -349,6 +349,8 @@ Ext.define('Uni.service.Search', {
     getFilters: function () {
         return _.filter(this.filters.getRange(), function(f){
             return !!f.value
+                && Ext.isArray(f.value)
+                && !Ext.isEmpty(_.filter(f.value, function(v) { return !Ext.isEmpty(v.criteria);}))
         });
     },
 
@@ -569,16 +571,16 @@ Ext.define('Uni.service.Search', {
 
         if (deps.length) {
             deps.each(function(criteria) {
+                criteria.beginEdit();
                 if (!Ext.isEmpty(filter.value)) {
-                    criteria.beginEdit();
                     criteria.set('disabled', false);
                 } else {
-                    criteria.set('disabled', true);
                     if (!criteria.get('sticky')) {
                         me.removeProperty(criteria);
                     }
-                    criteria.endEdit(true);
+                    criteria.set('disabled', true);
                 }
+                criteria.endEdit(true);
 
                 criteria.values().clearFilter(true);
                 criteria.values().addFilter(me.getFilters(), false);

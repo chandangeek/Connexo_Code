@@ -82,6 +82,9 @@ Ext.define('Uni.model.search.Property', {
             if (me.get('exhaustive')) {
                 store.getProxy().url = me.get('linkHref');
                 store.loadRawData(me.get('values'));
+                if (Ext.isEmpty(me.get('values'))) {
+                    me.set('disabled', true);
+                }
             }
 
             me.isCached = true;

@@ -1,5 +1,6 @@
 Ext.define('Uni.override.menu.Item', {
     override: 'Ext.menu.Item',
+    htmlEncode: true,
 
     setHref: function (href, target) {
         this.href = !Ext.isDefined(href) ? '#' : href;
@@ -14,7 +15,7 @@ Ext.define('Uni.override.menu.Item', {
     },
 
     setText: function (text) {
-        arguments[0] = Ext.String.htmlEncode(text);
+        arguments[0] = this.htmlEncode ? Ext.String.htmlEncode(text) : text;
         this.callParent(arguments);
     }
 });
