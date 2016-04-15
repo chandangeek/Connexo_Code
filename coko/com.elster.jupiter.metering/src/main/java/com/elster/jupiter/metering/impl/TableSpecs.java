@@ -296,6 +296,7 @@ public enum TableSpecs {
             Column locationIdColumn = table.column("LOCATIONID")
                     .number()
                     .conversion(NUMBER2LONGNULLZERO)
+                    .map("location")
                     .add();
             Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID")
                     .number()
