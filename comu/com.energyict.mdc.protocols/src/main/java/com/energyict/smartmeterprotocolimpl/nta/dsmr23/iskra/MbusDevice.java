@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -32,8 +33,8 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     }
 
     @Inject
-    public MbusDevice(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient, PropertySpecService propertySpecService) {
-        super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient, propertySpecService);
+    public MbusDevice(Clock clock, TopologyService topologyService, CalendarService calendarService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient, PropertySpecService propertySpecService) {
+        super(clock, topologyService, calendarService, readingTypeUtilService, loadProfileFactory, ormClient, propertySpecService);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
+import com.elster.jupiter.calendar.EventOccurrence;
 import com.energyict.mdc.protocol.api.codetables.CodeDayTypeDef;
 
 /**
@@ -24,6 +25,13 @@ class DayTypeDefinitions {
         this.hour = tStamp / 10000;
         this.minute = (tStamp - hour * 10000) / 100;
         this.seconds = tStamp - (hour * 10000) - (minute * 100);
+    }
+
+    DayTypeDefinitions(EventOccurrence eventOccurrence) {
+        this.tariffcode = (int) eventOccurrence.getEvent().getCode();
+        this.hour = eventOccurrence.getFrom().getHour();
+        this.minute = eventOccurrence.getFrom().getMinute();
+        this.seconds = eventOccurrence.getFrom().getSecond();
     }
 
     /**

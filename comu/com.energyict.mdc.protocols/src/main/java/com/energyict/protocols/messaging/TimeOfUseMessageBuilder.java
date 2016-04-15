@@ -1,9 +1,10 @@
 package com.energyict.protocols.messaging;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -24,6 +25,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      * Tag that wraps around an included file.
      */
     protected static final String INCLUDED_USERFILE_TAG = "IncludedFile";
+
     /**
      * The tag that is used for an include file.
      */
@@ -50,12 +52,12 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
 
     private String name;
     private Date activationDate;
-    private int codeId = 0;
+    private long calendarId = 0;
     private int userFileId = 0;
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private Code code;
-    private final CodeFactory codeFactory;
+    private Calendar calendar;
+    private final CalendarService calendarService;
 
     private UserFile userFile;
     private final UserFileFactory userFileFactory;
@@ -66,11 +68,6 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     private boolean inlineUserFiles;
 
     /**
-     * Indicates whether to inline the {@link Code} or not.
-     */
-    private boolean inlineCodeTables;
-
-    /**
      * Indicates whether to zip the inlined content or not
      */
     private boolean zipMessageContent;
@@ -79,8 +76,8 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     private boolean encodeB64;
 
-    public TimeOfUseMessageBuilder(CodeFactory codeFactory, UserFileFactory userFileFactory) {
-        this.codeFactory = codeFactory;
+    public TimeOfUseMessageBuilder(CalendarService calendarService, UserFileFactory userFileFactory) {
+        this.calendarService = calendarService;
         this.userFileFactory = userFileFactory;
     }
 
@@ -129,31 +126,31 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     public void setCode(Code code) {
         if (code != null) {
-            this.codeId = code.getId();
+            this.calendarId = code.getId();
         } else {
-            this.codeId = 0;
+            this.calendarId = 0;
         }
     }
 
     /**
      * Set the id of the codetable to be used as content for this time of use schedule
      *
-     * @param codeId The id of the codetable to be set
+     * @param calendarId The id of the codetable to be set
      */
-    public void setCodeId(int codeId) {
-        this.codeId = codeId;
+    public void setCalendarId(int calendarId) {
+        this.calendarId = calendarId;
     }
 
     /**
-     * Get the codetable to be used as content for this time of use schedule
+     * Get the {@link Calendar} to be used as content for this time of use schedule
      *
-     * @return the codetable to be used as content for this time of use schedule
+     * @return the Calendar
      */
-    public Code getCode() {
-        if (code == null) {
-            this.codeFactory.findCode(codeId);
+    public Calendar getCalendar() {
+        if (this.calendar == null) {
+            this.calendar = this.calendarService.findCalendar(this.calendarId).get();
         }
-        return code;
+        return this.calendar;
     }
 
     /**
@@ -199,7 +196,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      * {@inheritDoc}
      */
     protected String getMessageContent() throws ParserConfigurationException, IOException {
-        if ((codeId == 0) && (userFileId == 0)) {
+        if ((calendarId == 0) && (userFileId == 0)) {
             throw new IllegalArgumentException("Code or user file needed");
         }
         StringBuilder builder = new StringBuilder();
@@ -212,8 +209,8 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
             addAttribute(builder, ATTRIBUTE_ACTIVATIONDATE, activationDate.getTime() / 1000);
         }
         builder.append(">");
-        if (codeId > 0) {
-            addChildTag(builder, TAG_CODE, codeId);
+        if (calendarId > 0) {
+            addChildTag(builder, TAG_CODE, calendarId);
         }
         if (userFileId > 0) {
             if (this.inlineUserFiles) {
@@ -246,8 +243,9 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
         if (activationDate != null) {
             buf.append("ActivationDate='").append(formatter.format(activationDate)).append("', ");
         }
-        if (codeId > 0) {
-            buf.append("Code='").append(getCode().getName()).append("', ");
+        if (calendarId > 0) {
+            // Wanted to change this to Calendar= but was not sure if it was part of an agreed contract with the device firmware
+            buf.append("Code='").append(getCalendar().getName()).append("', ");
         }
         if (userFileId > 0) {
             buf.append("UserFile='").append(getUserFile().getName()).append("'");
@@ -301,7 +299,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
                 String codeId = (String) getCurrentValue();
                 if (codeId != null) {
                     int id = Integer.parseInt(codeId);
-                    msgBuilder.setCodeId(id);
+                    msgBuilder.setCalendarId(id);
                 }
             }
             if (TAG_USERFILE.equals(localName)) {
@@ -320,8 +318,8 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
 
     }
 
-    public int getCodeId() {
-        return codeId;
+    public long getCalendarId() {
+        return calendarId;
     }
 
     public int getUserFileId() {

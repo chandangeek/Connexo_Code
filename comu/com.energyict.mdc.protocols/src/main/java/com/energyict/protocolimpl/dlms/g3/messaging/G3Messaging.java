@@ -1,5 +1,13 @@
 package com.energyict.protocolimpl.dlms.g3.messaging;
 
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
@@ -16,13 +24,6 @@ import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
-import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
-import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.g3.G3Clock;
@@ -61,7 +62,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -193,7 +193,7 @@ public class G3Messaging extends AnnotatedMessaging {
 
             String name = "";
             String activationDate = "1";
-            int codeId = 0;
+            long codeId = 0;
 
             // b. Attributes
             for (Object o1 : msgTag.getAttributes()) {

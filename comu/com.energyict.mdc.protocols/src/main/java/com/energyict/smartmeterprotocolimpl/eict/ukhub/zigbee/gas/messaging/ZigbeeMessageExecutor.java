@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.UserFileShadow;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
@@ -89,15 +89,15 @@ public class ZigbeeMessageExecutor extends MessageParser {
     private static final String RESUME = "resume";
 
     private final AbstractSmartDlmsProtocol protocol;
-    protected final CodeFactory codeFactory;
+    protected final CalendarService calendarService;
     protected final UserFileFactory userFileFactory;
     private ActivityCalendarController activityCalendarController;
 
     private boolean success;
 
-    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol, CalendarService calendarService, UserFileFactory userFileFactory) {
         this.protocol = protocol;
-        this.codeFactory = codeFactory;
+        this.calendarService = calendarService;
         this.userFileFactory = userFileFactory;
     }
 
@@ -556,12 +556,12 @@ public class ZigbeeMessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.codeFactory, this.userFileFactory);
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarService, this.userFileFactory);
 
         try {
             builder.initFromXml(content);
 
-            if (builder.getCodeId() > 0) { // codeTable implementation
+            if (builder.getCalendarId() > 0) { // codeTable implementation
                 log(Level.FINEST, "Parsing the content of the CodeTable.");
                 getActivityCalendarController().parseContent(content);
                 log(Level.FINEST, "Setting the new Passive Calendar Name.");

@@ -40,7 +40,7 @@ public class CX20009 extends AM540 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new SagemComMessaging(this, this.getClock(), this.getTopologyService());
+            messageProtocol = new SagemComMessaging(this, this.getClock(), this.getTopologyService(), this.getCalendarService());
         }
         return messageProtocol;
     }

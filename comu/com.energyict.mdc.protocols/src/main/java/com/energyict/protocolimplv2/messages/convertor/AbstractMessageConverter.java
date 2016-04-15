@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.codetables.Code;
+import com.elster.jupiter.calendar.Calendar;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -8,8 +8,9 @@ import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
-import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
+import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.text.SimpleDateFormat;
@@ -70,7 +71,7 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
      * The activation date and calendar name are set to 0, because they were stored in different message attributes.
      * It is up to the message entry creator to replace them with the values of the attributes
      */
-    protected String convertCodeTableToXML(Code messageAttribute) {
+    protected String convertCodeTableToXML(Calendar messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
@@ -78,7 +79,7 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
         }
     }
 
-    protected String convertSpecialDaysCodeTableToXML(Code messageAttribute) {
+    protected String convertSpecialDaysCodeTableToXML(Calendar messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 1, "");
         } catch (ParserConfigurationException e) {

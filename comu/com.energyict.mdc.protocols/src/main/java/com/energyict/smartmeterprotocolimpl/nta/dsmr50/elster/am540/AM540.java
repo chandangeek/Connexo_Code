@@ -226,7 +226,7 @@ public class AM540 extends E350 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new AM540Messaging(this, this.getTopologyService(), this.getClock(), calendarService);
+            messageProtocol = new AM540Messaging(this, this.getTopologyService(), this.getClock(), this.getCalendarService());
         }
         return messageProtocol;
     }

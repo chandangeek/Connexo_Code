@@ -7,8 +7,8 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
  * Time: 15:09
  */
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -24,8 +24,8 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
-    public ZMDTimeOfUseMessageBuilder(CodeFactory codeFactory, UserFileFactory userFileFactory) {
-        super(codeFactory, userFileFactory);
+    public ZMDTimeOfUseMessageBuilder(CalendarService calendarService, UserFileFactory userFileFactory) {
+        super(calendarService, userFileFactory);
     }
 
     /**
@@ -33,7 +33,7 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
      */
     @Override
     protected String getMessageContent() throws ParserConfigurationException, IOException {
-        if ((getCodeId() == 0) && (getUserFileId() == 0)) {
+        if ((getCalendarId() == 0) && (getUserFileId() == 0)) {
             throw new IllegalArgumentException("Code or userFile needed");
         }
         StringBuilder builder = new StringBuilder();
@@ -46,9 +46,9 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
             addAttribute(builder, getAttributeActivationDate(), getActivationDate().getTime() / 1000);
         }
         builder.append(">");
-        if (getCodeId() > 0l) {
-            String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(getCodeId(), getActivationDate().getTime(), getName());
-            addChildTag(builder, getTagCode(), getCodeId());
+        if (getCalendarId() > 0l) {
+            String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(getCalendarId(), getActivationDate().getTime(), getName());
+            addChildTag(builder, getTagCode(), getCalendarId());
             addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
         }
         builder.append("</");

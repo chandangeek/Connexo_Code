@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Password;
@@ -147,7 +148,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case firmwareUpdateFileAttributeName:
                 return ProtocolTools.getHexStringFromBytes(((FirmwareVersion) messageAttribute).getFirmwareFile(), "");
             case activityCalendarCodeTableAttributeName:
-                return convertCodeTableToXML((Code) messageAttribute);
+                return convertCodeTableToXML((Calendar) messageAttribute);
             case authenticationLevelAttributeName:
                 return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
             case encryptionLevelAttributeName:

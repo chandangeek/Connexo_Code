@@ -25,7 +25,8 @@ import java.time.Clock;
  */
 public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaProtocol {
 
-    private final CalendarService calendarService
+    private final CalendarService calendarService;
+
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.DSMR40EventProfile}
      */

@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -60,10 +61,10 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
 
     public abstract MessageProtocol getMessageProtocol();
 
-    protected AbstractNtaMbusDevice(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient, PropertySpecService propertySpecService) {
+    protected AbstractNtaMbusDevice(Clock clock, TopologyService topologyService, CalendarService calendarService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient, PropertySpecService propertySpecService) {
         this.topologyService = topologyService;
         this.propertySpecService = propertySpecService;
-        this.meterProtocol = new WebRTUKP(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+        this.meterProtocol = new WebRTUKP(propertySpecService, clock, topologyService, calendarService, readingTypeUtilService, loadProfileFactory, ormClient);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
         this.loadProfileFactory = loadProfileFactory;

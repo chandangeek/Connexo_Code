@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
+import com.elster.jupiter.calendar.Period;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 
 /**
@@ -38,6 +39,12 @@ class SeasonStartDates {
         this.year = cc.getYear();
         this.month = cc.getMonth();
         this.day = cc.getDay();
+    }
+
+    SeasonStartDates(Period period) {
+        this.year = -1;
+        this.month = period.getFrom().getMonthValue();
+        this.day = period.getFrom().getDayOfMonth();
     }
 
     /**

@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DemandResetMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.EnableOrDisableDSTMessageEntry;
@@ -13,7 +14,6 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetE
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetStartOfDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.Date;
@@ -70,7 +70,7 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
             case activityCalendarCodeTableAttributeName:
-                Code codeTable = (Code) messageAttribute;
+                Calendar codeTable = (Calendar) messageAttribute;
                 return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + encode(codeTable); //The ID and the XML representation of the code table, separated by a |
             default:
                 return messageAttribute.toString();
@@ -81,7 +81,7 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
      * Return an XML representation of the code table.
      * The activation date and calendar name are set to 0, because they were stored in different message attributes.
      */
-    protected String encode(Code messageAttribute) {
+    private String encode(Calendar messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {

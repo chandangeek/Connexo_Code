@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.UserFileShadow;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
@@ -85,14 +85,14 @@ public class AS300MessageExecutor extends MessageParser {
     private static final String RESUME = "resume";
 
     protected final AbstractSmartDlmsProtocol protocol;
-    protected final CodeFactory codeFactory;
+    protected final CalendarService calendarService;
     protected final UserFileFactory userFileFactory;
 
     protected boolean success;
 
-    public AS300MessageExecutor(AbstractSmartDlmsProtocol protocol, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+    public AS300MessageExecutor(AbstractSmartDlmsProtocol protocol, CalendarService calendarService, UserFileFactory userFileFactory) {
         this.protocol = protocol;
-        this.codeFactory = codeFactory;
+        this.calendarService = calendarService;
         this.userFileFactory = userFileFactory;
     }
 
@@ -574,12 +574,12 @@ public class AS300MessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.codeFactory, this.userFileFactory);
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarService, this.userFileFactory);
         ActivityCalendarController activityCalendarController = new AS300ActivityCalendarController((AS300) this.protocol);
         try {
             builder.initFromXml(content);
 
-            if (builder.getCodeId() > 0) { // codeTable implementation
+            if (builder.getCalendarId() > 0) { // codeTable implementation
                 log(Level.FINEST, "Parsing the content of the CodeTable.");
                 activityCalendarController.parseContent(content);
                 log(Level.FINEST, "Setting the new Passive Calendar Name.");
