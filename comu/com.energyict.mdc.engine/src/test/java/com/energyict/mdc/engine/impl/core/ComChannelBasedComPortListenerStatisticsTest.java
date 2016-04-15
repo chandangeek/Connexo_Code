@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -20,9 +22,6 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.services.HexService;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.NlsService;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Clock;
@@ -31,8 +30,9 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -554,6 +554,11 @@ public class ComChannelBasedComPortListenerStatisticsTest {
 
         @Override
         public void rescheduleToNextComWindow(ComServerDAO comServerDAO) {
+        }
+
+        @Override
+        public void rescheduleToNextComWindow(ComServerDAO comServerDAO, Instant startingPoint) {
+
         }
 
         @Override
