@@ -89,7 +89,7 @@ public class ConnectionStateSearchablePropertyTest {
     }
 
     @Test
-    public void testRemovableVisibility() {
+    public void testStickyVisibility() {
         ConnectionStateSearchableProperty property = this.getTestInstance();
 
         // Business method

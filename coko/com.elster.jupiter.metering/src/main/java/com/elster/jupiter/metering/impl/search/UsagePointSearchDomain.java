@@ -7,8 +7,8 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -33,6 +33,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,6 +57,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     private volatile ServerMeteringService meteringService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile Thesaurus thesaurus;
+    private volatile Clock clock;
 
     // For OSGi purposes
     public UsagePointSearchDomain() {
@@ -64,11 +66,12 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     // For Testing purposes
     @Inject
-    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, NlsService nlsService) {
+    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, NlsService nlsService, Clock clock) {
         this();
         this.setPropertySpecService(propertySpecService);
         this.setMeteringService(meteringService);
         this.setNlsService(nlsService);
+        this.setClock(clock);
     }
 
     @Reference
@@ -89,6 +92,11 @@ public class UsagePointSearchDomain implements SearchDomain {
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Override
@@ -123,7 +131,10 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new TypeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServicePrioritySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.meteringService
-                        .getThesaurus())
+                        .getThesaurus()),
+                new OutageRegionSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new LocationSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.clock),
+                new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
         ));
     }
 

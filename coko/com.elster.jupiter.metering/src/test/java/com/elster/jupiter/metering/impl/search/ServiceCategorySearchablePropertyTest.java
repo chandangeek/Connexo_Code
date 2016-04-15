@@ -87,7 +87,7 @@ public class ServiceCategorySearchablePropertyTest {
     }
 
     @Test
-    public void testRemovableVisibility() {
+    public void testStickyVisibility() {
         ServiceCategorySearchableProperty property = this.getTestInstance();
 
         // Business method

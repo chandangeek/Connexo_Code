@@ -29,7 +29,7 @@ public class IntervalBlockImpl implements IntervalBlock {
     }
     @Override
     public List<IntervalReading> getIntervals() {
-        if(intervals != null && intervals.size() > 0){
+        if (intervals != null && !intervals.isEmpty()) {
             return Collections.unmodifiableList(this.intervals);
         }
         return Collections.emptyList();

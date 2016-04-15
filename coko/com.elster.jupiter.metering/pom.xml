@@ -76,6 +76,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>transaction</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
@@ -100,6 +104,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>devtools.persistence</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -134,17 +143,13 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>devtools.persistence</artifactId>
+            <artifactId>systemadmin</artifactId>
             <scope>test</scope>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>com.google.inject</groupId>-->
-            <!--<artifactId>guice</artifactId>-->
-            <!--<version>4.0-beta5</version>-->
+        <!--<groupId>com.google.inject</groupId>-->
+        <!--<artifactId>guice</artifactId>-->
+        <!--<version>4.0-beta5</version>-->
         <!--</dependency>-->
     </dependencies>
 </project>

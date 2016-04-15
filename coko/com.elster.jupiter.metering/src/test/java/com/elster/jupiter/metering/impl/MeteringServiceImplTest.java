@@ -51,7 +51,13 @@ public class MeteringServiceImplTest {
     @Mock
     private ReadingType readingType;
     @Mock
-    private Column column1, column2;
+    private Column startTimeColumn;
+    @Mock
+    private Column endTimeColumn;
+    @Mock
+    private Column deliverableColumn;
+    @Mock
+    private Column requirementColumn;
     @Mock
     private DataMapper<ServiceLocation> serviceLocationFactory;
     @Mock
@@ -69,13 +75,15 @@ public class MeteringServiceImplTest {
     public void setUp() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
+        when(dataModel.getTable(anyString())).thenReturn(table);
         when(dataModel.getInstance(ServiceLocationImpl.class)).thenReturn(new ServiceLocationImpl(dataModel, eventService));
-        when(table.addIntervalColumns(anyString())).thenReturn(Arrays.asList(column1, column2));
+        when(table.addIntervalColumns(anyString())).thenReturn(Arrays.asList(startTimeColumn, endTimeColumn));
+        when(table.getColumn("READINGTYPE_DELIVERABLE")).thenReturn(Optional.of(deliverableColumn));
+        when(table.getColumn("READINGTYPE_REQUIREMENT")).thenReturn(Optional.of(requirementColumn));
         when(dataModel.mapper(ReadingType.class)).thenReturn(readingTypeFactory);
         when(dataModel.mapper(ServiceLocation.class)).thenReturn(serviceLocationFactory);
         when(dataModel.mapper(ServiceCategory.class)).thenReturn(serviceCategoryTypeCache);
         meteringService = new MeteringServiceImpl();
-
         meteringService.setOrmService(ormService);
         meteringService.setIdsService(idsService);
     }
