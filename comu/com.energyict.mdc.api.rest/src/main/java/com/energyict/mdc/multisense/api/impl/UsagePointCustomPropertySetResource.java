@@ -47,6 +47,16 @@ public class UsagePointCustomPropertySetResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * Models named set of properties whose values are managed against a usage point.
+     *
+     * @param usagePointId Id of the usage point
+     * @param cpsId Id of the custom property set
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return The identified custom property set
+     * @summary Fetch a set of pre-configured property sets
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{cpsId}")
@@ -65,6 +75,18 @@ public class UsagePointCustomPropertySetResource {
         }
     }
 
+    /**
+     /**
+     * Models named set of properties whose values are managed against a usage point.
+     *
+     * @summary Fetch a set of pre-configured property sets
+     *
+     * @param usagePointId Id of the usage point
+     * @param uriInfo uriInfo
+     * @param queryParameters queryParameters
+     * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
+     * field-param was provided. The list will be sorted according to db order.
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
@@ -84,6 +106,17 @@ public class UsagePointCustomPropertySetResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
+    /**
+     * Updates the values of the specified custom property set.
+     *
+     * @Summary update property values
+     *
+     * @param usagePointId Id of the usage point
+     * @param cpsId Id of the custom property set
+     * @param propertySetInfo New property values
+     * @param uriInfo uriInfo
+     * @return The updated property set
+     */
     @PUT
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
@@ -110,6 +143,23 @@ public class UsagePointCustomPropertySetResource {
         }
     }
 
+    /**
+     * List the fields available on this type of entity.
+     * <br>E.g.
+     * <br>[
+     * <br> "id",
+     * <br> "name",
+     * <br> "actions",
+     * <br> "batch"
+     * <br>]
+     * <br>Fields in the list can be used as parameter on a GET request to the same resource, e.g.
+     * <br> <i></i>GET ..../resource?fields=id,name,batch</i>
+     * <br> The call above will return only the requested fields of the entity. In the absence of a field list, all fields
+     * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
+     *
+     * @summary List the fields available on this type of entity
+     * @return A list of field names that can be requested as parameter in the GET method on this entity type
+     */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
