@@ -3,15 +3,17 @@ package com.elster.jupiter.util.geo;
 import java.sql.*;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+
 import oracle.sql.NUMBER;
 
-public class SpatialCoordinatesFactory{
+public class SpatialCoordinatesFactory {
 
     public String getDbType() {
         return SpatialCoordinates.SQL_TYPE_NAME;
     }
 
-    public SpatialCoordinates valueFromDb(Object object ) {
+    public SpatialCoordinates valueFromDb(Object object) {
         if (object == null) {
             return null;
         } else {
@@ -81,21 +83,39 @@ public class SpatialCoordinatesFactory{
 
 
     public SpatialCoordinates fromStringValue(String stringValue) {
-        if (stringValue==null || stringValue.length()==0 || stringValue.indexOf(LATITUDE_LONGITUDE_SEPARATOR)==-1) {
+        if (stringValue == null || stringValue.length() == 0 || stringValue.indexOf(LATITUDE_LONGITUDE_SEPARATOR) == -1) {
             return null;
         }
         String[] parts = stringValue.split(LATITUDE_LONGITUDE_SEPARATOR);
-        if (parts.length!=2) {
+        if (parts.length != 2) {
             return null;
         }
-        DegreesWorldCoordinate latitude = new DegreesWorldCoordinate( new BigDecimal(parts[0]) );
-        DegreesWorldCoordinate longitude = new DegreesWorldCoordinate( new BigDecimal(parts[1]) );
+
+        if (Arrays.asList(parts)
+                .stream()
+                .anyMatch(element -> element.split(",").length > 1
+                        || element.split(".").length > 1)) {
+            return null;
+        }
+
+        BigDecimal numericLatitude = new BigDecimal(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
+        BigDecimal numericLongitude = new BigDecimal(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
+        if (numericLatitude.compareTo(BigDecimal.valueOf(-90)) < 0
+                || numericLatitude.compareTo(BigDecimal.valueOf(90)) > 0
+                || numericLongitude.compareTo(BigDecimal.valueOf(-180)) < 0
+                || numericLongitude.compareTo(BigDecimal.valueOf(180)) > 0) {
+            return null;
+        }
+
+
+        DegreesWorldCoordinate latitude = new DegreesWorldCoordinate(numericLatitude);
+        DegreesWorldCoordinate longitude = new DegreesWorldCoordinate(numericLongitude);
         return new SpatialCoordinates(latitude, longitude);
     }
 
 
     public String toStringValue(SpatialCoordinates object) {
-        if (object==null) {
+        if (object == null) {
             return "";
         }
         // string representation: <latitude as BigDecimal>:<longitude as BigDecimal>
