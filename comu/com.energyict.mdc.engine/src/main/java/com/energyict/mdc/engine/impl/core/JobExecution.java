@@ -495,7 +495,7 @@ public abstract class JobExecution implements ScheduledJob {
         return Optional.empty();
     }
 
-    private RescheduleBehavior getRescheduleBehavior(ComServerDAO comServerDAO) {
+    protected RescheduleBehavior getRescheduleBehavior(ComServerDAO comServerDAO) {
         if (!InboundConnectionTask.class.isAssignableFrom(getConnectionTask().getClass())) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) getConnectionTask();
             if (scheduledConnectionTask.getConnectionStrategy().equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {

@@ -14,10 +14,12 @@ import com.energyict.mdc.engine.impl.commands.store.RescheduleToNextComWindow;
 import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
+import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Optional;
 
@@ -72,7 +74,10 @@ public abstract class ScheduledJobImpl extends JobExecution {
         Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(item -> item instanceof FirmwareComTaskExecution).findFirst();
         if (firmwareComTaskExecution.isPresent()){
             FirmwareComTaskExecution comTaskExecution = (FirmwareComTaskExecution) firmwareComTaskExecution.get();
-            comWindowToUse = getServiceProvider().firmwareService().getFirmwareCampaign(comTaskExecution).getComWindow();
+            Optional<FirmwareCampaign> firmwareCampaign = getServiceProvider().firmwareService().getFirmwareCampaign(comTaskExecution);
+            if(firmwareCampaign.isPresent()){
+                comWindowToUse = firmwareCampaign.get().getComWindow();
+            }
         }
         return comWindowToUse;
     }
@@ -98,13 +103,18 @@ public abstract class ScheduledJobImpl extends JobExecution {
                         .count();
         this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
         this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
-        this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this));
+        this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService()));
         this.completeSuccessfulComSession();
     }
 
     @Override
     public void rescheduleToNextComWindow (ComServerDAO comServerDAO) {
         this.doReschedule(comServerDAO, RescheduleBehavior.RescheduleReason.OUTSIDE_COM_WINDOW);
+    }
+
+    @Override
+    public void rescheduleToNextComWindow(ComServerDAO comServerDAO, Instant startingPoint) {
+        this.getRescheduleBehavior(comServerDAO).rescheduleOutsideWindow(startingPoint);
     }
 
     /**

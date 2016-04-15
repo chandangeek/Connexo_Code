@@ -5,7 +5,11 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.ComPort;
@@ -18,16 +22,24 @@ import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.*;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.*;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -193,6 +205,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
     @Override
     public void executionCompleted (ComTaskExecution comTaskExecution) {
+        this.comTaskExecutionCompleted.increment();
+        this.actual.executionCompleted(comTaskExecution);
+    }
+
+    @Override
+    public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
         this.comTaskExecutionCompleted.increment();
         this.actual.executionCompleted(comTaskExecution);
     }
@@ -443,6 +461,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public void executionCompleted (ComTaskExecution comTaskExecution) {
             this.verifier.verify(comTaskExecutionCompleted);
+        }
+
+        @Override
+        public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+
         }
 
         @Override

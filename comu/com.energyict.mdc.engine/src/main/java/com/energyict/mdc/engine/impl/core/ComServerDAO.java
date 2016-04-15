@@ -59,7 +59,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * Gets the ComServer that relates to the machine where this code is running on.
      *
      * @return The ComServer that relates to this machine or <code>null</code> if the host name of
-     *         the machine is <strong>NOT</strong> the name of a registered ComServer.
+     * the machine is <strong>NOT</strong> the name of a registered ComServer.
      */
     ComServer getThisComServer();
 
@@ -67,7 +67,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * Gets the ComServer that relates to the machine with the specified host name.
      *
      * @return The ComServer that relates to the machine with the specified host name
-     *         or <code>null</code> if there is no such ComServer.
+     * or <code>null</code> if there is no such ComServer.
      */
     ComServer getComServer(String systemName);
 
@@ -79,8 +79,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      *
      * @param comServer The ComServer
      * @return The new version of the ComServer,
-     *         <code>null</code> if the ComServer was deleted or made obsolete or
-     *         exactly the same Comserver if no changes were found
+     * <code>null</code> if the ComServer was deleted or made obsolete or
+     * exactly the same Comserver if no changes were found
      */
     ComServer refreshComServer(ComServer comServer);
 
@@ -200,11 +200,12 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     void executionFailed(ConnectionTask connectionTask);
 
     /**
-    * Notifies that execution of the specified ComTaskExecution has been started
-    * on the specified ComPort.
-    * @param comTaskExecution The ComTaskExecution
-    * @param comPort The ComPort that has started the execution of the ComTaskExecution
-     *@param executeInTransaction
+     * Notifies that execution of the specified ComTaskExecution has been started
+     * on the specified ComPort.
+     *
+     * @param comTaskExecution The ComTaskExecution
+     * @param comPort The ComPort that has started the execution of the ComTaskExecution
+     * @param executeInTransaction
      */
     void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction);
 
@@ -214,6 +215,14 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param comTaskExecution The ComTaskExecution
      */
     void executionCompleted(ComTaskExecution comTaskExecution);
+
+    /**
+     * Notifies that the execution of the specified ComTaskExecution was postponed and needs to be rescheduled
+     *
+     * @param comTaskExecution the ComTaskExecution
+     * @param rescheduleDate
+     */
+    void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate);
 
     /**
      * Notifies that execution of the specified ComTaskExecutions completed.
@@ -276,7 +285,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     /**
      * Stores the given list of Reading readings on the Meter.
-     *  @param deviceIdentifier the identifier of the Device
+     *
+     * @param deviceIdentifier the identifier of the Device
      * @param meterReading the readings to store
      */
     void storeMeterReadings(DeviceIdentifier<Device> deviceIdentifier, MeterReading meterReading);
@@ -286,7 +296,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * by the specified {@link DeviceIdentifier}.
      *
      * @param identifier The DeviceIdentifier
-     * @param offlineDeviceContext  the offlineContext identifying what needs to be offline
+     * @param offlineDeviceContext the offlineContext identifying what needs to be offline
      * @return The offline version of the Device that is identified by the DeviceIdentifier
      */
     Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext);
@@ -330,8 +340,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * that is uniquely identified by the specified identifier with the given value.
      *
      * @param deviceIdentifier The DeviceIdentifier
-     * @param propertyName     The name of the generic communication property
-     * @param propertyValue    The new property value
+     * @param propertyName The name of the generic communication property
+     * @param propertyValue The new property value
      */
     void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
 
@@ -352,8 +362,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      *
      * @param deviceIdentifier The DeviceIdentifier
      * @param timeStampFormat The preferred DateFormat that should be used for the
-     *                        current date and time when that should be necessary
-     *                        to create a unique name for the UserFile name.
+     * current date and time when that should be necessary
+     * to create a unique name for the UserFile name.
      * @param fileExtension The extension for the UserFile
      * @param contents The contents of the UserFile   @see UserFile#getExtension()
      */
@@ -372,9 +382,9 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * of the DeviceMessage DeviceMessage
      * which is identified by the given MessageIdentifier.
      *
-     * @param messageIdentifier        the messageIdentifier
+     * @param messageIdentifier the messageIdentifier
      * @param newDeviceMessageStatus the status to update the message to
-     * @param protocolInformation    the protocolInformation to add to the DeviceMessage
+     * @param protocolInformation the protocolInformation to add to the DeviceMessage
      */
     void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, String protocolInformation);
 

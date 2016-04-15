@@ -1,7 +1,10 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.energyict.mdc.common.ApplicationException;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -43,9 +46,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.Transaction;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
@@ -60,7 +60,6 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -273,6 +272,14 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
         this.post(QueryMethod.ExecutionCompleted, queryParameters);
+    }
+
+    @Override
+    public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE, rescheduleDate);
+        this.post(QueryMethod.ExecutionRescheduled, queryParameters);
     }
 
     @Override

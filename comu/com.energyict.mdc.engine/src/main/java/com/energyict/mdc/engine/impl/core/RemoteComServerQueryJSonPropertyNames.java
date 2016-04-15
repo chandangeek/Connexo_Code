@@ -92,6 +92,11 @@ public final class RemoteComServerQueryJSonPropertyNames {
      */
     public static final String MAX_NR_OF_TRIES = "max-tries";
 
+    /**
+     * The name of the property that specifies when we need to reschedule the ComtaskExecution
+     */
+    public static final String RESCHEDULE_DATE = "reschedule-time";
+
     // Hide utility class constructor
     private RemoteComServerQueryJSonPropertyNames () {}
 
