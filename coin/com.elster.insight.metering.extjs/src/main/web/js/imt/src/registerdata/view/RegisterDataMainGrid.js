@@ -20,9 +20,11 @@ Ext.define('Imt.registerdata.view.RegisterDataMainGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1} of {2} readings'),
-                displayMoreMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} readings'),
-                emptyMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.emptyMsg', 'IMT', 'There are no readings to display'),
+                displayMsg: Uni.I18n.translate('registerdata.reading.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1}' +
+                    ' of {2} readings'),
+                displayMoreMsg: Uni.I18n.translate('registerdata.reading.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} readings'),
+                emptyMsg: Uni.I18n.translate('registerdata.reading.pagingtoolbartop.emptyMsg', 'IMT', 'There are no' +
+                    ' readings to display'),
                 items: [
                     {
                         xtype: 'button',
@@ -42,7 +44,7 @@ Ext.define('Imt.registerdata.view.RegisterDataMainGrid', {
                     {registerId: me.registerId}
                 ],
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('registerdata.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Readings per page')
+                itemsPerPageMsg: Uni.I18n.translate('registerdata.reading.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Readings per page')
             }
         ];
 
