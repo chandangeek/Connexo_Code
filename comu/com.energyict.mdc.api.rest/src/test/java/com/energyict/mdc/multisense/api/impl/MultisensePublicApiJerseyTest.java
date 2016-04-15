@@ -33,6 +33,7 @@ import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -721,5 +722,14 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(possibleValues.getDefault()).thenReturn(date);
         when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
         return propertySpec;
+    }
+
+    protected MetrologyConfiguration mockMetrologyConfiguration(long id, String name, long version) {
+        MetrologyConfiguration metrologyConfiguration = mock(MetrologyConfiguration.class);
+        when(metrologyConfiguration.getId()).thenReturn(id);
+        when(metrologyConfiguration.getName()).thenReturn(name);
+        when(metrologyConfiguration.getVersion()).thenReturn(version);
+        when(metrologyConfigurationService.findMetrologyConfiguration(id)).thenReturn(Optional.of(metrologyConfiguration));
+        return metrologyConfiguration;
     }
 }

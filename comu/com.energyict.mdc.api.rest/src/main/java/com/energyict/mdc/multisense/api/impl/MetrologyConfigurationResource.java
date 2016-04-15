@@ -77,5 +77,4 @@ public class MetrologyConfigurationResource {
         return metrologyConfigurationInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
 
-
 }
