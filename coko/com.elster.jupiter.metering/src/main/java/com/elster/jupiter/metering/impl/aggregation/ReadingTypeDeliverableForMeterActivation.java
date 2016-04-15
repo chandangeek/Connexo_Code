@@ -306,7 +306,7 @@ class ReadingTypeDeliverableForMeterActivation {
         }
 
         @Override
-        public Void visitNull(NullNode nullNode) {
+        public Void visitNull(NullNodeImpl nullNode) {
             // Nothing to finish here
             return null;
         }

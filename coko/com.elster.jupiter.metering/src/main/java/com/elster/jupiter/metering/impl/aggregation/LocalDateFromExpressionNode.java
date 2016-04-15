@@ -34,7 +34,7 @@ public class LocalDateFromExpressionNode implements ServerExpressionNode.Visitor
     }
 
     @Override
-    public String visitNull(NullNode nullNode) {
+    public String visitNull(NullNodeImpl nullNode) {
         return null;
     }
 

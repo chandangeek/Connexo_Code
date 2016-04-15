@@ -29,7 +29,7 @@ public class ProcessStatusFromExpressionNode implements ServerExpressionNode.Vis
     }
 
     @Override
-    public String visitNull(NullNode nullNode) {
+    public String visitNull(NullNodeImpl nullNode) {
         return null;
     }
 

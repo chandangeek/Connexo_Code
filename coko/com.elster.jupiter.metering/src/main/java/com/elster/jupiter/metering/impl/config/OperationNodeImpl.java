@@ -92,18 +92,14 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
                     throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS_FOR_SAFE_DIVISION);
                 }
                 else {
-                    ExpressionNode zeroReplacementNode = this.getChildren().get(2);
-                    if (this.isConstantNode(zeroReplacementNode)) {
-                        ConstantNode constant = (ConstantNode) zeroReplacementNode;
+                    ExpressionNode constantReplacingZero = this.getChildren().get(2);
+                    if (!this.isConstantNode(constantReplacingZero)) {
+                        throw new InvalidNodeException(thesaurus, MessageSeeds.SAFE_DIVISION_REQUIRES_NUMERICAL_CONSTANT);
+                    } else {
+                        ConstantNode constant = (ConstantNode) constantReplacingZero;
                         if (constant.getValue().equals(BigDecimal.ZERO)) {
                             throw new InvalidNodeException(thesaurus, MessageSeeds.SAFE_DIVISION_REQUIRES_NON_ZERO_NUMERICAL_CONSTANT);
                         }
-                    } else {
-                        // Validate that right and its replacement have the same dimension
-                        AbstractNode replacement = (AbstractNode) zeroReplacementNode;
-                        if (!UnitConversionSupport.areCompatibleForAutomaticUnitConversion(right.getDimension(), replacement.getDimension())) {
-                            throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_REPLACEMENT_FOR_SAFE_DIVISION);
-                        };
                     }
                 }
             }

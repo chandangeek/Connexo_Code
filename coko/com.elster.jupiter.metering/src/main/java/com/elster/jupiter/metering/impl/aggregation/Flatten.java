@@ -33,7 +33,7 @@ public class Flatten implements ServerExpressionNode.Visitor<Void> {
     }
 
     @Override
-    public Void visitNull(NullNode nullNode) {
+    public Void visitNull(NullNodeImpl nullNode) {
         this.flattened.add(nullNode);
         return null;
     }

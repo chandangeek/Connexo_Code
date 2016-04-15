@@ -43,6 +43,11 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
     }
 
     @Override
+    public ServerExpressionNode visitNull(com.elster.jupiter.metering.config.NullNode nullNode) {
+        return new NullNodeImpl();
+    }
+
+    @Override
     public ServerExpressionNode visitRequirement(com.elster.jupiter.metering.config.ReadingTypeRequirementNode node) {
         // Replace this one with a VirtualRequirementNode
         return new VirtualRequirementNode(
@@ -84,12 +89,5 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
             return new FunctionCallNode(function, arguments);
         }
     }
-
-    @Override
-    public ServerExpressionNode visitNull(com.elster.jupiter.metering.config.NullNode nullNode) {
-        //todo return new com.elster.jupiter.metering.impl.aggregation.NullNode
-        return null;
-    }
-
 
 }

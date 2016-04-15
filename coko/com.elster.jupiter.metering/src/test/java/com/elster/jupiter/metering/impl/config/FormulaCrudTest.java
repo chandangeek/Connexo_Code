@@ -1555,7 +1555,7 @@ public class FormulaCrudTest {
                     builder.safeDivide(
                             builder.requirement(req_kWh),
                             builder.constant(0),
-                            builder.requirement(req_Wh)));
+                            builder.constant(1)));
         } catch (InvalidNodeException e) {
             fail("No InvalidNodeException expected!");
         }
@@ -1564,7 +1564,7 @@ public class FormulaCrudTest {
     @Test
     @Transactional
     // formula = Requirement
-    public void testSafeDivisionWithAddition() {
+    public void testSafeDivisionWithNull() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
         assertThat(serviceCategory.isPresent());
@@ -1575,11 +1575,7 @@ public class FormulaCrudTest {
         ReadingType fifteenMinRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
-        ReadingType fifteenMinWhRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "fifteenMinWhRT");
         ReadingTypeRequirement req_kWh = config.newReadingTypeRequirement("15Min_kWh").withReadingType(fifteenMinRT);
-        ReadingTypeRequirement req_Wh = config.newReadingTypeRequirement("15Min_Wh").withReadingType(fifteenMinWhRT);
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("monthly", fifteenMinRT, Formula.Mode.AUTO);
         try {
@@ -1587,9 +1583,7 @@ public class FormulaCrudTest {
                     builder.safeDivide(
                             builder.requirement(req_kWh),
                             builder.constant(0),
-                            builder.plus(
-                                    builder.requirement(req_kWh),
-                                    builder.requirement(req_Wh))));
+                            builder.constant(null)));
         } catch (InvalidNodeException e) {
             fail("No InvalidNodeException expected!");
         }
