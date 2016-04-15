@@ -4,6 +4,9 @@ import com.elster.jupiter.demo.impl.commands.*;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.search.SearchService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -73,7 +76,10 @@ import javax.inject.Inject;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.security.Principal;
+import java.text.DecimalFormat;
 import java.time.Clock;
+import java.util.Map;
+import java.util.Random;
 
 @Component(name = "com.elster.jupiter.demo", service = {DemoServiceImpl.class}, property = {
         "osgi.command.scope=demo",
@@ -645,6 +651,9 @@ public class DemoServiceImpl {
             command.setComServerName(comServerName);
             command.setHost(host);
             command.setStartDate(startDate);
+            if(!dataModel.getSqlDialect().name().equalsIgnoreCase("H2")){
+                command.setGeoCoordinates(meteringService.createGeoCoordinates("40.7922408:-74.4462162"));
+            }
             if (numberOfDevicesPerType == null) {
                 command.setDevicesPerType(null);
             } else {
