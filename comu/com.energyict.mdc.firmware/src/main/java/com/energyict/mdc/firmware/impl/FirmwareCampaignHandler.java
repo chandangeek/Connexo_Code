@@ -20,6 +20,7 @@ import org.osgi.service.event.EventConstants;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -65,9 +66,15 @@ public class FirmwareCampaignHandler implements MessageHandler {
                                 .forEach(device -> {
                                     // Just a managed bean wrapper, no actual creation
                                     hasDevices.update(true);
-                                    count.update(count.get() + 1);
-                                    DeviceInFirmwareCampaignImpl wrapper = getDeviceInFirmwareCampaignWrapper(context, firmwareCampaign, device);
-                                    context.getEventService().postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_CREATED.topic(), wrapper);
+                                    List<DeviceInFirmwareCampaignImpl> devicesInFirmwareCampaign = context.getFirmwareService().getDeviceInFirmwareCampaignsFor(device);
+                                    Optional<DeviceInFirmwareCampaignImpl> existingPendingOrOngoingDeviceInFWCampaign = devicesInFirmwareCampaign.stream()
+                                            .filter(DeviceInFirmwareCampaignImpl::hasNonFinalStatus)
+                                            .findAny();
+                                    if (!existingPendingOrOngoingDeviceInFWCampaign.isPresent()) {
+                                        count.update(count.get() + 1);
+                                        DeviceInFirmwareCampaignImpl wrapper = getDeviceInFirmwareCampaignWrapper(context, firmwareCampaign, device);
+                                        context.getEventService().postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_CREATED.topic(), wrapper);
+                                    }
                                 });
                         ((FirmwareCampaignImpl) firmwareCampaign).updateNumberOfDevices(count.get());
                         if (!hasDevices.get()) {
@@ -90,7 +97,7 @@ public class FirmwareCampaignHandler implements MessageHandler {
                             .map(endDevice -> context.getDeviceService().findDeviceById(Long.parseLong(endDevice.getAmrId())))
                             .filter(Optional::isPresent)
                             .map(Optional::get)
-                            .filter(device -> device.getDeviceConfiguration().getDeviceType().getId() == deviceType.getId());
+                            .filter(device -> device.getDeviceType().getId() == deviceType.getId());
                 }
             }
 
