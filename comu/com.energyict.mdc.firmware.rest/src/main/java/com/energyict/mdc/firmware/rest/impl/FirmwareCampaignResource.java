@@ -6,6 +6,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
@@ -22,7 +23,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Path("/campaigns")
