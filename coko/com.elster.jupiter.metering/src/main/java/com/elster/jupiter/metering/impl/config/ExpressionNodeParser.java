@@ -82,6 +82,9 @@ public class ExpressionNodeParser {
         } else if (Function.names().contains(last)) {
             handleFunctionNode(last);
         } else if (Operator.names().contains(last)) {
+            if ("null".equals(value)) {
+                handleNullNode();
+            }
             handleOperationNode(last);
         }
         removeArgumentCounter();
@@ -138,6 +141,10 @@ public class ExpressionNodeParser {
 
     private void handleConstantNode(String value) {
         nodes.add(new ConstantNodeImpl(new BigDecimal(value)));
+    }
+
+    private void handleNullNode() {
+        nodes.add(new NullNodeImpl());
     }
 
     private void handleOperationNode(String operatorValue) {

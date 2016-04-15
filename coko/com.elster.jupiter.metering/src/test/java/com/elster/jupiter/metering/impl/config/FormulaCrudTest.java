@@ -1780,4 +1780,34 @@ public class FormulaCrudTest {
         assertThat(((ConstantNode) operationNode.getChildren().get(2)).getValue()).isEqualTo(new BigDecimal(30));
     }
 
+    @Test
+    @Transactional
+    // formula = 10 (constant)
+    public void testSafeDivideWithNullUsingParser() {
+        Formula.Mode myMode = Formula.Mode.AUTO;
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        ExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse(
+                "safe_divide(constant(10), constant(20), null)");
+
+        Formula formula = service.newFormulaBuilder(myMode).init(node).build();
+        long formulaId = formula.getId();
+        Optional<Formula> loadedFormula = service.findFormula(formulaId);
+        assertThat(loadedFormula).isPresent();
+        Formula myFormula = loadedFormula.get();
+        assertThat(myFormula.getId()).isEqualTo(formulaId);
+        assertThat(myFormula.getMode()).isEqualTo(myMode);
+        ExpressionNode myNode = myFormula.getExpressionNode();
+        assertThat(myNode).isEqualTo(node);
+        assertThat(myNode).isInstanceOf(OperationNodeImpl.class);
+        OperationNode operationNode = (OperationNode) myNode;
+        assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
+        assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
+        assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
+        assertThat(operationNode.getChildren().get(2)).isInstanceOf(NullNodeImpl.class);
+    }
+
+
 }
