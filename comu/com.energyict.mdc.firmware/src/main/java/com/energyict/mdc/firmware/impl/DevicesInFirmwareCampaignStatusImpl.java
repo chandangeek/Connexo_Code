@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 @LiteralSql
 public class DevicesInFirmwareCampaignStatusImpl{
-    private static final String STATUS = "STATUS";
 
     public Map<String, Long> getStatusMap() {
         // Order of this statuses is important for FE
@@ -121,11 +120,19 @@ public class DevicesInFirmwareCampaignStatusImpl{
         Map<String, String> statusQuery = new HashMap<>();
         for (Map.Entry<String, List<String>> mapping : statusMapping.entrySet()) {
             statusQuery.put(mapping.getKey(), mapping.getValue().stream()
-                    .collect(Collectors.joining(" OR " + STATUS + "=",
-                            "SUM(CASE WHEN " + STATUS + "=",
+                    .collect(Collectors.joining(" OR " + DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName() + "=",
+                            "SUM(CASE WHEN " + DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName() + "=",
                             " THEN 1 ELSE 0 END) AS " + mapping.getKey())));
         }
         return statusQuery;
+// results into
+//        {"success","SUM(CASE WHEN STATUS = 3 OR STATUS = 4 OR STATUS = 5 OR STATUS = 6 OR STATUS = 7 OR STATUS = 8 OR STATUS = 9 OR STATUS = 10 OR STATUS = 11 THEN 1 ELSE 0 END) AS success"},
+//        {"failed", "SUM(CASE WHEN STATUS = 2 THEN 1 ELSE 0 END) AS failed"},
+//        {"ongoing", "SUM(CASE WHEN STATUS = 1 THEN 1 ELSE 0 END) AS ongoing"},
+//        {"pending"; "SUM(CASE WHEN STATUS = 0 THEN 1 ELSE 0 END) AS pending"},
+//        {"configurationError", "SUM(CASE WHEN STATUS = 12 THEN 1 ELSE 0 END) AS configurationError"},
+//        {"cancelled", "SUM(CASE WHEN STATUS = 13 THEN 1 ELSE 0 END) AS cancelled"}
+
     }
 
     private Map<String, List<String>> getDeviceInFirmwareCampaignStatusMapping() {
@@ -133,12 +140,20 @@ public class DevicesInFirmwareCampaignStatusImpl{
         for (FirmwareManagementDeviceStatus status : FirmwareManagementDeviceStatus.values()) {
             List<String> statusOrdinals = statusMapping.get(status.key());
             if (statusOrdinals == null) {
-                statusOrdinals = new ArrayList<String>();
+                statusOrdinals = new ArrayList<>();
                 statusMapping.put(status.key(), statusOrdinals);
             }
             statusOrdinals.add(String.valueOf(status.ordinal()));
         }
         return statusMapping;
+// results into
+//        {"success",[UPLOAD_SUCCESS (3), ACTIVATION_PENDING (4), ACTIVATION_ONGOING (5), ACTIVATION_FAILED (6), ACTIVATION_SUCCESS(7), VERIFICATION_ONGOING (8), VERIFICATION_TASK_FAILED (9), VERIFICATION_FAILED (10), VERIFICATION_SUCCESS (11)},
+//        {"failed",[UPLOAD_FAILED (2)]},
+//        {"ongoing", [UPLOAD_ONGOING (1)]},
+//        {"pending";[ UPLOAD_PENDING (0)]},
+//        {"configurationError", [CONFIGURATION_ERROR (12)]},
+//        {"cancelled", [CONFIGURATION_ERROR (13)]}
+
     }
 
     public long getSuccess() {
