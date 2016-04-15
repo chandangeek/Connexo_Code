@@ -468,7 +468,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             typeOfGatewayRadioGroup = this.getTypeOfGatewayRadioGroup(),
             dataLoggerMessage = this.getDataLoggerMessage(),
             dataLoggerRadioGroup = this.getDataLoggerRadioGroup(),
-            isDataLoggerSlaveType = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
+            isDataLoggerSlaveType = deviceType.isDataLoggerSlave();
 
         if (deviceConfiguration) {
             addressableRadioGroup.setValue({isDirectlyAddressable: deviceConfiguration.get('isDirectlyAddressable')});

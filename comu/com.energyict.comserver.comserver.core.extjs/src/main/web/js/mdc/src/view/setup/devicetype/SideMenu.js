@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
         if (me.isDataLoggerSlave === undefined) {
             Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
                 success: function (deviceType) {
-                    me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
+                    me.isDataLoggerSlave = deviceType.isDataLoggerSlave();
                     if (me.isDataLoggerSlave) {
                         executeWhenDetermined();
                     }
@@ -87,7 +87,7 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
         if (me.isDataLoggerSlave === undefined) {
             Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
                 success: function (deviceType) {
-                    me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
+                    me.isDataLoggerSlave = deviceType.isDataLoggerSlave();
                     if (!me.isDataLoggerSlave) {
                         executeWhenDetermined();
                     }

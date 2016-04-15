@@ -422,7 +422,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             record = me.getDeviceTypeEditForm().getRecord(),
             values = me.getDeviceTypeEditForm().getValues(),
             router = me.getController('Uni.controller.history.Router'),
-            page = me.getDeviceTypeEditView();
+            page = me.getDeviceTypeEditView(),
+            editForm = me.getDeviceTypeEditForm(),
+            baseForm = editForm.getForm();
 
         me.hideErrorPanel();
         if (record) {
@@ -438,11 +440,15 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
-
-                    if (operation.response.status === 400) {
-                        if (json && json.errors) {
-                            me.getDeviceTypeEditForm().getForm().markInvalid(json.errors);
-                        }
+                    if (json && json.errors) {
+                        baseForm.markInvalid(json.errors);
+                        Ext.Array.each(json.errors, function (item) {
+                            if (item.id === 'deviceLifeCycle') {
+                                editForm.down('#device-life-cycle-field').setActiveError(item.msg);
+                            } else if (item.id === 'deviceProtocolPluggableClassId') {
+                                editForm.down('#communicationProtocolComboBox').setActiveError(item.msg);
+                            }
+                        });
                         me.showErrorPanel();
                     }
                 },
