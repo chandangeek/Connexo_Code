@@ -35,6 +35,9 @@ class SysAppPrivileges {
                 //metering
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_READINGTYPE,
+                //com.elster.jupiter.bpm.security
+                com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_BPM,
+                com.elster.jupiter.bpm.security.Privileges.Constants.ADMINISTRATE_BPM,
                 //service call types
                 com.elster.jupiter.servicecall.security.Privileges.Constants.VIEW_SERVICE_CALL_TYPES,
                 com.elster.jupiter.servicecall.security.Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES);

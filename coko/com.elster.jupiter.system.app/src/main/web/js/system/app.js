@@ -39,6 +39,10 @@ Ext.onReady(function () {
         {
             name: 'Sct',
             path: '../../apps/sct/src'
+        },
+        {
+            name: 'Bpm',
+            path: '../../apps/bpm/src'
         }
     ];
 

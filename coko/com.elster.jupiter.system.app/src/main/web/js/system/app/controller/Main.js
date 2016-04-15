@@ -14,7 +14,8 @@ Ext.define('SystemApp.controller.Main', {
         'Apr.privileges.AppServer',
         'Cps.privileges.CustomAttributeSets',
         'Mtr.privileges.ReadingTypes',
-        'Sct.privileges.ServiceCallType'
+        'Sct.privileges.ServiceCallType',
+        'Bpm.privileges.BpmManagement'
     ],
 
     applicationTitle: 'Connexo Admin',
@@ -31,7 +32,8 @@ Ext.define('SystemApp.controller.Main', {
         Apr.privileges.AppServer.all(),
         Cps.privileges.CustomAttributeSets.all(),
         Mtr.privileges.ReadingTypes.all(),
-        Sct.privileges.ServiceCallType.all()
+        Sct.privileges.ServiceCallType.all(),
+        Bpm.privileges.BpmManagement.all()
     ),
 
     controllers: [
@@ -42,6 +44,10 @@ Ext.define('SystemApp.controller.Main', {
         'Fim.controller.Main',
         'Cps.main.controller.Main',
         'Mtr.controller.Main',
-        'Sct.controller.Main'
-    ]
+        'Sct.controller.Main',
+        'Bpm.controller.Main'
+    ],
+    onLaunch: function(){
+        this.getController('Bpm.controller.Main').addProcessManagement();
+    }
 });
