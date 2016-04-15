@@ -13,7 +13,7 @@ import java.util.List;
 public class DeviceMessageInfo {
 
     public long id;
-    public String trackingId;
+    public IdWithNameInfo trackingIdAndName;
     public TrackingCategoryInfo trackingCategory;
     public DeviceMessageSpecInfo messageSpecification;
     public String category;

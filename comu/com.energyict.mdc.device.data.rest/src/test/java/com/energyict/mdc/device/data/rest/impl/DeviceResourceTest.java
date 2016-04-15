@@ -78,11 +78,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -102,6 +97,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
+import org.assertj.core.data.MapEntry;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -1234,6 +1235,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(batchService.findBatch(device)).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
+        when(meteringService.findDeviceLocation(device.getmRID())).thenReturn(Optional.empty());
+        when(meteringService.findDeviceGeoCoordinates(device.getmRID())).thenReturn(Optional.empty());
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
@@ -1276,6 +1279,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
+        when(meteringService.findDeviceLocation(device.getmRID())).thenReturn(Optional.empty());
+        when(meteringService.findDeviceGeoCoordinates(device.getmRID())).thenReturn(Optional.empty());
 
         when(batchService.findBatch(device)).thenReturn(Optional.empty());
         Device oldMaster = mock(Device.class);
@@ -1403,6 +1408,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(mock.getCalculatedReadingType(clock.instant())).thenReturn(Optional.empty());
         Unit unit = Unit.get("kWh");
         when(mock.getLastReading()).thenReturn(Optional.empty());
+        when(mock.getLastDateTime()).thenReturn(Optional.empty());
         when(mock.getUnit()).thenReturn(unit);
         return mock;
     }
