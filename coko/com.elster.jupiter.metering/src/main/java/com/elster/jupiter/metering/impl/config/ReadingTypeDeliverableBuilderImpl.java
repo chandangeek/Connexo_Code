@@ -76,6 +76,12 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     }
 
     @Override
+    public
+    FormulaBuilder nullValue(){
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.nullValue());
+    }
+
+    @Override
     public FormulaBuilder constant(BigDecimal value) {
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.constant(value));
     }

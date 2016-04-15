@@ -16,6 +16,8 @@ public interface ReadingTypeDeliverableBuilder {
 
     FormulaBuilder requirement(ReadingTypeRequirementNode existingNode);
 
+    FormulaBuilder nullValue();
+
     FormulaBuilder constant(BigDecimal value);
 
     FormulaBuilder constant(long value);
