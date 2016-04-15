@@ -36,8 +36,8 @@ public class UpgradeServiceImpl implements UpgradeService {
         DataSource dataSource = bootstrapService.createDataSource();
         flyway.setDataSource(dataSource);
 
-        flyway.setLocations("com.elster.jupiter.flyway1.impl.upgrade");
-        flyway.setTable("flywaymeta.flyway1");
+//        flyway.setLocations("com.elster.jupiter.flyway1.impl.upgrade");
+        flyway.setTable("FLYWAYMETA." + component);
         flyway.setBaselineVersionAsString("0.0");
         flyway.setBaselineOnMigrate(true);
 
