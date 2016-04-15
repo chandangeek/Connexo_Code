@@ -137,12 +137,14 @@ public enum Operator {
         }
 
         @Override
-        public void appendTo(StringBuilder builder, String operand1, String operand2) {
+        public void appendTo(StringBuilder builder, String operand1, String operand2, String zeroReplacementOperand) {
             builder.append(operand1);
             this.appendSqlOperatorTo(builder);
             builder.append("decode(");
             builder.append(operand2);
-            builder.append(", 0, null, ");
+            builder.append(", 0, ");
+            builder.append(zeroReplacementOperand);
+            builder.append(", ");
             builder.append(operand2);
             builder.append(")");
         }
@@ -184,7 +186,7 @@ public enum Operator {
 
     protected abstract void appendSqlOperatorTo(SqlBuilder sqlBuilder);
 
-    public void appendTo(StringBuilder builder, String operand1, String operand2) {
+    public void appendTo(StringBuilder builder, String operand1, String operand2, String zeroReplacementOperand) {
         builder.append(operand1);
         this.appendSqlOperatorTo(builder);
         builder.append(operand2);
