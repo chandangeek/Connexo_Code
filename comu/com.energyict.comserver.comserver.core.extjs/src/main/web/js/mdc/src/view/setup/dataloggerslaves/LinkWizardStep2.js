@@ -35,18 +35,18 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep2', {
         me.callParent(arguments);
     },
 
-    initialize: function(loadProfileConfigurationRecords, dataLoggerChannelRecords) {
+    initialize: function(loadProfileConfigurationRecords, dataLoggerChannelRecords, previouslyMappedChannels) {
         var me = this;
         if (me.rendered) {
-            me.doInitialize(loadProfileConfigurationRecords, dataLoggerChannelRecords);
+            me.doInitialize(loadProfileConfigurationRecords, dataLoggerChannelRecords, previouslyMappedChannels);
         } else {
             me.on('afterrender', function() {
-                me.doInitialize(loadProfileConfigurationRecords, dataLoggerChannelRecords);
+                me.doInitialize(loadProfileConfigurationRecords, dataLoggerChannelRecords, previouslyMappedChannels);
             }, me, {single:true});
         }
     },
 
-    doInitialize: function(loadProfileConfigurationRecords, dataLoggerChannelRecords) {
+    doInitialize: function(loadProfileConfigurationRecords, dataLoggerChannelRecords, previouslyMappedChannels) {
         var me = this,
             loadProfileCounter = 0,
             channelCounter = 0,
@@ -133,6 +133,24 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep2', {
             }, me);
 
         }, me);
+
+        // 1. (Pre)select combo items according to previously made choices
+        // 2. (Pre)select a combo item if it's the only one available
+        var i, channelCombo;
+
+        channelCounter = 0;
+        for (i=0; true; i++) {
+            channelCounter++;
+            channelCombo = me.down('#mdc-step2-channel-combo-' + channelCounter);
+            if (Ext.isEmpty(channelCombo)) {
+                break;
+            }
+            if (previouslyMappedChannels) {
+                channelCombo.setValue(previouslyMappedChannels[channelCounter]);
+            } else if (channelCombo.getStore().getCount()===1) {
+                channelCombo.setValue(channelCombo.getStore().getAt(0).get('id'));
+            }
+        }
     },
 
     createChannelStore: function(loadProfileConfigurationRecord, dataLoggerChannelRecords) {

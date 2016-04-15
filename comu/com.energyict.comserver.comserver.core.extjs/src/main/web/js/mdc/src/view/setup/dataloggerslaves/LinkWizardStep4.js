@@ -24,14 +24,15 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
                 itemId: 'mdc-dataloggerslave-link-wizard-step4-form',
                 fieldLabel: '',
                 layout: {
-                    type: 'vbox',
-                    align: 'stretch'
+                    type: 'vbox'
                 },
                 items: [
                     {
                         xtype: 'date-time',
+                        layout: 'hbox',
                         itemId: 'mdc-step4-arrival-date',
                         required: true,
+                        margin: '20 0 20 0',
                         fieldLabel: Uni.I18n.translate('general.arrivalDate', 'MDC', 'Arrival date')
                     }
                 ]

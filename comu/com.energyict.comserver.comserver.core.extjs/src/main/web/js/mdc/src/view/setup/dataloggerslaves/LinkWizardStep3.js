@@ -35,18 +35,18 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep3', {
         me.callParent(arguments);
     },
 
-    initialize: function(registerConfigRecords, dataLoggerRegisterRecords) {
+    initialize: function(registerConfigRecords, dataLoggerRegisterRecords, previouslyMappedRegisters) {
         var me = this;
         if (me.rendered) {
-            me.doInitialize(registerConfigRecords, dataLoggerRegisterRecords);
+            me.doInitialize(registerConfigRecords, dataLoggerRegisterRecords, previouslyMappedRegisters);
         } else {
             me.on('afterrender', function() {
-                me.doInitialize(registerConfigRecords, dataLoggerRegisterRecords);
+                me.doInitialize(registerConfigRecords, dataLoggerRegisterRecords, previouslyMappedRegisters);
             }, me, {single:true});
         }
     },
 
-    doInitialize: function(registerConfigRecords, dataLoggerRegisterRecords) {
+    doInitialize: function(registerConfigRecords, dataLoggerRegisterRecords, previouslyMappedRegisters) {
         var me = this,
             counter = 0,
             form;
@@ -116,6 +116,24 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep3', {
             }
 
         }, me);
+
+        // 1. (Pre)select combo items according to previously made choices
+        // 2. (Pre)select a combo item if it's the only one available
+        var i, registerCombo;
+
+        counter = 0;
+        for (i=0; true; i++) {
+            counter++;
+            registerCombo = me.down('#mdc-step3-register-combo-' + counter);
+            if (Ext.isEmpty(registerCombo)) {
+                break;
+            }
+            if (previouslyMappedRegisters) {
+                registerCombo.setValue(previouslyMappedRegisters[counter]);
+            } else if (registerCombo.getStore().getCount()===1) {
+                registerCombo.setValue(registerCombo.getStore().getAt(0).get('id'));
+            }
+        }
     },
 
     createRegisterStore: function(dataLoggerRegisterRecords) {

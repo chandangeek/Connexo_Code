@@ -6,7 +6,9 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
         'Mdc.view.setup.dataloggerslaves.LinkWizardStep1',
         'Mdc.view.setup.dataloggerslaves.LinkWizardStep2',
         'Mdc.view.setup.dataloggerslaves.LinkWizardStep3',
-        'Mdc.view.setup.dataloggerslaves.LinkWizardStep4'
+        'Mdc.view.setup.dataloggerslaves.LinkWizardStep4',
+        'Mdc.view.setup.dataloggerslaves.LinkWizardStep5',
+        'Mdc.view.setup.dataloggerslaves.LinkWizardStep6'
     ],
 
     layout: 'card',
@@ -42,6 +44,18 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
                 itemId: 'mdc-dataloggerslave-link-wizard-step4',
                 title: Uni.I18n.translate('linkwizard.step4.title', 'MDC', 'Step 4: Confirm arrival date'),
                 navigationIndex: 4
+            },
+            {
+                xtype: 'dataloggerslave-link-wizard-step5',
+                itemId: 'mdc-dataloggerslave-link-wizard-step5',
+                title: Uni.I18n.translate('linkwizard.step5.title', 'MDC', 'Step 5: Confirmation'),
+                navigationIndex: 5
+            },
+            {
+                xtype: 'dataloggerslave-link-wizard-step6',
+                itemId: 'mdc-dataloggerslave-link-wizard-step6',
+                title: Uni.I18n.translate('linkwizard.step6.title', 'MDC', 'Step 6: Status'),
+                navigationIndex: 6
             }
         ];
 
