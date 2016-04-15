@@ -101,9 +101,9 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
             record.set('startedOn', startedOn);
             record.set('finishedOn', finishedOn);
             record.endEdit();
-    }
+        }
 
-}
+    }
 
 
 
