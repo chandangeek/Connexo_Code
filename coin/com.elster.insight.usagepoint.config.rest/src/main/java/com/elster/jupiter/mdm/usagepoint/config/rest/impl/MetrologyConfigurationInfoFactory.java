@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -170,9 +171,13 @@ public class MetrologyConfigurationInfoFactory {
 
         private List<ReadingTypeRequirementNode> readingTypeRequirementNodes = new ArrayList<>();
 
-
         @Override
         public Void visitConstant(ConstantNode constant) {
+            return null;
+        }
+
+        @Override
+        public Void visitNull(NullNode nullNode) {
             return null;
         }
 
