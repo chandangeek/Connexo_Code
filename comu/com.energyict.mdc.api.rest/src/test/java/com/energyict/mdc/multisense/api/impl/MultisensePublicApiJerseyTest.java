@@ -33,6 +33,7 @@ import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -156,6 +157,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     MeteringService meteringService;
     @Mock
     CustomPropertySetService customPropertySetService;
+    @Mock
+    MetrologyConfigurationService metrologyConfigurationService;
 
     @Override
     protected Application getApplication() {
@@ -180,6 +183,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setCommunicationTaskService(communicationTaskService);
         application.setMeteringService(meteringService);
         application.setCustomPropertySetService(customPropertySetService);
+        application.setMetrologyConfigurationService(metrologyConfigurationService);
         return application;
     }
 
@@ -684,6 +688,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
                 .toInstant(ZoneOffset.UTC));
         when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");
         when(usagePoint.getServicePriority()).thenReturn("service priority");
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
 
         when(usagePoint.forCustomProperties()).thenReturn(extension);
         when(meteringService.findUsagePoint(id)).thenReturn(Optional.of(usagePoint));

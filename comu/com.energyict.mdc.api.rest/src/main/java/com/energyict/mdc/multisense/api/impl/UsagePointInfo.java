@@ -29,6 +29,7 @@ abstract public class UsagePointInfo extends LinkInfo<Long> {
     public String servicePriority;
     public Instant installationTime;
     public String serviceDeliveryRemark;
+    public LinkInfo<Long> metrologyConfiguration;
 //    public String serviceKind;
 
     public List<LinkInfo> meterActivations;

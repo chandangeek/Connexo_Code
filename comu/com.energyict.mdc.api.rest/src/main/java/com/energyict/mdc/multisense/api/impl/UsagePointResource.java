@@ -2,8 +2,6 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
@@ -26,11 +24,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.time.Clock;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -40,14 +35,12 @@ public class UsagePointResource {
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
-    private final Clock clock;
 
     @Inject
-    public UsagePointResource(MeteringService meteringService, UsagePointInfoFactory usagePointInfoFactory, ExceptionFactory exceptionFactory, Clock clock) {
+    public UsagePointResource(MeteringService meteringService, UsagePointInfoFactory usagePointInfoFactory, ExceptionFactory exceptionFactory) {
         this.meteringService = meteringService;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.exceptionFactory = exceptionFactory;
-        this.clock = clock;
     }
 
     /**
@@ -106,26 +99,11 @@ public class UsagePointResource {
         }
         UsagePoint usagePoint = meteringService.findAndLockUsagePointByIdAndVersion(usagePointId, usagePointInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
-        usagePoint.setName(usagePointInfo.name);
-        usagePoint.setAliasName(usagePointInfo.aliasName);
-        usagePoint.setDescription(usagePointInfo.description);
-        usagePoint.setInstallationTime(usagePointInfo.installationTime);
-        usagePoint.setMRID(usagePointInfo.mrid);
-        usagePoint.setOutageRegion(usagePointInfo.outageRegion);
-        usagePoint.setReadRoute(usagePointInfo.readRoute);
-        usagePoint.setServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark);
-        usagePoint.setServicePriority(usagePointInfo.servicePriority);
-        usagePoint.update();
-        Instant instant = clock.instant();
-        Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(instant);
-        if (detail.isPresent()) {
-            usagePoint.terminateDetail(detail.get(), instant);
-            UsagePointDetailBuilder newDetail = usagePointInfo.createDetail(usagePoint, instant);
-            newDetail.validate();
-            newDetail.create();
-        }
+        usagePointInfoFactory.updateUsagePoint(usagePoint, usagePointInfo);
+
         return usagePointInfoFactory.from(usagePoint, uriInfo, Collections.emptyList());
     }
+
 
     /**
      * <p>A usage point is a point in the grid where data is measured (energy consumption and/or production). This point can

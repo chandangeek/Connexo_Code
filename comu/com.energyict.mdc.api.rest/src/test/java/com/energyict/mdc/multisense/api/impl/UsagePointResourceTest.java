@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -34,6 +35,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -79,7 +81,10 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         when(gasDetail.isInterruptible()).thenReturn(YesNoAnswer.YES);
         when(gasDetail.isCollarInstalled()).thenReturn(YesNoAnswer.YES);
         UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.GAS, gasDetail);
+        MetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L);
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
         Response response = target("/usagepoints/31").request().get();
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<Integer>get("$.id")).isEqualTo(31);
@@ -108,6 +113,8 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<Integer>get("$.pressure.value")).isEqualTo(103);
         assertThat(model.<Integer>get("$.pressure.multiplier")).isEqualTo(0);
         assertThat(model.<String>get("$.pressure.unit")).isEqualTo("kg");
+        assertThat(model.<Integer>get("$.metrologyConfiguration.id")).isEqualTo(13);
+        assertThat(model.<String>get("$.metrologyConfiguration.link.href")).isEqualTo("http://localhost:9998/metrologyconfigurations/13");
         assertThat(model.<Long>get("$.installationTime")).isEqualTo(LocalDateTime.of(2016, 3, 20, 11, 0)
                 .toInstant(ZoneOffset.UTC)
                 .toEpochMilli());
@@ -326,6 +333,98 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
     }
 
     @Test
+    public void testNoUpdateMetrologyWithIdenticalIds() throws Exception {
+        ElectricityUsagePointInfo info = new ElectricityUsagePointInfo();
+        info.id = 999L;
+        info.version = 2L;
+        info.metrologyConfiguration = new LinkInfo<>();
+        info.metrologyConfiguration.id = 234L;
+
+        MetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(234L);
+        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
+        ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
+        ElectricityDetailBuilder electricityDetailBuilder = FakeBuilder.initBuilderStub(electricityDetail, ElectricityDetailBuilder.class);
+        when(usagePoint.newElectricityDetailBuilder(any())).thenReturn(electricityDetailBuilder);
+
+        Response response = target("/usagepoints/11").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(usagePoint, never()).removeMetrologyConfiguration(clock.instant());
+        verify(usagePoint, never()).apply(metrologyConfiguration, clock.instant());
+    }
+
+    @Test
+    public void testAddMetrologyIfOneExisted() throws Exception {
+        ElectricityUsagePointInfo info = new ElectricityUsagePointInfo();
+        info.id = 999L;
+        info.version = 2L;
+        info.metrologyConfiguration = new LinkInfo<>();
+        info.metrologyConfiguration.id = 235L;
+
+        MetrologyConfiguration oldMetrologyConfiguration = mockMetrologyConfiguration(234L);
+        MetrologyConfiguration newMetrologyConfiguration = mockMetrologyConfiguration(235L);
+        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(oldMetrologyConfiguration));
+        ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
+        ElectricityDetailBuilder electricityDetailBuilder = FakeBuilder.initBuilderStub(electricityDetail, ElectricityDetailBuilder.class);
+        when(usagePoint.newElectricityDetailBuilder(any())).thenReturn(electricityDetailBuilder);
+
+        Response response = target("/usagepoints/11").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(usagePoint).removeMetrologyConfiguration(clock.instant());
+        verify(usagePoint).apply(newMetrologyConfiguration, clock.instant());
+    }
+
+    @Test
+    public void testRemoveMetrologyIfNoneSpecified() throws Exception {
+        ElectricityUsagePointInfo info = new ElectricityUsagePointInfo();
+        info.id = 999L;
+        info.version = 2L;
+        info.metrologyConfiguration = new LinkInfo<>();
+        info.metrologyConfiguration.id = null;
+
+        MetrologyConfiguration oldMetrologyConfiguration = mockMetrologyConfiguration(234L);
+        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(oldMetrologyConfiguration));
+        ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
+        ElectricityDetailBuilder electricityDetailBuilder = FakeBuilder.initBuilderStub(electricityDetail, ElectricityDetailBuilder.class);
+        when(usagePoint.newElectricityDetailBuilder(any())).thenReturn(electricityDetailBuilder);
+
+        Response response = target("/usagepoints/11").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(usagePoint).removeMetrologyConfiguration(clock.instant());
+        verify(usagePoint, never()).apply(any(), any());
+    }
+
+    @Test
+    public void testAddMetrologyIfNoneExisted() throws Exception {
+        ElectricityUsagePointInfo info = new ElectricityUsagePointInfo();
+        info.id = 999L;
+        info.version = 2L;
+        info.metrologyConfiguration = new LinkInfo<>();
+        info.metrologyConfiguration.id = 235L;
+
+        MetrologyConfiguration newMetrologyConfiguration = mockMetrologyConfiguration(235L);
+        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+        ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
+        ElectricityDetailBuilder electricityDetailBuilder = FakeBuilder.initBuilderStub(electricityDetail, ElectricityDetailBuilder.class);
+        when(usagePoint.newElectricityDetailBuilder(any())).thenReturn(electricityDetailBuilder);
+
+        Response response = target("/usagepoints/11").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(usagePoint, never()).removeMetrologyConfiguration(clock.instant());
+        verify(usagePoint).apply(newMetrologyConfiguration, clock.instant());
+    }
+
+    protected MetrologyConfiguration mockMetrologyConfiguration(long id) {
+        MetrologyConfiguration metrologyConfiguration = mock(MetrologyConfiguration.class);
+        when(metrologyConfiguration.getId()).thenReturn(id);
+        when(metrologyConfigurationService.findMetrologyConfiguration(id)).thenReturn(Optional.of(metrologyConfiguration));
+        return metrologyConfiguration;
+    }
+
+    @Test
     public void testCreateUsagePointWithDetails() throws Exception {
         Instant now = Instant.now(clock);
         GasUsagePointInfo info = new GasUsagePointInfo();
@@ -417,7 +516,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
     public void testUsagePointFields() throws Exception {
         Response response = target("/usagepoints").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(32);
+        assertThat(model.<List>get("$")).hasSize(33);
         assertThat(model.<List<String>>get("$")).containsOnly(
                 "aliasName",
                 "bypass",
@@ -450,6 +549,8 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
                 "servicePriority",
                 "valve",
                 "version",
-                "serviceKind");
+                "serviceKind",
+                "metrologyConfiguration"
+        );
     }
 }

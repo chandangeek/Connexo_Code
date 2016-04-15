@@ -63,7 +63,8 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_MISSING(54, "NoServiceKind", "This field is required"),
     NO_SUCH_SERVICE_CATEGORY(55, "NoSuchServiceCategory", "No such service category"),
     NO_SUCH_PROPERTY_SET(56, "NoSuchPropertySet", "No such custom property set or the custom property set is not available on the usage point"),
-    UNSUPPORTED_TYPE(57, "TypeNotSupported", "The service category is not supported");
+    UNSUPPORTED_TYPE(57, "TypeNotSupported", "The service category is not supported"),
+    NO_SUCH_METROLOGY_CONFIGURATION(58, "NoSuchMetrologyConfig", "No such metrology configuration");
 
     private final int number;
     private final String key;

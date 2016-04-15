@@ -7,6 +7,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -87,6 +88,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile CommunicationTaskService communicationTaskService;
     private volatile MeteringService meteringService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -118,6 +120,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 ProtocolTaskResource.class,
                 UsagePointResource.class,
                 UsagePointCustomPropertySetResource.class,
+                MetrologyConfigurationResource.class,
 
                 RestExceptionMapper.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
@@ -258,6 +261,11 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.customPropertySetService = customPropertySetService;
     }
 
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
     private Factory<Validator> getValidatorFactory() {
         return new Factory<Validator>() {
             private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
@@ -304,6 +312,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(meteringService).to(MeteringService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
+            bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bindFactory(getValidatorFactory()).to(Validator.class);
 
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
@@ -336,6 +345,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointCustomPropertySetInfoFactory.class).to(UsagePointCustomPropertySetInfoFactory.class);
+            bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
         }
     }
 
