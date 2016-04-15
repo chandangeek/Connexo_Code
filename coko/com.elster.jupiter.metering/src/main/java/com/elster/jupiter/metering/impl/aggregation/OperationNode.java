@@ -9,12 +9,18 @@ class OperationNode implements ServerExpressionNode {
     private final Operator operator;
     private final ServerExpressionNode operand1;
     private final ServerExpressionNode operand2;
+    private final ServerExpressionNode safeDivisor;
 
     OperationNode(Operator operator, ServerExpressionNode operand1, ServerExpressionNode operand2) {
+        this(operator, operand1, operand2, null);
+    }
+
+    OperationNode(Operator operator, ServerExpressionNode operand1, ServerExpressionNode operand2, ServerExpressionNode safeDivisor) {
         super();
         this.operator = operator;
         this.operand1 = operand1;
         this.operand2 = operand2;
+        this.safeDivisor = safeDivisor;
     }
 
     Operator getOperator() {
@@ -27,6 +33,10 @@ class OperationNode implements ServerExpressionNode {
 
     ServerExpressionNode getRightOperand() {
         return this.operand2;
+    }
+
+    ServerExpressionNode getSafeDivisor() {
+        return this.safeDivisor;
     }
 
     @Override

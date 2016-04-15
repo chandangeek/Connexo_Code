@@ -82,6 +82,9 @@ public class ExpressionNodeParser {
         } else if (Function.names().contains(last)) {
             handleFunctionNode(last);
         } else if (Operator.names().contains(last)) {
+            if ("null".equals(value)) {
+                handleNullNode();
+            }
             handleOperationNode(last);
         }
         removeArgumentCounter();
@@ -140,13 +143,26 @@ public class ExpressionNodeParser {
         nodes.add(new ConstantNodeImpl(new BigDecimal(value)));
     }
 
-    private void handleOperationNode(String operator) {
+    private void handleNullNode() {
+        nodes.add(new NullNodeImpl());
+    }
+
+    private void handleOperationNode(String operatorValue) {
         if (nodes.size() < 2) {
-            throw new IllegalArgumentException("Operator '" + operator + "' requires at least 2 arguments");
+            throw new IllegalArgumentException("Operator '" + operatorValue + "' requires at least 2 arguments");
         }
-        OperationNodeImpl operationNode = new OperationNodeImpl(getOperator(operator), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1), thesaurus);
-        nodes.remove(nodes.size() - 2);
-        nodes.remove(nodes.size() - 1);
+        Operator operator = getOperator(operatorValue);
+        OperationNodeImpl operationNode;
+        if (operator.equals(Operator.SAFE_DIVIDE)) {
+            operationNode = new OperationNodeImpl(operator, nodes.get(nodes.size() - 3), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1), thesaurus);
+            nodes.remove(nodes.size() - 3);
+            nodes.remove(nodes.size() - 2);
+            nodes.remove(nodes.size() - 1);
+        } else {
+            operationNode = new OperationNodeImpl(operator, nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1), thesaurus);
+            nodes.remove(nodes.size() - 2);
+            nodes.remove(nodes.size() - 1);
+        }
         nodes.add(operationNode);
     }
 

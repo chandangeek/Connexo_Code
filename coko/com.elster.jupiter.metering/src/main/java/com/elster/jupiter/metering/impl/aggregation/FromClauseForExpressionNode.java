@@ -28,6 +28,11 @@ public class FromClauseForExpressionNode implements ServerExpressionNode.Visitor
     }
 
     @Override
+    public String visitNull(NullNodeImpl nullNode) {
+        return null;
+    }
+
+    @Override
     public String visitVariable(VariableReferenceNode variable) {
         return null;
     }

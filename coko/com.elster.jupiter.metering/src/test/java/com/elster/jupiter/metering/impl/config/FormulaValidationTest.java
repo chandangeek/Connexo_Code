@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -350,40 +351,14 @@ public class FormulaValidationTest {
             node.validate();
         } catch (InvalidNodeException e) {
             // Asserts
-            assertThat(e.getMessage()).isEqualTo("Zero is not an acceptable alternative division argument for safe division.");
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.SAFE_DIVISION_REQUIRES_NON_ZERO_NUMERICAL_CONSTANT);
             throw e;
         }
     }
 
     @Test(expected = InvalidNodeException.class)
-    // formula = safeDivide(readingTypeRequirement1, readingTypeRequirement2, readingTypeRequirement3)
-    public void testSafeDivisionWithIncompatibleExpression() {
-        when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
-        when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
-        when(readingTypeRequirement3.getDimension()).thenReturn(Dimension.REACTIVE_POWER);
-        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
-
-        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
-        ExpressionNodeBuilder nodeBuilder =
-                builder.safeDivide(
-                    builder.requirement(readingTypeRequirement1),
-                    builder.requirement(readingTypeRequirement2),
-                    builder.requirement(readingTypeRequirement3));
-        ExpressionNode node = nodeBuilder.create();
-
-        // Business method
-        try {
-            node.validate();
-        } catch (InvalidNodeException e) {
-            // Asserts
-            assertThat(e.getMessage()).isEqualTo("Only dimensions that are compatible for automatic unit conversion with the dividend can be used as a replacement for a potential zero divisor.");
-            throw e;
-        }
-    }
-
-    @Test
     // formula = safeDivide(readingTypeRequirement1, readingTypeRequirement2, readingTypeRequirement3))
-    public void testSafeDivisionWithCompatibleExpression() {
+    public void testSafeDivisionWithExpression() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
         when(readingTypeRequirement3.getDimension()).thenReturn(Dimension.LENGTH);
@@ -397,11 +372,14 @@ public class FormulaValidationTest {
                     builder.requirement(readingTypeRequirement3));
         ExpressionNode node = nodeBuilder.create();
 
-        // Business method
-        node.validate();
-
-        // Asserts
-        assertThat(node.getDimension()).isEqualTo(Dimension.LENGTH);
+        try {
+            // Business method
+            node.validate();
+        } catch (InvalidNodeException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.SAFE_DIVISION_REQUIRES_NUMERICAL_CONSTANT);
+            throw e;
+        }
     }
 
 }

@@ -75,6 +75,11 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
     }
 
     @Override
+    public ExpressionNodeBuilder nullValue() {
+        return () -> new NullNodeImpl();
+    }
+
+    @Override
     public ExpressionNodeBuilder constant(long value) {
         return () -> new ConstantNodeImpl(BigDecimal.valueOf(value));
     }

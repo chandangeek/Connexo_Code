@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.impl.aggregation.IntermediateDimension;
@@ -63,6 +64,9 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
     }
 
     public String toString() {
+        if (this.getChildren().size() == 3 && this.getOperator().equals(Operator.SAFE_DIVIDE)) {
+            return operator.toString() + "(" + getLeftOperand().toString() + ", " + getRightOperand().toString() + ", " + this.getChildren().get(2).toString() + ")";
+        }
         return operator.toString() + "(" + getLeftOperand().toString() + ", " + getRightOperand().toString() + ")";
     }
 
@@ -89,18 +93,14 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
                     throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS_FOR_SAFE_DIVISION);
                 }
                 else {
-                    ExpressionNode zeroReplacementNode = this.getChildren().get(2);
-                    if (this.isConstantNode(zeroReplacementNode)) {
-                        ConstantNode constant = (ConstantNode) zeroReplacementNode;
+                    ExpressionNode constantReplacingZero = this.getChildren().get(2);
+                    if ((!this.isConstantNode(constantReplacingZero)) && (!this.isNullNode(constantReplacingZero))) {
+                        throw new InvalidNodeException(thesaurus, MessageSeeds.SAFE_DIVISION_REQUIRES_NUMERICAL_CONSTANT);
+                    } else if (this.isConstantNode(constantReplacingZero)) {
+                        ConstantNode constant = (ConstantNode) constantReplacingZero;
                         if (constant.getValue().equals(BigDecimal.ZERO)) {
                             throw new InvalidNodeException(thesaurus, MessageSeeds.SAFE_DIVISION_REQUIRES_NON_ZERO_NUMERICAL_CONSTANT);
                         }
-                    } else {
-                        // Validate that right and its replacement have the same dimension
-                        AbstractNode replacement = (AbstractNode) zeroReplacementNode;
-                        if (!UnitConversionSupport.areCompatibleForAutomaticUnitConversion(right.getDimension(), replacement.getDimension())) {
-                            throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_REPLACEMENT_FOR_SAFE_DIVISION);
-                        };
                     }
                 }
             }
@@ -110,6 +110,10 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
 
     private boolean isConstantNode(ExpressionNode node) {
         return node instanceof ConstantNode;
+    }
+
+    private boolean isNullNode(ExpressionNode node) {
+        return node instanceof NullNode;
     }
 
     @Override

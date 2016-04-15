@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.FunctionCallNode;
+import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
@@ -10,6 +11,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ExpressionNode.Visitor} interface
@@ -25,12 +27,12 @@ public class DeliverableNodesFromExpressionNode implements ExpressionNode.Visito
 
     @Override
     public List<ReadingTypeDeliverableNode> visitConstant(ConstantNode constant) {
-        return new ArrayList<ReadingTypeDeliverableNode>();
+        return new ArrayList<>();
     }
 
     @Override
     public List<ReadingTypeDeliverableNode> visitRequirement(ReadingTypeRequirementNode requirement) {
-        return new ArrayList<ReadingTypeDeliverableNode>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -44,17 +46,21 @@ public class DeliverableNodesFromExpressionNode implements ExpressionNode.Visito
     }
 
     @Override
-    public List<ReadingTypeDeliverableNode> visitFunctionCall(FunctionCallNode functionCall) {
+     public List<ReadingTypeDeliverableNode> visitFunctionCall(FunctionCallNode functionCall) {
         return getDeliverableNodesFromChildren(functionCall);
     }
 
-    private List<ReadingTypeDeliverableNode> getDeliverableNodesFromChildren(ExpressionNode node) {
-        List<ReadingTypeDeliverableNode> result = new ArrayList<ReadingTypeDeliverableNode>();
-        for (ExpressionNode child : node.getChildren()) {
-            result.addAll(child.accept(new DeliverableNodesFromExpressionNode()));
-        }
-        return result;
+    @Override
+    public List<ReadingTypeDeliverableNode> visitNull(NullNode nullNode) {
+        return new ArrayList<>();
     }
 
+    private List<ReadingTypeDeliverableNode> getDeliverableNodesFromChildren(ExpressionNode node) {
+        return node.getChildren()
+                .stream()
+                .map(child -> child.accept(new DeliverableNodesFromExpressionNode()))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
 
 }

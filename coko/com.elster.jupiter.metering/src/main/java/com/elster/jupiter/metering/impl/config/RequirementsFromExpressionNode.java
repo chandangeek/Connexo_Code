@@ -4,6 +4,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.FunctionCallNode;
+import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -12,6 +13,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ExpressionNode.Visitor} interface
@@ -27,7 +29,7 @@ public class RequirementsFromExpressionNode implements ExpressionNode.Visitor<Li
 
     @Override
     public List<ReadingTypeRequirement> visitConstant(ConstantNode constant) {
-        return new ArrayList<ReadingTypeRequirement>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -50,14 +52,17 @@ public class RequirementsFromExpressionNode implements ExpressionNode.Visitor<Li
         return getRequirementsFromChildren(functionCall);
     }
 
-    private List<ReadingTypeRequirement> getRequirementsFromChildren(ExpressionNode node) {
-        List<ReadingTypeRequirement> result = new ArrayList<ReadingTypeRequirement>();
-        for (ExpressionNode child : node.getChildren()) {
-            result.addAll(child.accept(new RequirementsFromExpressionNode()));
-        }
-        return result;
+    @Override
+    public List<ReadingTypeRequirement> visitNull(NullNode nullNode) {
+        return new ArrayList<>();
     }
 
-
+    private List<ReadingTypeRequirement> getRequirementsFromChildren(ExpressionNode node) {
+        return node.getChildren()
+                .stream()
+                .map(child -> child.accept(new RequirementsFromExpressionNode()))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
 
 }

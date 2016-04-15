@@ -181,15 +181,7 @@ class ReadingTypeDeliverableForMeterActivation {
                             this.targetReadingType));
             sqlBuilder.append(")");
         } else {
-            if (this.expressionReadingType.equalsIgnoreCommodity(this.targetReadingType)) {
-                sqlBuilder.append(
-                        this.expressionReadingType.buildSqlUnitConversion(
-                                this.mode,
-                                this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
-                                this.targetReadingType));
-            } else {
-                this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
-            }
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
         }
     }
 
@@ -301,6 +293,12 @@ class ReadingTypeDeliverableForMeterActivation {
 
         @Override
         public Void visitVariable(VariableReferenceNode variable) {
+            // Nothing to finish here
+            return null;
+        }
+
+        @Override
+        public Void visitNull(NullNodeImpl nullNode) {
             // Nothing to finish here
             return null;
         }

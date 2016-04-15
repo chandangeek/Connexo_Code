@@ -1555,7 +1555,7 @@ public class FormulaCrudTest {
                     builder.safeDivide(
                             builder.requirement(req_kWh),
                             builder.constant(0),
-                            builder.requirement(req_Wh)));
+                            builder.constant(1)));
         } catch (InvalidNodeException e) {
             fail("No InvalidNodeException expected!");
         }
@@ -1564,7 +1564,7 @@ public class FormulaCrudTest {
     @Test
     @Transactional
     // formula = Requirement
-    public void testSafeDivisionWithAddition() {
+    public void testSafeDivisionWithNull() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
         assertThat(serviceCategory.isPresent());
@@ -1575,11 +1575,7 @@ public class FormulaCrudTest {
         ReadingType fifteenMinRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
-        ReadingType fifteenMinWhRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "fifteenMinWhRT");
         ReadingTypeRequirement req_kWh = config.newReadingTypeRequirement("15Min_kWh").withReadingType(fifteenMinRT);
-        ReadingTypeRequirement req_Wh = config.newReadingTypeRequirement("15Min_Wh").withReadingType(fifteenMinWhRT);
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("monthly", fifteenMinRT, Formula.Mode.AUTO);
         try {
@@ -1587,9 +1583,7 @@ public class FormulaCrudTest {
                     builder.safeDivide(
                             builder.requirement(req_kWh),
                             builder.constant(0),
-                            builder.plus(
-                                    builder.requirement(req_kWh),
-                                    builder.requirement(req_Wh))));
+                            builder.nullValue()));
         } catch (InvalidNodeException e) {
             fail("No InvalidNodeException expected!");
         }
@@ -1749,5 +1743,105 @@ public class FormulaCrudTest {
             assertEquals(e.getMessage(), "The readingtype is already used for another deliverable on this metrology configuration.");
         }
     }
+
+    @Test
+    @Transactional
+    // formula = 10 (constant)
+    public void testSafeDivideUsingParser() {
+        Formula.Mode myMode = Formula.Mode.AUTO;
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        ExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse(
+                "safe_divide(constant(10), constant(20), constant(30))");
+
+        Formula formula = service.newFormulaBuilder(myMode).init(node).build();
+        long formulaId = formula.getId();
+        Optional<Formula> loadedFormula = service.findFormula(formulaId);
+        assertThat(loadedFormula).isPresent();
+        Formula myFormula = loadedFormula.get();
+        assertThat(myFormula.getId()).isEqualTo(formulaId);
+        assertThat(myFormula.getMode()).isEqualTo(myMode);
+        ExpressionNode myNode = myFormula.getExpressionNode();
+        assertThat(myNode).isEqualTo(node);
+        assertThat(myNode).isInstanceOf(OperationNodeImpl.class);
+        OperationNode operationNode = (OperationNode) myNode;
+        assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
+        assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
+        assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
+        assertThat(operationNode.getChildren().get(2)).isInstanceOf(ConstantNodeImpl.class);
+        assertThat(((ConstantNode) operationNode.getChildren().get(2)).getValue()).isEqualTo(new BigDecimal(30));
+    }
+
+    @Test
+    @Transactional
+    // formula = 10 (constant)
+    public void testSafeDivideWithNullUsingParser() {
+        Formula.Mode myMode = Formula.Mode.AUTO;
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        ExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse(
+                "safe_divide(constant(10), constant(20), null)");
+
+        Formula formula = service.newFormulaBuilder(myMode).init(node).build();
+        long formulaId = formula.getId();
+        Optional<Formula> loadedFormula = service.findFormula(formulaId);
+        assertThat(loadedFormula).isPresent();
+        Formula myFormula = loadedFormula.get();
+        assertThat(myFormula.getId()).isEqualTo(formulaId);
+        assertThat(myFormula.getMode()).isEqualTo(myMode);
+        ExpressionNode myNode = myFormula.getExpressionNode();
+        assertThat(myNode).isEqualTo(node);
+        assertThat(myNode).isInstanceOf(OperationNodeImpl.class);
+        OperationNode operationNode = (OperationNode) myNode;
+        assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
+        assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
+        assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
+        assertThat(operationNode.getChildren().get(2)).isInstanceOf(NullNodeImpl.class);
+    }
+
+    @Test
+    @Transactional
+    public void testSafeDivideWithNullUsingBuilder() {
+        Formula.Mode myMode = Formula.Mode.AUTO;
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config11", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config).isNotNull();
+
+        ReadingType AplusRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
+
+        assertThat(AplusRT).isNotNull();
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable1 = null;
+        try {
+            deliverable1 = builder.build(builder.safeDivide(builder.constant(10), builder.constant(20), builder.nullValue()));
+            assertThat(deliverable1).isNotNull();
+        } catch (InvalidNodeException e) {
+            fail("no InvalidNodeException expected");
+        }
+
+        Formula formula = deliverable1.getFormula();
+        assertThat(formula.getMode()).isEqualTo(myMode);
+        ExpressionNode myNode = formula.getExpressionNode();
+        assertThat(myNode).isInstanceOf(OperationNodeImpl.class);
+        OperationNode operationNode = (OperationNode) myNode;
+        assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
+        assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
+        assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
+        assertThat(operationNode.getChildren().get(2)).isInstanceOf(NullNodeImpl.class);
+    }
+
 
 }
