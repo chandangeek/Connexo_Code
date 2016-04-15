@@ -14,6 +14,7 @@ import java.math.BigDecimal;
  */
 public interface ServerFormulaBuilder extends FormulaBuilder {
 
+    ExpressionNodeBuilder nullValue();
     ExpressionNodeBuilder constant(BigDecimal value);
     ExpressionNodeBuilder constant(long value);
     ExpressionNodeBuilder constant(double value);

@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.impl.aggregation.IntermediateDimension;
@@ -93,9 +94,9 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
                 }
                 else {
                     ExpressionNode constantReplacingZero = this.getChildren().get(2);
-                    if (!this.isConstantNode(constantReplacingZero)) {
+                    if ((!this.isConstantNode(constantReplacingZero)) && (!this.isNullNode(constantReplacingZero))) {
                         throw new InvalidNodeException(thesaurus, MessageSeeds.SAFE_DIVISION_REQUIRES_NUMERICAL_CONSTANT);
-                    } else {
+                    } else if (this.isConstantNode(constantReplacingZero)) {
                         ConstantNode constant = (ConstantNode) constantReplacingZero;
                         if (constant.getValue().equals(BigDecimal.ZERO)) {
                             throw new InvalidNodeException(thesaurus, MessageSeeds.SAFE_DIVISION_REQUIRES_NON_ZERO_NUMERICAL_CONSTANT);
@@ -109,6 +110,10 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
 
     private boolean isConstantNode(ExpressionNode node) {
         return node instanceof ConstantNode;
+    }
+
+    private boolean isNullNode(ExpressionNode node) {
+        return node instanceof NullNode;
     }
 
     @Override
