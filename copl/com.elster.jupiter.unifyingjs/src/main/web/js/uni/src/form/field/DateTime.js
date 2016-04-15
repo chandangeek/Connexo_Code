@@ -201,7 +201,7 @@ Ext.define('Uni.form.field.DateTime', {
             dateField = me.down('#date-time-field-date'),
             hoursField = me.down('#date-time-field-hours'),
             minutesField = me.down('#date-time-field-minutes');
-        if (value != null && Ext.isDate(new Date(value))) {
+        if (value != null) {
             me.eachItem(function (item) {
                 item.suspendEvent('change');
             });
