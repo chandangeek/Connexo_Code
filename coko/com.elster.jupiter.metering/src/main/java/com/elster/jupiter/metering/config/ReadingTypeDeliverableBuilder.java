@@ -38,6 +38,8 @@ public interface ReadingTypeDeliverableBuilder {
 
     FormulaBuilder divide(FormulaBuilder dividend, FormulaBuilder divisor);
 
+    FormulaBuilder safeDivide(FormulaBuilder dividend, FormulaBuilder divisor, FormulaBuilder zeroReplacement);
+
     FormulaBuilder multiply(FormulaBuilder multiplier, FormulaBuilder multiplicand);
 
     ReadingTypeDeliverable build(FormulaBuilder nodeBuilder);

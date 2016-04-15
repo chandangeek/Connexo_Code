@@ -34,6 +34,11 @@ public class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor
     }
 
     @Override
+    public String visitNull(NullNode nullNode) {
+        return null;
+    }
+
+    @Override
     public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         return deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName();
     }

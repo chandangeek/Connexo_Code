@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.math.BigDecimal;
 
@@ -13,12 +14,12 @@ import java.math.BigDecimal;
 public enum Operator {
     PLUS {
         @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
+        public void appendSqlOperatorTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(" + ");
         }
 
         @Override
-        public void appendTo(StringBuilder sqlBuilder) {
+        public void appendSqlOperatorTo(StringBuilder sqlBuilder) {
             sqlBuilder.append(" + ");
         }
 
@@ -39,12 +40,12 @@ public enum Operator {
     },
     MINUS {
         @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
+        public void appendSqlOperatorTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(" - ");
         }
 
         @Override
-        public void appendTo(StringBuilder sqlBuilder) {
+        public void appendSqlOperatorTo(StringBuilder sqlBuilder) {
             sqlBuilder.append(" - ");
         }
 
@@ -59,12 +60,12 @@ public enum Operator {
     },
     MULTIPLY {
         @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
+        public void appendSqlOperatorTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(" * ");
         }
 
         @Override
-        public void appendTo(StringBuilder sqlBuilder) {
+        public void appendSqlOperatorTo(StringBuilder sqlBuilder) {
             sqlBuilder.append(" * ");
         }
 
@@ -87,12 +88,12 @@ public enum Operator {
     },
     DIVIDE {
         @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
+        public void appendSqlOperatorTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(" / ");
         }
 
         @Override
-        public void appendTo(StringBuilder sqlBuilder) {
+        public void appendSqlOperatorTo(StringBuilder sqlBuilder) {
             sqlBuilder.append(" / ");
         }
 
@@ -117,11 +118,79 @@ public enum Operator {
                 return super.node(leftOperand, rightOperand);
             }
         }
+    },
+    SAFE_DIVIDE {
+        @Override
+        public void appendTo(SqlBuilder sqlBuilder, SqlFragment operand1, SqlFragment operand2) {
+            sqlBuilder.add(operand1);
+            this.appendSqlOperatorTo(sqlBuilder);
+            sqlBuilder.append("decode(");
+            sqlBuilder.add(operand2);
+            sqlBuilder.append(", 0, null, ");
+            sqlBuilder.add(operand2);
+            sqlBuilder.append(")");
+        }
+
+        @Override
+        public void appendSqlOperatorTo(SqlBuilder sqlBuilder) {
+            DIVIDE.appendSqlOperatorTo(sqlBuilder);
+        }
+
+        @Override
+        public void appendTo(StringBuilder builder, String operand1, String operand2) {
+            builder.append(operand1);
+            this.appendSqlOperatorTo(builder);
+            builder.append("decode(");
+            builder.append(operand2);
+            builder.append(", 0, null, ");
+            builder.append(operand2);
+            builder.append(")");
+        }
+
+        @Override
+        public void appendSqlOperatorTo(StringBuilder sqlBuilder) {
+            DIVIDE.appendSqlOperatorTo(sqlBuilder);
+        }
+
+        @Override
+        public ServerExpressionNode node(ServerExpressionNode leftOperand, BigDecimal rightOperand) {
+            if (BigDecimal.ZERO.compareTo(rightOperand) == 0) {
+                // Protect against division by zero on database level
+                throw new ArithmeticException("Division by zero");
+            } else if (BigDecimal.ONE.compareTo(rightOperand) == 0) {
+                return leftOperand;
+            } else {
+                return super.node(leftOperand, rightOperand);
+            }
+        }
+
+        @Override
+        public ServerExpressionNode node(BigDecimal leftOperand, ServerExpressionNode rightOperand) {
+            if (BigDecimal.ZERO.compareTo(leftOperand) == 0) {
+                // Will always produce zero, whatever the right operand is
+                return new NumericalConstantNode(BigDecimal.ZERO);
+            } else {
+                return super.node(leftOperand, rightOperand);
+            }
+        }
+
     };
 
-    public abstract void appendTo(SqlBuilder sqlBuilder);
+    public void appendTo(SqlBuilder sqlBuilder, SqlFragment operand1, SqlFragment operand2) {
+        sqlBuilder.add(operand1);
+        this.appendSqlOperatorTo(sqlBuilder);
+        sqlBuilder.add(operand2);
+    };
 
-    public abstract void appendTo(StringBuilder sqlBuilder);
+    protected abstract void appendSqlOperatorTo(SqlBuilder sqlBuilder);
+
+    public void appendTo(StringBuilder builder, String operand1, String operand2) {
+        builder.append(operand1);
+        this.appendSqlOperatorTo(builder);
+        builder.append(operand2);
+    }
+
+    protected abstract void appendSqlOperatorTo(StringBuilder builder);
 
     /**
      * Returns an {@link OperationNode} that applies this Operator
@@ -176,6 +245,9 @@ public enum Operator {
             }
             case DIVIDE: {
                 return DIVIDE;
+            }
+            case SAFE_DIVIDE: {
+                return SAFE_DIVIDE;
             }
             default: {
                 throw new IllegalArgumentException("Unsupported operator: " + operator.name());

@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.DataModel;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by igh on 26/02/2016.
@@ -126,6 +127,11 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
     @Override
     public ExpressionNodeBuilder divide(ExpressionNodeBuilder dividend, ExpressionNodeBuilder divisor) {
         return () -> new OperationNodeImpl(Operator.DIVIDE, dividend.create(), divisor.create(), thesaurus);
+    }
+
+    @Override
+    public ExpressionNodeBuilder safeDivide(ExpressionNodeBuilder dividend, ExpressionNodeBuilder divisor, ExpressionNodeBuilder zeroReplacementNode) {
+        return () -> new OperationNodeImpl(Operator.SAFE_DIVIDE, dividend.create(), divisor.create(), zeroReplacementNode.create(), thesaurus);
     }
 
     @Override

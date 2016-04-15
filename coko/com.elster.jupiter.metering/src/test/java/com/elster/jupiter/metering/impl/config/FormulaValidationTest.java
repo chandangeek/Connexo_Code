@@ -7,6 +7,8 @@ import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.units.Dimension;
 
+import java.math.BigDecimal;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,8 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
@@ -77,11 +78,8 @@ public class FormulaValidationTest {
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = nodeBuilder.create();
-        try {
-            node.validate();
-        } catch (InvalidNodeException e) {
-            fail("No InvalidNodeException expected!");
-        }
+
+        node.validate();
     }
 
     @Test
@@ -97,14 +95,11 @@ public class FormulaValidationTest {
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = nodeBuilder.create();
-        try {
-            node.validate();
-        } catch (InvalidNodeException e) {
-            fail("No InvalidNodeException expected!");
-        }
+
+        node.validate();
     }
 
-    @Test
+    @Test(expected = InvalidNodeException.class)
     // formula = minus(readingTypeRequirement1, readingTypeRequirement2)
     public void testSubstractionOfIncompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.POWER);
@@ -119,13 +114,13 @@ public class FormulaValidationTest {
         ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
-            fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(),"Only dimensions that are compatible for automatic unit conversion can be summed or substracted.");
+            assertThat(e.getMessage()).isEqualTo("Only dimensions that are compatible for automatic unit conversion can be summed or substracted.");
+            throw e;
         }
     }
 
-    @Test
+    @Test(expected = InvalidNodeException.class)
     // formula = plus(readingTypeRequirement1, readingTypeRequirement2)
     public void testSumOfIncompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.POWER);
@@ -140,13 +135,13 @@ public class FormulaValidationTest {
         ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
-            fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "Only dimensions that are compatible for automatic unit conversion can be summed or substracted.");
+            assertThat(e.getMessage()).isEqualTo("Only dimensions that are compatible for automatic unit conversion can be summed or substracted.");
+            throw e;
         }
     }
 
-    @Test
+    @Test(expected = InvalidNodeException.class)
      // formula = multiply(readingTypeRequirement1, readingTypeRequirement2)
      public void testMultiplicationOfIncompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.POWER);
@@ -161,9 +156,9 @@ public class FormulaValidationTest {
         ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
-            fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "Dimensions from multiplication arguments do not result in a valid dimension.");
+            assertThat(e.getMessage()).isEqualTo("Dimensions from multiplication arguments do not result in a valid dimension.");
+            throw e;
         }
     }
 
@@ -180,12 +175,10 @@ public class FormulaValidationTest {
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = nodeBuilder.create();
-        try {
-            node.validate();
-            assertEquals(node.getDimension(), Dimension.SURFACE);
-        } catch (InvalidNodeException e) {
-            fail("No InvalidNodeException expected!");
-        }
+
+        node.validate();
+
+        assertThat(node.getDimension()).isEqualByComparingTo(Dimension.SURFACE);
     }
 
     @Test
@@ -201,15 +194,13 @@ public class FormulaValidationTest {
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = nodeBuilder.create();
-        try {
-            node.validate();
-            assertEquals(node.getDimension(), Dimension.LENGTH);
-        } catch (InvalidNodeException e) {
-            fail("No InvalidNodeException expected!");
-        }
+
+        node.validate();
+
+        assertThat(node.getDimension()).isEqualTo(Dimension.LENGTH);
     }
 
-    @Test
+    @Test(expected = InvalidNodeException.class)
     // formula = divide(readingTypeRequirement1, readingTypeRequirement2)
     public void testDivisionOfIncompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
@@ -224,9 +215,9 @@ public class FormulaValidationTest {
         ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
-            fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "Dimensions from division arguments do not result in a valid dimension.");
+            assertThat(e.getMessage()).isEqualTo("Dimensions from division arguments do not result in a valid dimension.");
+            throw e;
         }
     }
 
@@ -243,12 +234,10 @@ public class FormulaValidationTest {
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = nodeBuilder.create();
-        try {
-            node.validate();
-            assertEquals(node.getDimension(), Dimension.VOLUME);
-        } catch (InvalidNodeException e) {
-            fail("No InvalidNodeException expected!");
-        }
+
+        node.validate();
+
+        assertThat(node.getDimension()).isEqualTo(Dimension.VOLUME);
     }
 
     @Test
@@ -266,15 +255,13 @@ public class FormulaValidationTest {
                 builder.requirement(readingTypeRequirement2),
                 builder.requirement(readingTypeRequirement3));
         ExpressionNode node = nodeBuilder.create();
-        try {
-            node.validate();
-            assertEquals(node.getDimension(), Dimension.VOLUME);
-        } catch (InvalidNodeException e) {
-            fail("No InvalidNodeException expected!");
-        }
+
+        node.validate();
+
+        assertThat(node.getDimension()).isEqualTo(Dimension.VOLUME);
     }
 
-    @Test
+    @Test(expected = InvalidNodeException.class)
     // formula = max(readingTypeRequirement1, readingTypeRequirement2, readingTypeRequirement3)
     public void testMaximumOfIncompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.VOLUME);
@@ -291,9 +278,9 @@ public class FormulaValidationTest {
         ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
-            fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "Only dimensions that are compatible for automatic unit conversion can be used as children of a function.");
+            assertThat(e.getMessage()).isEqualTo("Only dimensions that are compatible for automatic unit conversion can be used as children of a function.");
+            throw e;
         }
     }
 
@@ -315,12 +302,106 @@ public class FormulaValidationTest {
                         builder.requirement(temperature1)),
                 builder.divide(builder.requirement(temperature2), builder.requirement(pressure2)) );
         ExpressionNode node = nodeBuilder.create();
+
+        node.validate();
+
+        assertThat(node.getDimension()).isEqualTo(Dimension.VOLUME);
+    }
+
+    @Test
+    // formula = safeDivide(readingTypeRequirement1, readingTypeRequirement2, constant(1))
+    public void testSafeDivisionByOne() {
+        when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
+        when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ExpressionNodeBuilder nodeBuilder =
+                builder.safeDivide(
+                    builder.requirement(readingTypeRequirement1),
+                    builder.requirement(readingTypeRequirement2),
+                    builder.constant(BigDecimal.ONE));
+        ExpressionNode node = nodeBuilder.create();
+
+        // Business method
+        node.validate();
+
+        // Asserts
+        assertThat(node.getDimension()).isEqualTo(Dimension.LENGTH);
+    }
+
+    @Test(expected = InvalidNodeException.class)
+    // formula = safeDivide(readingTypeRequirement1, readingTypeRequirement2, constant(0))
+    public void testSafeDivisionByZero() {
+        when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
+        when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ExpressionNodeBuilder nodeBuilder =
+                builder.safeDivide(
+                    builder.requirement(readingTypeRequirement1),
+                    builder.requirement(readingTypeRequirement2),
+                    builder.constant(BigDecimal.ZERO));
+        ExpressionNode node = nodeBuilder.create();
+
+        // Business method
         try {
             node.validate();
-            assertEquals(node.getDimension(), Dimension.VOLUME);
         } catch (InvalidNodeException e) {
-            fail("No InvalidNodeException expected!");
+            // Asserts
+            assertThat(e.getMessage()).isEqualTo("Zero is not an acceptable alternative division argument for safe division.");
+            throw e;
         }
+    }
+
+    @Test(expected = InvalidNodeException.class)
+    // formula = safeDivide(readingTypeRequirement1, readingTypeRequirement2, readingTypeRequirement3)
+    public void testSafeDivisionWithIncompatibleExpression() {
+        when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
+        when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
+        when(readingTypeRequirement3.getDimension()).thenReturn(Dimension.REACTIVE_POWER);
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ExpressionNodeBuilder nodeBuilder =
+                builder.safeDivide(
+                    builder.requirement(readingTypeRequirement1),
+                    builder.requirement(readingTypeRequirement2),
+                    builder.requirement(readingTypeRequirement3));
+        ExpressionNode node = nodeBuilder.create();
+
+        // Business method
+        try {
+            node.validate();
+        } catch (InvalidNodeException e) {
+            // Asserts
+            assertThat(e.getMessage()).isEqualTo("Only dimensions that are compatible for automatic unit conversion with the dividend can be used as a replacement for a potential zero divisor.");
+            throw e;
+        }
+    }
+
+    @Test
+    // formula = safeDivide(readingTypeRequirement1, readingTypeRequirement2, readingTypeRequirement3))
+    public void testSafeDivisionWithCompatibleExpression() {
+        when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
+        when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
+        when(readingTypeRequirement3.getDimension()).thenReturn(Dimension.LENGTH);
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+        ExpressionNodeBuilder nodeBuilder =
+                builder.safeDivide(
+                    builder.requirement(readingTypeRequirement1),
+                    builder.requirement(readingTypeRequirement2),
+                    builder.requirement(readingTypeRequirement3));
+        ExpressionNode node = nodeBuilder.create();
+
+        // Business method
+        node.validate();
+
+        // Asserts
+        assertThat(node.getDimension()).isEqualTo(Dimension.LENGTH);
     }
 
 }

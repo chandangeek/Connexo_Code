@@ -306,6 +306,12 @@ class ReadingTypeDeliverableForMeterActivation {
         }
 
         @Override
+        public Void visitNull(NullNode nullNode) {
+            // Nothing to finish here
+            return null;
+        }
+
+        @Override
         public Void visitOperation(OperationNode operation) {
             operation.getLeftOperand().accept(this);
             operation.getRightOperand().accept(this);
