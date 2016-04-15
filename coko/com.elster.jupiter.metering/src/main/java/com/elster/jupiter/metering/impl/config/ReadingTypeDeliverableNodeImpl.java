@@ -45,14 +45,6 @@ public class ReadingTypeDeliverableNodeImpl extends AbstractNode implements Read
         return "D(" + readingTypeDeliverable.get().getId() + ")";
     }
 
-    public List<ReadingTypeRequirementNode> getRequirements() {
-        return ((AbstractNode) readingTypeDeliverable.get().getFormula().getExpressionNode()).getRequirements();
-    }
-
-    @Override
-    public List<ReadingTypeDeliverableNode> getDeliverables() {
-        return Collections.singletonList(this);
-    }
 
     @Override
     public void validate() {

@@ -62,6 +62,11 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
     }
 
     @Override
+    public Void visitNull(NullNodeImpl nullNode) {
+        return null;
+    }
+
+    @Override
     public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         this.visitTableName(deliverable.sqlName());
         return null;

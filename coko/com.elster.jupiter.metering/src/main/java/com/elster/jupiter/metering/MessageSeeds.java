@@ -54,22 +54,26 @@ public enum MessageSeeds implements MessageSeed {
 
     INVALID_ARGUMENTS_FOR_MULTIPLICATION(5001, Constants.INVALID_ARGUMENTS_FOR_MULTIPLICATION, "Dimensions from multiplication arguments do not result in a valid dimension."),
     INVALID_ARGUMENTS_FOR_DIVISION(5002, Constants.INVALID_ARGUMENTS_FOR_DIVISION, "Dimensions from division arguments do not result in a valid dimension."),
-    INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION(5003, Constants.INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION, "Only dimensions that are compatible for automatic unit conversion can be summed or substracted."),
-    INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED(5004, Constants.INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED, "At least 1 child is required for a function call."),
-    INVALID_ARGUMENTS_FOR_FUNCTION_CALL(5005, Constants.INVALID_ARGUMENTS_FOR_FUNCTION_CALL, "Only dimensions that are compatible for automatic unit conversion can be used as children of a function."),
-    INVALID_DIMENSION(5006, Constants.INVALID_DIMENSION, "Invalid dimension"),
-    CONTRACT_NOT_ACTIVE(5007, Constants.CONTRACT_NOT_ACTIVE, "The metrology contract with purpose {0} is not active on usage point ''{1}'' during the requested data aggregation period ({2})"),
-    INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT(5008, Constants.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, "The requirement with id ''{0}'' cannot be used because it has a different metrology configuration."),
-    INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE(5009, Constants.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, "The deliverable with id ''{0}'' cannot be used because it has a different metrology configuration."),
-    READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(5010, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The readingtype \"{0}\" is not compatible with the dimension of the formula of deliverable \"{2} = {1}\"."),
-    NO_FUNCTIONS_ALLOWED_IN_AUTOMODE(5011, Constants.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE, "Functions are not allowed in auto mode."),
-    IRREGULAR_READINGTYPE_IN_DELIVERABLE(5012, Constants.IRREGULAR_READINGTYPE_IN_DELIVERABLE, "Irregular readingtypes are not allowed for a deliverable."),
-    IRREGULAR_READINGTYPE_IN_REQUIREMENT(5013, Constants.IRREGULAR_READINGTYPE_IN_REQUIREMENT, "Irregular readingtypes are not allowed for a requirement."),
-    INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS(5014, Constants.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS, "The interval of the output reading type should be larger or equal to interval of the requirements in the formula."),
-    AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED(5015, Constants.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED, "Auto mode and export mode cannot be combined."),
-    INVALID_READINGTYPE_IN_DELIVERABLE(5016, Constants.INVALID_READINGTYPE_IN_DELIVERABLE, "The readingtype for the deliverable is not valid, it should represent a numerical value."),
-    INVALID_READINGTYPE_IN_REQUIREMENT(5017, Constants.INVALID_READINGTYPE_IN_REQUIREMENT, "The readingtype for a requirement is not valid, it should represent a numerical value."),
-    INCOMPATIBLE_INTERVAL_LENGTHS(5018, Constants.INCOMPATIBLE_INTERVAL_LENGTHS, "''{0}'' values cannot be aggregated to ''{1}'' values.")
+    INVALID_NUMBER_OF_ARGUMENTS_FOR_SAFE_DIVISION(5003, Constants.INVALID_NUMBER_OF_ARGUMENTS_FOR_SAFE_DIVISION, "Safe division requires 3 arguments."),
+    SAFE_DIVISION_REQUIRES_NUMERICAL_CONSTANT(5004, Constants.SAFE_DIVISION_REQUIRES_NUMERICAL_CONSTANT, "Safe division argument must be a numerical constant."),
+    SAFE_DIVISION_REQUIRES_NON_ZERO_NUMERICAL_CONSTANT(5005, Constants.SAFE_DIVISION_REQUIRES_NON_ZERO_NUMERICAL_CONSTANT, "Zero is not an acceptable alternative division argument for safe division."),
+    INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION(5006, Constants.INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION, "Only dimensions that are compatible for automatic unit conversion can be summed or substracted."),
+    INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED(5007, Constants.INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED, "At least 1 child is required for a function call."),
+    INVALID_ARGUMENTS_FOR_FUNCTION_CALL(5008, Constants.INVALID_ARGUMENTS_FOR_FUNCTION_CALL, "Only dimensions that are compatible for automatic unit conversion can be used as children of a function."),
+    INVALID_DIMENSION(5009, Constants.INVALID_DIMENSION, "Invalid dimension"),
+
+    CONTRACT_NOT_ACTIVE(6007, Constants.CONTRACT_NOT_ACTIVE, "The metrology contract with purpose {0} is not active on usage point ''{1}'' during the requested data aggregation period ({2})"),
+    INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT(6008, Constants.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, "The requirement with id ''{0}'' cannot be used because it has a different metrology configuration."),
+    INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE(6009, Constants.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, "The deliverable with id ''{0}'' cannot be used because it has a different metrology configuration."),
+    READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(6010, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The readingtype \"{0}\" is not compatible with the dimension of the formula of deliverable \"{2} = {1}\"."),
+    NO_FUNCTIONS_ALLOWED_IN_AUTOMODE(6011, Constants.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE, "Functions are not allowed in auto mode."),
+    IRREGULAR_READINGTYPE_IN_DELIVERABLE(6012, Constants.IRREGULAR_READINGTYPE_IN_DELIVERABLE, "Irregular readingtypes are not allowed for a deliverable."),
+    IRREGULAR_READINGTYPE_IN_REQUIREMENT(6013, Constants.IRREGULAR_READINGTYPE_IN_REQUIREMENT, "Irregular readingtypes are not allowed for a requirement."),
+    INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS(6014, Constants.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS, "The interval of the output reading type should be larger or equal to interval of the requirements in the formula."),
+    AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED(6015, Constants.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED, "Auto mode and export mode cannot be combined."),
+    INVALID_READINGTYPE_IN_DELIVERABLE(6016, Constants.INVALID_READINGTYPE_IN_DELIVERABLE, "The readingtype for the deliverable is not valid, it should represent a numerical value."),
+    INVALID_READINGTYPE_IN_REQUIREMENT(6017, Constants.INVALID_READINGTYPE_IN_REQUIREMENT, "The readingtype for a requirement is not valid, it should represent a numerical value."),
+    INCOMPATIBLE_INTERVAL_LENGTHS(6018, Constants.INCOMPATIBLE_INTERVAL_LENGTHS, "''{0}'' values cannot be aggregated to ''{1}'' values.")
     ;
 
     private final int number;
@@ -143,6 +147,9 @@ public enum MessageSeeds implements MessageSeed {
 
         public static final String INVALID_ARGUMENTS_FOR_MULTIPLICATION = "expression.node.invalid.arguments.multiplication";
         public static final String INVALID_ARGUMENTS_FOR_DIVISION = "expression.node.invalid.arguments.division";
+        public static final String INVALID_NUMBER_OF_ARGUMENTS_FOR_SAFE_DIVISION = "expression.node.invalid.argumentcount.safe.division";
+        public static final String SAFE_DIVISION_REQUIRES_NUMERICAL_CONSTANT = "expression.node.invalid.arguments.safe.division";
+        public static final String SAFE_DIVISION_REQUIRES_NON_ZERO_NUMERICAL_CONSTANT = "expression.node.invalid.arguments.safe.division.notzero";
         public static final String INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION = "expression.node.invalid.arguments.sum.or.substraction";
         public static final String INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED = "expression.node.invalid.arguments.one.child.required";
         public static final String INVALID_ARGUMENTS_FOR_FUNCTION_CALL = "expression.node.invalid.arguments.functioncall";

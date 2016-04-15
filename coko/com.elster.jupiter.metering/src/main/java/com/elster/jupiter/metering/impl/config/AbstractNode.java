@@ -2,8 +2,6 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.config.ExpressionNode;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.aggregation.IntermediateDimension;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -134,20 +132,6 @@ public abstract class AbstractNode implements ExpressionNode {
         return IntermediateDimension.of(getDimension());
     }
 
-    public List<ReadingTypeRequirementNode> getRequirements() {
-        List<ReadingTypeRequirementNode> result = new ArrayList<ReadingTypeRequirementNode>();
-        for (ExpressionNode child : this.getChildren()) {
-            result.addAll(((AbstractNode) child).getRequirements());
-        }
-        return result;
-    }
 
-    public List<ReadingTypeDeliverableNode> getDeliverables() {
-        List<ReadingTypeDeliverableNode> result = new ArrayList<ReadingTypeDeliverableNode>();
-        for (ExpressionNode child : this.getChildren()) {
-            result.addAll(((AbstractNode) child).getDeliverables());
-        }
-        return result;
-    }
 
 }
