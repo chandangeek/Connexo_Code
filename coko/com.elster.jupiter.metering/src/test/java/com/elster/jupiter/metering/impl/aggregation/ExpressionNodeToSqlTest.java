@@ -11,10 +11,13 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -24,40 +27,48 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ExpressionNodeToString} component.
+ * Tests the {@link ExpressionNodeToSql} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-04-14 (16:34)
  */
-public class ExpressionNodeToStringTest {
+public class ExpressionNodeToSqlTest {
 
     @Test
     public void testNull() {
         // Business method
-        String expression = testInstance().visitNull(new NullNodeImpl());
+        String expression = testInstance().visitNull(new NullNodeImpl()).getText();
 
         // Asserts
         assertThat(expression).isEqualTo("null");
     }
 
     @Test
-    public void testNumericalConstant() {
+    public void testNumericalConstant() throws SQLException {
         // Business method
-        String expression = testInstance().visitConstant(new NumericalConstantNode(BigDecimal.TEN));
+        SqlFragment sqlFragment = testInstance().visitConstant(new NumericalConstantNode(BigDecimal.TEN));
 
         // Asserts
-        assertThat(expression).isEqualTo("10");
+        String expression = sqlFragment.getText();
+        assertThat(expression).isEqualTo(" ? ");
+        PreparedStatement statement = mock(PreparedStatement.class);
+        sqlFragment.bind(statement, 1);
+        verify(statement).setObject(1, BigDecimal.TEN);
     }
 
     @Test
-    public void testStringConstant() {
+    public void testStringConstant() throws SQLException {
         String expectedExpression = "Whatever";
 
         // Business method
-        String expression = testInstance().visitConstant(new StringConstantNode(expectedExpression));
+        SqlFragment sqlFragment = testInstance().visitConstant(new StringConstantNode(expectedExpression));
 
         // Asserts
-        assertThat(expression).isEqualTo(expectedExpression);
+        String expression = sqlFragment.getText();
+        assertThat(expression).isEqualTo(" ? ");
+        PreparedStatement statement = mock(PreparedStatement.class);
+        sqlFragment.bind(statement, 1);
+        verify(statement).setObject(1, expectedExpression);
     }
 
     @Test
@@ -65,92 +76,116 @@ public class ExpressionNodeToStringTest {
         String name = "variableName";
 
         // Business method
-        String expression = testInstance().visitVariable(new VariableReferenceNode(name));
+        String expression = testInstance().visitVariable(new VariableReferenceNode(name)).getText();
 
         // Asserts
         assertThat(expression).isEqualTo(name);
     }
 
     @Test
-    public void testVariablePlusConstant() {
+    public void testVariablePlusConstant() throws SQLException {
         String variableName = "var";
         VariableReferenceNode variable = new VariableReferenceNode(variableName);
         OperationNode operation = new OperationNode(Operator.PLUS, variable, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
-        String expression = testInstance().visitOperation(operation);
+        SqlFragment sqlFragment = testInstance().visitOperation(operation);
 
         // Asserts
-        assertThat(expression).isEqualTo("(" + variableName + " + 10)");
+        String expression = sqlFragment.getText().replace(" ", "");
+        assertThat(expression).isEqualTo("(" + variableName + "+?)");
+        PreparedStatement statement = mock(PreparedStatement.class);
+        sqlFragment.bind(statement, 1);
+        verify(statement).setObject(1, BigDecimal.TEN);
     }
 
     @Test
-    public void testVariableMinusConstant() {
+    public void testVariableMinusConstant() throws SQLException {
         String variableName = "var";
         VariableReferenceNode variable = new VariableReferenceNode(variableName);
         OperationNode operation = new OperationNode(Operator.MINUS, variable, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
-        String expression = testInstance().visitOperation(operation);
+        SqlFragment sqlFragment = testInstance().visitOperation(operation);
 
         // Asserts
-        assertThat(expression).isEqualTo("(" + variableName + " - 10)");
+        String expression = sqlFragment.getText().replace(" ", "");
+        assertThat(expression).isEqualTo("(" + variableName + "-?)");
+        PreparedStatement statement = mock(PreparedStatement.class);
+        sqlFragment.bind(statement, 1);
+        verify(statement).setObject(1, BigDecimal.TEN);
     }
 
     @Test
-    public void testVariableTimesConstant() {
+    public void testVariableTimesConstant() throws SQLException {
         String variableName = "var";
         VariableReferenceNode variable = new VariableReferenceNode(variableName);
         OperationNode operation = new OperationNode(Operator.MULTIPLY, variable, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
-        String expression = testInstance().visitOperation(operation);
+        SqlFragment sqlFragment = testInstance().visitOperation(operation);
 
         // Asserts
-        assertThat(expression).isEqualTo("(" + variableName + " * 10)");
+        String expression = sqlFragment.getText().replace(" ", "");
+        assertThat(expression).isEqualTo("(" + variableName + "*?)");
+        PreparedStatement statement = mock(PreparedStatement.class);
+        sqlFragment.bind(statement, 1);
+        verify(statement).setObject(1, BigDecimal.TEN);
     }
 
     @Test
-    public void testVariableDividedByConstant() {
+    public void testVariableDividedByConstant() throws SQLException {
         String variableName = "var";
         VariableReferenceNode variable = new VariableReferenceNode(variableName);
         OperationNode operation = new OperationNode(Operator.DIVIDE, variable, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
-        String expression = testInstance().visitOperation(operation);
+        SqlFragment sqlFragment = testInstance().visitOperation(operation);
 
         // Asserts
-        assertThat(expression).isEqualTo("(" + variableName + " / 10)");
+        String expression = sqlFragment.getText().replace(" ", "");
+        assertThat(expression).isEqualTo("(" + variableName + "/?)");
+        PreparedStatement statement = mock(PreparedStatement.class);
+        sqlFragment.bind(statement, 1);
+        verify(statement).setObject(1, BigDecimal.TEN);
     }
 
     @Test
-    public void testSafeVariableDivision() {
+    public void testSafeVariableDivision() throws SQLException {
         VariableReferenceNode variable1 = new VariableReferenceNode("var1");
         VariableReferenceNode variable2 = new VariableReferenceNode("var2");
         OperationNode operation = new OperationNode(Operator.SAFE_DIVIDE, variable1, variable2, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
-        String expression = testInstance().visitOperation(operation);
+        SqlFragment sqlFragment = testInstance().visitOperation(operation);
 
         // Asserts
-        assertThat(expression).isEqualTo("(var1 / decode(var2, 0, 10, var2))");
+        String expression = sqlFragment.getText().replace(" ", "");
+        assertThat(expression).isEqualTo("(var1/decode(var2,0,?,var2))");
+        PreparedStatement statement = mock(PreparedStatement.class);
+        sqlFragment.bind(statement, 1);
+        verify(statement).setObject(1, BigDecimal.TEN);
     }
 
     @Test
-    public void testFunctionCall() {
+    public void testFunctionCall() throws SQLException {
         VariableReferenceNode variable1 = new VariableReferenceNode("var1");
         VariableReferenceNode variable2 = new VariableReferenceNode("var2");
         FunctionCallNode node = new FunctionCallNode(Function.SUM, variable1, variable2, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
-        String expression = testInstance().visitFunctionCall(node);
+        SqlFragment sqlFragment = testInstance().visitFunctionCall(node);
 
         // Asserts
-        assertThat(expression).isEqualTo("SUM(var1, var2, 10)");
+        String expression = sqlFragment.getText().replace(" ", "");
+        assertThat(expression).isEqualTo("SUM(var1,var2,?)");
+        PreparedStatement statement = mock(PreparedStatement.class);
+        sqlFragment.bind(statement, 1);
+        verify(statement).setObject(1, BigDecimal.TEN);
     }
 
     @Test
-    public void testTimeBasedAggregationForFlow() {
+    public void testTimeBasedAggregationForFlow() throws SQLException {
         TimeBasedAggregationNode node =
                 new TimeBasedAggregationNode(
                         new NumericalConstantNode(BigDecimal.TEN),
@@ -161,14 +196,18 @@ public class ExpressionNodeToStringTest {
                                 Commodity.ELECTRICITY_PRIMARY_METERED));
 
         // Business method
-        String expression = testInstance().visitTimeBasedAggregation(node);
+        SqlFragment sqlFragment = testInstance().visitTimeBasedAggregation(node);
 
         // Asserts
-        assertThat(expression).isEqualTo("AVG(10)");
+        String expression = sqlFragment.getText().replace(" ", "");
+        assertThat(expression).isEqualTo("AVG(?)");
+        PreparedStatement statement = mock(PreparedStatement.class);
+        sqlFragment.bind(statement, 1);
+        verify(statement).setObject(1, BigDecimal.TEN);
     }
 
     @Test
-    public void testTimeBasedAggregationForVolume() {
+    public void testTimeBasedAggregationForVolume() throws SQLException {
         TimeBasedAggregationNode node =
                 new TimeBasedAggregationNode(
                         new NumericalConstantNode(BigDecimal.TEN),
@@ -179,14 +218,18 @@ public class ExpressionNodeToStringTest {
                                 Commodity.ELECTRICITY_PRIMARY_METERED));
 
         // Business method
-        String expression = testInstance().visitTimeBasedAggregation(node);
+        SqlFragment sqlFragment = testInstance().visitTimeBasedAggregation(node);
 
         // Asserts
-        assertThat(expression).isEqualTo("SUM(10)");
+        String expression = sqlFragment.getText().replace(" ", "");
+        assertThat(expression).isEqualTo("SUM(?)");
+        PreparedStatement statement = mock(PreparedStatement.class);
+        sqlFragment.bind(statement, 1);
+        verify(statement).setObject(1, BigDecimal.TEN);
     }
 
     @Test
-    public void testTimeBasedAggregationForTemperature() {
+    public void testTimeBasedAggregationForTemperature() throws SQLException {
         TimeBasedAggregationNode node =
                 new TimeBasedAggregationNode(
                         new NumericalConstantNode(BigDecimal.TEN),
@@ -197,14 +240,18 @@ public class ExpressionNodeToStringTest {
                                 Commodity.WEATHER));
 
         // Business method
-        String expression = testInstance().visitTimeBasedAggregation(node);
+        SqlFragment sqlFragment = testInstance().visitTimeBasedAggregation(node);
 
         // Asserts
-        assertThat(expression).isEqualTo("AVG(10)");
+        String expression = sqlFragment.getText().replace(" ", "");
+        assertThat(expression).isEqualTo("AVG(?)");
+        PreparedStatement statement = mock(PreparedStatement.class);
+        sqlFragment.bind(statement, 1);
+        verify(statement).setObject(1, BigDecimal.TEN);
     }
 
     @Test
-    public void testTimeBasedAggregationForPressure() {
+    public void testTimeBasedAggregationForPressure() throws SQLException {
         TimeBasedAggregationNode node =
                 new TimeBasedAggregationNode(
                         new NumericalConstantNode(BigDecimal.TEN),
@@ -215,10 +262,14 @@ public class ExpressionNodeToStringTest {
                                 Commodity.WEATHER));
 
         // Business method
-        String expression = testInstance().visitTimeBasedAggregation(node);
+        SqlFragment sqlFragment = testInstance().visitTimeBasedAggregation(node);
 
         // Asserts
-        assertThat(expression).isEqualTo("AVG(10)");
+        String expression = sqlFragment.getText().replace(" ", "");
+        assertThat(expression).isEqualTo("AVG(?)");
+        PreparedStatement statement = mock(PreparedStatement.class);
+        sqlFragment.bind(statement, 1);
+        verify(statement).setObject(1, BigDecimal.TEN);
     }
 
     @Test
@@ -277,8 +328,8 @@ public class ExpressionNodeToStringTest {
         return readingType;
     }
 
-    private ExpressionNodeToString testInstance() {
-        return new ExpressionNodeToString();
+    private ExpressionNodeToSql testInstance() {
+        return new ExpressionNodeToSql();
     }
 
 }

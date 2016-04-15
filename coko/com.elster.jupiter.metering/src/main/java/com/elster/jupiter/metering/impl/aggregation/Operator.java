@@ -121,12 +121,14 @@ public enum Operator {
     },
     SAFE_DIVIDE {
         @Override
-        public void appendTo(SqlBuilder sqlBuilder, SqlFragment operand1, SqlFragment operand2) {
+        public void appendTo(SqlBuilder sqlBuilder, SqlFragment operand1, SqlFragment operand2, SqlFragment zeroReplacementOperand) {
             sqlBuilder.add(operand1);
             this.appendSqlOperatorTo(sqlBuilder);
             sqlBuilder.append("decode(");
             sqlBuilder.add(operand2);
-            sqlBuilder.append(", 0, null, ");
+            sqlBuilder.append(", 0, ");
+            sqlBuilder.add(zeroReplacementOperand);
+            sqlBuilder.append(", ");
             sqlBuilder.add(operand2);
             sqlBuilder.append(")");
         }
@@ -178,7 +180,7 @@ public enum Operator {
 
     };
 
-    public void appendTo(SqlBuilder sqlBuilder, SqlFragment operand1, SqlFragment operand2) {
+    public void appendTo(SqlBuilder sqlBuilder, SqlFragment operand1, SqlFragment operand2, SqlFragment zeroReplacementOperand) {
         sqlBuilder.add(operand1);
         this.appendSqlOperatorTo(sqlBuilder);
         sqlBuilder.add(operand2);
