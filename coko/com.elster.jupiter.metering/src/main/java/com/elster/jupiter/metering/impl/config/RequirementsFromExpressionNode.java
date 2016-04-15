@@ -4,6 +4,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.FunctionCallNode;
+import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -48,6 +49,11 @@ public class RequirementsFromExpressionNode implements ExpressionNode.Visitor<Li
     @Override
     public List<ReadingTypeRequirement> visitFunctionCall(FunctionCallNode functionCall) {
         return getRequirementsFromChildren(functionCall);
+    }
+
+    @Override
+    public List<ReadingTypeRequirement> visitNull(NullNode nullNode) {
+        return new ArrayList<ReadingTypeRequirement>();
     }
 
     private List<ReadingTypeRequirement> getRequirementsFromChildren(ExpressionNode node) {

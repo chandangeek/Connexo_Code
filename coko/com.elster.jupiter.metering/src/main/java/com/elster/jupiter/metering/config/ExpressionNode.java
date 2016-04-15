@@ -46,6 +46,7 @@ public interface ExpressionNode {
         T visitDeliverable(ReadingTypeDeliverableNode deliverable);
         T visitOperation(OperationNode operationNode);
         T visitFunctionCall(FunctionCallNode functionCall);
+        T visitNull(NullNode nullNode);
     }
 
     <T> T accept(Visitor<T> visitor);

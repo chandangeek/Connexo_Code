@@ -1,9 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.config.ExpressionNode;
-import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.*;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNodeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNodeImpl;
 
@@ -86,5 +84,12 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
             return new FunctionCallNode(function, arguments);
         }
     }
+
+    @Override
+    public ServerExpressionNode visitNull(com.elster.jupiter.metering.config.NullNode nullNode) {
+        //todo return new com.elster.jupiter.metering.impl.aggregation.NullNode
+        return null;
+    }
+
 
 }

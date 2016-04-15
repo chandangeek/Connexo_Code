@@ -63,6 +63,9 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
     }
 
     public String toString() {
+        if (this.getChildren().size() == 3 && this.getOperator().equals(Operator.SAFE_DIVIDE)) {
+            return operator.toString() + "(" + getLeftOperand().toString() + ", " + getRightOperand().toString() + ", " + this.getChildren().get(2).toString() + ")";
+        }
         return operator.toString() + "(" + getLeftOperand().toString() + ", " + getRightOperand().toString() + ")";
     }
 

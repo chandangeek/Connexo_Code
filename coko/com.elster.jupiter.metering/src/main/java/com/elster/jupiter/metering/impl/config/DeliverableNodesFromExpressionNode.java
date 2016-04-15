@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.FunctionCallNode;
+import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
@@ -44,8 +45,13 @@ public class DeliverableNodesFromExpressionNode implements ExpressionNode.Visito
     }
 
     @Override
-    public List<ReadingTypeDeliverableNode> visitFunctionCall(FunctionCallNode functionCall) {
+     public List<ReadingTypeDeliverableNode> visitFunctionCall(FunctionCallNode functionCall) {
         return getDeliverableNodesFromChildren(functionCall);
+    }
+
+    @Override
+    public List<ReadingTypeDeliverableNode> visitNull(NullNode nullNode) {
+        return new ArrayList<ReadingTypeDeliverableNode>();
     }
 
     private List<ReadingTypeDeliverableNode> getDeliverableNodesFromChildren(ExpressionNode node) {
