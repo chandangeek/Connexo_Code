@@ -1,18 +1,24 @@
-package com.elster.jupiter.metering.config;
+package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.impl.aggregation.*;
-import com.elster.jupiter.metering.impl.config.AbstractNode;
+
+import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.FunctionCallNode;
+import com.elster.jupiter.metering.config.NullNode;
+import com.elster.jupiter.metering.config.OperationNode;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link ServerExpressionNode.Visitor} interface
+ * Provides an implementation for the {@link ExpressionNode.Visitor} interface
  * and returns all deliverables contained in the visited
  * {@link ExpressionNode}
  * or <code>0</code> if the ExpressionNode cannot provide process status flags.
- * A {@link NumericalConstantNode} is a good example of that.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
@@ -43,6 +49,11 @@ public class RequirementsFromExpressionNode implements ExpressionNode.Visitor<Li
     @Override
     public List<ReadingTypeRequirement> visitFunctionCall(FunctionCallNode functionCall) {
         return getRequirementsFromChildren(functionCall);
+    }
+
+    @Override
+    public List<ReadingTypeRequirement> visitNull(NullNode nullNode) {
+        return new ArrayList<ReadingTypeRequirement>();
     }
 
     private List<ReadingTypeRequirement> getRequirementsFromChildren(ExpressionNode node) {

@@ -3,8 +3,6 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
-import com.elster.jupiter.metering.config.RequirementsFromExpressionNode;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
