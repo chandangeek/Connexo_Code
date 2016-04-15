@@ -7404,6 +7404,12 @@ h6 {
   border: none !important;
 }
 
+/* line 27, ../../sass/src/Component.scss */
+.instructional-note {
+  color: #686868;
+  font-style: italic;
+}
+
 /* line 1, ../../sass/src/container/ActionsContainer.scss */
 .x-container-actions {
   margin-top: 32px;
@@ -16876,9 +16882,4 @@ a:hover, a.x-btn:hover {
 .x-btn-action-toolbar-small-over .x-frame-tc,
 .x-btn-action-toolbar-small-over .x-frame-bc {
   background-image: url(images/btn/btn-action-toolbar-small-over-corners.gif);
-}
-/* line 614, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-action-toolbar-small-over .x-frame-ml,
-.x-btn-action-toolbar-small-over .x-frame-mr {
-  background-image: url(images/btn/btn-action-toolbar-small-over-sides.gif);
 }
