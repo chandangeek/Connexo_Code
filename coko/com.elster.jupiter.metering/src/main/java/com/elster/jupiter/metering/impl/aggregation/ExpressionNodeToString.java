@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +20,11 @@ public class ExpressionNodeToString implements ServerExpressionNode.Visitor<Stri
     @Override
     public String visitConstant(NumericalConstantNode constant) {
         return String.valueOf(constant.getValue());
+    }
+
+    @Override
+    public String visitNull(NullNode nullNode) {
+        return "null";
     }
 
     @Override

@@ -25,6 +25,13 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
     }
 
     @Override
+    public SqlFragment visitNull(NullNode nullNode) {
+        SqlBuilder fragment = new SqlBuilder();
+        //todo
+        return fragment;
+    }
+
+    @Override
     public SqlFragment visitConstant(StringConstantNode constant) {
         SqlBuilder fragment = new SqlBuilder();
         fragment.addObject(constant.getValue());
