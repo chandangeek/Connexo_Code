@@ -1,7 +1,9 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
@@ -18,6 +20,7 @@ import com.elster.jupiter.util.units.Quantity;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -31,7 +34,8 @@ import java.util.Optional;
         "osgi.command.scope=dag",
         "osgi.command.function=aggregate",
         "osgi.command.function=activateMetrologyConfig",
-        "osgi.command.function=linkMetrologyConfig"
+        "osgi.command.function=linkMetrologyConfig",
+        "osgi.command.function=setMultiplierValue"
 }, immediate = true)
 public class DataAggregationCommands {
 
@@ -129,6 +133,16 @@ public class DataAggregationCommands {
 //                throw new IllegalArgumentException("Metrology configuration no linkable to usage point");
             usagePoint.apply(configuration);
 
+            context.commit();
+        }
+    }
+
+    public void setMultiplierValue(String meterMRID, String standardMultiplierType, long value) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            MeterActivation meterActivation = meteringService.findMeter(meterMRID).get().getCurrentMeterActivation().get();
+            MultiplierType multiplierType = meteringService.getMultiplierType(MultiplierType.StandardType.valueOf(standardMultiplierType));
+            meterActivation.setMultiplier(multiplierType, BigDecimal.valueOf(value));
             context.commit();
         }
     }
