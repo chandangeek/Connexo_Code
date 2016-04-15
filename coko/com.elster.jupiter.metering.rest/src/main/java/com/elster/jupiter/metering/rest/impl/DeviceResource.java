@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.security.Privileges;
@@ -60,7 +62,7 @@ public class DeviceResource {
     private boolean maySeeAny(SecurityContext securityContext) {
         return securityContext.isUserInRole(Privileges.Constants.VIEW_ANY_USAGEPOINT);
     }
-    
+
     private List<Meter> queryDevices(boolean maySeeAny, QueryParameters queryParameters) {
         Query<Meter> query = meteringService.getMeterQuery();
         if (!maySeeAny) {
@@ -69,14 +71,14 @@ public class DeviceResource {
         List<Meter> meters = queryService.wrap(query).select(queryParameters);
         return meters;
     }
-    
+
     private List<MeterInfo> convertToMeterInfo(List<Meter> meters) {
-    	List<MeterInfo> meterInfos = new ArrayList<MeterInfo>();
-    	for (Meter meter : meters) {
-    		MeterInfo mi = new MeterInfo(meter);
-    		meterInfos.add(mi);
-    	}
-    	return meterInfos;
+        List<MeterInfo> meterInfos = new ArrayList<MeterInfo>();
+        for (Meter meter : meters) {
+            MeterInfo mi = new MeterInfo(meter);
+            meterInfos.add(mi);
+        }
+        return meterInfos;
     }
 
 
@@ -85,12 +87,52 @@ public class DeviceResource {
     @Path("/{mRID}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MeterInfos getDevice(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
-    	MeterInfos result = null;
+        MeterInfos result = null;
         if (maySeeAny(securityContext)) {
-        	Optional<Meter> ometer = meteringService.findMeter(mRID);
-        	if ( ometer.isPresent()) {
-        		result = new MeterInfos(ometer.get());
-        	}
+            Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+            if (foundMeter.isPresent()) {
+                result = new MeterInfos(foundMeter.get());
+            }
+        }
+        return result;
+    }
+
+    @GET
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT})
+    @Path("/{mRID}/location/{locale}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public LocationMemberInfos getDeviceLocation(@PathParam("mRID") String mRID, @PathParam("locale") String locale, @Context SecurityContext securityContext) {
+        LocationMemberInfos result = null;
+        if (maySeeAny(securityContext)) {
+            Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+            if (foundMeter.isPresent()) {
+                Optional<Location> location = meteringService.findDeviceLocation(foundMeter.get().getMRID());
+                if (location.isPresent()) {
+                    Optional<LocationMember> locationMember = location.get().getMember(locale);
+                    if (locationMember.isPresent()) {
+                        result = new LocationMemberInfos(locationMember.get());
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+
+    @GET
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT})
+    @Path("/{mRID}/locations")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public LocationMemberInfos getDeviceLocations(@PathParam("mRID") String mRID, @PathParam("locale") String locale, @Context SecurityContext securityContext) {
+        LocationMemberInfos result = null;
+        if (maySeeAny(securityContext)) {
+            Optional<Meter> foundMeter = meteringService.findMeter(mRID);
+            if (foundMeter.isPresent()) {
+                Optional<Location> location = meteringService.findDeviceLocation(foundMeter.get().getMRID());
+                if (location.isPresent()) {
+                    result = new LocationMemberInfos(location.get().getMembers());
+                }
+            }
         }
         return result;
     }
