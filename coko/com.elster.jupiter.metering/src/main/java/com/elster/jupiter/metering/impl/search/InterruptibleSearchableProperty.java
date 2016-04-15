@@ -72,7 +72,8 @@ public class InterruptibleSearchableProperty implements SearchableUsagePointProp
     @Override
     public String toDisplay(Object value) {
         if (value instanceof YesNoAnswer) {
-            return ((YesNoAnswer) value).name();
+            String string = value.toString();
+            return thesaurus.getString(string, string);
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }

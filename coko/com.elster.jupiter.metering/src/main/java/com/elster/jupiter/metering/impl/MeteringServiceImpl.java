@@ -62,6 +62,7 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -658,6 +659,17 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         Arrays.stream(AmiBillingReadyKind.values()).forEach(translationKeys::add);
         Arrays.stream(BypassStatus.values()).forEach(translationKeys::add);
         Arrays.stream(TypeSearchableProperty.getTranslationKeys()).forEach(translationKeys::add);
+        Arrays.stream(YesNoAnswer.values()).map(answer -> new TranslationKey() {
+            @Override
+            public String getKey() {
+                return answer.toString();
+            }
+
+            @Override
+            public String getDefaultFormat() {
+                return answer.toString();
+            }
+        }).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         return translationKeys;
     }
