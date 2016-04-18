@@ -30,6 +30,7 @@ public class MetrologyConfigurationInfo {
     public MetrologyConfigurationInfo(UsagePointMetrologyConfiguration usagePointMetrologyConfiguration, List<CustomPropertySetInfo> customPropertySets) {
         this.id = usagePointMetrologyConfiguration.getId();
         this.name = usagePointMetrologyConfiguration.getName();
+        this.version = usagePointMetrologyConfiguration.getVersion();
         this.customPropertySets = customPropertySets;
     }
 }

@@ -235,7 +235,7 @@ public class UsagePointResource {
             return Response.accepted().build();
         }
 
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockfindAndLockUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
         usagePoint.apply(usagePointMetrologyConfiguration);
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
@@ -243,6 +243,7 @@ public class UsagePointResource {
             propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
                     propertySet.getCustomPropertySet().getPropertySpecs()));
         }
+
         return Response.status(Response.Status.OK).entity(usagePointInfoFactory.from(usagePoint)).build();
     }
 
