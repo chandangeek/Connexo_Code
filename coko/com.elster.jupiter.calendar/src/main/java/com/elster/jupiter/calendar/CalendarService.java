@@ -38,7 +38,9 @@ public interface CalendarService {
         CalendarBuilder description(String description);
         CalendarBuilder addEvent(String name, int code);
         DayTypeBuilder newDayType(String name);
-        CalendarBuilder addPeriod(String name, MonthDay start, String mondayDayTypeName, String tuesdayDayTypeName, String wednesdayDayTypeName, String thursdayDayTypeName, String fridayDayTypeName, String saturdayDayTypeName, String sundayDayTypeName);
+        CalendarBuilder addPeriod(String name, String mondayDayTypeName, String tuesdayDayTypeName, String wednesdayDayTypeName, String thursdayDayTypeName, String fridayDayTypeName, String saturdayDayTypeName, String sundayDayTypeName);
+        TransitionBuilder on(MonthDay occurrence);
+        TransitionBuilder on(LocalDate occurrence);
         ExceptionBuilder except(String dayTypeName);
         Calendar add();
     }
@@ -53,6 +55,11 @@ public interface CalendarService {
     @ProviderType
     interface DayTypeEventOccurrenceBuilder {
         DayTypeBuilder startsFrom(LocalTime localTime);
+    }
+
+    @ProviderType
+    interface TransitionBuilder {
+        CalendarBuilder transitionTo(String name);
     }
 
     @ProviderType
