@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 public interface ServerExpressionNode {
 
     interface Visitor<T> {
+        T visitNull(NullNodeImpl nullNode);
         T visitConstant(NumericalConstantNode constant);
         T visitConstant(StringConstantNode constant);
         T visitVariable(VariableReferenceNode variable);

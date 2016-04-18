@@ -35,6 +35,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -218,10 +219,15 @@ public class InstallerImpl {
     }
 
     private List<MultiplierType> createMultiplierTypes() {
-        return Stream
-                .of(MultiplierType.StandardType.values())
-                .map(meteringService::createMultiplierType)
-                .collect(Collectors.toList());
+        try {
+            return Stream
+                    .of(MultiplierType.StandardType.values())
+                    .map(meteringService::createMultiplierType)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error creating multiplier types : " + e.getMessage(), e);
+            return Collections.emptyList();
+        }
     }
 
     private void createReadingTypes() {
@@ -270,6 +276,14 @@ public class InstallerImpl {
                             "type.Flags_Array.sql",
                             "function.aggFlags.sql");
         }
+    }
+
+    private void createLocationTemplate(){
+        meteringService.createLocationTemplate();
+    }
+
+    public void addDefaultData(){
+        createLocationTemplate();
     }
 
 }

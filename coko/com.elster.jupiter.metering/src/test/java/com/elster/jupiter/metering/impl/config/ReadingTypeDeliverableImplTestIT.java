@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -49,6 +50,7 @@ public class ReadingTypeDeliverableImplTestIT {
     private static MetrologyConfiguration metrologyConfiguration;
     private static MetrologyContract metrologyContract;
     private static ReadingType readingType;
+    private static ReadingType readingType2;
 
     @BeforeClass
     public static void setUp() {
@@ -61,6 +63,7 @@ public class ReadingTypeDeliverableImplTestIT {
                     .newMetrologyConfiguration("Test", serviceCategory).create();
             metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
             readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "cons reading type");
+            readingType2 = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "cons reading type 2");
             context.commit();
         }
     }
@@ -127,7 +130,7 @@ public class ReadingTypeDeliverableImplTestIT {
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("name", readingType, Formula.Mode.AUTO);
         builder.build(builder.constant(10));
 
-        ReadingTypeDeliverableBuilder otherBuilder = metrologyConfiguration.newReadingTypeDeliverable("name", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder otherBuilder = metrologyConfiguration.newReadingTypeDeliverable("name", readingType2, Formula.Mode.AUTO);
 
         // Business method
         otherBuilder.build(otherBuilder.constant(10));
@@ -159,7 +162,7 @@ public class ReadingTypeDeliverableImplTestIT {
     public void testSetNonUniqueReadingTypeDeliverableName() {
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("name", readingType, Formula.Mode.AUTO);
         builder.build(builder.constant(10));
-        ReadingTypeDeliverableBuilder otherBuilder = metrologyConfiguration.newReadingTypeDeliverable("otherName", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder otherBuilder = metrologyConfiguration.newReadingTypeDeliverable("otherName", readingType2, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable = otherBuilder.build(otherBuilder.constant(10));
         deliverable.setName("name");
 
@@ -174,7 +177,7 @@ public class ReadingTypeDeliverableImplTestIT {
         ReadingTypeDeliverable deliverable1 = builder.build(builder.constant(10));
         assertThat(deliverable1.getId()).isGreaterThan(0);
 
-        ReadingTypeDeliverableBuilder otherBuilder = metrologyConfiguration.newReadingTypeDeliverable("otherName", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder otherBuilder = metrologyConfiguration.newReadingTypeDeliverable("otherName", readingType2, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable2 = otherBuilder.build(otherBuilder.constant(10));
         assertThat(deliverable2.getId()).isGreaterThan(0);
     }
@@ -369,5 +372,20 @@ public class ReadingTypeDeliverableImplTestIT {
 
         Optional<Formula> formulaRef = inMemoryBootstrapModule.getMetrologyConfigurationService().findFormula(formula.getId());
         assertThat(formulaRef.isPresent()).isFalse();
+    }
+
+    @Test(expected = CannotDeleteReadingTypeDeliverableException.class)
+    @Transactional
+    public void testCanNotDeleteDeliverableWhichIsPartOfFormulaAnotherDeliverable() {
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "reading type 1");
+        ReadingType readingType2 = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.71.0", "reading type 2");
+        FullySpecifiedReadingType requirement = metrologyConfiguration.newReadingTypeRequirement("Requirement").withReadingType(readingType);
+        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("deliverable", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable = builder.build(builder.requirement(requirement));
+        builder = metrologyConfiguration.newReadingTypeDeliverable("deliverable2", readingType2, Formula.Mode.AUTO);
+        builder.build(builder.deliverable(deliverable));
+
+        metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
+        // exception here
     }
 }

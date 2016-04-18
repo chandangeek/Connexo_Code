@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.util.units.Dimension;
 
@@ -45,12 +46,10 @@ public class ConstantNodeImpl extends AbstractNode implements ConstantNode {
        return Dimension.DIMENSIONLESS;
     }
 
+
     @Override
-    public List<ReadingTypeRequirementNode> getRequirements() {
-        return new ArrayList<ReadingTypeRequirementNode>();
+    public void validate() {
+        // No validation for constants
     }
-
-
-
 
 }

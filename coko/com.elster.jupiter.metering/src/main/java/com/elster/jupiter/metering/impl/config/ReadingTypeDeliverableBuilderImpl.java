@@ -76,6 +76,12 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     }
 
     @Override
+    public
+    FormulaBuilder nullValue(){
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.nullValue());
+    }
+
+    @Override
     public FormulaBuilder constant(BigDecimal value) {
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.constant(value));
     }
@@ -135,11 +141,23 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     }
 
     @Override
+    public FormulaBuilder safeDivide(FormulaBuilder dividend, FormulaBuilder divisor, FormulaBuilder zeroReplacement) {
+        return new FormulaAndExpressionNodeBuilder(
+                formulaBuilder.safeDivide(
+                        (FormulaAndExpressionNodeBuilder) dividend,
+                        (FormulaAndExpressionNodeBuilder) divisor,
+                        (FormulaAndExpressionNodeBuilder) zeroReplacement));
+    }
+
+    @Override
     public FormulaBuilder multiply(FormulaBuilder multiplier, FormulaBuilder multiplicand) {
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.multiply((FormulaAndExpressionNodeBuilder) multiplier, (FormulaAndExpressionNodeBuilder) multiplicand));
     }
 
     public ReadingTypeDeliverable doBuild() {
+        if (metrologyConfiguration.getDeliverables().stream().filter(deliverable -> deliverable.getReadingType().equals(readingType)).findAny().isPresent()) {
+            throw new ReadingTypeAlreadyUsedOnMetrologyConfiguration(formulaBuilder.getThesaurus());
+        }
         return metrologyConfiguration.addReadingTypeDeliverable(name, readingType, formulaBuilder.build());
     }
 

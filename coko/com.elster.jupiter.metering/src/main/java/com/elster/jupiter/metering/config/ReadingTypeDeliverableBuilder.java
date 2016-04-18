@@ -16,6 +16,8 @@ public interface ReadingTypeDeliverableBuilder {
 
     FormulaBuilder requirement(ReadingTypeRequirementNode existingNode);
 
+    FormulaBuilder nullValue();
+
     FormulaBuilder constant(BigDecimal value);
 
     FormulaBuilder constant(long value);
@@ -37,6 +39,8 @@ public interface ReadingTypeDeliverableBuilder {
     FormulaBuilder minus(FormulaBuilder term1, FormulaBuilder term2);
 
     FormulaBuilder divide(FormulaBuilder dividend, FormulaBuilder divisor);
+
+    FormulaBuilder safeDivide(FormulaBuilder dividend, FormulaBuilder divisor, FormulaBuilder zeroReplacement);
 
     FormulaBuilder multiply(FormulaBuilder multiplier, FormulaBuilder multiplicand);
 

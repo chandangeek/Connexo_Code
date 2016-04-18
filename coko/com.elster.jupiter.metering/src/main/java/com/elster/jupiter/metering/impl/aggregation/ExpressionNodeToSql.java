@@ -25,6 +25,11 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
     }
 
     @Override
+    public SqlFragment visitNull(NullNodeImpl nullNode) {
+        return new SqlBuilder("null");
+    }
+
+    @Override
     public SqlFragment visitConstant(StringConstantNode constant) {
         SqlBuilder fragment = new SqlBuilder();
         fragment.addObject(constant.getValue());
@@ -39,9 +44,23 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
     @Override
     public SqlFragment visitOperation(OperationNode operationNode) {
         SqlBuilder fragment = new SqlBuilder("(");
-        fragment.add(operationNode.getLeftOperand().accept(this));
-        operationNode.getOperator().appendTo(fragment);
-        fragment.add(operationNode.getRightOperand().accept(this));
+        if (Operator.SAFE_DIVIDE.equals(operationNode.getOperator())) {
+            operationNode
+                    .getOperator()
+                    .appendTo(
+                            fragment,
+                            operationNode.getLeftOperand().accept(this),
+                            operationNode.getRightOperand().accept(this),
+                            operationNode.getSafeDivisor().accept(this));
+        } else {
+            operationNode
+                    .getOperator()
+                    .appendTo(
+                            fragment,
+                            operationNode.getLeftOperand().accept(this),
+                            operationNode.getRightOperand().accept(this),
+                            null);
+        }
         fragment.append(")");
         return fragment;
     }

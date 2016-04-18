@@ -1,7 +1,12 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -227,11 +232,59 @@ public class ReadingTypeRequirementTestIT {
 
     @Test
     @Transactional
+    public void testAPlusMatchesPrimaryMeteredChannel() {
+        ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeTemplate("APlus")
+                .setAttribute(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE.getId())
+                .setAttribute(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD.getId())
+                .setAttribute(
+                        ReadingTypeTemplateAttributeName.COMMODITY,
+                        null,
+                        Commodity.ELECTRICITY_PRIMARY_METERED.getId(),
+                        Commodity.ELECTRICITY_SECONDARY_METERED.getId())
+                .setAttribute(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY.getId())
+                .setAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR.getId())
+                .done();
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "A+ primary metered");
+        PartiallySpecifiedReadingTypeImpl partiallySpecifiedReadingType =
+                (PartiallySpecifiedReadingTypeImpl) metrologyConfiguration
+                        .newReadingTypeRequirement("A+")
+                        .withReadingTypeTemplate(readingTypeTemplate);
+
+        assertThat(partiallySpecifiedReadingType.matches(readingType)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testAPlusMatchesSecondaryMeteredChannel() {
+        ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeTemplate("APlus")
+                .setAttribute(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE.getId())
+                .setAttribute(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD.getId())
+                .setAttribute(
+                        ReadingTypeTemplateAttributeName.COMMODITY,
+                        null,
+                        Commodity.ELECTRICITY_PRIMARY_METERED.getId(),
+                        Commodity.ELECTRICITY_SECONDARY_METERED.getId())
+                .setAttribute(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY.getId())
+                .setAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR.getId())
+                .done();
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.0.72.0", "A+ secondary metered");
+        PartiallySpecifiedReadingTypeImpl partiallySpecifiedReadingType =
+                (PartiallySpecifiedReadingTypeImpl) metrologyConfiguration
+                        .newReadingTypeRequirement("A+")
+                        .withReadingTypeTemplate(readingTypeTemplate);
+
+        assertThat(partiallySpecifiedReadingType.matches(readingType)).isTrue();
+    }
+
+    @Test
+    @Transactional
     public void testMatchOverriddenValuePartiallySpecifiedReadingType() {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .createReadingTypeTemplate("Accumulation reading type template")
+                .setAttribute(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.DELTADELTA.getId())
                 .done();
-        readingTypeTemplate.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.DELTADELTA.getId());
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.9.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "DeltaDelta reading type");
         PartiallySpecifiedReadingTypeImpl partiallySpecifiedReadingType =
                 (PartiallySpecifiedReadingTypeImpl) metrologyConfiguration

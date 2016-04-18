@@ -264,10 +264,10 @@ final class SqlConstants {
         }
 
         void appendAsAggregatedSelectValue(VirtualReadingType sourceReadingType, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
-            sqlBuilder.append(this.aggregationFunctionFor(targetReadingType).sqlName());
-            sqlBuilder.append("(");
-            sqlBuilder.append(this.aggregatedValue(sourceReadingType, targetReadingType));
-            sqlBuilder.append(")");
+            this.aggregationFunctionFor(targetReadingType)
+                    .appendTo(
+                            sqlBuilder,
+                            Collections.singletonList(new TextFragment(this.aggregatedValue(sourceReadingType, targetReadingType))));
         }
 
         abstract AggregationFunction aggregationFunctionFor(VirtualReadingType readingType);

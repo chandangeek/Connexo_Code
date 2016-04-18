@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.domain.util.Save.CREATE;
 import static com.elster.jupiter.domain.util.Save.UPDATE;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
 public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration, HasUniqueName {
@@ -305,6 +306,12 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
+        if (!metrologyConfigurationService.getDataModel()
+                .query(ReadingTypeDeliverableNodeImpl.class)
+                .select(where("readingTypeDeliverable").isEqualTo(deliverable))
+                .isEmpty()) {
+            throw new CannotDeleteReadingTypeDeliverableException(metrologyConfigurationService.getThesaurus(), deliverable.getName());
+        }
         if (this.deliverables.remove(deliverable)) {
             ((ServerFormula) deliverable.getFormula()).delete();
             touch();

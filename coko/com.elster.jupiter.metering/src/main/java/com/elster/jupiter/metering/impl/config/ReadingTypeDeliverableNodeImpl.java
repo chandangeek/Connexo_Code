@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.Dimension;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,7 +45,10 @@ public class ReadingTypeDeliverableNodeImpl extends AbstractNode implements Read
         return "D(" + readingTypeDeliverable.get().getId() + ")";
     }
 
-    public List<ReadingTypeRequirementNode> getRequirements() {
-        return ((AbstractNode) readingTypeDeliverable.get().getFormula().getExpressionNode()).getRequirements();
+
+    @Override
+    public void validate() {
+        // No validation for constants
     }
+
 }

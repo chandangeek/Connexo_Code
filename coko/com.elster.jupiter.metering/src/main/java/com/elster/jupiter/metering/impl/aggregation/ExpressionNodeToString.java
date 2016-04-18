@@ -22,6 +22,11 @@ public class ExpressionNodeToString implements ServerExpressionNode.Visitor<Stri
     }
 
     @Override
+    public String visitNull(NullNodeImpl nullNode) {
+        return "null";
+    }
+
+    @Override
     public String visitConstant(StringConstantNode constant) {
         return constant.getValue();
     }
@@ -34,9 +39,23 @@ public class ExpressionNodeToString implements ServerExpressionNode.Visitor<Stri
     @Override
     public String visitOperation(OperationNode operationNode) {
         StringBuilder fragment = new StringBuilder("(");
-        fragment.append(operationNode.getLeftOperand().accept(this));
-        operationNode.getOperator().appendTo(fragment);
-        fragment.append(operationNode.getRightOperand().accept(this));
+        if (Operator.SAFE_DIVIDE.equals(operationNode.getOperator())) {
+            operationNode
+                    .getOperator()
+                    .appendTo(
+                            fragment,
+                            operationNode.getLeftOperand().accept(this),
+                            operationNode.getRightOperand().accept(this),
+                            operationNode.getSafeDivisor().accept(this));
+        } else {
+            operationNode
+                    .getOperator()
+                    .appendTo(
+                            fragment,
+                            operationNode.getLeftOperand().accept(this),
+                            operationNode.getRightOperand().accept(this),
+                            null);
+        }
         fragment.append(")");
         return fragment.toString();
     }

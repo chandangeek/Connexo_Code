@@ -45,10 +45,18 @@ public class VirtualReadingTypeRelativeComparator implements Comparator<VirtualR
             }
         } else if (y.equals(this.target)) {
             return 1;
+        } else if (x.equalsIgnoreCommodity(this.target)) {
+            if (y.equalsIgnoreCommodity(this.target)) {
+                return this.compareCommodity(x, y);
+            } else {
+                return -1;
+            }
+        } else if (y.equalsIgnoreCommodity(this.target)) {
+            return 1;
         } else if (this.bothSameUnitAndMultiplierAsTarget(x, y)) {
-            return x.getIntervalLength().compareTo(y.getIntervalLength());
+            return comparetToIntervalThenCommodity(x, y);
         } else if (this.bothSameUnitAsTarget(x, y)) {
-            return this.compareToMultiplierThenInterval(x, y);
+            return this.compareToMultiplierThenIntervalThenCommodity(x, y);
         } else {
             /* Remember the assumption that x and y have been produced by a matching
              * algorithm against the target so they are in some way compatible with the target. */
@@ -89,20 +97,46 @@ public class VirtualReadingTypeRelativeComparator implements Comparator<VirtualR
                  * Calculation errors will relate to unit conversion
                  * and multiplier conversion. The latter is the
                  * only one that we consider for now. */
-                return this.compareToMultiplierThenInterval(x, y);
+                return this.compareToMultiplierThenIntervalThenCommodity(x, y);
             }
         }
     }
 
-    private int compareToMultiplierThenInterval(VirtualReadingType x, VirtualReadingType y) {
+    private int compareToMultiplierThenIntervalThenCommodity(VirtualReadingType x, VirtualReadingType y) {
         int targetMultiplier = this.target.getUnitMultiplier().getMultiplier();
         int xToTarget = x.getUnitMultiplier().getMultiplier() - targetMultiplier;
         int yToTarget = y.getUnitMultiplier().getMultiplier() - targetMultiplier;
         int multiplierCompareResult = Integer.compare(xToTarget, yToTarget);
         if (multiplierCompareResult == 0) {
-            return x.getIntervalLength().compareTo(y.getIntervalLength());
+            return this.comparetToIntervalThenCommodity(x, y);
         } else {
             return multiplierCompareResult;
+        }
+    }
+
+    private int comparetToIntervalThenCommodity(VirtualReadingType x, VirtualReadingType y) {
+        int intervalLengthCompareResult = x.getIntervalLength().compareTo(y.getIntervalLength());
+        if (intervalLengthCompareResult == 0) {
+            // Favour the primary metered one
+            return this.compareCommodity(x, y);
+        } else {
+            return intervalLengthCompareResult;
+        }
+    }
+
+    private int compareCommodity(VirtualReadingType x, VirtualReadingType y) {
+        if (x.isPrimaryMetered()) {
+            if (y.isPrimaryMetered()) {
+                return 0;
+            } else {
+                return -1;
+            }
+        } else {
+            if (y.isPrimaryMetered()) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
     }
 

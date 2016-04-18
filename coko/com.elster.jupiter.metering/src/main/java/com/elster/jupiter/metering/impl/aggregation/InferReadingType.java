@@ -55,6 +55,11 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
     }
 
     @Override
+    public VirtualReadingType visitNull(NullNodeImpl nullNode) {
+        return VirtualReadingType.dontCare();
+    }
+
+    @Override
     public VirtualReadingType visitVariable(VariableReferenceNode variable) {
         return VirtualReadingType.dontCare();
     }
@@ -202,6 +207,11 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         }
 
         @Override
+        public Boolean visitNull(NullNodeImpl nullNode) {
+            return Boolean.TRUE;
+        }
+
+        @Override
         public Boolean visitConstant(StringConstantNode constant) {
             return Boolean.TRUE;
         }
@@ -270,6 +280,11 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         }
 
         @Override
+        public Void visitNull(NullNodeImpl nullNode) {
+            return null;
+        }
+
+        @Override
         public Void visitVariable(VariableReferenceNode variable) {
             return null;
         }
@@ -329,6 +344,11 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
 
         @Override
         public Void visitConstant(StringConstantNode constant) {
+            return null;
+        }
+
+        @Override
+        public Void visitNull(NullNodeImpl nullNode) {
             return null;
         }
 

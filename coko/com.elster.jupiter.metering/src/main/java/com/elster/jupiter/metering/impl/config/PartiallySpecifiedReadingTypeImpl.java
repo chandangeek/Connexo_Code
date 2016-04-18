@@ -19,9 +19,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.Dimension;
 
 import javax.inject.Inject;
-import java.time.Duration;
-import java.time.Period;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
