@@ -235,7 +235,7 @@ public class UsagePointResource {
             return Response.accepted().build();
         }
 
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findUsagePointMetrologyConfigurationOrThrowException(info.id);
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
         usagePoint.apply(usagePointMetrologyConfiguration);
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             UsagePointPropertySet propertySet = usagePoint.forCustomProperties()

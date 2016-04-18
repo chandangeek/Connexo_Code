@@ -48,8 +48,10 @@ public class ResourceHelper {
         return meteringService.getReadingType(rt_mrid).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_READING_TYPE_FOR_MRID, rt_mrid));
     }
 
-    public UsagePointMetrologyConfiguration findUsagePointMetrologyConfigurationOrThrowException(long id) {
-        return metrologyConfigurationService.findUsagePointMetrologyConfiguration(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
+    public UsagePointMetrologyConfiguration findAndLockUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
+        UsagePointMetrologyConfiguration upmc = metrologyConfigurationService.findUsagePointMetrologyConfiguration(id)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
+        return metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(upmc.getId(), version).get();
     }
 
     public UsagePoint lockUsagePointOrThrowException(UsagePointInfo info) {
