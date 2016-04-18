@@ -16,9 +16,11 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     ],
 
     views: [
+        'Uni.view.window.Confirmation',
         'Mdc.view.setup.dataloggerslaves.Setup',
         'Mdc.view.setup.dataloggerslaves.LinkContainer',
-        'Mdc.view.setup.device.DeviceAdd'
+        'Mdc.view.setup.device.DeviceAdd',
+        'Mdc.view.setup.dataloggerslaves.UnlinkWindow'
     ],
 
     wizardInformation: null,
@@ -34,7 +36,9 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         {ref: 'deviceConfigCombo', selector: '#deviceAddConfig'},
         {ref: 'step2FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step2-errors'},
         {ref: 'step3FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step3-errors'},
-        {ref: 'step4FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step4-errors'}
+        {ref: 'step4FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step4-errors'},
+        {ref: 'unlinkWindow', selector: 'dataloggerslave-unlink-window'},
+        {ref: 'slavesGrid', selector: 'dataLoggerSlavesGrid'}
     ],
 
     init: function () {
@@ -56,6 +60,9 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             },
             '#mdc-dataloggerslaves-action-menu': {
                 click: this.onActionMenuClicked
+            },
+            '#mdc-dataloggerslave-unlink-window-unlink': {
+                click: this.onUnlinkDataLoggerSlave
             }
         });
     },
@@ -542,7 +549,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     onActionMenuClicked: function (menu, item) {
         switch (item.action) {
             case 'unlinkSlave':
-                console.log('To do: unlink the device');
+                Ext.widget('dataloggerslave-unlink-window', {
+                    title: Uni.I18n.translate('general.unlinkX', 'MDC', "Unlink '{0}'?", menu.record.get('mRID')),
+                    dataLoggerSlaveRecord: menu.record
+                }).show();
                 break;
         }
     },
@@ -620,6 +630,28 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         this.wizardInformation.mappedChannels = undefined;
         this.wizardInformation.mappedRegisters = undefined;
         this.wizardInformation.arrivalDate = undefined;
+    },
+
+    onUnlinkDataLoggerSlave: function() {
+        var me = this,
+            unlinkWindow = me.getUnlinkWindow(),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            doUnlink = function() {
+                // Todo: Perform the unlink
+
+                // Update grid:
+                me.getSlavesGrid().getStore().removeAt(
+                    me.getSlavesGrid().getStore().findBy(function(record) {
+                        return record.get('mRID') === unlinkWindow.dataLoggerSlaveRecord.get('mRID');
+                    })
+                );
+                mainView.setLoading(false);
+            };
+
+        unlinkWindow.close();
+        mainView.setLoading();
+        setTimeout(doUnlink, 1500);
     }
+
 });
 
