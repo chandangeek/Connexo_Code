@@ -181,7 +181,15 @@ class ReadingTypeDeliverableForMeterActivation {
                             this.targetReadingType));
             sqlBuilder.append(")");
         } else {
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
+            if (!this.expressionReadingType.equalsIgnoreCommodity(this.targetReadingType)) {
+                sqlBuilder.append(
+                        this.expressionReadingType.buildSqlUnitConversion(
+                                this.mode,
+                                this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
+                                this.targetReadingType));
+            } else {
+                this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
+            }
         }
     }
 
