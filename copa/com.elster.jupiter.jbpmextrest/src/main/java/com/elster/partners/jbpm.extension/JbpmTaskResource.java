@@ -8,15 +8,29 @@ import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.kie.services.impl.model.ProcessInstanceDesc;
 import org.jbpm.services.task.impl.model.TaskImpl;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
-import org.kie.api.task.model.*;
+import org.kie.api.task.model.I18NText;
+import org.kie.api.task.model.OrganizationalEntity;
+import org.kie.api.task.model.Status;
+import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.InternalTaskService;
-import org.kie.internal.task.api.model.*;
+import org.kie.internal.task.api.model.InternalTask;
 
 import javax.inject.Inject;
-import javax.persistence.*;
-import javax.persistence.criteria.*;
-import javax.ws.rs.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -25,7 +39,16 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Path("/tasks")
@@ -469,21 +492,21 @@ public class JbpmTaskResource {
             } else {
                 processInstanceState = "Aborted";
             }
-            EntityManager em = emf.createEntityManager();
-            String queryString = "select * from(select n.NODENAME, n.NODETYPE, n.log_date,n.NODEINSTANCEID, n.NODEID, n.ID from NODEINSTANCELOG n " +
-                    "where n.PROCESSINSTANCEID = :processInstanceId and type= (select min(type) from NODEINSTANCELOG where processinstanceid = :processInstanceId and nodeid = n.nodeid))t1 " +
-                    "join(select p.NODEID as NODEIDNOTUSED, max(p.TYPE) from NODEINSTANCELOG p where processinstanceid = :processInstanceId group by p.NODEID)t2 on t1.nodeid = t2.NODEIDNOTUSED order by t1.ID desc";
-            Query query = em.createNativeQuery(queryString);
-            query.setParameter("processInstanceId", processInstanceId);
-            List<Object[]> nodes = query.getResultList();
-            queryString = "select * from variableinstancelog v WHERE v.PROCESSINSTANCEID = :processInstanceId ORDER BY v.VARIABLEID ASC";
-            query = em.createNativeQuery(queryString);
-            query.setParameter("processInstanceId", processInstanceId);
-            List<Object[]> processVariables = query.getResultList();
-            return new ProcessInstanceNodeInfos(nodes, processInstanceState, processVariables);
+        }else {
+            processInstanceState = "Undeployed";
         }
-
-        return null;
+        EntityManager em = emf.createEntityManager();
+        String queryString = "select * from(select n.NODENAME, n.NODETYPE, n.log_date,n.NODEINSTANCEID, n.NODEID, n.ID from NODEINSTANCELOG n " +
+                "where n.PROCESSINSTANCEID = :processInstanceId and type= (select min(type) from NODEINSTANCELOG where processinstanceid = :processInstanceId and nodeid = n.nodeid))t1 " +
+                "join(select p.NODEID as NODEIDNOTUSED, max(p.TYPE) from NODEINSTANCELOG p where processinstanceid = :processInstanceId group by p.NODEID)t2 on t1.nodeid = t2.NODEIDNOTUSED order by t1.ID desc";
+        Query query = em.createNativeQuery(queryString);
+        query.setParameter("processInstanceId", processInstanceId);
+        List<Object[]> nodes = query.getResultList();
+        queryString = "select * from variableinstancelog v WHERE v.PROCESSINSTANCEID = :processInstanceId ORDER BY v.VARIABLEID ASC";
+        query = em.createNativeQuery(queryString);
+        query.setParameter("processInstanceId", processInstanceId);
+        List<Object[]> processVariables = query.getResultList();
+        return new ProcessInstanceNodeInfos(nodes, processInstanceState, processVariables);
     }
 
     @GET
