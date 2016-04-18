@@ -1,8 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
@@ -14,26 +12,18 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyValue;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Subquery;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,9 +45,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMeteringService meteringService;
-    private volatile MetrologyConfigurationService metrologyConfigurationService;
-    private volatile Thesaurus thesaurus;
-    private volatile Clock clock;
+    private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
 
     // For OSGi purposes
     public UsagePointSearchDomain() {
@@ -66,12 +54,11 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     // For Testing purposes
     @Inject
-    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, NlsService nlsService, Clock clock) {
+    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
         this();
         this.setPropertySpecService(propertySpecService);
         this.setMeteringService(meteringService);
-        this.setNlsService(nlsService);
-        this.setClock(clock);
+        this.setMetrologyConfigurationService(metrologyConfigurationService);
     }
 
     @Reference
@@ -90,13 +77,8 @@ public class UsagePointSearchDomain implements SearchDomain {
     }
 
     @Reference
-    public final void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
+    public final void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = (ServerMetrologyConfigurationService) metrologyConfigurationService;
     }
 
     @Override
@@ -106,7 +88,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     @Override
     public String displayName() {
-        return thesaurus.getFormat(PropertyTranslationKeys.USAGEPOINT_DOMAIN).format();
+        return this.meteringService.getThesaurus().getFormat(PropertyTranslationKeys.USAGEPOINT_DOMAIN).format();
     }
 
     @Override
@@ -122,8 +104,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     @Override
     public List<SearchableProperty> getProperties() {
         return new ArrayList<>(Arrays.asList(
-                new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService
-                        .getThesaurus()),
+                new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()), new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService
                         .getThesaurus()),
@@ -268,7 +249,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                 .map(SearchablePropertyValue::asConstriction)
                 .collect(Collectors.toList());
         // 3) update list of available properties and convert these properties into properties values
-        Map<String, SearchablePropertyValue> valuesMap = getPropertiesWithConstrictions(constrictions)
+        Map<String, SearchablePropertyValue> valuesMap = (constrictions.isEmpty() ? fixedProperties : addDynamicProperties(fixedProperties, constrictions))
                 .stream()
                 .map(mapper::apply)
                 .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().values != null)
@@ -285,86 +266,17 @@ public class UsagePointSearchDomain implements SearchDomain {
         return new ArrayList<>(valuesMap.values());
     }
 
+    private List<SearchableProperty> addDynamicProperties(List<SearchableProperty> fixedProperties, Collection<SearchablePropertyConstriction> constrictions) {
+        List<SearchableProperty> properties = new ArrayList<>();
+        Set<String> uniqueNames = new HashSet<>();
+        Predicate<SearchableProperty> uniqueName = p -> uniqueNames.add(p.getName());
+        fixedProperties.stream().filter(uniqueName).forEach(properties::add);
+        this.getServiceCategoryDynamicProperties(constrictions).stream().filter(uniqueName).forEach(properties::add);
+        return properties;
+    }
+
     @Override
     public Finder<?> finderFor(List<SearchablePropertyCondition> conditions) {
-        return new UsagePointFinder(toCondition(conditions));
+        return new UsagePointFinder(this.meteringService, conditions);
     }
-
-    private Condition toCondition(List<SearchablePropertyCondition> conditions) {
-        return conditions
-                .stream()
-                .map(ConditionBuilder::new)
-                .reduce(
-                        Condition.TRUE,
-                        (underConstruction, builder) -> underConstruction.and(builder.build()),
-                        Condition::and);
-    }
-
-    private class ConditionBuilder {
-        private final SearchablePropertyCondition spec;
-        private final SearchableUsagePointProperty property;
-
-        private ConditionBuilder(SearchablePropertyCondition spec) {
-            super();
-            this.spec = spec;
-            this.property = (SearchableUsagePointProperty) spec.getProperty();
-        }
-
-        private Condition build() {
-            return this.property.toCondition(this.spec.getCondition());
-        }
-
-    }
-
-    private class UsagePointFinder implements Finder<UsagePoint> {
-        private final Finder<UsagePoint> finder;
-
-        private UsagePointFinder(Condition condition) {
-            this.finder = DefaultFinder
-                    .of(UsagePoint.class, condition, meteringService.getDataModel(), UsagePointMetrologyConfiguration.class, UsagePointDetail.class)
-                    .defaultSortColumn("mRID");
-        }
-
-        @Override
-        public int count() {
-            try (Connection connection = meteringService.getDataModel().getConnection(false)) {
-                SqlBuilder countSqlBuilder = new SqlBuilder();
-                countSqlBuilder.add(asFragment("count(*)"));
-                try (PreparedStatement statement = countSqlBuilder.prepare(connection)) {
-                    try (ResultSet resultSet = statement.executeQuery()) {
-                        resultSet.next();
-                        return resultSet.getInt(1);
-                    }
-                }
-            } catch (SQLException e) {
-                throw new UnderlyingSQLFailedException(e);
-            }
-        }
-
-        @Override
-        public Finder<UsagePoint> paged(int start, int pageSize) {
-            return this.finder.paged(start, pageSize);
-        }
-
-        @Override
-        public Finder<UsagePoint> sorted(String sortColumn, boolean ascending) {
-            return this.finder.sorted(sortColumn, ascending);
-        }
-
-        @Override
-        public List<UsagePoint> find() {
-            return this.finder.find();
-        }
-
-        @Override
-        public Subquery asSubQuery(String... fieldNames) {
-            return this.finder.asSubQuery(fieldNames);
-        }
-
-        @Override
-        public SqlFragment asFragment(String... fieldNames) {
-            return this.finder.asFragment(fieldNames);
-        }
-    }
-
 }

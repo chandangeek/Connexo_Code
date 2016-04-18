@@ -66,6 +66,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_PRESSURE("usagepoint.pressure", "Pressure"),
     USAGEPOINT_BYPASS_STATUS("usagepoint.bypassStatus", "Bypass status")
 
+
     ;
 
     private String key;

@@ -93,6 +93,15 @@ public class PhaseCodeSearchableProperty implements SearchableUsagePointProperty
         return Collections.singletonList(new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus));
     }
 
+    private boolean valueCompatibleForDisplay(Object value) {
+        return value instanceof Enum;
+    }
+
+    private String toDisplayAfterValidation(Object value) {
+        PhaseCode phaseCodes = (PhaseCode) value;
+        return phaseCodes.getValue();
+    }
+
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
 

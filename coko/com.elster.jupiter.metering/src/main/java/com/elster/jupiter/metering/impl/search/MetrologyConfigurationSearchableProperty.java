@@ -1,8 +1,7 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
@@ -21,16 +20,14 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
-    private final MetrologyConfigurationService metrologyConfigurationService;
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private static final String FIELDNAME = "metrologyConfiguration.metrologyConfiguration";
 
-    public MetrologyConfigurationSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus) {
+    public MetrologyConfigurationSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, ServerMetrologyConfigurationService metrologyConfigurationService) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
         this.metrologyConfigurationService = metrologyConfigurationService;
-        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -51,12 +48,11 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
     @Override
     public PropertySpec getSpecification() {
         MetrologyConfiguration[] metrologyConfigurations =
-                metrologyConfigurationService.findAllMetrologyConfigurations()
-                        .stream().toArray(MetrologyConfiguration[]::new);
+                metrologyConfigurationService.findAllMetrologyConfigurations().stream().toArray(MetrologyConfiguration[]::new);
         return this.propertySpecService
                 .referenceSpec(MetrologyConfiguration.class)
                 .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION)
-                .fromThesaurus(this.thesaurus)
+                .fromThesaurus(this.metrologyConfigurationService.getThesaurus())
                 .addValues(metrologyConfigurations)
                 .markExhaustive()
                 .finish();
@@ -74,7 +70,7 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION.getDisplayName(this.metrologyConfigurationService.getThesaurus());
     }
 
     @Override
