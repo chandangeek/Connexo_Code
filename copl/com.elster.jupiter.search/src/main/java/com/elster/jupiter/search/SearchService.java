@@ -26,6 +26,8 @@ public interface SearchService {
      */
     void register(SearchDomain searchDomain);
 
+    void register(SearchDomainExtension searchDomainExtension);
+
     /**
      * Unregisters the {@link SearchDomain} with this SearchService.
      *
@@ -33,6 +35,7 @@ public interface SearchService {
      */
     void unregister(SearchDomain searchDomain);
 
+    void unregister(SearchDomainExtension searchDomainExtension);
     /**
      * Gets all the registered {@link SearchDomain}s.
      *
