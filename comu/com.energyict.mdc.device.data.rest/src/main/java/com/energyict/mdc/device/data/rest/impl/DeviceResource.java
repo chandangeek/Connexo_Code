@@ -16,6 +16,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
@@ -679,6 +680,31 @@ public class DeviceResource {
         }
         return dataLoggerSlaves;
     }
+
+    @GET @Transactional
+    @Path("/unlinkeddataloggerslaves")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public DeviceInfos getUnlinkedSlaves(@BeanParam JsonQueryParameters queryParameters) {
+        String searchText = queryParameters.getLike();
+        if (searchText != null && !searchText.isEmpty()) {
+            return new DeviceInfos(
+                deviceService.findAllDevices(getUnlinkedSlaveDevicesCondition(searchText)).stream()
+                .limit(50)
+                .collect(Collectors.<Device>toList())
+            );
+        }
+        return new DeviceInfos();
+    }
+
+    private Condition getUnlinkedSlaveDevicesCondition(String dbSearchText) {
+        // TODO: add extra conditions in order to only get
+        // a. Datalogger slave devices
+        // b. that are not linked yet to a data logger
+        String regex = "*".concat(dbSearchText.replace(" ", "*").concat("*"));
+        return Where.where("mRID").likeIgnoreCase(regex);
+    }
+
 
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {
         Predicate<Device> predicate = d -> true;
