@@ -760,7 +760,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             memberValues.put("zipCode", member.getZipCode());
 
            formattedLocation = locationTemplate.getTemplateMembers()
-                    .stream().filter(m -> !m.getName().equalsIgnoreCase("locale"))
+                    .stream()
+                    .sorted((m1,m2)->Integer.compare(m1.getRanking(),m2.getRanking())).filter(m -> !m.getName().equalsIgnoreCase("locale"))
                     .collect(() -> {
                                 List<List<String>> list = new ArrayList<>();
                                 list.add(new ArrayList<>());
