@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.search.rest.SearchCriteriaVisualizationInfo;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -52,7 +53,10 @@ public class MetrologyConfigurationInfoFactory {
         info.version = metrologyConfiguration.getVersion();
         info.meterRoles = metrologyConfiguration.getMeterRoles().stream().map(this::asInfo).collect(Collectors.toList());
         info.purposes = metrologyConfiguration.getContracts().stream().map(this::asInfo).collect(Collectors.toList());
-        info.usagePointCriteria = "";
+        info.usagePointRequirements = metrologyConfiguration.getUsagePointRequirements()
+                .stream()
+                .map(requirement -> SearchCriteriaVisualizationInfo.from(requirement.getSearchableProperty(), requirement.toValueBean()))
+                .collect(Collectors.toList());
         return info;
     }
 
@@ -109,8 +113,8 @@ public class MetrologyConfigurationInfoFactory {
         ReadingTypeDeliverablesInfo info = new ReadingTypeDeliverablesInfo();
         info.id = readingTypeDeliverable.getId();
         info.name = readingTypeDeliverable.getName();
-        info.readingType = readingTypeDeliverable.getReadingType()!=null ? new ReadingTypeInfo(readingTypeDeliverable.getReadingType()) : null;
-        info.formula = readingTypeDeliverable.getFormula()!=null ? asInfo(readingTypeDeliverable.getFormula()) : null;
+        info.readingType = readingTypeDeliverable.getReadingType() != null ? new ReadingTypeInfo(readingTypeDeliverable.getReadingType()) : null;
+        info.formula = readingTypeDeliverable.getFormula() != null ? asInfo(readingTypeDeliverable.getFormula()) : null;
         return info;
     }
 
@@ -132,16 +136,15 @@ public class MetrologyConfigurationInfoFactory {
 
     private ReadingTypeRequirementsInfo asInfo(ReadingTypeRequirement requirement) {
         ReadingTypeRequirementsInfo info = new ReadingTypeRequirementsInfo();
-        info.meterRole = ((UsagePointMetrologyConfiguration)requirement.getMetrologyConfiguration())
+        info.meterRole = ((UsagePointMetrologyConfiguration) requirement.getMetrologyConfiguration())
                 .getMeterRoleFor(requirement)
                 .map(this::asInfo)
                 .orElse(null);
-        if(requirement instanceof FullySpecifiedReadingType){
+        if (requirement instanceof FullySpecifiedReadingType) {
             FullySpecifiedReadingType fullySpecifiedReadingType = (FullySpecifiedReadingType) requirement;
             info.readingType = new ReadingTypeInfo(fullySpecifiedReadingType.getReadingType());
             info.type = "fullySpecified";
-        }
-         else if(requirement instanceof PartiallySpecifiedReadingType){
+        } else if (requirement instanceof PartiallySpecifiedReadingType) {
             PartiallySpecifiedReadingType partiallySpecifiedReadingType = (PartiallySpecifiedReadingType) requirement;
             info.type = "partiallySpecified";
             info.readingTypePattern = new ReadingTypePatternInfo();
@@ -156,8 +159,8 @@ public class MetrologyConfigurationInfoFactory {
             info.readingTypePattern.attributes.timePeriod =
                     Stream.of(partiallySpecifiedReadingType.getAttributeValue(ReadingTypeTemplateAttributeName.MACRO_PERIOD),
                             partiallySpecifiedReadingType.getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION))
-                    .flatMap(com.elster.jupiter.util.streams.Functions.asStream()).findFirst()
-                    .map(Collections::singletonList).orElse(null);
+                            .flatMap(com.elster.jupiter.util.streams.Functions.asStream()).findFirst()
+                            .map(Collections::singletonList).orElse(null);
             List<String> unitValues = partiallySpecifiedReadingType.getAttributeValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE)
                     .stream().flatMap(com.elster.jupiter.util.streams.Functions.asStream()).collect(Collectors.toList());
             if (!unitValues.isEmpty() && unitValues.size() > 1) {
@@ -167,7 +170,7 @@ public class MetrologyConfigurationInfoFactory {
         return info;
     }
 
-    private class ReadingTypeVisitor implements ExpressionNode.Visitor<Void>{
+    private class ReadingTypeVisitor implements ExpressionNode.Visitor<Void> {
 
         private List<ReadingTypeRequirementNode> readingTypeRequirementNodes = new ArrayList<>();
 

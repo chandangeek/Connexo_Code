@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.search.rest.SearchCriteriaVisualizationInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -25,7 +26,7 @@ public class MetrologyConfigurationInfo {
     public List<IdWithNameInfo> meterRoles;
     public List<IdWithNameInfo> purposes;
     public List<MetrologyContractInfo> metrologyContracts;
-    public String usagePointCriteria;
+    public List<SearchCriteriaVisualizationInfo> usagePointRequirements;
     public List<CustomPropertySetInfo> customPropertySets;
     public long version;
 
