@@ -116,6 +116,7 @@ Ext.define('Bpm.controller.Task', {
                 me.getApplication().fireEvent('onBeforeLoad', view);
                 me.getApplication().fireEvent('changecontentevent', view);
                 filterSortController.updateSortingToolbar();
+                me.updateApplyButtonState(view, queryString);
             }
         }
         else {
@@ -127,6 +128,7 @@ Ext.define('Bpm.controller.Task', {
             me.getApplication().fireEvent('onBeforeLoad', view);
             me.getApplication().fireEvent('changecontentevent', view);
             filterSortController.updateSortingToolbar();
+            me.updateApplyButtonState(view, queryString);
         }
     },
 
@@ -203,6 +205,9 @@ Ext.define('Bpm.controller.Task', {
 
         route && route.forward(router.arguments);
 
-    }
+    },
 
+    updateApplyButtonState: function (view, queryString) {
+        view.down('button[action=clearAll]').setDisabled(!((queryString.hasOwnProperty('sort') && Object.keys(queryString).length > 1) || (!queryString.hasOwnProperty('sort') && Object.keys(queryString).length > 0)));
+    }
 });
