@@ -116,4 +116,12 @@ public interface Calendar extends HasId, HasName {
 
     void delete();
 
+    void setDescription(String description);
+
+    void addDayType(String name);
+
+    void removeDayType(DayType dayType);
+
+
+
 }

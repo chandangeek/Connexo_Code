@@ -18,4 +18,6 @@ public interface DayType extends HasId, HasName {
 
     List<EventOccurrence> getEventOccurrences();
 
+    Calendar getCalendar();
+
 }
