@@ -17,7 +17,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,8 +42,6 @@ public class UsagePointSearchDomain implements SearchDomain {
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMeteringService meteringService;
     private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
-    private volatile Thesaurus thesaurus;
-    private volatile Clock clock;
 
     // For OSGi purposes
     public UsagePointSearchDomain() {
@@ -53,13 +50,11 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     // For Testing purposes
     @Inject
-    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService, NlsService nlsService, Clock clock) {
+    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
         this();
         this.setPropertySpecService(propertySpecService);
         this.setMeteringService(meteringService);
         this.setMetrologyConfigurationService(metrologyConfigurationService);
-        this.setNlsService(nlsService);
-        this.setClock(clock);
     }
 
     @Reference
@@ -75,11 +70,6 @@ public class UsagePointSearchDomain implements SearchDomain {
     @Reference
     public final void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = (ServerMetrologyConfigurationService) metrologyConfigurationService;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     @Override
