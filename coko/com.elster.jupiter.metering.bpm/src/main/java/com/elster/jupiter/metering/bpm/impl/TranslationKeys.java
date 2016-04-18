@@ -6,7 +6,7 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum TranslationKeys implements TranslationKey {
     USAGE_POINT_ASSOCIATION_PROVIDER(UsagePointProcessAssociationProvider.ASSOCIATION_TYPE, "Usage point"),
     METROLOGY_CONFIGURATION_PROPERTY("metrologyConfigurations", "Metrology configurations"),
-    CONNECTION_STATE_PROPERTY("connectionState", "Connection state"),
+    CONNECTION_STATE_PROPERTY("connectionStates", "Connection states"),
     UNDER_CONSTRUCTION("connectionState." + ConnectionState.UNDER_CONSTRUCTION.getId(), "Under construction"),
     CONNECTED("connectionState." + ConnectionState.CONNECTED.getId(), "Connected"),
     PHYSICALLY_DISCONNECTED("connectionState." + ConnectionState.PHYSICALLY_DISCONNECTED.getId(), "Physically disconnected"),
