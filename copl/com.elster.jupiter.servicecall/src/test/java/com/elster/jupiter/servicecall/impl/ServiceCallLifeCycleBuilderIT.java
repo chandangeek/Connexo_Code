@@ -343,6 +343,7 @@ public class ServiceCallLifeCycleBuilderIT {
                 builder.remove(REJECTED);
                 builder.removeTransition(ONGOING, CANCELLED);
                 builder.removeTransition(PENDING, CANCELLED);
+                builder.removeTransition(CREATED, CANCELLED);
 
                 ServiceCallLifeCycleImpl serviceCallLifeCycle = (ServiceCallLifeCycleImpl) builder.create();
                 fail("Expected NoPathLeftToSuccessFromStateException");
