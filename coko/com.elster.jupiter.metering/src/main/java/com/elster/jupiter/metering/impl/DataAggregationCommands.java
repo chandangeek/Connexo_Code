@@ -35,7 +35,8 @@ import java.util.Optional;
         "osgi.command.function=aggregate",
         "osgi.command.function=activateMetrologyConfig",
         "osgi.command.function=linkMetrologyConfig",
-        "osgi.command.function=setMultiplierValue"
+        "osgi.command.function=setMultiplierValue",
+        "osgi.command.function=matchingChannels"
 }, immediate = true)
 public class DataAggregationCommands {
 
@@ -145,5 +146,20 @@ public class DataAggregationCommands {
             meterActivation.setMultiplier(multiplierType, BigDecimal.valueOf(value));
             context.commit();
         }
+    }
+
+    public void matchingChannels(String meterMRID, long metrologyConfigId, String requirementName) {
+        metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"))
+                .getRequirements().stream()
+                .filter(rq -> rq.getName().equals(requirementName))
+                .findFirst().orElseThrow(() -> new NoSuchElementException("No such requirement"))
+                .getMatchingChannelsFor(meteringService.findMeter(meterMRID)
+                        .orElseThrow(() -> new NoSuchElementException("No such meter"))
+                        .getCurrentMeterActivation()
+                        .orElseThrow(() -> new NoSuchElementException("No current meter activation")))
+                .stream()
+                .map(ch -> ch.getMainReadingType().getMRID() + " " + ch.getMainReadingType().getFullAliasName())
+                .forEach(System.out::println);
     }
 }
