@@ -394,6 +394,25 @@ Ext.define('Imt.controller.History', {
                                     return true;
                                 }, {single: true});
                                 return this;
+                            },
+                            items: {
+                                output: {
+                                    title: Uni.I18n.translate('general.label.output', 'IMT', 'Output'),
+                                    route: 'output/{outputId}',
+                                    controller: 'Imt.purpose.controller.Purpose',
+                                    action: 'showOutputDefaultTab',
+                                    callback: function (route) {
+                                        //var me = this;
+                                        //this.getApplication().on('purposesLoaded', function (purposes) {
+                                        //    var purpose = _.find(purposes, function(p){return p.getId() == me.arguments.purposeId});
+                                        //    if (purpose) {
+                                        //        route.setTitle(purpose.get('name'));
+                                        //    }
+                                        //    return true;
+                                        //}, {single: true});
+                                        //return this;
+                                    }
+                                }
                             }
                         }
            			}

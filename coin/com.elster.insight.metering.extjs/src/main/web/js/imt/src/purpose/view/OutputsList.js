@@ -8,7 +8,7 @@ Ext.define('Imt.purpose.view.OutputsList', {
     ],
     store: 'Imt.purpose.store.Outputs',
     overflowY: 'auto',
-    itemId: 'metrologyConfigurationList',
+    itemId: 'outputs-list',
 
     initComponent: function () {
         var me = this;
@@ -18,7 +18,7 @@ Ext.define('Imt.purpose.view.OutputsList', {
                 flex: 1,
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    return '<a href="#/administration/metrologyconfiguration/' + record.get('id') + '">' + Ext.String.htmlEncode(value) + '</a>';
+                    return '<a href="' + me.router.getRoute('usagepoints/view/purpose/output').buildUrl({outputId: record.getId()}) + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             {

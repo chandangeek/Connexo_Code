@@ -65,7 +65,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                         text: purpose.get('name') + icon,
                         htmlEncode: false,
                         itemId: 'usage-point-pupose-' + purpose.getId(),
-                        href: '#' //me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.getId()})
+                        href: me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.getId()})
                     });
                 }
             });

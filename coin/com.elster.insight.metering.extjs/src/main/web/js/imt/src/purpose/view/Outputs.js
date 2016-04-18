@@ -16,7 +16,7 @@ Ext.define('Imt.purpose.view.Outputs', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                itemId: 'metrologyConfigurationListSetupPanel',
+                itemId: 'purpose-outputs',
                 title: me.router.getRoute().getTitle(),
                 layout: {
                     type: 'vbox',
