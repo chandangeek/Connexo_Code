@@ -108,7 +108,8 @@ public class InstrometConnection extends Connection implements ProtocolConnectio
 					}
 				}
 			} catch (InterruptedException e) {
-				throw new NestedIOException(e);
+				Thread.currentThread().interrupt();
+    			throw ConnectionCommunicationException.communicationInterruptedException(e);
 			}
 		}
 	}
