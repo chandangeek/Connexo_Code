@@ -8,6 +8,8 @@ import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.Period;
+import com.elster.jupiter.calendar.PeriodTransition;
+import com.elster.jupiter.calendar.PeriodTransitionSpec;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -148,6 +150,16 @@ public class CalendarImpl implements Calendar {
 
     @Override
     public List<ExceptionalOccurrence> getExceptionalOccurrences() {
+        return null;
+    }
+
+    @Override
+    public List<? extends PeriodTransitionSpec> getPeriodTransitionSpecs() {
+        return null;
+    }
+
+    @Override
+    public List<PeriodTransition> getTransitions() {
         return null;
     }
 }
