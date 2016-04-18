@@ -38,12 +38,14 @@ Ext.define('Imt.purpose.controller.Purpose', {
         mainView.setLoading();
         usagePointsController.loadUsagePoint(mRID, {
             success: function (types, usagePoint, purposes) {
-                me.loadOutputs(mRID, purposeId, function(){
+                me.loadOutputs(mRID, purposeId, function() {
+                    var purpose = _.find(purposes, function(p){return p.getId() == purposeId});
                     app.fireEvent('changecontentevent', Ext.widget('purpose-outputs', {
                         itemId: 'purpose-outputs',
                         router: router,
                         usagePoint: usagePoint,
-                        purposes: purposes
+                        purposes: purposes,
+                        purpose: purpose
                     }));
                     mainView.setLoading(false);
                 });

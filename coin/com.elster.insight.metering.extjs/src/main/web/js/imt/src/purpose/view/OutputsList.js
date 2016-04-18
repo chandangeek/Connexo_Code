@@ -9,10 +9,6 @@ Ext.define('Imt.purpose.view.OutputsList', {
     store: 'Imt.purpose.store.Outputs',
     overflowY: 'auto',
     itemId: 'metrologyConfigurationList',
-    //viewConfig: {
-    //    style: { overflow: 'auto', overflowX: 'hidden' },
-    //    enableTextSelection: true
-    //},
 
     initComponent: function () {
         var me = this;
@@ -44,9 +40,8 @@ Ext.define('Imt.purpose.view.OutputsList', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('metrologyconfiguration.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1} of {2} metrology configurations'),
-                displayMoreMsg: Uni.I18n.translate('metrologyconfiguration.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} metrologyconfigurations'),
-                emptyMsg: Uni.I18n.translate('metrologyconfiguration.pagingtoolbartop.emptyMsg', 'IMT', 'There are no metrology configurations to display')
+                displayMsg: Uni.I18n.translate('outputs.pagingtoolbartop.displayMsg', 'IMT', '{2} outputs'),
+                emptyMsg: Uni.I18n.translate('outputs.pagingtoolbartop.emptyMsg', 'IMT', 'There are no outputs to display')
             }
 
         ];

@@ -56,18 +56,23 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
             var items = [];
             me.purposes.map(function(purpose) {
                 if (true || purpose.get('active')) {
+                    var status = purpose.get('status'),
+                        icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                            + status.name
+                            + '"></i>';
+
                     items.push({
-                        text: purpose.get('name'),
+                        text: purpose.get('name') + icon,
+                        htmlEncode: false,
                         itemId: 'usage-point-pupose-' + purpose.getId(),
-                        href: me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.getId()})
+                        href: '#' //me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.getId()})
                     });
                 }
             });
 
             if (items.length) {
                 me.menuItems.push({
-                    title: 'menu',
-                    text: Uni.I18n.translate('usagepoint.menu.data', 'IMT', 'Data'),
+                    title: Uni.I18n.translate('usagepoint.menu.data', 'IMT', 'Data'),
                     items: items
                 })
             }
