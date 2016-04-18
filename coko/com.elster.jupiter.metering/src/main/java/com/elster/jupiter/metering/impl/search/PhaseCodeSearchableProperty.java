@@ -91,7 +91,7 @@ public class PhaseCodeSearchableProperty implements SearchableUsagePointProperty
         return value instanceof Enum;
     }
 
-    private String toDisplayAfterValidation(Object value){
+    private String toDisplayAfterValidation(Object value) {
         PhaseCode phaseCodes = (PhaseCode) value;
         return phaseCodes.getValue();
     }
