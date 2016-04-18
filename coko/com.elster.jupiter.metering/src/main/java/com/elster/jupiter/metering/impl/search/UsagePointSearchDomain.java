@@ -24,13 +24,17 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +50,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMeteringService meteringService;
     private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
+
 
     // For OSGi purposes
     public UsagePointSearchDomain() {
@@ -72,10 +77,9 @@ public class UsagePointSearchDomain implements SearchDomain {
     }
 
     @Reference
-    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
-        this.metrologyConfigurationService = metrologyConfigurationService;
-    }
+    public void setClock(Clock clock){
 
+    }
     @Reference
     public final void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = (ServerMetrologyConfigurationService) metrologyConfigurationService;
@@ -111,8 +115,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new ReadRouteSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new TypeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServicePrioritySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.meteringService
-                        .getThesaurus()),
+                new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService),
                 new OutageRegionSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new LocationSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.clock),
                 new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
