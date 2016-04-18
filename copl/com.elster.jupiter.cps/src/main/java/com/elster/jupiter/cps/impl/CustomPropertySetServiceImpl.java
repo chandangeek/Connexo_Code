@@ -1,6 +1,7 @@
 package com.elster.jupiter.cps.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetSearchEnabler;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.HardCodedFieldNames;
@@ -24,6 +25,8 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -76,6 +79,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private volatile boolean installed = false;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
+    private volatile SearchService searchService;
+
     /**
      * Holds the {@link CustomPropertySet}s that were published on the whiteboard
      * and if they were published by the system or not.
@@ -87,6 +92,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
      * Registereing a CustomPropertySet involves creating a DataModel and a Table for it.
      */
     private ConcurrentMap<String, ActiveCustomPropertySet> activePropertySets = new ConcurrentHashMap<>();
+    private ConcurrentMap<Class<?>, List<CustomPropertySetSearchEnabler>> searchEnablers = new ConcurrentHashMap<>();
 
     // For OSGi purposes
     public CustomPropertySetServiceImpl() {
@@ -158,6 +164,33 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.userService = userService;
     }
 
+    @Reference(name = "ZZZ", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void registerCustomPropertySetSearchEnabler(CustomPropertySetSearchEnabler enabler) {
+        List<CustomPropertySetSearchEnabler> enablers = this.searchEnablers.get(enabler.getDomainClass());
+        if (enablers == null) {
+            enablers = new ArrayList<>();
+            this.searchEnablers.put(enabler.getDomainClass(), enablers);
+        }
+        enablers.add(enabler);
+    }
+
+    public void unregisterCustomPropertySetSearchEnabler(CustomPropertySetSearchEnabler enabler) {
+        List<CustomPropertySetSearchEnabler> enablers = this.searchEnablers.get(enabler.getDomainClass());
+        if (enablers != null) {
+            enablers.remove(enabler);
+        }
+    }
+
+    boolean isSearchEnabledForCustomPropertySet(CustomPropertySet<?, ?> customPropertySet, List<SearchablePropertyConstriction> constrictions) {
+        List<CustomPropertySetSearchEnabler> enablers = this.searchEnablers.get(customPropertySet.getDomainClass());
+        return enablers != null && enablers.stream().allMatch(enabler -> enabler.enableWhen(customPropertySet, constrictions));
+    }
+
+    @Reference
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -212,8 +245,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
              * As a consequence, it is safe to clear the List after all have been registered. */
             this.publishedPropertySets.forEach(this::registerCustomPropertySet);
             this.publishedPropertySets.clear();
-        }
-        else {
+        } else {
             LOGGER.fine("No custom property sets have registered yet, makes no sense to attempt to register them all right ;-)");
         }
     }
@@ -281,12 +313,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 } catch (UnderlyingSQLFailedException | CommitException ex) {
                     ex.printStackTrace();
                 }
-            }
-            else {
+            } else {
                 this.registerCustomPropertySet(customPropertySet, systemDefined);
             }
-        }
-        else {
+        } else {
             this.publishedPropertySets.put(customPropertySet, systemDefined);
         }
     }
@@ -294,8 +324,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private void registerCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
         Optional<RegisteredCustomPropertySet> registeredCustomPropertySet =
                 this.dataModel
-                    .mapper(RegisteredCustomPropertySet.class)
-                    .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), customPropertySet.getId());
+                        .mapper(RegisteredCustomPropertySet.class)
+                        .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), customPropertySet.getId());
         if (registeredCustomPropertySet.isPresent()) {
             // Registered in a previous platform session, likely the system was restarted / redeployed
             DataModel dataModel = this.registerAndInstallDataModel(customPropertySet, false);
@@ -306,8 +336,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                             this.thesaurus,
                             dataModel,
                             registeredCustomPropertySet.get()));
-        }
-        else {
+        } else {
             // First time registration
             DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet, true);
             RegisteredCustomPropertySetImpl newRegisteredCustomPropertySet = this.createRegisteredCustomPropertySet(customPropertySet, systemDefined);
@@ -319,6 +348,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                             dataModel,
                             newRegisteredCustomPropertySet));
         }
+        this.searchService.register(new CustomPropertySetSearchDomainExtension(this, customPropertySet));
     }
 
     private DataModel registerAndInstallOrReuseDataModel(CustomPropertySet customPropertySet, boolean executeDdl) {
@@ -349,8 +379,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private TableBuilder newBuilderFor(CustomPropertySet customPropertySet, DataModel dataModel) {
         if (customPropertySet.isVersioned()) {
             return new VersionedTableBuilder(dataModel, customPropertySet);
-        }
-        else {
+        } else {
             return new TableBuilder(dataModel, customPropertySet);
         }
     }
@@ -394,8 +423,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Override
     public Optional<CustomPropertySet> findRegisteredCustomPropertySet(String id) {
         return Optional
-                    .ofNullable(this.activePropertySets.get(id))
-                    .map(ActiveCustomPropertySet::getCustomPropertySet);
+                .ofNullable(this.activePropertySets.get(id))
+                .map(ActiveCustomPropertySet::getCustomPropertySet);
     }
 
     @Override
@@ -412,9 +441,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Override
     public void cleanupRegisteredButNotActiveCustomPropertySets() {
         this.dataModel
-            .stream(RegisteredCustomPropertySetImpl.class)
-            .filter(Predicates.not(RegisteredCustomPropertySetImpl::isActive))
-            .forEach(RegisteredCustomPropertySetImpl::delete);
+                .stream(RegisteredCustomPropertySetImpl.class)
+                .filter(Predicates.not(RegisteredCustomPropertySetImpl::isActive))
+                .forEach(RegisteredCustomPropertySetImpl::delete);
     }
 
     @Override
@@ -441,13 +470,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             if (customPropertySet.isVersioned()) {
                 Interval interval = DomainExtensionAccessor.getInterval(customPropertyValuesEntity.get());
                 properties = CustomPropertySetValues.emptyDuring(interval);
-            }
-            else {
+            } else {
                 properties = CustomPropertySetValues.empty();
             }
             customPropertyValuesEntity.get().copyTo(properties, additionalPrimaryKeyValues);
-        }
-        else {
+        } else {
             properties = CustomPropertySetValues.empty();
         }
         return properties;
@@ -545,8 +572,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             Instant currentConflictedIntervalStart;
             if (conflict.getValues().getEffectiveRange().hasLowerBound()) {
                 currentConflictedIntervalStart = conflict.getValues().getEffectiveRange().lowerEndpoint();
-            }
-            else {
+            } else {
                 currentConflictedIntervalStart = Instant.EPOCH;
             }
             switch (conflict.getType()) {
@@ -576,25 +602,21 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     private Range<Instant> getAlignedRange(ValuesRangeConflict conflict) {
-        Range <Instant> currentRange = conflict.getValues().getEffectiveRange();
-        Range <Instant> conflictingRange = conflict.getConflictingRange();
-        if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END)){
+        Range<Instant> currentRange = conflict.getValues().getEffectiveRange();
+        Range<Instant> conflictingRange = conflict.getConflictingRange();
+        if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END)) {
             if (currentRange.hasLowerBound()) {
                 return Range.closedOpen(currentRange.lowerEndpoint(), conflictingRange.lowerEndpoint());
-            }
-            else {
+            } else {
                 return Range.lessThan(conflictingRange.lowerEndpoint());
             }
-        }
-        else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START)) {
+        } else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START)) {
             if (currentRange.hasUpperBound()) {
                 return Range.closedOpen(conflictingRange.upperEndpoint(), currentRange.upperEndpoint());
-            }
-            else {
+            } else {
                 return Range.atLeast(conflictingRange.upperEndpoint());
             }
-        }
-        else{
+        } else {
             return currentRange;
         }
     }
@@ -626,7 +648,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> List <T> getAllVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues) {
+    public <D, T extends PersistentDomainExtension<D>> List<T> getAllVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
         return activeCustomPropertySet.getAllNonVersionedValuesEntitiesFor(businesObject, additionalPrimaryKeyValues);
@@ -634,9 +656,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     private <D, T extends PersistentDomainExtension<D>> ActiveCustomPropertySet findActiveCustomPropertySetOrThrowException(CustomPropertySet<D, T> customPropertySet) {
         return Optional
-                    .ofNullable(this.activePropertySets.get(customPropertySet.getId()))
-                    .map(Function.identity())
-                    .orElseThrow(() -> new IllegalArgumentException("Custom property set " + customPropertySet.getId() + " is not active or not active any longer"));
+                .ofNullable(this.activePropertySets.get(customPropertySet.getId()))
+                .map(Function.identity())
+                .orElseThrow(() -> new IllegalArgumentException("Custom property set " + customPropertySet.getId() + " is not active or not active any longer"));
     }
 
     @Override
@@ -782,6 +804,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         /**
          * Adds a column and a foreign key to the specified {@link Table}
          * that references the domain class of the {@link CustomPropertySet}.
+         *
          * @param table The Table
          * @param customPropertySet The CustomPropertySet
          * @see CustomPropertySet#getDomainClass()
@@ -790,18 +813,18 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             PersistenceSupport persistenceSupport = customPropertySet.getPersistenceSupport();
             Column domainReference =
                     table
-                        .column(persistenceSupport.domainColumnName())
-                        .notNull()
-                        .number()
-                        .conversion(ColumnConversion.NUMBER2LONG)
-                        .skipOnUpdate()
-                        .add();
+                            .column(persistenceSupport.domainColumnName())
+                            .notNull()
+                            .number()
+                            .conversion(ColumnConversion.NUMBER2LONG)
+                            .skipOnUpdate()
+                            .add();
             table
-                .foreignKey(persistenceSupport.domainForeignKeyName())
-                .on(domainReference)
-                .references(customPropertySet.getDomainClass())
-                .map(persistenceSupport.domainFieldName())
-                .add();
+                    .foreignKey(persistenceSupport.domainForeignKeyName())
+                    .on(domainReference)
+                    .references(customPropertySet.getDomainClass())
+                    .map(persistenceSupport.domainFieldName())
+                    .add();
             return domainReference;
         }
 
@@ -821,11 +844,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                     .skipOnUpdate()
                     .add();
             table
-                .foreignKey(this.customPropertySetForeignKeyName(customPropertySet))
-                .on(cps)
+                    .foreignKey(this.customPropertySetForeignKeyName(customPropertySet))
+                    .on(cps)
                     .references(RegisteredCustomPropertySet.class)
                     .map(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName())
-                .add();
+                    .add();
             return cps;
         }
 
