@@ -61,13 +61,13 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     text: Uni.I18n.translate('general.logbooks', 'MDC', 'Logbooks'),
                     itemId: 'logbooksLink',
                     href: '#/devices/' + encodeURIComponent(mRID) + '/logbooks',
-                    showCondition: me.device.get('hasLogBooks')
+                    showCondition: !me.device.get('isDataLoggerSlave') && me.device.get('hasLogBooks')
                 },
                 {
                     text: Uni.I18n.translate('general.events', 'MDC', 'Events'),
                     itemId: 'events',
                     href: '#/devices/' + encodeURIComponent(mRID) + '/events',
-                    showCondition: me.device.get('hasLogBooks')
+                    showCondition: !me.device.get('isDataLoggerSlave') && me.device.get('hasLogBooks')
                 },
                 {
                     text: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
@@ -96,54 +96,57 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             me.title = Uni.I18n.translate('general.device', 'MDC', 'Device');
         }
 
-        me.menuItems.push({
-            title: Uni.I18n.translate('device.communication','MDC','Communication'),
-            items: [
-                {
-                    text: Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes'),
-                    itemId: 'deviceGeneralAttributesLink',
-                    href: '#/devices/' + encodeURIComponent(mRID) + '/generalattributes'
-                },
-                {
-                    text: Uni.I18n.translate('devicemenu.communicationPlanning', 'MDC', 'Communication planning'),
-                    itemId: 'communicationSchedulesLink',
-                    href: '#/devices/' + encodeURIComponent(mRID) + '/communicationplanning',
-                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationPlanningPages
-                },
-                {
-                    text: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
-                    itemId: 'communicationTasksLink',
-                    href: '#/devices/' + encodeURIComponent(mRID) + '/communicationtasks'
-                },
-                {
-                    text: Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'),
-                    itemId: 'connectionMethodsLink',
-                    href: '#/devices/' + encodeURIComponent(mRID) + '/connectionmethods'
-                },
-                {
-                    text: Uni.I18n.translate('devicemenu.security', 'MDC', 'Security settings'),
-                    itemId: 'securitySettingLink',
-                    href: '#/devices/' + encodeURIComponent(mRID) + '/securitysettings'
-                },
-                {
-                    text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),
-                    itemId: 'protocolLink',
-                    href: '#/devices/' + encodeURIComponent(mRID) + '/protocols'
-                },
-                {
-                    text: Uni.I18n.translate('devicemenu.commands', 'MDC', 'Commands'),
-                    itemId: 'deviceCommands',
-                    href: '#/devices/' + encodeURIComponent(mRID) + '/commands'
-                },
-                {
-                    text: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Communication topology'),
-                    itemId: 'topologyLink',
-                    href: '#/devices/' + encodeURIComponent(mRID) + '/topology',
-                    showCondition: me.device.get('gatewayType') === 'LAN'
-                    || me.device.get('gatewayType') === 'HAN'
-                }
-            ]
-        });
+        if (!me.device.get('isDataLoggerSlave')) {
+            me.menuItems.push({
+                title: Uni.I18n.translate('device.communication', 'MDC', 'Communication'),
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes'),
+                        itemId: 'deviceGeneralAttributesLink',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/generalattributes'
+                    },
+                    {
+                        text: Uni.I18n.translate('devicemenu.communicationPlanning', 'MDC', 'Communication planning'),
+                        itemId: 'communicationSchedulesLink',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/communicationplanning',
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationPlanningPages
+                    },
+                    {
+                        text: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
+                        itemId: 'communicationTasksLink',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/communicationtasks'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'),
+                        itemId: 'connectionMethodsLink',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/connectionmethods'
+                    },
+                    {
+                        text: Uni.I18n.translate('devicemenu.security', 'MDC', 'Security settings'),
+                        itemId: 'securitySettingLink',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/securitysettings'
+                    },
+                    {
+                        text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),
+                        itemId: 'protocolLink',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/protocols'
+                    },
+                    {
+                        text: Uni.I18n.translate('devicemenu.commands', 'MDC', 'Commands'),
+                        itemId: 'deviceCommands',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/commands'
+                    },
+                    {
+                        text: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Communication topology'),
+                        itemId: 'topologyLink',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/topology',
+                        showCondition: me.device.get('gatewayType') === 'LAN'
+                        || me.device.get('gatewayType') === 'HAN'
+                    }
+                ]
+            });
+        }
+
         me.menuItems.push({
             title: Uni.I18n.translate('device.readingQuality', 'MDC', 'Reading quality'),
             items: [
