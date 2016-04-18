@@ -26,6 +26,9 @@ public interface CalendarService {
      * @param start The year from which any timeline will start
      * @return The CalendarBuilder
      */
+
+    String COMPONENTNAME = "CAL";
+
     CalendarBuilder newCalendar(String name, TimeZone timeZone, Year start);
 
     Optional<Calendar> findCalendar(long id);
