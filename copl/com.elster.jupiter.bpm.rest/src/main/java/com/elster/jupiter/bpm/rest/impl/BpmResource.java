@@ -346,7 +346,7 @@ public class BpmResource {
                     .entity(this.errorNotFoundMessage)
                     .build());
         }
-        return new ProcessInstanceNodeInfos(jsnobject, thesaurus);
+        return jsnobject != null ? new ProcessInstanceNodeInfos(jsnobject, thesaurus) : new ProcessInstanceNodeInfos();
     }
 
     @GET
