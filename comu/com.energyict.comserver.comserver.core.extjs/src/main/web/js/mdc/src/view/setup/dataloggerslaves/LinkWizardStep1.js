@@ -64,13 +64,19 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep1', {
                                 width: 386,
                                 itemId: 'mdc-step1-slave-combo',
                                 store: 'Mdc.store.AvailableDataLoggerSlaves',
-                                typeAhead: true,
                                 forceSelection: true,
                                 displayField: 'mRID',
                                 valueField: 'mRID',
-                                emptyText: Uni.I18n.translate('general.selectADataLoggerSlave', 'MDC', 'Select a data logger slave...'),
+                                emptyText: Uni.I18n.translate('general.selectADataLoggerSlave', 'MDC', 'Start typing to select a data logger slave...'),
                                 msgTarget: 'under',
-                                margin: '20 0 0 0'
+                                margin: '20 0 0 0',
+                                queryMode: 'remote',
+                                queryParam: 'like',
+                                queryDelay: 500,
+                                queryCaching: false,
+                                minChars: 1,
+                                editable: true,
+                                typeAhead: true
                             },
                             {
                                 xtype: 'displayfield',

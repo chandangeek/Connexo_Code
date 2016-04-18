@@ -10,10 +10,13 @@ Ext.define('Mdc.store.AvailableDataLoggerSlaves', {
     remoteSort: true,
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices',
+        url: '../../api/ddr/devices/unlinkeddataloggerslaves',
         reader: {
             type: 'json',
             root: 'devices'
-        }
+        },
+        pageParam: null,
+        startParam: null,
+        limitParam: null
     }
 });
