@@ -93,7 +93,7 @@ public class UsagePointMetrologyConfigurationTestIT {
     @Transactional
     public void testAddMeterRoleWhichIsNotAssignedToServiceCategory() {
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", getServiceCategory()).create();
-        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.PRODUCTION.getKey()).get();
         metrologyConfiguration.addMeterRole(meterRole);
     }
 

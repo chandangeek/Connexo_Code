@@ -1,8 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
@@ -15,22 +13,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Exposes the service kind enumeration
- * of a {@link com.elster.jupiter.metering.UsagePoint}
- * as a {@link SearchableProperty}.
- *
- * @author Anton Fomchenko
- * @since 2015-08-12
- */
-public class ServiceCategorySearchableProperty implements SearchableUsagePointProperty {
+public class ServicePrioritySearchableProperty implements SearchableUsagePointProperty {
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    static final String FIELDNAME = "SERVICEKIND";
+    private static final String FIELDNAME = "servicePriority";
 
-    public ServiceCategorySearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public ServicePrioritySearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
@@ -44,7 +34,7 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return true;
+        return false;
     }
 
     @Override
@@ -53,18 +43,18 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
     }
 
     @Override
-    public Visibility getVisibility() {
-        return Visibility.STICKY;
+    public SearchableProperty.Visibility getVisibility() {
+        return SearchableProperty.Visibility.REMOVABLE;
     }
 
     @Override
-    public SelectionMode getSelectionMode() {
-        return SelectionMode.MULTI;
+    public SearchableProperty.SelectionMode getSelectionMode() {
+        return SearchableProperty.SelectionMode.SINGLE;
     }
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_SERVICEPRIORITY.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -72,25 +62,19 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
         if (!this.valueCompatibleForDisplay(value)) {
             throw new IllegalArgumentException("Value not compatible with domain");
         }
-        return this.toDisplayAfterValidation(value);
+        return String.valueOf(value);
     }
 
     private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Enum;
+        return value instanceof String;
     }
 
-    protected String toDisplayAfterValidation(Object value) {
-        ServiceKind serviceKind = (ServiceKind) value;
-        return this.thesaurus.getStringBeyondComponent(serviceKind.getKey(), serviceKind.getDefaultFormat());
-    }
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService
-                .specForValuesOf(new EnumFactory(ServiceKind.class))
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY)
+                .stringSpec()
+                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_SERVICEPRIORITY)
                 .fromThesaurus(this.thesaurus)
-                .addValues(ServiceKind.values())
-                .markExhaustive()
                 .finish();
     }
 
@@ -101,11 +85,13 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
+        if (!constrictions.isEmpty()) {
+            throw new IllegalArgumentException("No constraint to refresh");
+        }
     }
 
     @Override
     public Condition toCondition(Condition specification) {
         return specification;
     }
-
 }

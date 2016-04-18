@@ -165,7 +165,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint) {
         LinkableMetrologyConfigurationFinder finder = new LinkableMetrologyConfigurationFinder(this.meteringService);
-        List<UsagePointMetrologyConfiguration> activeConfigs = getDataModel().query(UsagePointMetrologyConfiguration.class)
+        List<UsagePointMetrologyConfigurationImpl> activeConfigs = getDataModel().query(UsagePointMetrologyConfigurationImpl.class)
                 .select(where(MetrologyConfigurationImpl.Fields.STATUS.fieldName()).isEqualTo(MetrologyConfigurationStatus.ACTIVE));
         if (!activeConfigs.isEmpty()) {
             activeConfigs.stream()
@@ -241,6 +241,14 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
                 .findFirst()
                 .orElseGet(() -> getDataModel().getInstance(ReadingTypeTemplateImpl.class).init(defaultTemplate));
         return template.startUpdate();
+    }
+
+    @Override
+    public Optional<? extends ReadingTypeTemplate> findReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate) {
+        return getDataModel().query(ReadingTypeTemplateImpl.class)
+                .select(where(ReadingTypeTemplateImpl.Fields.DEFAULT_TEMPLATE.fieldName()).isEqualTo(defaultTemplate))
+                .stream()
+                .findFirst();
     }
 
     @Override

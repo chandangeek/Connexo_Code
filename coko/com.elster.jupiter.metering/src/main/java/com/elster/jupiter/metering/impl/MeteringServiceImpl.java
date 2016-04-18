@@ -443,9 +443,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             spec.addTo(dataModel);
         }
 
-        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService);
+        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this, this.metrologyConfigurationService);
         this.searchService.register(this.usagePointRequirementsSearchDomain);
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService); // has dependency to usagePointRequirementsSearchDomain
         registerMetrologyConfigurationService(bundleContext);
 
         dataModel.register(new AbstractModule() {
@@ -505,6 +505,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public final void deactivate() {
         if (!this.serviceRegistrations.isEmpty()) {
             this.serviceRegistrations.forEach(ServiceRegistration::unregister);
+        }
+        if (this.usagePointRequirementsSearchDomain != null) {
+            this.searchService.unregister(this.usagePointRequirementsSearchDomain);
         }
     }
 
