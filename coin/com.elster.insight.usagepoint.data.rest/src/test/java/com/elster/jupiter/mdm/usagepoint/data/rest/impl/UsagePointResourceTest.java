@@ -13,6 +13,8 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Ranges;
@@ -272,5 +274,33 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
             doReturn(readingQualities).when(status).getReadingQualities();
         }
         return status;
+    }
+
+    @Test
+    public void testUsagePointPurposes() {
+        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "1test"));
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        String json = target("/usagepoints/MRID/purposes").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.purposes[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.purposes[0].name")).isEqualTo(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
+        assertThat(jsonModel.<Boolean>get("$.purposes[0].required")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.purposes[0].active")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.purposes[0].status.id")).isEqualTo("incomplete");
+    }
+
+    @Test
+    public void testOutputsOfUsagePointPurpose() {
+        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "1test"));
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        String json = target("/usagepoints/MRID/purposes/1/outputs").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.outputs[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.outputs[0].name")).isEqualTo("testDeliveralble");
+        assertThat(jsonModel.<Number>get("$.outputs[0].interval.count")).isEqualTo(15);
+        assertThat(jsonModel.<String>get("$.outputs[0].interval.timeUnit")).isEqualTo("minutes");
+        assertThat(jsonModel.<String>get("$.outputs[0].readingType.mRID")).isEqualTo("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
     }
 }
