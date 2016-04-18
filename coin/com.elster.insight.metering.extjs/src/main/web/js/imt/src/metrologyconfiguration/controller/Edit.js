@@ -563,6 +563,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 
         navigation.add(navigationItemsToAdd);
         wizard.add(stepsToAdd);
+        wizard.updateRecord(configuration);
         Ext.resumeLayouts(true);
     },
 

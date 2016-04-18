@@ -124,7 +124,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
         me.callParent(arguments);
     },
 
-    updateRecord: function () {
+    updateRecord: function (record) {
         var me = this,
             step = me.getLayout().getActiveItem();
 
@@ -133,6 +133,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                 var combo = step.down('#metrology-configuration-combo');
                 me.getRecord().set('id',combo.getValue());
                 me.getRecord().set('name',combo.getRawValue());
+                record && me.getRecord().set('version', record.get('version'));
                 me.callParent(arguments);
                 break;
             default:
