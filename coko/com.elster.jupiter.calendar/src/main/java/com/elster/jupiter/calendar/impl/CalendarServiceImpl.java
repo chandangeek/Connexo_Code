@@ -40,7 +40,7 @@ import java.util.TimeZone;
         service = {CalendarService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + CalendarService.COMPONENTNAME,
         immediate = true)
-public class CalendarServiceImpl implements CalendarService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
+public class CalendarServiceImpl implements ServerCalendarService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -147,5 +147,15 @@ public class CalendarServiceImpl implements CalendarService, MessageSeedProvider
     @Override
     public Optional<Calendar> findCalendarByName(String name) {
         return null;
+    }
+
+    @Override
+    public DataModel getDataModel() {
+        return dataModel;
+    }
+
+    @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
     }
 }

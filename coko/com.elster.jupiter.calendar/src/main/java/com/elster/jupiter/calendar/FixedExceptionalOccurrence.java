@@ -20,4 +20,5 @@ public interface FixedExceptionalOccurrence extends ExceptionalOccurrence {
      * @return The fixed point in time
      */
     LocalDate getOccurrence();
+
 }

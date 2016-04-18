@@ -14,6 +14,8 @@ import java.time.Instant;
 @ProviderType
 public interface ExceptionalOccurrence {
 
+    Calendar getCalendar();
+
     DayType getDayType();
 
     boolean occursAt(Instant instant);

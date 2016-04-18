@@ -1,15 +1,16 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
+import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
+import com.elster.jupiter.calendar.RecurringExceptionalOccurrence;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -20,8 +21,10 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -40,7 +43,9 @@ public class CalendarImpl implements Calendar {
         DESCRIPTION("description"),
         TIMEZONENAME("timeZoneName"),
         CATEGORY("category"),
-        DAYTYPES("dayTypes");
+        DAYTYPES("dayTypes"),
+        PERIODS("periods"),
+        EXCEPTIONAL_OCCURRENCES("exceptionalOccurrences");
 
         private final String javaFieldName;
 
@@ -71,15 +76,14 @@ public class CalendarImpl implements Calendar {
     private TimeZone timeZone;
     private Reference<Category> category = ValueReference.absent();
     private List<DayType> dayTypes = new ArrayList<>();
+    private List<Period> periods = new ArrayList<>();
+    private List<ExceptionalOccurrence> exceptionalOccurrences = new ArrayList<>();
 
-
-    private final DataModel dataModel;
-    private final CalendarService calendarService;
+    private final ServerCalendarService calendarService;
 
     @Inject
-    CalendarImpl(CalendarService calendarService, DataModel dataModel) {
+    CalendarImpl(ServerCalendarService calendarService) {
         this.calendarService = calendarService;
-        this.dataModel = dataModel;
     }
 
     CalendarImpl init(String name, String description, TimeZone timeZone, Category category) {
@@ -158,15 +162,15 @@ public class CalendarImpl implements Calendar {
     @Override
     public void save() {
         if (this.getId() > 0) {
-            Save.UPDATE.save(this.dataModel, this, Save.Update.class);
+            Save.UPDATE.save(calendarService.getDataModel(), this, Save.Update.class);
         } else {
-            Save.CREATE.save(this.dataModel, this, Save.Create.class);
+            Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
         }
     }
 
     @Override
     public void delete() {
-        dataModel.remove(this);
+        calendarService.getDataModel().remove(this);
     }
 
     @Override
@@ -189,17 +193,17 @@ public class CalendarImpl implements Calendar {
 
     @Override
     public List<Period> getPeriods() {
-        return null;
+        return Collections.unmodifiableList(this.periods);
     }
 
     @Override
     public List<DayType> getDayTypes() {
-        return null;
+        return Collections.unmodifiableList(this.dayTypes);
     }
 
     @Override
     public List<ExceptionalOccurrence> getExceptionalOccurrences() {
-        return null;
+        return Collections.unmodifiableList(this.exceptionalOccurrences);
     }
 
     @Override
@@ -213,19 +217,77 @@ public class CalendarImpl implements Calendar {
     }
 
     @Override
-    public void addDayType(String name) {
-        DayTypeImpl dayType = dataModel.getInstance(DayTypeImpl.class).init(this, name);
+    public DayType addDayType(String name) {
+        DayTypeImpl dayType = calendarService.getDataModel().getInstance(DayTypeImpl.class).init(this, name);
+        Save.CREATE.validate(calendarService.getDataModel(), dayType);
         this.dayTypes.add(dayType);
+        touch();
+        return dayType;
     }
 
 
     @Override
     public void removeDayType(DayType dayType) {
         Objects.requireNonNull(dayType);
-        dayTypes.stream()
-                .filter(type -> dayType.getId() == type.getId())
-                .findFirst()
-                .ifPresent(this.dayTypes::remove);
+        dayTypes.remove(dayType);
+        touch();
+    }
+
+    @Override
+    public Period addPeriod(String name) {
+        PeriodImpl period = calendarService.getDataModel().getInstance(PeriodImpl.class).init(this, name);
+        Save.CREATE.validate(calendarService.getDataModel(), period);
+        this.periods.add(period);
+        touch();
+        return period;
+    }
+
+
+    @Override
+    public void removePeriod(Period period) {
+        Objects.requireNonNull(period);
+        periods.remove(period);
+        touch();
+    }
+
+    @Override
+    public FixedExceptionalOccurrence addFixedExceptionalOccurrence(int day, int month, int year) {
+        FixedExceptionalOccurrenceImpl fixedExceptionalOccurrence =
+                calendarService.getDataModel().getInstance(FixedExceptionalOccurrenceImpl.class).init(this, day, month, year);
+        Save.CREATE.validate(calendarService.getDataModel(), fixedExceptionalOccurrence);
+        this.exceptionalOccurrences.add(fixedExceptionalOccurrence);
+        touch();
+        return fixedExceptionalOccurrence;
+    }
+
+
+    @Override
+    public void removeFixedExceptionalOccurrence(FixedExceptionalOccurrence fixedExceptionalOccurrence) {
+        Objects.requireNonNull(fixedExceptionalOccurrence);
+        exceptionalOccurrences.remove(fixedExceptionalOccurrence);
+        touch();
+    }
+
+    @Override
+    public RecurringExceptionalOccurrence addFixedExceptionalOccurrence(int day, int month) {
+        RecurringExceptionalOccurrenceImpl recurringExceptionalOccurrence =
+                calendarService.getDataModel().getInstance(RecurringExceptionalOccurrenceImpl.class).init(this, day, month);
+        Save.CREATE.validate(calendarService.getDataModel(), recurringExceptionalOccurrence);
+        this.exceptionalOccurrences.add(recurringExceptionalOccurrence);
+        touch();
+        return recurringExceptionalOccurrence;
+    }
+
+
+    @Override
+    public void removeFixedExceptionalOccurrence(RecurringExceptionalOccurrence recurringExceptionalOccurrence) {
+        Objects.requireNonNull(recurringExceptionalOccurrence);
+        exceptionalOccurrences.remove(recurringExceptionalOccurrence);
+        touch();
+    }
+
+    void touch() {
+        this.calendarService.getDataModel().touch(this);
     }
 
 

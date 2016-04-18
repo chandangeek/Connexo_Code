@@ -6,6 +6,7 @@ import com.elster.jupiter.util.HasName;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -118,10 +119,19 @@ public interface Calendar extends HasId, HasName {
 
     void setDescription(String description);
 
-    void addDayType(String name);
+    DayType addDayType(String name);
 
     void removeDayType(DayType dayType);
 
+    Period addPeriod(String name);
 
+    void removePeriod(Period period);
 
+    FixedExceptionalOccurrence addFixedExceptionalOccurrence(int day, int month, int year);
+
+    void removeFixedExceptionalOccurrence(FixedExceptionalOccurrence fixedExceptionalOccurrence);
+
+    RecurringExceptionalOccurrence addFixedExceptionalOccurrence(int day, int month);
+
+    void removeFixedExceptionalOccurrence(RecurringExceptionalOccurrence recurringExceptionalOccurrence);
 }
