@@ -75,6 +75,8 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
+                me.wizardInformation = {};
+                me.wizardInformation.dataLogger = device;
                 me.getApplication().fireEvent('loadDevice', device);
                 slavesStore.getProxy().setUrl(device.get('mRID'));
                 widget = Ext.widget('dataLoggerSlavesSetup', { device: device, router: router, store:slavesStore });
@@ -88,7 +90,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         this.getController('Uni.controller.history.Router').getRoute('devices/device/dataloggerslaves/link').forward();
     },
 
-    showLinkWizard: function() {
+    showLinkWizard: function(mRID) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
@@ -99,14 +101,25 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 returnLink: router.getRoute('devices/device/dataloggerslaves').buildUrl()
             });
 
-        me.wizardInformation = {};
-        me.wizardInformation.dataLoggerMRID = router.arguments.mRID;
         me.getApplication().fireEvent('changecontentevent', widget);
         mainView.setLoading(true);
         widget.down('dataloggerslave-link-wizard').loadRecord(Ext.create('Mdc.model.Device'));
-        widget.down('#mdc-step1-slave-combo').getStore().load(function() {
+        if ( (me.wizardInformation && me.wizardInformation.dataLogger &&
+              me.wizardInformation.dataLogger.get('mRID') !== mRID) // 1.Outdated info
+             ||
+             (Ext.isEmpty(me.wizardInformation) || Ext.isEmpty(me.wizardInformation.dataLogger)) ) { // 2.no info yet
+            Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+                success: function (device) {
+                    me.wizardInformation = {};
+                    me.wizardInformation.dataLogger = device;
+                    me.getApplication().fireEvent('loadDevice', device);
+                    mainView.setLoading(false);
+                }
+            });
+        } else {
+            me.getApplication().fireEvent('loadDevice', me.wizardInformation.dataLogger);
             mainView.setLoading(false);
-        });
+        }
     },
 
     onStep1OptionChange: function(radioGroup, newValue) {
@@ -373,7 +386,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         loadProfileConfigStore.getProxy().setUrl(me.wizardInformation.slaveDeviceTypeId, me.wizardInformation.slaveDeviceConfigurationId);
         loadProfileConfigStore.load({
             callback: function (loadProfileConfigRecords) {
-                channelsStore.getProxy().setUrl(me.wizardInformation.dataLoggerMRID);
+                channelsStore.getProxy().setUrl(me.wizardInformation.dataLogger.get('mRID'));
                 channelsStore.load({
                     callback: function (channelRecords) {
                         wizard.setLoading(false);
@@ -449,7 +462,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         registerConfigStore.getProxy().setExtraParam('deviceConfig', me.wizardInformation.slaveDeviceConfigurationId);
         registerConfigStore.load({
             callback: function (registerConfigRecords) {
-                dataLoggerRegistersStore.getProxy().setExtraParam('mRID', me.wizardInformation.dataLoggerMRID);
+                dataLoggerRegistersStore.getProxy().setExtraParam('mRID', me.wizardInformation.dataLogger.get('mRID'));
                 dataLoggerRegistersStore.load({
                     callback: function (dataLoggerRegisterRecords) {
                         wizard.setLoading(false);
@@ -543,7 +556,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
     prepareStep5: function() {
         var me = this;
-        me.getWizard().down('dataloggerslave-link-wizard-step5').initialize(me.wizardInformation.dataLoggerMRID, me.getSlaveMRID());
+        me.getWizard().down('dataloggerslave-link-wizard-step5').initialize(me.wizardInformation.dataLogger.get('mRID'), me.getSlaveMRID());
     },
 
     onActionMenuClicked: function (menu, item) {
@@ -567,7 +580,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                     Ext.String.format(
                         Uni.I18n.translate('general.slaveXLinkedToDataLoggerY', 'MDC', "Slave '{0}' has been linked to data logger '{1}'."),
                         me.getSlaveMRID(),
-                        me.wizardInformation.dataLoggerMRID
+                        me.wizardInformation.dataLogger.get('mRID')
                     )
                 );
                 finishBtn.show();
