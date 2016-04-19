@@ -854,7 +854,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         model.load(customAttributeSetId, {
             success: function (record) {
-                widget.down('#channelEditPanel').setTitle(Uni.I18n.translate('devicechannels.EditCustomAttributeSet', 'MDC', "Edit '{0}'", [record.get('name')]));
+                widget.down('#channelEditPanel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
                 me.getApplication().fireEvent('channelOfLoadProfileCustomAttributes', record);
                 form.loadRecord(record);
             },
