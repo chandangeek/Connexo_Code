@@ -5,26 +5,61 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.*;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DoesNotExistException;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.ApplicationPrivilegesProvider;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.MessageSeeds;
+import com.elster.jupiter.users.NoDefaultDomainException;
+import com.elster.jupiter.users.NoDomainFoundException;
+import com.elster.jupiter.users.NoDomainIdFoundException;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -538,7 +573,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Collections.singletonList("ORM");
+        return Arrays.asList("ORM", "MSG");
     }
 
     @Override
