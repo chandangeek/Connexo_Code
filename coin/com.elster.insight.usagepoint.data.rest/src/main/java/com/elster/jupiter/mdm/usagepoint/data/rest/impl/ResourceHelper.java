@@ -34,9 +34,9 @@ public class ResourceHelper {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mrid));
     }
 
-    public UsagePoint findAndLockUsagePointByMrIdOrThrowException(String mrid) {
+    public UsagePoint findAndLockUsagePointByMrIdOrThrowException(String mrid, long version) {
         UsagePoint up = findUsagePointByMrIdOrThrowException(mrid);
-        return meteringService.findAndLockUsagePointByIdAndVersion(up.getId(), up.getVersion()).get();
+        return lockUsagePointOrThrowException(up.getId(), version, up.getName());
     }
 
     public UsagePoint findUsagePointByIdOrThrowException(long id) {
@@ -48,10 +48,10 @@ public class ResourceHelper {
         return meteringService.getReadingType(rt_mrid).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_READING_TYPE_FOR_MRID, rt_mrid));
     }
 
-    public UsagePointMetrologyConfiguration findAndLockfindAndLockUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
+    public UsagePointMetrologyConfiguration findAndLockUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
         UsagePointMetrologyConfiguration upmc = metrologyConfigurationService.findUsagePointMetrologyConfiguration(id)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
-        return metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(upmc.getId(), version).get();
+        return metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(id, version).get();
     }
 
     public UsagePoint lockUsagePointOrThrowException(UsagePointInfo info) {

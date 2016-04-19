@@ -209,12 +209,14 @@ public class UsagePointResource {
     public Response linkMetrologyConfigurations(@PathParam("mrid") String mrid,
                                                 @QueryParam("validate") boolean validate,
                                                 @QueryParam("customPropertySetId") long customPropertySetId,
+                                                @QueryParam("upVersion") long upVersion,
                                                 MetrologyConfigurationInfo info) {
-        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mrid);
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mrid, upVersion);
 
         new RestValidationBuilder()
                 .notEmpty(info.id, "id")
                 .notEmpty(info.name, "name")
+                .notEmpty(info.version, "version")
                 .validate();
 
         if (validate) {
@@ -235,7 +237,7 @@ public class UsagePointResource {
             return Response.accepted().build();
         }
 
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockfindAndLockUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
         usagePoint.apply(usagePointMetrologyConfiguration);
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
@@ -243,7 +245,7 @@ public class UsagePointResource {
             propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
                     propertySet.getCustomPropertySet().getPropertySpecs()));
         }
-
+        usagePoint.update();
         return Response.status(Response.Status.OK).entity(usagePointInfoFactory.from(usagePoint)).build();
     }
 
