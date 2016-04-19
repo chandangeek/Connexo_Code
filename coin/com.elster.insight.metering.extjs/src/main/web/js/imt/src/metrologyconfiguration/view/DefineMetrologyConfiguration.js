@@ -8,6 +8,7 @@ Ext.define('Imt.metrologyconfiguration.view.DefineMetrologyConfiguration', {
 
     returnLink: null,
     isPossibleAdd: true,
+    upVersion: null,
 
     initComponent: function () {
         var me = this;
@@ -43,7 +44,8 @@ Ext.define('Imt.metrologyconfiguration.view.DefineMetrologyConfiguration', {
                 xtype: 'define-metrology-configuration-wizard',
                 itemId: 'define-metrology-configuration-wizard',
                 returnLink: me.returnLink,
-                isPossibleAdd: me.isPossibleAdd
+                isPossibleAdd: me.isPossibleAdd,
+                upVersion: me.upVersion
             }
         ];
 

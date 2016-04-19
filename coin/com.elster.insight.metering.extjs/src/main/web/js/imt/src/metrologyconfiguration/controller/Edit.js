@@ -402,11 +402,11 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 me.getStore('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations').load(function (records) {
                     var isPossibleAdd = records && records.length,
                         fromLandingPage = !!router.queryParams.fromLandingPage;
-
                     me.getApplication().fireEvent('changecontentevent', Ext.widget('define-metrology-configuration', {
                         itemId: 'define-metrology-configuration',
                         returnLink: fromLandingPage ? router.getRoute('usagepoints/view').buildUrl() : router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl(),
-                        isPossibleAdd: isPossibleAdd
+                        isPossibleAdd: isPossibleAdd,
+                        upVersion: record.get('version')
                     }));
                     me.getWizard().loadRecord(Ext.create('Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration'));
                     mainView.setLoading(false);
@@ -487,7 +487,11 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                     wizard.markInvalid(errors.errors);
                 }
             }
-        }, options));
+        }, Ext.apply(options, {
+            params: {
+                upVersion: wizard.upVersion
+            }
+        })));
         modelProxy.appendId = true; // restore id in the url for normal functionality
     },
 
