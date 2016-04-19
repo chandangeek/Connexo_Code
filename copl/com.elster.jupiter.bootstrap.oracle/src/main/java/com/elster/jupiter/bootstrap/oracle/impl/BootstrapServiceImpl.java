@@ -3,6 +3,9 @@ package com.elster.jupiter.bootstrap.oracle.impl;
 import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.bootstrap.DataSourceSetupException;
 import com.elster.jupiter.bootstrap.PropertyNotFoundException;
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
+
 import oracle.jdbc.pool.OracleDataSource;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -47,6 +50,8 @@ public final class BootstrapServiceImpl implements BootstrapService {
     private String maxLimit;
     private String maxStatementsLimit;
 
+    private Holder<DataSource> cache = HolderBuilder.lazyInitialize(this::doCreateDataSource);
+
     public BootstrapServiceImpl() {
     }
 
@@ -66,12 +71,18 @@ public final class BootstrapServiceImpl implements BootstrapService {
 
     @Override
     public DataSource createDataSource() {
+        return cache.get();
+    }
+
+    private DataSource doCreateDataSource() {
+        DataSource dataSource;
         try {
-            return createDataSourceFromProperties();
+            dataSource = createDataSourceFromProperties();
         } catch (SQLException e) {
             // Basically this should never occur, since we're not accessing the DB in any way, just yet.
             throw new DataSourceSetupException(e);
         }
+        return dataSource;
     }
 
     // tried to switch to UCP , but ran into OSGI related class loading problems.
