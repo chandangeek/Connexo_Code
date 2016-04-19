@@ -26,6 +26,13 @@ public class PeriodImpl implements Period {
     public enum Fields {
         ID("id"),
         NAME("name"),
+        MONDAY_DAYTYPE("monday"),
+        TUESDAY_DAYTYPE("tuesday"),
+        WEDNESDAY_DAYTYPE("wednesday"),
+        THURSDAY_DAYTYPE("thursday"),
+        FRIDAY_DAYTYPE("friday"),
+        SATURDAY_DAYTYPE("saturday"),
+        SUNDAY_DAYTYPE("monday"),
         CALENDAR("calendar");
 
         private String javaFieldName;
@@ -46,6 +53,22 @@ public class PeriodImpl implements Period {
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();
 
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Reference<DayType> monday = ValueReference.absent();
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Reference<DayType> tuesday = ValueReference.absent();
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Reference<DayType> wednesday = ValueReference.absent();
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Reference<DayType> thursday = ValueReference.absent();
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Reference<DayType> friday = ValueReference.absent();
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Reference<DayType> saturday = ValueReference.absent();
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Reference<DayType> sunday = ValueReference.absent();
+
+
     private long version;
     private Instant createTime;
     private Instant modTime;
@@ -58,9 +81,16 @@ public class PeriodImpl implements Period {
         this.calendarService = calendarService;
     }
 
-    public PeriodImpl init(Calendar calendar, String name) {
+    public PeriodImpl init(Calendar calendar, String name, DayType monday, DayType tuesday, DayType wednesday, DayType thursday, DayType friday, DayType saturday, DayType sunday) {
         this.name = name;
         this.calendar.set(calendar);
+        this.monday.set(monday);
+        this.tuesday.set(tuesday);
+        this.wednesday.set(wednesday);
+        this.thursday.set(thursday);
+        this.friday.set(friday);
+        this.saturday.set(saturday);
+        this.sunday.set(sunday);
         return this;
     }
 
@@ -101,7 +131,24 @@ public class PeriodImpl implements Period {
 
     @Override
     public DayType getDayType(DayOfWeek dayOfWeek) {
-        return null;
+        switch (dayOfWeek) {
+            case MONDAY:
+                return monday.get();
+            case TUESDAY:
+                return tuesday.get();
+            case WEDNESDAY:
+                return wednesday.get();
+            case THURSDAY:
+                return thursday.get();
+            case FRIDAY:
+                return friday.get();
+            case SATURDAY:
+                return saturday.get();
+            case SUNDAY:
+                return sunday.get();
+            default:
+                return monday.get();
+        }
     }
 }
 

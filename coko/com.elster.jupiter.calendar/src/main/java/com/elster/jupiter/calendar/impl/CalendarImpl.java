@@ -237,8 +237,8 @@ public class CalendarImpl implements Calendar {
     }
 
     @Override
-    public Period addPeriod(String name) {
-        PeriodImpl period = calendarService.getDataModel().getInstance(PeriodImpl.class).init(this, name);
+    public Period addPeriod(String name, DayType monday, DayType tuesday, DayType wednesday, DayType thursday, DayType friday, DayType saturday, DayType sunday) {
+        PeriodImpl period = calendarService.getDataModel().getInstance(PeriodImpl.class).init(this, name, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
         Save.CREATE.validate(calendarService.getDataModel(), period);
         this.periods.add(period);
         touch();
