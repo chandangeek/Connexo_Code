@@ -1480,7 +1480,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'loadRegisterConfigurationCustomAttributes',
                                             callback: function (route) {
                                                 this.getApplication().on('loadRegisterConfigurationCustomAttributes', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('deviceregisterconfiguration.editCustomAttributes', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
                                                     return true;
                                                 }, {single: true});
 
@@ -1830,7 +1830,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showEditChannelOfLoadProfileCustomAttributes',
                                             callback: function (route) {
                                                 this.getApplication().on('channelOfLoadProfileCustomAttributes', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('deviceChannelOfLoadProfile.editCustomAttributes', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
                                                     return true;
                                                 }, {single: true});
 
