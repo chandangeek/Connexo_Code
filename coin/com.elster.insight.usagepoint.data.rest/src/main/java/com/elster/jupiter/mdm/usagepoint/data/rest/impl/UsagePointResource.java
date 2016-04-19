@@ -211,12 +211,15 @@ public class UsagePointResource {
                                                 @QueryParam("customPropertySetId") long customPropertySetId,
                                                 @QueryParam("upVersion") long upVersion,
                                                 MetrologyConfigurationInfo info) {
-        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mrid, upVersion);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        usagePoint.getMetrologyConfiguration().ifPresent(mc -> {
+            throw resourceHelper.throwUsagePointLinkedException(mrid);
+        });
+        usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mrid, upVersion);
 
         new RestValidationBuilder()
                 .notEmpty(info.id, "id")
                 .notEmpty(info.name, "name")
-                .notEmpty(info.version, "version")
                 .validate();
 
         if (validate) {
@@ -246,7 +249,7 @@ public class UsagePointResource {
                     propertySet.getCustomPropertySet().getPropertySpecs()));
         }
         usagePoint.update();
-        return Response.status(Response.Status.OK).entity(usagePointInfoFactory.from(usagePoint)).build();
+        return Response.ok().entity(usagePointInfoFactory.from(usagePoint)).build();
     }
 
     private void validateCasValues(RegisteredCustomPropertySet set, CustomPropertySetInfo customPropertySetInfo) {

@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
@@ -36,7 +37,7 @@ public class ResourceHelper {
 
     public UsagePoint findAndLockUsagePointByMrIdOrThrowException(String mrid, long version) {
         UsagePoint up = findUsagePointByMrIdOrThrowException(mrid);
-        return lockUsagePointOrThrowException(up.getId(), version, up.getName());
+        return lockUsagePointOrThrowException(up.getId(), version, up.getMRID());
     }
 
     public UsagePoint findUsagePointByIdOrThrowException(long id) {
@@ -59,9 +60,14 @@ public class ResourceHelper {
     }
 
     public UsagePoint lockUsagePointOrThrowException(long id, long version, String name) {
+
         return meteringService.findAndLockUsagePointByIdAndVersion(id, version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
                         .withActualVersion(() -> meteringService.findUsagePoint(id).map(UsagePoint::getVersion).orElse(null))
                         .supplier());
+    }
+
+    public ConcurrentModificationException throwUsagePointLinkedException(String mrid) {
+        return conflictFactory.conflict().withMessageBody(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION_MSG, mrid).withMessageTitle(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION, mrid).build();
     }
 }
