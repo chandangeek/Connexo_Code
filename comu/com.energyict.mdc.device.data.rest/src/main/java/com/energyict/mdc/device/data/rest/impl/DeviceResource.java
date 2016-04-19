@@ -23,6 +23,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -702,7 +703,8 @@ public class DeviceResource {
         // a. Datalogger slave devices
         // b. that are not linked yet to a data logger
         String regex = "*".concat(dbSearchText.replace(" ", "*").concat("*"));
-        return Where.where("mRID").likeIgnoreCase(regex);
+        return Where.where("mRID").likeIgnoreCase(regex)
+            .and(Where.where("deviceType.deviceTypePurpose").isEqualTo(DeviceTypePurpose.DATALOGGER_SLAVE)); // (a)
     }
 
 
