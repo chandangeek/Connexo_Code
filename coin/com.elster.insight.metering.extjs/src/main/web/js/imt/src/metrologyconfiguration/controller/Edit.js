@@ -34,6 +34,9 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
            {ref: 'wizard', selector: 'define-metrology-configuration define-metrology-configuration-wizard'},
            {ref: 'navigationMenu', selector: 'define-metrology-configuration navigation-menu'},
     ],
+
+    returnLink: null,
+
     init: function () {
         this.control({
             'metrologyConfigurationEdit button[action=saveModel]': {
@@ -398,13 +401,13 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             success: function (record) {
                 me.getApplication().fireEvent('usagePointLoaded', record);
                 store.getProxy().setUrl(mRID);
+                me.returnLink = router.queryParams.fromLandingPage ? router.getRoute('usagepoints/view').buildUrl() : router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl();
                 configurationModel.getProxy().setUrl(mRID);
                 me.getStore('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations').load(function (records) {
-                    var isPossibleAdd = records && records.length,
-                        fromLandingPage = !!router.queryParams.fromLandingPage;
+                    var isPossibleAdd = records && records.length;
                     me.getApplication().fireEvent('changecontentevent', Ext.widget('define-metrology-configuration', {
                         itemId: 'define-metrology-configuration',
-                        returnLink: fromLandingPage ? router.getRoute('usagepoints/view').buildUrl() : router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl(),
+                        returnLink: me.returnLink,
                         isPossibleAdd: isPossibleAdd,
                         upVersion: record.get('version')
                     }));
@@ -475,7 +478,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         modelProxy = record.getProxy();
         record.phantom = false;       // force 'PUT' method for request otherwise 'POST' will be performed
         modelProxy.appendId = false; // remove 'id' part from request url
-        record.save(Ext.apply({
+        record.save(Ext.merge({
             callback: function () {
                 wizard.setLoading(false);
             },
@@ -487,11 +490,14 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                     wizard.markInvalid(errors.errors);
                 }
             }
-        }, Ext.apply(options, {
+            }, Ext.merge(options, {
             params: {
                 upVersion: wizard.upVersion
-            }
-        })));
+            },
+                dontTryAgain: true,
+                backUrl: me.returnLink
+            })
+        ));
         modelProxy.appendId = true; // restore id in the url for normal functionality
     },
 
