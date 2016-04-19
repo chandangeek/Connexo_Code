@@ -32,17 +32,9 @@ import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeExcepti
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.internal.verification.Times;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.event.EventConstants;
 
 import java.util.Arrays;
@@ -55,9 +47,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.internal.verification.Times;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -117,7 +120,7 @@ public class DeviceConfigChangeHandlerTest {
         deviceConfigProperty = mock(SearchableProperty.class);
         when(deviceConfigProperty.getName()).thenReturn(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName);
         when(deviceConfigProperty.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
-        when(deviceSearchDomain.supports(Device.class)).thenReturn(true);
+        doReturn(Device.class).when(deviceSearchDomain).getDomainClass();
         when(deviceSearchDomain.getId()).thenReturn("Device");
         when(deviceSearchDomain.getProperties()).thenReturn(Arrays.asList(deviceTypeProperty, deviceConfigProperty));
         when(deviceSearchDomain.getPropertiesValues(Matchers.any())).thenAnswer(

@@ -96,8 +96,8 @@ public class DeviceSearchDomain implements SearchDomain {
     }
 
     @Override
-    public boolean supports(Class aClass) {
-        return Device.class.equals(aClass);
+    public Class<?> getDomainClass() {
+        return Device.class;
     }
 
     @Override

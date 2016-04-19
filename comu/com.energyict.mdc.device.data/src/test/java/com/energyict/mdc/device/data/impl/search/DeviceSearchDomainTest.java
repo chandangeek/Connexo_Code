@@ -46,8 +46,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -147,13 +148,13 @@ public class DeviceSearchDomainTest {
 
     @Test
     public void supportsDevice() {
-        assertThat(this.getTestInstance().supports(Device.class)).isTrue();
+        assertThat(this.getTestInstance().getDomainClass().isAssignableFrom(Device.class)).isTrue();
     }
 
     @Test
     public void doesNotSupportEndDevice() {
         // Testing this to make sure that nobody accidently mistakes the EndDevice for the mdc Device
-        assertThat(this.getTestInstance().supports(EndDevice.class)).isFalse();
+        assertThat(this.getTestInstance().getDomainClass().isAssignableFrom(EndDevice.class)).isFalse();
     }
 
     @Test
