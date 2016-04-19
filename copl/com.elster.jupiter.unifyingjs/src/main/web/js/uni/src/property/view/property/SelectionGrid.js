@@ -19,7 +19,7 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
         return  !me.getProperty().getPossibleValues() ?
         {
             xtype: 'uni-form-error-message',
-            text: Uni.I18n.translate('Uni.property.selectionGrid.error', 'UNI', 'No possible options is available'),
+            text: Uni.I18n.translate('Uni.property.selectionGrid.error', 'UNI', 'No possible options available'),
             hidden: me.getProperty().getPossibleValues()
         } :
         {
