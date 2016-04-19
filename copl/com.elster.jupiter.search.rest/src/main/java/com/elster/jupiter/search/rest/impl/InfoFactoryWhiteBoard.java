@@ -3,12 +3,14 @@ package com.elster.jupiter.search.rest.impl;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.rest.InfoFactoryService;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Registers which InfoFactory can be used to convert which domain object. Used by the dynamicSearchResource
@@ -30,9 +32,9 @@ public class InfoFactoryWhiteBoard implements InfoFactoryService {
 
     @Override
     public InfoFactory getInfoFactoryFor(SearchDomain searchDomain) {
-        return factories.stream().
-                filter(fac -> searchDomain.supports(fac.getDomainClass())).
-                findFirst().
-                orElseThrow(() -> new IllegalStateException("No registered factory for search domain " + searchDomain.getId()));
+        return factories.stream()
+                .filter(fac -> searchDomain.getDomainClass().isAssignableFrom(fac.getDomainClass()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No registered factory for search domain " + searchDomain.getId()));
     }
 }
