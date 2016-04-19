@@ -12,13 +12,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class CustomPropertySetSearchablePropertyImpl implements SearchableProperty {
+public class CustomPropertySetSearchableProperty implements SearchableProperty {
 
     private final CustomPropertySet<?, ?> customPropertySet;
     private final SearchablePropertyGroup searchablePropertyGroup;
     private final PropertySpec propertySpec;
 
-    public CustomPropertySetSearchablePropertyImpl(CustomPropertySet<?, ?> customPropertySet, PropertySpec propertySpec, SearchablePropertyGroup searchablePropertyGroup) {
+    public CustomPropertySetSearchableProperty(CustomPropertySet<?, ?> customPropertySet, PropertySpec propertySpec, SearchablePropertyGroup searchablePropertyGroup) {
         this.customPropertySet = customPropertySet;
         this.propertySpec = propertySpec;
         this.searchablePropertyGroup = searchablePropertyGroup;
@@ -26,7 +26,7 @@ public class CustomPropertySetSearchablePropertyImpl implements SearchableProper
 
     @Override
     public SearchDomain getDomain() {
-        return null; // a search domain will provide a correct value
+        return null; // a search domain wrapper will provide a correct value
     }
 
     @Override

@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Range;
 
@@ -57,6 +58,10 @@ class ActiveCustomPropertySet {
 
     private DataMapper getMapper() {
         return this.customPropertySetDataModel.mapper(this.customPropertySet.getPersistenceSupport().persistenceClass());
+    }
+
+    DataModel getDataModel() {
+        return this.customPropertySetDataModel;
     }
 
     @SuppressWarnings("unchecked")
