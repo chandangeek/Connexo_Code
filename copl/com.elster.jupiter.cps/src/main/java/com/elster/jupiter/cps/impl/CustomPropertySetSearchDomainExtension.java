@@ -26,7 +26,7 @@ public class CustomPropertySetSearchDomainExtension implements SearchDomainExten
 
     @Override
     public boolean isExtensionFor(SearchDomain domain, List<SearchablePropertyConstriction> constrictions) {
-        return domain.supports(this.customPropertySet.getDomainClass())
+        return domain.getDomainClass().isAssignableFrom(this.customPropertySet.getDomainClass())
                 && (this.customPropertySet.isSearchableByDefault()
                 || this.customPropertySetService.isSearchEnabledForCustomPropertySet(this.customPropertySet, constrictions));
     }
