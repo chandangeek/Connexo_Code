@@ -77,7 +77,7 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
     static Map<String, Class<? extends ExceptionalOccurrence>> getImplementers() {
         ImmutableMap.Builder<String, Class<? extends ExceptionalOccurrence>> builder = ImmutableMap.builder();
         builder.put(FixedExceptionalOccurrenceImpl.TYPE_IDENTIFIER, FixedExceptionalOccurrenceImpl.class)
-                .put(RecurringExceptionalOccurrenceImpl.TYPE_IDENTIFIER, RecurringExceptionalOccurrenceImpl.class);
+                .put(RecurrentExceptionalOccurrenceImpl.TYPE_IDENTIFIER, RecurrentExceptionalOccurrenceImpl.class);
         return builder.build();
     }
 

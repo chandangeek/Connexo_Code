@@ -10,7 +10,7 @@ import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
-import com.elster.jupiter.calendar.RecurringExceptionalOccurrence;
+import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -21,15 +21,12 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Created by igh on 18/04/2016.
@@ -269,20 +266,20 @@ public class CalendarImpl implements Calendar {
     }
 
     @Override
-    public RecurringExceptionalOccurrence addFixedExceptionalOccurrence(int day, int month) {
-        RecurringExceptionalOccurrenceImpl recurringExceptionalOccurrence =
-                calendarService.getDataModel().getInstance(RecurringExceptionalOccurrenceImpl.class).init(this, day, month);
-        Save.CREATE.validate(calendarService.getDataModel(), recurringExceptionalOccurrence);
-        this.exceptionalOccurrences.add(recurringExceptionalOccurrence);
+    public RecurrentExceptionalOccurrence addFixedExceptionalOccurrence(int day, int month) {
+        RecurrentExceptionalOccurrenceImpl recurrentExceptionalOccurrence =
+                calendarService.getDataModel().getInstance(RecurrentExceptionalOccurrenceImpl.class).init(this, day, month);
+        Save.CREATE.validate(calendarService.getDataModel(), recurrentExceptionalOccurrence);
+        this.exceptionalOccurrences.add(recurrentExceptionalOccurrence);
         touch();
-        return recurringExceptionalOccurrence;
+        return recurrentExceptionalOccurrence;
     }
 
 
     @Override
-    public void removeFixedExceptionalOccurrence(RecurringExceptionalOccurrence recurringExceptionalOccurrence) {
-        Objects.requireNonNull(recurringExceptionalOccurrence);
-        exceptionalOccurrences.remove(recurringExceptionalOccurrence);
+    public void removeFixedExceptionalOccurrence(RecurrentExceptionalOccurrence recurrentExceptionalOccurrence) {
+        Objects.requireNonNull(recurrentExceptionalOccurrence);
+        exceptionalOccurrences.remove(recurrentExceptionalOccurrence);
         touch();
     }
 
