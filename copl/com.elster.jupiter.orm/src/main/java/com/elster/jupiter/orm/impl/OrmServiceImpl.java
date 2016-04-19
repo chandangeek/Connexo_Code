@@ -91,6 +91,16 @@ public class OrmServiceImpl implements OrmService, InstallService {
         return Optional.ofNullable(dataModels.get(name));
     }
 
+    @Override
+    public Optional<DataModel> getDataModel(Class<?> apiClass) {
+            return this.dataModels
+                    .values()
+                    .stream()
+                    .filter(dataModel -> dataModel.getTables().stream().anyMatch(table -> table.supportsApi(apiClass)))
+                    .map(DataModel.class::cast)
+                    .findAny();
+    }
+
     public Optional<DataModelImpl> getDataModelImpl(String name) {
         return Optional.ofNullable(dataModels.get(name));
     }

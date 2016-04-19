@@ -49,6 +49,11 @@ public interface OrmService {
     Optional<DataModel> getDataModel(String name);
 
     /*
+    * Gets the dataModel which can work with the given apiClass (contains table mapped to that class)
+    */
+    Optional<DataModel> getDataModel(Class<?> apiClass);
+
+    /*
      * Cache coherence between app servers
      */
     void invalidateCache(String componentName, String tableName);
@@ -57,13 +62,15 @@ public interface OrmService {
      * remove all journal entries up to a given instant
      */
     void dropJournal(Instant upTo, Logger logger);
+
     /*
      * remove all data before upTo for the given life cycle class
      */
-	void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger);
-	/*
-	 * create partitions for all range partitioned tables up to the first argument
-	 */
-	void createPartitions(Instant upTo, Logger logger);
+    void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger);
+
+    /*
+     * create partitions for all range partitioned tables up to the first argument
+     */
+    void createPartitions(Instant upTo, Logger logger);
 
 }
