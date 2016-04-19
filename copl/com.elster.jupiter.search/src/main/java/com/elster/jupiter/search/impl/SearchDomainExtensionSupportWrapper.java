@@ -1,6 +1,7 @@
 package com.elster.jupiter.search.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchDomainExtension;
 import com.elster.jupiter.search.SearchableProperty;
@@ -10,7 +11,6 @@ import com.elster.jupiter.search.SearchablePropertyValue;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -19,32 +19,34 @@ import java.util.stream.Collectors;
 
 public class SearchDomainExtensionSupportWrapper implements SearchDomain {
 
+    private final OrmService ormService;
     private final SearchServiceImpl searchService;
     private final SearchDomain originalDomain;
 
-    public SearchDomainExtensionSupportWrapper(SearchServiceImpl searchService, SearchDomain originalDomain) {
+    public SearchDomainExtensionSupportWrapper(OrmService ormService, SearchServiceImpl searchService, SearchDomain originalDomain) {
+        this.ormService = ormService;
         this.searchService = searchService;
         this.originalDomain = originalDomain;
     }
 
     @Override
     public String getId() {
-        return originalDomain.getId();
+        return this.originalDomain.getId();
     }
 
     @Override
     public String displayName() {
-        return originalDomain.displayName();
+        return this.originalDomain.displayName();
     }
 
     @Override
     public List<String> targetApplications() {
-        return originalDomain.targetApplications();
+        return this.originalDomain.targetApplications();
     }
 
     @Override
     public Class<?> getDomainClass() {
-        return originalDomain.getDomainClass();
+        return this.originalDomain.getDomainClass();
     }
 
     @Override
@@ -112,23 +114,6 @@ public class SearchDomainExtensionSupportWrapper implements SearchDomain {
 
     @Override
     public Finder<?> finderFor(List<SearchablePropertyCondition> conditions) {
-        List<SearchablePropertyCondition> domainConditions = new ArrayList<>(conditions);
-        Map<SearchDomainExtension, List<SearchablePropertyCondition>> extensioneConditions = new HashMap<>();
-        conditions.stream()
-                .filter(condition -> condition.getProperty() instanceof SearchDomainExtensionSearchableProperty)
-                .forEach(condition -> {
-                    domainConditions.remove(condition);
-                    SearchDomainExtension domainExtension = ((SearchDomainExtensionSearchableProperty) condition.getProperty()).getDomainExtension();
-                    List<SearchablePropertyCondition> singleExtensionConditions = extensioneConditions.get(domainExtension);
-                    if (singleExtensionConditions == null) {
-                        singleExtensionConditions = new ArrayList<>();
-                        extensioneConditions.put(domainExtension, singleExtensionConditions);
-                    }
-                    singleExtensionConditions.add(condition);
-                });
-        if (extensioneConditions.isEmpty()) {
-            return originalDomain.finderFor(domainConditions);
-        }
-        return new SearchDomainExtensionSupportFinder<>(originalDomain.finderFor(domainConditions), extensioneConditions);
+        return SearchDomainExtensionSupportFinder.getFinder(this.ormService, this.originalDomain, conditions);
     }
 }

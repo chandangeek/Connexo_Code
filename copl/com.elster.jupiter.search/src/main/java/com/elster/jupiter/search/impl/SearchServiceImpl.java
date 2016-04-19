@@ -2,6 +2,7 @@ package com.elster.jupiter.search.impl;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchDomainExtension;
@@ -37,6 +38,7 @@ public class SearchServiceImpl implements SearchService, MessageSeedProvider {
     private final OptionalServiceContainer<SearchDomain> searchProviders = new CopyOnWriteServiceContainer<>();
     private final List<SearchDomainExtension> searchExtensions = new CopyOnWriteArrayList<>();
     private volatile SearchMonitor searchMonitor;
+    private volatile OrmService ormService;
 
     // For OSGi purposes
     public SearchServiceImpl() {
@@ -48,6 +50,11 @@ public class SearchServiceImpl implements SearchService, MessageSeedProvider {
     public SearchServiceImpl(SearchMonitor searchMonitor) {
         this();
         this.setSearchMonitor(searchMonitor);
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
     }
 
     @Reference(name = "AAA")
@@ -87,7 +94,7 @@ public class SearchServiceImpl implements SearchService, MessageSeedProvider {
     public List<SearchDomain> getDomains() {
         return this.searchProviders.getServices()
                 .stream()
-                .map(domain -> new SearchDomainExtensionSupportWrapper(this, domain))
+                .map(domain -> new SearchDomainExtensionSupportWrapper(ormService, this, domain))
                 .collect(Collectors.toList());
     }
 
