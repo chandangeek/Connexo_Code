@@ -12,6 +12,6 @@ import java.time.MonthDay;
  * @since 2016-04-07 (14:10)
  */
 @ProviderType
-public interface RecurringPeriodTransitionSpec extends PeriodTransitionSpec {
+public interface RecurrentPeriodTransitionSpec extends PeriodTransitionSpec {
     MonthDay getOccurrence();
 }
