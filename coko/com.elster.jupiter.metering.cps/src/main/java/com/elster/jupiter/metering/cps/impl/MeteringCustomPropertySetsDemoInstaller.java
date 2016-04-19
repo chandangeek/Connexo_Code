@@ -181,7 +181,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
     }
 
     private List<CustomPropertySet> getMeteringCustomPropertySets() {
-        return Arrays.asList(
+        List<CustomPropertySet> sets = Arrays.asList(
 //                new UsagePointOneCustomPropertySet(propertySpecService, thesaurus),
 //                new UsagePointVersionedCustomPropertySet(propertySpecService, thesaurus),
 //                new UsagePointTwoCustomPropertySet(propertySpecService, thesaurus));
@@ -199,6 +199,8 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
                 new UsagePointTechInstAllCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointTechInstEGCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointTechInstElectrCPS(propertySpecService, thesaurus));
+        sets.sort((cas1, cas2) -> cas1.getName().compareTo(cas2.getName()));
+        return sets;
     }
 
     @Override
