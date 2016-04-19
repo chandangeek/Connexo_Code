@@ -1,10 +1,10 @@
 package com.elster.jupiter.search;
 
+import com.elster.jupiter.util.sql.SqlFragment;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * A {@link SearchDomainExtension} enables to add {@link SearchableProperty}s and
@@ -56,12 +56,5 @@ public interface SearchDomainExtension {
         return getProperties();
     }
 
-    default List<SearchablePropertyValue> getPropertiesValues(Function<SearchableProperty, SearchablePropertyValue> mapper) {
-        return getProperties()
-                .stream()
-                .map(mapper::apply)
-                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().values != null)
-                .collect(Collectors.toList());
-    }
-
+    SqlFragment asFragment(List<SearchablePropertyCondition> conditions);
 }
