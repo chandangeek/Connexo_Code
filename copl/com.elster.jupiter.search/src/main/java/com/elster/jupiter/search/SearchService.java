@@ -98,14 +98,14 @@ public interface SearchService {
      *
      * @param domainClass The domain class
      * @return The SearchBuilder
-     * @see SearchDomain#supports(Class)
+     * @see SearchDomain#getDomainClass()
      * @throws IllegalArgumentException
      */
     @SuppressWarnings("unchecked")
     default <T> SearchBuilder<T> search(Class<T> domainClass) {
         SearchDomain domain = getDomains()
                 .stream()
-                .filter(p -> p.supports(domainClass))
+                .filter(p -> p.getDomainClass().isAssignableFrom(domainClass))
                 .findAny()
                 .orElseThrow(() -> new IllegalArgumentException("No registered domain for class " + domainClass.getName()));
         return (SearchBuilder<T>) search(domain);

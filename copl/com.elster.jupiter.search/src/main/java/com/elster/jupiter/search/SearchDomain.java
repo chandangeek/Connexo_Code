@@ -53,18 +53,9 @@ public interface SearchDomain {
     }
 
     /**
-     * Tests if this SearchDomain supports
-     * searches for the specified domain class.
-     * In other words, tests if this SearchDomain
-     * searches for objects of the specified java class.
-     * When this SearchDomain represents a hierarchy
-     * of domain classes then this will only return
-     * <code>true</code> if the specified class
-     * is the root of that class hierarchy.
-     *
-     * @return true iff this SearchDomain searches for objects of the specified java class
+     * @return A class for domain objects, i.e. class for objects we are searching for.
      */
-    boolean supports(Class domainClass);
+    Class<?> getDomainClass();
 
     /**
      * Gets the List of {@link SearchableProperty}
@@ -99,6 +90,7 @@ public interface SearchDomain {
     List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions);
 
     List<SearchablePropertyValue> getPropertiesValues(Function<SearchableProperty, SearchablePropertyValue> mapper);
+
     /**
      * Creates a Finder for instances of this SearchDomain
      * for the specified {@link SearchablePropertyCondition}s.

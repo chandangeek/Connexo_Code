@@ -34,6 +34,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -93,8 +94,7 @@ public class SearchBuilderImplTest {
         when(this.nameSearchProperty.getName()).thenReturn(NAME_PROPERTY_NAME);
         when(this.nameSearchProperty.hasName(NAME_PROPERTY_NAME)).thenReturn(true);
         when(this.searchDomain.getId()).thenReturn(Example.class.getName());
-        when(this.searchDomain.supports(Example.class)).thenReturn(true);
-        when(this.searchDomain.supports(Example.class)).thenReturn(true);
+        doReturn(Example.class).when(this.searchDomain).getDomainClass();
         PropertySpec refPropertySpec = mock(PropertySpec.class);
         when(refPropertySpec.getName()).thenReturn(REF_PROPERTY_NAME);
         when(refPropertySpec.isRequired()).thenReturn(true);

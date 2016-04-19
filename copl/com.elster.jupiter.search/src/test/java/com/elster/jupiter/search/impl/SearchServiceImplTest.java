@@ -20,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -274,7 +275,7 @@ public class SearchServiceImplTest {
     public void startSearchByClassThatWasNotRegistered() {
         SearchServiceImpl searchService = this.getTestInstance();
         SearchDomain searchDomain = mock(SearchDomain.class);
-        when(searchDomain.supports(SearchServiceImplTest.class)).thenReturn(true);
+        doReturn(SearchServiceImplTest.class).when(searchDomain).getDomainClass();
         when(searchDomain.getId()).thenReturn("SearchServiceImplTest");
         searchService.register(searchDomain);
 
@@ -289,7 +290,7 @@ public class SearchServiceImplTest {
     public void startSearchByClass() {
         SearchServiceImpl searchService = this.getTestInstance();
         SearchDomain searchDomain = mock(SearchDomain.class);
-        when(searchDomain.supports(SearchServiceImplTest.class)).thenReturn(true);
+        doReturn(SearchServiceImplTest.class).when(searchDomain).getDomainClass();
         when(searchDomain.getId()).thenReturn("SearchServiceImplTest");
         searchService.register(searchDomain);
 

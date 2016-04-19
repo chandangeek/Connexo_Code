@@ -43,8 +43,8 @@ public class SearchDomainExtensionSupportWrapper implements SearchDomain {
     }
 
     @Override
-    public boolean supports(Class domainClass) {
-        return originalDomain.supports(domainClass);
+    public Class<?> getDomainClass() {
+        return originalDomain.getDomainClass();
     }
 
     @Override

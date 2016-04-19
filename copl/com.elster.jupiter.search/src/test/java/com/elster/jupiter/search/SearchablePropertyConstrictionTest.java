@@ -8,13 +8,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,8 +51,7 @@ public class SearchablePropertyConstrictionTest {
         when(this.idSearchProperty.getSpecification()).thenReturn(idPropertySpec);
         when(this.idSearchProperty.hasName(ID_PROPERTY_NAME)).thenReturn(true);
         when(this.searchDomain.getId()).thenReturn(Example.class.getName());
-        when(this.searchDomain.supports(Example.class)).thenReturn(true);
-        when(this.searchDomain.supports(Example.class)).thenReturn(true);
+        doReturn(Example.class).when(this.searchDomain).getDomainClass();
         when(this.searchDomain.getProperties()).thenReturn(Arrays.asList(this.idSearchProperty));
     }
 
