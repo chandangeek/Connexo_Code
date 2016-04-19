@@ -49,7 +49,11 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
         if (extensionsConditions.isEmpty()) {
             return searchDomain.finderFor(domainConditions);
         }
-        DataModel dataModel = ormService.getDataModel(searchDomain.getDomainClass()).get();
+        DataModel dataModel = ormService.getDataModels()
+                .stream()
+                .filter(dm -> dm.getTables().stream().anyMatch(table -> table.maps(searchDomain.getDomainClass())))
+                .findAny()
+                .get();
         return new SearchDomainExtensionSupportFinder<>(dataModel, searchDomain, searchDomain.finderFor(domainConditions), extensionsConditions);
     }
 
