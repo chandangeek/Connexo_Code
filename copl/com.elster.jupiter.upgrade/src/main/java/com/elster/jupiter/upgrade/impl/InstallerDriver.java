@@ -1,24 +1,23 @@
 package com.elster.jupiter.upgrade.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.upgrade.InstallAwareMigrationResolver;
-import com.elster.jupiter.upgrade.Installer;
-import com.elster.jupiter.upgrade.Migration;
-
-import org.flywaydb.core.api.MigrationVersion;
+import com.elster.jupiter.upgrade.FullInstaller;
 
 import java.sql.Connection;
 
-public final class InstallerDriver implements Migration {
+import static com.elster.jupiter.orm.Version.version;
+
+final class InstallerDriver implements Migration {
     private final DataModel dataModel;
     private final TransactionService transactionService;
     private final InstallAwareMigrationResolver installAwareMigrationResolver;
-    private final Installer installer;
+    private final FullInstaller installer;
 
 
-    public InstallerDriver(DataModel dataModel, TransactionService transactionService,InstallAwareMigrationResolver resolver, Installer installer) {
+    public InstallerDriver(DataModel dataModel, TransactionService transactionService,InstallAwareMigrationResolver resolver, FullInstaller installer) {
         this.dataModel = dataModel;
         this.transactionService = transactionService;
         this.installer = installer;
@@ -31,8 +30,8 @@ public final class InstallerDriver implements Migration {
     }
 
     @Override
-    public MigrationVersion getVersion() {
-        return MigrationVersion.fromVersion("1.0");
+    public Version getVersion() {
+        return version("1.0");
     }
 
     @Override
@@ -43,10 +42,8 @@ public final class InstallerDriver implements Migration {
     @Override
     public void migrate(Connection connection) throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            if (!dataModel.isInstalled()) {
-                installer.install();
-                installAwareMigrationResolver.installed(installer.installs());
-            }
+            installer.install();
+            installAwareMigrationResolver.installed(installer.installs());
             context.commit();
         }
     }

@@ -2,13 +2,13 @@ package com.elster.jupiter.upgrade.impl;
 
 import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.upgrade.Installer;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfoService;
-import org.omg.IOP.TransactionService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -20,8 +20,8 @@ import java.util.List;
 @Component(name = "com.elster.jupiter.upgrade", immediate = true, service = UpgradeService.class)
 public class UpgradeServiceImpl implements UpgradeService {
 
-    private volatile TransactionService transactionService;
     private volatile BootstrapService bootstrapService;
+    private volatile TransactionService transactionService;
     private boolean doUpgrade;
 
     @Activate
@@ -31,7 +31,7 @@ public class UpgradeServiceImpl implements UpgradeService {
     }
 
     @Override
-    public void register(String component, DataModel dataModel, Class<? extends Installer> installerClass, List<Class<? extends Upgrader>> upgraders) {
+    public void register(String component, DataModel dataModel, Class<? extends FullInstaller> installerClass, List<Class<? extends Upgrader>> upgraders) {
         Flyway flyway = new Flyway();
         DataSource dataSource = bootstrapService.createDataSource();
         flyway.setDataSource(dataSource);
@@ -41,7 +41,7 @@ public class UpgradeServiceImpl implements UpgradeService {
         flyway.setBaselineVersionAsString("0.0");
         flyway.setBaselineOnMigrate(true);
 
-        flyway.setResolvers(new MigrationResolverImpl(dataModel, installerClass, upgraders));
+        flyway.setResolvers(new MigrationResolverImpl(dataModel, transactionService, installerClass, upgraders));
 
         try {
             if (doUpgrade) {
@@ -52,19 +52,19 @@ public class UpgradeServiceImpl implements UpgradeService {
                     throw new RuntimeException("Upgrade needed for " + component);
                 }
             }
-        } catch (RuntimeException e) { // TODO
+        } catch (RuntimeException e) { // TODO (maybe seperate exc handling for both modes?)
             e.printStackTrace();
             throw e;
         }
     }
 
     @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
+    public void setBootstrapService(BootstrapService bootstrapService) {
+        this.bootstrapService = bootstrapService;
     }
 
     @Reference
-    public void setBootstrapService(BootstrapService bootstrapService) {
-        this.bootstrapService = bootstrapService;
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 }

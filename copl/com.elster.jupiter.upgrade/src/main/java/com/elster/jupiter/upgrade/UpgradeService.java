@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface UpgradeService {
 
-    void register(String component, DataModel dataModel, Class<? extends Installer> installerClass, List<Class<? extends Upgrader>> upgraders);
+    void register(String component, DataModel dataModel, Class<? extends FullInstaller> installerClass, List<Class<? extends Upgrader>> upgraders);
 
 }
