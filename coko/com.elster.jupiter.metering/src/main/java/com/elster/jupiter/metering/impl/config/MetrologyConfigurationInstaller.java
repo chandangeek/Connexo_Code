@@ -71,7 +71,7 @@ public class MetrologyConfigurationInstaller {
             MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
                     .orElseThrow(() -> new NoSuchElementException("Default metrology purpose not found"));
 
-            MetrologyContract contractBilling = config.addMetrologyContract(purposeBilling);
+            MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
             MetrologyContract contractInformation = config.addMetrologyContract(purposeInformation);
 
 
@@ -126,9 +126,8 @@ public class MetrologyConfigurationInstaller {
             MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
                     .orElseThrow(() -> new NoSuchElementException("Default metrology purpose not found"));
 
-            MetrologyContract contractBilling = config.addMetrologyContract(purposeBilling);
+            MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
             MetrologyContract contractInformation = config.addMetrologyContract(purposeInformation);
-
 
             ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat())
                     .withMeterRole(meterRoleConsumption).withReadingTypeTemplate(getDeaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
