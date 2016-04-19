@@ -312,7 +312,7 @@ public class CreateCollectRemoteDataSetupCommand {
     private GeoCoordinates createGeoCoordinates(){
         double minLatitude = -90.00;
         double maxLatitude = 90.00;
-        double minLongitude = 0.00;
+        double minLongitude = -180.00;
         double maxLongitude = 180.00;
         DecimalFormat df = new DecimalFormat("#.#####");
         String latitude = df.format(minLatitude + (Math.random() * ((maxLatitude - minLatitude) + 1)));
