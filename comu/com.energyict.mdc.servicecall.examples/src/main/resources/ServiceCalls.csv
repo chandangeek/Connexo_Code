@@ -14,4 +14,4 @@ CUST546;BillingDataRequest;1.0;;scheduled;;;;
 SYS15984;CIMUsagePointConfig;1.2;CustomerC;partialsuccess;;;UP_0004
 SYS98756;CIMGetCustomerConfig;2.1;CustomerC;created;;;;
 NET65478;PushEvents;1.5;Connexo;success;;;SPE010000010004
-EXT57896;GetMeterReadings;1.7;CustomerD;pending;;;SPE010000010005
+EXT57896;GetMeterReadings;1.7;CustomerD;pending;DV:SPE010000010005;;SPE010000010005

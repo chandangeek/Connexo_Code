@@ -306,7 +306,33 @@ public class ServiceCallCommands {
     public void createServiceCallDemoData() {
         ServiceCallLifeCycle simpleLifecycle = getSimpleLifecycle();
         createServiceCallTypes(simpleLifecycle);
-        createServiceCalls();
+        List<Long> serviceCallIds = createServiceCalls();
+        addLogLines(serviceCallIds);
+    }
+
+    private void addLogLines(List<Long> serviceCallIds) {
+        threadPrincipalService.set(() -> "Console");
+        InputStream source = getResourceAsStream("ServiceCallLogs.csv");
+        try (Scanner scanner = new Scanner(source)) {
+            scanner.nextLine();
+            while (scanner.hasNextLine()) {
+                parseLogRecord(scanner.nextLine(), serviceCallIds);
+            }
+        }
+    }
+
+    private void parseLogRecord(String record, List<Long> serviceCallIds) {
+        String[] columns = record.split(";", -1);
+        String index = columns[0];
+        String loglevel = columns[1];
+        String message = columns[2];
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<ServiceCall> serviceCall = serviceCallService.getServiceCall(serviceCallIds.get(Integer.parseInt(index)));
+            if(serviceCall.isPresent()) {
+                serviceCall.get().log(getLogLevel(loglevel),message);
+            }
+            context.commit();
+        }
     }
 
     private ServiceCallLifeCycle createSimpleLifecycle() {
@@ -361,14 +387,14 @@ public class ServiceCallCommands {
                 final RegisteredCustomPropertySet finalCustomPropertySet = customPropertySet;
                 serviceCallType = serviceCallService.findServiceCallType(columns[0], columns[1])
                         .orElseGet(() -> getServiceCallTypeBuilder(columns[0], columns[1], columns[4], simpleLifecycle)
-                                .handler("NullPointerHandler")
+                                .handler("ServiceCallDemoHandler")
                                 .logLevel(level)
                                 .customPropertySet(finalCustomPropertySet)
                                 .create());
             } else {
                 serviceCallType = serviceCallService.findServiceCallType(columns[0], columns[1])
                         .orElseGet(() -> getServiceCallTypeBuilder(columns[0], columns[1], columns[4], simpleLifecycle)
-                                .handler("NullPointerHandler")
+                                .handler("ServiceCallDemoHandler")
                                 .logLevel(level)
                                 .create());
             }
@@ -420,13 +446,13 @@ public class ServiceCallCommands {
                             .getName()
                             .equals(finalName))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalStateException("Could not find my custom property set"));
+                    .orElseThrow(() -> new IllegalStateException("Could not find the custom property set"));
         }
 
         return null;
     }
 
-    private void createServiceCalls() {
+    private List<Long> createServiceCalls() {
         threadPrincipalService.set(() -> "Console");
         InputStream source = getResourceAsStream("ServiceCalls.csv");
         try (Scanner scanner = new Scanner(source)) {
@@ -438,6 +464,8 @@ public class ServiceCallCommands {
                 parseServiceCallRecord(scanner.nextLine(), counter, serviceCallIds);
                 counter ++;
             }
+
+            return serviceCallIds;
         }
     }
 
@@ -563,6 +591,7 @@ public class ServiceCallCommands {
         if(defaultState != null) {
             serviceCall.requestTransition(defaultState);
         }
+        //serviceCall.requestTransition(DefaultState.PENDING);
     }
 
 }

@@ -1,0 +1,22 @@
+SERVICECALL;LOGLEVEL;MESSAGE
+1;info;Request received
+1;info;Command sent to device
+1;info;UP_0001 has been disconnected successfully
+5;severe;UP_0003 could not be disconnected
+6;info;Request received
+6;info;Request scheduled
+7;info;Request received
+7;config;Retrieving end device capabilities
+7;warning;Request is paused
+8;info;New meter data received
+8;fine;Started pushing first meter
+8;fine;First meter pushed successfully
+8;fine;Started pushing second meter
+9;finer;Retrieving meter readings from database
+9;finer;Formatting meter readings
+9;finer;Start sending meter readings;
+9;info;Meter readings have been sent successfully
+13;info;Request received
+13;warning;Could not retrieve service location for usage point UP_0004
+16;info;New request received
+16;fine;Retrieving data from the database
