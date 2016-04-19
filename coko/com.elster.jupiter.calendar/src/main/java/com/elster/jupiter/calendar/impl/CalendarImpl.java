@@ -6,11 +6,13 @@ import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
+import com.elster.jupiter.calendar.FixedPeriodTransitionSpec;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
 import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
+import com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -42,7 +44,9 @@ public class CalendarImpl implements Calendar {
         CATEGORY("category"),
         DAYTYPES("dayTypes"),
         PERIODS("periods"),
-        EXCEPTIONAL_OCCURRENCES("exceptionalOccurrences");
+        EXCEPTIONAL_OCCURRENCES("exceptionalOccurrences"),
+        PERIOD_TRANSITION_SPECS("periodTransitionSpecs"),
+        EVENTS("events");
 
         private final String javaFieldName;
 
@@ -75,6 +79,8 @@ public class CalendarImpl implements Calendar {
     private List<DayType> dayTypes = new ArrayList<>();
     private List<Period> periods = new ArrayList<>();
     private List<ExceptionalOccurrence> exceptionalOccurrences = new ArrayList<>();
+    private List<PeriodTransitionSpec> periodTransitionSpecs = new ArrayList<>();
+    private List<Event> events = new ArrayList<>();
 
     private final ServerCalendarService calendarService;
 
@@ -185,7 +191,7 @@ public class CalendarImpl implements Calendar {
 
     @Override
     public List<Event> getEvents() {
-        return null;
+        return Collections.unmodifiableList(this.events);
     }
 
     @Override
@@ -205,7 +211,7 @@ public class CalendarImpl implements Calendar {
 
     @Override
     public List<? extends PeriodTransitionSpec> getPeriodTransitionSpecs() {
-        return null;
+        return Collections.unmodifiableList(this.periodTransitionSpecs);
     }
 
     @Override
@@ -266,7 +272,7 @@ public class CalendarImpl implements Calendar {
     }
 
     @Override
-    public RecurrentExceptionalOccurrence addFixedExceptionalOccurrence(int day, int month) {
+    public RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(int day, int month) {
         RecurrentExceptionalOccurrenceImpl recurrentExceptionalOccurrence =
                 calendarService.getDataModel().getInstance(RecurrentExceptionalOccurrenceImpl.class).init(this, day, month);
         Save.CREATE.validate(calendarService.getDataModel(), recurrentExceptionalOccurrence);
@@ -277,11 +283,66 @@ public class CalendarImpl implements Calendar {
 
 
     @Override
-    public void removeFixedExceptionalOccurrence(RecurrentExceptionalOccurrence recurrentExceptionalOccurrence) {
+    public void removeRecurrentExceptionalOccurrence(RecurrentExceptionalOccurrence recurrentExceptionalOccurrence) {
         Objects.requireNonNull(recurrentExceptionalOccurrence);
         exceptionalOccurrences.remove(recurrentExceptionalOccurrence);
         touch();
     }
+
+    @Override
+    public FixedPeriodTransitionSpec addFixedPeriodTransitionSpec(int day, int month, int year) {
+        FixedPeriodTransitionSpecImpl fixedPeriodTransitionSpecImpl =
+                calendarService.getDataModel().getInstance(FixedPeriodTransitionSpecImpl.class).init(this, day, month, year);
+        Save.CREATE.validate(calendarService.getDataModel(), fixedPeriodTransitionSpecImpl);
+        this.periodTransitionSpecs.add(fixedPeriodTransitionSpecImpl);
+        touch();
+        return fixedPeriodTransitionSpecImpl;
+    }
+
+
+    @Override
+    public void removeFixedPeriodTransitionSpec(FixedPeriodTransitionSpec fixedPeriodTransitionSpec) {
+        Objects.requireNonNull(fixedPeriodTransitionSpec);
+        periodTransitionSpecs.remove(fixedPeriodTransitionSpec);
+        touch();
+    }
+
+    @Override
+    public RecurrentPeriodTransitionSpec addRecurrentPeriodTransitionSpec(int day, int month) {
+        RecurrentPeriodTransitionSpecImpl recurrentPeriodTransitionSpecImpl =
+                calendarService.getDataModel().getInstance(RecurrentPeriodTransitionSpecImpl.class).init(this, day, month);
+        Save.CREATE.validate(calendarService.getDataModel(), recurrentPeriodTransitionSpecImpl);
+        this.periodTransitionSpecs.add(recurrentPeriodTransitionSpecImpl);
+        touch();
+        return recurrentPeriodTransitionSpecImpl;
+    }
+
+
+    @Override
+    public void removeRecurrentPeriodTransitionSpec(RecurrentPeriodTransitionSpec recurrentPeriodTransitionSpec) {
+        Objects.requireNonNull(recurrentPeriodTransitionSpec);
+        periodTransitionSpecs.remove(recurrentPeriodTransitionSpec);
+        touch();
+    }
+
+    @Override
+    public Event addEvent(String name, long code) {
+        EventImpl event = calendarService.getDataModel().getInstance(EventImpl.class).init(this, name, code);
+        Save.CREATE.validate(calendarService.getDataModel(), event);
+        this.events.add(event);
+        touch();
+        return event;
+    }
+
+
+    @Override
+    public void removeEvent(Event event) {
+        Objects.requireNonNull(event);
+        events.remove(event);
+        touch();
+    }
+
+
 
     void touch() {
         this.calendarService.getDataModel().touch(this);

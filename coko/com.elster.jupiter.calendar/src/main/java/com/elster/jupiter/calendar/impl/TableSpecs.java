@@ -3,9 +3,12 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
+import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.Period;
+import com.elster.jupiter.calendar.PeriodTransitionSpec;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
@@ -58,6 +61,7 @@ public enum TableSpecs {
             table.column("NAME").varChar(NAME_LENGTH).notNull().map(DayTypeImpl.Fields.NAME.fieldName()).add();
             Column calendarColumn = table.column("calendar").number().notNull().add();
             table.primaryKey("CAL_PK_DAYTYPE").on(idColumn).add();
+            table.addAuditColumns();
             table.foreignKey("CAL_DAYTYPE_TO_CALENDAR")
                     .references(Calendar.class)
                     .on(calendarColumn)
@@ -76,8 +80,9 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map(PeriodImpl.Fields.NAME.fieldName()).add();
             Column calendarColumn = table.column("calendar").number().notNull().add();
-            table.primaryKey("CAL_PK_DAYTYPE").on(idColumn).add();
-            table.foreignKey("CAL_DAYTYPE_TO_CALENDAR")
+            table.addAuditColumns();
+            table.primaryKey("CAL_PK_PERIOD").on(idColumn).add();
+            table.foreignKey("CAL_PERIOD_TO_CALENDAR")
                     .references(Calendar.class)
                     .on(calendarColumn)
                     .onDelete(CASCADE)
@@ -110,7 +115,51 @@ public enum TableSpecs {
                     .composition()
                     .add();
         }
-    }
+    },
+    CAL_PERIOD_TRANSITION_SPEC {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<PeriodTransitionSpec> table = dataModel.addTable(name(), PeriodTransitionSpec.class);
+            table.map(PeriodTransitionSpecImpl.IMPLEMENTERS);
+            Column idColumn = table.addAutoIdColumn();
+            Column calendarColumn = table.column("calendar").number().notNull().add();
+
+            table.column("DAY").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.DAY.fieldName()).add();
+            table.column("MONTH").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.MONTH.fieldName()).add();
+            table.column("YEAR").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.YEAR.fieldName()).add();
+
+            table.primaryKey("CAL_PK_PERIOD_TRANS_SPEC").on(idColumn).add();
+            table.foreignKey("CAL_PERIOD_TS_TO_CALENDAR")
+                    .references(Calendar.class)
+                    .on(calendarColumn)
+                    .onDelete(CASCADE)
+                    .map(PeriodTransitionSpecImpl.Fields.CALENDAR.fieldName())
+                    .reverseMap(CalendarImpl.Fields.PERIOD_TRANSITION_SPECS.fieldName())
+                    .composition()
+                    .add();
+        }
+    },
+    CAL_EVENT {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<Event> table = dataModel.addTable(name(), Event.class);
+            table.map(EventImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            table.column("NAME").varChar(NAME_LENGTH).notNull().map(EventImpl.Fields.NAME.fieldName()).add();
+            table.column("CODE").type("number").notNull().conversion(ColumnConversion.NUMBER2LONG).map(EventImpl.Fields.CODE.fieldName()).add();
+            Column calendarColumn = table.column("calendar").number().notNull().add();
+            table.addAuditColumns();
+            table.primaryKey("CAL_PK_EVENT").on(idColumn).add();
+            table.foreignKey("CAL_EVENT_TO_CALENDAR")
+                    .references(Calendar.class)
+                    .on(calendarColumn)
+                    .onDelete(CASCADE)
+                    .map(EventImpl.Fields.CALENDAR.fieldName())
+                    .reverseMap(CalendarImpl.Fields.EVENTS.fieldName())
+                    .composition()
+                    .add();
+        }
+    },
     ;
 
     public abstract void addTo(DataModel component);

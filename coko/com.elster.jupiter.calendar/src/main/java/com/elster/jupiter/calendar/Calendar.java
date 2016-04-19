@@ -124,13 +124,25 @@ public interface Calendar extends HasId, HasName {
 
     Period addPeriod(String name);
 
+    Event addEvent(String name, long code);
+
     void removePeriod(Period period);
 
     FixedExceptionalOccurrence addFixedExceptionalOccurrence(int day, int month, int year);
 
     void removeFixedExceptionalOccurrence(FixedExceptionalOccurrence fixedExceptionalOccurrence);
 
-    RecurrentExceptionalOccurrence addFixedExceptionalOccurrence(int day, int month);
+    RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(int day, int month);
 
-    void removeFixedExceptionalOccurrence(RecurrentExceptionalOccurrence recurrentExceptionalOccurrence);
+    void removeRecurrentExceptionalOccurrence(RecurrentExceptionalOccurrence recurrentExceptionalOccurrence);
+
+    FixedPeriodTransitionSpec addFixedPeriodTransitionSpec(int day, int month, int year);
+
+    void removeFixedPeriodTransitionSpec(FixedPeriodTransitionSpec fixedPeriodTransitionSpec);
+
+    RecurrentPeriodTransitionSpec addRecurrentPeriodTransitionSpec(int day, int month);
+
+    void removeRecurrentPeriodTransitionSpec(RecurrentPeriodTransitionSpec recurrentPeriodTransitionSpec);
+
+    void removeEvent(Event event);
 }
