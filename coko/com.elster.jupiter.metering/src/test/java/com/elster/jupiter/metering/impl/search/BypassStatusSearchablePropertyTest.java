@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -11,11 +12,11 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InterruptibleGasSearchablePropertyTest {
+public class BypassStatusSearchablePropertyTest {
 
     @Mock
     private UsagePointSearchDomain domain;
@@ -47,6 +48,8 @@ public class InterruptibleGasSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private Clock clock;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -60,7 +63,7 @@ public class InterruptibleGasSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        InterruptibleGasSearchableProperty property = this.getTestInstance();
+        BypassStatusSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -71,7 +74,7 @@ public class InterruptibleGasSearchablePropertyTest {
 
     @Test
     public void testGasGroup() {
-        InterruptibleGasSearchableProperty property = this.getTestInstance();
+        BypassStatusSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
@@ -82,7 +85,7 @@ public class InterruptibleGasSearchablePropertyTest {
 
     @Test
     public void testRemovableVisibility() {
-        InterruptibleGasSearchableProperty property = this.getTestInstance();
+        BypassStatusSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
@@ -93,7 +96,7 @@ public class InterruptibleGasSearchablePropertyTest {
 
     @Test
     public void testMultiSelection() {
-        InterruptibleGasSearchableProperty property = this.getTestInstance();
+        BypassStatusSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -104,18 +107,18 @@ public class InterruptibleGasSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
-        InterruptibleGasSearchableProperty property = this.getTestInstance();
+        BypassStatusSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_INTERRUPTABLE.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_BYPASS_STATUS.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        InterruptibleGasSearchableProperty property = this.getTestInstance();
+        BypassStatusSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -128,7 +131,7 @@ public class InterruptibleGasSearchablePropertyTest {
 
     @Test
     public void possibleValuesWithoutRefresh() {
-        InterruptibleGasSearchableProperty property = this.getTestInstance();
+        BypassStatusSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -139,7 +142,7 @@ public class InterruptibleGasSearchablePropertyTest {
 
     @Test
     public void hasConstraints() {
-        InterruptibleGasSearchableProperty property = this.getTestInstance();
+        BypassStatusSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -150,7 +153,7 @@ public class InterruptibleGasSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        InterruptibleGasSearchableProperty property = this.getTestInstance();
+        BypassStatusSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -162,7 +165,7 @@ public class InterruptibleGasSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        InterruptibleGasSearchableProperty property = this.getTestInstance();
+        BypassStatusSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -172,18 +175,17 @@ public class InterruptibleGasSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        InterruptibleGasSearchableProperty property = this.getTestInstance();
-        YesNoAnswer valueToDisplay = YesNoAnswer.YES;
+        BypassStatusSearchableProperty property = this.getTestInstance();
+        BypassStatus valueToDisplay = BypassStatus.CLOSED;
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(valueToDisplay.toString());
+        assertThat(displayValue).isEqualTo(valueToDisplay.getDisplayValue(this.thesaurus));
     }
 
-    private InterruptibleGasSearchableProperty getTestInstance() {
-        return new InterruptibleGasSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private BypassStatusSearchableProperty getTestInstance() {
+        return new BypassStatusSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, new GasAttributesSearchablePropertyGroup(this.thesaurus), this.clock);
     }
-
 }

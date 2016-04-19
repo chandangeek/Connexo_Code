@@ -11,11 +11,12 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
+import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,8 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LimiterGasSearchablePropertyTest {
-
+public class PhysicalCapacitySearchablePropertyTest {
     @Mock
     private UsagePointSearchDomain domain;
     @Mock
@@ -47,6 +47,8 @@ public class LimiterGasSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private Clock clock;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -60,7 +62,7 @@ public class LimiterGasSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        LimiterGasSearchableProperty property = this.getTestInstance();
+        PhysicalCapacitySearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -70,19 +72,19 @@ public class LimiterGasSearchablePropertyTest {
     }
 
     @Test
-    public void testGasGroup() {
-        LimiterGasSearchableProperty property = this.getTestInstance();
+    public void testWateryGroup() {
+        PhysicalCapacitySearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
 
         // Asserts
-        assertThat(group.get().getClass()).isEqualTo(GasAttributesSearchablePropertyGroup.class);
+        assertThat(group.get().getClass()).isEqualTo(WaterAttributesSearchablePropertyGroup.class);
     }
 
     @Test
     public void testRemovableVisibility() {
-        LimiterGasSearchableProperty property = this.getTestInstance();
+        PhysicalCapacitySearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
@@ -92,8 +94,8 @@ public class LimiterGasSearchablePropertyTest {
     }
 
     @Test
-    public void testMultiSelection() {
-        LimiterGasSearchableProperty property = this.getTestInstance();
+    public void testSingleSelection() {
+        PhysicalCapacitySearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -104,18 +106,18 @@ public class LimiterGasSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
-        LimiterGasSearchableProperty property = this.getTestInstance();
+        PhysicalCapacitySearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_LIMITER.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        LimiterGasSearchableProperty property = this.getTestInstance();
+        PhysicalCapacitySearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -123,12 +125,12 @@ public class LimiterGasSearchablePropertyTest {
         // Asserts
         assertThat(specification).isNotNull();
         assertThat(specification.isReference()).isFalse();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Enum.class);
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Quantity.class);
     }
 
     @Test
     public void possibleValuesWithoutRefresh() {
-        LimiterGasSearchableProperty property = this.getTestInstance();
+        PhysicalCapacitySearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -139,7 +141,7 @@ public class LimiterGasSearchablePropertyTest {
 
     @Test
     public void hasConstraints() {
-        LimiterGasSearchableProperty property = this.getTestInstance();
+        PhysicalCapacitySearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -150,7 +152,7 @@ public class LimiterGasSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        LimiterGasSearchableProperty property = this.getTestInstance();
+        PhysicalCapacitySearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -162,7 +164,7 @@ public class LimiterGasSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        LimiterGasSearchableProperty property = this.getTestInstance();
+        PhysicalCapacitySearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -172,18 +174,17 @@ public class LimiterGasSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        LimiterGasSearchableProperty property = this.getTestInstance();
-        YesNoAnswer valueToDisplay = YesNoAnswer.NO;
+        PhysicalCapacitySearchableProperty property = this.getTestInstance();
+        Quantity valueToDisplay = Quantity.create(new BigDecimal(0), 0, "Pa");
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(valueToDisplay.toString());
+        assertThat(displayValue).isEqualToIgnoringCase(valueToDisplay.getUnit().getSymbol());
     }
 
-    private LimiterGasSearchableProperty getTestInstance() {
-        return new LimiterGasSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private PhysicalCapacitySearchableProperty getTestInstance() {
+        return new PhysicalCapacitySearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, new WaterAttributesSearchablePropertyGroup(this.thesaurus), this.clock);
     }
-
 }

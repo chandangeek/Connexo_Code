@@ -16,6 +16,7 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,8 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CappedGasSearchablePropertyTest {
-
+public class GroundedSearchablePropertyTest {
     @Mock
     private UsagePointSearchDomain domain;
     @Mock
@@ -47,6 +47,8 @@ public class CappedGasSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private Clock clock;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -60,7 +62,7 @@ public class CappedGasSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        CappedGasSearchableProperty property = this.getTestInstance();
+        GroundedSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -70,19 +72,19 @@ public class CappedGasSearchablePropertyTest {
     }
 
     @Test
-    public void testGasGroup() {
-        CappedGasSearchableProperty property = this.getTestInstance();
+    public void testElectricityGroup() {
+        GroundedSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
 
         // Asserts
-        assertThat(group.get().getClass()).isEqualTo(GasAttributesSearchablePropertyGroup.class);
+        assertThat(group.get().getClass()).isEqualTo(ElectricityAttributesSearchablePropertyGroup.class);
     }
 
     @Test
     public void testRemovableVisibility() {
-        CappedGasSearchableProperty property = this.getTestInstance();
+        GroundedSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
@@ -93,7 +95,7 @@ public class CappedGasSearchablePropertyTest {
 
     @Test
     public void testMultiSelection() {
-        CappedGasSearchableProperty property = this.getTestInstance();
+        GroundedSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -104,18 +106,18 @@ public class CappedGasSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
-        CappedGasSearchableProperty property = this.getTestInstance();
+        GroundedSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_CAPPED.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_GROUNDED.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        CappedGasSearchableProperty property = this.getTestInstance();
+        GroundedSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -128,7 +130,7 @@ public class CappedGasSearchablePropertyTest {
 
     @Test
     public void possibleValuesWithoutRefresh() {
-        CappedGasSearchableProperty property = this.getTestInstance();
+        GroundedSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -139,7 +141,7 @@ public class CappedGasSearchablePropertyTest {
 
     @Test
     public void hasConstraints() {
-        CappedGasSearchableProperty property = this.getTestInstance();
+        GroundedSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -150,7 +152,7 @@ public class CappedGasSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        CappedGasSearchableProperty property = this.getTestInstance();
+        GroundedSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -162,7 +164,7 @@ public class CappedGasSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        CappedGasSearchableProperty property = this.getTestInstance();
+        GroundedSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -172,8 +174,8 @@ public class CappedGasSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        CappedGasSearchableProperty property = this.getTestInstance();
-        YesNoAnswer valueToDisplay = YesNoAnswer.YES;
+        GroundedSearchableProperty property = this.getTestInstance();
+        YesNoAnswer valueToDisplay = YesNoAnswer.NO;
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
@@ -182,8 +184,7 @@ public class CappedGasSearchablePropertyTest {
         assertThat(displayValue).isEqualTo(valueToDisplay.toString());
     }
 
-    private CappedGasSearchableProperty getTestInstance() {
-        return new CappedGasSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private GroundedSearchableProperty getTestInstance() {
+        return new GroundedSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, new ElectricityAttributesSearchablePropertyGroup(this.thesaurus), this.clock);
     }
-
 }

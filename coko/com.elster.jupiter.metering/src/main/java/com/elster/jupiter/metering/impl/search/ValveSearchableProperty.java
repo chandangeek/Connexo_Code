@@ -10,10 +10,12 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
-import java.time.Instant;
+import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -24,9 +26,11 @@ public class ValveSearchableProperty implements SearchableUsagePointProperty {
     private final Thesaurus thesaurus;
 
     private SearchDomain domain;
+    private Clock clock;
     private SearchablePropertyGroup group;
 
-    private static final String FIELDNAME = "detail.valve";
+    private static final String FIELD_NAME = "detail.valve";
+    private String uniqueName;
 
     @Inject
     public ValveSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -34,9 +38,11 @@ public class ValveSearchableProperty implements SearchableUsagePointProperty {
         this.thesaurus = thesaurus;
     }
 
-    public ValveSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group) {
+    public ValveSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, Clock clock) {
         this.domain = domain;
         this.group = group;
+        this.clock = clock;
+        this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
         return this;
     }
 
@@ -73,8 +79,7 @@ public class ValveSearchableProperty implements SearchableUsagePointProperty {
     @Override
     public String toDisplay(Object value) {
         if (value instanceof YesNoAnswer) {
-            String string = value.toString();
-            return thesaurus.getString(string, string);
+            return value.toString();
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
@@ -83,7 +88,7 @@ public class ValveSearchableProperty implements SearchableUsagePointProperty {
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .specForValuesOf(new EnumFactory(YesNoAnswer.class))
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_VALVE)
+                .named(uniqueName, PropertyTranslationKeys.USAGEPOINT_VALVE)
                 .fromThesaurus(this.thesaurus)
                 .addValues(YesNoAnswer.values())
                 .markExhaustive()
@@ -102,6 +107,7 @@ public class ValveSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("detail.interval").isEffective(Instant.now()));
+        List<Object> values = new ArrayList<>(((Contains) specification).getCollection());
+        return Where.where(FIELD_NAME).in(values).and(Where.where("detail.interval").isEffective(this.clock.instant()));
     }
 }

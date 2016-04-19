@@ -14,7 +14,7 @@ import com.elster.jupiter.util.units.Quantity;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +26,7 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
 
     private SearchDomain domain;
     private SearchablePropertyGroup group;
+    private Clock clock;
     private static final String FIELD_NAME = "detail.ratedCurrent";
 
     @Inject
@@ -34,11 +35,13 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
         this.thesaurus = thesaurus;
     }
 
-    RatedCurrentSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group) {
+    RatedCurrentSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, Clock clock) {
         this.domain = domain;
         this.group = group;
+        this.clock = clock;
         return this;
     }
+
     @Override
     public SearchDomain getDomain() {
         return domain;
@@ -72,7 +75,7 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
     @Override
     public String toDisplay(Object value) {
         if (value instanceof Quantity) {
-            return value.toString();
+            return String.valueOf(value).split(" ")[1];
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
@@ -83,7 +86,9 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
                 .specForValuesOf(new QuantityValueFactory())
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_RATEDCURRENT)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 1, "A"))
+                .addValues(Quantity.create(new BigDecimal(0), 0, "A"),
+                        Quantity.create(new BigDecimal(0), 3, "A"),
+                        Quantity.create(new BigDecimal(0), 6, "A"))
                 .finish();
     }
 
@@ -99,6 +104,6 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("detail.interval").isEffective(Instant.now()));
+        return specification.and(Where.where("detail.interval").isEffective(this.clock.instant()));
     }
 }

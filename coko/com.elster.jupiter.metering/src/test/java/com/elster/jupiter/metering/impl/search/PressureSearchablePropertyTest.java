@@ -11,11 +11,12 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
+import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LimiterWaterSearchablePropertyTest {
+public class PressureSearchablePropertyTest {
 
     @Mock
     private UsagePointSearchDomain domain;
@@ -47,6 +48,8 @@ public class LimiterWaterSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private Clock clock;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -60,7 +63,7 @@ public class LimiterWaterSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        LimiterWaterSearchableProperty property = this.getTestInstance();
+        PressureSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -71,7 +74,7 @@ public class LimiterWaterSearchablePropertyTest {
 
     @Test
     public void testWaterGroup() {
-        LimiterWaterSearchableProperty property = this.getTestInstance();
+        PressureSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
@@ -82,7 +85,7 @@ public class LimiterWaterSearchablePropertyTest {
 
     @Test
     public void testRemovableVisibility() {
-        LimiterWaterSearchableProperty property = this.getTestInstance();
+        PressureSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
@@ -93,7 +96,7 @@ public class LimiterWaterSearchablePropertyTest {
 
     @Test
     public void testMultiSelection() {
-        LimiterWaterSearchableProperty property = this.getTestInstance();
+        PressureSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -104,18 +107,18 @@ public class LimiterWaterSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
-        LimiterWaterSearchableProperty property = this.getTestInstance();
+        PressureSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_LIMITER.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_PRESSURE.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        LimiterWaterSearchableProperty property = this.getTestInstance();
+        PressureSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -123,12 +126,12 @@ public class LimiterWaterSearchablePropertyTest {
         // Asserts
         assertThat(specification).isNotNull();
         assertThat(specification.isReference()).isFalse();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Enum.class);
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Quantity.class);
     }
 
     @Test
     public void possibleValuesWithoutRefresh() {
-        LimiterWaterSearchableProperty property = this.getTestInstance();
+        PressureSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -139,7 +142,7 @@ public class LimiterWaterSearchablePropertyTest {
 
     @Test
     public void hasConstraints() {
-        LimiterWaterSearchableProperty property = this.getTestInstance();
+        PressureSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -150,7 +153,7 @@ public class LimiterWaterSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        LimiterWaterSearchableProperty property = this.getTestInstance();
+        PressureSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -162,7 +165,7 @@ public class LimiterWaterSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        LimiterWaterSearchableProperty property = this.getTestInstance();
+        PressureSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -172,18 +175,17 @@ public class LimiterWaterSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        LimiterWaterSearchableProperty property = this.getTestInstance();
-        YesNoAnswer valueToDisplay = YesNoAnswer.NO;
+        PressureSearchableProperty property = this.getTestInstance();
+        Quantity valueToDisplay = Quantity.create(new BigDecimal(0), 0, "Pa");
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(valueToDisplay.toString());
+        assertThat(displayValue).isEqualToIgnoringCase(valueToDisplay.getUnit().getSymbol());
     }
 
-    private LimiterWaterSearchableProperty getTestInstance() {
-        return new LimiterWaterSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private PressureSearchableProperty getTestInstance() {
+        return new PressureSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, new WaterAttributesSearchablePropertyGroup(this.thesaurus), this.clock);
     }
-
 }

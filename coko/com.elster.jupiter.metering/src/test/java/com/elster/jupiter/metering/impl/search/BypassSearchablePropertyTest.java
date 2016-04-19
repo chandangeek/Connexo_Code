@@ -16,6 +16,7 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GroundedWaterSearchablePropertyTest {
+public class BypassSearchablePropertyTest {
 
     @Mock
     private UsagePointSearchDomain domain;
@@ -47,6 +48,8 @@ public class GroundedWaterSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private Clock clock;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -60,7 +63,7 @@ public class GroundedWaterSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        GroundedWaterSearchableProperty property = this.getTestInstance();
+        BypassSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -70,19 +73,19 @@ public class GroundedWaterSearchablePropertyTest {
     }
 
     @Test
-    public void testWaterGroup() {
-        GroundedWaterSearchableProperty property = this.getTestInstance();
+    public void testGasGroup() {
+        BypassSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
 
         // Asserts
-        assertThat(group.get().getClass()).isEqualTo(WaterAttributesSearchablePropertyGroup.class);
+        assertThat(group.get().getClass()).isEqualTo(ElectricityAttributesSearchablePropertyGroup.class);
     }
 
     @Test
     public void testRemovableVisibility() {
-        GroundedWaterSearchableProperty property = this.getTestInstance();
+        BypassSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
@@ -93,7 +96,7 @@ public class GroundedWaterSearchablePropertyTest {
 
     @Test
     public void testMultiSelection() {
-        GroundedWaterSearchableProperty property = this.getTestInstance();
+        BypassSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -104,18 +107,18 @@ public class GroundedWaterSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
-        GroundedWaterSearchableProperty property = this.getTestInstance();
+        BypassSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_GROUNDED.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_BYPASS.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        GroundedWaterSearchableProperty property = this.getTestInstance();
+        BypassSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -128,7 +131,7 @@ public class GroundedWaterSearchablePropertyTest {
 
     @Test
     public void possibleValuesWithoutRefresh() {
-        GroundedWaterSearchableProperty property = this.getTestInstance();
+        BypassSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -139,7 +142,7 @@ public class GroundedWaterSearchablePropertyTest {
 
     @Test
     public void hasConstraints() {
-        GroundedWaterSearchableProperty property = this.getTestInstance();
+        BypassSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -150,7 +153,7 @@ public class GroundedWaterSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        GroundedWaterSearchableProperty property = this.getTestInstance();
+        BypassSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -162,7 +165,7 @@ public class GroundedWaterSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        GroundedWaterSearchableProperty property = this.getTestInstance();
+        BypassSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -172,8 +175,8 @@ public class GroundedWaterSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        GroundedWaterSearchableProperty property = this.getTestInstance();
-        YesNoAnswer valueToDisplay = YesNoAnswer.NO;
+        BypassSearchableProperty property = this.getTestInstance();
+        YesNoAnswer valueToDisplay = YesNoAnswer.YES;
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
@@ -182,7 +185,8 @@ public class GroundedWaterSearchablePropertyTest {
         assertThat(displayValue).isEqualTo(valueToDisplay.toString());
     }
 
-    private GroundedWaterSearchableProperty getTestInstance() {
-        return new GroundedWaterSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private BypassSearchableProperty getTestInstance() {
+        return new BypassSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, new ElectricityAttributesSearchablePropertyGroup(this.thesaurus), this.clock);
     }
+
 }

@@ -12,26 +12,34 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.units.Quantity;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public class NominalServiceVoltageSearchableProperty implements SearchableUsagePointProperty {
 
-    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private final SearchablePropertyGroup group;
-    private static final String FIELDNAME = "detail.nominalServiceVoltage";
 
-    public NominalServiceVoltageSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, SearchablePropertyGroup group, Thesaurus thesaurus) {
-        super();
-        this.domain = domain;
-        this.group = group;
+    private SearchDomain domain;
+    private SearchablePropertyGroup group;
+    private Clock clock;
+    private static final String FIELD_NAME = "detail.nominalServiceVoltage";
+
+    @Inject
+    public NominalServiceVoltageSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+    }
+
+    NominalServiceVoltageSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, Clock clock) {
+        this.domain = domain;
+        this.group = group;
+        this.clock = clock;
+        return this;
     }
 
     @Override
@@ -67,7 +75,7 @@ public class NominalServiceVoltageSearchableProperty implements SearchableUsageP
     @Override
     public String toDisplay(Object value) {
         if (value instanceof Quantity) {
-            return value.toString();
+            return String.valueOf(value).split(" ")[1];
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
@@ -76,9 +84,12 @@ public class NominalServiceVoltageSearchableProperty implements SearchableUsageP
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .specForValuesOf(new QuantityValueFactory())
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_NOMINALVOLTAGE)
+                .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_NOMINALVOLTAGE)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 1, "A"))
+                .addValues(Quantity.create(new BigDecimal(0), 0, "V"),
+                        Quantity.create(new BigDecimal(0), 3, "V"),
+                        Quantity.create(new BigDecimal(0), 6, "V"),
+                        Quantity.create(new BigDecimal(0), 9, "V"))
                 .finish();
     }
 
@@ -89,13 +100,11 @@ public class NominalServiceVoltageSearchableProperty implements SearchableUsageP
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("No constraint to refresh");
-        }
+        //nothing to refresh
     }
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("detail.interval").isEffective(Instant.now()));
+        return specification.and(Where.where("detail.interval").isEffective(this.clock.instant()));
     }
 }

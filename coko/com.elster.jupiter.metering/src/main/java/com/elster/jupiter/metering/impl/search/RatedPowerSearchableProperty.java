@@ -14,7 +14,7 @@ import com.elster.jupiter.util.units.Quantity;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +26,7 @@ public class RatedPowerSearchableProperty implements SearchableUsagePointPropert
 
     private SearchDomain domain;
     private SearchablePropertyGroup group;
+    private Clock clock;
     private static final String FIELD_NAME = "detail.ratedPower";
 
     @Inject
@@ -34,9 +35,10 @@ public class RatedPowerSearchableProperty implements SearchableUsagePointPropert
         this.thesaurus = thesaurus;
     }
 
-    RatedPowerSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group){
+    RatedPowerSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, Clock clock) {
         this.domain = domain;
         this.group = group;
+        this.clock = clock;
         return this;
     }
     @Override
@@ -72,7 +74,7 @@ public class RatedPowerSearchableProperty implements SearchableUsagePointPropert
     @Override
     public String toDisplay(Object value) {
         if (value instanceof Quantity) {
-            return value.toString();
+            return String.valueOf(value).split(" ")[1];
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
@@ -83,7 +85,16 @@ public class RatedPowerSearchableProperty implements SearchableUsagePointPropert
                 .specForValuesOf(new QuantityValueFactory())
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_RATEDPOWER)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 1, "W"))
+                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
+                        Quantity.create(new BigDecimal(0), 3, "W"),
+                        Quantity.create(new BigDecimal(0), 6, "W"),
+                        Quantity.create(new BigDecimal(0), 9, "W"),
+                        Quantity.create(new BigDecimal(0), 12, "W"),
+                        Quantity.create(new BigDecimal(0), 0, "VA"),
+                        Quantity.create(new BigDecimal(0), 3, "VA"),
+                        Quantity.create(new BigDecimal(0), 6, "VA"),
+                        Quantity.create(new BigDecimal(0), 9, "VA"),
+                        Quantity.create(new BigDecimal(0), 12, "VA"))
                 .finish();
     }
 
@@ -99,6 +110,6 @@ public class RatedPowerSearchableProperty implements SearchableUsagePointPropert
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("detail.interval").isEffective(Instant.now()));
+        return specification.and(Where.where("detail.interval").isEffective(this.clock.instant()));
     }
 }

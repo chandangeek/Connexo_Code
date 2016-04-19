@@ -11,7 +11,7 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
-import java.time.Instant;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -21,13 +21,15 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
+    private Clock clock;
     private static final String FIELDNAME = "metrologyConfiguration.metrologyConfiguration";
 
-    public MetrologyConfigurationSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, ServerMetrologyConfigurationService metrologyConfigurationService) {
+    public MetrologyConfigurationSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.clock = clock;
     }
 
     @Override
@@ -94,6 +96,6 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
     @Override
     public Condition toCondition(Condition specification) {
         return specification.and(Where.where("metrologyConfiguration.interval")
-                .isEffective(Instant.now()));
+                .isEffective(this.clock.instant()));
     }
 }

@@ -3,16 +3,10 @@ package com.elster.jupiter.metering.impl.search;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -50,6 +44,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMeteringService meteringService;
     private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
+    private volatile Clock clock;
 
 
     // For OSGi purposes
@@ -63,7 +58,7 @@ public class UsagePointSearchDomain implements SearchDomain {
         this();
         this.setPropertySpecService(propertySpecService);
         this.setMeteringService(meteringService);
-        this.setMetrologyConfigurationService(metrologyConfigurationService);
+        this.setServerMetrologyConfigurationService(metrologyConfigurationService);
     }
 
     @Reference
@@ -77,11 +72,12 @@ public class UsagePointSearchDomain implements SearchDomain {
     }
 
     @Reference
-    public void setClock(Clock clock){
-
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
+
     @Reference
-    public final void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+    public final void setServerMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = (ServerMetrologyConfigurationService) metrologyConfigurationService;
     }
 
@@ -115,7 +111,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new ReadRouteSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new TypeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServicePrioritySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService),
+                new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.clock),
                 new OutageRegionSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new LocationSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.clock),
                 new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
@@ -146,92 +142,96 @@ public class UsagePointSearchDomain implements SearchDomain {
                     if (value instanceof ServiceKind) {
                         switch ((ServiceKind) value) {
                             case ELECTRICITY:
+                                properties.add(injector.getInstance(CollarSearchableProperty.class)
+                                        .init(this, electricityGroup, this.clock));
                                 properties.add(injector.getInstance(GroundedSearchableProperty.class)
-                                        .init(this, electricityGroup));
+                                        .init(this, electricityGroup, this.clock));
                                 properties.add(injector.getInstance(InterruptibleSearchableProperty.class)
-                                        .init(this, electricityGroup));
+                                        .init(this, electricityGroup, this.clock));
                                 properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
-                                        .init(this, electricityGroup));
+                                        .init(this, electricityGroup, this.clock));
                                 properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
-                                        .init(this, electricityGroup));
+                                        .init(this, electricityGroup, this.clock));
                                 properties.add(injector.getInstance(EstimatedLoadSearchableProperty.class)
-                                        .init(this, electricityGroup));
+                                        .init(this, electricityGroup, this.clock));
+                                properties.add(injector.getInstance(NominalServiceVoltageSearchableProperty.class)
+                                        .init(this, electricityGroup, this.clock));
                                 properties.add(injector.getInstance(PhaseCodeSearchableProperty.class)
-                                        .init(this, electricityGroup));
+                                        .init(this, electricityGroup, this.clock));
                                 properties.add(injector.getInstance(LimiterSearchableProperty.class)
-                                        .init(this, electricityGroup));
+                                        .init(this, electricityGroup, this.clock));
                                 properties.add(injector.getInstance(RatedPowerSearchableProperty.class)
-                                        .init(this, electricityGroup));
+                                        .init(this, electricityGroup, this.clock));
                                 properties.add(injector.getInstance(RatedCurrentSearchableProperty.class)
-                                        .init(this, electricityGroup));
+                                        .init(this, electricityGroup, this.clock));
                                 break;
                             case GAS:
                                 properties.add(injector.getInstance(CollarSearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(LimiterSearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(PhysicalCapacitySearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(BypassSearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(ValveSearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(CappedSearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(ClampedSearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(GroundedSearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(InterruptibleSearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(PressureSearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(BypassStatusSearchableProperty.class)
-                                        .init(this, gasGroup));
+                                        .init(this, gasGroup, this.clock));
                                 break;
                             case WATER:
                                 properties.add(injector.getInstance(CollarSearchableProperty.class)
-                                        .init(this, waterGroup));
+                                        .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(LimiterSearchableProperty.class)
-                                        .init(this, waterGroup));
+                                        .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
-                                        .init(this, waterGroup));
+                                        .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
-                                        .init(this, waterGroup));
+                                        .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(PhysicalCapacitySearchableProperty.class)
-                                        .init(this, waterGroup));
+                                        .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(BypassSearchableProperty.class)
-                                        .init(this, waterGroup));
+                                        .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(ValveSearchableProperty.class)
-                                        .init(this, waterGroup));
+                                        .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(CappedSearchableProperty.class)
-                                        .init(this, waterGroup));
+                                        .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(ClampedSearchableProperty.class)
-                                        .init(this, waterGroup));
+                                        .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(BypassStatusSearchableProperty.class)
-                                        .init(this, waterGroup));
+                                        .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(GroundedSearchableProperty.class)
-                                        .init(this, waterGroup));
+                                        .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(PressureSearchableProperty.class)
-                                        .init(this, waterGroup));
+                                        .init(this, waterGroup, this.clock));
                                 break;
                             case HEAT:
                                 properties.add(injector.getInstance(CollarSearchableProperty.class)
-                                        .init(this, thermalGroup));
+                                        .init(this, thermalGroup, this.clock));
                                 properties.add(injector.getInstance(PhysicalCapacitySearchableProperty.class)
-                                        .init(this, thermalGroup));
+                                        .init(this, thermalGroup, this.clock));
                                 properties.add(injector.getInstance(BypassSearchableProperty.class)
-                                        .init(this, thermalGroup));
+                                        .init(this, thermalGroup, this.clock));
                                 properties.add(injector.getInstance(ValveSearchableProperty.class)
-                                        .init(this, thermalGroup));
+                                        .init(this, thermalGroup, this.clock));
                                 properties.add(injector.getInstance(BypassStatusSearchableProperty.class)
-                                        .init(this, thermalGroup));
+                                        .init(this, thermalGroup, this.clock));
                                 properties.add(injector.getInstance(PressureSearchableProperty.class)
-                                        .init(this, thermalGroup));
+                                        .init(this, thermalGroup, this.clock));
                         }
                     } else {
                         throw new IllegalArgumentException("Value is not compatible with the property");

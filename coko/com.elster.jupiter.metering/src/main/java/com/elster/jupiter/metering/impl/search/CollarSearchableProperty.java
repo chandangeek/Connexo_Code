@@ -10,10 +10,12 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
-import java.time.Instant;
+import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -23,9 +25,12 @@ public class CollarSearchableProperty implements SearchableUsagePointProperty {
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
 
+    private Clock clock;
     private SearchDomain domain;
     private SearchablePropertyGroup group;
-    private static final String FIELDNAME = "detail.collar";
+    private static final String FIELD_NAME = "detail.collar";
+    private String uniqueName;
+
 
     @Inject
     public CollarSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -33,9 +38,11 @@ public class CollarSearchableProperty implements SearchableUsagePointProperty {
         this.thesaurus = thesaurus;
     }
 
-    CollarSearchableProperty init(SearchDomain searchDomain, SearchablePropertyGroup group) {
+    CollarSearchableProperty init(SearchDomain searchDomain, SearchablePropertyGroup group, Clock clock) {
         this.domain = searchDomain;
         this.group = group;
+        this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
+        this.clock = clock;
         return this;
     }
 
@@ -72,8 +79,7 @@ public class CollarSearchableProperty implements SearchableUsagePointProperty {
     @Override
     public String toDisplay(Object value) {
         if (value instanceof YesNoAnswer) {
-            String string = value.toString();
-            return thesaurus.getString(string, string);
+            return value.toString();
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
@@ -82,12 +88,13 @@ public class CollarSearchableProperty implements SearchableUsagePointProperty {
     public PropertySpec getSpecification() {
         return propertySpecService
                 .specForValuesOf(new EnumFactory(YesNoAnswer.class))
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_COLLAR)
+                .named(uniqueName, PropertyTranslationKeys.USAGEPOINT_COLLAR)
                 .fromThesaurus(thesaurus)
                 .addValues(YesNoAnswer.values())
                 .markExhaustive()
                 .finish();
     }
+
 
     @Override
     public List<SearchableProperty> getConstraints() {
@@ -96,10 +103,12 @@ public class CollarSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
+        //nothing to refresh
     }
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("detail.interval").isEffective(Instant.now()));
+        List<Object> values = new ArrayList<>(((Contains) specification).getCollection());
+        return Where.where(FIELD_NAME).in(values).and(Where.where("detail.interval").isEffective(this.clock.instant()));
     }
 }

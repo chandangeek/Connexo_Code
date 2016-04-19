@@ -16,6 +16,7 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BypassGasSearchablePropertyTest {
+public class CollarSearchablePropertyTest {
 
     @Mock
     private UsagePointSearchDomain domain;
@@ -47,6 +48,8 @@ public class BypassGasSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private Clock clock;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -60,7 +63,7 @@ public class BypassGasSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        BypassGasSearchableProperty property = this.getTestInstance();
+        CollarSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -70,19 +73,19 @@ public class BypassGasSearchablePropertyTest {
     }
 
     @Test
-    public void testGasGroup() {
-        BypassGasSearchableProperty property = this.getTestInstance();
+    public void testElectricityGroup() {
+        CollarSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
 
         // Asserts
-        assertThat(group.get().getClass()).isEqualTo(GasAttributesSearchablePropertyGroup.class);
+        assertThat(group.get().getClass()).isEqualTo(ElectricityAttributesSearchablePropertyGroup.class);
     }
 
     @Test
     public void testRemovableVisibility() {
-        BypassGasSearchableProperty property = this.getTestInstance();
+        CollarSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
@@ -93,7 +96,7 @@ public class BypassGasSearchablePropertyTest {
 
     @Test
     public void testMultiSelection() {
-        BypassGasSearchableProperty property = this.getTestInstance();
+        CollarSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -104,18 +107,18 @@ public class BypassGasSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
-        BypassGasSearchableProperty property = this.getTestInstance();
+        CollarSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_BYPASS.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_COLLAR.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        BypassGasSearchableProperty property = this.getTestInstance();
+        CollarSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -128,7 +131,7 @@ public class BypassGasSearchablePropertyTest {
 
     @Test
     public void possibleValuesWithoutRefresh() {
-        BypassGasSearchableProperty property = this.getTestInstance();
+        CollarSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -139,7 +142,7 @@ public class BypassGasSearchablePropertyTest {
 
     @Test
     public void hasConstraints() {
-        BypassGasSearchableProperty property = this.getTestInstance();
+        CollarSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -150,7 +153,7 @@ public class BypassGasSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        BypassGasSearchableProperty property = this.getTestInstance();
+        CollarSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -162,7 +165,7 @@ public class BypassGasSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        BypassGasSearchableProperty property = this.getTestInstance();
+        CollarSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -172,8 +175,8 @@ public class BypassGasSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        BypassGasSearchableProperty property = this.getTestInstance();
-        YesNoAnswer valueToDisplay = YesNoAnswer.YES;
+        CollarSearchableProperty property = this.getTestInstance();
+        YesNoAnswer valueToDisplay = YesNoAnswer.NO;
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
@@ -182,8 +185,8 @@ public class BypassGasSearchablePropertyTest {
         assertThat(displayValue).isEqualTo(valueToDisplay.toString());
     }
 
-    private BypassGasSearchableProperty getTestInstance() {
-        return new BypassGasSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private CollarSearchableProperty getTestInstance() {
+        return new CollarSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain,
+                new ElectricityAttributesSearchablePropertyGroup(this.thesaurus), this.clock);
     }
-
 }

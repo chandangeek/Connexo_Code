@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -17,6 +17,7 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -48,9 +49,11 @@ public class MetrologyConfigurationSearchablePropertyTest {
     @Mock
     private OrmService ormService;
     @Mock
-    MetrologyConfiguration metrologyConfiguration;
+    private MetrologyConfiguration metrologyConfiguration;
     @Mock
-    MetrologyConfigurationService metrologyConfigurationService;
+    private ServerMetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    private Clock clock;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -60,6 +63,7 @@ public class MetrologyConfigurationSearchablePropertyTest {
         this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
         when(this.messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
+        when(this.metrologyConfigurationService.getThesaurus()).thenReturn(this.thesaurus);
     }
 
     @Test
@@ -186,6 +190,6 @@ public class MetrologyConfigurationSearchablePropertyTest {
     }
 
     private MetrologyConfigurationSearchableProperty getTestInstance() {
-        return new MetrologyConfigurationSearchableProperty(this.domain, this.propertySpecService, this.metrologyConfigurationService, this.thesaurus);
+        return new MetrologyConfigurationSearchableProperty(this.domain, this.propertySpecService, this.metrologyConfigurationService, this.clock);
     }
 }

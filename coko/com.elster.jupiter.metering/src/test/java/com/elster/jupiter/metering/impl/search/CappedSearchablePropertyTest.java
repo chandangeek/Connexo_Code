@@ -16,6 +16,7 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,8 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CollarThermalSearchablePropertyTest {
-
+public class CappedSearchablePropertyTest {
     @Mock
     private UsagePointSearchDomain domain;
     @Mock
@@ -47,6 +47,8 @@ public class CollarThermalSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private Clock clock;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -60,7 +62,7 @@ public class CollarThermalSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        CollarThermalSearchableProperty property = this.getTestInstance();
+        CappedSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -70,19 +72,19 @@ public class CollarThermalSearchablePropertyTest {
     }
 
     @Test
-    public void testGasGroup() {
-        CollarThermalSearchableProperty property = this.getTestInstance();
+    public void testWaterGroup() {
+        CappedSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
 
         // Asserts
-        assertThat(group.get().getClass()).isEqualTo(ThermalAttributesSearchablePropertyGroup.class);
+        assertThat(group.get().getClass()).isEqualTo(WaterAttributesSearchablePropertyGroup.class);
     }
 
     @Test
     public void testRemovableVisibility() {
-        CollarThermalSearchableProperty property = this.getTestInstance();
+        CappedSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
@@ -93,7 +95,7 @@ public class CollarThermalSearchablePropertyTest {
 
     @Test
     public void testMultiSelection() {
-        CollarThermalSearchableProperty property = this.getTestInstance();
+        CappedSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -104,18 +106,18 @@ public class CollarThermalSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
-        CollarThermalSearchableProperty property = this.getTestInstance();
+        CappedSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_COLLAR.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_CAPPED.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        CollarThermalSearchableProperty property = this.getTestInstance();
+        CappedSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -128,7 +130,7 @@ public class CollarThermalSearchablePropertyTest {
 
     @Test
     public void possibleValuesWithoutRefresh() {
-        CollarThermalSearchableProperty property = this.getTestInstance();
+        CappedSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -139,7 +141,7 @@ public class CollarThermalSearchablePropertyTest {
 
     @Test
     public void hasConstraints() {
-        CollarThermalSearchableProperty property = this.getTestInstance();
+        CappedSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -150,7 +152,7 @@ public class CollarThermalSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        CollarThermalSearchableProperty property = this.getTestInstance();
+        CappedSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -162,7 +164,7 @@ public class CollarThermalSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        CollarThermalSearchableProperty property = this.getTestInstance();
+        CappedSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -172,8 +174,8 @@ public class CollarThermalSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        CollarThermalSearchableProperty property = this.getTestInstance();
-        YesNoAnswer valueToDisplay = YesNoAnswer.NO;
+        CappedSearchableProperty property = this.getTestInstance();
+        YesNoAnswer valueToDisplay = YesNoAnswer.YES;
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
@@ -182,7 +184,8 @@ public class CollarThermalSearchablePropertyTest {
         assertThat(displayValue).isEqualTo(valueToDisplay.toString());
     }
 
-    private CollarThermalSearchableProperty getTestInstance() {
-        return new CollarThermalSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private CappedSearchableProperty getTestInstance() {
+        return new CappedSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, new WaterAttributesSearchablePropertyGroup(this.thesaurus),
+                this.clock);
     }
 }

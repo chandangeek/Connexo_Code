@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -14,8 +13,10 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
+import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BypassStatusThermalSearchablePropertyTest {
+public class LoadLimitSearchablePropertyTest {
 
     @Mock
     private UsagePointSearchDomain domain;
@@ -47,6 +48,8 @@ public class BypassStatusThermalSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private Clock clock;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -60,7 +63,7 @@ public class BypassStatusThermalSearchablePropertyTest {
 
     @Test
     public void testGetDomain() {
-        BypassStatusThermalSearchableProperty property = this.getTestInstance();
+        LoadLimitSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -70,19 +73,19 @@ public class BypassStatusThermalSearchablePropertyTest {
     }
 
     @Test
-    public void testThermalGroup() {
-        BypassStatusThermalSearchableProperty property = this.getTestInstance();
+    public void testElectricityGroup() {
+        LoadLimitSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
 
         // Asserts
-        assertThat(group.get().getClass()).isEqualTo(ThermalAttributesSearchablePropertyGroup.class);
+        assertThat(group.get().getClass()).isEqualTo(ElectricityAttributesSearchablePropertyGroup.class);
     }
 
     @Test
     public void testRemovableVisibility() {
-        BypassStatusThermalSearchableProperty property = this.getTestInstance();
+        LoadLimitSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
@@ -92,30 +95,30 @@ public class BypassStatusThermalSearchablePropertyTest {
     }
 
     @Test
-    public void testMultiSelection() {
-        BypassStatusThermalSearchableProperty property = this.getTestInstance();
+    public void testSingleSelection() {
+        LoadLimitSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
 
         // Asserts
-        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.MULTI);
+        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.SINGLE);
     }
 
     @Test
     public void testTranslation() {
-        BypassStatusThermalSearchableProperty property = this.getTestInstance();
+        LoadLimitSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_BYPASS_STATUS.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_LOADLIMIT.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        BypassStatusThermalSearchableProperty property = this.getTestInstance();
+        LoadLimitSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -123,12 +126,12 @@ public class BypassStatusThermalSearchablePropertyTest {
         // Asserts
         assertThat(specification).isNotNull();
         assertThat(specification.isReference()).isFalse();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Enum.class);
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Quantity.class);
     }
 
     @Test
     public void possibleValuesWithoutRefresh() {
-        BypassStatusThermalSearchableProperty property = this.getTestInstance();
+        LoadLimitSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -139,7 +142,7 @@ public class BypassStatusThermalSearchablePropertyTest {
 
     @Test
     public void hasConstraints() {
-        BypassStatusThermalSearchableProperty property = this.getTestInstance();
+        LoadLimitSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -150,7 +153,7 @@ public class BypassStatusThermalSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        BypassStatusThermalSearchableProperty property = this.getTestInstance();
+        LoadLimitSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -162,7 +165,7 @@ public class BypassStatusThermalSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        BypassStatusThermalSearchableProperty property = this.getTestInstance();
+        LoadLimitSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -172,17 +175,17 @@ public class BypassStatusThermalSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        BypassStatusThermalSearchableProperty property = this.getTestInstance();
-        BypassStatus valueToDisplay = BypassStatus.CLOSED;
+        LoadLimitSearchableProperty property = this.getTestInstance();
+        Quantity valueToDisplay = Quantity.create(new BigDecimal(0), 0, "Pa");
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualToIgnoringCase(valueToDisplay.getDisplayValue(this.thesaurus));
+        assertThat(displayValue).isEqualToIgnoringCase(valueToDisplay.getUnit().getSymbol());
     }
 
-    private BypassStatusThermalSearchableProperty getTestInstance() {
-        return new BypassStatusThermalSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private LoadLimitSearchableProperty getTestInstance() {
+        return new LoadLimitSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, new ElectricityAttributesSearchablePropertyGroup(this.thesaurus), this.clock);
     }
 }

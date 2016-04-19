@@ -16,6 +16,7 @@ import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +48,8 @@ public class RatedCurrentSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private Clock clock;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -173,17 +176,17 @@ public class RatedCurrentSearchablePropertyTest {
     @Test
     public void displayString() {
         RatedCurrentSearchableProperty property = this.getTestInstance();
-        Quantity valueToDisplay = Quantity.create(new BigDecimal(0), 1, "Pa");
+        Quantity valueToDisplay = Quantity.create(new BigDecimal(0), 0, "Pa");
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(valueToDisplay.toString());
+        assertThat(displayValue).isEqualToIgnoringCase(valueToDisplay.getUnit().getSymbol());
     }
 
     private RatedCurrentSearchableProperty getTestInstance() {
-        return new RatedCurrentSearchableProperty(this.domain, this.propertySpecService, new ElectricityAttributesSearchablePropertyGroup(thesaurus), this.thesaurus);
+        return new RatedCurrentSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, new ElectricityAttributesSearchablePropertyGroup(thesaurus), this.clock);
     }
 
 }

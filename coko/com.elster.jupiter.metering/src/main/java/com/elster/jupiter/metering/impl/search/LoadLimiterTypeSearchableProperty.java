@@ -7,11 +7,12 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
-import java.time.Instant;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +24,9 @@ public class LoadLimiterTypeSearchableProperty implements SearchableUsagePointPr
 
     private SearchDomain domain;
     private SearchablePropertyGroup group;
-    private static final String FIELDNAME = "detail.loadLimiterType";
+    private Clock clock;
+    private static final String FIELD_NAME = "detail.loadLimiterType";
+    private String uniqueName;
 
     @Inject
     public LoadLimiterTypeSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -31,9 +34,11 @@ public class LoadLimiterTypeSearchableProperty implements SearchableUsagePointPr
         this.thesaurus = thesaurus;
     }
 
-    LoadLimiterTypeSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group) {
+    LoadLimiterTypeSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, Clock cLock) {
         this.domain = domain;
         this.group = group;
+        this.clock = cLock;
+        this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
         return this;
     }
 
@@ -79,14 +84,14 @@ public class LoadLimiterTypeSearchableProperty implements SearchableUsagePointPr
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .stringSpec()
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_LOAD_LIMITER_TYPE)
+                .named(uniqueName, PropertyTranslationKeys.USAGEPOINT_LOAD_LIMITER_TYPE)
                 .fromThesaurus(this.thesaurus)
                 .finish();
     }
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.singletonList(new LimiterSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.group));
+        return Collections.singletonList(new LimiterSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.group, this.clock));
     }
 
     @Override
@@ -96,7 +101,8 @@ public class LoadLimiterTypeSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("detail.interval").isEffective(Instant.now()));
+        return Where.where(FIELD_NAME)
+                .isEqualTo((((Comparison) specification).getValues())[0])
+                .and(Where.where("detail.interval").isEffective(this.clock.instant()));
     }
-
 }
