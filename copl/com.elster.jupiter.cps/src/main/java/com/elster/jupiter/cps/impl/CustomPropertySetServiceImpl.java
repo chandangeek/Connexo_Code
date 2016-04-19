@@ -348,7 +348,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                             dataModel,
                             newRegisteredCustomPropertySet));
         }
-        this.searchService.register(new CustomPropertySetSearchDomainExtension(this, customPropertySet));
+        this.searchService.register(new CustomPropertySetSearchDomainExtension(this, this.activePropertySets.get(customPropertySet.getId())));
     }
 
     private DataModel registerAndInstallOrReuseDataModel(CustomPropertySet customPropertySet, boolean executeDdl) {
