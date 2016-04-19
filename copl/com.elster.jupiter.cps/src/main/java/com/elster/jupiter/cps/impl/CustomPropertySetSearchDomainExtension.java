@@ -43,6 +43,7 @@ public class CustomPropertySetSearchDomainExtension implements SearchDomainExten
     @Override
     public SqlFragment asFragment(List<SearchablePropertyCondition> conditions) {
         return this.dataModel.query(customPropertySet.getPersistenceSupport().persistenceClass())
-                .asFragment(Condition.TRUE, customPropertySet.getPersistenceSupport().domainFieldName());
+                .asFragment(conditions.stream().reduce(Condition.TRUE, (ormCondition, searchCondition) -> ormCondition.and(searchCondition.getCondition()), Condition::and),
+                        customPropertySet.getPersistenceSupport().domainFieldName());
     }
 }
