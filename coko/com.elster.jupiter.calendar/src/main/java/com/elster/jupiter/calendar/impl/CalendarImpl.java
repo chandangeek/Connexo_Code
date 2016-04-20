@@ -39,6 +39,7 @@ public class CalendarImpl implements Calendar {
         ID("id"),
         NAME("name"),
         MRID("mRID"),
+        ABSTRACT_CALENDAR("abstractCalendar"),
         DESCRIPTION("description"),
         TIMEZONENAME("timeZoneName"),
         CATEGORY("category"),
@@ -68,6 +69,7 @@ public class CalendarImpl implements Calendar {
     private String description;
     private String mRID;
     private String timeZoneName;
+    private boolean abstractCalendar;
 
     private long version;
     private Instant createTime;
@@ -89,16 +91,25 @@ public class CalendarImpl implements Calendar {
         this.calendarService = calendarService;
     }
 
-    CalendarImpl init(String name, String description, TimeZone timeZone, Category category) {
+    CalendarImpl init(String name, String description, Category category, boolean abstractCalendar, TimeZone timeZone) {
         this.name = name;
+        this.abstractCalendar = abstractCalendar;
         this.description = description;
         this.timeZone = timeZone;
+        this.timeZoneName = timeZone.getID();
         this.category.set(category);
         return this;
     }
 
-    static CalendarImpl from(DataModel dataModel, String description, String name, TimeZone timeZone, Category category) {
-        return dataModel.getInstance(CalendarImpl.class).init(name, description, timeZone, category);
+    CalendarImpl init(String name, String description, Category category, boolean abstractCalendar) {
+        CalendarImpl calendarImpl = this.init(name, description, category, abstractCalendar, timeZone);
+        calendarImpl.timeZone = timeZone;
+        calendarImpl.timeZoneName = timeZone.getID();
+        return calendarImpl;
+    }
+
+    static CalendarImpl from(DataModel dataModel, String description, String name, Category category, boolean abstractCalendar, TimeZone timeZone) {
+        return dataModel.getInstance(CalendarImpl.class).init(name, description, category, abstractCalendar, timeZone);
     }
 
 
@@ -178,6 +189,9 @@ public class CalendarImpl implements Calendar {
 
     @Override
     public TimeZone getTimeZone() {
+        if (timeZoneName == null) {
+            return null;
+        }
         if (timeZone == null) {
             timeZone =  TimeZone.getTimeZone(ZoneId.of(timeZoneName));
         }
@@ -290,9 +304,9 @@ public class CalendarImpl implements Calendar {
     }
 
     @Override
-    public FixedPeriodTransitionSpec addFixedPeriodTransitionSpec(int day, int month, int year) {
+    public FixedPeriodTransitionSpec addFixedPeriodTransitionSpec(Period period, int day, int month, int year) {
         FixedPeriodTransitionSpecImpl fixedPeriodTransitionSpecImpl =
-                calendarService.getDataModel().getInstance(FixedPeriodTransitionSpecImpl.class).init(this, day, month, year);
+                calendarService.getDataModel().getInstance(FixedPeriodTransitionSpecImpl.class).init(this, period, day, month, year);
         Save.CREATE.validate(calendarService.getDataModel(), fixedPeriodTransitionSpecImpl);
         this.periodTransitionSpecs.add(fixedPeriodTransitionSpecImpl);
         touch();
@@ -308,9 +322,9 @@ public class CalendarImpl implements Calendar {
     }
 
     @Override
-    public RecurrentPeriodTransitionSpec addRecurrentPeriodTransitionSpec(int day, int month) {
+    public RecurrentPeriodTransitionSpec addRecurrentPeriodTransitionSpec(Period period, int day, int month) {
         RecurrentPeriodTransitionSpecImpl recurrentPeriodTransitionSpecImpl =
-                calendarService.getDataModel().getInstance(RecurrentPeriodTransitionSpecImpl.class).init(this, day, month);
+                calendarService.getDataModel().getInstance(RecurrentPeriodTransitionSpecImpl.class).init(this, period, day, month);
         Save.CREATE.validate(calendarService.getDataModel(), recurrentPeriodTransitionSpecImpl);
         this.periodTransitionSpecs.add(recurrentPeriodTransitionSpecImpl);
         touch();

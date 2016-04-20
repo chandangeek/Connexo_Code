@@ -15,8 +15,8 @@ public class RecurrentPeriodTransitionSpecImpl extends PeriodTransitionSpecImpl 
 
     static final String TYPE_IDENTIFIER = "REC";
 
-    public RecurrentPeriodTransitionSpecImpl init(Calendar calendar, int day, int month) {
-        return (RecurrentPeriodTransitionSpecImpl) super.init(calendar, day, month);
+    public RecurrentPeriodTransitionSpecImpl init(Calendar calendar, Period period, int day, int month) {
+        return (RecurrentPeriodTransitionSpecImpl) super.init(calendar, period, day, month);
     }
 
     @Inject
@@ -27,11 +27,6 @@ public class RecurrentPeriodTransitionSpecImpl extends PeriodTransitionSpecImpl 
     @Override
     public MonthDay getOccurrence() {
         return MonthDay.of(getMonth(), getDay());
-    }
-
-    @Override
-    public Period getPeriod() {
-        return null;
     }
 }
 

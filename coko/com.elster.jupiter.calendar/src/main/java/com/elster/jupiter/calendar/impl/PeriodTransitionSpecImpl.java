@@ -5,6 +5,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.MessageSeeds;
+import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -22,6 +23,7 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
     public enum Fields {
         ID("id"),
         CALENDAR("calendar"),
+        PERIOD("period"),
         DAY("day"),
         MONTH("month"),
         YEAR("year");
@@ -44,6 +46,7 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
     private Reference<Calendar> calendar = ValueReference.absent();
     private int day;
     private int month;
+    private Reference<Period> period = ValueReference.absent();
 
     private final CalendarService calendarService;
 
@@ -52,8 +55,9 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
         this.calendarService = calendarService;
     }
 
-    public PeriodTransitionSpecImpl init(Calendar calendar, int day, int month) {
+    public PeriodTransitionSpecImpl init(Calendar calendar, Period period, int day, int month) {
         this.calendar.set(calendar);
+        this.period.set(period);
         this.day = day;
         this.month = month;
         return this;
@@ -69,6 +73,11 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
         builder.put(FixedPeriodTransitionSpecImpl.TYPE_IDENTIFIER, FixedPeriodTransitionSpecImpl.class)
                 .put(RecurrentPeriodTransitionSpecImpl.TYPE_IDENTIFIER, RecurrentPeriodTransitionSpecImpl.class);
         return builder.build();
+    }
+
+    @Override
+    public Period getPeriod() {
+        return this.period.orNull();
     }
 
     protected int getDay() {

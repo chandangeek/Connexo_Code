@@ -40,7 +40,8 @@ public enum TableSpecs {
             table.column("NAME").varChar(NAME_LENGTH).notNull().map(CalendarImpl.Fields.NAME.fieldName()).add();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map(CalendarImpl.Fields.MRID.fieldName()).add();
             table.column("DESCRIPTION").varChar(NAME_LENGTH).map(CalendarImpl.Fields.DESCRIPTION.fieldName()).add();
-            table.column("TIMEZONENAME").varChar(NAME_LENGTH).notNull(). map(CalendarImpl.Fields.TIMEZONENAME.fieldName()).add();
+            table.column("ABSTRACT_CALENDAR").bool().notNull().map(CalendarImpl.Fields.ABSTRACT_CALENDAR.fieldName()).add();
+            table.column("TIMEZONENAME").varChar(NAME_LENGTH).map(CalendarImpl.Fields.TIMEZONENAME.fieldName()).add();
             Column categoryColumn = table.column(CalendarImpl.Fields.CATEGORY.fieldName()).number().notNull().add();
             table.addAuditColumns();
             table.primaryKey("CAL_PK_CALENDAR").on(idColumn).add();
@@ -180,6 +181,8 @@ public enum TableSpecs {
             table.column("MONTH").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.MONTH.fieldName()).add();
             table.column("YEAR").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.YEAR.fieldName()).add();
 
+            Column periodColumn = table.column(PeriodTransitionSpecImpl.Fields.PERIOD.fieldName()).number().notNull().add();
+
             table.primaryKey("CAL_PK_PERIOD_TRANS_SPEC").on(idColumn).add();
             table.foreignKey("CAL_PERIOD_TS_TO_CALENDAR")
                     .references(Calendar.class)
@@ -188,6 +191,12 @@ public enum TableSpecs {
                     .map(PeriodTransitionSpecImpl.Fields.CALENDAR.fieldName())
                     .reverseMap(CalendarImpl.Fields.PERIOD_TRANSITION_SPECS.fieldName())
                     .composition()
+                    .add();
+
+            table.foreignKey("CAL_PERIOD_TS_TO_PERIOD")
+                    .references(Period.class)
+                    .on(periodColumn)
+                    .map(PeriodTransitionSpecImpl.Fields.PERIOD.fieldName())
                     .add();
         }
     },

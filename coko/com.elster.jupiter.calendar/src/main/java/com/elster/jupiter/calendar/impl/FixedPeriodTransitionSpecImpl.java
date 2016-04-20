@@ -29,16 +29,11 @@ public class FixedPeriodTransitionSpecImpl extends PeriodTransitionSpecImpl impl
     }
 
 
-    public FixedPeriodTransitionSpecImpl init(Calendar calendar, int day, int month, int year) {
+    public FixedPeriodTransitionSpecImpl init(Calendar calendar, Period period, int day, int month, int year) {
         FixedPeriodTransitionSpecImpl fixedPeriodTransitionSpecImpl =
-                (FixedPeriodTransitionSpecImpl) super.init(calendar, day, month);
+                (FixedPeriodTransitionSpecImpl) super.init(calendar, period, day, month);
         fixedPeriodTransitionSpecImpl.year = year;
         return fixedPeriodTransitionSpecImpl;
     }
 
-
-    @Override
-    public Period getPeriod() {
-        return null;
-    }
 }

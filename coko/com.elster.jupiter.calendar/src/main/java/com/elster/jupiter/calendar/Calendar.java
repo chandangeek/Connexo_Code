@@ -136,11 +136,11 @@ public interface Calendar extends HasId, HasName {
 
     void removeRecurrentExceptionalOccurrence(RecurrentExceptionalOccurrence recurrentExceptionalOccurrence);
 
-    FixedPeriodTransitionSpec addFixedPeriodTransitionSpec(int day, int month, int year);
+    FixedPeriodTransitionSpec addFixedPeriodTransitionSpec(Period period, int day, int month, int year);
 
     void removeFixedPeriodTransitionSpec(FixedPeriodTransitionSpec fixedPeriodTransitionSpec);
 
-    RecurrentPeriodTransitionSpec addRecurrentPeriodTransitionSpec(int day, int month);
+    RecurrentPeriodTransitionSpec addRecurrentPeriodTransitionSpec(Period period, int day, int month);
 
     void removeRecurrentPeriodTransitionSpec(RecurrentPeriodTransitionSpec recurrentPeriodTransitionSpec);
 
