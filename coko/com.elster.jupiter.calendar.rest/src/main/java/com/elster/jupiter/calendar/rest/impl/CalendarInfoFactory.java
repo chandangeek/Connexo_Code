@@ -75,7 +75,7 @@ public class CalendarInfoFactory {
         CalendarInfo calendarInfo = new CalendarInfo();
 
         calendarInfo.name = calendar.getName();
-        calendarInfo.category = calendar.getCategory().toString();
+        calendarInfo.category = calendar.getCategory().getName();
 //        calendarInfo.mRID = calendar.getMrid();
         calendarInfo.id = calendar.getId();
         calendarInfo.description = calendar.getDescription();
