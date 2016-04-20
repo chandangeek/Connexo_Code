@@ -3,6 +3,7 @@ package com.elster.jupiter.system.app.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.rest.impl.AppServerApplication;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.fileimport.FileImportService;
@@ -92,7 +93,8 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
                 CustomPropertySetService.COMPONENT_NAME,
                 MeteringService.COMPONENTNAME,
                 SubsystemService.COMPONENTNAME,
-                ServiceCallService.COMPONENT_NAME);
+                ServiceCallService.COMPONENT_NAME,
+                CalendarService.COMPONENTNAME);
     }
 
     @Reference
