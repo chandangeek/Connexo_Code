@@ -120,7 +120,7 @@ public interface CustomPropertySet<D, T extends PersistentDomainExtension<D>> {
      *         for search needs consent from a CustomPropertySetSearchEnabler or not.
      */
     default boolean isSearchableByDefault() {
-        return true;
+        return false;
     }
 
     /**
