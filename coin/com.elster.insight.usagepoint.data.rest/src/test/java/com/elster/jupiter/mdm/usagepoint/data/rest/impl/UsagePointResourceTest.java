@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.devtools.tests.rules.Using;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -13,7 +14,10 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.users.User;
@@ -29,6 +33,8 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -87,6 +93,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private UsagePointBuilder usagePointBuilder;
     @Mock
     private ElectricityDetailBuilder electricityDetailBuilder;
+    @Mock
+    private BaseReadingRecord readingRecord1, readingRecord2;
 
     @Before
     public void setUp1() {
@@ -162,6 +170,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         DataValidationStatus statusForSuspect = mockDataValidationStatus(readingQualitySuspect, false);
         when(evaluator.getValidationStatus(eq(channel), any(), any())).thenReturn(Arrays.asList(statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect));
         when(evaluator.getValidationStatus(eq(register), any(), any())).thenReturn(Arrays.asList(statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect));
+
+        when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
+        when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(206, 0));
     }
 
     @Test
@@ -302,5 +313,29 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(jsonModel.<Number>get("$.outputs[0].interval.count")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.outputs[0].interval.timeUnit")).isEqualTo("minutes");
         assertThat(jsonModel.<String>get("$.outputs[0].readingType.mRID")).isEqualTo("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+    }
+
+    @Test
+    public void testChannelReadingsOfOutput() {
+        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(2, "2test"));
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().get(0);
+        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().get(0);
+        CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
+        Instant intervalStart = Instant.ofEpochMilli(1410774620000L);
+        Instant intervalEnd = Instant.ofEpochMilli(1410828640000L);
+        Range<Instant> range = Ranges.openClosed(intervalStart, intervalEnd);
+        when(dataAggregationService.calculate(usagePoint, metrologyContract, range)).thenReturn(calculatedMetrologyContractData);
+
+        List channelData = Arrays.asList(readingRecord1, readingRecord2);
+        when(calculatedMetrologyContractData.getCalculatedDataFor(readingTypeDeliverable)).thenReturn(channelData);
+
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
+        String json = target("usagepoints/MRID/purposes/1/outputs/1/data").queryParam("filter", filter).request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number> get("$.data")).isEqualTo(2);
+//        assertThat(jsonModel.<Long> get("$.data[0].interval.start")).isEqualTo(1410785296000L);
+//        assertThat(jsonModel.<Long> get("$.data[0].interval.end")).isEqualTo(1410786196000L);
+        assertThat(jsonModel.<String> get("$.data[0].value")).isEqualTo("200");
     }
 }
