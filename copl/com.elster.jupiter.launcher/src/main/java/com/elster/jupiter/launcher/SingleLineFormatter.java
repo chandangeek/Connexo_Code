@@ -13,7 +13,7 @@ public class SingleLineFormatter extends Formatter {
     private final static String format = "{0,date} {0,time}";
     private MessageFormat formatter;
     private Object args[] = new Object[1];
-    private String lineSeparator = "\n";
+    private String lineSeparator = "\r\n";
 
     /**
      * Format the given LogRecord.
