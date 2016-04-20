@@ -3,11 +3,13 @@ Ext.define('Imt.metrologyconfiguration.store.MetrologyConfiguration', {
     model: 'Imt.metrologyconfiguration.model.MetrologyConfiguration',
     proxy: {
         type: 'rest',
-        url: '/api/ucr/metrologyconfigurations/{id}',
-        timeout: 240000,
+        url: '/api/ucr/metrologyconfigurations',
         reader: {
             type: 'json',
             root: 'metrologyconfigurations'
         },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });

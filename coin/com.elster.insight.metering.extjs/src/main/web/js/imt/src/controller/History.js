@@ -421,6 +421,7 @@ Ext.define('Imt.controller.History', {
                     route: 'metrologyconfiguration',
                     controller: 'Imt.metrologyconfiguration.controller.ViewList',
                     action: 'showMetrologyConfigurationList',
+                    privileges: Imt.privileges.MetrologyConfig.view,
                     items: {
                         add: {
                             title: Uni.I18n.translate('general.label.metrologyconfiguration.add', 'IMT', 'Add metrology configuration'),

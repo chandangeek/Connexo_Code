@@ -1,7 +1,7 @@
 Ext.define('Imt.metrologyconfiguration.store.MetrologyConfigurationSelect', {
     extend: 'Ext.data.Store',
     model: 'Imt.metrologyconfiguration.model.MetrologyConfiguration',
-    autoLoad: true,
+    //autoLoad: true,
     proxy: {
         type: 'rest',
         url: '/api/ucr/metrologyconfigurations',
