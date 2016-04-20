@@ -3,6 +3,7 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.MessageSeeds;
+import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -130,7 +131,9 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        //todo add privileges
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_TOU_CALENDARS.getKey(), Privileges.RESOURCE_TOU_CALENDARS_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.VIEW_TOU_CALENDARS, Privileges.Constants.VIEW_TOU_PREVIEW)));
         return resources;
     }
 
