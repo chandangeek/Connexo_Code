@@ -212,9 +212,11 @@ public class UsagePointResource {
                                                 @QueryParam("upVersion") long upVersion,
                                                 MetrologyConfigurationInfo info) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
-        usagePoint.getMetrologyConfiguration().ifPresent(mc -> {
+
+        if (usagePoint.getMetrologyConfiguration().isPresent()) {
             throw resourceHelper.throwUsagePointLinkedException(mrid);
-        });
+        }
+
         usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mrid, upVersion);
 
         new RestValidationBuilder()
