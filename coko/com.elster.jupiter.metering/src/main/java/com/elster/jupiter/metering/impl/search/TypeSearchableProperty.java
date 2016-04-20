@@ -9,8 +9,8 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
-import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.conditions.Where;
 
 import java.sql.Types;
@@ -96,7 +96,7 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public Condition toCondition(Condition specification) {
-        return Arrays.stream(((Comparison) specification).getValues())
+        return (((Contains) specification).getCollection()).stream()
                 .map(UsagePointTypes.class::cast).map(result -> {
                     switch (result) {
                         case MEASURED_SDP:

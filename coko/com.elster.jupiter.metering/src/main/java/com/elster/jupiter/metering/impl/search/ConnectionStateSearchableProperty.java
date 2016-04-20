@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -12,7 +12,7 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
-import java.time.Instant;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -30,13 +30,15 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "detail.connectionState";
+    private Clock clock;
+    private static final String FIELD_NAME = "detail.connectionState";
 
-    public ConnectionStateSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public ConnectionStateSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus, Clock clock) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
     @Override
@@ -71,9 +73,8 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public String toDisplay(Object value) {
-        if (value instanceof UsagePointConnectedKind) {
-            UsagePointConnectedKind usagePoint = (UsagePointConnectedKind) value;
-            return this.thesaurus.getStringBeyondComponent(usagePoint.getKey(), usagePoint.getDefaultFormat());
+        if (value instanceof ConnectionState) {
+            return ((ConnectionState) value).getName();
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
@@ -81,10 +82,10 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService
-                .specForValuesOf(new EnumFactory(UsagePointConnectedKind.class))
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_CONNECTIONSTATE)
+                .specForValuesOf(new EnumFactory(ConnectionState.class))
+                .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_CONNECTIONSTATE)
                 .fromThesaurus(this.thesaurus)
-                .addValues(UsagePointConnectedKind.values())
+                .addValues(ConnectionState.values())
                 .markExhaustive()
                 .finish();
     }
@@ -96,14 +97,12 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("No constraint to refresh");
-        }
+        //nothing to refresh
     }
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("detail.interval").isEffective(Instant.now()));
+        return specification.and(Where.where("detail.interval").isEffective(this.clock.instant()));
     }
 
 }

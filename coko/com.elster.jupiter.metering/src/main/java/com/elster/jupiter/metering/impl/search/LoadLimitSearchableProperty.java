@@ -8,15 +8,15 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.units.Quantity;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -90,9 +90,9 @@ public class LoadLimitSearchableProperty implements SearchableUsagePointProperty
                 .specForValuesOf(new QuantityValueFactory())
                 .named(uniqueName, PropertyTranslationKeys.USAGEPOINT_LOADLIMIT)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 0, "A"),
-                        Quantity.create(new BigDecimal(0), 3, "A"),
-                        Quantity.create(new BigDecimal(0), 6, "A"))
+                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
+                        Quantity.create(new BigDecimal(0), 3, "W"),
+                        Quantity.create(new BigDecimal(0), 6, "W"))
                 .finish();
     }
 
@@ -108,7 +108,13 @@ public class LoadLimitSearchableProperty implements SearchableUsagePointProperty
 
     @Override
     public Condition toCondition(Condition specification) {
-        List<Object> values = new ArrayList<>(((Contains) specification).getCollection());
-        return Where.where(FIELD_NAME).in(values).and(Where.where("detail.interval").isEffective(this.clock.instant()));
+        if (((Comparison) specification).getOperator().equals(Operator.BETWEEN)) {
+            return Where.where(FIELD_NAME)
+                    .between(((Comparison) specification).getValues()[0])
+                    .and(((Comparison) specification).getValues()[1])
+                    .and(Where.where("detail.interval").isEffective(this.clock.instant()));
+        }
+        return Where.where(FIELD_NAME).isEqualTo((((Comparison) specification).getValues()[0]))
+                .and(Where.where("detail.interval").isEffective(this.clock.instant()));
     }
 }
