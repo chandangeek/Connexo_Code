@@ -251,6 +251,7 @@ public class MetrologyConfigurationResource {
         }
         List<?> infos = customPropertySets
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .sorted((a, b) -> a.getCustomPropertySet().getName().compareToIgnoreCase(b.getCustomPropertySet().getName()))
                 .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
