@@ -128,12 +128,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     @Override
     public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("Expecting no constrictionsrtie");
-        }
-        else {
-            return this.getProperties();
-        }
+        return this.getProperties();
     }
 
     @Override
