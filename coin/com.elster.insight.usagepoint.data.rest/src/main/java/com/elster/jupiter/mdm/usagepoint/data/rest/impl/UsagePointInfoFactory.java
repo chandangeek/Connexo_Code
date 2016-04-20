@@ -3,7 +3,9 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.HeatDetail;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -28,6 +30,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -118,7 +121,20 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues()))
                 .collect(Collectors.toList());
 
+        meteringService.findUsagePointGeoCoordinates(usagePoint.getMRID()).ifPresent(coordinates -> info.geoCoordinates = coordinates.getCoordinates().toString());
 
+        Optional<Location> location = meteringService.findUsagePointLocation(usagePoint.getMRID());
+        String formattedLocation = "";
+        if (location.isPresent()) {
+            List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get()
+                    .getId());
+            formattedLocationMembers.stream().skip(1).forEach(list ->
+                    list.stream().findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
+            formattedLocation = formattedLocationMembers.stream()
+                    .flatMap(List::stream).filter(Objects::nonNull)
+                    .collect(Collectors.joining(", "));
+        }
+        info.location = formattedLocation;
         return info;
     }
 

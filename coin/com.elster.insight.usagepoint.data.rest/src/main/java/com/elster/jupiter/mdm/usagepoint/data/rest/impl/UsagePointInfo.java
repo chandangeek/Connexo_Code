@@ -20,6 +20,7 @@ public class UsagePointInfo {
     public String serviceCategory;
     public Long serviceLocationId;
     public String location;
+    public String geoCoordinates;
 
     public String mRID;
     public String name;
