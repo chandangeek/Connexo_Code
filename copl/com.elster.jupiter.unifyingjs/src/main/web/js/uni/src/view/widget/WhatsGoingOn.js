@@ -264,22 +264,24 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
     },
 
     createLink: function (textColor, value) {
-        var href;
+        var href, html;
         switch (value.type) {
             case 'issue':
                 href = this.router.getRoute('workspace/issues/view').buildUrl({issueId: value.id});
+                html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 break;
             case 'servicecall':
                 href = this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id});
+                html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.reference + ' (' + value.description + ')';
                 break;
             case 'alarm':
                 href = "#alarm";
                 break;
             case 'process':
                 href = this.router.getRoute('devices/device').buildUrl({mRID: 'test'}) + '/processes?activeTab=running';
+                html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 break;
         }
-        var html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
         html += !!value.dueDate ? ' ' + Uni.I18n.translate('whatsGoingOn.due', 'UNI', '(due {0})', Uni.DateTime.formatDateShort(new Date(value.dueDate))) : '';
         html += '</a>';
         return html;
