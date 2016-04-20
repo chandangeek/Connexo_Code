@@ -41,7 +41,7 @@ public class CustomPropertySetSearchableProperty implements SearchableProperty {
 
     @Override
     public String getName() {
-        return /*this.customPropertySet.getId() + "-" + */this.propertySpec.getName();
+        return this.customPropertySet.getId() + "." + this.propertySpec.getName();
     }
 
     @Override
