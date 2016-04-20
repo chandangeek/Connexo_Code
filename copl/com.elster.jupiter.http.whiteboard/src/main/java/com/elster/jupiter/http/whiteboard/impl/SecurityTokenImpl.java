@@ -6,7 +6,12 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
-import com.nimbusds.jose.*;
+
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -22,7 +27,12 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 public class SecurityTokenImpl {
@@ -32,7 +42,13 @@ public class SecurityTokenImpl {
     private final int tokenExpiration;
     private final int maxTokenCount;
     private final int timeOut;
-    private final String USR_QUEUE_DEST = "UsrQueueDest";
+    private static final String USR_QUEUE_DEST = "UsrQueueDest";
+    private static final String TOKEN_INVALID = "Invalid token ";
+    private static final String TOKEN_EXPIRED = "Token expired for user ";
+    private static final String TOKEN_RENEWAL = "Token renewal for user ";
+    private static final String TOKEN_GENERATED = "Token generated for user ";
+    private static final String USER_NOT_FOUND = "User not found ";
+    private static final String USER_DISABLED = "User account disabled ";
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
 
@@ -79,7 +95,11 @@ public class SecurityTokenImpl {
             SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
 
             signedJWT.sign(signer);
-            logMessage("Token renewal for user ", "["+user.getName()+"]");
+            if(count > 0){
+                logMessage(TOKEN_RENEWAL, "["+user.getName()+"]");
+            }else{
+                logMessage(TOKEN_GENERATED, "["+user.getName()+"]");
+            }
             return signedJWT.serialize();
 
 
@@ -131,31 +151,39 @@ public class SecurityTokenImpl {
                 long userId = Long.valueOf(signedJWT.get().getJWTClaimsSet().getSubject());
                 user = userService.getLoggedInUser(userId);
                 if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime()))) {
+                    if(!user.isPresent()) {
+                        logMessage(USER_NOT_FOUND, "[id: " + userId + "]");
+                    }
                     return new TokenValidation(user.isPresent(), user.orElse(null), token);
                 } else if (new Date().before(new Date(signedJWT.get()
                         .getJWTClaimsSet()
                         .getExpirationTime()
                         .getTime() + timeOut * 1000))) {
                     if (userService.getUser(userId).isPresent()) {
-                        long count = (Long) signedJWT.get().getJWTClaimsSet().getCustomClaim("cnt");
-                        String newToken = createToken(userService.getLoggedInUser(userId).get(), ++count);
-                        return new TokenValidation(user.isPresent(), user.orElse(null), newToken);
+                        if(userService.getUser(userId).get().getStatus()) {
+                            long count = (Long) signedJWT.get().getJWTClaimsSet().getCustomClaim("cnt");
+                            String newToken = createToken(userService.getLoggedInUser(userId).get(), ++count);
+                            return new TokenValidation(user.isPresent(), user.orElse(null), newToken);
+                        }else {
+                            logMessage(USER_DISABLED, "[" + userService.getUser(userId).get().getName() + "]");
+                        }
                     } else {
                         if(user.isPresent()) {
-                            logMessage("Token expired for user ", "[" + user.get().getName() + "]");
+                            logMessage(USER_NOT_FOUND, "[name: " + user.get().getName() + "]");
+                        } else {
+                            logMessage(USER_NOT_FOUND, "[id: " + userId + "]");
                         }
-                        return new TokenValidation(false, null, null);
                     }
+                } else {
+                    logMessage(TOKEN_EXPIRED, "[" + user.get().getName() + "]");
                 }
             } else {
-                logMessage("Invalid token ", "");
-                return new TokenValidation(false, null, null);
+                logMessage(TOKEN_INVALID, "[" + token + "]");
             }
 
         } catch (ParseException e) {
-            e.printStackTrace();
+            logMessage(TOKEN_INVALID, "[" + token + "]");
         }
-        logMessage("Invalid token ", "");
         return new TokenValidation(false, null, null);
     }
 
@@ -179,9 +207,9 @@ public class SecurityTokenImpl {
             }
 
         } catch (ParseException e) {
-            e.printStackTrace();
+            logMessage(TOKEN_INVALID, "[" + token + "]");
         }
-
+        logMessage(TOKEN_INVALID, "[" + token + "]");
         return false;
     }
 
@@ -202,7 +230,7 @@ public class SecurityTokenImpl {
                 }
             }
         } catch (ParseException | JOSEException e) {
-            e.printStackTrace();
+            logMessage(TOKEN_INVALID, "[" + token + "]");
         }
         return Optional.empty();
     }
