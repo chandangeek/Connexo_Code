@@ -571,7 +571,7 @@ public class ServiceCallCommands {
             case "failed":
                 return DefaultState.FAILED;
         }
-        return null;
+        return DefaultState.CREATED;
     }
 
     private void transitionServiceCall(ServiceCall serviceCall, String state) {
@@ -586,6 +586,8 @@ public class ServiceCallCommands {
                 serviceCall.requestTransition(DefaultState.PENDING);
                 serviceCall.requestTransition(DefaultState.ONGOING);
                 break;
+            default:
+                return;
         }
         DefaultState defaultState = getState(state);
         if(defaultState != null) {
