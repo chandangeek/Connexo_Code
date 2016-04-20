@@ -2,10 +2,9 @@ package com.energyict.protocolimplv2.abnt.common;
 
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
+
 import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.exception.UnknownFunctionCodeParsingException;
@@ -78,7 +77,7 @@ public class RequestFactory {
             this.meterSerialNumber = response.getMeterSerialNumber().getSerialNumber().getText();
             this.defaultParameters = (ReadParametersResponse) response.getData();
         } catch (ParsingException e) {
-            throw ConnectionCommunicationException.protocolConnectFailed(e);
+            throw CommunicationException.protocolConnectFailed(e);
         }
     }
 

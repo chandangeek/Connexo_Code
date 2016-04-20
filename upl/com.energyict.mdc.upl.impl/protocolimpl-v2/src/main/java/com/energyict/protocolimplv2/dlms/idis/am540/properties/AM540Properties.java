@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
 import com.energyict.cbo.TimeDuration;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvider;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
@@ -27,14 +27,22 @@ public class AM540Properties extends IDISProperties {
     @Override
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null) {
-            securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
+            securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), DLMSConnectionException.REASON_CONTINUE_INVALID_FRAMECOUNTER);
         }
         return securityProvider;
     }
 
     @Override
-    public boolean isUsePolling() {
-        return false;   //The AM540 protocol will run embedded in the Beacon3100, so avoid polling on the inputstream
+    public boolean isBulkRequest() {
+        return true;
+    }
+
+    /**
+     * The AM540 protocol will also run embedded in the Beacon3100, so by default: avoid polling on the inputstream
+     */
+    @Override
+    public TimeDuration getPollingDelay() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.POLLING_DELAY, new TimeDuration(0));
     }
 
     @Override

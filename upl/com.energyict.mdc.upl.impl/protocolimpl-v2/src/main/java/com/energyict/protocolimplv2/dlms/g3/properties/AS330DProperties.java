@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.g3.properties;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
@@ -33,6 +34,10 @@ public class AS330DProperties extends DlmsProperties {
         this.useMirrorLogicalDevice = true;
     }
 
+    public AS330DProperties(boolean useMirrorLogicalDevice) {
+        this.useMirrorLogicalDevice = useMirrorLogicalDevice;
+    }
+
     @Override
     public byte[] getSystemIdentifier() {
         if (getSerialNumber() == null) {
@@ -45,18 +50,16 @@ public class AS330DProperties extends DlmsProperties {
         return systemTitle;
     }
 
-    public AS330DProperties(boolean useMirrorLogicalDevice) {
-        this.useMirrorLogicalDevice = useMirrorLogicalDevice;
-    }
-
-
     public long getAARQTimeout() {
         return getProperties().getTypedProperty(AARQ_TIMEOUT_PROPERTY, BigDecimal.ZERO).longValue();
     }
 
+    /**
+     * The AS330D protocol will run embedded in the Beacon3100, so avoid polling on the inputstream
+     */
     @Override
-    public boolean isUsePolling() {
-        return false;   //The AS330D protocol will run embedded in the Beacon3100, so avoid polling on the inputstream
+    public TimeDuration getPollingDelay() {
+        return new TimeDuration(0);
     }
 
     /**
@@ -68,16 +71,6 @@ public class AS330DProperties extends DlmsProperties {
 
     public int getAARQRetries() {
         return getProperties().getTypedProperty(AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2)).intValue();
-    }
-
-    @Override
-    public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
-        byte invokeIdAndPriority = (byte) (DEFAULT_INVOKE_ID_AND_PRIORITY.intValue());
-        if (getProperties().<Boolean>getTypedProperty(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID)) {
-            return new IncrementalInvokeIdAndPriorityHandler(invokeIdAndPriority);
-        } else {
-            return new NonIncrementalInvokeIdAndPriorityHandler(invokeIdAndPriority);
-        }
     }
 
     @Override

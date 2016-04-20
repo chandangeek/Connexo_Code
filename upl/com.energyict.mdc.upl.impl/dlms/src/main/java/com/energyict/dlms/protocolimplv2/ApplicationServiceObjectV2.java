@@ -5,7 +5,11 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.AuthenticationTypes;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.AssociationSN;
@@ -73,7 +77,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 if (this.acse.hlsChallengeMatch()) {
                     disconnect();
                     ConnectionException connectionException = new ConnectionException("Invalid responding authenticationValue.");
-                    throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
+                    throw CommunicationException.protocolConnectFailed(connectionException);
                 }
                 if (!DLMSMeterConfig.OLD2.equalsIgnoreCase(this.protocolLink.getMeterConfig().getExtra())) {
                     this.associationStatus = ASSOCIATION_CONNECTED;
@@ -107,7 +111,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 throw CommunicationException.unexpectedResponse(e);
             } else {
                 //Association failed, abort
-                throw ConnectionCommunicationException.protocolConnectFailed(e);
+                throw CommunicationException.protocolConnectFailed(e);
             }
         } catch (DLMSConnectionException e) {                    //Invalid frame counter
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
@@ -159,7 +163,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     disconnect();
                     ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
-                    throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
+                    throw CommunicationException.protocolConnectFailed(connectionException);
                 }
             }
 
@@ -173,7 +177,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     disconnect();
                     ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
-                    throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
+                    throw CommunicationException.protocolConnectFailed(connectionException);
                 }
             }
 
@@ -187,7 +191,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     disconnect();
                     ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
-                    throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
+                    throw CommunicationException.protocolConnectFailed(connectionException);
                 }
             }
             break;
@@ -210,7 +214,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     disconnect();
                     ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
-                    throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
+                    throw CommunicationException.protocolConnectFailed(connectionException);
                 }
             }
             break;
@@ -266,7 +270,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         if (!Arrays.equals(calculatedServerDigest, serverDigest)) {
             disconnect();
             IOException ioException = new IOException("HighLevelAuthentication failed, client and server challenges do not match.");
-            throw ConnectionCommunicationException.protocolConnectFailed(ioException);
+            throw CommunicationException.protocolConnectFailed(ioException);
         } else {
             this.associationStatus = ASSOCIATION_CONNECTED;
         }
@@ -289,7 +293,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 berEncodedData = aln.replyToHLSAuthentication(digest);
             } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
                 disconnect();
-                throw ConnectionCommunicationException.protocolConnectFailed(e);
+                throw CommunicationException.protocolConnectFailed(e);
             } catch (IOException e) {
                 throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
             }
@@ -297,7 +301,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 decryptedResponse = new OctetString(berEncodedData, 0);
             } catch (IOException e) {
                 disconnect();
-                throw ConnectionCommunicationException.protocolConnectFailed(e);
+                throw CommunicationException.protocolConnectFailed(e);
             }
         } else if ((this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_NO_CIPHERING)
                 || (this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING)) {    // reply with AssociationSN
@@ -307,7 +311,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 response = asn.replyToHLSAuthentication(digest);
             } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
                 disconnect();
-                throw ConnectionCommunicationException.protocolConnectFailed(e);
+                throw CommunicationException.protocolConnectFailed(e);
             } catch (IOException e) {
                 throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
             }
@@ -318,7 +322,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 decryptedResponse = new OctetString(response, 0);
             } catch (IOException e) {
                 disconnect();
-                throw ConnectionCommunicationException.protocolConnectFailed(e);
+                throw CommunicationException.protocolConnectFailed(e);
             }
         } else {
             throw new IllegalArgumentException("Invalid ContextId: " + this.acse.getContextId());

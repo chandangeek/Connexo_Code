@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
 import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler;
 
 /**
  * Extension of the normal NTA security provider, adding a limitation to the framecounter.
@@ -17,10 +18,9 @@ public class IDISSecurityProvider extends NTASecurityProvider {
      * Create a new instance of NTASecurityProvider
      *
      * @param properties          - contains the keys for the authentication/encryption
-     * @param authenticationLevel
      */
-    public IDISSecurityProvider(TypedProperties properties, int authenticationLevel) {
+    public IDISSecurityProvider(TypedProperties properties, int authenticationLevel, short errorHandling) {
         super(properties, authenticationLevel);
-        setRespondingFrameCounterHandling(new DSMR40RespondingFrameCounterHandler());
+        setRespondingFrameCounterHandling(new G3RespondingFrameCounterHandler(errorHandling));   //Validating that the received FC is higher than the previously received FC.
     }
 }

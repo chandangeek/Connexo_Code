@@ -6,10 +6,12 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.ClientTypeManager;
 import com.energyict.dlms.cosem.DeviceTypeManager;
 import com.energyict.dlms.cosem.ScheduleManager;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -56,6 +58,17 @@ public class MasterDataSync {
         syncSchedules(allMasterData);
         syncClientTypes(allMasterData);
         syncDeviceTypes(allMasterData);
+
+        //Now see if there were any warning while parsing the EIServer model, and add them as proper issues.
+        List<Issue> issues = new ArrayList<>();
+        for (int index = 0; index < allMasterData.getWarningKeys().size(); index++) {
+            String warningKey = allMasterData.getWarningKeys().get(index);
+            String warningArgument = allMasterData.getWarningArguments().get(index);
+            issues.add(MdcManager.getIssueFactory().createWarning(pendingMessage, warningKey, warningArgument));
+        }
+        if (!issues.isEmpty()) {
+            collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, issues);
+        }
 
         return collectedMessage;
     }

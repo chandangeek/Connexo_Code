@@ -236,6 +236,19 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent.getProtocolCode(), 0);
     }
 
+
+    @Test
+    public void testExceptionLogging() throws IOException, SQLException, BusinessException {
+        EventPushNotificationParser parser = spyParser(PLAIN_FRAME);
+
+        PushEventNotification pushEventNotification = new PushEventNotification();
+        pushEventNotification.initComChannel(parser.getComChannel());
+        pushEventNotification.initializeDiscoveryContext(context);
+        pushEventNotification.getEventPushNotificationParser().parseInboundFrame();
+        pushEventNotification.collectedLogBook = pushEventNotification.getEventPushNotificationParser().getCollectedLogBook();
+        assertEquals(pushEventNotification.getLoggingMessage(), "Received inbound event notification from [device with serial number 660-00545D-1125].  Message: 'G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network', protocol code: '194'");
+    }
+
     private EventPushNotificationParser spyParser(byte[] frame) {
         SynchroneousComChannel comChannel = new SynchroneousComChannel(new MockedInputStream(frame), mock(OutputStream.class));
         TypedProperties comChannelProperties = TypedProperties.empty();

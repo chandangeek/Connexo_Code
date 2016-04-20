@@ -114,6 +114,7 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MbusMessageExecutor
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler
+-keepnames class com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler
 -keep public class com.energyict.protocolimpl.dlms.common.NTASecurityProvider {
 	public *;
 	protected *;
@@ -313,6 +314,8 @@
 -keepnames class com.energyict.protocolimpl.sctm.fbc.FBC
 
 -keepnames class com.energyict.protocolimpl.sctm.fcl.FCL
+
+-keepnames class com.energyict.protocolimpl.migration.DummyProtocol
 
 -keepnames class com.energyict.protocolimpl.sctm.faf.FAF10
 
