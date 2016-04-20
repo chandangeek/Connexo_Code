@@ -124,6 +124,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "issue";
             goingOnInfo.id = issue.getId();
+            goingOnInfo.reference = null;
             goingOnInfo.description = issue.getReason().getName();
             goingOnInfo.dueDate = issue.getDueDate();
             goingOnInfo.severity = Optional.ofNullable(issue.getDueDate()).filter(dueDate -> clock.instant().isAfter(dueDate)).map(dueDate -> Severity.HIGH).orElse(null);
@@ -137,7 +138,8 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "servicecall";
             goingOnInfo.id = serviceCall.getId();
-            goingOnInfo.description = null;
+            goingOnInfo.reference = serviceCall.getNumber();
+            goingOnInfo.description = serviceCall.getType().getName();
             goingOnInfo.dueDate = null;
             goingOnInfo.severity = null;
             goingOnInfo.assignee = null;
@@ -153,6 +155,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "process";
             goingOnInfo.id = userTaskInfo.map(info -> Long.parseLong(info.id)).orElse(0L);
+            goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
             goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).filter(not(String::isEmpty)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);
             goingOnInfo.severity = null;
