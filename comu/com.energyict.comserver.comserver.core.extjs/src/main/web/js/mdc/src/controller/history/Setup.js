@@ -1681,7 +1681,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore
                         },
                         timeofuse: {
-                            title: Uni.I18n.translate('general.timeOfUseCalendars', 'MDC', 'Time of  use calendars'),
+                            title: Uni.I18n.translate('general.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
                             route: 'timeofuse',
                             controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
                             action: 'showTimeOfUseOverview',
