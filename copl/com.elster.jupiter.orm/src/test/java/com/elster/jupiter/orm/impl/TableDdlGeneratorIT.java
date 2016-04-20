@@ -31,6 +31,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
+import javax.validation.constraints.Size;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -72,6 +73,14 @@ public class TableDdlGeneratorIT {
 
     public static class Movie3 {
         private long id;
+        private String title;
+        private String director;
+        private List<Actor1> actors = new ArrayList<>();
+    }
+
+    public static class Movie4 {
+        private long id;
+        @Size(max = 150)
         private String title;
         private String director;
         private List<Actor1> actors = new ArrayList<>();
@@ -460,6 +469,23 @@ public class TableDdlGeneratorIT {
     }
 
     @Test
+    public void testInstall14thVersionFromScratch() throws SQLException {
+        DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
+
+        the14thVersionsCode(dataModel);
+        dataModel.register();
+
+        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+
+        try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
+            try (ResultSet resultSet = connection.getMetaData().getColumns(null, null, "TST_MOVIE", "TITLE")) {
+                assertThat(resultSet.next());
+                assertThat(resultSet.getInt("COLUMN_SIZE")).isEqualTo(150);
+            }
+        }
+    }
+
+    @Test
     public void testInstall6thVersionFromScratch() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
 
@@ -842,6 +868,32 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.findColumn("LEAD")).isEqualTo(3);
                 assertThat(resultSet.findColumn("MOVIE")).isEqualTo(4);
                 assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(4);
+            }
+        }
+    }
+
+    @Test
+    public void testUpgradeTo14thVersion() throws SQLException {
+        DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
+
+        the14thVersionsCode(dataModel);
+        dataModel.register();
+
+        ormService.getDataModelUpgrader().upgrade(dataModel, version(13, 0));
+
+        try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
+            try (ResultSet resultSet = connection.getMetaData().getColumns(null, null, "TST_MOVIE", "TITLE")) {
+                assertThat(resultSet.next());
+                assertThat(resultSet.getInt("COLUMN_SIZE")).isEqualTo(80);
+            }
+        }
+
+        ormService.getDataModelUpgrader().upgrade(dataModel, version(14, 0));
+
+        try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
+            try (ResultSet resultSet = connection.getMetaData().getColumns(null, null, "TST_MOVIE", "TITLE")) {
+                assertThat(resultSet.next());
+                assertThat(resultSet.getInt("COLUMN_SIZE")).isEqualTo(150);
             }
         }
     }
@@ -1448,6 +1500,75 @@ public class TableDdlGeneratorIT {
             actorTable.foreignKey("TST_FK_ACTS_IN_MOVIE")
                     .on(movieColumn)
                     .references(Movie3.class)
+                    .map("movie")
+                    .during(Range.closedOpen(version(5, 0), version(10, 0)))
+                    .previously(actorInMovie)
+                    .add();
+            actorTable.primaryKey("TST_ACTOR_PK").on(idColumn).add();
+        }
+    }
+
+    // change column width through annotation
+    private void the14thVersionsCode(DataModel dataModel) {
+        {
+            Table<Movie4> movieTable = dataModel.addTable("TST_MOVIE", Movie4.class);
+            movieTable.map(Movie4.class);
+            Column idColumn = movieTable.addAutoIdColumn();
+            Column titleColumn1 = movieTable.column("TITLE").map("title").varChar(80).upTo(version(14, 0)).add();
+            Column titleColumn2 = movieTable.column("TITLE").map("title").varChar().since(version(14, 0)).previously(titleColumn1).add();
+            Column directorColumn1 = movieTable.column("DIRECTOR")
+                    .map("director")
+                    .varChar(80)
+                    .during(Range.closedOpen(version(2, 0), version(4, 0)))
+                    .add();
+            Column directorColumn2 = movieTable.column("MAIN_DIRECTOR")
+                    .map("director")
+                    .varChar(80)
+                    .during(Range.closedOpen(version(4, 0), version(12, 0)))
+                    .previously(directorColumn1)
+                    .add();
+            movieTable.column("MAIN_DIRECTOR")
+                    .map("director")
+                    .varChar(80)
+                    .notNull()
+                    .since(version(12, 0))
+                    .installValue("'<unknown>'")
+                    .previously(directorColumn2)
+                    .add();
+            PrimaryKeyConstraint primaryKey1 = movieTable.primaryKey("TST_MOVIE_PK")
+                    .on(idColumn)
+                    .upTo(version(6, 0))
+                    .add();
+            UniqueConstraint uniqueTitle = movieTable.unique("TST_U_MOVIETITLE")
+                    .on(titleColumn2)
+                    .during(Range.closedOpen(version(7, 0), version(8, 0)))
+                    .add();
+            movieTable.unique("TST_U_TITLE")
+                    .on(titleColumn2)
+                    .during(Range.closedOpen(version(8, 0), version(9, 0)))
+                    .previously(uniqueTitle)
+                    .add();
+            movieTable.primaryKey("TST_MOVIE_PK_1").on(idColumn).since(version(6, 0)).previously(primaryKey1).add();
+        }
+        {
+            Table<Actor3> actorTable = dataModel.addTable("TST_ROLE", Actor3.class);
+            actorTable.map(Actor3.class);
+            actorTable.since(version(3, 0));
+            actorTable.previouslyNamed(Range.lessThan(version(13, 0)), "TST_ACTOR");
+            Column idColumn = actorTable.addAutoIdColumn();
+            actorTable.column("NAME").map("name").notNull().varChar(80).add();
+            actorTable.column("MOVIE").number().notNull().upTo(version(10, 0)).add();
+            actorTable.column("LEAD").bool().installValue("'N'").map("lead").since(version(11, 0)).add();
+            Column movieColumn = actorTable.column("MOVIE").number().notNull().map("movie").since(version(10, 0)).add();
+            ForeignKeyConstraint actorInMovie = actorTable.foreignKey("TST_FK_ACTOR_IN_MOVIE")
+                    .on(movieColumn)
+                    .references(Movie4.class)
+                    .map("movie")
+                    .upTo(version(5, 0))
+                    .add();
+            actorTable.foreignKey("TST_FK_ACTS_IN_MOVIE")
+                    .on(movieColumn)
+                    .references(Movie4.class)
                     .map("movie")
                     .during(Range.closedOpen(version(5, 0), version(10, 0)))
                     .previously(actorInMovie)
