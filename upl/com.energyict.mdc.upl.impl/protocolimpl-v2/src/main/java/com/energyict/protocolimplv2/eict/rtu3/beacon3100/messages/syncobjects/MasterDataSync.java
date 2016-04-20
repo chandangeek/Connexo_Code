@@ -23,7 +23,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -32,6 +34,11 @@ import java.util.List;
  * @since 19/08/2015 - 17:13
  */
 public class MasterDataSync {
+
+    private static final int ACTION_UNKNOWN = 0;
+    private static final int ACTION_ADD = 1;
+    private static final int ACTION_UPDATE = 2;
+    private static final int ACTION_DELETE = 3;
 
     private final Beacon3100Messaging beacon3100Messaging;
 
@@ -144,19 +151,23 @@ public class MasterDataSync {
 
     private void syncDeviceTypes(AllMasterData allMasterData) throws IOException {
         final DeviceTypeManager deviceTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
-        final Array deviceTypesArray = deviceTypeManager.readDeviceTypes();
+        final Array existingBeaconDeviceTypesArray = deviceTypeManager.readDeviceTypes();
 
-        List<Long> deviceTypeIds = new ArrayList<>();
-        for (AbstractDataType deviceType : deviceTypesArray) {
-            if (deviceType.isStructure() && deviceType.getStructure().nrOfDataTypes() > 0) {
-                final long deviceTypeId = deviceType.getStructure().getDataType(0).longValue(); //First element of the structure is the deviceType ID
-                deviceTypeIds.add(deviceTypeId);
+        Map<Long, AbstractDataType> existingBeaconDeviceTypes = new HashMap<>();
+        for (AbstractDataType existingDeviceType : existingBeaconDeviceTypesArray) {
+            if (existingDeviceType.isStructure() && existingDeviceType.getStructure().nrOfDataTypes() > 0) {
+                final long existingDeviceTypeId = existingDeviceType.getStructure().getDataType(0).longValue(); //First element of the structure is the deviceType ID
+                existingBeaconDeviceTypes.put(existingDeviceTypeId, existingDeviceType);
             }
         }
 
         for (Beacon3100DeviceType deviceType : allMasterData.getDeviceTypes()) {
-            if (deviceTypeIds.contains(deviceType.getId())) {
-                deviceTypeManager.updateDeviceType(deviceType.toStructure());   //TODO optimize: only update if something's different
+            if (existingBeaconDeviceTypes.containsKey(deviceType.getId())) {
+                if (deviceType.equals( existingBeaconDeviceTypes.get(deviceType.getId()))){
+                    // do nothing, the same
+                } else {
+                    deviceTypeManager.updateDeviceType(deviceType.toStructure());
+                }
             } else {
                 deviceTypeManager.addDeviceType(deviceType.toStructure());
             }

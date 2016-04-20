@@ -1,12 +1,10 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.*;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,6 +33,20 @@ public class Beacon3100DeviceType {
         this.protocolConfiguration = protocolConfiguration;
         this.schedulables = schedulables;
         this.clockSyncConfiguration = clockSyncConfiguration;
+    }
+
+    public boolean equals(AbstractDataType obj){
+
+        try {
+            Structure structure = obj.getStructure();
+            byte[] otherByteArray = structure.getContentByteArray();
+            byte[] thisByteArray = toStructure().getContentByteArray();
+
+            return Arrays.equals(thisByteArray, otherByteArray);
+
+        }catch (Exception ex){
+            return false;
+        }
     }
 
     //JSon constructor
