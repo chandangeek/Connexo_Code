@@ -39,6 +39,19 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         assertThat(jsonModel.<Integer>get("id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("name")).isEqualTo(CALENDAR_NAME);
         assertThat(jsonModel.<String>get("description")).isEqualTo(CALENDAR_DESCRIPTION);
+        assertThat(jsonModel.<String>get("category")).isEqualTo("ToU");
+        assertThat(jsonModel.<Integer>get("events[0].id")).isEqualTo(2);
+        assertThat(jsonModel.<String>get("events[0].name")).isEqualTo(EVENT_NAME);
+        assertThat(jsonModel.<Integer>get("events[0].code")).isEqualTo(3);
+        assertThat(jsonModel.<Integer>get("dayTypes[0].id")).isEqualTo(5);
+        assertThat(jsonModel.<String>get("dayTypes[0].name")).isEqualTo(DAY_TYPE_NAME);
+        assertThat(jsonModel.<Integer>get("dayTypes[0].ranges[0].event")).isEqualTo(2);
+        assertThat(jsonModel.<Integer>get("dayTypes[0].ranges[0].fromHour")).isEqualTo(0);
+        assertThat(jsonModel.<Integer>get("dayTypes[0].ranges[0].fromMinute")).isEqualTo(0);
+        assertThat(jsonModel.<Integer>get("dayTypes[0].ranges[0].fromSecond")).isEqualTo(0);
+        assertThat(jsonModel.<String>get("periods[0].name")).isEqualTo(PERIOD_NAME);
+        assertThat(jsonModel.<Integer>get("periods[0].fromMonth")).isEqualTo(2);
+        assertThat(jsonModel.<Integer>get("periods[0].fromDay")).isEqualTo(3);
     }
 
     private void mockCalendar() {
@@ -73,7 +86,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         Period period = mock(Period.class);
         when(period.getName()).thenReturn(PERIOD_NAME);
         when(periodTransition.getPeriod()).thenReturn(period);
-        when(periodTransition.getOccurrence()).thenReturn(LocalDate.of(2016,2,2));
+        when(periodTransition.getOccurrence()).thenReturn(LocalDate.of(2016,2,3));
 
         when(calendar.getTransitions()).thenReturn(Collections.singletonList(periodTransition));
         when(calendarService.findCalendar(1)).thenReturn(Optional.of(calendar));
