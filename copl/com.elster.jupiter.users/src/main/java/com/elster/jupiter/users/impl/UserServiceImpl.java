@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -232,6 +233,9 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         String[] names = plainText.split(":");
 
         if (names.length <= 1) {
+            if(names.length == 1) {
+                logMessage(UNSUCCESSFUL_LOGIN, "[" + names[0] + "]");
+            }
             return Optional.empty();
         }
 
@@ -248,20 +252,14 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
             domain = items[0];
             userName = items[1];
         }
-
-        Map<String, String> messageProperties = new HashMap<>();
         Optional<User> user = authenticate(domain, userName, names[1]);
         if(user.isPresent() && !user.get().getPrivileges().isEmpty()){
-            messageProperties.put(SUCCESSFUL_LOGIN, "["+userName+"]");
+            logMessage(SUCCESSFUL_LOGIN, "["+userName+"]");
         }else{
-            messageProperties.put(UNSUCCESSFUL_LOGIN, "["+userName+"]");
+            if(!userName.equals("")) {
+                logMessage(UNSUCCESSFUL_LOGIN, "[" + userName + "]");
+            }
         }
-        Optional<DestinationSpec> found = messageService.getDestinationSpec(USR_QUEUE_DEST);
-        if(found.isPresent()){
-            String json = jsonService.serialize(messageProperties);
-            found.get().message(json).send();
-        }
-
         return user;
     }
 
@@ -551,10 +549,12 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Stream.of(
+        List<TranslationKey> keys = Stream.of(
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
+        keys.add(new SimpleTranslationKey(UserService.USR_QUEUE_SUBSC, UserService.USR_QUEUE_DISPLAYNAME));
+        return keys;
     }
 
     @Override
@@ -845,6 +845,16 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public void removeLoggedUser(User user) {
         this.loggedInUsers.remove(user);
+    }
+
+    private void logMessage(String message, String userName){
+        Map<String, String> messageProperties = new HashMap<>();
+        messageProperties.put(message, userName);
+        Optional<DestinationSpec> found = messageService.getDestinationSpec(USR_QUEUE_DEST);
+        if(found.isPresent()){
+            String json = jsonService.serialize(messageProperties);
+            found.get().message(json).send();
+        }
     }
 
 }
