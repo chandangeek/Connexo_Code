@@ -10,7 +10,6 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.grid.column.Action',
-        'Mdc.privileges.Monitor',
         'Mdc.view.setup.comserver.ActionMenu',
         'Mdc.store.ComServers'
     ],
@@ -44,7 +43,6 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
         {
             itemId: 'actionColumn',
             xtype: 'uni-actioncolumn',
-            privileges: Mdc.privileges.Communication.admin,
             menu: {
                 xtype: 'comserver-actionmenu',
                 itemId: 'comserverViewMenu'
