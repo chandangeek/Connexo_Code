@@ -2,6 +2,7 @@ package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
@@ -44,6 +45,7 @@ public class EventOccurrenceImpl implements EventOccurrence {
 
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<DayType> dayType = ValueReference.absent();
+    private Reference<Event> event = ValueReference.absent();
 
     private final CalendarService calendarService;
 
@@ -52,7 +54,8 @@ public class EventOccurrenceImpl implements EventOccurrence {
         this.calendarService = calendarService;
     }
 
-    public EventOccurrenceImpl init(DayType dayType, int hours, int minutes, int seconds) {
+    public EventOccurrenceImpl init(Event event, DayType dayType, int hours, int minutes, int seconds) {
+        this.event.set(event);
         this.dayType.set(dayType);
         this.hours = hours;
         this.minutes = minutes;
@@ -67,7 +70,7 @@ public class EventOccurrenceImpl implements EventOccurrence {
 
     @Override
     public Event getEvent() {
-        return null;
+        return this.event.orNull();
     }
 
     @Override

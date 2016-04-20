@@ -145,4 +145,6 @@ public interface Calendar extends HasId, HasName {
     void removeRecurrentPeriodTransitionSpec(RecurrentPeriodTransitionSpec recurrentPeriodTransitionSpec);
 
     void removeEvent(Event event);
+
+    List<DayType> getWeekTemplate(Instant time);
 }

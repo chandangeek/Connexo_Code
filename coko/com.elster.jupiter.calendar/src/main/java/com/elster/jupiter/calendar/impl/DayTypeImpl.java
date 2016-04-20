@@ -3,6 +3,7 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.DayType;
+import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.Period;
@@ -111,8 +112,8 @@ public class DayTypeImpl implements DayType {
     }
 
     @Override
-    public EventOccurrence addEventOccurrence(int hours, int minutes, int seconds) {
-        EventOccurrenceImpl eventOccurrence = calendarService.getDataModel().getInstance(EventOccurrenceImpl.class).init(this, hours, minutes, seconds);
+    public EventOccurrence addEventOccurrence(Event event, int hours, int minutes, int seconds) {
+        EventOccurrenceImpl eventOccurrence = calendarService.getDataModel().getInstance(EventOccurrenceImpl.class).init(event, this, hours, minutes, seconds);
         Save.CREATE.validate(calendarService.getDataModel(), eventOccurrence);
         this.eventOccurrences.add(eventOccurrence);
         touch();

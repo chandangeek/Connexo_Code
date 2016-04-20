@@ -356,6 +356,10 @@ public class CalendarImpl implements Calendar {
         touch();
     }
 
+    public List<DayType> getWeekTemplate(Instant time) {
+        return null;
+    }
+
 
 
     void touch() {
