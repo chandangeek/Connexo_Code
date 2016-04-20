@@ -20,6 +20,8 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -28,18 +30,12 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.elster.jupiter.util.UtilModule;
+
 import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -58,6 +54,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -68,15 +72,18 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-12 (14:04)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class CustomPropertySetServiceImplIT {
 
     private BundleContext bundleContext;
+    @Mock
+    private Clock clock;
+    @Mock
+    private TimeService timeService;
     private UserService userService;
     private DataVaultService dataVaultService;
-    private TimeService timeService;
     private User principal;
     private EventAdmin eventAdmin;
-    private Clock clock;
     private TransactionService transactionService;
     private InMemoryBootstrapModule bootstrapModule;
 
@@ -99,17 +106,17 @@ public class CustomPropertySetServiceImplIT {
                 new TransactionModule(),
                 new OrmModule(),
                 new BasicPropertiesModule(),
-                new CustomPropertySetsModule());
+                new CustomPropertySetsModule(),
+                new UtilModule(this.clock),
+                new SearchModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
         this.createTestInstance();
     }
 
     private void initializeMocks(String testName) {
-        this.clock = mock(Clock.class);
         when(this.clock.instant()).thenReturn(Instant.now());
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-        this.timeService = mock(TimeService.class);
         this.dataVaultService = mock(DataVaultService.class);
         this.userService = mock(UserService.class);
         this.principal = mock(User.class);
@@ -134,13 +141,11 @@ public class CustomPropertySetServiceImplIT {
         protected void configure() {
             bind(DataVaultService.class).toInstance(dataVaultService);
             bind(UserService.class).toInstance(userService);
-            bind(TimeService.class).toInstance(timeService);
             bind(Clock.class).toInstance(clock);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
-            bind(JsonService.class).toInstance(new JsonServiceImpl());
-            bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
+            bind(TimeService.class).toInstance(timeService);
         }
     }
 
@@ -337,6 +342,7 @@ public class CustomPropertySetServiceImplIT {
         service.setOrmService(ormService, true);
         service.setNlsService(this.injector.getInstance(NlsService.class));
         service.setTransactionService(this.transactionService);
+        service.setSearchService(mock(SearchService.class));
 
         /* Create 3 threads that will wait on CountdownLatch to start simultaneously
          *    1. activate the service
