@@ -1,6 +1,7 @@
 package com.elster.jupiter.upgrade.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -15,10 +16,12 @@ final class InstallerDriver implements Migration {
     private final TransactionService transactionService;
     private final InstallAwareMigrationResolver installAwareMigrationResolver;
     private final FullInstaller installer;
+    private final DataModelUpgrader dataModelUpgrader;
 
 
-    public InstallerDriver(DataModel dataModel, TransactionService transactionService,InstallAwareMigrationResolver resolver, FullInstaller installer) {
+    public InstallerDriver(DataModel dataModel, DataModelUpgrader dataModelUpgrader, TransactionService transactionService, InstallAwareMigrationResolver resolver, FullInstaller installer) {
         this.dataModel = dataModel;
+        this.dataModelUpgrader = dataModelUpgrader;
         this.transactionService = transactionService;
         this.installer = installer;
         this.installAwareMigrationResolver = resolver;
@@ -42,8 +45,8 @@ final class InstallerDriver implements Migration {
     @Override
     public void migrate(Connection connection) throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            installer.install();
-            installAwareMigrationResolver.installed(installer.installs());
+            installer.install(dataModelUpgrader);
+            installAwareMigrationResolver.installed();
             context.commit();
         }
     }
@@ -54,6 +57,6 @@ final class InstallerDriver implements Migration {
 
     @Override
     public String getName() {
-        return installer.getName();
+        return installer.getDescription();
     }
 }

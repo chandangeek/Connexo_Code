@@ -1,14 +1,10 @@
 package com.elster.jupiter.upgrade;
 
-import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.orm.DataModelUpgrader;
 
 public interface FullInstaller {
 
-    /**
-     * @return up to which version is installed
-     */
-    Version installs();
+    void install(DataModelUpgrader dataModelUpgrader);
 
-    void install();
-
+    String getDescription();
 }
