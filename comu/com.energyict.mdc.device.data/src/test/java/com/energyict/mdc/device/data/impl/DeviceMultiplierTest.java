@@ -5,6 +5,7 @@ import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -13,10 +14,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
@@ -28,6 +28,7 @@ import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.Range;
@@ -40,12 +41,15 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -86,6 +90,10 @@ public class DeviceMultiplierTest {
     @Mock
     private SecurityPropertyService securityPropertyService;
     @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
+    @Mock
     private Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     @Mock
     private Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
@@ -115,6 +123,17 @@ public class DeviceMultiplierTest {
     private CustomPropertySetService customPropertySetService;
     @Mock
     private DeviceConfiguration deviceConfiguration;
+    @Mock
+    private DeviceLifeCycle deviceLifeCycle;
+    @Mock
+    private FiniteStateMachine finiteStateMachine;
+    @Mock
+    private MeterBuilder meterBuilder;
+    @Mock
+    private LifecycleDates lifecycleDates;
+    @Mock
+    private DeviceType deviceType;
+
 
     private Instant now = Instant.ofEpochSecond(1448460000L); //25-11-2015
     private Instant startOfMeterActivation = Instant.ofEpochSecond(1447977600L); // 20-11-2015
@@ -153,23 +172,41 @@ public class DeviceMultiplierTest {
         when(clock.instant()).thenReturn(now);
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         when(amrSystem.findMeter(String.valueOf(ID))).thenReturn(Optional.of(meter));
+        when(amrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+
+        when(meterBuilder.setAmrId(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setMRID(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setName(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
+        when(meterBuilder.create()).thenReturn(meter);
+
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
+
+        when(meter.getLifecycleDates()).thenReturn(lifecycleDates);
+        when(meter.getConfiguration(any(Instant.class))).thenReturn(Optional.empty());
+
+        when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(finiteStateMachine.getId()).thenReturn(633L);
+
         when(meteringService.getMultiplierType(any())).thenReturn(Optional.of(multiplierType));
         when(meterActivation.getMultiplier(multiplierType)).thenReturn(Optional.empty());
         when(meterActivation.getRange()).thenReturn(Range.atLeast(startOfMeterActivation));
         when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
     }
 
     private Device createMockedDevice() {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider,
                 firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService);
-        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", "Mrid");
+        device.save();
         return device;
-    }
-
-    private void setId(Object entity, long id) {
-        field("id").ofType(Long.TYPE).in(entity).set(id);
     }
 
     @Test
@@ -199,6 +236,7 @@ public class DeviceMultiplierTest {
         Device mockedDevice = createMockedDevice();
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
+
         Instant from = Instant.ofEpochSecond(1448466879L);
         MeterActivation newMeterActivation = mock(MeterActivation.class);
         when(meter.activate(from)).thenReturn(newMeterActivation);

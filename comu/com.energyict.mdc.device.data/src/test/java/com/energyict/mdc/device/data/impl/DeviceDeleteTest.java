@@ -5,14 +5,17 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -25,7 +28,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
@@ -42,6 +45,8 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Provider;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
@@ -111,6 +116,10 @@ public class DeviceDeleteTest {
     @Mock
     private MdcReadingTypeUtilService readingTypeUtilService;
     @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
+    @Mock
     private Query<OpenIssue> openIssueQuery;
     @Mock
     private Query<HistoricalIssue> historicalIssueQuery;
@@ -150,26 +159,56 @@ public class DeviceDeleteTest {
     private DeviceType deviceType;
     @Mock
     private DeviceConfiguration deviceConfiguration;
+    @Mock
+    private DeviceLifeCycle deviceLifeCycle;
+    @Mock
+    private FiniteStateMachine finiteStateMachine;
+    @Mock
+    private MeterBuilder meterBuilder;
+    @Mock
+    private LifecycleDates lifecycleDates;
+    @Mock
+    private MeterActivation meterActivation;
 
 
     @Before
     public void setup() {
         when(dataModel.mapper(DeviceImpl.class)).thenReturn(dataMapper);
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
-        when(amrSystem.findMeter(anyString())).thenReturn(Optional.<Meter>empty());
+        when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
+        when(amrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+
+        when(meterBuilder.setAmrId(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setMRID(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setName(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
+        when(meterBuilder.create()).thenReturn(meter);
+
+        when(meter.getLifecycleDates()).thenReturn(lifecycleDates);
+        when(meter.getConfiguration(any(Instant.class))).thenReturn(Optional.empty());
+
+        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
+
         when(issueService.query(OpenIssue.class)).thenReturn(openIssueQuery);
         when(openIssueQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
         when(issueService.query(HistoricalIssue.class)).thenReturn(historicalIssueQuery);
         when(historicalIssueQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
         when(issueService.findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.<IssueStatus>empty());
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(finiteStateMachine.getId()).thenReturn(633L);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
     }
 
     @Test
     public void deleteDeviceTest() {
-        Meter meter = mock(Meter.class);
-        when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
-        when(this.amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
+//        Meter meter = mock(Meter.class);
+//        when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
+//        when(this.amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
         DeviceImpl device = getNewDeviceWithMockedServices();
         device.delete();
 
@@ -219,6 +258,7 @@ public class DeviceDeleteTest {
         when(clock.instant()).thenReturn(now);
         setupWithActiveMeterActivation();
         DeviceImpl device = getNewDeviceWithMockedServices();
+
         device.delete();
 
         verify(currentActiveMeterActivation).endAt(now);
@@ -282,6 +322,7 @@ public class DeviceDeleteTest {
                 connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider,
                 meteringGroupsService, customPropertySetService, readingTypeUtilService);
         device.initialize(this.deviceConfiguration, "For testing purposes", "mRID");
+        device.save();
         return device;
     }
 

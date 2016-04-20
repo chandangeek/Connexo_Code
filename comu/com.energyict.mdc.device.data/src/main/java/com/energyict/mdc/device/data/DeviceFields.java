@@ -18,7 +18,8 @@ public enum DeviceFields implements ImplField {
     COM_TASK_EXECUTIONS("comTaskExecutions"),
     DEVICEGROUP("deviceGroup"),
     CERT_YEAR("certYear"),
-    BATCH("batch")
+    BATCH("batch"),
+    METER("meter")
     ;
 
     private final String javaFieldName;

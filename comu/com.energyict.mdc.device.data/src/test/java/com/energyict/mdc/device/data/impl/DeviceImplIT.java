@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -81,6 +82,7 @@ import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -134,9 +136,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithName(String name, String mRID){
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID);
-        device.save();
-        return device;
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID);
     }
 
     private Device createSimpleDeviceWithName(String name) {
@@ -180,6 +180,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Device device = createSimpleDevice();
 
         assertThat(device).isNotNull();
+        assertThat(device.getId()).isGreaterThan(0L);
         assertThat(device.getName()).isEqualTo(DEVICENAME);
         assertThat(device.getSerialNumber()).isNullOrEmpty();
     }
@@ -188,7 +189,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void noMeterActivationAfterInitialCreation() {
         Device device = createSimpleDevice();
-
         assertThat(device.getCurrentMeterActivation()).isEmpty();
     }
 
@@ -249,8 +249,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         assertThat(reloadedDevice.getmRID()).isEqualTo("newMRID");
 
-        Optional<Meter> koreMeter = reloadedDevice.findKoreMeter(inMemoryPersistence.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get());
-        assertThat(koreMeter).isPresent();
+        Reference<Meter> koreMeter = reloadedDevice.getMeter();
+        assertThat(koreMeter.isPresent()).isTrue();
         assertThat(koreMeter.get().getMRID()).isEqualTo("newMRID");
     }
 
