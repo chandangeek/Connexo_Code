@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimaran.core;
 
-import com.energyict.protocolimpl.utils.LittleEndianOutputStream;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.util.Equality;
@@ -24,7 +23,8 @@ import java.util.*;
  * @author Koen
  */
 public class DemandData extends AbstractTable {
-
+    
+    private final int DEBUG=0;
     
     private byte[] data;
     private List demandValuesList;
@@ -128,7 +128,7 @@ public class DemandData extends AbstractTable {
                 
                 if (state < 2) {
                     if (temp == 0xFFFF) {
-                       logger.finest("KV_DEBUG> 1) END OF RECENT DATA *****************************");
+                       if (DEBUG>=2) System.out.println("KV_DEBUG> 1) END OF RECENT DATA *****************************");
                        state++;
 
                     }
@@ -137,7 +137,7 @@ public class DemandData extends AbstractTable {
                 else if (state >= 2) { 
 
                     if (temp == 0xFFFF) {
-                       logger.finest("KV_DEBUG> 2) END OF RECENT DATA *****************************");
+                       if (DEBUG>=2) System.out.println("KV_DEBUG> 2) END OF RECENT DATA *****************************");
                        state++;
                        if (state < 4) continue;
                        else break;
@@ -147,12 +147,12 @@ public class DemandData extends AbstractTable {
                     
                     // parser
                     if ((temp&0x8000)==0) {
-                        logger.finest("value = "+temp); // value without powerfail
+                        if (DEBUG>=2) System.out.println("value = "+temp); // value without powerfail
                         addValue(demandValues,new Interval(temp));
                     } else {
                         if ((temp&0x4000)==0) {
                             int val = ((temp&0x3FFF)*2);
-                            logger.finest("value = "+val+" (powerfail)"); // value with powerfail
+                            if (DEBUG>=2) System.out.println("value = "+val+" (powerfail)"); // value with powerfail
                             if (val != 0)
                                 addValue(demandValues,new Interval(((temp&0x3FFF)*2), IntervalStateBits.POWERDOWN|IntervalStateBits.POWERUP));
                             else
@@ -160,7 +160,7 @@ public class DemandData extends AbstractTable {
 
                         } else {
                             Calendar cal = parseCalendar(temp&0x3FFF,getTimeZone(),retrieveCalendar);
-                            logger.finest("date = "+cal.getTime());
+                            if (DEBUG>=2) System.out.println("date = "+cal.getTime());
                             int tariff = (temp & 0x3000)>>12;
                             demandValues = createDemandValues(cal,tariff);
                         }

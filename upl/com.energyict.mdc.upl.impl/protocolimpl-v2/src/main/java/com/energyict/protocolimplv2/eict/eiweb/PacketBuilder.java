@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-
+import com.energyict.cbo.LittleEndianInputStream;
+import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -8,8 +9,6 @@ import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
-import com.energyict.protocolimpl.utils.LittleEndianInputStream;
-import com.energyict.protocolimpl.utils.LittleEndianOutputStream;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
