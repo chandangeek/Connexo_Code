@@ -2,6 +2,7 @@ package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.MessageSeeds;
@@ -24,7 +25,8 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
         CALENDAR("calendar"),
         DAY("day"),
         MONTH("month"),
-        YEAR("year");
+        YEAR("year"),
+        DAYTYPE("daytype");
 
         private final String javaFieldName;
 
@@ -44,6 +46,8 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
     private Reference<Calendar> calendar = ValueReference.absent();
     private int day;
     private int month;
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Reference<DayType> dayType = ValueReference.absent();
 
     private final CalendarService calendarService;
 
@@ -52,8 +56,9 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
         this.calendarService = calendarService;
     }
 
-    public ExceptionalOccurrenceImpl init(Calendar calendar, int day, int month) {
+    public ExceptionalOccurrenceImpl init(Calendar calendar, DayType dayType, int day, int month) {
         this.calendar.set(calendar);
+        this.dayType.set(dayType);
         this.day = day;
         this.month = month;
         return this;

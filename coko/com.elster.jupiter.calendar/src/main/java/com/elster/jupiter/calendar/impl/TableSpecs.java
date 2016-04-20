@@ -48,7 +48,6 @@ public enum TableSpecs {
                     .references(Category.class)
                     .on(categoryColumn)
                     .map(CalendarImpl.Fields.CATEGORY.fieldName())
-                    .composition()
                     .add();
         }
     },
@@ -150,6 +149,8 @@ public enum TableSpecs {
             table.column("MONTH").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.MONTH.fieldName()).add();
             table.column("YEAR").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.YEAR.fieldName()).add();
 
+            Column dayTypeColumn = table.column(ExceptionalOccurrenceImpl.Fields.DAYTYPE.fieldName()).number().notNull().add();
+
             table.primaryKey("CAL_PK_EXC_OCC").on(idColumn).add();
             table.foreignKey("CAL_EXC_OCC_TO_CALENDAR")
                     .references(Calendar.class)
@@ -158,6 +159,10 @@ public enum TableSpecs {
                     .map(ExceptionalOccurrenceImpl.Fields.CALENDAR.fieldName())
                     .reverseMap(CalendarImpl.Fields.EXCEPTIONAL_OCCURRENCES.fieldName())
                     .composition()
+                    .add();
+            table.foreignKey("CAL_EXC_OCC_TO_DAYTYPE")
+                    .references(DayType.class)
+                    .map(ExceptionalOccurrenceImpl.Fields.DAYTYPE.fieldName())
                     .add();
         }
     },

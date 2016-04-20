@@ -128,11 +128,11 @@ public interface Calendar extends HasId, HasName {
 
     void removePeriod(Period period);
 
-    FixedExceptionalOccurrence addFixedExceptionalOccurrence(int day, int month, int year);
+    FixedExceptionalOccurrence addFixedExceptionalOccurrence(DayType dayType, int day, int month, int year);
 
     void removeFixedExceptionalOccurrence(FixedExceptionalOccurrence fixedExceptionalOccurrence);
 
-    RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(int day, int month);
+    RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(DayType dayType, int day, int month);
 
     void removeRecurrentExceptionalOccurrence(RecurrentExceptionalOccurrence recurrentExceptionalOccurrence);
 

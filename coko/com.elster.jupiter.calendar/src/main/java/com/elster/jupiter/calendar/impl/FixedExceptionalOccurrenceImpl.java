@@ -2,6 +2,7 @@ package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 
 import javax.inject.Inject;
@@ -28,9 +29,9 @@ public class FixedExceptionalOccurrenceImpl extends ExceptionalOccurrenceImpl im
     }
 
 
-    public FixedExceptionalOccurrenceImpl init(Calendar calendar, int day, int month, int year) {
+    public FixedExceptionalOccurrenceImpl init(Calendar calendar, DayType dayType, int day, int month, int year) {
         FixedExceptionalOccurrenceImpl fixedExceptionalOccurrenceImpl =
-                (FixedExceptionalOccurrenceImpl) super.init(calendar, day, month);
+                (FixedExceptionalOccurrenceImpl) super.init(calendar, dayType, day, month);
         fixedExceptionalOccurrenceImpl.year = year;
         return fixedExceptionalOccurrenceImpl;
     }

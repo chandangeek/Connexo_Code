@@ -254,9 +254,9 @@ public class CalendarImpl implements Calendar {
     }
 
     @Override
-    public FixedExceptionalOccurrence addFixedExceptionalOccurrence(int day, int month, int year) {
+    public FixedExceptionalOccurrence addFixedExceptionalOccurrence(DayType dayType, int day, int month, int year) {
         FixedExceptionalOccurrenceImpl fixedExceptionalOccurrence =
-                calendarService.getDataModel().getInstance(FixedExceptionalOccurrenceImpl.class).init(this, day, month, year);
+                calendarService.getDataModel().getInstance(FixedExceptionalOccurrenceImpl.class).init(this, dayType, day, month, year);
         Save.CREATE.validate(calendarService.getDataModel(), fixedExceptionalOccurrence);
         this.exceptionalOccurrences.add(fixedExceptionalOccurrence);
         touch();
@@ -272,9 +272,9 @@ public class CalendarImpl implements Calendar {
     }
 
     @Override
-    public RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(int day, int month) {
+    public RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(DayType dayType, int day, int month) {
         RecurrentExceptionalOccurrenceImpl recurrentExceptionalOccurrence =
-                calendarService.getDataModel().getInstance(RecurrentExceptionalOccurrenceImpl.class).init(this, day, month);
+                calendarService.getDataModel().getInstance(RecurrentExceptionalOccurrenceImpl.class).init(this, dayType, day, month);
         Save.CREATE.validate(calendarService.getDataModel(), recurrentExceptionalOccurrence);
         this.exceptionalOccurrences.add(recurrentExceptionalOccurrence);
         touch();

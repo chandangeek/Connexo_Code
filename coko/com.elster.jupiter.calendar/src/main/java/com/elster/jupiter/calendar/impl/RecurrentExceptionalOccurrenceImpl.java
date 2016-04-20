@@ -2,6 +2,7 @@ package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 
 import javax.inject.Inject;
@@ -11,8 +12,8 @@ public class RecurrentExceptionalOccurrenceImpl extends ExceptionalOccurrenceImp
 
     static final String TYPE_IDENTIFIER = "REC";
 
-    public RecurrentExceptionalOccurrenceImpl init(Calendar calendar, int day, int month) {
-        return (RecurrentExceptionalOccurrenceImpl) super.init(calendar, day, month);
+    public RecurrentExceptionalOccurrenceImpl init(Calendar calendar, DayType dayType, int day, int month) {
+        return (RecurrentExceptionalOccurrenceImpl) super.init(calendar, dayType, day, month);
     }
 
     @Inject
