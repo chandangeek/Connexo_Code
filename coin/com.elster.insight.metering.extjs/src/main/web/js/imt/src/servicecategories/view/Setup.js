@@ -4,7 +4,8 @@ Ext.define('Imt.servicecategories.view.Setup', {
     requires: [
         'Imt.servicecategories.view.ServiceCategoriesGrid',
         'Imt.servicecategories.view.CASpanel',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Imt.servicecategories.view.ServiceCategoryDetailForm'
     ],
 
     initComponent: function () {
@@ -31,10 +32,22 @@ Ext.define('Imt.servicecategories.view.Setup', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'service-categories-cas-panel',
-                        itemId: 'service-categories-cas-panel',
-                        ui: 'medium',
-                        padding: 0
+                        xtype: 'container',
+                        items: [
+                            {
+                                xtype: 'service-category-detail-form',
+                                itemId: 'service-category-preview',
+                                frame: true,
+                                title: ' '
+                            },
+                            {
+                                xtype: 'service-categories-cas-panel',
+                                itemId: 'service-categories-cas-panel',
+                                title: Uni.I18n.translate('metrologyconfiguration.label.CAS', 'IMT', 'Custom attribute sets'),
+                                ui: 'medium',
+                                padding: 0
+                            }
+                        ]
                     }
                 }
             }
