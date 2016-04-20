@@ -21,6 +21,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -40,38 +41,31 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 public class UserPreferencesServiceTest {
-    
+
+    @Rule
+    public TestRule expectedErrorRule = new ExpectedConstraintViolationRule();
     private Injector injector;
     private UserPreferencesService userPrefsService;
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-    @Rule
-    public TestRule expectedErrorRule = new ExpectedConstraintViolationRule();
-    
-    private static class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-           bind(BundleContext.class).toInstance(mock(BundleContext.class));  
-           bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-        }
-    }
-    
     @Before
     public void setUp() throws Exception {
         injector = Guice.createInjector(
-                    new MockModule(),
-                    inMemoryBootstrapModule,  
-                    new UserModule(),
-                    new DomainUtilModule(), 
-                    new OrmModule(),
-                    new UtilModule(), 
-                    new ThreadSecurityModule(), 
-                    new PubSubModule(), 
-                    new TransactionModule(true),
-                    new NlsModule(),
-                    new DataVaultModule());
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-            userPrefsService = injector.getInstance(UserService.class).getUserPreferencesService(); 
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new UserModule(),
+                //new EventsModule(),
+                new InMemoryMessagingModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(true),
+                new NlsModule(),
+                new DataVaultModule());
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            userPrefsService = injector.getInstance(UserService.class).getUserPreferencesService();
             ctx.commit();
         }
     }
@@ -80,7 +74,7 @@ public class UserPreferencesServiceTest {
     public void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();
     }
-    
+
     @Test
     public void testGetInstalledPreferences_CheckLocales() {
         assertThat(userPrefsService.getSupportedLocales()).containsExactly(Locale.ENGLISH, Locale.US);
@@ -90,7 +84,7 @@ public class UserPreferencesServiceTest {
     public void testGetInstalledPreferences_CheckPreferences() {
         User user = mock(User.class);
         when(user.getLocale()).thenReturn(Optional.of(Locale.US));
-        
+
         assertThat(userPrefsService.getPreferences(user)).hasSize(FormatKey.values().length);
     }
     
@@ -104,9 +98,9 @@ public class UserPreferencesServiceTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         Optional<UserPreference> preference = userPrefsService.getPreferenceByKey(user, FormatKey.LONG_DATE);
-        
+
         assertThat(preference.isPresent()).isTrue();
         assertThat(preference.get().getLocale()).isEqualTo(Locale.ENGLISH);
         assertThat(preference.get().getKey()).isEqualTo(FormatKey.LONG_DATE);
@@ -123,11 +117,11 @@ public class UserPreferencesServiceTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         User user = mock(User.class);
         when(user.getLocale()).thenReturn(Optional.of(Locale.FRANCE));
         Optional<UserPreference> preference = userPrefsService.getPreferenceByKey(user, FormatKey.LONG_DATE);
-        
+
         assertThat(preference.isPresent()).isTrue();
         assertThat(preference.get().getLocale()).isEqualTo(Locale.FRANCE);
         assertThat(preference.get().getKey()).isEqualTo(FormatKey.LONG_DATE);
@@ -135,13 +129,13 @@ public class UserPreferencesServiceTest {
         assertThat(preference.get().getFormatFE()).isEqualTo("fr_fe");
         assertThat(preference.get().isDefault()).isTrue();
     }
-
+    
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "locale", strict = false)
     public void testCreateUserPreferencesWithoutLocale() {
         userPrefsService.createUserPreference(null, FormatKey.DECIMAL_PRECISION, "fr_be", "fr_fe", true);
     }
-    
+
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "key", strict = false)
     public void testCreateUserPreferencesWithoutKey() {
@@ -176,5 +170,13 @@ public class UserPreferencesServiceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED + "}", strict = false)
     public void testCreateUserPreferenceButDefaultAlreadyInstalled() {
         userPrefsService.createUserPreference(Locale.US, FormatKey.CURRENCY, "be", "fe", true);
+    }
+
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+        }
     }
 }

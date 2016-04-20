@@ -4,6 +4,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -41,30 +42,18 @@ import static org.mockito.Mockito.mock;
 @RunWith(MockitoJUnitRunner.class)
 public class UserDirectoryIT extends EqualsContractTest {
 
+    private static final long ID = 0;
+    private static final long OTHER_ID = 1;
+    private static final String TEST_DOMAIN = "ACD";
     private Injector injector;
     private UserDirectory userDir;
-
     @Mock
     private BundleContext bundleContext;
     @Mock
     private EventAdmin eventAdmin;
     @Mock
     private DataModel dataModel;
-
-
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    private static final long ID = 0;
-    private static final long OTHER_ID = 1;
-    private static final String TEST_DOMAIN = "ACD";
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-        }
-    }
 
     @Before
     public void setUp() throws SQLException {
@@ -72,6 +61,7 @@ public class UserDirectoryIT extends EqualsContractTest {
             injector = Guice.createInjector(
                     new MockModule(),
                     inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
                     new DomainUtilModule(),
                     new OrmModule(),
                     new UtilModule(),
@@ -98,14 +88,9 @@ public class UserDirectoryIT extends EqualsContractTest {
         inMemoryBootstrapModule.deactivate();
     }
 
-    private void setId(Object entity, long id) {
-
-        field("id").ofType(Long.TYPE).in(entity).set(id);
-    }
-
     @Override
     protected Object getInstanceA() {
-        if(userDir==null) {
+        if (userDir == null) {
             userDir = new ActiveDirectoryImpl(dataModel, mock(UserService.class)).init(TEST_DOMAIN);
             setId(userDir, ID);
         }
@@ -134,6 +119,11 @@ public class UserDirectoryIT extends EqualsContractTest {
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
         return null;
+    }
+
+    private void setId(Object entity, long id) {
+
+        field("id").ofType(Long.TYPE).in(entity).set(id);
     }
 
     @Test
@@ -180,8 +170,8 @@ public class UserDirectoryIT extends EqualsContractTest {
         assertThat(userDirectory).isInstanceOf(ActiveDirectoryImpl.class);
         assertThat(userDirectory.isDefault()).isTrue();
         assertThat(userDirectory.getDomain()).isEqualTo("MyDomain");
-        assertThat(((LdapUserDirectory)userDirectory).getDirectoryUser()).isEqualTo("MyUser");
-        assertThat(((LdapUserDirectory)userDirectory).getUrl()).isEqualTo("MyUrl");
+        assertThat(((LdapUserDirectory) userDirectory).getDirectoryUser()).isEqualTo("MyUser");
+        assertThat(((LdapUserDirectory) userDirectory).getUrl()).isEqualTo("MyUrl");
     }
 
     @Test
@@ -228,8 +218,8 @@ public class UserDirectoryIT extends EqualsContractTest {
             activeDirectory.setBackupUrl("ldap://localhost:12389");
             activeDirectory.setSecurity("NONE");
             activeDirectory.update();
-            Optional<User> user = activeDirectory.authenticate("iancud","xxxxxx");
-            Optional<User> user1 = activeDirectory.authenticate("iancud","xxxxxx");
+            Optional<User> user = activeDirectory.authenticate("iancud", "xxxxxx");
+            Optional<User> user1 = activeDirectory.authenticate("iancud", "xxxxxx");
             List<Group> groups = activeDirectory.getGroups(user1.get());
             List<Group> groups1 = activeDirectory.getGroups(user1.get());
             context.commit();
@@ -243,10 +233,9 @@ public class UserDirectoryIT extends EqualsContractTest {
         assertThat(userDirectory).isInstanceOf(ActiveDirectoryImpl.class);
         assertThat(userDirectory.isDefault()).isTrue();
         assertThat(userDirectory.getDomain()).isEqualTo("LDAP Active Directory");
-        assertThat(((LdapUserDirectory)userDirectory).getDirectoryUser()).isEqualTo("iancud@rimroe.elster-group.com");
-        assertThat(((LdapUserDirectory)userDirectory).getUrl()).isEqualTo("ldap://10.29.131.222:389");
+        assertThat(((LdapUserDirectory) userDirectory).getDirectoryUser()).isEqualTo("iancud@rimroe.elster-group.com");
+        assertThat(((LdapUserDirectory) userDirectory).getUrl()).isEqualTo("ldap://10.29.131.222:389");
     }
-
 
     @Ignore
     @Test
@@ -265,8 +254,8 @@ public class UserDirectoryIT extends EqualsContractTest {
             apacheDirectory.setBackupUrl("ldap://localhost:11389");
             apacheDirectory.setSecurity("NONE");
             apacheDirectory.update();
-            Optional<User> user = apacheDirectory.authenticate("root","tester");
-            Optional<User> user1 = apacheDirectory.authenticate("root","tester");
+            Optional<User> user = apacheDirectory.authenticate("root", "tester");
+            Optional<User> user1 = apacheDirectory.authenticate("root", "tester");
             List<Group> groups = apacheDirectory.getGroups(user1.get());
             List<Group> groups1 = apacheDirectory.getGroups(user1.get());
             context.commit();
@@ -280,10 +269,9 @@ public class UserDirectoryIT extends EqualsContractTest {
         assertThat(userDirectory).isInstanceOf(ApacheDirectoryImpl.class);
         assertThat(userDirectory.isDefault()).isTrue();
         assertThat(userDirectory.getDomain()).isEqualTo("LDAP Apache Directory");
-        assertThat(((LdapUserDirectory)userDirectory).getDirectoryUser()).isEqualTo("uid=admin,ou=system");
-        assertThat(((LdapUserDirectory)userDirectory).getUrl()).isEqualTo("ldap://localhost:10389");
+        assertThat(((LdapUserDirectory) userDirectory).getDirectoryUser()).isEqualTo("uid=admin,ou=system");
+        assertThat(((LdapUserDirectory) userDirectory).getUrl()).isEqualTo("ldap://localhost:10389");
     }
-
 
     @Test
     public void testEditApacheDirectory() {
@@ -390,7 +378,7 @@ public class UserDirectoryIT extends EqualsContractTest {
         Optional<UserDirectory> found = userService.findUserDirectory("ApacheDomain");
         assertThat(found.isPresent()).isTrue();
         assertThat(found.get().isDefault()).isTrue();
-        LdapUserDirectory apacheDirectory = (LdapUserDirectory)found.get();
+        LdapUserDirectory apacheDirectory = (LdapUserDirectory) found.get();
         found = userService.findUserDirectory("InternalDomain");
         assertThat(found.isPresent()).isTrue();
         assertThat(found.get().isDefault()).isFalse();
@@ -398,7 +386,7 @@ public class UserDirectoryIT extends EqualsContractTest {
         found = userService.findUserDirectory("ActiveDomain");
         assertThat(found.isPresent()).isTrue();
         assertThat(found.get().isDefault()).isFalse();
-        LdapUserDirectory activeDirectory =(LdapUserDirectory)found.get();
+        LdapUserDirectory activeDirectory = (LdapUserDirectory) found.get();
 
         try (TransactionContext context = transactionService.getContext()) {
             activeDirectory.setDefault(true);
@@ -454,6 +442,15 @@ public class UserDirectoryIT extends EqualsContractTest {
         List<UserDirectory> userDirectories = userService.getUserDirectories();
         assertThat(userDirectories.isEmpty()).isFalse();
         assertThat(userDirectories.size()).isEqualTo(4);
+    }
+
+    private class MockModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(EventAdmin.class).toInstance(eventAdmin);
+        }
     }
 
 
