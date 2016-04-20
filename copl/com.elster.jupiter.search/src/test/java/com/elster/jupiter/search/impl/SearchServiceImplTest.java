@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,13 +50,15 @@ public class SearchServiceImplTest {
     public void registeredDomainsWithSingleDomain() {
         SearchServiceImpl searchService = this.getTestInstance();
         SearchDomain searchDomain = mock(SearchDomain.class);
+        when(searchDomain.getId()).thenReturn("id");
         searchService.register(searchDomain);
 
         // Business method
         List<SearchDomain> domains = searchService.getDomains();
 
         // Asserts
-        assertThat(domains).containsOnly(searchDomain);
+        assertThat(domains).hasSize(1);
+        assertThat(domains.get(0).getId()).isEqualTo("id");
         verify(this.searchMonitor).searchDomainRegistered(searchDomain);
     }
 
@@ -63,7 +66,9 @@ public class SearchServiceImplTest {
     public void registeredDomainsWithMultipleDomains() {
         SearchServiceImpl searchService = this.getTestInstance();
         SearchDomain sd1 = mock(SearchDomain.class);
+        when(sd1.getId()).thenReturn("id1");
         SearchDomain sd2 = mock(SearchDomain.class);
+        when(sd2.getId()).thenReturn("id2");
         searchService.register(sd1);
         searchService.register(sd2);
 
@@ -71,7 +76,8 @@ public class SearchServiceImplTest {
         List<SearchDomain> domains = searchService.getDomains();
 
         // Asserts
-        assertThat(domains).containsOnly(sd1, sd2);
+        assertThat(domains).hasSize(2);
+        assertThat(domains.stream().map(SearchDomain::getId).collect(Collectors.toList())).containsOnly("id1", "id2");
         verify(this.searchMonitor).searchDomainRegistered(sd1);
         verify(this.searchMonitor).searchDomainRegistered(sd2);
     }
@@ -81,6 +87,7 @@ public class SearchServiceImplTest {
         SearchServiceImpl searchService = this.getTestInstance();
         SearchDomain sd1 = mock(SearchDomain.class);
         SearchDomain sd2 = mock(SearchDomain.class);
+        when(sd2.getId()).thenReturn("id2");
         searchService.register(sd1);
         searchService.register(sd2);
 
@@ -90,7 +97,8 @@ public class SearchServiceImplTest {
         List<SearchDomain> domains = searchService.getDomains();
 
         // Asserts
-        assertThat(domains).containsOnly(sd2);
+        assertThat(domains).hasSize(1);
+        assertThat(domains.get(0).getId()).isEqualTo("id2");
         verify(this.searchMonitor).searchDomainUnregistered(sd1);
     }
 
@@ -145,7 +153,8 @@ public class SearchServiceImplTest {
         Optional<SearchDomain> domain = searchService.findDomain(domainId);
 
         // Asserts
-        assertThat(domain).contains(searchDomain);
+        assertThat(domain).isPresent();
+        assertThat(domain.get().getId()).isEqualTo(domainId);
     }
 
     @Test(timeout = 2000)
@@ -221,16 +230,19 @@ public class SearchServiceImplTest {
         SearchServiceImpl searchService = this.getTestInstance();
         SearchDomain searchDomain1 = mock(SearchDomain.class);
         when(searchDomain1.targetApplications()).thenReturn(Arrays.asList("APP", "APP-2"));
+        when(searchDomain1.getId()).thenReturn("id1");
         searchService.register(searchDomain1);
         SearchDomain searchDomain2 = mock(SearchDomain.class);
         when(searchDomain2.targetApplications()).thenReturn(Arrays.asList("APP-3", "APP-4"));
+        when(searchDomain2.getId()).thenReturn("id2");
         searchService.register(searchDomain2);
 
         // Business method
         List<SearchDomain> domains = searchService.getDomains("APP");
 
         // Asserts
-        assertThat(domains).containsOnly(searchDomain1);
+        assertThat(domains).hasSize(1);
+        assertThat(domains.get(0).getId()).isEqualTo("id1");
     }
 
     @Test
@@ -238,16 +250,19 @@ public class SearchServiceImplTest {
         SearchServiceImpl searchService = this.getTestInstance();
         SearchDomain searchDomain1 = mock(SearchDomain.class);
         when(searchDomain1.targetApplications()).thenReturn(Collections.emptyList());
+        when(searchDomain1.getId()).thenReturn("id1");
         searchService.register(searchDomain1);
         SearchDomain searchDomain2 = mock(SearchDomain.class);
         when(searchDomain2.targetApplications()).thenReturn(Arrays.asList("APP-1", "APP-2"));
+        when(searchDomain2.getId()).thenReturn("id2");
         searchService.register(searchDomain2);
 
         // Business method
         List<SearchDomain> domains = searchService.getDomains("APP");
 
         // Asserts
-        assertThat(domains).containsOnly(searchDomain1);
+        assertThat(domains).hasSize(1);
+        assertThat(domains.get(0).getId()).isEqualTo("id1");
     }
 
     @Test(expected = IllegalArgumentException.class)
