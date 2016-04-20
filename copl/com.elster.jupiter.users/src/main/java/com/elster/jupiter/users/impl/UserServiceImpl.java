@@ -90,6 +90,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
     private static final String TRUSTSTORE_PASS = "com.elster.jupiter.users.truststorepass";
+    private static final String SUCCESSFUL_LOGIN = "Successful login for user ";
+    private static final String UNSUCCESSFUL_LOGIN = "Unsuccessful login attempt for user ";
 
     private static final String JUPITER_REALM = "Local";
 
@@ -249,10 +251,10 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
         Map<String, String> messageProperties = new HashMap<>();
         Optional<User> user = authenticate(domain, userName, names[1]);
-        if(user.isPresent()){
-            messageProperties.put("Successful login for user ", "["+userName+"]");
+        if(user.isPresent() && !user.get().getPrivileges().isEmpty()){
+            messageProperties.put(SUCCESSFUL_LOGIN, "["+userName+"]");
         }else{
-            messageProperties.put("Unsuccessful login attempt for user ", "["+userName+"]");
+            messageProperties.put(UNSUCCESSFUL_LOGIN, "["+userName+"]");
         }
         Optional<DestinationSpec> found = messageService.getDestinationSpec(USR_QUEUE_DEST);
         if(found.isPresent()){
