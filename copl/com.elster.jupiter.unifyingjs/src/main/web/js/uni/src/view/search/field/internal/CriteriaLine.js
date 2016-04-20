@@ -13,7 +13,9 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         'Uni.view.search.field.internal.DateRange',
         'Uni.view.search.field.internal.NumberRange',
         'Uni.view.search.field.internal.Operator',
-        'Uni.model.search.Value'
+        'Uni.model.search.Value',
+        'Uni.view.search.field.internal.QuantityField',
+        'Uni.view.search.field.internal.QuantityRange'
     ],
 
     defaults: {
