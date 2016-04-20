@@ -7,7 +7,7 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     //MESSAGES HERE
-    ;
+    NO_SUCH_TIME_OF_USE_CALENDAR(1, "NoSuchTimeOfUseCalendar", "Time of use calendar does not exist");
 
     private final int number;
     private final String key;

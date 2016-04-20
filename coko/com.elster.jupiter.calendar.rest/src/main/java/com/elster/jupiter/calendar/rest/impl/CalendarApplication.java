@@ -1,5 +1,6 @@
 package com.elster.jupiter.calendar.rest.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -32,6 +33,7 @@ public class CalendarApplication extends Application implements TranslationKeyPr
 
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
+    private volatile CalendarService calendarService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -79,6 +81,11 @@ public class CalendarApplication extends Application implements TranslationKeyPr
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -87,6 +94,7 @@ public class CalendarApplication extends Application implements TranslationKeyPr
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(CalendarInfoFactory.class).to(CalendarInfoFactory.class);
             bind(transactionService).to(TransactionService.class);
+            bind(calendarService).to(CalendarService.class);
             bind(thesaurus).to(Thesaurus.class);
         }
     }
