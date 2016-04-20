@@ -29,4 +29,7 @@ public interface DayType extends HasId, HasName {
 
     String getUserName();
 
+    EventOccurrence addEventOccurrence(int hours, int minutes, int seconds);
+
+    void removeEventOccurrence(EventOccurrence eventOccurrence);
 }

@@ -42,6 +42,7 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
     // ORM inheritance map
     public static final Map<String, Class<? extends ExceptionalOccurrence>> IMPLEMENTERS = getImplementers();
 
+    private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();
     private int day;
@@ -71,7 +72,7 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
 
     @Override
     public DayType getDayType() {
-        return null;
+        return this.dayType.orNull();
     }
 
     @Override
@@ -92,5 +93,10 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
 
     protected int getMonth() {
         return month;
+    }
+
+    @Override
+    public long getId() {
+        return id;
     }
 }

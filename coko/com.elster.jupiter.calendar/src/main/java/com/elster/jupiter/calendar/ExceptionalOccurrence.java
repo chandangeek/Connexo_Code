@@ -1,6 +1,7 @@
 package com.elster.jupiter.calendar;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.HasId;
 
 import java.time.Instant;
 
@@ -12,7 +13,7 @@ import java.time.Instant;
  * @since 2016-04-07 (14:02)
  */
 @ProviderType
-public interface ExceptionalOccurrence {
+public interface ExceptionalOccurrence extends HasId {
 
     Calendar getCalendar();
 

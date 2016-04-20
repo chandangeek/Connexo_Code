@@ -4,6 +4,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
@@ -162,6 +163,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("CAL_EXC_OCC_TO_DAYTYPE")
                     .references(DayType.class)
+                    .on(dayTypeColumn)
                     .map(ExceptionalOccurrenceImpl.Fields.DAYTYPE.fieldName())
                     .add();
         }
@@ -210,6 +212,37 @@ public enum TableSpecs {
                     .add();
         }
     },
+    CAL_EVENT_OCCURRENCE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<EventOccurrence> table = dataModel.addTable(name(), EventOccurrence.class);
+            table.map(EventOccurrenceImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+
+            table.column("HOURS").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(EventOccurrenceImpl.Fields.HOURS.fieldName()).add();
+            table.column("MINUTES").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(EventOccurrenceImpl.Fields.MINUTES.fieldName()).add();
+            table.column("SECONDS").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(EventOccurrenceImpl.Fields.SECONDS.fieldName()).add();
+
+            Column eventColumn = table.column(EventOccurrenceImpl.Fields.EVENT.fieldName()).number().notNull().add();
+            Column dayTypeColumn = table.column(EventOccurrenceImpl.Fields.DAYTYPE.fieldName()).number().notNull().add();
+
+            table.primaryKey("CAL_PK_EVT_OCC").on(idColumn).add();
+            table.foreignKey("CAL_EVT_OCC_TO_EVT")
+                    .references(Event.class)
+                    .on(eventColumn)
+                    .map(EventOccurrenceImpl.Fields.EVENT.fieldName())
+                    .add();
+
+            table.foreignKey("CAL_EVT_OCC_DAYTYPE")
+                    .references(DayType.class)
+                    .on(dayTypeColumn)
+                    .onDelete(CASCADE)
+                    .map(EventOccurrenceImpl.Fields.DAYTYPE.fieldName())
+                    .reverseMap(DayTypeImpl.Fields.EVENT_OCCURENCES.fieldName())
+                    .composition()
+                    .add();
+        }
+    }
     ;
 
     public abstract void addTo(DataModel component);
