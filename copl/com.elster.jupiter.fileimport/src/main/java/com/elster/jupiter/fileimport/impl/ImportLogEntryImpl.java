@@ -28,7 +28,7 @@ public class ImportLogEntryImpl implements ImportLogEntry {
         this.fileImportOccurrenceReference.set(occurrence);
         this.timeStamp = timeStamp;
         this.level = level.intValue();
-        this.message = message.trim().substring(0, Math.min(message.trim().length(), Table.DESCRIPTION_LENGTH));
+        this.message = (message == null) ? "Unknown error occured" : message.trim().substring(0, Math.min(message.trim().length(), Table.DESCRIPTION_LENGTH));
         return this;
     }
 
