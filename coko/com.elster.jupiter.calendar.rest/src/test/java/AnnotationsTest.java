@@ -7,12 +7,14 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import java.util.stream.Stream;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
 public class AnnotationsTest  extends CalendarApplicationTest {
     @Test
+    @Ignore
     public void testAllRestMethodsHaveRolesAllowedAnnotation() throws Exception {
         getApplication()
                 .getClasses().stream()

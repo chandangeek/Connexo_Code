@@ -11,6 +11,7 @@ import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collections;
@@ -21,6 +22,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 public class CalendarResourceTest extends CalendarApplicationTest {
@@ -31,7 +33,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
     private static final String PERIOD_NAME = "Period name";
 
     @Test
-    public void getCalendar() throws Exception {
+    public void testGetCalendar() throws Exception {
         mockCalendar();
         Response response = target("/calendars/timeofusecalendars/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -86,11 +88,23 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         Period period = mock(Period.class);
         when(period.getName()).thenReturn(PERIOD_NAME);
         when(periodTransition.getPeriod()).thenReturn(period);
+        for(DayOfWeek dayOfWeek: DayOfWeek.values()) {
+            when(period.getDayType(dayOfWeek)).thenReturn(dayType);
+        }
         when(periodTransition.getOccurrence()).thenReturn(LocalDate.of(2016,2,3));
 
         when(calendar.getTransitions()).thenReturn(Collections.singletonList(periodTransition));
         when(calendarService.findCalendar(1)).thenReturn(Optional.of(calendar));
     }
 
+    @Test
+    public void testGetCalendarForWeek () throws Exception {
+        mockCalendar();
+        //DAY IS THURSDAY 21/04/2016
+        Response response = target("/calendars/timeofusecalendars/1").queryParam("weekOf",1461241773L).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("id")).isEqualTo(1);
+    }
 
 }

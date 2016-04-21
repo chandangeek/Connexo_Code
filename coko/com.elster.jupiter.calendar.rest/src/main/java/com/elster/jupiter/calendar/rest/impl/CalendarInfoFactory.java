@@ -11,7 +11,9 @@ import com.elster.jupiter.calendar.PeriodTransition;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,19 +119,46 @@ public class CalendarInfoFactory {
         CalendarInfo calendarInfo = new CalendarInfo();
         addBasicInformation(calendar, calendarInfo);
         Map<DayOfWeek, PeriodTransition> transitionsPerDay = calculateWeekInfo(calendar, localDate);
+        calendarInfo.weekTemplate = new ArrayList<>();
+        Set<DayType> dayTypes = new HashSet<>();
+        Set<Event> events = new HashSet<>();
+        Set<PeriodTransition> periodTransistions = new HashSet<>();
         for (DayOfWeek day: transitionsPerDay.keySet()) {
-            //voeg dag toe aan weektemplate
+            DayType dayType = transitionsPerDay.get(day).getPeriod().getDayType(day);
+            //Add to week template
+            DayInfo dayInfo = new DayInfo();
+            dayInfo.name = day.toString();
+            dayInfo.type = dayType.getId();
+            calendarInfo.weekTemplate.add(dayInfo);
             //if dagtype nog niet in dagtypes: voeg toe
+            dayTypes.add(dayType);
             //ook event toevoegen waar het dagtype aan gelinked is
+            dayType.getEventOccurrences()
+                    .stream()
+                    .forEach(eventOccurrence -> events.add(eventOccurrence.getEvent()));
+            //add periods to set
+            periodTransistions.add(transitionsPerDay.get(day));
         }
+        ArrayList<DayType> dayTypesList = new ArrayList<>();
+        dayTypesList.addAll(dayTypes);
+        addDayTypes(calendarInfo, dayTypesList);
+
+        ArrayList<Event> eventList = new ArrayList<>();
+        eventList.addAll(events);
+        addEvents(calendarInfo, eventList);
+
+        ArrayList<PeriodTransition> periodList = new ArrayList<>();
+        periodList.addAll(periodTransistions);
+        addPeriods(calendarInfo, periodList);
+
         return calendarInfo;
     }
 
     private Map<DayOfWeek, PeriodTransition> calculateWeekInfo(Calendar calendar, LocalDate localDate) {
         Map<DayOfWeek, PeriodTransition> transitionPerDay = new LinkedHashMap<>(DayOfWeek.values().length);
         for(int i = 0; i < DayOfWeek.values().length; i++) {
-            PeriodTransition transition = getTransitionForDate(calendar.getTransitions(), localDate.plusDays(0));
-            transitionPerDay.put(localDate.getDayOfWeek(), transition);
+            PeriodTransition transition = getTransitionForDate(calendar.getTransitions(), localDate.plusDays(i));
+            transitionPerDay.put(localDate.plusDays(i).getDayOfWeek(), transition);
         }
 
         return transitionPerDay;

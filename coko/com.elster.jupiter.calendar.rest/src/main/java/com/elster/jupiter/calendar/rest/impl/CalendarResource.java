@@ -44,18 +44,19 @@ public class CalendarResource {
     @Path("/timeofusecalendars/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public CalendarInfo getTimeOfUseCalendar(@PathParam("id") long id, @QueryParam("weekOf") long milliseconds) {
-        Calendar calendar = calendarService.findCalendar(id).get();
-        transformToWeekCalendar(calendar, LocalDate.ofEpochDay(milliseconds));
-        return  calendarService.findCalendar(id)
-                .map(calendarInfoFactory::fromCalendar)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_TIME_OF_USE_CALENDAR));
+        if(milliseconds <= 0) {
+            return  calendarService.findCalendar(id)
+                    .map(calendarInfoFactory::fromCalendar)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_TIME_OF_USE_CALENDAR));
+        } else {
+            Calendar calendar = calendarService.findCalendar(id).get();
+            return transformToWeekCalendar(calendar, LocalDate.ofEpochDay(milliseconds));
+        }
     }
 
     private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
         calendarService.newCalendar(calendar.getName(), calendar.getTimeZone(), Year.of(localDate.getYear()));
-        calendarInfoFactory.fromCalendar(calendar, localDate);
-        return null;
-
+        return calendarInfoFactory.fromCalendar(calendar, localDate);
     }
 
 }
