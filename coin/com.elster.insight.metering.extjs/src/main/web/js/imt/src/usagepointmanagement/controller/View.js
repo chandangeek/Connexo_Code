@@ -46,7 +46,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                         purposesStore.getProxy().extraParams = {mRID: mRID};
                         purposesStore.load(function(purposes, op, success) {
                             if (success) {
-                                app.fireEvent('purposesLoaded', purposes);
+                                app.fireEvent('purposes-loaded', purposes);
                                 callback.success(usagePointTypes, usagePoint, purposes);
                             } else {
                                 failure();

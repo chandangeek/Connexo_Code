@@ -386,7 +386,7 @@ Ext.define('Imt.controller.History', {
                             action: 'showOutputs',
                             callback: function (route) {
                                 var me = this;
-                                this.getApplication().on('purposesLoaded', function (purposes) {
+                                this.getApplication().on('purposes-loaded', function (purposes) {
                                     var purpose = _.find(purposes, function(p){return p.getId() == me.arguments.purposeId});
                                     if (purpose) {
                                         route.setTitle(purpose.get('name'));
@@ -402,15 +402,13 @@ Ext.define('Imt.controller.History', {
                                     controller: 'Imt.purpose.controller.Purpose',
                                     action: 'showOutputDefaultTab',
                                     callback: function (route) {
-                                        //var me = this;
-                                        //this.getApplication().on('purposesLoaded', function (purposes) {
-                                        //    var purpose = _.find(purposes, function(p){return p.getId() == me.arguments.purposeId});
-                                        //    if (purpose) {
-                                        //        route.setTitle(purpose.get('name'));
-                                        //    }
-                                        //    return true;
-                                        //}, {single: true});
-                                        //return this;
+                                        this.getApplication().on('output-loaded', function (output) {
+                                            if (output) {
+                                                route.setTitle(output.get('name'));
+                                            }
+                                            return true;
+                                        }, {single: true});
+                                        return this;
                                     }
                                 }
                             }
