@@ -48,7 +48,8 @@ public class CalendarBuilderImpl implements CalendarService.CalendarBuilder {
 
     @Override
     public CalendarService.CalendarBuilder addEvent(String name, int code) {
-        return null;
+        this.underConstruction.addEvent(name, code);
+        return this;
     }
 
     @Override

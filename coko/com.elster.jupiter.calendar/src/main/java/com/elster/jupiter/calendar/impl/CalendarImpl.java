@@ -353,12 +353,11 @@ public class CalendarImpl implements Calendar {
         touch();
     }
 
-    @Override
-    public Event addEvent(String name, long code) {
+    Event addEvent(String name, long code) {
         EventImpl event = calendarService.getDataModel().getInstance(EventImpl.class).init(this, name, code);
         Save.CREATE.validate(calendarService.getDataModel(), event);
         this.events.add(event);
-        touch();
+        //touch();
         return event;
     }
 

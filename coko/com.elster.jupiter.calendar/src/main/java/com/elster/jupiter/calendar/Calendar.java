@@ -123,7 +123,7 @@ public interface Calendar extends HasId, HasName {
 
     Period addPeriod(String name, DayType monday, DayType tuesday, DayType wednesday, DayType thursday, DayType friday, DayType saturday, DayType sunday);
 
-    Event addEvent(String name, long code);
+    //Event addEvent(String name, long code);
 
     void removePeriod(Period period);
 
