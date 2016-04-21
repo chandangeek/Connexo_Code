@@ -9,7 +9,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
@@ -112,7 +112,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         Formula formula = mock(Formula.class);
         when(formula.getDescription()).thenReturn("testDescription");
         ReadingTypeRequirementNode requirementNode = mock(ReadingTypeRequirementNode.class);
-        FullySpecifiedReadingType requirement = mock(FullySpecifiedReadingType.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement.getMetrologyConfiguration()).thenReturn(mock);
         when(requirement.getReadingType()).thenReturn(readingType);
         when(requirementNode.getReadingTypeRequirement()).thenReturn(requirement);
