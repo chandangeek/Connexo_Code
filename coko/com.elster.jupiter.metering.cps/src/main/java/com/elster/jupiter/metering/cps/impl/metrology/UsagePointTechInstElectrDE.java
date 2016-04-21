@@ -57,7 +57,7 @@ public class UsagePointTechInstElectrDE implements PersistentDomainExtension<Usa
     private Quantity substationDistance;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String feeder;
-    private Quantity utilizationCategory;
+    private String utilizationCategory;
 
     public UsagePointTechInstElectrDE() {
         super();
@@ -83,11 +83,11 @@ public class UsagePointTechInstElectrDE implements PersistentDomainExtension<Usa
         this.substationDistance = substationDistance;
     }
 
-    public Quantity getUtilizationCategory() {
+    public String getUtilizationCategory() {
         return utilizationCategory;
     }
 
-    public void setUtilizationCategory(Quantity utilizationCategory) {
+    public void setUtilizationCategory(String utilizationCategory) {
         this.utilizationCategory = utilizationCategory;
     }
 
@@ -96,7 +96,7 @@ public class UsagePointTechInstElectrDE implements PersistentDomainExtension<Usa
         usagePoint.set(domainInstance);
         this.setSubstationDistance((Quantity) propertyValues.getProperty(Fields.SUBSTATION_DISTANCE.javaName()));
         this.setFeeder((String) propertyValues.getProperty(Fields.FEEDER.javaName()));
-        this.setUtilizationCategory((Quantity) propertyValues.getProperty(Fields.UTILIZATION_CATEGORY.javaName()));
+        this.setUtilizationCategory((String) propertyValues.getProperty(Fields.UTILIZATION_CATEGORY.javaName()));
     }
 
     @Override

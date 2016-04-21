@@ -96,7 +96,11 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
                 .fromThesaurus(this.getThesaurus())
                 .markEditable()
                 .markRequired()
-                .addValues(Quantity.create(new BigDecimal(0), 1, "W"))
+                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
+                        Quantity.create(new BigDecimal(0), 3, "W"),
+                        Quantity.create(new BigDecimal(0), 6, "W"),
+                        Quantity.create(new BigDecimal(0), 9, "W"),
+                        Quantity.create(new BigDecimal(0), 12, "W"))
                 .finish();
         PropertySpec convertorPowerSpec = propertySpecService
                 .specForValuesOf(new QuantityValueFactory())
@@ -104,7 +108,11 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
                 .fromThesaurus(this.getThesaurus())
                 .markEditable()
                 .markRequired()
-                .addValues(Quantity.create(new BigDecimal(0), 1, "W"))
+                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
+                        Quantity.create(new BigDecimal(0), 3, "W"),
+                        Quantity.create(new BigDecimal(0), 6, "W"),
+                        Quantity.create(new BigDecimal(0), 9, "W"),
+                        Quantity.create(new BigDecimal(0), 12, "W"))
                 .finish();
         PropertySpec typeOfDecentralizedProductionSpec = propertySpecService
                 .stringSpec()
