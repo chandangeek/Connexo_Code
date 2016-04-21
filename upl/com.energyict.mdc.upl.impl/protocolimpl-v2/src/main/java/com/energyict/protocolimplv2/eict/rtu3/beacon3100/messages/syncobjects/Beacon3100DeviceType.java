@@ -35,10 +35,10 @@ public class Beacon3100DeviceType {
         this.clockSyncConfiguration = clockSyncConfiguration;
     }
 
-    public boolean equals(AbstractDataType obj){
+    public boolean equals(AbstractDataType anotherClientTypeStructure){
 
         try {
-            Structure structure = obj.getStructure();
+            Structure structure = anotherClientTypeStructure.getStructure();
             byte[] otherByteArray = structure.getContentByteArray();
             byte[] thisByteArray = toStructure().getContentByteArray();
 
@@ -49,7 +49,11 @@ public class Beacon3100DeviceType {
         }
     }
 
-    //JSon constructor
+    public boolean equals(Beacon3100ClientType anotherClientType) {
+        return this.equals(anotherClientType.toStructure());
+    }
+
+        //JSon constructor
     private Beacon3100DeviceType() {
     }
 
