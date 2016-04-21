@@ -67,7 +67,7 @@ public class PhysicalCapacitySearchableProperty implements SearchableUsagePointP
                 .specForValuesOf(new QuantityValueFactory())
                 .named(uniqueName, PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 1, "m3/h"))
+                .addValues(Quantity.create(new BigDecimal(0), 0, "m3/h"))
                 .finish();
     }
 

@@ -13,6 +13,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.YesNoAnswer;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -122,6 +123,7 @@ public class UsagePointSearchDomain implements SearchDomain {
         List<SearchableProperty> searchableProperties = getProperties();
         if (constrictions != null && !constrictions.isEmpty()) {
             searchableProperties.addAll(getServiceCategoryDynamicProperties(constrictions));
+            searchableProperties.addAll(getLimiterDynamicProperties(constrictions));
         }
         return searchableProperties;
     }
@@ -147,10 +149,10 @@ public class UsagePointSearchDomain implements SearchDomain {
                                         .init(this, electricityGroup, this.clock));
                                 properties.add(injector.getInstance(InterruptibleSearchableProperty.class)
                                         .init(this, electricityGroup, this.clock));
-                                properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
-                                        .init(this, electricityGroup, this.clock));
-                                properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
-                                        .init(this, electricityGroup, this.clock));
+//                                properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
+//                                        .init(this, electricityGroup, this.clock));
+//                                properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
+//                                        .init(this, electricityGroup, this.clock));
                                 properties.add(injector.getInstance(EstimatedLoadSearchableProperty.class)
                                         .init(this, electricityGroup, this.clock));
                                 properties.add(injector.getInstance(NominalServiceVoltageSearchableProperty.class)
@@ -169,10 +171,10 @@ public class UsagePointSearchDomain implements SearchDomain {
                                         .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(LimiterSearchableProperty.class)
                                         .init(this, gasGroup, this.clock));
-                                properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
-                                        .init(this, gasGroup, this.clock));
-                                properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
-                                        .init(this, gasGroup, this.clock));
+//                                properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
+//                                        .init(this, gasGroup, this.clock));
+//                                properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
+//                                        .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(PhysicalCapacitySearchableProperty.class)
                                         .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(BypassSearchableProperty.class)
@@ -197,10 +199,10 @@ public class UsagePointSearchDomain implements SearchDomain {
                                         .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(LimiterSearchableProperty.class)
                                         .init(this, waterGroup, this.clock));
-                                properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
-                                        .init(this, waterGroup, this.clock));
-                                properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
-                                        .init(this, waterGroup, this.clock));
+//                                properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
+//                                        .init(this, waterGroup, this.clock));
+//                                properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
+//                                        .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(PhysicalCapacitySearchableProperty.class)
                                         .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(BypassSearchableProperty.class)
@@ -239,23 +241,56 @@ public class UsagePointSearchDomain implements SearchDomain {
         return properties;
     }
 
+    private List<SearchableProperty> getLimiterDynamicProperties(Collection<SearchablePropertyConstriction> constrictions) {
+        List<SearchableProperty> properties = new ArrayList<>();
+        DataModel injector = this.meteringService.getDataModel();
+        constrictions.stream()
+                .filter(constriction -> LimiterSearchableProperty.FIELD_NAME
+                        .equals(constriction.getConstrainingProperty().getName()))
+                .findAny()
+                .ifPresent(constriction -> constriction.getConstrainingValues().forEach(value -> {
+                    if (value instanceof YesNoAnswer) {
+                        if (value.equals(YesNoAnswer.YES)) {
+                            properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
+                                    .init(this, new ElectricityAttributesSearchablePropertyGroup(this.meteringService.getThesaurus()), this.clock));
+                            properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
+                                    .init(this, new ElectricityAttributesSearchablePropertyGroup(this.meteringService.getThesaurus()), this.clock));
+                            properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
+                                    .init(this, new GasAttributesSearchablePropertyGroup(this.meteringService.getThesaurus()), this.clock));
+                            properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
+                                    .init(this, new GasAttributesSearchablePropertyGroup(this.meteringService.getThesaurus()), this.clock));
+                            properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
+                                    .init(this, new WaterAttributesSearchablePropertyGroup(this.meteringService.getThesaurus()), this.clock));
+                            properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
+                                    .init(this, new WaterAttributesSearchablePropertyGroup(this.meteringService.getThesaurus()), this.clock));
+                        }
+                    }
+                }));
+
+        return properties;
+    }
+
     @Override
-    public List<SearchablePropertyValue> getPropertiesValues(Function<SearchableProperty, SearchablePropertyValue> mapper) {
+    public List<SearchablePropertyValue> getPropertiesValues
+            (Function<SearchableProperty, SearchablePropertyValue> mapper) {
         // 1) retrieve all fixed search properties
         List<SearchableProperty> fixedProperties = getProperties();
         // 2) check properties which affect available domain properties
         List<SearchablePropertyConstriction> constrictions = fixedProperties.stream()
                 .filter(SearchableProperty::affectsAvailableDomainProperties)
                 .map(mapper::apply)
-                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().values != null)
+                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue
+                        .getValueBean().values != null)
                 .map(SearchablePropertyValue::asConstriction)
                 .collect(Collectors.toList());
         // 3) update list of available properties and convert these properties into properties values
         Map<String, SearchablePropertyValue> valuesMap = (constrictions.isEmpty() ? fixedProperties : addDynamicProperties(fixedProperties, constrictions))
                 .stream()
                 .map(mapper::apply)
-                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().values != null)
-                .collect(Collectors.toMap(propertyValue -> propertyValue.getProperty().getName(), Function.identity()));
+                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue
+                        .getValueBean().values != null)
+                .collect(Collectors.toMap(propertyValue -> propertyValue.getProperty()
+                        .getName(), Function.identity()));
         // 4) refresh all properties with their constrictions
         for (SearchablePropertyValue propertyValue : valuesMap.values()) {
             SearchableProperty property = propertyValue.getProperty();
@@ -273,7 +308,14 @@ public class UsagePointSearchDomain implements SearchDomain {
         Set<String> uniqueNames = new HashSet<>();
         Predicate<SearchableProperty> uniqueName = p -> uniqueNames.add(p.getName());
         fixedProperties.stream().filter(uniqueName).forEach(properties::add);
-        this.getServiceCategoryDynamicProperties(constrictions).stream().filter(uniqueName).forEach(properties::add);
+        this.getLimiterDynamicProperties(constrictions)
+                .stream()
+                .filter(uniqueName)
+                .forEach(properties::add);
+        this.getServiceCategoryDynamicProperties(constrictions)
+                .stream()
+                .filter(uniqueName)
+                .forEach(properties::add);
         return properties;
     }
 

@@ -28,7 +28,7 @@ public class LimiterSearchableProperty implements SearchableUsagePointProperty {
     private SearchDomain domain;
     private SearchablePropertyGroup group;
     private Clock clock;
-    private static final String FIELD_NAME = "detail.limiter";
+    public static final String FIELD_NAME = "detail.limiter";
     private String uniqueName;
 
     @Inject

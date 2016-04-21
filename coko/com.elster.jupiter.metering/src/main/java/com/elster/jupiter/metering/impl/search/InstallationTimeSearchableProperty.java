@@ -8,7 +8,10 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Where;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -20,7 +23,7 @@ public class InstallationTimeSearchableProperty implements SearchableUsagePointP
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "installationTime";
+    private static final String FIELD_NAME = "installationTime";
 
     public InstallationTimeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
@@ -48,7 +51,7 @@ public class InstallationTimeSearchableProperty implements SearchableUsagePointP
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .specForValuesOf(new InstantFactory())
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_INSTALLATION_TIME)
+                .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_INSTALLATION_TIME)
                 .fromThesaurus(this.thesaurus)
                 .markExhaustive()
                 .finish();
@@ -84,14 +87,17 @@ public class InstallationTimeSearchableProperty implements SearchableUsagePointP
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("No constraint to refresh");
-        }
+        //nothing to refresh
     }
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification;
+        if (((Comparison) specification).getOperator().equals(Operator.BETWEEN)) {
+            return Where.where(FIELD_NAME)
+                    .between(((Comparison) specification).getValues()[0])
+                    .and(((Comparison) specification).getValues()[1]);
+        }
+        return Where.where(FIELD_NAME).isEqualTo((((Comparison) specification).getValues()[0]));
     }
 
 }

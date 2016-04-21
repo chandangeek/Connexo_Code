@@ -53,7 +53,7 @@ public class LoadLimitSearchableProperty implements SearchableUsagePointProperty
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return true;
+        return false;
     }
 
     @Override
@@ -98,7 +98,7 @@ public class LoadLimitSearchableProperty implements SearchableUsagePointProperty
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.singletonList(new ServiceCategorySearchableProperty(this.domain, this.propertySpecService, this.thesaurus));
+        return Collections.singletonList(new LimiterSearchableProperty(this.propertySpecService, this.thesaurus));
     }
 
     @Override
