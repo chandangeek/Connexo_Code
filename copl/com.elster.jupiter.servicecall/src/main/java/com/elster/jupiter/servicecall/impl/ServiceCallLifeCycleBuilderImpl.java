@@ -46,7 +46,6 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
     private final DiGraph<DefaultState> graph = buildGraph();
     private final Map<Pair<DefaultState, DefaultState>, TranslationKey> translations = transitionTranslations();
     private final FiniteStateMachineService finiteStateMachineService;
-    private final IServiceCallService serviceCallService;
     private final Set<DefaultState> criticalStates = EnumSet.of(CREATED, PENDING, ONGOING, SUCCESSFUL, FAILED);
     private final Provider<ServiceCallLifeCycleImpl> serviceCallLifeCycleFactory;
     private final Thesaurus thesaurus;
@@ -54,9 +53,8 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
     private String name;
 
     @Inject
-    ServiceCallLifeCycleBuilderImpl(FiniteStateMachineService finiteStateMachineService, IServiceCallService serviceCallService, Provider<ServiceCallLifeCycleImpl> serviceCallLifeCycleFactory, Thesaurus thesaurus) {
+    ServiceCallLifeCycleBuilderImpl(FiniteStateMachineService finiteStateMachineService, Provider<ServiceCallLifeCycleImpl> serviceCallLifeCycleFactory, Thesaurus thesaurus) {
         this.finiteStateMachineService = finiteStateMachineService;
-        this.serviceCallService = serviceCallService;
         this.serviceCallLifeCycleFactory = serviceCallLifeCycleFactory;
         this.thesaurus = thesaurus;
     }
@@ -71,6 +69,7 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
         graph.addEdge(CREATED, SCHEDULED);
         graph.addEdge(CREATED, REJECTED);
         graph.addEdge(CREATED, PENDING);
+        graph.addEdge(CREATED, CANCELLED);
         graph.addEdge(SCHEDULED, CANCELLED);
         graph.addEdge(SCHEDULED, PENDING);
         graph.addEdge(PENDING, CANCELLED);
@@ -95,6 +94,7 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
         map.put(Pair.of(CREATED, SCHEDULED), TranslationKeys.TRANSITION_FROM_CREATED_TO_SCHEDULED);
         map.put(Pair.of(CREATED, REJECTED), TranslationKeys.TRANSITION_FROM_CREATED_TO_REJECTED);
         map.put(Pair.of(CREATED, PENDING), TranslationKeys.TRANSITION_FROM_CREATED_TO_PENDING);
+        map.put(Pair.of(CREATED, CANCELLED), TranslationKeys.TRANSITION_FROM_CREATED_TO_CANCELLED);
         map.put(Pair.of(SCHEDULED, CANCELLED), TranslationKeys.TRANSITION_FROM_SCHEDULED_TO_CANCELLED);
         map.put(Pair.of(SCHEDULED, PENDING), TranslationKeys.TRANSITION_FROM_SCHEDULED_TO_PENDING);
         map.put(Pair.of(PENDING, CANCELLED), TranslationKeys.TRANSITION_FROM_PENDING_TO_CANCELLED);
