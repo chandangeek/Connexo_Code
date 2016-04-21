@@ -53,11 +53,11 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 hidden: true,
                 htmlEncode: false,
                 renderer: function () {
-                    var url = me.router.getRoute('usagepoints/view/definemetrology').buildUrl({}, {fromLandingPage: true});
-                    return Uni.I18n.translate('general.label.defineConfiguration', 'IMT', '<a href="{0}">Define configuration</a>', url);
+                    var url = me.router.getRoute('usagepoints/view/definemetrology').buildUrl({},{fromLandingPage: true});
+                    return Uni.I18n.translate('general.label.defineConfiguration', 'IMT', '<a href="{0}">Define configuration</a>',url);
                 },
                 listeners: {
-                    beforerender: function () {
+                    beforerender: function() {
                         if (!me.getRecord().get('name')) {
                             this.show();
                         }

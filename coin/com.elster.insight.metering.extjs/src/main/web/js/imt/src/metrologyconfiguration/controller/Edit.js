@@ -25,14 +25,14 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
     ],
     refs: [
            {ref: 'metrologyConfigurationEditPage', selector: 'metrologyConfigurationEdit'},
-        {ref: 'metrologyConfigurationNameLabel', selector: '#metrology-configuration-name-label'},
+           {ref: 'metrologyConfigurationNameLabel', selector: '#metrology-configuration-name-label'},
            {ref: 'metrologyConfigValRulesSetEditForm', selector: '#metrologyConfigValRulesSetEditForm'},
            {ref: 'metrologyConfigValRulesSetSetup', selector: '#metrologyConfigValRulesSetSetup'},
            {ref: 'overviewLink', selector: '#metrology-configuration-overview-link'},
            {ref: 'metrologyConfigValRulesSetEditPanel', selector: '#metrologyConfigValRulesSetEditPanel'},
            {ref: 'metrologyConfigValRulesSetEditPage', selector: 'metrologyConfigValRulesSetEdit'},
-        {ref: 'wizard', selector: 'define-metrology-configuration define-metrology-configuration-wizard'},
-        {ref: 'navigationMenu', selector: 'define-metrology-configuration navigation-menu'},
+           {ref: 'wizard', selector: 'define-metrology-configuration define-metrology-configuration-wizard'},
+           {ref: 'navigationMenu', selector: 'define-metrology-configuration navigation-menu'},
     ],
 
     returnLink: null,
@@ -100,6 +100,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 widget.setLoading(false);
             }
         });
+
 
 
     },
@@ -256,7 +257,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 		linkableStore = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkableValidationRulesSets').getStore();
 		addItems = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkableValidationRulesSets').getValue();
 
-        var arrayModels = new Array();
+		var arrayModels = new Array();
 		addItems.forEach(function(entry) {
 				var rec = linkedStore.findRecord('id', entry);
 				if (rec == null) {
@@ -280,7 +281,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 		linkableStore = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkableValidationRulesSets').getStore();
 		removeItems = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkedValidationRulesSets').getValue();
 
-        var arrayModels = new Array();
+		var arrayModels = new Array();
 		removeItems.forEach(function(entry) {
 				var rec = linkableStore.findRecord('id', entry);
 				if (rec == null) {
@@ -329,7 +330,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         model,
         assignedRuleSetModelArray = new Array();
 
-        if (form.getForm().isValid()) {
+	    if (form.getForm().isValid()) {
 	    	 linkedStore.each(function(record) {
 	         	model = Ext.create('Imt.metrologyconfiguration.model.ValidationRuleSet');
 	         	model.set('id',record.get('id'));
@@ -337,7 +338,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 	         	assignedRuleSetModelArray.push(model.getData());
 	         })
 
-            assignedValidationRuleSets.set('ruleSets', assignedRuleSetModelArray);
+	         assignedValidationRuleSets.set('ruleSets', assignedRuleSetModelArray);
 	    	 button.setDisabled(true);
 	    	 page.setLoading('Saving...');
 	    	 formErrorsPanel.hide();
@@ -347,7 +348,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 	                page.setLoading(false);
 	                button.setDisabled(false);
 
-                    if (success) {
+	                if (success) {
 	                    me.onSuccessSavingValRuleSet(operation.action, model.get('name'));
 	                } else {
 	                    me.onFailureSavingvalRuleSet(operation.response);
@@ -451,7 +452,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 nextStep = button;
             }
         }
-        if (currentStep == 1) {
+        if(currentStep == 1){
             wizard.getRecord().customPropertySets().removeAll();
         }
 
@@ -483,21 +484,21 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         record.phantom = false;       // force 'PUT' method for request otherwise 'POST' will be performed
         modelProxy.appendId = false; // remove 'id' part from request url
         record.save(Ext.merge({
-                callback: function () {
-                    wizard.setLoading(false);
-                },
-                failure: function (record, options) {
-                    var response = options.response,
-                        errors = Ext.decode(response.responseText, true);
+            callback: function () {
+                wizard.setLoading(false);
+            },
+            failure: function (record, options) {
+                var response = options.response,
+                    errors = Ext.decode(response.responseText, true);
 
-                    if (errors && Ext.isArray(errors.errors)) {
-                        wizard.markInvalid(errors.errors);
-                    }
+                if (errors && Ext.isArray(errors.errors)) {
+                    wizard.markInvalid(errors.errors);
                 }
+            }
             }, Ext.merge(options, {
-                params: {
-                    upVersion: wizard.upVersion
-                },
+            params: {
+                upVersion: wizard.upVersion
+            },
                 dontTryAgain: true,
                 backUrl: me.returnLink
             })
@@ -549,7 +550,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             navigation.remove(currentMenuItems[j], true);
         }
         wizard.getRecord().customPropertySets().removeAll();
-        if (configuration) {
+        if(configuration){
             configuration.customPropertySets().each(function (record) {
                 stepNumber++;
                 stepsToAdd.push({
@@ -567,7 +568,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             });
         }
 
-        if (navigationItemsToAdd.length) {
+        if(navigationItemsToAdd.length){
             addBtn.hide();
             nextBtn.show();
         } else {

@@ -13,7 +13,7 @@ Ext.define('Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations', {
         pageParam: false,
         startParam: false,
         limitParam: false,
-        setUrl: function (mRID) {
+        setUrl: function(mRID){
             this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }

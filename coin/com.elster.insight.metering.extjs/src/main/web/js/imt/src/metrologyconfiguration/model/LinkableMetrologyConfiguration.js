@@ -15,7 +15,7 @@ Ext.define('Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration', {
             type: 'json',
             root: 'metrologyConfigurations'
         },
-        setUrl: function (mRID) {
+        setUrl: function(mRID){
             this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
