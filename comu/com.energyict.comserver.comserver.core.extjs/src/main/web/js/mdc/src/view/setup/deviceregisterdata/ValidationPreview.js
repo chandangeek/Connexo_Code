@@ -26,8 +26,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
             name: 'dataValidated',
             htmlEncode: false,
             renderer: function (value) {
-                return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
-                    : Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>';
+                return value
+                    ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                    : Uni.I18n.translate('general.no', 'MDC', 'No') + '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
             }
         },
         {
@@ -42,13 +43,13 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
                             break;
                         case 'validationStatus.ok':
                             if (field.up('form').getRecord().get('isConfirmed')) {
-                                return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect') + ' ' + '<span style="margin-left: 5px; vertical-align: top" class="icon-checkmark3"</span>';
+                                return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect') + '<span class="icon-checkmark3" style="margin-left:5px; vertical-align:top;"></span>';
                             } else {
                                 return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect');
                             }
                             break;
                         case 'validationStatus.suspect':
-                            return Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + ' ' + '<span class="icon-validation icon-validation-red"></span>';
+                            return Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
                             break;
                         default:
                             field.hide();
