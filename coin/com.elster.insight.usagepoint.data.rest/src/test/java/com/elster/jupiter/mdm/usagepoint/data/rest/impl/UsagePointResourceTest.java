@@ -173,8 +173,12 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(evaluator.getValidationStatus(eq(channel), any(), any())).thenReturn(Arrays.asList(statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect));
         when(evaluator.getValidationStatus(eq(register), any(), any())).thenReturn(Arrays.asList(statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect));
 
+        Range<Instant> range1 = Ranges.openClosed(Instant.ofEpochMilli(1410774620100L), Instant.ofEpochMilli(1410774620200L));
+        Range<Instant> range2 = Ranges.openClosed(Instant.ofEpochMilli(1410774621100L), Instant.ofEpochMilli(1410774621200L));
         when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
+        when(readingRecord1.getTimePeriod()).thenReturn(Optional.of(range1));
         when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(206, 0));
+        when(readingRecord2.getTimePeriod()).thenReturn(Optional.of(range2));
     }
 
     @Test
@@ -324,20 +328,15 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().get(0);
         ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().get(0);
         CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
-        Instant intervalStart = Instant.ofEpochMilli(1410774620000L);
-        Instant intervalEnd = Instant.ofEpochMilli(1410828640000L);
-        Range<Instant> range = Ranges.openClosed(intervalStart, intervalEnd);
-        when(dataAggregationService.calculate(usagePoint, metrologyContract, range)).thenReturn(calculatedMetrologyContractData);
-
+        when(dataAggregationService.calculate(any(UsagePoint.class), any(MetrologyContract.class), any(Range.class))).thenReturn(calculatedMetrologyContractData);
         List channelData = Arrays.asList(readingRecord1, readingRecord2);
         when(calculatedMetrologyContractData.getCalculatedDataFor(readingTypeDeliverable)).thenReturn(channelData);
-
         String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
         String json = target("usagepoints/MRID/purposes/1/outputs/1/data").queryParam("filter", filter).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number> get("$.data")).isEqualTo(2);
-//        assertThat(jsonModel.<Long> get("$.data[0].interval.start")).isEqualTo(1410785296000L);
-//        assertThat(jsonModel.<Long> get("$.data[0].interval.end")).isEqualTo(1410786196000L);
+        assertThat(jsonModel.<Number> get("$.total")).isEqualTo(2);
+        assertThat(jsonModel.<Long> get("$.data[0].interval.start")).isEqualTo(1410774620100L);
+        assertThat(jsonModel.<Long> get("$.data[0].interval.end")).isEqualTo(1410774620200L);
         assertThat(jsonModel.<String> get("$.data[0].value")).isEqualTo("200");
     }
 }

@@ -420,10 +420,10 @@ public class UsagePointResource {
     }
 
     @GET
-    @Path("/{mrid}/purposes/{id}/outputs/{id}")
+    @Path("/{mrid}/purposes/{purposeId}/outputs/{outputId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public OutputInfo getChannelOfPurpose(@PathParam("mrid") String mRid, @PathParam("id") long purposeId, @PathParam("id") long outputId,
+    public OutputInfo getChannelOfPurpose(@PathParam("mrid") String mRid, @PathParam("purposeId") long purposeId, @PathParam("outputId") long outputId,
                                           @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
         MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
@@ -441,10 +441,10 @@ public class UsagePointResource {
 
     @GET
     @Transactional
-    @Path("/{mrid}/purposes/{id}/outputs/{id}/data")
+    @Path("/{mrid}/purposes/{purposeId}/outputs/{outputId}/data")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public PagedInfoList getChannelDataOfPurpose(@PathParam("mrid") String mRid, @PathParam("id") long purposeId, @PathParam("id") long outputId,
+    public PagedInfoList getChannelDataOfPurpose(@PathParam("mrid") String mRid, @PathParam("purposeId") long purposeId, @PathParam("outputId") long outputId,
                                                  @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
