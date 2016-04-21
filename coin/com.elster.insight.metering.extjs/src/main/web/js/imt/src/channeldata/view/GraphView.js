@@ -100,37 +100,36 @@ Ext.define('Imt.channeldata.view.GraphView', {
                 formatter: function (tooltip) {
                     var html = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x);
                     var point = this.points[0].point,
-                        deltaIcon,
-                        bulkIcon,
+                        deltaIcon = '',
+                        bulkIcon = '',
                         bgColor,
-                        iconSpan = '<span class="{icon}" ' + 'style="height: 16px; ' + 'width: 16px; ' +
-                            'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
-                        editedIconSpan = '<span class="uni-icon-edit"' + 'style="height: 13px; ' + 'width: 13px; ' +
-                            'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
+                        editedIcon = '<span class="uni-icon-edit" style=" margin-left:4px; height:13px; width:13px; display:inline-block; vertical-align:top;"></span>',
                         mainValue,
                         bulkValue;
 
                     if (point.delta.suspect) {
-                        deltaIcon = 'icon-validation-red';
+                        deltaIcon = '<span class="icon-flag5" style="margin-left:4px; display:inline-block; vertical-align:top; color:red"></span>';
                     } else if (point.delta.notValidated) {
-                        deltaIcon = 'icon-validation-black';
+                        deltaIcon = '<span class="icon-flag6" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>';
                     }
 
                     if (point.bulk.suspect)  {
-                        bulkIcon = 'icon-validation-red';
+                        bulkIcon = '<span class="icon-flag5" style="margin-left:4px; display:inline-block; vertical-align:top; color:red"></span>';
                     } else if (point.bulk.notValidated) {
-                        bulkIcon = 'icon-validation-black';
+                        bulkIcon = '<span class="icon-flag6" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>';
                     }
 
                     mainValue = point.y ? point.y + ' ' + point.mesurementType : Uni.I18n.translate('general.missing', 'IMT', 'Missing');
                     bulkValue = point.collectedValue ? point.collectedValue + ' ' + point.mesurementType : Uni.I18n.translate('general.missing', 'IMT', 'Missing');
-                    html += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', point.x);
+                    html += '<br/>' + Uni.I18n.translate('channels.interval', 'IMT', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', point.x);
                     html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
-                    html += '<tr><td><b>' + Uni.I18n.translate('general.value', 'IMT', 'Value') + ':</b></td><td>' + mainValue + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
+                    html += '<tr><td><b>' + Uni.I18n.translate('general.value', 'IMT', 'Value') + ':</b></td><td>' + mainValue +
+                        deltaIcon + (point.edited ? editedIcon : '') + '</td></tr>';
                     if (point.collectedValue) {
-                        html += '<tr><td><b>' + Uni.I18n.translate('general.bulkValue', 'IMT', 'Bulk value') + ':' + '</b></td><td>' + bulkValue + (point.bulkEdited ? editedIconSpan : '') + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
+                        html += '<tr><td><b>' + Uni.I18n.translate('general.bulkValue', 'IMT', 'Bulk value') + ':</b></td><td>' + bulkValue +
+                            bulkIcon + (point.bulkEdited ? editedIcon : '') + '</td></tr>';
                     }
 
                     html += '</tbody></table>';
