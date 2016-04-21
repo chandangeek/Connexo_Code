@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -22,12 +23,13 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<Integer> yearOfCertification;
     public DeviceAttributeInfo<String> lifeCycleState;
     public DeviceAttributeInfo<String> batch;
-    public DeviceAttributeInfo<String> usagePoint;
+    public UsagePointAttributeInfo<String> usagePoint;
     public DeviceAttributeInfo<Instant> shipmentDate;
     public DeviceAttributeInfo<Instant> installationDate;
     public DeviceAttributeInfo<Instant> deactivationDate;
     public DeviceAttributeInfo<Instant> decommissioningDate;
     public DeviceAttributeInfo<String> location;
+    public DeviceAttributeInfo<String> geoCoordinates;
     public DeviceInfo device;
 
     @JsonIgnore
@@ -157,7 +159,14 @@ public class DeviceAttributesInfo {
             public List<DefaultState> attributeIsEditableForStates() {
                 return Collections.emptyList();
             }
-        },;
+        },
+
+        GEOCOORDINATES {
+            @Override
+            public List<DefaultState> attributeIsEditableForStates() {
+                return Collections.emptyList();
+            }
+        };
 
         public List<DefaultState> attributeIsEditableForStates() {
             return Arrays.asList(
