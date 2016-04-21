@@ -10,12 +10,16 @@ import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.NestedTransactionException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
@@ -43,8 +47,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Component(name = "com.elster.jupiter.nls", service = {NlsService.class, InstallService.class}, property = {"name=" + NlsService.COMPONENTNAME, "osgi.command.scope=nls", "osgi.command.function=addTranslation"})
-public class NlsServiceImpl implements NlsService, InstallService {
+@Component(name = "com.elster.jupiter.nls", service = {NlsService.class}, property = {"name=" + NlsService.COMPONENTNAME, "osgi.command.scope=nls", "osgi.command.function=addTranslation"})
+public class NlsServiceImpl implements NlsService {
 
     private static final Pattern MESSAGE_PARAMETER_PATTERN = Pattern.compile("(\\{[^\\}]+?\\})");
 
@@ -57,6 +61,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
     @GuardedBy("translationLock")
     private volatile List<MessageSeedProvider> messageSeedProviders = new CopyOnWriteArrayList<>();
     private volatile boolean installed = false;
+    private volatile UpgradeService upgradeService;
 
     private final Object translationLock = new Object();
 
@@ -68,25 +73,25 @@ public class NlsServiceImpl implements NlsService, InstallService {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(MessageInterpolator.class).toInstance(messageInterpolator);
+                bind(NlsService.class).toInstance(NlsServiceImpl.this);
             }
         });
-        installed = dataModel.isInstalled();
+        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, NlsInstaller.class, Collections.emptyMap());
+        installed = true; // upgradeService either installed, was up to date, or threw an Exception because upgrade was needed; in any case if we get here installed is true
     }
 
     public NlsServiceImpl() {
     }
 
     @Inject
-    public NlsServiceImpl(OrmService ormService, ThreadPrincipalService threadPrincipalService, TransactionService transactionService, ValidationProviderResolver validationProviderResolver) {
+    public NlsServiceImpl(OrmService ormService, ThreadPrincipalService threadPrincipalService, TransactionService transactionService, ValidationProviderResolver validationProviderResolver, UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setThreadPrincipalService(threadPrincipalService);
         setTransactionService(transactionService);
         setValidationProviderResolver(validationProviderResolver);
+        setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     @Override
@@ -148,6 +153,11 @@ public class NlsServiceImpl implements NlsService, InstallService {
         }
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @SuppressWarnings("unused")
     public void removeTranslationKeyProvider(TranslationKeyProvider provider) {
         synchronized (translationLock) {
@@ -199,10 +209,9 @@ public class NlsServiceImpl implements NlsService, InstallService {
         return () -> "Jupiter Installer";
     }
 
-    @Override
-    public synchronized void install() {
+    public synchronized void doInstall(DataModelUpgrader dataModelUpgrader) {
         synchronized (translationLock) {
-            dataModel.install(true, true);
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
             translationKeyProviders.forEach(this::doInstallProvider);
             messageSeedProviders.forEach(this::doInstallProvider);
             installed = true;
@@ -241,11 +250,6 @@ public class NlsServiceImpl implements NlsService, InstallService {
     @SuppressWarnings("unused")
     public void addTranslation(Object... args) {
         System.out.println("Usage : \n\n addTranslation componentName layerName key defaultMessage");
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Collections.singletonList("ORM");
     }
 
     @Override
@@ -382,4 +386,18 @@ public class NlsServiceImpl implements NlsService, InstallService {
         }
     }
 
+    static class NlsInstaller implements FullInstaller {
+        private final NlsServiceImpl nlsService;
+
+        @Inject
+        NlsInstaller(NlsService nlsService) {
+            this.nlsService = (NlsServiceImpl) nlsService;
+        }
+
+        @Override
+        public void install(DataModelUpgrader dataModelUpgrader) {
+            nlsService.doInstall(dataModelUpgrader);
+        }
+
+    }
 }
