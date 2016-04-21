@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -48,6 +49,9 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
 
         if (serviceCallHandler.allowStateChange(serviceCall, oldState, newState)) {
             doStateChange(serviceCall, oldState, newState);
+        } else {
+            serviceCall.log(LogLevel.WARNING, "Handler rejected the transition from " + oldState.getDefaultFormat() + " to " + newState
+                    .getDefaultFormat());
         }
     }
 
@@ -61,6 +65,7 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
 
         if (DefaultState.CANCELLED.equals(newState)) {
             serviceCallQueue.purgeCorrelationId(serviceCall.getNumber());
+            serviceCall.findChildren().stream().forEach(ServiceCall::cancel);
         }
 
         serviceCallQueue.message(jsonService.serialize(transitionNotification))

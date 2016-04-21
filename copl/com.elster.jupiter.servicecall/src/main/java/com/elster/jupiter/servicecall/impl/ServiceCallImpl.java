@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.Arrays.fill;
 
 public class ServiceCallImpl implements ServiceCall {
@@ -151,8 +150,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void requestTransition(DefaultState defaultState) {
-        getType().getServiceCallLifeCycle()
-                .triggerTransition(this, defaultState);
+        getType().getServiceCallLifeCycle().triggerTransition(this, defaultState);
     }
 
     void setState(DefaultState defaultState) {
