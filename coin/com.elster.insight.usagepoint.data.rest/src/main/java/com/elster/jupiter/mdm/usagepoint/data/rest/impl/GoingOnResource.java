@@ -32,6 +32,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -132,7 +134,7 @@ public class GoingOnResource {
             goingOnInfo.reference = null;
             goingOnInfo.description = issue.getTitle();
             goingOnInfo.dueDate = issue.getDueDate();
-            goingOnInfo.severity = Optional.ofNullable(issue.getDueDate()).filter(dueDate -> clock.instant().isAfter(dueDate)).map(dueDate -> Severity.HIGH).orElse(null);
+            goingOnInfo.severity = severity(issue.getDueDate());
             goingOnInfo.assignee = Optional.ofNullable(issue.getAssignee()).map(IssueAssignee::getName).orElse(null);
             goingOnInfo.assigneeIsCurrentUser = Optional.ofNullable(issue.getAssignee()).map(IssueAssignee::getId).map(id -> id.equals(currentUser.getId())).orElse(false);
             goingOnInfo.status = issue.getStatus().getName();
@@ -163,11 +165,25 @@ public class GoingOnResource {
             goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
             goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);
-            goingOnInfo.severity = null;
+            goingOnInfo.severity = severity(goingOnInfo.dueDate);
             goingOnInfo.assignee = userTaskInfo.flatMap(info -> Optional.ofNullable(info.actualOwner)).orElse(null);
             goingOnInfo.assigneeIsCurrentUser = userTaskInfo.flatMap(info -> Optional.ofNullable(info.isAssignedToCurrentUser)).orElse(false);
             goingOnInfo.status = userTaskInfo.flatMap(info -> Optional.ofNullable(info.status)).orElse(null);
             return goingOnInfo;
+        }
+
+        private Severity severity(Instant dueDate){
+            if (dueDate == null) {
+                return null;
+            }
+            ZonedDateTime dueTime = ZonedDateTime.ofInstant(dueDate, clock.getZone());
+            ZonedDateTime now = ZonedDateTime.now(clock);
+
+            if (LocalDate.from(dueTime).equals(LocalDate.from(now)) || LocalDate.from(dueTime).equals(LocalDate.from(now).plusDays(1))) {
+                return Severity.WARNING;
+            }
+
+            return Optional.of(dueDate).filter(due -> clock.instant().isAfter(due)).map(due -> Severity.HIGH).orElse(null);
         }
     }
 
