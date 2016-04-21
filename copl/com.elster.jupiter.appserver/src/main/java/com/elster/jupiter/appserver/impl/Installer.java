@@ -68,8 +68,4 @@ class Installer implements FullInstaller {
         }
     }
 
-    @Override
-    public String getDescription() {
-        return "Install APS";
-    }
 }

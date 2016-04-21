@@ -161,7 +161,7 @@ public class AppServiceImpl implements IAppService, Subscriber, PrivilegesProvid
                 }
             });
 
-            upgradeService.register(identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyList());
+            upgradeService.register(identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
 
             if (dataModel.isInstalled()) {
                 tryActivate(context);
