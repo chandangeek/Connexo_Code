@@ -289,7 +289,8 @@ public enum TransitionType {
                     MicroAction.CLOSE_METER_ACTIVATION,
                     MicroAction.DISABLE_VALIDATION,
                     MicroAction.DISABLE_ESTIMATION,
-                    MicroAction.DISABLE_COMMUNICATION);
+                    MicroAction.DISABLE_COMMUNICATION,
+                    MicroAction.REMOVE_LOCATION);
         }
     },
     DECOMMISSION(DefaultState.INACTIVE, DefaultState.DECOMMISSIONED) {
@@ -313,7 +314,8 @@ public enum TransitionType {
                     MicroAction.CLOSE_METER_ACTIVATION,
                     MicroAction.DISABLE_VALIDATION,
                     MicroAction.DISABLE_ESTIMATION,
-                    MicroAction.DISABLE_COMMUNICATION);
+                    MicroAction.DISABLE_COMMUNICATION,
+                    MicroAction.REMOVE_LOCATION);
         }
     },
     DELETE_FROM_DECOMMISSIONED(DefaultState.DECOMMISSIONED, DefaultState.REMOVED){
@@ -338,6 +340,35 @@ public enum TransitionType {
     TransitionType(DefaultState from, DefaultState to) {
         this.from = from;
         this.to = to;
+    }
+
+    /**
+     * Determines the TransitionType for the specified {@link StateTransition}.
+     * Will return <code>Optional.empty()</code> when the StateTransition
+     * is not standard, i.e. when the connecting {@link State}s
+     * are not standard.
+     *
+     * @param transition The StateTransition
+     * @return The TransitionType
+     */
+    public static Optional<TransitionType> from(StateTransition transition) {
+        if (transition != null) {
+            return from(transition.getFrom(), transition.getTo());
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<TransitionType> from(State fromSate, State toState) {
+        Optional<DefaultState> from = DefaultState.from(fromSate);
+        Optional<DefaultState> to = DefaultState.from(toState);
+        if (from.isPresent() && to.isPresent()) {
+            return Stream
+                    .of(values())
+                    .filter(t -> t.getFrom().equals(from.get()) && t.getTo().equals(to.get()))
+                    .findFirst();
+        } else {
+            return Optional.empty();
+        }
     }
 
     /**
@@ -406,34 +437,5 @@ public enum TransitionType {
 
     public DefaultState getTo() {
         return this.to;
-    }
-
-    /**
-     * Determines the TransitionType for the specified {@link StateTransition}.
-     * Will return <code>Optional.empty()</code> when the StateTransition
-     * is not standard, i.e. when the connecting {@link State}s
-     * are not standard.
-     *
-     * @param transition The StateTransition
-     * @return The TransitionType
-     */
-    public static Optional<TransitionType> from(StateTransition transition) {
-        if (transition != null){
-            return from(transition.getFrom(), transition.getTo());
-        }
-        return Optional.empty();
-    }
-
-    public static Optional<TransitionType> from(State fromSate, State toState) {
-        Optional<DefaultState> from = DefaultState.from(fromSate);
-        Optional<DefaultState> to = DefaultState.from(toState);
-        if (from.isPresent() && to.isPresent()) {
-            return Stream
-                    .of(values())
-                    .filter(t -> t.getFrom().equals(from.get()) && t.getTo().equals(to.get()))
-                    .findFirst();
-        } else {
-            return Optional.empty();
-        }
     }
 }

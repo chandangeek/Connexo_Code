@@ -116,6 +116,11 @@ public enum MicroAction {
      * Sets the value of a multiplier on the device
      */
     SET_MULTIPLIER(MicroCategory.DATA_COLLECTION),
+
+    /**
+     * Removes the location configured on the device
+     */
+    REMOVE_LOCATION(MicroCategory.DECOMISSION),
     ;
 
     private MicroCategory category;
