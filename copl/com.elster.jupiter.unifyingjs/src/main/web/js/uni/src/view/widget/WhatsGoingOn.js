@@ -60,7 +60,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
             }
         ];
         me.callParent(arguments);
-        me.buildWidget();
+       // me.buildWidget();
 
     },
 
@@ -71,6 +71,8 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
             me.store.setProxy({
                 type: 'rest',
                 url: '/api/ddr/devices/'+ this.mrId +'/whatsgoingon',
+                startParam: null,
+                limitParam: null,
                 reader: {
                     type: 'json',
                     root: 'goingsOn'
@@ -80,6 +82,8 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
             me.store.setProxy({
                 type: 'rest',
                 url: '/api/udr/usagepoints/'+ this.mrId +'/whatsgoingon',
+                startParam: null,
+                limitParam: null,
                 reader: {
                     type: 'json',
                     root: 'goingsOn'
@@ -113,7 +117,8 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 });
                 if (lines.length !== 0) {
                     tabContents.push(lines);
-                } else {
+                }
+                if (tabContents.length===0){
                     me.down('tabpanel').add({
                         layout: 'hbox',
                         margin: '38 0 0 0',
@@ -133,20 +138,21 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                         ]
 
                     });
-                }
-                Ext.each(tabContents, function (tabContent, index) {
-                    me.down('tabpanel').add({
-                        layout: 'column',
-                        iconCls: index === 0 ? 'icon-circle' : 'icon-circle2',
-                        items: [{
-                            columnWidth: 0.50,
-                            items: tabContent.splice(0, 5)
-                        }, {
-                            columnWidth: 0.50,
-                            items: tabContent
-                        }]
+                } else {
+                    Ext.each(tabContents, function (tabContent, index) {
+                        me.down('tabpanel').add({
+                            layout: 'column',
+                            iconCls: index === 0 ? 'icon-circle' : 'icon-circle2',
+                            items: [{
+                                columnWidth: 0.50,
+                                items: tabContent.splice(0, 5)
+                            }, {
+                                columnWidth: 0.50,
+                                items: tabContent
+                            }]
+                        });
                     });
-                });
+                }
                 Ext.resumeLayouts();
                 me.doLayout();
             }
@@ -168,22 +174,17 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                     textColor = "#686868";
                 }
                 else if (value.severity === undefined && value.assignee !== undefined) {
-                    switch (value.assignee) {
-                        case 'assigneeIsCurrentUser':
+                    switch (value.assigneeIsCurrentUser) {
+                        case true:
                             fillColor = "#1E7D9E";
                             borderColor = "#1E7D9E";
                             textColor = "#686868";
                             break;
-                        case 'unassigned':
-                            fillColor = "#FFFFFF";
-                            borderColor = "#1E7D9E";
-                            textColor = "#686868";
-                            break;
-                        default:
+                        case false:
                             fillColor = "#A0A0A0";
                             borderColor = "#A0A0A0";
                             textColor = "#A0A0A0";
-
+                            break;
                     }
                 } else if (value.severity !== undefined && value.assignee === undefined) {
                     switch (value.severity) {
@@ -199,8 +200,8 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                             break;
                     }
                 } else if (value.severity !== undefined && value.assignee !== undefined) {
-                    switch (value.assignee) {
-                        case 'currentuser':
+                    switch (value.assigneeIsCurrentUser) {
+                        case true:
                             switch (value.severity) {
                                 case 'HIGH':
                                     fillColor = '#EB5642';
@@ -214,33 +215,20 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                                     break;
                             }
                             break;
-                        case 'unassigned':
+                        case false:
                             switch (value.severity) {
                                 case 'HIGH':
-                                    fillColor = '#FFFFFF';
+                                    fillColor = '#A0A0A0';
                                     borderColor = '#EB5642';
                                     textColor = '#EB5642';
                                     break;
                                 case 'WARNING':
-                                    fillColor = '#FFFFFF';
+                                    fillColor = '#A0A0A0';
                                     borderColor = '#FB9F76';
                                     textColor = '#FB9F76';
                                     break;
                             }
                             break;
-                        default:
-                            switch (value.severity) {
-                                case 'HIGH':
-                                    fillColor = '#A0A0A0';
-                                    borderColor = '#EB5642';
-                                    textColor = '#EB5642';
-                                    break;
-                                case 'WARNING':
-                                    fillColor = '#A0A0A0';
-                                    borderColor = '#FB9F76';
-                                    textColor = '#FB9F76';
-                                    break;
-                            }
                     }
                 }
                 return me.getHtml(fillColor, borderColor, value.type.charAt(0).toUpperCase(), '#686868', textColor, value);
@@ -278,7 +266,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 href = "#alarm";
                 break;
             case 'process':
-                href = this.router.getRoute('devices/device').buildUrl({mRID: 'test'}) + '/processes?activeTab=running';
+                href = this.router.getRoute('devices/device').buildUrl({mRID: this.mrId}) + '/processes?activeTab=running';
                 html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 break;
         }
