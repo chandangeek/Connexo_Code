@@ -27,12 +27,23 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,13 +52,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -89,6 +93,7 @@ public class MeterConfigurationIT {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.INSTANCE);
         }
     }
 

@@ -17,7 +17,8 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.User;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 
@@ -27,15 +28,11 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.security.Principal;
 import java.time.Clock;
 
-import org.junit.Before;
 import org.mockito.Mock;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 /**
  * Created by antfom on 17.02.2016.
@@ -117,6 +114,7 @@ public class MeteringInMemoryPersistentModule {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.INSTANCE);
         }
     }
 }

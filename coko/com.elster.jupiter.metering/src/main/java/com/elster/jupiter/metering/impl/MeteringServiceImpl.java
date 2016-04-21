@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -55,10 +56,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -75,11 +76,11 @@ import com.elster.jupiter.util.streams.DecoratedStream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -91,7 +92,6 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -104,16 +104,14 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.metering.impl.LocationTemplateImpl.LocationTemplateElements;
 import static com.elster.jupiter.metering.impl.LocationTemplateImpl.TemplateFieldImpl;
-
-import com.elster.jupiter.metering.LocationTemplate.TemplateField;
-
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 
 @Component(name = "com.elster.jupiter.metering",
-        service = {MeteringService.class, ServerMeteringService.class, InstallService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {MeteringService.class, ServerMeteringService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + MeteringService.COMPONENTNAME)
-public class MeteringServiceImpl implements ServerMeteringService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
+public class MeteringServiceImpl implements ServerMeteringService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile IdsService idsService;
     private volatile QueryService queryService;
@@ -127,6 +125,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile JsonService jsonService;
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile UpgradeService upgradeService;
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
@@ -142,7 +141,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Inject
     public MeteringServiceImpl(
             Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
-            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService) {
+            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService, UpgradeService upgradeService) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -157,10 +156,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setJsonService(jsonService);
         setFiniteStateMachineService(finiteStateMachineService);
         setCustomPropertySetService(customPropertySetService);
+        setUpgradeService(upgradeService);
         activate(null);
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     @Reference
@@ -196,25 +193,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version) {
         return dataModel.mapper(ReadingType.class).lockObjectIfVersion(version, mRID);
-    }
-
-    @Override
-    public void install() {
-        try {
-            dataModel.install(true, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        InstallerImpl installer = new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, messageService, createAllReadingTypes, requiredReadingTypes, clock);
-        installer.install();
-        new CreateLocationMemberTableOperation(dataModel, locationTemplate).execute();
-        new GeoCoordinatesSpatialMetaDataTableOperation(dataModel).execute();
-        installer.addDefaultData();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "IDS", "PRT", "USR", "EVT", "NLS", "FSM", "CPS");
     }
 
     @Override
@@ -382,6 +360,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         this.userService = userService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     public EventService getEventService() {
         return eventService;
     }
@@ -419,6 +402,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             @Override
             protected void configure() {
                 bind(ChannelBuilder.class).to(ChannelBuilderImpl.class);
+                bind(MeteringServiceImpl.class).toInstance(MeteringServiceImpl.this);
                 bind(MeteringService.class).toInstance(MeteringServiceImpl.this);
                 bind(ServerMeteringService.class).toInstance(MeteringServiceImpl.this);
                 bind(DataModel.class).toInstance(dataModel);
@@ -431,6 +415,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(Clock.class).toInstance(clock);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class);
+                bind(MessageService.class).toInstance(messageService);
             }
         });
 
@@ -444,6 +429,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         if (context == null && locationTemplate == null) {
             createDefaultLocationTemplate();
         }
+
+        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
 
     }
 
@@ -724,6 +711,14 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public List<MultiplierType> getMultiplierTypes() {
         return dataModel.mapper(MultiplierType.class).find();
+    }
+
+    boolean isCreateAllReadingTypes() {
+        return createAllReadingTypes;
+    }
+
+    String[] getRequiredReadingTypes() {
+        return requiredReadingTypes;
     }
 
     @Override
