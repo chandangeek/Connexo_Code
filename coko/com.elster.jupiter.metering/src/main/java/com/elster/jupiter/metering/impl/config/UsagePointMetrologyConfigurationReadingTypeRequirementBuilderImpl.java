@@ -1,9 +1,9 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -27,12 +27,12 @@ class UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl extends 
     }
 
     @Override
-    public FullySpecifiedReadingType withReadingType(ReadingType readingType) {
+    public FullySpecifiedReadingTypeRequirement withReadingType(ReadingType readingType) {
         return addReadingTypeRequirementToMeterRoleReference(super.withReadingType(readingType));
     }
 
     @Override
-    public PartiallySpecifiedReadingType withReadingTypeTemplate(ReadingTypeTemplate readingTypeTemplate) {
+    public PartiallySpecifiedReadingTypeRequirement withReadingTypeTemplate(ReadingTypeTemplate readingTypeTemplate) {
         return addReadingTypeRequirementToMeterRoleReference(super.withReadingTypeTemplate(readingTypeTemplate));
     }
 

@@ -24,7 +24,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -305,9 +305,9 @@ public class DataAggregationServiceImplCalculateIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
 
         // Setup configuration requirements
-        FullySpecifiedReadingType consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        FullySpecifiedReadingType production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWhReverse);
+        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("simplestNetConsumptionOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("simplestNetConsumptionOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -403,9 +403,9 @@ public class DataAggregationServiceImplCalculateIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
 
         // Setup configuration requirements
-        FullySpecifiedReadingType consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        FullySpecifiedReadingType production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWhReverse);
+        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -507,9 +507,9 @@ public class DataAggregationServiceImplCalculateIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
 
         // Setup configuration requirements
-        FullySpecifiedReadingType consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        FullySpecifiedReadingType production = this.configuration.newReadingTypeRequirement("A+").withReadingType(thirtyMinuteskWhReverse);
+        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(thirtyMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15And30MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15And30MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -618,9 +618,9 @@ public class DataAggregationServiceImplCalculateIT {
         this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
 
         // Setup configuration requirements
-        FullySpecifiedReadingType consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        FullySpecifiedReadingType production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWhReverse);
+        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("simplestNetConsumptionOfProsumerWithMultipleMeterActivations::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("simplestNetConsumptionOfProsumerWithMultipleMeterActivations::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);

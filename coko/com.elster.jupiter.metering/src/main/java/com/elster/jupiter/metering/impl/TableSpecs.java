@@ -1167,6 +1167,9 @@ public enum TableSpecs {
             //FunctionCallNodeImpl function value
             table.column("FUNCTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("function").add();
 
+            //FunctionCallNodeImpl function value
+            table.column("AGGLEVEL").number().conversion(ColumnConversion.NUMBER2ENUM).map("aggregationLevel").add();
+
             //ConstantNodeImpl constantValue
             table.column("CONSTANTVALUE").number().map("constantValue").add();
 

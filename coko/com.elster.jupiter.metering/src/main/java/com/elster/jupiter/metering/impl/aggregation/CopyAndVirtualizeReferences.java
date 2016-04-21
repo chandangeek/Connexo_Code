@@ -1,7 +1,9 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.config.*;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNodeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNodeImpl;
 
@@ -80,13 +82,28 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
     public ServerExpressionNode visitFunctionCall(com.elster.jupiter.metering.config.FunctionCallNode functionCall) {
         List<ServerExpressionNode> arguments = functionCall.getChildren().stream().map(child -> child.accept(this)).collect(Collectors.toList());
         Function function = Function.from(functionCall.getFunction());
-        if (Function.AGG_TIME.equals(function)) {
-            if (arguments.size() != 1) {
-                throw new IllegalArgumentException("Time based aggregation only supports 1 argument");
+        switch (functionCall.getFunction()) {
+            case AGG_TIME: {
+                if (arguments.size() != 1) {
+                    throw new IllegalArgumentException("Time based aggregation only supports 1 argument");
+                }
+                return new TimeBasedAggregationNode(arguments.get(0), VirtualReadingType.from(this.deliverable.getReadingType()));
             }
-            return new TimeBasedAggregationNode(arguments.get(0), VirtualReadingType.from(this.deliverable.getReadingType()));
-        } else {
-            return new FunctionCallNode(function, arguments);
+            case SUM:// Intentional fall-through
+            case AVG:// Intentional fall-through
+            case MIN_AGG:// Intentional fall-through
+            case MAX_AGG: {
+                if (arguments.size() != 1) {
+                    throw new IllegalArgumentException("Time based aggregation only supports 1 argument");
+                }
+                return new TimeBasedAggregationNode(
+                        arguments.get(0),
+                        AggregationFunction.from(functionCall.getFunction()),
+                        IntervalLength.from(functionCall.getAggregationLevel().get()));
+            }
+            default: {
+                return new FunctionCallNode(function, arguments);
+            }
         }
     }
 

@@ -8,7 +8,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
@@ -129,7 +129,7 @@ public class InferReadingTypeTest {
     public void inferIncompatibleRequirementsInOperation() {
         InferReadingType infer = this.testInstance();
 
-        FullySpecifiedReadingType requirement1 = mock(FullySpecifiedReadingType.class);
+        FullySpecifiedReadingTypeRequirement requirement1 = mock(FullySpecifiedReadingTypeRequirement.class);
         ReadingType requirement1ReadingType = mock(ReadingType.class);
         when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE2);   // Make sure this is not compatible with requirement 2
@@ -142,7 +142,7 @@ public class InferReadingTypeTest {
                         requirement1,
                         this.deliverable,
                         this.meterActivation);
-        FullySpecifiedReadingType requirement2 = mock(FullySpecifiedReadingType.class);
+        FullySpecifiedReadingTypeRequirement requirement2 = mock(FullySpecifiedReadingTypeRequirement.class);
         ReadingType requirement2ReadingType = mock(ReadingType.class);
         when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Incompatible with requirement 1
@@ -168,7 +168,7 @@ public class InferReadingTypeTest {
     public void inferIncompatibleRequirementsInFuntionCall() {
         InferReadingType infer = this.testInstance();
 
-        FullySpecifiedReadingType requirement1 = mock(FullySpecifiedReadingType.class);
+        FullySpecifiedReadingTypeRequirement requirement1 = mock(FullySpecifiedReadingTypeRequirement.class);
         ReadingType requirement1ReadingType = mock(ReadingType.class);
         when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE2);   // Make sure this is not compatible with requirement 2
@@ -181,7 +181,7 @@ public class InferReadingTypeTest {
                         requirement1,
                         this.deliverable,
                         this.meterActivation);
-        FullySpecifiedReadingType requirement2 = mock(FullySpecifiedReadingType.class);
+        FullySpecifiedReadingTypeRequirement requirement2 = mock(FullySpecifiedReadingTypeRequirement.class);
         ReadingType requirement2ReadingType = mock(ReadingType.class);
         when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Incompatible with requirement 1

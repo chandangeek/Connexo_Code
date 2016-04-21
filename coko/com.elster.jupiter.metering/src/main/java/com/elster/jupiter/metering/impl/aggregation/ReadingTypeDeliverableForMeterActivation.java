@@ -216,11 +216,17 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendTruncatedTimeline(SqlBuilder sqlBuilder, String sqlName) {
-        Loggers.SQL.debug(() -> "Truncating " + sqlName + " to " + this.targetReadingType.getIntervalLength().toOracleTruncFormatModel());
+        IntervalLength intervalLength;
+        if (Formula.Mode.EXPERT.equals(this.mode)) {
+            intervalLength = this.expressionNode.accept(new IntervalLengthFromExpressionNode());
+        } else {
+            intervalLength = this.targetReadingType.getIntervalLength();
+        }
+        Loggers.SQL.debug(() -> "Truncating " + sqlName + " to " + intervalLength.toOracleTruncFormatModel());
         sqlBuilder.append("TRUNC(");
         sqlBuilder.append(sqlName);
         sqlBuilder.append(", '");
-        sqlBuilder.append(this.targetReadingType.getIntervalLength().toOracleTruncFormatModel());
+        sqlBuilder.append(intervalLength.toOracleTruncFormatModel());
         sqlBuilder.append("')");
     }
 

@@ -52,6 +52,7 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_LOCATION_ENTRY(4019, Constants.DUPLICATE_LOCATION_ENTRY,"You attempted to enter a duplicate location address. Please check again or perform an editing."),
     CAN_NOT_DELETE_READING_TYPE_DELIVERABLE_IN_USE(4020, Constants.CAN_NOT_DELETE_READING_TYPE_DELIVERABLE_IN_USE, "The ''{0}'' is in use and can not be deleted."),
 
+    INVALID_DIMENSION(5000, Constants.INVALID_DIMENSION, "Invalid dimension"),
     INVALID_ARGUMENTS_FOR_MULTIPLICATION(5001, Constants.INVALID_ARGUMENTS_FOR_MULTIPLICATION, "Dimensions from multiplication arguments do not result in a valid dimension."),
     INVALID_ARGUMENTS_FOR_DIVISION(5002, Constants.INVALID_ARGUMENTS_FOR_DIVISION, "Dimensions from division arguments do not result in a valid dimension."),
     INVALID_NUMBER_OF_ARGUMENTS_FOR_SAFE_DIVISION(5003, Constants.INVALID_NUMBER_OF_ARGUMENTS_FOR_SAFE_DIVISION, "Safe division requires 3 arguments."),
@@ -60,13 +61,14 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION(5006, Constants.INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION, "Only dimensions that are compatible for automatic unit conversion can be summed or substracted."),
     INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED(5007, Constants.INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED, "At least 1 child is required for a function call."),
     INVALID_ARGUMENTS_FOR_FUNCTION_CALL(5008, Constants.INVALID_ARGUMENTS_FOR_FUNCTION_CALL, "Only dimensions that are compatible for automatic unit conversion can be used as children of a function."),
-    INVALID_DIMENSION(5009, Constants.INVALID_DIMENSION, "Invalid dimension"),
+    AGGREGATION_FUNCTION_REQUIRES_AGGREGATION_LEVEL(5009, Constants.AGGREGATION_FUNCTION_REQUIRES_AGGREGATION_LEVEL, "Aggregation functions require an aggregation level argument."),
+    INCONSISTENT_LEVELS_IN_AGGREGATION_FUNCTIONS(5010, Constants.INCONSISTENT_LEVELS_IN_AGGREGATION_FUNCTIONS, "All aggregation functions must use the same aggregation level argument."),
 
     CONTRACT_NOT_ACTIVE(6007, Constants.CONTRACT_NOT_ACTIVE, "The metrology contract with purpose {0} is not active on usage point ''{1}'' during the requested data aggregation period ({2})"),
     INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT(6008, Constants.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, "The requirement with id ''{0}'' cannot be used because it has a different metrology configuration."),
     INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE(6009, Constants.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, "The deliverable with id ''{0}'' cannot be used because it has a different metrology configuration."),
     READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(6010, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The readingtype \"{0}\" is not compatible with the dimension of the formula of deliverable \"{2} = {1}\"."),
-    NO_FUNCTIONS_ALLOWED_IN_AUTOMODE(6011, Constants.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE, "Functions are not allowed in auto mode."),
+    FUNCTION_NOT_ALLOWED_IN_AUTOMODE(6011, Constants.FUNCTION_NOT_ALLOWED_IN_AUTOMODE, "Function ''{0}'' is not allowed in auto mode."),
     IRREGULAR_READINGTYPE_IN_DELIVERABLE(6012, Constants.IRREGULAR_READINGTYPE_IN_DELIVERABLE, "Irregular readingtypes are not allowed for a deliverable."),
     IRREGULAR_READINGTYPE_IN_REQUIREMENT(6013, Constants.IRREGULAR_READINGTYPE_IN_REQUIREMENT, "Irregular readingtypes are not allowed for a requirement."),
     INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS(6014, Constants.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS, "The interval of the output reading type should be larger or equal to interval of the requirements in the formula."),
@@ -153,6 +155,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION = "expression.node.invalid.arguments.sum.or.substraction";
         public static final String INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED = "expression.node.invalid.arguments.one.child.required";
         public static final String INVALID_ARGUMENTS_FOR_FUNCTION_CALL = "expression.node.invalid.arguments.functioncall";
+        public static final String AGGREGATION_FUNCTION_REQUIRES_AGGREGATION_LEVEL = "expression.node.invalid.arguments.aggregation.functioncall";
+        public static final String INCONSISTENT_LEVELS_IN_AGGREGATION_FUNCTIONS = "expression.node.inconsistent.aggregation.levels";
         public static final String INVALID_DIMENSION = "expression.node.invalid.dimension";
         public static final String CONTRACT_NOT_ACTIVE = "metrology.contract.not.active.on.usagepoint";
 
@@ -167,7 +171,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA = "readingtype.of.deliverable.incompatible.with.formula";
         public static final String DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION = "deliverable.must.have.the.same.configuration";
         public static final String REQUIREMENT_MUST_HAVE_UNIQUE_RT = "requirement.must.have.unique.rt";
-        public static final String NO_FUNCTIONS_ALLOWED_IN_AUTOMODE = "no.functions.allowed.in.automode";
+        public static final String FUNCTION_NOT_ALLOWED_IN_AUTOMODE = "no.functions.allowed.in.automode";
         public static final String CAN_NOT_DELETE_FORMULA_IN_USE = "can.not.delete.formula.in.use";
         public static final String IRREGULAR_READINGTYPE_IN_DELIVERABLE = "irregular.readingtype.not.allowed.for.deliverable";
         public static final String IRREGULAR_READINGTYPE_IN_REQUIREMENT = "irregular.readingtype.not.allowed.for.requirement";

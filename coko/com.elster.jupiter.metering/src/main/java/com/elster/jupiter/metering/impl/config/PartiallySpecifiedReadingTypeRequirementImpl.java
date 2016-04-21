@@ -7,7 +7,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
@@ -31,7 +31,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl implements PartiallySpecifiedReadingType {
+public class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequirementImpl implements PartiallySpecifiedReadingTypeRequirement {
     public static final String TYPE_IDENTIFIER = "PRT";
 
     private final DataModel dataModel;
@@ -44,12 +44,12 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     private Dimension dimension;
 
     @Inject
-    public PartiallySpecifiedReadingTypeImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService) {
+    public PartiallySpecifiedReadingTypeRequirementImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService) {
         super(metrologyConfigurationService);
         this.dataModel = dataModel;
     }
 
-    public PartiallySpecifiedReadingTypeImpl init(MetrologyConfiguration metrologyConfiguration, String name, ReadingTypeTemplate template) {
+    public PartiallySpecifiedReadingTypeRequirementImpl init(MetrologyConfiguration metrologyConfiguration, String name, ReadingTypeTemplate template) {
         super.init(metrologyConfiguration, name);
         this.readingTypeTemplate.set(template);
         return this;
@@ -238,7 +238,7 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     }
 
     @Override
-    public PartiallySpecifiedReadingType overrideAttribute(ReadingTypeTemplateAttributeName name, int code) {
+    public PartiallySpecifiedReadingTypeRequirement overrideAttribute(ReadingTypeTemplateAttributeName name, int code) {
         PartiallySpecifiedReadingTypeAttributeValueImpl value = this.dataModel.getInstance(PartiallySpecifiedReadingTypeAttributeValueImpl.class);
         value.init(this, name, code);
         Save.CREATE.validate(this.dataModel, value);
@@ -250,7 +250,7 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     }
 
     @Override
-    public PartiallySpecifiedReadingType removeOverriddenAttribute(ReadingTypeTemplateAttributeName name) {
+    public PartiallySpecifiedReadingTypeRequirement removeOverriddenAttribute(ReadingTypeTemplateAttributeName name) {
         if (!this.overriddenAttributes.isEmpty()) {
             ListIterator<PartiallySpecifiedReadingTypeAttributeValueImpl> itr = this.overriddenAttributes.listIterator();
             while (itr.hasNext()) {

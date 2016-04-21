@@ -10,7 +10,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -227,7 +227,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Reading type requirement";
-        FullySpecifiedReadingType readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
                 .withMeterRole(meterRole)
                 .withReadingType(readingType);
         assertThat(readingTypeRequirement.getName()).isEqualTo(name);
@@ -244,7 +244,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Reading type requirement";
-        FullySpecifiedReadingType readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
                 .withMeterRole(meterRole)
                 .withReadingType(readingType);
 
@@ -342,7 +342,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Reading type requirement";
-        FullySpecifiedReadingType readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
                 .withMeterRole(meterRole)
                 .withReadingType(readingType);
 

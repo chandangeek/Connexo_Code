@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
@@ -13,8 +14,9 @@ import com.elster.jupiter.orm.DataModel;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by igh on 26/02/2016.
@@ -76,7 +78,7 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
 
     @Override
     public ExpressionNodeBuilder nullValue() {
-        return () -> new NullNodeImpl();
+        return NullNodeImpl::new;
     }
 
     @Override
@@ -90,33 +92,43 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
     }
 
     @Override
-    public ExpressionNodeBuilder sum(ExpressionNodeBuilder... terms) {
-        return function(Function.SUM, terms);
+    public ExpressionNodeBuilder minimum(List<ExpressionNodeBuilder> terms) {
+        return function(Function.MIN, null, terms);
     }
 
     @Override
-    public ExpressionNodeBuilder maximum(ExpressionNodeBuilder... terms) {
-        return function(Function.MAX, terms);
+    public ExpressionNodeBuilder maximum(List<ExpressionNodeBuilder> terms) {
+        return function(Function.MAX, null, terms);
     }
 
     @Override
-    public ExpressionNodeBuilder minimum(ExpressionNodeBuilder... terms) {
-        return function(Function.MIN, terms);
+    public ExpressionNodeBuilder sum(AggregationLevel aggregationLevel, List<ExpressionNodeBuilder> terms) {
+        return function(Function.SUM, aggregationLevel, terms);
     }
 
     @Override
-    public ExpressionNodeBuilder average(ExpressionNodeBuilder... terms) {
-        return function(Function.AVG, terms);
+    public ExpressionNodeBuilder maximum(AggregationLevel aggregationLevel, List<ExpressionNodeBuilder> terms) {
+        return function(Function.MAX_AGG, aggregationLevel, terms);
     }
 
     @Override
-    public ExpressionNodeBuilder firstNotNull(ExpressionNodeBuilder... terms) {
-        return function(Function.FIRST_NOT_NULL, terms);
+    public ExpressionNodeBuilder minimum(AggregationLevel aggregationLevel, List<ExpressionNodeBuilder> terms) {
+        return function(Function.MIN_AGG, aggregationLevel, terms);
+    }
+
+    @Override
+    public ExpressionNodeBuilder average(AggregationLevel aggregationLevel, List<ExpressionNodeBuilder> terms) {
+        return function(Function.AVG, aggregationLevel, terms);
+    }
+
+    @Override
+    public ExpressionNodeBuilder firstNotNull(List<ExpressionNodeBuilder> terms) {
+        return function(Function.FIRST_NOT_NULL, null, terms);
     }
 
     @Override
     public ExpressionNodeBuilder aggregate(ExpressionNodeBuilder expression) {
-        return function(Function.AGG_TIME, expression);
+        return function(Function.AGG_TIME, null, Collections.singletonList(expression));
     }
 
     @Override
@@ -144,16 +156,39 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
         return () -> new OperationNodeImpl(Operator.MULTIPLY,  multiplier.create(), multiplicand.create(), thesaurus);
     }
 
-    private ExpressionNodeBuilder function(Function function, ExpressionNodeBuilder... terms) {
-        if (mode.equals(Formula.Mode.AUTO)) {
-            throw new InvalidNodeException(thesaurus, MessageSeeds.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE);
+    @Override
+    public ExpressionNodeBuilder power(ExpressionNodeBuilder term, ExpressionNodeBuilder exponent) {
+        return function(Function.POWER, null, Arrays.asList(term, exponent));
+    }
+
+    @Override
+    public ExpressionNodeBuilder squareRoot(ExpressionNodeBuilder term) {
+        return function(Function.SQRT, null, Collections.singletonList(term));
+    }
+
+    private ExpressionNodeBuilder function(Function function, AggregationLevel aggregationLevel, List<ExpressionNodeBuilder> terms) {
+        this.validateUseOfFunctions(function);
+        if (function.requiresAggregationLevel()) {
+            if (aggregationLevel == null) {
+                throw new InvalidNodeException(thesaurus, MessageSeeds.AGGREGATION_FUNCTION_REQUIRES_AGGREGATION_LEVEL);
+            }
+            if (terms.isEmpty()) {
+                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED);
+            }
         }
         return () -> new FunctionCallNodeImpl(
-                        Arrays.stream(terms)
+                        terms.stream()
                             .map(ExpressionNodeBuilder::create)
                             .collect(Collectors.toList()),
                         function,
+                        aggregationLevel,
                         thesaurus);
+    }
+
+    private void validateUseOfFunctions(Function function) {
+        if (!this.mode.supports(function)) {
+            throw InvalidNodeException.functionNotAllowedInAutoMode(this.thesaurus, function);
+        }
     }
 
     public void setNodebuilder(ExpressionNodeBuilder nodebuilder) {
