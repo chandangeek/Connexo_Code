@@ -81,7 +81,7 @@ public class BpmServerImpl implements BpmServer {
 
     @Override
     public long doPost(String targetURL, String payload, String authorization) {
-        doPost(targetURL, payload, basicAuthString, 0);
+        doPost(targetURL, payload, authorization, 0);
         return 0;
     }
 
