@@ -40,6 +40,8 @@ public enum TableSpecs {
             table.column("NAME").varChar(NAME_LENGTH).notNull().map(CalendarImpl.Fields.NAME.fieldName()).add();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map(CalendarImpl.Fields.MRID.fieldName()).add();
             table.column("DESCRIPTION").varChar(NAME_LENGTH).map(CalendarImpl.Fields.DESCRIPTION.fieldName()).add();
+            table.column("STARTYEAR").type("number").notNull().conversion(ColumnConversion.NUMBER2INT).map(CalendarImpl.Fields.STARTYEAR.fieldName()).add();
+            table.column("ENDYEAR").type("number").conversion(ColumnConversion.NUMBER2INT).map(CalendarImpl.Fields.ENDYEAR.fieldName()).add();
             table.column("ABSTRACT_CALENDAR").bool().notNull().map(CalendarImpl.Fields.ABSTRACT_CALENDAR.fieldName()).add();
             table.column("TIMEZONENAME").varChar(NAME_LENGTH).map(CalendarImpl.Fields.TIMEZONENAME.fieldName()).add();
             Column categoryColumn = table.column(CalendarImpl.Fields.CATEGORY.fieldName()).number().notNull().add();

@@ -146,5 +146,10 @@ public interface Calendar extends HasId, HasName {
 
     void removeEvent(Event event);
 
-    List<DayType> getWeekTemplate(Instant time);
+    int getStartYear();
+
+    int getEndYear();
+
+    boolean isAbstract();
+
 }

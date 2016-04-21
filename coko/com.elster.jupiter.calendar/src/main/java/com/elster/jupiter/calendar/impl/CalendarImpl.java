@@ -26,9 +26,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 /**
  * Created by igh on 18/04/2016.
@@ -39,6 +41,8 @@ public class CalendarImpl implements Calendar {
         ID("id"),
         NAME("name"),
         MRID("mRID"),
+        STARTYEAR("startYear"),
+        ENDYEAR("endYear"),
         ABSTRACT_CALENDAR("abstractCalendar"),
         DESCRIPTION("description"),
         TIMEZONENAME("timeZoneName"),
@@ -70,6 +74,8 @@ public class CalendarImpl implements Calendar {
     private String mRID;
     private String timeZoneName;
     private boolean abstractCalendar;
+    private int startYear;
+    private int endYear;
 
     private long version;
     private Instant createTime;
@@ -91,25 +97,27 @@ public class CalendarImpl implements Calendar {
         this.calendarService = calendarService;
     }
 
-    CalendarImpl init(String name, String description, Category category, boolean abstractCalendar, TimeZone timeZone) {
+    CalendarImpl init(String name, String description, Category category, int startYear, int endYear, boolean abstractCalendar, TimeZone timeZone) {
         this.name = name;
         this.abstractCalendar = abstractCalendar;
         this.description = description;
+        this.startYear = startYear;
+        this.endYear = endYear;
         this.timeZone = timeZone;
         this.timeZoneName = timeZone.getID();
         this.category.set(category);
         return this;
     }
 
-    CalendarImpl init(String name, String description, Category category, boolean abstractCalendar) {
-        CalendarImpl calendarImpl = this.init(name, description, category, abstractCalendar, timeZone);
+    CalendarImpl init(String name, String description, Category category, int startYear, int endYear, boolean abstractCalendar) {
+        CalendarImpl calendarImpl = this.init(name, description, category, startYear, endYear, abstractCalendar, timeZone);
         calendarImpl.timeZone = timeZone;
         calendarImpl.timeZoneName = timeZone.getID();
         return calendarImpl;
     }
 
-    static CalendarImpl from(DataModel dataModel, String description, String name, Category category, boolean abstractCalendar, TimeZone timeZone) {
-        return dataModel.getInstance(CalendarImpl.class).init(name, description, category, abstractCalendar, timeZone);
+    static CalendarImpl from(DataModel dataModel, String description, String name, Category category, int startYear, int endYear, boolean abstractCalendar, TimeZone timeZone) {
+        return dataModel.getInstance(CalendarImpl.class).init(name, description, category, startYear, endYear, abstractCalendar, timeZone);
     }
 
 
@@ -230,8 +238,36 @@ public class CalendarImpl implements Calendar {
 
     @Override
     public List<PeriodTransition> getTransitions() {
-        return null;
+        return (containsFixedTransitions()) ? getFixedPeriodTransitions() : getRecurrentPeriodTransitions();
     }
+
+    private boolean containsFixedTransitions() {
+        return this.periodTransitionSpecs.stream()
+                .anyMatch(transition -> transition instanceof FixedPeriodTransitionSpec);
+    }
+
+    private List<PeriodTransition> getFixedPeriodTransitions() {
+        return this.periodTransitionSpecs.stream().map(spec -> (FixedPeriodTransitionSpec) spec).sorted(new Comparator<FixedPeriodTransitionSpec>() {
+            public int compare(FixedPeriodTransitionSpec o1, FixedPeriodTransitionSpec o2) {
+                return o1.getOccurrence().compareTo(o2.getOccurrence());
+            }
+        }).map(spec -> new PeriodTransitionImpl(spec.getOccurrence(), spec.getPeriod())).collect(Collectors.toList());
+    }
+
+    private List<PeriodTransition> getRecurrentPeriodTransitions() {
+        List<PeriodTransition> result = new ArrayList<>();
+        int year = startYear;
+        while (year <= endYear) {
+            result.addAll(this.periodTransitionSpecs.stream()
+                    .map(spec ->
+                            new PeriodTransitionImpl(
+                                    ((RecurrentPeriodTransitionSpec) spec).getOccurrence().atYear(year),
+                                    spec.getPeriod()))
+                    .collect(Collectors.toList()));
+        }
+        return result;
+    }
+
 
     @Override
     public DayType addDayType(String name) {
@@ -356,11 +392,17 @@ public class CalendarImpl implements Calendar {
         touch();
     }
 
-    public List<DayType> getWeekTemplate(Instant time) {
-        return null;
+    public int getStartYear() {
+        return startYear;
     }
 
+    public int getEndYear() {
+        return endYear;
+    }
 
+    public boolean isAbstract() {
+        return abstractCalendar;
+    }
 
     void touch() {
         this.calendarService.getDataModel().touch(this);
