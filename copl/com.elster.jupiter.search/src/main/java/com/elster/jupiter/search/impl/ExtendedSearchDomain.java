@@ -17,13 +17,19 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class SearchDomainExtensionSupportWrapper implements SearchDomain {
+/**
+ * Provides an implementation for the {@link SearchDomain} interface
+ * that wraps an existing SearchDomain and extends it with the properties
+ * of the {@link SearchDomainExtension}s that have been registered
+ * against it with the {@link SearchServiceImpl}.
+ */
+public class ExtendedSearchDomain implements SearchDomain {
 
     private final OrmService ormService;
     private final SearchServiceImpl searchService;
     private final SearchDomain originalDomain;
 
-    public SearchDomainExtensionSupportWrapper(OrmService ormService, SearchServiceImpl searchService, SearchDomain originalDomain) {
+    public ExtendedSearchDomain(OrmService ormService, SearchServiceImpl searchService, SearchDomain originalDomain) {
         this.ormService = ormService;
         this.searchService = searchService;
         this.originalDomain = originalDomain;

@@ -15,7 +15,7 @@ class SearchDomainExtensionSearchableProperty implements SearchableProperty {
     private final SearchDomainExtension searchDomainExtension;
     private final SearchableProperty searchableProperty;
 
-    public SearchDomainExtensionSearchableProperty(SearchDomain searchDomain, SearchDomainExtension searchDomainExtension, SearchableProperty searchableProperty) {
+    SearchDomainExtensionSearchableProperty(SearchDomain searchDomain, SearchDomainExtension searchDomainExtension, SearchableProperty searchableProperty) {
         this.searchDomain = searchDomain;
         this.searchDomainExtension = searchDomainExtension;
         this.searchableProperty = searchableProperty;

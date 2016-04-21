@@ -53,7 +53,10 @@ public interface SearchDomain {
     }
 
     /**
-     * @return A class for domain objects, i.e. class for objects we are searching for.
+     * Gets the domain class that this SearchDomain is searching for.
+     * When this SearchDomain represents a hierarchy of domain classes
+     * then this return the root of that class hierarchy.
+     * @return The domain class
      */
     Class<?> getDomainClass();
 

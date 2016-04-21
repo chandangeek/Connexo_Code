@@ -94,7 +94,7 @@ public class SearchServiceImpl implements SearchService, MessageSeedProvider {
     public List<SearchDomain> getDomains() {
         return this.searchProviders.getServices()
                 .stream()
-                .map(domain -> new SearchDomainExtensionSupportWrapper(ormService, this, domain))
+                .map(domain -> new ExtendedSearchDomain(ormService, this, domain))
                 .collect(Collectors.toList());
     }
 
