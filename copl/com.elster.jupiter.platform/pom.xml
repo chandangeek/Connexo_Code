@@ -140,6 +140,7 @@
                 <module>../com.elster.jupiter.time.rest</module>
                 <module>../com.elster.jupiter.transaction</module>
                 <module>../com.elster.jupiter.unifyingjs</module>
+                <module>../com.elster.jupiter.upgrade</module>
                 <module>../com.elster.jupiter.users</module>
                 <module>../com.elster.jupiter.users.extjs</module>
                 <module>../com.elster.jupiter.users.rest</module>
