@@ -197,7 +197,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
                         .addCustomPropertySet(registeredCustomPropertySet));
     }
 
-    private void registerCustomPropertySets(){
+    private void registerCustomPropertySets() {
         this.customPropertySets = this.getMeteringCustomPropertySets();
         customPropertySets.stream().forEach(customPropertySetService::addCustomPropertySet);
     }
