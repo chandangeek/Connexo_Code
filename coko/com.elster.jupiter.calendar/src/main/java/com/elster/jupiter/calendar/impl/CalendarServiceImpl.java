@@ -2,6 +2,7 @@ package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.nls.Layer;
@@ -143,17 +144,24 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     @Override
     public CalendarBuilder newCalendar(String name, TimeZone timeZone, Year start) {
-        return null;
+        CalendarBuilderImpl builder = new CalendarBuilderImpl(getDataModel());
+        builder.init(name, timeZone, start);
+        return builder;
     }
 
     @Override
     public Optional<Calendar> findCalendar(long id) {
-        return null;
+        return this.getDataModel().mapper(Calendar.class).getUnique("id", id);
     }
 
     @Override
     public Optional<Calendar> findCalendarByName(String name) {
-        return null;
+        return this.getDataModel().mapper(Calendar.class).getUnique("name", name);
+    }
+
+    @Override
+    public Optional<Category> findTimeOfUseCategory() {
+        return this.getDataModel().mapper(Category.class).getUnique("name", "TOU");
     }
 
     @Override

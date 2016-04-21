@@ -11,6 +11,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Year;
+import java.util.TimeZone;
+
 /**
  * Created by igh on 21/04/2016.
  */
@@ -41,7 +44,7 @@ public class CalendarCrudTest {
     // formula = Requirement
     public void testRequirementNodeCrud() {
         CalendarService service = getCalendarService();
-
+        service.newCalendar("test", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010)).add();
 
     }
 

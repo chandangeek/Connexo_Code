@@ -6,6 +6,7 @@ import com.elster.jupiter.util.HasName;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.time.Year;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -116,8 +117,6 @@ public interface Calendar extends HasId, HasName {
 
     void delete();
 
-    void setDescription(String description);
-
     DayType addDayType(String name);
 
     void removeDayType(DayType dayType);
@@ -146,9 +145,9 @@ public interface Calendar extends HasId, HasName {
 
     void removeEvent(Event event);
 
-    int getStartYear();
+    Year getStartYear();
 
-    int getEndYear();
+    Year getEndYear();
 
     boolean isAbstract();
 

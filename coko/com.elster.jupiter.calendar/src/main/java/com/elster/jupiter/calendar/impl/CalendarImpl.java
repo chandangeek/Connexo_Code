@@ -23,6 +23,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.time.Year;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,7 +74,7 @@ public class CalendarImpl implements Calendar {
     private String description;
     private String mRID;
     private String timeZoneName;
-    private boolean abstractCalendar;
+    private boolean abstractCalendar = false;
     private int startYear;
     private int endYear;
 
@@ -96,30 +97,6 @@ public class CalendarImpl implements Calendar {
     CalendarImpl(ServerCalendarService calendarService) {
         this.calendarService = calendarService;
     }
-
-    CalendarImpl init(String name, String description, Category category, int startYear, int endYear, boolean abstractCalendar, TimeZone timeZone) {
-        this.name = name;
-        this.abstractCalendar = abstractCalendar;
-        this.description = description;
-        this.startYear = startYear;
-        this.endYear = endYear;
-        this.timeZone = timeZone;
-        this.timeZoneName = timeZone.getID();
-        this.category.set(category);
-        return this;
-    }
-
-    CalendarImpl init(String name, String description, Category category, int startYear, int endYear, boolean abstractCalendar) {
-        CalendarImpl calendarImpl = this.init(name, description, category, startYear, endYear, abstractCalendar, timeZone);
-        calendarImpl.timeZone = timeZone;
-        calendarImpl.timeZoneName = timeZone.getID();
-        return calendarImpl;
-    }
-
-    static CalendarImpl from(DataModel dataModel, String description, String name, Category category, int startYear, int endYear, boolean abstractCalendar, TimeZone timeZone) {
-        return dataModel.getInstance(CalendarImpl.class).init(name, description, category, startYear, endYear, abstractCalendar, timeZone);
-    }
-
 
     @Override
     public long getId() {
@@ -156,11 +133,11 @@ public class CalendarImpl implements Calendar {
         return description;
     }
 
-    public void setDescription(String description) {
+    void setDescription(String description) {
         this.description = description;
     }
 
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
     }
 
@@ -392,12 +369,12 @@ public class CalendarImpl implements Calendar {
         touch();
     }
 
-    public int getStartYear() {
-        return startYear;
+    public Year getStartYear() {
+        return Year.of(startYear);
     }
 
-    public int getEndYear() {
-        return endYear;
+    public Year getEndYear() {
+        return Year.of(endYear);
     }
 
     public boolean isAbstract() {
@@ -409,5 +386,20 @@ public class CalendarImpl implements Calendar {
     }
 
 
+    void setmRID(String mRID) {
+        this.mRID = mRID;
+    }
 
+    void setStartYear(Year startYear) {
+        this.startYear = startYear.getValue();
+    }
+
+    void setEndYear(Year endYear) {
+        this.endYear = endYear.getValue();
+    }
+
+    void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
+        this.timeZoneName = timeZone.getID();
+    }
 }

@@ -37,6 +37,7 @@ public interface CalendarService {
 
     @ProviderType
     interface CalendarBuilder {
+        CalendarBuilder endYear(Year setStartYear);
         CalendarBuilder mRID(String mRID);
         CalendarBuilder description(String description);
         CalendarBuilder addEvent(String name, int code);
