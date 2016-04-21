@@ -40,6 +40,11 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                             title: Uni.I18n.translate('general.deviceLifeCycle', 'MDC', 'Device life cycle'),
                             padding: '8 16 16 0',
                             itemId: 'device-history-life-cycle-tab'
+                        },
+                        {
+                            title: Uni.I18n.translate('general.firmware', 'MDC', 'Firmware'),
+                            padding: '8 16 16 0',
+                            itemId: 'device-history-firmware-tab'
                         }
                     ]
                 }

@@ -71,13 +71,15 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                         fieldLabel: Uni.I18n.translate('general.start', 'MDC', 'Start'),
                         groupName: 'startGroup',
                         xtype: 'custom-attributes-version-date-field',
-                        itemId: 'custom-attribute-set-version-start-date-field'
+                        itemId: 'custom-attribute-set-version-start-date-field',
+                        privileges: Mdc.privileges.Device.adminTimeSlicedCps
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.end', 'MDC', 'End'),
                         groupName: 'endGroup',
                         xtype: 'custom-attributes-version-date-field',
-                        itemId: 'custom-attribute-set-version-end-date-field'
+                        itemId: 'custom-attribute-set-version-end-date-field',
+                        privileges: Mdc.privileges.Device.adminTimeSlicedCps
                     },
                     {
                         margin: '20 0 0 0',
@@ -129,6 +131,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 itemId: 'overlap-grid-field-container',
                 margin: '40 0 0 0',
                 hidden: true,
+                privileges: Mdc.privileges.Device.adminTimeSlicedCps,
                 width: 950,
                 items: [
                     {
@@ -156,7 +159,9 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
         recordToSave.set('objectTypeVersion', recordToLoad.get('objectTypeVersion'));
         me.recordToSave = recordToSave;
         me.down('#custom-attribute-set-version-property-form-id').loadRecord(recordToLoad);
-        me.setDateValues(startTime, endTime);
+        if (Mdc.privileges.Device.canAdministrateTimeSlicedCps()) {
+            me.setDateValues(startTime, endTime);
+        }
     },
 
     setDateValues: function (startdate, enddate) {
@@ -180,12 +185,13 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
     saveRecord: function () {
         var me = this,
             record = me.recordToSave,
+            hasAdminTimeSlicedCpsPrivileges = Mdc.privileges.Device.canAdministrateTimeSlicedCps(),
             propertyForm = me.down('#custom-attribute-set-version-property-form-id'),
             overlapContainer = me.down('#overlap-grid-field-container'),
             startDateField = me.down('#custom-attribute-set-version-start-date-field'),
             endDateField = me.down('#custom-attribute-set-version-end-date-field'),
-            startDate = startDateField.getValue(),
-            endDate = endDateField.getValue(),
+            startDate = startDateField ? startDateField.getValue() : undefined,
+            endDate = endDateField ? endDateField.getValue() : undefined,
             showOverlap;
 
         showOverlap = function(scope, startDateField, endDateField, overlapContainer) {
@@ -199,22 +205,32 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
             scope.checkRecord();
         };
 
-        Ext.suspendLayouts();
-        me.setLoading(true);
-        me.savedStartDate = startDate;
-        me.savedEndDate = endDate;
-        me.down('uni-form-error-message').hide();
-        startDateField.enableWithText();
-        endDateField.enableWithText();
-        startDateField.clearInvalid();
-        endDateField.clearInvalid();
         propertyForm.updateRecord();
+        if (hasAdminTimeSlicedCpsPrivileges) {
+            me.savedStartDate = startDate;
+            me.savedEndDate = endDate;
+            record.beginEdit();
+            record.propertiesStore = propertyForm.getRecord().properties();
+            record.set('startTime', startDate);
+            record.set('endTime', endDate);
+            record.endEdit();
+        }
         record.propertiesStore = propertyForm.getRecord().properties();
-        record.set('startTime', startDate);
-        record.set('endTime', endDate);
-        overlapContainer.hide();
+        me.setLoading(true);
+        Ext.suspendLayouts();
+        if (hasAdminTimeSlicedCpsPrivileges) {
+            startDateField.enableWithText();
+            endDateField.enableWithText();
+            startDateField.clearInvalid();
+            endDateField.clearInvalid();
+            overlapContainer.hide();
+        }
+        me.down('uni-form-error-message').hide();
+        me.minWidth = 1160;
+        me.up('viewport').updateLayout();
         Ext.resumeLayouts(true);
 
+        propertyForm.clearInvalid();
         record.save({
             backUrl: me.backUrl,
             params: {
@@ -228,30 +244,33 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
 
                 me.down('uni-form-error-message').show();
                 if (response.errors && response.errors.length > 0) {
-                    Ext.each(response.errors, function (error) {
-                        switch (error.id) {
-                            case 'startTime':
-                                startDateField.markInvalid(error.msg);
-                                me.isForcedSave = false;
-                                break;
-                            case 'endTime':
-                                endDateField.markInvalid(error.msg);
-                                me.isForcedSave = false;
-                                break;
-                            case 'RANGE_GAP_AFTER':
-                            case 'RANGE_GAP_BEFORE':
-                                if (me.isForcedSave) {
-                                    me.fireEvent('gaperror', me.gapErrorTitle, me.gapErrorText);
-                                }
-                                showOverlap(me, startDateField, endDateField, overlapContainer);
-                                break;
-                            case 'RANGE_OVERLAP_UPDATE_END':
-                            case 'RANGE_OVERLAP_UPDATE_START':
-                            case 'RANGE_OVERLAP_DELETE':
-                                showOverlap(me, startDateField, endDateField, overlapContainer);
-                                break;
-                        }
-                    });
+                    if (hasAdminTimeSlicedCpsPrivileges) {
+                        Ext.each(response.errors, function (error) {
+                            switch (error.id) {
+                                case 'startTime':
+                                    startDateField.markInvalid(error.msg);
+                                    me.isForcedSave = false;
+                                    break;
+                                case 'endTime':
+                                    endDateField.markInvalid(error.msg);
+                                    me.isForcedSave = false;
+                                    break;
+                                case 'RANGE_GAP_AFTER':
+                                case 'RANGE_GAP_BEFORE':
+                                    if (me.isForcedSave) {
+                                        me.fireEvent('gaperror', me.gapErrorTitle, me.gapErrorText);
+                                    }
+                                    showOverlap(me, startDateField, endDateField, overlapContainer);
+                                    break;
+                                case 'RANGE_OVERLAP_UPDATE_END':
+                                case 'RANGE_OVERLAP_UPDATE_START':
+                                case 'RANGE_OVERLAP_DELETE':
+                                    showOverlap(me, startDateField, endDateField, overlapContainer);
+                                    break;
+                            }
+                        });
+                    }
+                    propertyForm.markInvalid(response.errors);
                 }
             },
             callback: function () {

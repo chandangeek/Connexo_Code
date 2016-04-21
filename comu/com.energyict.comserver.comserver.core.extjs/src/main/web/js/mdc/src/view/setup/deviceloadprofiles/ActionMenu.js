@@ -18,6 +18,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ActionMenu', {
             privileges: Cfg.privileges.Validation.validateManual,
             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationActions,
             action: 'validateNow'
+        },
+        {
+            itemId: 'editLoadProfile',
+            text: Uni.I18n.translate('general.changeNextReadingBlockStart', 'MDC', 'Change next reading block start'),
+            action: 'editLoadProfile',
+            privileges: Mdc.privileges.Device.administrateDeviceData
         }
     ]
 });

@@ -6,6 +6,11 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
     bothSuspected: false,
     record: null,
 
+    requires: [
+        'Uni.util.FormErrorMessage',
+        'Uni.property.form.Property'
+    ],
+
     initComponent: function () {
         var me = this;
 

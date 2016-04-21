@@ -37,6 +37,12 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         privileges: Mdc.privileges.Device.deviceProcesses,
                         itemId: 'device-processes-link',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/processes'
+                    },
+                    {
+                        text: Uni.I18n.translate('devicemenu.serviceCalls', 'MDC', 'Service calls'),
+                        privileges: Mdc.privileges.Device.viewDevice,
+                        itemId: 'device-servicecalls-link',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/servicecalls'
                     }
                 ]
             },

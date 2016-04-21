@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.Setup', {
     alias: 'widget.deviceLogbooksSetup',
     itemId: 'deviceLogbooksSetup',
 
+    device: null,
     router: null,
     toggleId: null,
     requires: [
