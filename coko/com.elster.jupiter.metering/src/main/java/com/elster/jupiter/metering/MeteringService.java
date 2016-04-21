@@ -8,10 +8,12 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
@@ -139,4 +141,23 @@ public interface MeteringService {
     Optional<MultiplierType> getMultiplierType(String name);
 
     List<MultiplierType> getMultiplierTypes();
+
+    LocationBuilder newLocationBuilder();
+
+    Optional<Location>findLocation(long id);
+    Optional<Location> findDeviceLocation(String mRID);
+    Optional<Location> findDeviceLocation(long id);
+    Optional<Location> findUsagePointLocation(String mRID);
+    Optional<Location> findUsagePointLocation(long id);
+    Query<LocationMember> getLocationMemberQuery();
+    void createLocationTemplate();
+    LocationTemplate getLocationTemplate();
+    List<List<String>> getFormattedLocationMembers(long id);
+    GeoCoordinates createGeoCoordinates(String coordinates);
+    Optional<GeoCoordinates> findGeoCoordinates(long id);
+    Optional<GeoCoordinates> findDeviceGeoCoordinates(String mRID);
+    Optional<GeoCoordinates> findDeviceGeoCoordinates(long id);
+    Optional<GeoCoordinates> findUsagePointGeoCoordinates(String mRID);
+    Optional<GeoCoordinates> findUsagePointGeoCoordinates(long id);
+    Query<GeoCoordinates> getGeoCoordinatesQuery();
 }

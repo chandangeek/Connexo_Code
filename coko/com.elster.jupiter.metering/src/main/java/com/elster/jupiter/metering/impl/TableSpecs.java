@@ -7,6 +7,11 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationMember;
+import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
@@ -45,10 +50,12 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
+import static com.elster.jupiter.orm.ColumnConversion.SDOGEOMETRY2SPATIALGEOOBJ;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+
 
 public enum TableSpecs {
     MTR_SERVICECATEGORY {
@@ -87,12 +94,22 @@ public enum TableSpecs {
             table.column("EAUSERID").varChar(NAME_LENGTH).map("electronicAddress.userID").add();
             table.column("EAWEB").varChar(NAME_LENGTH).map("electronicAddress.web").add();
             table.column("GEOINFOREFERENCE").varChar(NAME_LENGTH).map("geoInfoReference").add();
-            table.column("MASTATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("mainAddress.status.dateTime").add();
+            table.column("MASTATUSDATETIME")
+                    .type("number")
+                    .conversion(NUMBER2INSTANT)
+                    .map("mainAddress.status.dateTime")
+                    .add();
             table.column("MASTATUSREASON").varChar(NAME_LENGTH).map("mainAddress.status.reason").add();
             table.column("MASTATUSREMARK").varChar(NAME_LENGTH).map("mainAddress.status.remark").add();
             table.column("MASTATUSVALUE").varChar(NAME_LENGTH).map("mainAddress.status.value").add();
-            table.column("MASTREETADDRESSGENERAL").varChar(NAME_LENGTH).map("mainAddress.streetDetail.addressGeneral").add();
-            table.column("MASTREETBUILDINGNAME").varChar(NAME_LENGTH).map("mainAddress.streetDetail.buildingName").add();
+            table.column("MASTREETADDRESSGENERAL")
+                    .varChar(NAME_LENGTH)
+                    .map("mainAddress.streetDetail.addressGeneral")
+                    .add();
+            table.column("MASTREETBUILDINGNAME")
+                    .varChar(NAME_LENGTH)
+                    .map("mainAddress.streetDetail.buildingName")
+                    .add();
             table.column("MASTREETCODE").varChar(NAME_LENGTH).map("mainAddress.streetDetail.code").add();
             table.column("MASTREETNAME").varChar(NAME_LENGTH).map("mainAddress.streetDetail.name").add();
             table.column("MASTREETNUMBER").varChar(NAME_LENGTH).map("mainAddress.streetDetail.number").add();
@@ -100,7 +117,11 @@ public enum TableSpecs {
             table.column("MASTREETSUFFIX").varChar(NAME_LENGTH).map("mainAddress.streetDetail.suffix").add();
             table.column("MASTREETSUITENUMBER").varChar(NAME_LENGTH).map("mainAddress.streetDetail.suiteNumber").add();
             table.column("MASTREETTYPE").varChar(NAME_LENGTH).map("mainAddress.streetDetail.type").add();
-            table.column("MASTREETWITHINTOWN").type("char(1)").conversion(CHAR2BOOLEAN).map("mainAddress.streetDetail.withinTownLimits").add();
+            table.column("MASTREETWITHINTOWN")
+                    .type("char(1)")
+                    .conversion(CHAR2BOOLEAN)
+                    .map("mainAddress.streetDetail.withinTownLimits")
+                    .add();
             table.column("MATOWNCODE").varChar(NAME_LENGTH).map("mainAddress.townDetail.code").add();
             table.column("MATOWNCOUNTRY").varChar(NAME_LENGTH).map("mainAddress.townDetail.country").add();
             table.column("MATOWNNAME").varChar(NAME_LENGTH).map("mainAddress.townDetail.name").add();
@@ -116,20 +137,37 @@ public enum TableSpecs {
             table.column("PHONE2COUNTRY").varChar(NAME_LENGTH).map("phone2.countryCode").add();
             table.column("PHONE2EXTENSION").varChar(NAME_LENGTH).map("phone2.extension").add();
             table.column("PHONE2LOCALNUMBER").varChar(NAME_LENGTH).map("phone2.localNumber").add();
-            table.column("SASTATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("secondaryAddress.status.dateTime").add();
+            table.column("SASTATUSDATETIME")
+                    .type("number")
+                    .conversion(NUMBER2INSTANT)
+                    .map("secondaryAddress.status.dateTime")
+                    .add();
             table.column("SASTATUSREASON").varChar(NAME_LENGTH).map("secondaryAddress.status.reason").add();
             table.column("SASTATUSREMARK").varChar(NAME_LENGTH).map("secondaryAddress.status.remark").add();
             table.column("SASTATUSVALUE").varChar(NAME_LENGTH).map("secondaryAddress.status.value").add();
-            table.column("SASTREETADDRESSGENERAL").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.addressGeneral").add();
-            table.column("SASTREETBUILDINGNAME").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.buildingName").add();
+            table.column("SASTREETADDRESSGENERAL")
+                    .varChar(NAME_LENGTH)
+                    .map("secondaryAddress.streetDetail.addressGeneral")
+                    .add();
+            table.column("SASTREETBUILDINGNAME")
+                    .varChar(NAME_LENGTH)
+                    .map("secondaryAddress.streetDetail.buildingName")
+                    .add();
             table.column("SASTREETCODE").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.code").add();
             table.column("SASTREETNAME").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.name").add();
             table.column("SASTREETNUMBER").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.number").add();
             table.column("SASTREETPREFIX").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.prefix").add();
             table.column("SASTREETSUFFIX").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.suffix").add();
-            table.column("SASTREETSUITENUMBER").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.suiteNumber").add();
+            table.column("SASTREETSUITENUMBER")
+                    .varChar(NAME_LENGTH)
+                    .map("secondaryAddress.streetDetail.suiteNumber")
+                    .add();
             table.column("SASTREETTYPE").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.type").add();
-            table.column("SASTREETWITHINTOWN").type("char(1)").conversion(CHAR2BOOLEAN).map("secondaryAddress.streetDetail.withinTownLimits").add();
+            table.column("SASTREETWITHINTOWN")
+                    .type("char(1)")
+                    .conversion(CHAR2BOOLEAN)
+                    .map("secondaryAddress.streetDetail.withinTownLimits")
+                    .add();
             table.column("SATOWNCODE").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.code").add();
             table.column("SATOWNCOUNTRY").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.country").add();
             table.column("SATOWNNAME").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.name").add();
@@ -141,11 +179,72 @@ public enum TableSpecs {
             table.column("STATUSVALUE").varChar(NAME_LENGTH).map("status.value").add();
             table.column("SERVICELOCATIONTYPE").varChar(NAME_LENGTH).map("type").add();
             table.column("ACCESSMETHOD").varChar(NAME_LENGTH).map("accessMethod").add();
-            table.column("NEEDSINSPECTION").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("needsInspection").add();
+            table.column("NEEDSINSPECTION")
+                    .type("char(1)")
+                    .notNull()
+                    .conversion(CHAR2BOOLEAN)
+                    .map("needsInspection")
+                    .add();
             table.column("SITEACCESSPROBLEM").varChar(NAME_LENGTH).map("siteAccessProblem").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_SERVICELOCATION").on(idColumn).add();
             table.unique("MTR_U_SERVICELOCATION").on(mRIDColumn).add();
+        }
+    },
+
+    MTR_LOCATION_TEMPLATE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<LocationTemplate> table = dataModel.addTable(name(), LocationTemplate.class);
+            table.map(LocationTemplateImpl.class);
+            table.setJournalTableName("MTR_LOCATIONTEMPLATEJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            Column templateColumn = table.column("LOCATIONTEMPLATE")
+                    .varChar(Table.SHORT_DESCRIPTION_LENGTH)
+                    .map("templateFields")
+                    .add();
+            table.column("MANDATORYFIELDS").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("mandatoryFields").add();
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_LOCATIONTEMPLATE").on(idColumn).add();
+            table.unique("MTR_U_LOCATIONTEMPLATE").on(templateColumn).add();
+        }
+    },
+
+    MTR_LOCATION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<Location> table = dataModel.addTable(name(), Location.class);
+            table.map(LocationImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            table.primaryKey("MTR_PK_LOCATION").on(idColumn).add();
+        }
+    },
+
+    MTR_LOCATIONMEMBER {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<LocationMember> table = dataModel.addTable(name(), LocationMember.class);
+            table.map(LocationMemberImpl.class);
+            TableBuilder.buildLocationMemberTable(table, MeteringServiceImpl.getLocationTemplateMembers());
+        }
+    },
+
+    MTR_GEOCOORDINATES {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<GeoCoordinates> table = dataModel.addTable(name(), GeoCoordinates.class);
+            table.map(GeoCoordinatesImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            table.column("GEOCOORDINATES")
+                    .sdoGeometry()
+                    .notNull()
+                    .conversion(SDOGEOMETRY2SPATIALGEOOBJ)
+                    .map("coordinates")
+                    .add();
+            table.addCreateTimeColumn("CREATETIME", "createTime");
+            table.addModTimeColumn("MODTIME", "modTime");
+            table.primaryKey("MTR_PK_GEOCOORDS").on(idColumn).add();
+
         }
     },
     MTR_AMRSYSTEM {
@@ -169,9 +268,16 @@ public enum TableSpecs {
             table.setJournalTableName("MTR_USAGEPOINTJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
-            Column serviceKindColumn = table.column("SERVICEKIND").number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
-            Column serviceLocationIdColumn = table.column("SERVICELOCATIONID").number().conversion(NUMBER2LONGNULLZERO).add();
-            table.column("SERVICELOCATIONSTRING").varChar(SHORT_DESCRIPTION_LENGTH).map("location").add();
+            Column serviceKindColumn = table.column("SERVICEKIND")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2ENUMPLUSONE)
+                    .add();
+            Column serviceLocationIdColumn = table.column("SERVICELOCATIONID")
+                    .number()
+                    .conversion(NUMBER2LONGNULLZERO)
+                    .add();
+            table.column("SERVICELOCATIONSTRING").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceLocationString").add();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
@@ -181,7 +287,21 @@ public enum TableSpecs {
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
             table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
-            table.column("INSTALLATIONTIME").number().notNull().conversion(ColumnConversion.NUMBER2INSTANT).map("installationTime").add();
+            table.column("INSTALLATIONTIME")
+                    .number()
+                    .notNull()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map("installationTime")
+                    .add();
+            Column locationIdColumn = table.column("LOCATIONID")
+                    .number()
+                    .conversion(NUMBER2LONGNULLZERO)
+                    .map("location")
+                    .add();
+            Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID")
+                    .number()
+                    .conversion(NUMBER2LONGNULLZERO)
+                    .add();
 
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINT").on(idColumn).add();
@@ -198,6 +318,18 @@ public enum TableSpecs {
                     .onDelete(RESTRICT)
                     .map("serviceLocation")
                     .reverseMap("usagePoints")
+                    .add();
+            table.foreignKey("MTR_FK_USAGEPOINTLOCATION")
+                    .on(locationIdColumn)
+                    .references(Location.class)
+                    .onDelete(RESTRICT)
+                    .map("upLocation")
+                    .add();
+            table.foreignKey("MTR_FK_USAGEPOINTGEOCOORDS")
+                    .on(geoCoordinatesIdColumn)
+                    .references(GeoCoordinates.class)
+                    .onDelete(RESTRICT)
+                    .map("geoCoordinates")
                     .add();
         }
     },
@@ -223,10 +355,16 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EndDevice> table = dataModel.addTable(name(), EndDevice.class);
             table.map(EndDeviceImpl.IMPLEMENTERS);
+            table.setJournalTableName("MTR_ENDDEVICEJRNL");
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("ENDDEVICETYPE", "char(1)");
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
-            Column amrSystemIdColumn = table.column("AMRSYSTEMID").type("number").notNull().conversion(NUMBER2INT).map("amrSystemId").add();
+            Column amrSystemIdColumn = table.column("AMRSYSTEMID")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2INT)
+                    .map("amrSystemId")
+                    .add();
             Column amrIdColumn = table.column("AMRID").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("amrId").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
@@ -241,23 +379,62 @@ public enum TableSpecs {
             table.column("EARADIO").varChar(NAME_LENGTH).map("electronicAddress.radio").add();
             table.column("EAUSERID").varChar(NAME_LENGTH).map("electronicAddress.userID").add();
             table.column("EAWEB").varChar(NAME_LENGTH).map("electronicAddress.web").add();
-            table.column("MANUFACTUREDDATE").number().map("manufacturedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
-            table.column("PURCHASEDDATE").number().map("purchasedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("MANUFACTUREDDATE")
+                    .number()
+                    .map("manufacturedDate")
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .add();
+            table.column("PURCHASEDDATE")
+                    .number()
+                    .map("purchasedDate")
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .add();
             table.column("RECEIVEDDATE").number().map("receivedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
-            table.column("INSTALLEDDATE").number().map("installedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("INSTALLEDDATE")
+                    .number()
+                    .map("installedDate")
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .add();
             table.column("REMOVEDDATE").number().map("removedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("RETIREDDATE").number().map("retiredDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
-            Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            Column obsoleteTime = table.column("OBSOLETETIME")
+                    .number()
+                    .map("obsoleteTime")
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .add();
             Column stateMachine = table.column("FSM").number().add();
+            Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).add();
+            Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID")
+                    .number()
+                    .conversion(NUMBER2LONGNULLZERO)
+                    .add();
+
             table.addAuditColumns();
             table.primaryKey("MTR_PK_METER").on(idColumn).add();
             table.unique("MTR_U_METER").on(mRIDColumn, obsoleteTime).add();
             table.unique("MTR_U_METERAMR").on(amrSystemIdColumn, amrIdColumn).add();
-            table.foreignKey("MTR_FK_METERAMRSYSTEM").references(MTR_AMRSYSTEM.name()).onDelete(RESTRICT).map("amrSystem").on(amrSystemIdColumn).add();
+            table.foreignKey("MTR_FK_METERAMRSYSTEM")
+                    .references(MTR_AMRSYSTEM.name())
+                    .onDelete(RESTRICT)
+                    .map("amrSystem")
+                    .on(amrSystemIdColumn)
+                    .add();
             table.foreignKey("MTR_FK_ENDDEVICE_FSM")
                     .on(stateMachine)
                     .references(FiniteStateMachine.class)
                     .map("stateMachine")
+                    .add();
+            table.foreignKey("MTR_FK_ENDDEVICELOCATION")
+                    .on(locationIdColumn)
+                    .references(Location.class)
+                    .onDelete(RESTRICT)
+                    .map("location")
+                    .add();
+            table.foreignKey("MTR_FK_ENDDEVICEGEOCOORDS")
+                    .on(geoCoordinatesIdColumn)
+                    .references(GeoCoordinates.class)
+                    .onDelete(RESTRICT)
+                    .map("geoCoordinates")
                     .add();
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
         }
@@ -294,7 +471,10 @@ public enum TableSpecs {
             Table<MeterActivation> table = dataModel.addTable(name(), MeterActivation.class);
             table.map(MeterActivationImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
+            Column usagePointIdColumn = table.column("USAGEPOINTID")
+                    .type("number")
+                    .conversion(NUMBER2LONGNULLZERO)
+                    .add();
             Column meterIdColumn = table.column("METERID").type("number").conversion(NUMBER2LONGNULLZERO).add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
@@ -325,12 +505,31 @@ public enum TableSpecs {
             Table<Channel> table = dataModel.addTable(name(), Channel.class);
             table.map(ChannelImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column meterActivationIdColumn = table.column("METERACTIVATIONID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column timeSeriesIdColumn = table.column("TIMESERIESID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column meterActivationIdColumn = table.column("METERACTIVATIONID")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column timeSeriesIdColumn = table.column("TIMESERIESID")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2LONG)
+                    .add();
             Column mainReadingTypeMRIDColumn = table.column("MAINREADINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
-            table.column("MAINDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("mainDerivationRule").notNull().add();
-            Column bulkQuantityReadingTypeMRIDColumn = table.column("BULKQUANTITYREADINGTYPEMRID").varChar(NAME_LENGTH).add();
-            table.column("BULKDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("bulkDerivationRule").add();
+            table.column("MAINDERIVATIONRULE")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .map("mainDerivationRule")
+                    .notNull()
+                    .add();
+            Column bulkQuantityReadingTypeMRIDColumn = table.column("BULKQUANTITYREADINGTYPEMRID")
+                    .varChar(NAME_LENGTH)
+                    .add();
+            table.column("BULKDERIVATIONRULE")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .map("bulkDerivationRule")
+                    .add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_CHANNEL").on(idColumn).add();
             table.foreignKey("MTR_FK_CHANNELACTIVATION")
@@ -369,9 +568,19 @@ public enum TableSpecs {
             Table<ReadingTypeInChannel> table = dataModel.addTable(name(), ReadingTypeInChannel.class);
             table.map(ReadingTypeInChannel.class);
             Column channelIdColumn = table.column("CHANNNELID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
+            Column positionColumn = table.column("POSITION")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2INT)
+                    .map("position")
+                    .add();
             Column readingTypeMRidColumn = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
-            table.column("DERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("derivationRule").notNull().add();
+            table.column("DERIVATIONRULE")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .map("derivationRule")
+                    .notNull()
+                    .add();
             table.primaryKey("MTR_PK_READINGTYPEINCHANNEL").on(channelIdColumn, positionColumn).add();
             table.foreignKey("MTR_FK_READINGTYPEINCHANNEL1")
                     .on(channelIdColumn)
@@ -396,12 +605,18 @@ public enum TableSpecs {
             Table<UsagePointAccountability> table = dataModel.addTable(name(), UsagePointAccountability.class);
             table.map(UsagePointAccountabilityImpl.class);
             table.setJournalTableName("MTR_UPACCOUNTABILITYJRNL");
-            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column usagePointIdColumn = table.column("USAGEPOINTID")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2LONG)
+                    .add();
             Column partyIdColumn = table.column("PARTYID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column roleMRIDColumn = table.column("ROLEMRID").varChar(NAME_LENGTH).notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_UPACCOUNTABILITY").on(usagePointIdColumn, partyIdColumn, roleMRIDColumn, intervalColumns.get(0)).add();
+            table.primaryKey("MTR_PK_UPACCOUNTABILITY")
+                    .on(usagePointIdColumn, partyIdColumn, roleMRIDColumn, intervalColumns.get(0))
+                    .add();
             table.foreignKey("MTR_FK_UPACCOUNTUP")
                     .on(usagePointIdColumn)
                     .references(MTR_USAGEPOINT.name())
@@ -431,7 +646,12 @@ public enum TableSpecs {
             table.setJournalTableName("MTR_READINGQUALITYJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2INSTANT).map("readingTimestamp").add();
+            Column timestampColumn = table.column("READINGTIMESTAMP")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2INSTANT)
+                    .map("readingTimestamp")
+                    .add();
             Column typeColumn = table.column("TYPE").type("varchar(64)").notNull().map("typeCode").add();
             Column readingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
             Column actual = table.column("ACTUAL").bool().notNull().map("actual").add();
@@ -450,11 +670,13 @@ public enum TableSpecs {
                     .map("readingType")
                     .on(readingTypeColumn)
                     .add();
-            table.unique("MTR_U_READINGQUALITY").on(channelColumn, timestampColumn, typeColumn, readingTypeColumn).add();
+            table.unique("MTR_U_READINGQUALITY")
+                    .on(channelColumn, timestampColumn, typeColumn, readingTypeColumn)
+                    .add();
             table
-                .index("MTR_READINGQUALITY_VAL_OVERVW")
-                .on(channelColumn, typeColumn, actual)
-                .add();
+                    .index("MTR_READINGQUALITY_VAL_OVERVW")
+                    .on(channelColumn, typeColumn, actual)
+                    .add();
         }
     },
     MTR_ENDDEVICEEVENTTYPE {
@@ -477,7 +699,12 @@ public enum TableSpecs {
             table.map(EndDeviceEventRecordImpl.class);
             Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column eventTypeColumn = table.column("EVENTTYPE").varChar(NAME_LENGTH).notNull().add();
-            Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2INSTANT).map("createdDateTime").add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2INSTANT)
+                    .map("createdDateTime")
+                    .add();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
@@ -495,7 +722,9 @@ public enum TableSpecs {
             table.column("LOGBOOKPOSITION").type("number").map("logBookPosition").conversion(NUMBER2INT).add();
             table.column("DEVICEEVENTTYPE").varChar(80).map("deviceEventType").add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_ENDDEVICEEVENTRECORD").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn).add();
+            table.primaryKey("MTR_PK_ENDDEVICEEVENTRECORD")
+                    .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)
+                    .add();
             table.partitionOn(createdDateTimeColumn);
             table.foreignKey("MTR_FK_EVENT_ENDDEVICE")
                     .on(endDeviceColumn)
@@ -516,12 +745,28 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EndDeviceEventRecordImpl.EndDeviceEventDetailRecord> table = dataModel.addTable(name(), EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
             table.map(EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
-            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().map("endDeviceId").conversion(NUMBER2LONG).add();
-            Column eventTypeColumn = table.column("EVENTTYPE").varChar(NAME_LENGTH).notNull().map("eventTypeCode").add();
-            Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2INSTANT).map("createdDateTime").add();
+            Column endDeviceColumn = table.column("ENDDEVICEID")
+                    .type("number")
+                    .notNull()
+                    .map("endDeviceId")
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column eventTypeColumn = table.column("EVENTTYPE")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map("eventTypeCode")
+                    .add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2INSTANT)
+                    .map("createdDateTime")
+                    .add();
             Column keyColumn = table.column("KEY").varChar(NAME_LENGTH).notNull().map("key").add();
             table.column("DETAIL_VALUE").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("value").add();
-            table.primaryKey("MTR_PK_ENDDEVICEEVENTDETAIL").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn, keyColumn).add();
+            table.primaryKey("MTR_PK_ENDDEVICEEVENTDETAIL")
+                    .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn, keyColumn)
+                    .add();
             table.foreignKey("MTR_FK_ENDDEVICEEVENT_DETAIL")
                     .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)
                     .references(EndDeviceEventRecord.class)
@@ -538,7 +783,11 @@ public enum TableSpecs {
             Table<UsagePointDetail> table = dataModel.addTable(name(), UsagePointDetail.class);
             table.map(UsagePointDetailImpl.IMPLEMENTERS);
             table.setJournalTableName("MTR_USAGEPOINTDETAILJRNL");
-            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").notNull().conversion(NUMBER2LONGNULLZERO).add();
+            Column usagePointIdColumn = table.column("USAGEPOINTID")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2LONGNULLZERO)
+                    .add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
 
             table.addDiscriminatorColumn("SERVICECATEGORY", "varchar2(1)");
@@ -579,8 +828,16 @@ public enum TableSpecs {
             Table<MetrologyConfiguration> table = dataModel.addTable(name(), MetrologyConfiguration.class);
             table.map(MetrologyConfigurationImpl.class);
             Column id = table.addAutoIdColumn();
-            Column name = table.column(MetrologyConfigurationImpl.Fields.NAME.name()).varChar().notNull().map(MetrologyConfigurationImpl.Fields.NAME.fieldName()).add();
-            table.column(MetrologyConfigurationImpl.Fields.ACTIVE.name()).bool().map(MetrologyConfigurationImpl.Fields.ACTIVE.fieldName()).notNull().add();
+            Column name = table.column(MetrologyConfigurationImpl.Fields.NAME.name())
+                    .varChar()
+                    .notNull()
+                    .map(MetrologyConfigurationImpl.Fields.NAME.fieldName())
+                    .add();
+            table.column(MetrologyConfigurationImpl.Fields.ACTIVE.name())
+                    .bool()
+                    .map(MetrologyConfigurationImpl.Fields.ACTIVE.fieldName())
+                    .notNull()
+                    .add();
             table.addAuditColumns();
             table.unique("MTR_UK_METROLOGYCONFIGURATION").on(name).add();
             table.primaryKey("MTR_PK_METROLOGYCONFIGURATION").on(id).add();
@@ -591,9 +848,16 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<MetrologyConfigurationCustomPropertySetUsage> table = dataModel.addTable(name(), MetrologyConfigurationCustomPropertySetUsage.class);
             table.map(MetrologyConfigurationCustomPropertySetUsageImpl.class);
-            Column metrologyConfig = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.METROLOGY_CONFIG.name()).number().notNull().add();
-            Column customPropertySet = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.CUSTOM_PROPERTY_SET.name()).number().notNull().add();
-            table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.name()).number().notNull().conversion(NUMBER2INT).map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.fieldName()).add();
+            Column metrologyConfig = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.METROLOGY_CONFIG
+                    .name()).number().notNull().add();
+            Column customPropertySet = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.CUSTOM_PROPERTY_SET
+                    .name()).number().notNull().add();
+            table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.name())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INT)
+                    .map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.fieldName())
+                    .add();
             table.primaryKey("PK_M_CONFIG_CPS_USAGE").on(metrologyConfig, customPropertySet).add();
             table.foreignKey("FK_MCPS_USAGE_TO_CONFIG")
                     .references(MTR_METROLOGYCONFIG.name())
@@ -708,7 +972,11 @@ public enum TableSpecs {
             Column multiplierType = table.column("MULTIPLIERTYPE").varChar(NAME_LENGTH).add();
             table.addAuditColumns();
             table.column("OVERFLOW").number().map("overflowValue").add();
-            table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INTWRAPPER).map("numberOfFractionDigits").add();
+            table.column("FRACTIONDIGITS")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INTWRAPPER)
+                    .map("numberOfFractionDigits")
+                    .add();
 
             table.primaryKey("MTR_PK_RT_METER_CONFIG").on(meterConfig, measured).add();
             table.foreignKey("MTR_FK_RTMC_METER_CONFIG")
@@ -803,10 +1071,19 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<ServiceCategoryCustomPropertySetUsage> table = dataModel.addTable(name(), ServiceCategoryCustomPropertySetUsage.class);
             table.map(ServiceCategoryCustomPropertySetUsage.class);
-            Column serviceCategory = table.column("SERVICECATEGORY").number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
+            Column serviceCategory = table.column("SERVICECATEGORY")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2ENUMPLUSONE)
+                    .add();
             Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().notNull().add();
             table.primaryKey("PK_MTR_CPSSERVICECATUSAGE").on(serviceCategory, customPropertySet).add();
-            table.column(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.name()).number().notNull().conversion(NUMBER2INT).map(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.fieldName()).add();
+            table.column(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.name())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INT)
+                    .map(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.fieldName())
+                    .add();
             table.foreignKey("FK_MTR_CPSSERVICECATEGORY")
                     .references(MTR_SERVICECATEGORY.name())
                     .on(serviceCategory)
@@ -823,12 +1100,67 @@ public enum TableSpecs {
                     .map(ServiceCategoryCustomPropertySetUsage.Fields.CUSTOMPROPERTYSET.fieldName())
                     .add();
         }
-    }
-    ;
+    };
 
     abstract void addTo(DataModel dataModel);
 
     private static class Constants {
         public static final String JOURNAL_TABLE_SUFFIX = "JRNL";
+    }
+
+
+    private static class TableBuilder {
+        static void buildLocationMemberTable(Table<?> table, List<TemplateField> templateMembers) {
+
+            Column locationIdColumn = table.column("LOCATIONID")
+                    .number()
+                    .notNull()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .map("locationId")
+                    .add();
+            Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
+
+            if (templateMembers != null && !templateMembers.isEmpty()) {
+                templateMembers.stream().filter(f -> !f.getName().equalsIgnoreCase("locale")).forEach(column -> {
+                            if (column.isMandatory()) {
+                                table.column(column.getName().toUpperCase())
+                                        .varChar(Table.NAME_LENGTH)
+                                        .notNull()
+                                        .map(column.getName())
+                                        .add();
+                                table.column("UPPER" + column.getName().toUpperCase())
+                                        .varChar(NAME_LENGTH)
+                                        .notNull()
+                                        .as("UPPER(" + column.getName().toUpperCase() + ")")
+                                        .alias("upper" + column.getName().substring(0, 1).toUpperCase() + column.getName()
+                                                .substring(1))
+                                        .add();
+                            } else {
+                                table.column(column.getName().toUpperCase())
+                                        .varChar(Table.NAME_LENGTH)
+                                        .map(column.getName())
+                                        .add();
+                                table.column("UPPER" + column.getName().toUpperCase())
+                                        .varChar(NAME_LENGTH)
+                                        .as("UPPER(" + column.getName().toUpperCase() + ")")
+                                        .alias("upper" + column.getName().substring(0, 1).toUpperCase() + column.getName()
+                                                .substring(1))
+                                        .add();
+                            }
+                        }
+                );
+
+            }
+            table.column("DEFAULTLOCATION").bool().map("defaultLocation").add();
+            table.addCreateTimeColumn("CREATETIME", "createTime");
+            table.addModTimeColumn("MODTIME", "modTime");
+            table.primaryKey("MTR_PK_LOCATION_MEMBER").on(locationIdColumn, localeColumn).add();
+            table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn)
+                    .references(MTR_LOCATION.name())
+                    .onDelete(RESTRICT)
+                    .map("locationId")
+                    .add();
+
+        }
     }
 }
