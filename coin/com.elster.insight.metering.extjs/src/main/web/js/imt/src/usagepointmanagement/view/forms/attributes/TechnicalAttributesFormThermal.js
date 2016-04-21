@@ -35,7 +35,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFo
             {
                 name: 'bypassStatus',
                 itemId: 'fld-up-bypass-status',
-                fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass status'),
+                fieldLabel: Uni.I18n.translate('general.label.bypassStatus', 'IMT', 'Bypass status'),
                 listeners: {
                     beforerender: function (fld){
                         fld.setVisible(me.down('#fld-up-bypass').getValue() == 'YES')

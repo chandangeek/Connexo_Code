@@ -161,7 +161,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         me.doRequest({
             success: function (record) {
                 router.getRoute('usagepoints/view').forward({mRID: encodeURIComponent(record.get('mRID'))});
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagepoint.add.successMsg', 'MDC', "Usage point added"));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagepoint.add.successMsg', 'IMT', "Usage point added"));
             }
         });
     },
