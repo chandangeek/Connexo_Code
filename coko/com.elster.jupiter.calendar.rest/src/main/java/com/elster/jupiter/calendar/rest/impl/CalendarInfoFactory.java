@@ -8,8 +8,15 @@ import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class CalendarInfoFactory {
     private int NUMBER_OF_EVENTS = 3;
@@ -74,18 +81,61 @@ public class CalendarInfoFactory {
     public CalendarInfo fromCalendar(Calendar calendar) {
         CalendarInfo calendarInfo = new CalendarInfo();
 
+        addBasicInformation(calendar, calendarInfo);
+//        calendarInfo.startYear = calendar.getStartYear();
+        addPeriods(calendarInfo, calendar.getTransitions());
+        addEvents(calendarInfo, calendar.getEvents());
+        addDayTypes(calendarInfo, calendar.getDayTypes());
+
+        return calendarInfo;
+    }
+
+    public CalendarInfo fromCalendar(Calendar calendar, LocalDate localDate) {
+        CalendarInfo calendarInfo = new CalendarInfo();
+        addBasicInformation(calendar, calendarInfo);
+        Map<DayOfWeek, PeriodTransition> transitionsPerDay = calculateWeekInfo(calendar, localDate);
+        for (DayOfWeek day: transitionsPerDay.keySet()) {
+            //voeg dag toe aan weektemplate
+            //if dagtype nog niet in dagtypes: voeg toe
+            //ook event toevoegen waar het dagtype aan gelinked is
+        }
+        return calendarInfo;
+    }
+
+    private Map<DayOfWeek, PeriodTransition> calculateWeekInfo(Calendar calendar, LocalDate localDate) {
+        Map<DayOfWeek, PeriodTransition> transitionPerDay = new LinkedHashMap<>(DayOfWeek.values().length);
+        for(int i = 0; i < DayOfWeek.values().length; i++) {
+            PeriodTransition transition = getTransitionForDate(calendar.getTransitions(), localDate.plusDays(0));
+            transitionPerDay.put(localDate.getDayOfWeek(), transition);
+        }
+
+        return transitionPerDay;
+    }
+
+
+    private PeriodTransition getTransitionForDate( List<PeriodTransition> transitions, LocalDate localDate) {
+        for(int i = 0; i < transitions.size(); i++) {
+            if(i == transitions.size() - 1) {
+                return transitions.get(i);
+            } else if (isBetween(localDate, transitions.get(i), transitions.get(i + 1))) {
+                return transitions.get(i);
+            }
+        }
+        return null;
+    }
+
+    private boolean isBetween(LocalDate localDate, PeriodTransition firstTransition, PeriodTransition nextTransition) {
+        return (firstTransition.getOccurrence().isBefore(localDate) || firstTransition.getOccurrence().isEqual(localDate))
+                && nextTransition.getOccurrence().isAfter(localDate);
+    }
+
+    private void addBasicInformation(Calendar calendar, CalendarInfo calendarInfo) {
         calendarInfo.name = calendar.getName();
         calendarInfo.category = calendar.getCategory().getName();
 //        calendarInfo.mRID = calendar.getMrid();
         calendarInfo.id = calendar.getId();
         calendarInfo.description = calendar.getDescription();
         calendarInfo.timeZone = calendar.getTimeZone().getDisplayName();
-//        calendarInfo.startYear = calendar.getStartYear();
-        addEvents(calendarInfo, calendar.getEvents());
-        addDayTypes(calendarInfo, calendar.getDayTypes());
-        addPeriods(calendarInfo, calendar.getTransitions());
-
-        return calendarInfo;
     }
 
     private void addPeriods(CalendarInfo calendarInfo, List<PeriodTransition> transitions) {
@@ -125,4 +175,5 @@ public class CalendarInfoFactory {
         events.stream()
                 .forEach(event -> calendarInfo.events.add(new EventInfo(event.getId(),event.getName(),event.getCode())));
     }
+
 }

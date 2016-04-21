@@ -12,6 +12,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,8 +44,18 @@ public class CalendarResource {
     @Path("/timeofusecalendars/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public CalendarInfo getTimeOfUseCalendar(@PathParam("id") long id, @QueryParam("weekOf") long milliseconds) {
+        Calendar calendar = calendarService.findCalendar(id).get();
+        transformToWeekCalendar(calendar, LocalDate.ofEpochDay(milliseconds));
         return  calendarService.findCalendar(id)
                 .map(calendarInfoFactory::fromCalendar)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_TIME_OF_USE_CALENDAR));
     }
+
+    private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
+        calendarService.newCalendar(calendar.getName(), calendar.getTimeZone(), Year.of(localDate.getYear()));
+        calendarInfoFactory.fromCalendar(calendar, localDate);
+        return null;
+
+    }
+
 }
