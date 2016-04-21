@@ -4,16 +4,18 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class Installer {
+class Installer implements FullInstaller {
 
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
     private static final String BATCH_EXECUTOR = "batch executor";
@@ -22,16 +24,15 @@ class Installer {
     private final UserService userService;
     private final DataModel dataModel;
     private final MessageService messageService;
-    private final Thesaurus thesaurus;
 
-    Installer(UserService userService, DataModel dataModel, MessageService messageService, Thesaurus thesaurus) {
+    @Inject
+    Installer(UserService userService, DataModel dataModel, MessageService messageService) {
         this.userService = userService;
         this.dataModel = dataModel;
         this.messageService = messageService;
-        this.thesaurus = thesaurus;
     }
 
-    public void install() {
+    public void install(DataModelUpgrader dataModelUpgrader) {
         createTables();
         createBatchExecutor();
         createAllServerTopic();
@@ -67,4 +68,8 @@ class Installer {
         }
     }
 
+    @Override
+    public String getDescription() {
+        return "Install APS";
+    }
 }
