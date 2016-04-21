@@ -55,6 +55,7 @@ public class ComScheduleUpdatedMessageHandler implements MessageHandler {
         String topic = (String) messageProperties.get(EventConstants.EVENT_TOPIC);
         if (TOPIC.equals(topic)) {
             long comScheduleId = this.getLong("id", messageProperties);
+
             try (Connection connection = this.dataModel.getConnection(true);
                  PreparedStatement preparedStatement = connection.prepareStatement("SELECT MIN(id), MAX(id) FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " WHERE comschedule = ?")) {
                 try (ResultSet resultSet = preparedStatement.getResultSet()) {
@@ -73,7 +74,7 @@ public class ComScheduleUpdatedMessageHandler implements MessageHandler {
     private void propagateRecalculation(long comScheduleId, long minId, long maxId) {
         while (minId + RECALCULATION_BATCH_SIZE < maxId) {
             eventService.postEvent(UpdateEventType.COMSCHEDULE.topic(), new IdRange(comScheduleId, minId, minId + (RECALCULATION_BATCH_SIZE - 1)));
-            minId+=RECALCULATION_BATCH_SIZE;
+            minId += RECALCULATION_BATCH_SIZE;
         }
         eventService.postEvent(UpdateEventType.COMSCHEDULE.topic(), new IdRange(comScheduleId, minId, maxId));
     }
@@ -98,8 +99,7 @@ public class ComScheduleUpdatedMessageHandler implements MessageHandler {
         Object contents = messageProperties.get(key);
         if (contents instanceof Long) {
             return (Long) contents;
-        }
-        else {
+        } else {
             return ((Integer) contents).longValue();
         }
     }

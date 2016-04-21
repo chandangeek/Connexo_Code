@@ -62,6 +62,8 @@ public interface LogBook extends BaseLogBook, HasId {
         void update();
 
         LogBookUpdater setLastReadingIfLater(Instant date);
+
+        LogBookUpdater setLastReading(Instant date);
     }
 
 }
