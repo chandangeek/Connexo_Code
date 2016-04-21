@@ -181,7 +181,15 @@ class ReadingTypeDeliverableForMeterActivation {
                             this.targetReadingType));
             sqlBuilder.append(")");
         } else {
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
+            if (!this.expressionReadingType.equalsIgnoreCommodity(this.targetReadingType)) {
+                sqlBuilder.append(
+                        this.expressionReadingType.buildSqlUnitConversion(
+                                this.mode,
+                                this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
+                                this.targetReadingType));
+            } else {
+                this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
+            }
         }
     }
 
@@ -208,11 +216,17 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendTruncatedTimeline(SqlBuilder sqlBuilder, String sqlName) {
-        Loggers.SQL.debug(() -> "Truncating " + sqlName + " to " + this.targetReadingType.getIntervalLength().toOracleTruncFormatModel());
+        IntervalLength intervalLength;
+        if (Formula.Mode.EXPERT.equals(this.mode)) {
+            intervalLength = this.expressionNode.accept(new IntervalLengthFromExpressionNode());
+        } else {
+            intervalLength = this.targetReadingType.getIntervalLength();
+        }
+        Loggers.SQL.debug(() -> "Truncating " + sqlName + " to " + intervalLength.toOracleTruncFormatModel());
         sqlBuilder.append("TRUNC(");
         sqlBuilder.append(sqlName);
         sqlBuilder.append(", '");
-        sqlBuilder.append(this.targetReadingType.getIntervalLength().toOracleTruncFormatModel());
+        sqlBuilder.append(intervalLength.toOracleTruncFormatModel());
         sqlBuilder.append("')");
     }
 

@@ -35,7 +35,9 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
 
     @Override
     public VirtualReadingType visitVirtualRequirement(VirtualRequirementNode node) {
-        return node.getPreferredReadingType();
+        VirtualReadingType preferredReadingType = node.getPreferredReadingType();
+        node.setTargetReadingType(preferredReadingType);
+        return preferredReadingType;
     }
 
     @Override

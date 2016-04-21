@@ -90,7 +90,10 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
 
     @Override
     public ServerExpressionNode visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
-        return new TimeBasedAggregationNode(aggregationNode.getAggregatedExpression().accept(this), aggregationNode.getTargetReadingType());
+        return new TimeBasedAggregationNode(
+                        aggregationNode.getAggregatedExpression().accept(this),
+                        aggregationNode.getFunction(),
+                        aggregationNode.getIntervalLength());
     }
 
     private class Context {

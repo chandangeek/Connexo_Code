@@ -16,51 +16,51 @@ import java.util.Objects;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class LocalDateFromExpressionNode implements ServerExpressionNode.Visitor<String> {
+public class IntervalLengthFromExpressionNode implements ServerExpressionNode.Visitor<IntervalLength> {
 
     @Override
-    public String visitConstant(NumericalConstantNode constant) {
+    public IntervalLength visitConstant(NumericalConstantNode constant) {
         return null;
     }
 
     @Override
-    public String visitConstant(StringConstantNode constant) {
+    public IntervalLength visitConstant(StringConstantNode constant) {
         return null;
     }
 
     @Override
-    public String visitVariable(VariableReferenceNode variable) {
+    public IntervalLength visitVariable(VariableReferenceNode variable) {
         return null;
     }
 
     @Override
-    public String visitNull(NullNodeImpl nullNode) {
+    public IntervalLength visitNull(NullNodeImpl nullNode) {
         return null;
     }
 
     @Override
-    public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-        return deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName();
+    public IntervalLength visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
+        return null;
     }
 
     @Override
-    public String visitVirtualRequirement(VirtualRequirementNode requirement) {
-        return requirement.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName();
+    public IntervalLength visitVirtualRequirement(VirtualRequirementNode requirement) {
+        return null;
     }
 
     @Override
-    public String visitOperation(OperationNode operationNode) {
+    public IntervalLength visitOperation(OperationNode operationNode) {
         return this.findFirst(Arrays.asList(
                         operationNode.getLeftOperand(),
                         operationNode.getRightOperand()));
     }
 
     @Override
-    public String visitFunctionCall(FunctionCallNode functionCall) {
+    public IntervalLength visitFunctionCall(FunctionCallNode functionCall) {
         return this.findFirst(functionCall.getArguments());
     }
 
-    private String findFirst(List<ServerExpressionNode> children) {
+    private IntervalLength findFirst(List<ServerExpressionNode> children) {
         return children
                 .stream()
                 .map(child -> child.accept(this))
@@ -70,8 +70,8 @@ public class LocalDateFromExpressionNode implements ServerExpressionNode.Visitor
     }
 
     @Override
-    public String visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
-        return aggregationNode.getAggregatedExpression().accept(this);
+    public IntervalLength visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+        return aggregationNode.getIntervalLength();
     }
 
 }

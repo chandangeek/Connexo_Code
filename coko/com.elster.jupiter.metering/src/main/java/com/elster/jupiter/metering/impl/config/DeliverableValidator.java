@@ -2,8 +2,16 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.AggregationLevel;
+import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FunctionCallNode;
+import com.elster.jupiter.metering.config.NullNode;
+import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 
@@ -11,7 +19,7 @@ import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
-
+import java.util.Optional;
 
 public class DeliverableValidator implements ConstraintValidator<ValidDeliverable, ReadingTypeDeliverable> {
 
@@ -41,8 +49,7 @@ public class DeliverableValidator implements ConstraintValidator<ValidDeliverabl
                 }
             }
             if ((readingType != null) && formula.getMode().equals(Formula.Mode.AUTO) &&  !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
-                throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA,
-                        readingType.getMRID() + " (" + readingType.getFullAliasName() + ")", deliverable.getFormula().getExpressionNode().toString(),  deliverable.getName());
+                throw InvalidNodeException.deliverableReadingTypeIsNotCompatibleWithFormula(metrologyConfigurationService.getThesaurus(), readingType, deliverable);
             }
             if (readingType != null) {
                 IntervalLength intervalLengthOfReadingType = IntervalLength.from(readingType);
@@ -55,9 +62,10 @@ public class DeliverableValidator implements ConstraintValidator<ValidDeliverabl
                     List<IntervalLength> lengths = ((ServerFormula) formula).getIntervalLengths();
                     for (IntervalLength length : lengths) {
                         if (!UnitConversionSupport.isAssignable(intervalLengthOfReadingType, length)) {
-                            throw new InvalidNodeException(
+                            throw InvalidNodeException.incompatibleIntervalLengths(
                                     metrologyConfigurationService.getThesaurus(),
-                                    MessageSeeds.INCOMPATIBLE_INTERVAL_LENGTHS, length.toString(), intervalLengthOfReadingType.toString());
+                                    length,
+                                    intervalLengthOfReadingType);
                         }
                     }
                 }
@@ -66,14 +74,11 @@ public class DeliverableValidator implements ConstraintValidator<ValidDeliverabl
                 if (!del.equals(deliverable)) {
                     if (formula.getMode().equals(Formula.Mode.AUTO) &&
                             !UnitConversionSupport.isAssignable(del.getReadingType(), del.getFormula().getExpressionNode().getDimension())) {
-                        throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(),
-                                MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA,
-                                del.getReadingType().getMRID() + " (" + del.getReadingType().getFullAliasName() + ")",
-                                del.getFormula().getExpressionNode().toString(),
-                                del.getName());
+                        throw InvalidNodeException.deliverableReadingTypeIsNotCompatibleWithFormula(metrologyConfigurationService.getThesaurus(), del.getReadingType(), del);
                     }
                 }
             }
+            this.validateConsistentAggregationLevels(formula.getExpressionNode());
             return true;
         } catch (InvalidNodeException e) {
             context.disableDefaultConstraintViolation();
@@ -81,4 +86,76 @@ public class DeliverableValidator implements ConstraintValidator<ValidDeliverabl
             return false;
         }
     }
+
+    private void validateConsistentAggregationLevels(ExpressionNode expressionNode) {
+        if (!expressionNode.accept(new ConsistentAggregationLevelValidator())) {
+            throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INCONSISTENT_LEVELS_IN_AGGREGATION_FUNCTIONS);
+        }
+    }
+
+    private class ConsistentAggregationLevelValidator implements ExpressionNode.Visitor<Boolean> {
+        private AggregationLevel aggregationLevel = null;
+
+        @Override
+        public Boolean visitConstant(ConstantNode constant) {
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean visitRequirement(ReadingTypeRequirementNode requirement) {
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean visitDeliverable(ReadingTypeDeliverableNode deliverable) {
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean visitOperation(OperationNode operationNode) {
+            return this.visitChildren(operationNode.getChildren());
+        }
+
+        @Override
+        public Boolean visitFunctionCall(FunctionCallNode functionCall) {
+            Optional<AggregationLevel> aggregationLevel = functionCall.getAggregationLevel();
+            if (aggregationLevel.isPresent()) {
+                if (this.aggregationLevel == null) {
+                    this.aggregationLevel = aggregationLevel.get();
+                    return this.visitChildren(functionCall.getChildren());
+                } else {
+                    if (this.aggregationLevel.equals(aggregationLevel.get())) {
+                        return this.visitChildren(functionCall.getChildren());
+                    } else {
+                        return Boolean.FALSE;
+                    }
+                }
+            } else {
+                return Boolean.TRUE;
+            }
+        }
+
+        private Boolean visitChildren(List<ExpressionNode> children) {
+            return children
+                    .stream()
+                    .map(each -> each.accept(this))
+                    .reduce(null, this::and);
+        }
+
+        private Boolean and(Boolean b1, Boolean b2) {
+            if (b1 == null) {
+                return b2;
+            } else if (b2 == null) {
+                return b1;
+            } else {
+                return b1.booleanValue() && b2.booleanValue();
+            }
+        }
+
+        @Override
+        public Boolean visitNull(NullNode nullNode) {
+            return Boolean.TRUE;
+        }
+    }
+
 }

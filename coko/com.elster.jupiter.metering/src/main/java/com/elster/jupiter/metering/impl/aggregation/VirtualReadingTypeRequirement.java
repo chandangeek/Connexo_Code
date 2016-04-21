@@ -3,8 +3,8 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
@@ -71,11 +71,11 @@ public class VirtualReadingTypeRequirement {
     }
 
     private String readingTypeForSqlComment() {
-        if (this.requirement instanceof FullySpecifiedReadingType) {
-            FullySpecifiedReadingType requirement = (FullySpecifiedReadingType) this.requirement;
+        if (this.requirement instanceof FullySpecifiedReadingTypeRequirement) {
+            FullySpecifiedReadingTypeRequirement requirement = (FullySpecifiedReadingTypeRequirement) this.requirement;
             return requirement.getReadingType().getMRID();
         } else {
-            PartiallySpecifiedReadingType requirement = (PartiallySpecifiedReadingType) this.requirement;
+            PartiallySpecifiedReadingTypeRequirement requirement = (PartiallySpecifiedReadingTypeRequirement) this.requirement;
             return requirement.getReadingTypeTemplate().toString();
         }
     }

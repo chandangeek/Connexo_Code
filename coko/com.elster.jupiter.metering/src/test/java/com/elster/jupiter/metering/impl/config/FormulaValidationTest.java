@@ -5,10 +5,10 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -60,11 +60,6 @@ public class FormulaValidationTest {
     private ServerMetrologyConfigurationService getMetrologyConfigurationService() {
         return inMemoryBootstrapModule.getMetrologyConfigurationService();
     }
-
-    private TransactionService getTransactionService() {
-        return inMemoryBootstrapModule.getTransactionService();
-    }
-
 
     @Test
     // formula = minus(readingTypeRequirement1, readingTypeRequirement2)
@@ -252,9 +247,10 @@ public class FormulaValidationTest {
         ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.maximum(
-                builder.requirement(readingTypeRequirement1),
-                builder.requirement(readingTypeRequirement2),
-                builder.requirement(readingTypeRequirement3));
+                Arrays.asList(
+                    builder.requirement(readingTypeRequirement1),
+                    builder.requirement(readingTypeRequirement2),
+                    builder.requirement(readingTypeRequirement3)));
         ExpressionNode node = nodeBuilder.create();
 
         node.validate();
@@ -273,9 +269,10 @@ public class FormulaValidationTest {
         ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.maximum(
-                builder.requirement(readingTypeRequirement1),
-                builder.requirement(readingTypeRequirement2),
-                builder.requirement(readingTypeRequirement3));
+                Arrays.asList(
+                    builder.requirement(readingTypeRequirement1),
+                    builder.requirement(readingTypeRequirement2),
+                    builder.requirement(readingTypeRequirement3)));
         ExpressionNode node = nodeBuilder.create();
         try {
             node.validate();

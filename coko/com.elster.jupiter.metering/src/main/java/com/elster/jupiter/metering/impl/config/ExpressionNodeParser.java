@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
@@ -42,7 +43,8 @@ public class ExpressionNodeParser {
         this.mode = mode;
     }
 
-    private Deque<String> stack = new ArrayDeque<>();
+    private Deque<String> tokens = new ArrayDeque<>();
+    private Deque<AggregationLevel> aggregationLevels = new ArrayDeque<>();
 
     private List<ExpressionNode> nodes = new ArrayList<>();
 
@@ -53,16 +55,20 @@ public class ExpressionNodeParser {
         for (int i = 0; i < input.length(); i++) {
             char value = input.charAt(i);
             if (value == '(') {
-                stack.push(builder.toString());
+                tokens.push(builder.toString());
                 newArgumentCounter();
                 builder = new StringBuilder();
             } else if (value == ')') {
                 constructNode(builder.toString());
                 builder = new StringBuilder();
             } else if (value == ',') {
-
+                Optional<AggregationLevel> aggregationLevel = AggregationLevel.from(builder.toString());
+                if (aggregationLevel.isPresent()) {
+                    this.aggregationLevels.push(aggregationLevel.get());
+                    builder = new StringBuilder();
+                }
             } else if (value == ' ') {
-
+                // Ignore whitespace
             }
             else {
                 builder.append(value);
@@ -71,25 +77,25 @@ public class ExpressionNodeParser {
         return nodes.get(0);
     }
 
-    private void constructNode(String value) {
-        String last = stack.pop();
-        if ("constant".equals(last)) {
-            handleConstantNode(value);
-        } else if (last.equals("D")) {
-            handleDeliverableNode(value);
-        } else if (last.equals("R")) {
-            handleRequirementNode(value);
-        } else if (Function.names().contains(last)) {
-            handleFunctionNode(last);
-        } else if (Operator.names().contains(last)) {
-            if ("null".equals(value)) {
+    private void constructNode(String currentToken) {
+        String lastToken = tokens.pop();
+        if ("constant".equals(lastToken)) {
+            handleConstantNode(currentToken);
+        } else if ("D".equals(lastToken)) {
+            handleDeliverableNode(currentToken);
+        } else if ("R".equals(lastToken)) {
+            handleRequirementNode(currentToken);
+        } else if (Function.names().contains(lastToken)) {
+            AggregationLevel.from(currentToken).ifPresent(this.aggregationLevels::push);
+            handleFunctionNode(lastToken);
+        } else if (Operator.names().contains(lastToken)) {
+            if ("null".equals(currentToken)) {
                 handleNullNode();
             }
-            handleOperationNode(last);
+            handleOperationNode(lastToken);
         }
         removeArgumentCounter();
         incrementArgumentCounter();
-
     }
 
     private void handleDeliverableNode(String value) {
@@ -166,17 +172,28 @@ public class ExpressionNodeParser {
         nodes.add(operationNode);
     }
 
-    private void handleFunctionNode(String function) {
-        if (mode.equals(Formula.Mode.AUTO)) {
-            throw new InvalidNodeException(thesaurus, MessageSeeds.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE);
-        }
+    private void handleFunctionNode(String functionName) {
         if (nodes.size() < 1) {
-            throw new IllegalArgumentException("Operator '" + function + "' requires at least 1 argument");
+            throw new IllegalArgumentException("Operator '" + functionName + "' requires at least 1 argument");
         }
         int numberOfArguments = getNumberOfArguments();
-        FunctionCallNodeImpl functionCallNode = new FunctionCallNodeImpl(
-                nodes.subList(nodes.size() - numberOfArguments, nodes.size()),
-                getFunction(function), thesaurus);
+        Function function = getFunction(functionName);
+        if (!this.mode.supports(function)) {
+            throw InvalidNodeException.functionNotAllowedInAutoMode(thesaurus, function);
+        }
+        AggregationLevel aggregationLevel = null;
+        if (function.requiresAggregationLevel()) {
+            if (this.aggregationLevels.isEmpty()) {
+                throw new IllegalArgumentException("Aggregation function '" + functionName + "' requires aggregation level");
+            }
+            aggregationLevel = this.aggregationLevels.pop();
+        }
+        FunctionCallNodeImpl functionCallNode =
+                new FunctionCallNodeImpl(
+                    nodes.subList(nodes.size() - numberOfArguments, nodes.size()),
+                    function,
+                    aggregationLevel,
+                    thesaurus);
         for (int i = 0; i < numberOfArguments; i++) {
             nodes.remove(nodes.size() - 1);
         }
