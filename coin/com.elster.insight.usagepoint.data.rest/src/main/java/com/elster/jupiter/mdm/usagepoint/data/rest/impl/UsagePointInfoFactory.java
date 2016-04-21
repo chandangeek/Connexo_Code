@@ -120,6 +120,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .stream()
                 .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues()))
                 .collect(Collectors.toList());
+        info.customPropertySets.sort((cas1, cas2) -> cas1.name.compareTo(cas2.name));
 
         meteringService.findUsagePointGeoCoordinates(usagePoint.getMRID()).ifPresent(coordinates -> info.geoCoordinates = coordinates.getCoordinates().toString());
 
