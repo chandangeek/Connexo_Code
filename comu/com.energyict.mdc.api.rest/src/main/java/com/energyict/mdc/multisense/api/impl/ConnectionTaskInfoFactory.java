@@ -1,5 +1,9 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -16,11 +20,6 @@ import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
-
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.time.TimeDuration;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;

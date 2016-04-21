@@ -1,6 +1,5 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
@@ -13,7 +12,6 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

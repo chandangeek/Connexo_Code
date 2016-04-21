@@ -1,6 +1,5 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;

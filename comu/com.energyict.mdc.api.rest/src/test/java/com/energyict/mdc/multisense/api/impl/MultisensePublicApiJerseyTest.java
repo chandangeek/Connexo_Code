@@ -69,6 +69,7 @@ import org.mockito.Mock;
 import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
@@ -265,6 +266,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         when(connectionTask.getId()).thenReturn(id);
         when(connectionTask.getName()).thenReturn(name);
+        when(connectionTaskService.findConnectionTask(id)).thenReturn(Optional.of(connectionTask));
         return connectionTask;
     }
 
@@ -450,11 +452,23 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return comTaskEnablement;
     }
 
-    ComSchedule mockComSchedule(long scheduleId) {
+    ComSchedule mockComSchedule(long scheduleId, String name) {
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getId()).thenReturn(scheduleId);
-        when(comSchedule.getName()).thenReturn("Some schedule");
+        when(comSchedule.getName()).thenReturn(name);
         when(comSchedule.getmRID()).thenReturn(Optional.<String>empty());
+        when(comSchedule.getPlannedDate()).thenReturn(Optional.empty());
+        when(schedulingService.findSchedule(scheduleId)).thenReturn(Optional.of(comSchedule));
+        return comSchedule;
+    }
+
+    ComSchedule mockComSchedule(long scheduleId, String name, Optional<String> mRID, Optional<Instant> plannedDate) {
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(comSchedule.getId()).thenReturn(scheduleId);
+        when(comSchedule.getName()).thenReturn(name);
+        when(comSchedule.getmRID()).thenReturn(mRID);
+        when(comSchedule.getPlannedDate()).thenReturn(plannedDate);
+        when(comSchedule.getPlannedDate()).thenReturn(plannedDate);
         when(schedulingService.findSchedule(scheduleId)).thenReturn(Optional.of(comSchedule));
         return comSchedule;
     }

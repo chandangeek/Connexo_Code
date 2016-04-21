@@ -6,9 +6,12 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
@@ -138,7 +141,13 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         if (comTaskExecutionInfo.schedulingSpec==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.SCHEDULE_SPEC_EXPECTED);
         }
-        Optional<ConnectionTask> connectionTask = getConnectionTaskOrThrowException(comTaskExecutionInfo);
+        Optional<ConnectionTask<?, ?>> connectionTask = getConnectionTaskOptionallyOrThrowException(comTaskExecutionInfo);
+        if (connectionTask.isPresent() && comTaskExecutionInfo.useDefaultConnectionTask!=null && comTaskExecutionInfo.useDefaultConnectionTask) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE);
+        }
+        if (!connectionTask.isPresent() && (comTaskExecutionInfo.useDefaultConnectionTask==null || !comTaskExecutionInfo.useDefaultConnectionTask)) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE);
+        }
 
         ComTask comTask = taskService.findComTask(comTaskExecutionInfo.comTask.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_COM_TASK));
@@ -147,8 +156,10 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.COM_TASK_NOT_ENABLED));
 
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, comTaskExecutionInfo.schedulingSpec.asTemporalExpression());
-        if (connectionTask.isPresent()) {
-            builder.connectionTask(connectionTask.get());
+        if (comTaskExecutionInfo.useDefaultConnectionTask!=null && comTaskExecutionInfo.useDefaultConnectionTask) {
+            builder.useDefaultConnectionTask(true);
+        } else {
+            connectionTask.ifPresent(task -> builder.connectionTask(task));
         }
         if (comTaskExecutionInfo.priority!=null) {
             builder.priority(comTaskExecutionInfo.priority);
@@ -172,11 +183,24 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         if (comTaskExecutionInfo.schedule==null || comTaskExecutionInfo.schedule.id==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.SCHEDULE_EXPECTED);
         }
-        Optional<ConnectionTask> connectionTask = getConnectionTaskOrThrowException(comTaskExecutionInfo);
         ComSchedule comSchedule = schedulingService.findSchedule(comTaskExecutionInfo.schedule.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_COM_SCHEDULE));
+        Optional<ConnectionTask<?,?>> connectionTask = getConnectionTaskOptionallyOrThrowException(comTaskExecutionInfo);
+        if (connectionTask.isPresent() && comTaskExecutionInfo.useDefaultConnectionTask!=null && comTaskExecutionInfo.useDefaultConnectionTask) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE);
+        }
+        if (!connectionTask.isPresent() && (comTaskExecutionInfo.useDefaultConnectionTask==null || !comTaskExecutionInfo.useDefaultConnectionTask)) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE);
+        }
 
         ComTaskExecutionBuilder<ScheduledComTaskExecution> builder = device.newScheduledComTaskExecution(comSchedule);
+
+        if (comTaskExecutionInfo.useDefaultConnectionTask!=null && comTaskExecutionInfo.useDefaultConnectionTask) {
+            builder.useDefaultConnectionTask(true);
+        } else {
+            connectionTask.ifPresent(task->builder.connectionTask(task));
+        }
+
         if (connectionTask.isPresent()) {
             builder.connectionTask(connectionTask.get());
         }
@@ -198,7 +222,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         if (comTaskExecutionInfo.schedulingSpec!=null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.TYPE_DOES_NOT_SUPPORT_SCHEDULE_SPEC);
         }
-        Optional<ConnectionTask> connectionTask = getConnectionTaskOrThrowException(comTaskExecutionInfo);
+        Optional<ConnectionTask<?, ?>> connectionTask = getConnectionTaskOptionallyOrThrowException(comTaskExecutionInfo);
         ComTask comTask = taskService.findComTask(comTaskExecutionInfo.comTask.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_COM_TASK));
 
@@ -220,7 +244,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         return manuallyScheduledComTaskExecution;
     }
 
-    protected Optional<ConnectionTask> getConnectionTaskOrThrowException(ComTaskExecutionInfo comTaskExecutionInfo) {
+    protected Optional<ConnectionTask<?,?>> getConnectionTaskOptionallyOrThrowException(ComTaskExecutionInfo comTaskExecutionInfo) {
         if (comTaskExecutionInfo.connectionTask!=null && comTaskExecutionInfo.connectionTask.id!=null) {
             return Optional.of(connectionTaskService.findConnectionTask(comTaskExecutionInfo.connectionTask.id)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_TASK)));
@@ -228,4 +252,52 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         return Optional.empty();
     }
 
+    public ScheduledComTaskExecution updateSharedScheduledComtaskExecution(ComTaskExecutionInfo comTaskExecutionInfo, ScheduledComTaskExecution comTaskExecution) {
+        ScheduledComTaskExecutionUpdater updater = comTaskExecution.getUpdater();
+        updateCommonFields(comTaskExecutionInfo, updater);
+        return updater.update();
+    }
+
+    public ManuallyScheduledComTaskExecution updateManuallyScheduledComTaskExecution(ComTaskExecutionInfo comTaskExecutionInfo, ManuallyScheduledComTaskExecution comTaskExecution) {
+        ManuallyScheduledComTaskExecutionUpdater updater = comTaskExecution.getUpdater();
+        updateCommonFields(comTaskExecutionInfo, updater);
+        if (comTaskExecutionInfo.schedulingSpec!=null) {
+            updater.scheduleAccordingTo(comTaskExecutionInfo.schedulingSpec.asTemporalExpression());
+        } else {
+            updater.removeSchedule();
+        }
+        return updater.update();
+    }
+
+    public ManuallyScheduledComTaskExecution updateAdHocComTaskExecution(ComTaskExecutionInfo comTaskExecutionInfo, ManuallyScheduledComTaskExecution comTaskExecution) {
+        ManuallyScheduledComTaskExecutionUpdater updater = comTaskExecution.getUpdater();
+        updateCommonFields(comTaskExecutionInfo, updater);
+        if (comTaskExecutionInfo.schedulingSpec!=null) {
+            updater.scheduleAccordingTo(comTaskExecutionInfo.schedulingSpec.asTemporalExpression());
+        } else {
+            updater.removeSchedule();
+        }
+        return updater.update();
+    }
+
+    protected void updateCommonFields(ComTaskExecutionInfo comTaskExecutionInfo, ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> updater) {
+        Optional<ConnectionTask<?,?>> connectionTask = getConnectionTaskOptionallyOrThrowException(comTaskExecutionInfo);
+        if (!connectionTask.isPresent() && (comTaskExecutionInfo.useDefaultConnectionTask==null || !comTaskExecutionInfo.useDefaultConnectionTask)) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE);
+        }
+        if (comTaskExecutionInfo.useDefaultConnectionTask!=null && comTaskExecutionInfo.useDefaultConnectionTask) {
+            updater.useDefaultConnectionTask(true);
+        } else {
+            connectionTask.ifPresent(task->updater.connectionTask(task));
+        }
+        if (comTaskExecutionInfo.priority!=null) {
+            updater.priority(comTaskExecutionInfo.priority);
+        }
+        if (comTaskExecutionInfo.ignoreNextExecutionSpecForInbound!=null) {
+            updater.ignoreNextExecutionSpecForInbound(comTaskExecutionInfo.ignoreNextExecutionSpecForInbound);
+        }
+        if (comTaskExecutionInfo.ignoreNextExecutionSpecForInbound!=null) {
+            updater.ignoreNextExecutionSpecForInbound(comTaskExecutionInfo.ignoreNextExecutionSpecForInbound);
+        }
+    }
 }

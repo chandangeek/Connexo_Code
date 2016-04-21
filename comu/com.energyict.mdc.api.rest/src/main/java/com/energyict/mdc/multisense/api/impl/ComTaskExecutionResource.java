@@ -20,6 +20,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -89,6 +90,31 @@ public class ComTaskExecutionResource {
                 .resolveTemplate("comTaskExecutionId", comTaskExecution.getId())
                 .build();
         return Response.created(uri).build();
+
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @Path("/{comTaskExecutionId}")
+    public Response updateComTaskExecution(@PathParam("mrid") String mrid, @PathParam("comTaskExecutionId") long comTaskExecutionId,
+                                           ComTaskExecutionInfo comTaskExecutionInfo, @Context UriInfo uriInfo) {
+        ComTaskExecution comTaskExecution = deviceService.findByUniqueMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
+                .getComTaskExecutions().stream()
+                .filter(cte -> cte.getId() == comTaskExecutionId)
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_COM_TASK_EXECUTION));
+
+        ComTaskExecution updatedComTaskExecution = comTaskExecutionInfo.type.updateComTaskExecution(comTaskExecutionInfoFactory, comTaskExecutionInfo, comTaskExecution);
+        URI uri = uriInfo.getBaseUriBuilder()
+                .path(ComTaskExecutionResource.class)
+                .path(ComTaskExecutionResource.class, "getComTaskExecution")
+                .resolveTemplate("mrid", mrid)
+                .resolveTemplate("comTaskExecutionId", updatedComTaskExecution.getId())
+                .build();
+        return Response.ok(uri).build();
 
     }
 

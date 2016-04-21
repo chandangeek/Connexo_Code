@@ -1,7 +1,6 @@
 package com.energyict.mdc.multisense.api.impl.utils;
 
 import javax.ws.rs.core.UriInfo;
-import java.util.function.Supplier;
 
 /**
  * Functional interface used to copy a single property from a domain object to an info object.
