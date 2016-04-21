@@ -1,9 +1,11 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -11,6 +13,9 @@ import com.elster.jupiter.util.units.Dimension;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
+
+import java.time.temporal.TemporalAmount;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -74,4 +79,15 @@ public class FullySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl im
     public boolean isRegular() {
         return getReadingType().isRegular();
     }
+
+    @Override
+    public IntervalLength getIntervalLength() {
+        return IntervalLength.from(readingType.get());
+    }
+
+    @Override
+    public ReadingTypeUnit getUnit() {
+        return getReadingType().getUnit();
+    }
+
 }

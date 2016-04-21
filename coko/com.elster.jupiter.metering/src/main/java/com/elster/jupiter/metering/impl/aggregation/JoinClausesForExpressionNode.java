@@ -2,9 +2,10 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -19,12 +20,13 @@ import java.util.stream.Collectors;
 public class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void> {
 
     private final String joinPrefix;
-    private String fromTableName;
-    private List<String> joinTableNames = new ArrayList<>();
+    private String sourceTableName;
+    private Set<String> joinTableNames = new HashSet<>();
 
-    public JoinClausesForExpressionNode(String joinPrefix) {
+    public JoinClausesForExpressionNode(String joinPrefix, String sourceTableName) {
         super();
         this.joinPrefix = joinPrefix;
+        this.sourceTableName = sourceTableName;
     }
 
     public List<String> joinClauses() {
@@ -35,18 +37,15 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
     }
 
     private String toJoinClause(String joinTableName) {
-        return this.joinPrefix + joinTableName + " ON " + joinTableName + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName() + " = " + this.fromTableName + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName();
+        return this.joinPrefix + joinTableName + " ON " + joinTableName + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName() + " = " + this.sourceTableName + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName();
     }
 
     private void visitTableName(String tableName) {
-        if (this.fromTableName == null) {
-            // First encounter, must be the from table
-            this.fromTableName = tableName;
-        }
-        else {
+        if (!this.sourceTableName.equals(tableName)) {
             this.joinTableNames.add(tableName);
         }
     }
+
     @Override
     public Void visitConstant(NumericalConstantNode constant) {
         return null;
@@ -59,6 +58,11 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
 
     @Override
     public Void visitVariable(VariableReferenceNode variable) {
+        return null;
+    }
+
+    @Override
+    public Void visitNull(NullNodeImpl nullNode) {
         return null;
     }
 

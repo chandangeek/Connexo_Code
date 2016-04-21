@@ -11,9 +11,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -25,6 +23,8 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 
+
+@ValidDeliverable(groups = { Save.Create.class, Save.Update.class })
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
 public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUniqueName {
     public enum Fields {
@@ -113,13 +113,31 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     @Override
     public void setReadingType(ReadingType readingType) {
-        validateReadingType(readingType);
+        doSetReadingType(readingType);
+        ReadingTypeDeliverable deliverableToUpdate =  this.getMetrologyConfiguration().getDeliverables().stream().filter(del -> del.equals(this)).findAny().orElse(null);
+        // following code is necessary because to be able check for invalid formulas where this deliverable is used (check is done by the ValidDeliverable class)
+        // we also need to set the new readingtype in the expression nodes (ReadingTypeDeliveryNodes) in the formulas that use the deliverable that is updated.
+        // Otherwise they still contains the old readingtypes, because the nodes contains copies of the deliverables, no references (ORM framework)
+        if (deliverableToUpdate != null) {
+            //((ReadingTypeDeliverableImpl) deliverableToUpdate).doSetReadingType(readingType);
+        }
+        for (ReadingTypeDeliverable deliverable : this.getMetrologyConfiguration().getDeliverables()) {
+            List<ReadingTypeDeliverableNode> deliverableNodes = deliverable.getFormula().getExpressionNode().accept(new DeliverableNodesFromExpressionNode());
+            for (ReadingTypeDeliverableNode deliverableNode : deliverableNodes) {
+                if (deliverableNode.getReadingTypeDeliverable().equals(this)) {
+                    ((ReadingTypeDeliverableImpl) deliverableNode.getReadingTypeDeliverable()).doSetReadingType(readingType);
+                }
+            }
+        }
+    }
+
+    private void doSetReadingType(ReadingType readingType) {
         this.readingType.set(readingType);
     }
 
+
     @Override
     public void setFormula(Formula formula) {
-        validateFormula(formula);
         this.formula.set(formula);
     }
 
@@ -165,37 +183,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         return Long.hashCode(getId());
     }
 
-    void validateReadingType(ReadingType readingType) {
-        validateReadingType(readingType, true);
-    }
 
-    private void validateReadingType(ReadingType readingType, boolean checkAllDeliverablesOnMetrologyConfig) {
-        Thesaurus thesaurus = ((ServerMetrologyConfigurationService)metrologyConfigurationService).getThesaurus();
-        if ((readingType != null) && (!readingType.isRegular())) {
-            throw new InvalidNodeException(thesaurus, MessageSeeds.IRREGULAR_READINGTYPE_IN_DELIVERABLE);
-        }
-        if (readingType != null &&
-                formula.isPresent() &&
-                formula.get().getMode().equals(Formula.Mode.AUTO) &&
-                !UnitConversionSupport.isAssignable(readingType, formula.get().getExpressionNode().getDimension())) {
-            throw new InvalidNodeException(thesaurus , MessageSeeds.NEW_READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA);
-        }
-        if (checkAllDeliverablesOnMetrologyConfig) {
-            for (ReadingTypeDeliverable deliverable : getMetrologyConfiguration().getDeliverables()) {
-                if (!deliverable.equals(this)) {
-                    ((ReadingTypeDeliverableImpl) deliverable).validateReadingType(readingType, false);
-                }
-            }
-        }
-    }
 
-    void validateFormula(Formula formula) {
-        if (this.readingType.isPresent() &&
-                formula != null &&
-                formula.getMode().equals(Formula.Mode.AUTO) &&
-                !UnitConversionSupport.isAssignable(this.readingType.get(), formula.getExpressionNode().getDimension())) {
-            throw new InvalidNodeException(((ServerMetrologyConfigurationService)metrologyConfigurationService).getThesaurus() , MessageSeeds.NEW_FORMULA_NOT_COMPATIBLE_WITH_READINGTYPE_OF_DELIVERABLE);
-        }
-    }
 
 }

@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
+import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -20,12 +21,15 @@ import com.elster.jupiter.util.units.Dimension;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl implements PartiallySpecifiedReadingType {
     public static final String TYPE_IDENTIFIER = "PRT";
@@ -57,6 +61,97 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     }
 
     @Override
+    public String getDescription() {
+        List<Optional<String>> valueElements = new ArrayList<>();
+        valueElements.add(Stream.of(getAttributeValue(ReadingTypeTemplateAttributeName.MACRO_PERIOD), getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION))
+                .flatMap(com.elster.jupiter.util.streams.Functions.asStream()).findFirst().map(v -> "[" + v + "]"));
+        valueElements.add(getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION));
+        valueElements.add(getAttributeValue(ReadingTypeTemplateAttributeName.FLOW_DIRECTION));
+        valueElements.add(getAttributeValue(ReadingTypeTemplateAttributeName.COMMODITY));
+        valueElements.add(Optional.ofNullable(this.getReadingTypeTemplate().getName()));
+        valueElements.add(getUnitWithMultiplierValue());
+        valueElements.add(getAttributeValue(ReadingTypeTemplateAttributeName.PHASE));
+        valueElements.add(getAttributeValue(ReadingTypeTemplateAttributeName.TIME_OF_USE, "ToU"));
+        valueElements.add(getAttributeValue(ReadingTypeTemplateAttributeName.CRITICAL_PEAK_PERIOD, "CPP"));
+        valueElements.add(getAttributeValue(ReadingTypeTemplateAttributeName.CONSUMPTION_TIER, "Tier"));
+        return valueElements.stream()
+                .flatMap(com.elster.jupiter.util.streams.Functions.asStream())
+                .collect(Collectors.joining(" "));
+    }
+
+    @Override
+    public Optional<String> getAttributeValue(ReadingTypeTemplateAttributeName attributeName) {
+        return overriddenAttributes.stream()
+                .filter(a -> a.getName().equals(attributeName))
+                .findFirst()
+                .map(PartiallySpecifiedReadingTypeAttributeValueImpl::getCode)
+                .map(e -> translate(attributeName.getDefinition(), e))
+                .orElseGet(() -> getTemplateValue(attributeName));
+    }
+
+    private Optional<String> getAttributeValue(ReadingTypeTemplateAttributeName attributeName, String prefix) {
+        return overriddenAttributes.stream()
+                .filter(a -> a.getName().equals(attributeName))
+                .findFirst()
+                .map(PartiallySpecifiedReadingTypeAttributeValueImpl::getCode)
+                .map(e -> Optional.of(prefix + e))
+                .orElseGet(() -> getTemplateValue(attributeName, prefix));
+    }
+
+    @Override
+    public List<Optional<String>> getAttributeValues(ReadingTypeTemplateAttributeName attributeName) {
+        return overriddenAttributes.stream()
+                .filter(a -> a.getName().equals(attributeName))
+                .findFirst().map(PartiallySpecifiedReadingTypeAttributeValueImpl::getCode).map(o ->
+                        Collections.singletonList(translate(attributeName.getDefinition(), o)))
+                .orElseGet(() ->
+                        this.getReadingTypeTemplate()
+                                .getAttribute(attributeName)
+                                .getPossibleValues()
+                                .stream()
+                                .map(e -> translate(attributeName.getDefinition(), e))
+                                .collect(Collectors.toList())
+                );
+    }
+
+    private Optional<String> getUnitWithMultiplierValue() {
+        String multiplier = getAttributeValue(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER).orElse("");
+        List<String> units = getAttributeValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE).stream()
+                .flatMap(com.elster.jupiter.util.streams.Functions.asStream())
+                .map(e -> multiplier + e).collect(Collectors.toList());
+        if (!units.isEmpty()) {
+            return Optional.of("(" + String.join(", ", units) + ")");
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<String> getTemplateValue(ReadingTypeTemplateAttributeName attributeName) {
+        List<Integer> possibleValues = this.getReadingTypeTemplate().getAttribute(attributeName).getPossibleValues();
+        if (possibleValues.size() == 1) {
+            return translate(attributeName.getDefinition(), possibleValues.get(0));
+        } else {
+            return attributeName.getDefinition().canBeWildcard() ? Optional.of("*") : Optional.empty();
+        }
+    }
+
+    private Optional<String> getTemplateValue(ReadingTypeTemplateAttributeName attributeName, String prefix) {
+        List<Integer> possibleValues = this.getReadingTypeTemplate().getAttribute(attributeName).getPossibleValues();
+        if (possibleValues.size() == 1) {
+            return Optional.of(prefix + possibleValues.get(0));
+        } else {
+            return attributeName.getDefinition().canBeWildcard() ? Optional.of("*") : Optional.empty();
+        }
+    }
+
+    private <T> Optional<String> translate(ReadingTypeTemplateAttributeName.ReadingTypeAttribute<T> definition, Integer code) {
+        return Optional.ofNullable(this.getMetrologyConfigurationService()
+                .getThesaurus()
+                .getFormat(definition.getTranslationProvider().apply(definition.getCodeToValueConverter().apply(code)))
+                .format());
+    }
+
+    @Override
     public Dimension getDimension() {
         if (this.dimension == null) {
             this.dimension = this.overriddenAttributes
@@ -71,30 +166,20 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     }
 
     public boolean isRegular() {
-        boolean wildCardForMacroPeriod = false;
-        boolean wildCardForTime = false;
-        for (PartiallySpecifiedReadingTypeAttributeValueImpl att : overriddenAttributes) {
-            if ((att.getName() == ReadingTypeTemplateAttributeName.MACRO_PERIOD) && (!wildCardForMacroPeriod)) {
-                wildCardForMacroPeriod = true;
-            }
-            if ((att.getName() == ReadingTypeTemplateAttributeName.TIME) && (!wildCardForTime)) {
-                wildCardForTime = true;
-            }
-        }
-        if (!wildCardForMacroPeriod) {
+        if (!hasWildCardForMacroPeriod()) {
             ReadingTypeTemplateAttribute macroPeriodAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.MACRO_PERIOD);
             if (macroPeriodAttribute.getCode().isPresent()) {
                 int value = macroPeriodAttribute.getCode().get();
-                if ((value != MacroPeriod.DAILY.ordinal()) && (value != MacroPeriod.MONTHLY.ordinal())) {
+                if ((value != MacroPeriod.DAILY.getId()) && (value != MacroPeriod.MONTHLY.getId())) {
                     return false;
                 }
             }
         }
-        if (!wildCardForTime) {
+        if (!hasWildCardForTime()) {
             ReadingTypeTemplateAttribute timeAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.TIME);
             if (timeAttribute.getCode().isPresent()) {
                 int value = timeAttribute.getCode().get();
-                if (value != TimeAttribute.NOTAPPLICABLE.ordinal()) {
+                if (value == TimeAttribute.NOTAPPLICABLE.getId()) {
                     return false;
                 }
             }
@@ -179,4 +264,64 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
         }
         return this;
     }
+
+    @Override
+    public MacroPeriod getMacroPeriod() {
+        ReadingTypeTemplateAttribute macroPeriodAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.MACRO_PERIOD);
+        if (macroPeriodAttribute.getCode().isPresent()) {
+            int macroPeriod = macroPeriodAttribute.getCode().get();
+            if (macroPeriod == MacroPeriod.DAILY.getId()) {
+                return MacroPeriod.DAILY;
+            } else if (macroPeriod == MacroPeriod.MONTHLY.getId()) {
+                return MacroPeriod.MONTHLY;
+            } else {
+                return MacroPeriod.NOTAPPLICABLE;
+            }
+        }
+        return MacroPeriod.NOTAPPLICABLE;
+    }
+
+    @Override
+    public TimeAttribute getMeasuringPeriod() {
+        ReadingTypeTemplateAttribute timeAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.TIME);
+        if (timeAttribute.getCode().isPresent()) {
+            return TimeAttribute.get(timeAttribute.getCode().get());
+        }
+        return TimeAttribute.NOTAPPLICABLE;
+    }
+
+    @Override
+    public ReadingTypeUnit getUnit() {
+        ReadingTypeTemplateAttribute unitAttribute = getReadingTypeTemplate().getAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE);
+        if (unitAttribute.getCode().isPresent()) {
+            return ReadingTypeUnit.get(unitAttribute.getCode().get());
+        }
+        return ReadingTypeUnit.NOTAPPLICABLE;
+    }
+
+    @Override
+    public IntervalLength getIntervalLength() {
+        return IntervalLength.from(this);
+    }
+
+    private boolean hasWildCardForTime() {
+        return hasWildcardFor(ReadingTypeTemplateAttributeName.TIME);
+    }
+
+    private boolean hasWildCardForMacroPeriod() {
+        return hasWildcardFor(ReadingTypeTemplateAttributeName.MACRO_PERIOD);
+    }
+
+    private boolean hasWildcardFor(ReadingTypeTemplateAttributeName attribute) {
+        ReadingTypeTemplateAttribute templateAttribute = this.getReadingTypeTemplate().getAttribute(attribute);
+        // 1. attribute definition allows wildcards
+        // 2. user doesn't override this attribute in PartiallySpecifiedReadingType (because if he does this attribute has value)
+        // 3. there is no value for that attribute in template
+        // 4. there is no possible values for that attribute in template
+        return attribute.getDefinition().canBeWildcard() && !this.overriddenAttributes.stream()
+                .map(PartiallySpecifiedReadingTypeAttributeValueImpl::getName)
+                .anyMatch(attribute::equals)
+                && !templateAttribute.getCode().isPresent() && templateAttribute.getPossibleValues().isEmpty();
+    }
+
 }

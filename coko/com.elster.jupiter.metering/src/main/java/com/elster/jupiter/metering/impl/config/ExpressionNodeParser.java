@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
@@ -81,6 +82,9 @@ public class ExpressionNodeParser {
         } else if (Function.names().contains(last)) {
             handleFunctionNode(last);
         } else if (Operator.names().contains(last)) {
+            if ("null".equals(value)) {
+                handleNullNode();
+            }
             handleOperationNode(last);
         }
         removeArgumentCounter();
@@ -100,6 +104,10 @@ public class ExpressionNodeParser {
             if (!readingTypeDeliverable.get().getMetrologyConfiguration().equals(metrologyConfiguration)) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.get().getId());
             }
+            if ((isAutoMode() && readingTypeDeliverable.get().getFormula().getMode().equals(Formula.Mode.EXPERT)) ||
+                    (isExpertMode() && readingTypeDeliverable.get().getFormula().getMode().equals(Formula.Mode.AUTO))){
+                throw new InvalidNodeException(thesaurus, MessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
+            }
             nodes.add(new ReadingTypeDeliverableNodeImpl(readingTypeDeliverable.get()));
         } else {
             throw new IllegalArgumentException("No deliverable found with id " + id);
@@ -118,9 +126,13 @@ public class ExpressionNodeParser {
             if (!readingTypeRequirement.get().getMetrologyConfiguration().equals(metrologyConfiguration)) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) readingTypeRequirement.get().getId());
             }
-            if (!readingTypeRequirement.get().isRegular()) {
+            if ((mode.equals(Formula.Mode.AUTO)) && (!readingTypeRequirement.get().isRegular())) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.IRREGULAR_READINGTYPE_IN_REQUIREMENT);
             }
+            if ((mode.equals(Formula.Mode.AUTO) && (!UnitConversionSupport.isValidForAggregation(readingTypeRequirement.get().getUnit())))) {
+                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
+            }
+
             nodes.add(new ReadingTypeRequirementNodeImpl(readingTypeRequirement.get()));
         } else {
             throw new IllegalArgumentException("No requirement found with id " + id);
@@ -131,13 +143,26 @@ public class ExpressionNodeParser {
         nodes.add(new ConstantNodeImpl(new BigDecimal(value)));
     }
 
-    private void handleOperationNode(String operator) {
+    private void handleNullNode() {
+        nodes.add(new NullNodeImpl());
+    }
+
+    private void handleOperationNode(String operatorValue) {
         if (nodes.size() < 2) {
-            throw new IllegalArgumentException("Operator '" + operator + "' requires at least 2 arguments");
+            throw new IllegalArgumentException("Operator '" + operatorValue + "' requires at least 2 arguments");
         }
-        OperationNodeImpl operationNode = new OperationNodeImpl(getOperator(operator), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1), thesaurus);
-        nodes.remove(nodes.size() - 2);
-        nodes.remove(nodes.size() - 1);
+        Operator operator = getOperator(operatorValue);
+        OperationNodeImpl operationNode;
+        if (operator.equals(Operator.SAFE_DIVIDE)) {
+            operationNode = new OperationNodeImpl(operator, nodes.get(nodes.size() - 3), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1), thesaurus);
+            nodes.remove(nodes.size() - 3);
+            nodes.remove(nodes.size() - 2);
+            nodes.remove(nodes.size() - 1);
+        } else {
+            operationNode = new OperationNodeImpl(operator, nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1), thesaurus);
+            nodes.remove(nodes.size() - 2);
+            nodes.remove(nodes.size() - 1);
+        }
         nodes.add(operationNode);
     }
 
@@ -182,6 +207,14 @@ public class ExpressionNodeParser {
 
     private int getNumberOfArguments() {
         return argumentCounters.get(argumentCounters.size() - 1).getValue();
+    }
+
+    private boolean isAutoMode() {
+        return mode.equals(Formula.Mode.AUTO);
+    }
+
+    private boolean isExpertMode() {
+        return !isAutoMode();
     }
 
 }

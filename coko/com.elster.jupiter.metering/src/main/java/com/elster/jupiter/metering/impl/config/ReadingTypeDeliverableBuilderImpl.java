@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
@@ -48,6 +49,10 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         if (!readingTypeDeliverable.getMetrologyConfiguration().equals(metrologyConfiguration)) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.getId());
         }
+        if ((isAutoMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.EXPERT)) ||
+            (isExpertMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.AUTO))){
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
+        }
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.deliverable(readingTypeDeliverable));
     }
 
@@ -56,8 +61,11 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         if (!requirement.getMetrologyConfiguration().equals(metrologyConfiguration)) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) requirement.getId());
         }
-        if (!requirement.isRegular()) {
+        if ((isAutoMode()) && (!requirement.isRegular())) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.IRREGULAR_READINGTYPE_IN_REQUIREMENT);
+        }
+        if ((isAutoMode()) && (!UnitConversionSupport.isValidForAggregation(requirement.getUnit()))) {
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
         }
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.requirement(requirement));
     }
@@ -65,6 +73,12 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     @Override
     public FormulaBuilder requirement(ReadingTypeRequirementNode existingNode) {
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.requirement(existingNode));
+    }
+
+    @Override
+    public
+    FormulaBuilder nullValue(){
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.nullValue());
     }
 
     @Override
@@ -127,11 +141,23 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     }
 
     @Override
+    public FormulaBuilder safeDivide(FormulaBuilder dividend, FormulaBuilder divisor, FormulaBuilder zeroReplacement) {
+        return new FormulaAndExpressionNodeBuilder(
+                formulaBuilder.safeDivide(
+                        (FormulaAndExpressionNodeBuilder) dividend,
+                        (FormulaAndExpressionNodeBuilder) divisor,
+                        (FormulaAndExpressionNodeBuilder) zeroReplacement));
+    }
+
+    @Override
     public FormulaBuilder multiply(FormulaBuilder multiplier, FormulaBuilder multiplicand) {
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.multiply((FormulaAndExpressionNodeBuilder) multiplier, (FormulaAndExpressionNodeBuilder) multiplicand));
     }
 
     public ReadingTypeDeliverable doBuild() {
+        if (metrologyConfiguration.getDeliverables().stream().filter(deliverable -> deliverable.getReadingType().equals(readingType)).findAny().isPresent()) {
+            throw new ReadingTypeAlreadyUsedOnMetrologyConfiguration(formulaBuilder.getThesaurus());
+        }
         return metrologyConfiguration.addReadingTypeDeliverable(name, readingType, formulaBuilder.build());
     }
 
@@ -147,6 +173,16 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
             return this.expressionNodeBuilder.create();
         }
     }
+
+    private boolean isAutoMode() {
+        return formulaBuilder.getMode().equals(Formula.Mode.AUTO);
+    }
+
+    private boolean isExpertMode() {
+        return !isAutoMode();
+    }
+
+
 
 
 }

@@ -11,10 +11,10 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER })
-@Retention(RUNTIME)
-@Documented
-@Constraint(validatedBy = { ExpressionValidator.class })
-public @interface ValidExpression {
+ @Retention(RUNTIME)
+ @Documented
+ @Constraint(validatedBy = { ExpressionValidator.class })
+ public @interface ValidExpression {
 
     String message() default "";
 

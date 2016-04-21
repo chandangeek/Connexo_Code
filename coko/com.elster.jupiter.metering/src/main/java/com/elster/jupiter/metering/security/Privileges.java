@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.security;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.conditions.Constant;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -20,8 +22,8 @@ public enum Privileges implements TranslationKey {
 	VIEW_SERVICECATEGORY(Constants.VIEW_SERVICECATEGORY, "View service categories"),
 
     ADMINISTER_METROLOGY_CONFIGURATION(Constants.ADMINISTER_METROLOGY_CONFIGURATION, "Administer metrology configuration"),
-    VIEW_METROLOGY_CONFIGURATION(Constants.VIEW_METROLOGY_CONFIGURATION, "View metrology configuration"),
-    ;
+    VIEW_METROLOGY_CONFIGURATION(Constants.VIEW_METROLOGY_CONFIGURATION, "View metrology configuration")
+	;
 
 	private final String key;
 	private final String description;
@@ -50,7 +52,7 @@ public enum Privileges implements TranslationKey {
 				.collect(Collectors.toList())
 				.toArray(new String[Privileges.values().length]);
 	}
-
+	@ProviderType
 	public interface Constants {
         String VIEW_ANY_USAGEPOINT = "privilege.view.anyUsagePoint";
         String ADMINISTER_ANY_USAGEPOINT = "privilege.administer.anyUsagePoint";

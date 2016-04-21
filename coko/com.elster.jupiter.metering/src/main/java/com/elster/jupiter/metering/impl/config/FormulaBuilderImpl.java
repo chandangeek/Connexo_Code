@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.DataModel;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by igh on 26/02/2016.
@@ -74,6 +75,11 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
     }
 
     @Override
+    public ExpressionNodeBuilder nullValue() {
+        return () -> new NullNodeImpl();
+    }
+
+    @Override
     public ExpressionNodeBuilder constant(long value) {
         return () -> new ConstantNodeImpl(BigDecimal.valueOf(value));
     }
@@ -129,6 +135,11 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
     }
 
     @Override
+    public ExpressionNodeBuilder safeDivide(ExpressionNodeBuilder dividend, ExpressionNodeBuilder divisor, ExpressionNodeBuilder zeroReplacementNode) {
+        return () -> new OperationNodeImpl(Operator.SAFE_DIVIDE, dividend.create(), divisor.create(), zeroReplacementNode.create(), thesaurus);
+    }
+
+    @Override
     public ExpressionNodeBuilder multiply(ExpressionNodeBuilder multiplier, ExpressionNodeBuilder multiplicand) {
         return () -> new OperationNodeImpl(Operator.MULTIPLY,  multiplier.create(), multiplicand.create(), thesaurus);
     }
@@ -138,10 +149,11 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
             throw new InvalidNodeException(thesaurus, MessageSeeds.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE);
         }
         return () -> new FunctionCallNodeImpl(
-                Arrays.stream(terms)
-                        .map(ExpressionNodeBuilder::create)
-                        .collect(Collectors.toList()),
-                        function, thesaurus);
+                        Arrays.stream(terms)
+                            .map(ExpressionNodeBuilder::create)
+                            .collect(Collectors.toList()),
+                        function,
+                        thesaurus);
     }
 
     public void setNodebuilder(ExpressionNodeBuilder nodebuilder) {

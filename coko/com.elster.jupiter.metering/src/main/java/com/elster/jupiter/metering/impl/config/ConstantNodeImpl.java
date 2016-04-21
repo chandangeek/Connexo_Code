@@ -1,9 +1,13 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by igh on 4/02/2016.
@@ -43,6 +47,9 @@ public class ConstantNodeImpl extends AbstractNode implements ConstantNode {
     }
 
 
-
+    @Override
+    public void validate() {
+        // No validation for constants
+    }
 
 }

@@ -10,9 +10,11 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
@@ -68,6 +70,8 @@ public class CopyAndVirtualizeReferencesTest {
     private UserService userService;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private MetrologyConfiguration metrologyConfiguration;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
 
@@ -310,6 +314,33 @@ public class CopyAndVirtualizeReferencesTest {
         assertThat(maxFunctionArguments.get(1)).isInstanceOf(NumericalConstantNode.class);
         assertThat(((NumericalConstantNode) maxFunctionArguments.get(1)).getValue()).isEqualTo(BigDecimal.TEN);
     }
+
+
+    @Test
+    public void copyMinusOperation() {
+        CopyAndVirtualizeReferences visitor = getTestInstance();
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
+
+        ExpressionNode node =
+                new ExpressionNodeParser(thesaurus, metrologyConfigurationService, metrologyConfiguration)
+                        .parse("minus(constant(10), constant(0))");
+
+        // Business method
+        ServerExpressionNode copied = node.accept(visitor);
+
+        // Asserts
+        assertThat(copied).isNotNull();
+        assertThat(copied).isInstanceOf(OperationNode.class);
+        OperationNode copiedOperationNode = (OperationNode) copied;
+        assertThat(copiedOperationNode.getOperator()).isEqualTo(Operator.MINUS);
+        ServerExpressionNode leftOperand = copiedOperationNode.getLeftOperand();
+        assertThat(leftOperand).isInstanceOf(NumericalConstantNode.class);
+        assertThat(((NumericalConstantNode) leftOperand).getValue()).isEqualTo(BigDecimal.TEN);
+        ServerExpressionNode rightOperand = copiedOperationNode.getRightOperand();
+        assertThat(rightOperand).isInstanceOf(NumericalConstantNode.class);
+        assertThat(((NumericalConstantNode) rightOperand).getValue()).isEqualTo(BigDecimal.ZERO);
+    }
+
 
     private CopyAndVirtualizeReferences getTestInstance() {
         return this.getTestInstance(Formula.Mode.AUTO);

@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -38,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.domain.util.Save.CREATE;
 import static com.elster.jupiter.domain.util.Save.UPDATE;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
 public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration, HasUniqueName {
@@ -295,12 +295,6 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public ReadingTypeDeliverable addReadingTypeDeliverable(String name, ReadingType readingType, Formula formula) {
-        if ((readingType != null) && (!readingType.isRegular())) {
-            throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.IRREGULAR_READINGTYPE_IN_DELIVERABLE);
-        }
-        if (readingType != null && formula.getMode().equals(Formula.Mode.AUTO) &&  !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
-            throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA);
-        }
         ReadingTypeDeliverableImpl deliverable = this.metrologyConfigurationService.getDataModel().getInstance(ReadingTypeDeliverableImpl.class)
                 .init(this, name, readingType, formula);
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverable);
@@ -309,8 +303,15 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         return deliverable;
     }
 
+
     @Override
     public void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
+        if (!metrologyConfigurationService.getDataModel()
+                .query(ReadingTypeDeliverableNodeImpl.class)
+                .select(where("readingTypeDeliverable").isEqualTo(deliverable))
+                .isEmpty()) {
+            throw new CannotDeleteReadingTypeDeliverableException(metrologyConfigurationService.getThesaurus(), deliverable.getName());
+        }
         if (this.deliverables.remove(deliverable)) {
             ((ServerFormula) deliverable.getFormula()).delete();
             touch();

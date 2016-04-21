@@ -34,6 +34,11 @@ public class LocalDateFromExpressionNode implements ServerExpressionNode.Visitor
     }
 
     @Override
+    public String visitNull(NullNodeImpl nullNode) {
+        return null;
+    }
+
+    @Override
     public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         return deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName();
     }

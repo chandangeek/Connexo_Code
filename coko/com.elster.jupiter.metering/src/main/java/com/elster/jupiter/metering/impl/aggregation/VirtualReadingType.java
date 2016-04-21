@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ReadingType;
@@ -33,28 +34,30 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     private final IntervalLength intervalLength;
     private final MetricMultiplier unitMultiplier;
     private final ReadingTypeUnit unit;
+    private final Commodity commodity;
     private final Marker marker;
 
     static VirtualReadingType from(ReadingType readingType) {
-        return from(IntervalLength.from(readingType), readingType.getMultiplier(), readingType.getUnit());
+        return from(IntervalLength.from(readingType), readingType.getMultiplier(), readingType.getUnit(), readingType.getCommodity());
     }
 
-    static VirtualReadingType from(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit) {
-        return new VirtualReadingType(intervalLength, unitMultiplier, unit, null);
+    static VirtualReadingType from(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Commodity commodity) {
+        return new VirtualReadingType(intervalLength, unitMultiplier, unit, commodity, null);
     }
 
     static VirtualReadingType notSupported() {
-        return new VirtualReadingType(IntervalLength.NOT_SUPPORTED, MetricMultiplier.ZERO, ReadingTypeUnit.NOTAPPLICABLE, Marker.UNSUPPORTED);
+        return new VirtualReadingType(IntervalLength.NOT_SUPPORTED, MetricMultiplier.ZERO, ReadingTypeUnit.NOTAPPLICABLE, null, Marker.UNSUPPORTED);
     }
 
     static VirtualReadingType dontCare() {
-        return new VirtualReadingType(IntervalLength.NOT_SUPPORTED, MetricMultiplier.ZERO, ReadingTypeUnit.NOTAPPLICABLE, Marker.DONTCARE);
+        return new VirtualReadingType(IntervalLength.NOT_SUPPORTED, MetricMultiplier.ZERO, ReadingTypeUnit.NOTAPPLICABLE, null, Marker.DONTCARE);
     }
 
-    private VirtualReadingType(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Marker marker) {
+    private VirtualReadingType(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Commodity commodity, Marker marker) {
         this.intervalLength = intervalLength;
         this.unitMultiplier = unitMultiplier;
         this.unit = unit;
+        this.commodity = commodity;
         this.marker = marker;
     }
 
@@ -104,12 +107,20 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         return UnitConversionSupport.isPressureRelated(this.getUnit());
     }
 
+    boolean isPrimaryMetered() {
+        return this.commodity != null && this.commodity.equals(Commodity.ELECTRICITY_PRIMARY_METERED);
+    }
+
+    boolean isSecondaryMetered() {
+        return this.commodity != null && this.commodity.equals(Commodity.ELECTRICITY_SECONDARY_METERED);
+    }
+
     IntervalLength getIntervalLength() {
         return intervalLength;
     }
 
     VirtualReadingType withIntervalLength(IntervalLength intervalLength) {
-        return new VirtualReadingType(intervalLength, this.unitMultiplier, this.unit, this.marker);
+        return new VirtualReadingType(intervalLength, this.unitMultiplier, this.unit, this.commodity, this.marker);
     }
 
     MetricMultiplier getUnitMultiplier() {
@@ -117,7 +128,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     }
 
     VirtualReadingType withMetricMultiplier(MetricMultiplier unitMultiplier) {
-        return new VirtualReadingType(this.intervalLength, unitMultiplier, this.unit, this.marker);
+        return new VirtualReadingType(this.intervalLength, unitMultiplier, this.unit, this.commodity, this.marker);
     }
 
     ReadingTypeUnit getUnit() {
@@ -125,7 +136,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     }
 
     VirtualReadingType withUnit(ReadingTypeUnit unit) {
-        return new VirtualReadingType(this.intervalLength, this.unitMultiplier, unit, this.marker);
+        return new VirtualReadingType(this.intervalLength, this.unitMultiplier, unit, this.commodity, this.marker);
     }
 
     /**
@@ -138,17 +149,20 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
      */
     String buildSqlUnitConversion(Formula.Mode mode, String expression, VirtualReadingType targetReadingType) {
         StringBuilder sqlBuilder = new StringBuilder();
-        if (this.getUnit().equals(targetReadingType.getUnit())) {
+        if (this.isDontCare()) {
+            sqlBuilder.append(expression);
+        } else if (this.getUnit().equals(targetReadingType.getUnit())) {
             // Unit is the same, consider multiplier
             if (this.getUnitMultiplier().equals(targetReadingType.getUnitMultiplier())) {
                 // Same multiplier, just append the expression and we're done
                 sqlBuilder.append(expression);
             }
             else {
+                Loggers.SQL.debug(() -> "Rescaling " + expression + " from " + this.getUnitMultiplier() + " to " + targetReadingType.getUnitMultiplier());
                 sqlBuilder.append("(");
                 sqlBuilder.append(expression);
                 sqlBuilder.append(" * ");
-                BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(targetReadingType.getUnitMultiplier().getMultiplier() - this.getUnitMultiplier().getMultiplier());
+                BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(this.getUnitMultiplier().getMultiplier() - targetReadingType.getUnitMultiplier().getMultiplier());
                 sqlBuilder.append(multiplierConversionFactor.toString());
                 sqlBuilder.append(")");
             }
@@ -180,17 +194,20 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
                             this.getUnitMultiplier(),
                             targetReadingType.getUnit(),
                             targetReadingType.getUnitMultiplier());
-            sqlBuilder.append(conversionExpression.accept(new ExpressionNodeToString()));
+            String convertedExpression = conversionExpression.accept(new ExpressionNodeToString());
+            Loggers.SQL.debug(() -> "Applying unit conversion to " + expression + " to convert from " + this.toString() + " to " + targetReadingType.toString() + " using: " + convertedExpression);
+            sqlBuilder.append(convertedExpression);
         }
     }
 
     private void applyVolumeFlowConversion(String expression, String operator, VirtualReadingType targetReadingType, StringBuilder sqlBuilder) {
+        Loggers.SQL.debug(() -> "Applying volume to flow conversion to " + expression + " using operator " + operator + " to convert from " + this.toString() + " to " + targetReadingType.toString());
         sqlBuilder.append("(");
         sqlBuilder.append(expression);
         sqlBuilder.append(operator);
         BigDecimal intervalConversionFactor = this.getIntervalLength().getVolumeFlowConversionFactor();
         if (!this.getUnitMultiplier().equals(targetReadingType.getUnitMultiplier())) {
-            BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(targetReadingType.getUnitMultiplier().getMultiplier() - this.getUnitMultiplier().getMultiplier());
+            BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(this.getUnitMultiplier().getMultiplier() - targetReadingType.getUnitMultiplier().getMultiplier());
             sqlBuilder.append(intervalConversionFactor.multiply(multiplierConversionFactor).toString());
         }
         else {
@@ -211,12 +228,27 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         return intervalLength == that.intervalLength &&
                 unitMultiplier == that.unitMultiplier &&
                 unit == that.unit &&
+                commodity == that.commodity &&
+                marker == that.marker;
+    }
+
+    public boolean equalsIgnoreCommodity(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        VirtualReadingType that = (VirtualReadingType) o;
+        return intervalLength == that.intervalLength &&
+                unitMultiplier == that.unitMultiplier &&
+                unit == that.unit &&
                 marker == that.marker;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(intervalLength, unitMultiplier, unit, marker);
+        return Objects.hash(intervalLength, unitMultiplier, unit, commodity, marker);
     }
 
     @Override
@@ -230,6 +262,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
                     .add("intervalLength", intervalLength)
                     .add("unitMultiplier", unitMultiplier)
                     .add("unit", unit)
+                    .add("commodity", commodity)
                     .toString();
         }
     }

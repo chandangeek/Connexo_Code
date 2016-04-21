@@ -2,9 +2,13 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.Dimension;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by igh on 4/02/2016.
@@ -40,4 +44,11 @@ public class ReadingTypeDeliverableNodeImpl extends AbstractNode implements Read
     public String toString() {
         return "D(" + readingTypeDeliverable.get().getId() + ")";
     }
+
+
+    @Override
+    public void validate() {
+        // No validation for constants
+    }
+
 }
