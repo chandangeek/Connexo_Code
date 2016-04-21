@@ -146,7 +146,7 @@ public class MetrologyConfigurationInstaller {
     }
 
     private ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement requirement){
-        String name = readingType.getFullAliasName() + " " + requirement.getName();
+        String name = readingType.getFullAliasName();
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
         return builder.build(builder.requirement(requirement));
     }
