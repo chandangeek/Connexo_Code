@@ -315,8 +315,8 @@ public class CreateCollectRemoteDataSetupCommand {
         double minLongitude = -180.00;
         double maxLongitude = 180.00;
         DecimalFormat df = new DecimalFormat("#.#####");
-        String latitude = df.format(minLatitude + (Math.random() * ((maxLatitude - minLatitude) + 1)));
-        String longitude = df.format(minLongitude + (double)(Math.random() * ((maxLongitude - minLongitude) + 1)));
+        String latitude = df.format(minLatitude + Math.random() * (maxLatitude - minLatitude));
+        String longitude = df.format(minLongitude + Math.random() * (maxLongitude - minLongitude));
         return meteringService.createGeoCoordinates(latitude + ":" +longitude);
     }
 }
