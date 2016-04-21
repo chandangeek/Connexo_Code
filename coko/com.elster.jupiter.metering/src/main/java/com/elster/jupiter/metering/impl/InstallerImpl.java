@@ -18,11 +18,16 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
 
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +44,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class InstallerImpl {
+public class InstallerImpl implements FullInstaller {
 
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
@@ -58,8 +63,11 @@ public class InstallerImpl {
     private final boolean createAllReadingTypes;
     private final String[] requiredReadingTypes;
     private final Clock clock;
+    private final DataModel dataModel;
 
-    public InstallerImpl(MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, boolean createAllReadingTypes, String[] requiredReadingTypes, Clock clock) {
+    @Inject
+    public InstallerImpl(DataModel dataModel, MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, Clock clock) {
+        this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.idsService = idsService;
         this.partyService = partyService;
@@ -67,12 +75,14 @@ public class InstallerImpl {
         this.eventService = eventService;
         this.thesaurus = thesaurus;
         this.messageService = messageService;
-        this.createAllReadingTypes = createAllReadingTypes;
-        this.requiredReadingTypes = requiredReadingTypes;
+        this.createAllReadingTypes = meteringService.isCreateAllReadingTypes();
+        this.requiredReadingTypes = meteringService.getRequiredReadingTypes();
         this.clock = clock;
     }
 
-    public void install() {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
         createVaults();
         createRecordSpecs();
         createServiceCategories();
@@ -82,6 +92,11 @@ public class InstallerImpl {
         createEndDeviceEventTypes();
         createEventTypes();
         createQueues();
+    }
+
+    @Override
+    public String getDescription() {
+        return "Install MTR";
     }
 
     private void createEventTypes() {

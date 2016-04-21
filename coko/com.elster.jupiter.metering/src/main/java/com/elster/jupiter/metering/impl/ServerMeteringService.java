@@ -19,4 +19,5 @@ public interface ServerMeteringService extends MeteringService {
 
     EndDeviceEventTypeImpl createEndDeviceEventType(String mRID);
 
+
 }
