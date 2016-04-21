@@ -94,11 +94,6 @@ public class InstallerImpl implements FullInstaller {
         createQueues();
     }
 
-    @Override
-    public String getDescription() {
-        return "Install MTR";
-    }
-
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
             try {

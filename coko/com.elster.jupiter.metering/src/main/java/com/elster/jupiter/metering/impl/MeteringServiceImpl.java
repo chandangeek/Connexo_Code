@@ -392,7 +392,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
             }
         });
 
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyList());
+        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     @Deactivate
