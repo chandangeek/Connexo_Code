@@ -464,7 +464,7 @@ Ext.define('Imt.controller.History', {
                                     action: 'showValidationRuleSetsOverview',
 	                                items: {
 	                                	addruleset: {
-	                                        title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'IMT', 'Add validation rule set'),
+	                                        title: Uni.I18n.translate('general.label.metrologyconfiguration.addValRule', 'IMT', 'Add validation rule set'),
 	                                        route: 'addruleset',
 	                                        controller: 'Imt.metrologyconfiguration.controller.ValidationRuleSets',
 	                                        action: 'showAddValidationRuleSets'

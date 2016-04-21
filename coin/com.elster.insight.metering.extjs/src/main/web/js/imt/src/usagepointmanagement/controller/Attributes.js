@@ -110,7 +110,7 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
             });
             confirmationWindow.show({
                 width: 500,
-                msg: Uni.I18n.translate('general.editGeneralInformation.lostData', 'IMT', 'You will lost unsolved data.'),
+                msg: Uni.I18n.translate('general.editGeneralInformation.lostData', 'IMT', 'Unsaved changes will be lost.'),
                 title: Uni.I18n.translate('general.editGeneralInformation.discardChanges', 'IMT', "Discard '{0}' changes?", [editedForm.title])
             });
         }

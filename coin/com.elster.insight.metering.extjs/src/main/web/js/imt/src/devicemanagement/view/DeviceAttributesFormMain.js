@@ -22,7 +22,7 @@ Ext.define('Imt.devicemanagement.view.DeviceAttributesFormMain', {
                     {
                         name: 'mRID',
                         itemId: 'fld-up-mRID',
-                        fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'mRID')
+                        fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID')
                     },
                     {
                         name: 'name',

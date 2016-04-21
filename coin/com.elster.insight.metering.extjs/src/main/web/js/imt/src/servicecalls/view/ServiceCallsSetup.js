@@ -41,13 +41,13 @@ Ext.define('Imt.servicecalls.view.ServiceCallsSetup', {
             {
                 xtype: 'tabpanel',
                 itemId: 'object-service-calls-tab-panel',
-                title: Uni.I18n.translate('general.serviceCalls', 'MDC', 'Service calls'),
+                title: Uni.I18n.translate('general.serviceCalls', 'IMT', 'Service calls'),
                 ui: 'large',
                 activeTab: me.activeTab,
                 mRID: me.mRID,
                 items: [
                     {
-                        title: Uni.I18n.translate('servicecalls.runningServiceCalls', 'MDC', 'Running service calls'),
+                        title: Uni.I18n.translate('servicecalls.runningServiceCalls', 'IMT', 'Running service calls'),
                         itemId: 'running-service-calls-tab',
                         items: [
                             {
@@ -57,7 +57,7 @@ Ext.define('Imt.servicecalls.view.ServiceCallsSetup', {
                         ]
                     },
                     {
-                        title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                        title: Uni.I18n.translate('general.history', 'IMT', 'History'),
                         itemId: 'history-service-calls-tab'
                     }
                 ]
