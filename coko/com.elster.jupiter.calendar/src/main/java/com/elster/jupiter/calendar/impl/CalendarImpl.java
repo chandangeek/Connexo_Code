@@ -96,6 +96,7 @@ public class CalendarImpl implements Calendar {
     @Inject
     CalendarImpl(ServerCalendarService calendarService) {
         this.calendarService = calendarService;
+        this.category.set(calendarService.findTimeOfUseCategory().get());
     }
 
     @Override

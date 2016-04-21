@@ -4,6 +4,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 
 import javax.inject.Inject;
@@ -34,10 +35,15 @@ public class CategoryImpl implements Category {
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
 
-    private final CalendarService calendarService;
+    private final ServerCalendarService calendarService;
+
+    public CategoryImpl init(String name) {
+        this.name = name;
+        return this;
+    }
 
     @Inject
-    CategoryImpl(CalendarService calendarService) {
+    CategoryImpl(ServerCalendarService calendarService) {
         this.calendarService = calendarService;
     }
 
@@ -49,6 +55,11 @@ public class CategoryImpl implements Category {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void save() {
+        Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
     }
 
 

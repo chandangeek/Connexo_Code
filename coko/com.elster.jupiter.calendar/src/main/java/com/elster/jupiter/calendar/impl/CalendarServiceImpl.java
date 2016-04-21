@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 /**
  * Created by igh on 18/04/2016.
@@ -43,6 +44,8 @@ import java.util.TimeZone;
         property = "name=" + CalendarService.COMPONENTNAME,
         immediate = true)
 public class CalendarServiceImpl implements ServerCalendarService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
+
+    static final String TIME_OF_USE_CATEGORY_NAME = "Time of use";
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -87,7 +90,13 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     @Override
     public void install() {
-        dataModel.getInstance(Installer.class).install();
+        try {
+            dataModel.install(true, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        InstallerImpl installer = new InstallerImpl(this, dataModel);
+        installer.install();
     }
 
     @Override
@@ -161,7 +170,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     @Override
     public Optional<Category> findTimeOfUseCategory() {
-        return this.getDataModel().mapper(Category.class).getUnique("name", "TOU");
+        return this.getDataModel().mapper(Category.class).getUnique("name", TIME_OF_USE_CATEGORY_NAME);
     }
 
     @Override
