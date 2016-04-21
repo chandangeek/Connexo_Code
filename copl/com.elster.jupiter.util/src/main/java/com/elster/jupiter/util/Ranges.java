@@ -86,6 +86,46 @@ public class Ranges {
             this.decorated = decorated;
         }
 
+        public Range<C> withOpenLowerBound() {
+            if (decorated.hasLowerBound()) {
+                return withOpenLowerBound(decorated.lowerEndpoint());
+            } else {
+                return withOpenLowerBound(null);
+            }
+        }
+
+        public Range<C> withClosedLowerBound() {
+            if (decorated.hasLowerBound()) {
+                return withClosedLowerBound(decorated.lowerEndpoint());
+            } else {
+                return withClosedLowerBound(null);
+            }
+        }
+
+        public Range<C> withClosedUpperBound() {
+            if (decorated.hasUpperBound()) {
+                return withClosedUpperBound(decorated.upperEndpoint());
+            } else {
+                return withClosedUpperBound(null);
+            }
+        }
+
+        public Range<C> withOpenUpperBound() {
+            if (decorated.hasUpperBound()) {
+                return withOpenUpperBound(decorated.upperEndpoint());
+            } else {
+                return withOpenUpperBound(null);
+            }
+        }
+
+        public Range<C> asOpenClosed() {
+            return Ranges.copy(withOpenLowerBound()).withClosedUpperBound();
+        }
+
+        public Range<C> asClosedOpen() {
+            return Ranges.copy(withClosedLowerBound()).withOpenUpperBound();
+        }
+
         public Range<C> withOpenLowerBound(C c) {
             if (c == null) {
                 return decorated.hasUpperBound() ? Range.upTo(decorated.upperEndpoint(), decorated.upperBoundType()) : Range.<C>all();
