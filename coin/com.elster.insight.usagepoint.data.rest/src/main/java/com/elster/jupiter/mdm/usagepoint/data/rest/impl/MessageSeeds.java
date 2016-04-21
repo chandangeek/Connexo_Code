@@ -25,7 +25,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_USAGE_POINT_FOR_ID(16, Keys.NO_USAGE_POINT_FOR_ID, "No usage point with ID {0}"),
     BAD_REQUEST(17, Keys.BAD_REQUEST, "Bad request"),
     NO_METROLOGYCONFIG_FOR_ID(18, Keys.NO_METROLOGYCONFIG_FOR_ID, "No metrology configuration with id {0}"),
-    USAGE_POINT_LINKED_EXCEPTION(19, Keys.USAGE_POINT_LINKED_EXCEPTION, " Failed to link metrology configuration to {0}."),
+    USAGE_POINT_LINKED_EXCEPTION(19, Keys.USAGE_POINT_LINKED_EXCEPTION, " Failed to link metrology configuration to '{0}'."),
     USAGE_POINT_LINKED_EXCEPTION_MSG(20, Keys.USAGE_POINT_LINKED_EXCEPTION_MSG, "{0} is already linked to a metrology configuration.");
     private final int number;
     private final String key;
