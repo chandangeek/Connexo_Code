@@ -1,6 +1,7 @@
 package com.elster.jupiter.upgrade.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -8,7 +9,7 @@ import com.elster.jupiter.upgrade.Upgrader;
 
 import com.google.inject.AbstractModule;
 
-import java.util.List;
+import java.util.Map;
 
 public class UpgradeModule extends AbstractModule {
 
@@ -22,7 +23,7 @@ public class UpgradeModule extends AbstractModule {
         INSTANCE;
 
         @Override
-        public void register(InstallIdentifier installIdentifier, DataModel dataModel, Class<? extends FullInstaller> installerClass, List<Class<? extends Upgrader>> upgraders) {
+        public void register(InstallIdentifier installIdentifier, DataModel dataModel, Class<? extends FullInstaller> installerClass, Map<Version, Class<? extends Upgrader>> upgraders) {
             FullInstaller installer = dataModel.getInstance(installerClass);
             installer.install((dataModel1, version) -> dataModel1.install(true, true));
         }

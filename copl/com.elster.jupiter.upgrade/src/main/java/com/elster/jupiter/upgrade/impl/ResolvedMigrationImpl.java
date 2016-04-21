@@ -1,5 +1,7 @@
 package com.elster.jupiter.upgrade.impl;
 
+import com.elster.jupiter.orm.Version;
+
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
@@ -12,14 +14,16 @@ import java.sql.SQLException;
 final class ResolvedMigrationImpl implements ResolvedMigration {
 
     private final Migration migration;
+    private final Version version;
 
-    public ResolvedMigrationImpl(Migration migration) {
+    public ResolvedMigrationImpl(Version version, Migration migration) {
         this.migration = migration;
+        this.version = version;
     }
 
     @Override
     public MigrationVersion getVersion() {
-        return migration.isRepeatable() ? null : MigrationVersion.fromVersion(migration.getVersion().toString());
+        return migration.isRepeatable() ? null : MigrationVersion.fromVersion(version.toString());
     }
 
     @Override

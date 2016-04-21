@@ -2,39 +2,31 @@ package com.elster.jupiter.upgrade.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
 
 import java.sql.Connection;
 
-import static com.elster.jupiter.orm.Version.version;
-
 final class InstallerDriver implements Migration {
-    private final DataModel dataModel;
     private final TransactionService transactionService;
     private final InstallAwareMigrationResolver installAwareMigrationResolver;
-    private final FullInstaller installer;
     private final DataModelUpgrader dataModelUpgrader;
+    private final Holder<FullInstaller> installer;
 
 
-    public InstallerDriver(DataModel dataModel, DataModelUpgrader dataModelUpgrader, TransactionService transactionService, InstallAwareMigrationResolver resolver, FullInstaller installer) {
-        this.dataModel = dataModel;
+    public InstallerDriver(DataModel dataModel, DataModelUpgrader dataModelUpgrader, TransactionService transactionService, InstallAwareMigrationResolver resolver, Class<? extends FullInstaller> installer) {
         this.dataModelUpgrader = dataModelUpgrader;
         this.transactionService = transactionService;
-        this.installer = installer;
+        this.installer = HolderBuilder.lazyInitialize(() -> dataModel.getInstance(installer));
         this.installAwareMigrationResolver = resolver;
     }
 
     @Override
     public boolean isRepeatable() {
         return false;
-    }
-
-    @Override
-    public Version getVersion() {
-        return version("1.0");
     }
 
     @Override
@@ -45,7 +37,7 @@ final class InstallerDriver implements Migration {
     @Override
     public void migrate(Connection connection) throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            installer.install(dataModelUpgrader);
+            installer.get().install(dataModelUpgrader);
             installAwareMigrationResolver.installed();
             context.commit();
         }
@@ -57,6 +49,6 @@ final class InstallerDriver implements Migration {
 
     @Override
     public String getName() {
-        return installer.getDescription();
+        return installer.get().getClass().getName();
     }
 }

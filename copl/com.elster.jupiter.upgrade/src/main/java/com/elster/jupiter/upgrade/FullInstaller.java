@@ -6,5 +6,4 @@ public interface FullInstaller {
 
     void install(DataModelUpgrader dataModelUpgrader);
 
-    String getDescription();
 }
