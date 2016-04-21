@@ -3,7 +3,6 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
@@ -149,8 +148,6 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
      */
     Optional<MetrologyConfiguration> getMetrologyConfiguration();
 
-    Optional<UsagePointMetrologyConfiguration> getUsagePointMetrologyConfiguration();
-
     /**
      * Gets the {@link MetrologyConfiguration} that was
      * applied to this UsagePoint at the specified time.
@@ -159,8 +156,6 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
      * @return The MetrologyConfiguration
      */
     Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when);
-
-    Optional<UsagePointMetrologyConfiguration> getUsagePointMetrologyConfiguration(Instant when);
 
     /**
      * Gets the {@link MetrologyConfiguration}s that were
