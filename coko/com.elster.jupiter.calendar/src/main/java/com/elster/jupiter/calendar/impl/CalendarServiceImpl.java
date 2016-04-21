@@ -56,7 +56,9 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         setNlsService(nlsService);
         setUserService(userService);
         activate();
-        install();
+        if (!dataModel.isInstalled()) {
+            install();
+        }
     }
 
     @Reference
@@ -99,6 +101,8 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
                 bind(DataModel.class).toInstance(dataModel);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(CalendarService.class).toInstance(CalendarServiceImpl.this);
+                bind(ServerCalendarService.class).toInstance(CalendarServiceImpl.this);
             }
         };
     }

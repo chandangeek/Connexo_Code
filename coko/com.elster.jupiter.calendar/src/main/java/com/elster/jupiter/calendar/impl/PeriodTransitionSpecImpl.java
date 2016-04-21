@@ -42,6 +42,7 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
     // ORM inheritance map
     public static final Map<String, Class<? extends PeriodTransitionSpec>> IMPLEMENTERS = getImplementers();
 
+    private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();
     private int day;

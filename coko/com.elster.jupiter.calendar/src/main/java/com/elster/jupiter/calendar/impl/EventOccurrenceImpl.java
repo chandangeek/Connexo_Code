@@ -25,7 +25,7 @@ public class EventOccurrenceImpl implements EventOccurrence {
         MINUTES("minutes"),
         SECONDS("seconds"),
         EVENT("event"),
-        DAYTYPE("daytype");
+        DAYTYPE("dayType");
 
         private final String javaFieldName;
 

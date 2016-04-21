@@ -26,7 +26,7 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
         DAY("day"),
         MONTH("month"),
         YEAR("year"),
-        DAYTYPE("daytype");
+        DAYTYPE("dayType");
 
         private final String javaFieldName;
 

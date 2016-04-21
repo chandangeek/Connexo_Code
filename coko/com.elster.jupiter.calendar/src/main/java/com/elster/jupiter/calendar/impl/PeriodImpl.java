@@ -26,13 +26,13 @@ public class PeriodImpl implements Period {
     public enum Fields {
         ID("id"),
         NAME("name"),
-        MONDAY_DAYTYPE("monday"),
-        TUESDAY_DAYTYPE("tuesday"),
-        WEDNESDAY_DAYTYPE("wednesday"),
-        THURSDAY_DAYTYPE("thursday"),
-        FRIDAY_DAYTYPE("friday"),
-        SATURDAY_DAYTYPE("saturday"),
-        SUNDAY_DAYTYPE("monday"),
+        MONDAY("monday"),
+        TUESDAY("tuesday"),
+        WEDNESDAY("wednesday"),
+        THURSDAY("thursday"),
+        FRIDAY("friday"),
+        SATURDAY("saturday"),
+        SUNDAY("sunday"),
         CALENDAR("calendar");
 
         private String javaFieldName;

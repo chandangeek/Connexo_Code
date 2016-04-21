@@ -84,13 +84,13 @@ public enum TableSpecs {
             table.column("NAME").varChar(NAME_LENGTH).notNull().map(PeriodImpl.Fields.NAME.fieldName()).add();
             Column calendarColumn = table.column("calendar").number().notNull().add();
 
-            Column mondayColumn = table.column(PeriodImpl.Fields.MONDAY_DAYTYPE.fieldName()).number().notNull().add();
-            Column tuesdayColumn = table.column(PeriodImpl.Fields.TUESDAY_DAYTYPE.fieldName()).number().notNull().add();
-            Column wednesdayColumn = table.column(PeriodImpl.Fields.WEDNESDAY_DAYTYPE.fieldName()).number().notNull().add();
-            Column thursdayColumn = table.column(PeriodImpl.Fields.THURSDAY_DAYTYPE.fieldName()).number().notNull().add();
-            Column fridayColumn = table.column(PeriodImpl.Fields.FRIDAY_DAYTYPE.fieldName()).number().notNull().add();
-            Column saturdayColumn = table.column(PeriodImpl.Fields.SATURDAY_DAYTYPE.fieldName()).number().notNull().add();
-            Column sundayColumn = table.column(PeriodImpl.Fields.SUNDAY_DAYTYPE.fieldName()).number().notNull().add();
+            Column mondayColumn = table.column(PeriodImpl.Fields.MONDAY.fieldName()).number().notNull().add();
+            Column tuesdayColumn = table.column(PeriodImpl.Fields.TUESDAY.fieldName()).number().notNull().add();
+            Column wednesdayColumn = table.column(PeriodImpl.Fields.WEDNESDAY.fieldName()).number().notNull().add();
+            Column thursdayColumn = table.column(PeriodImpl.Fields.THURSDAY.fieldName()).number().notNull().add();
+            Column fridayColumn = table.column(PeriodImpl.Fields.FRIDAY.fieldName()).number().notNull().add();
+            Column saturdayColumn = table.column(PeriodImpl.Fields.SATURDAY.fieldName()).number().notNull().add();
+            Column sundayColumn = table.column(PeriodImpl.Fields.SUNDAY.fieldName()).number().notNull().add();
 
             table.addAuditColumns();
             table.primaryKey("CAL_PK_PERIOD").on(idColumn).add();
@@ -106,37 +106,37 @@ public enum TableSpecs {
             table.foreignKey("CAL_PERIOD_TO_MONDAY")
                     .references(DayType.class)
                     .on(mondayColumn)
-                    .map(PeriodImpl.Fields.MONDAY_DAYTYPE.fieldName())
+                    .map(PeriodImpl.Fields.MONDAY.fieldName())
                     .add();
             table.foreignKey("CAL_PERIOD_TO_TUESDAY")
                     .references(DayType.class)
                     .on(tuesdayColumn)
-                    .map(PeriodImpl.Fields.TUESDAY_DAYTYPE.fieldName())
+                    .map(PeriodImpl.Fields.TUESDAY.fieldName())
                     .add();
             table.foreignKey("CAL_PERIOD_TO_WEDNESDAY")
                     .references(DayType.class)
                     .on(wednesdayColumn)
-                    .map(PeriodImpl.Fields.WEDNESDAY_DAYTYPE.fieldName())
+                    .map(PeriodImpl.Fields.WEDNESDAY.fieldName())
                     .add();
             table.foreignKey("CAL_PERIOD_TO_THURSDAY")
                     .references(DayType.class)
                     .on(thursdayColumn)
-                    .map(PeriodImpl.Fields.THURSDAY_DAYTYPE.fieldName())
+                    .map(PeriodImpl.Fields.THURSDAY.fieldName())
                     .add();
             table.foreignKey("CAL_PERIOD_TO_FRIDAY")
                     .references(DayType.class)
                     .on(fridayColumn)
-                    .map(PeriodImpl.Fields.FRIDAY_DAYTYPE.fieldName())
+                    .map(PeriodImpl.Fields.FRIDAY.fieldName())
                     .add();
             table.foreignKey("CAL_PERIOD_TO_SATURDAY")
                     .references(DayType.class)
                     .on(saturdayColumn)
-                    .map(PeriodImpl.Fields.SATURDAY_DAYTYPE.fieldName())
+                    .map(PeriodImpl.Fields.SATURDAY.fieldName())
                     .add();
             table.foreignKey("CAL_PERIOD_TO_SUNDAY")
                     .references(DayType.class)
                     .on(sundayColumn)
-                    .map(PeriodImpl.Fields.SUNDAY_DAYTYPE.fieldName())
+                    .map(PeriodImpl.Fields.SUNDAY.fieldName())
                     .add();
         }
     }
