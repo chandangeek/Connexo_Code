@@ -33,16 +33,15 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
                 renderer: function (value) {
                     return value ? value.name : '';
                 }
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                privileges: Imt.privileges.MetrologyConfig.admin,
+                menu: {
+                    xtype: 'metrology-configuration-action-menu',
+                    itemId: 'metrology-configuration-list-action-menu'
+                }
             }
-            // out of scope CXO-517
-            //{
-            //    xtype: 'uni-actioncolumn',
-            //    privileges: Imt.privileges.MetrologyConfig.admin,
-            //    menu: {
-            //        xtype: 'metrology-configuration-action-menu',
-            //        itemId: 'metrology-configuration-list-action-menu'
-            //    }
-            //}
         ];
         me.dockedItems = [
             {
