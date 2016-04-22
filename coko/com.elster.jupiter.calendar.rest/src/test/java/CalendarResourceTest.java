@@ -8,13 +8,16 @@ import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.calendar.rest.impl.CalendarApplication;
 
 import com.jayway.jsonpath.JsonModel;
+import net.minidev.json.JSONArray;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -26,11 +29,14 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 public class CalendarResourceTest extends CalendarApplicationTest {
-    private static final java.lang.String DAY_TYPE_NAME = "Day type name";
+    private static final String DAY_TYPE_NAME = "Day type name";
+    private static final String DAY_TYPE2_NAME = "Second Day type name";
     private static final String CALENDAR_NAME = "Test Calendar";
     private static final String CALENDAR_DESCRIPTION = "This is the calendar description";
     private static final String EVENT_NAME = "New event name";
     private static final String PERIOD_NAME = "Period name";
+    private static final String PERIOD2_NAME = "Second Period name";
+    private static final String PERIOD3_NAME = "Second Period name";
 
     @Test
     public void testGetCalendar() throws Exception {
@@ -52,8 +58,9 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         assertThat(jsonModel.<Integer>get("dayTypes[0].ranges[0].fromMinute")).isEqualTo(0);
         assertThat(jsonModel.<Integer>get("dayTypes[0].ranges[0].fromSecond")).isEqualTo(0);
         assertThat(jsonModel.<String>get("periods[0].name")).isEqualTo(PERIOD_NAME);
-        assertThat(jsonModel.<Integer>get("periods[0].fromMonth")).isEqualTo(2);
-        assertThat(jsonModel.<Integer>get("periods[0].fromDay")).isEqualTo(3);
+        assertThat(jsonModel.<String>get("periods[2].name")).isEqualTo(PERIOD3_NAME);
+        assertThat(jsonModel.<Integer>get("periods[0].fromMonth")).isEqualTo(3);
+        assertThat(jsonModel.<Integer>get("periods[0].fromDay")).isEqualTo(7);
     }
 
     private void mockCalendar() {
@@ -82,7 +89,21 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         when(dayType.getEventOccurrences()).thenReturn(Collections.singletonList(eventOccurrence));
         when(dayType.getId()).thenReturn(5L);
         when(dayType.getName()).thenReturn(DAY_TYPE_NAME);
-        when(calendar.getDayTypes()).thenReturn(Collections.singletonList(dayType));
+
+        DayType dayType2 = mock(DayType.class);
+        EventOccurrence eventOccurrence2 = mock(EventOccurrence.class);
+        when(eventOccurrence2.getEvent()).thenReturn(event);
+        when(eventOccurrence2.getId()).thenReturn(6L);
+        when(eventOccurrence2.getFrom()).thenReturn(LocalTime.MIDNIGHT);
+        when(dayType2.getEventOccurrences()).thenReturn(Collections.singletonList(eventOccurrence2));
+        when(dayType2.getId()).thenReturn(7L);
+        when(dayType2.getName()).thenReturn(DAY_TYPE2_NAME);
+
+        ArrayList<DayType> dayTypes = new ArrayList<>();
+        dayTypes.add(dayType);
+        dayTypes.add(dayType2);
+
+        when(calendar.getDayTypes()).thenReturn(dayTypes);
 
         PeriodTransition periodTransition = mock(PeriodTransition.class);
         Period period = mock(Period.class);
@@ -91,20 +112,60 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         for(DayOfWeek dayOfWeek: DayOfWeek.values()) {
             when(period.getDayType(dayOfWeek)).thenReturn(dayType);
         }
-        when(periodTransition.getOccurrence()).thenReturn(LocalDate.of(2016,2,3));
+        when(periodTransition.getOccurrence()).thenReturn(LocalDate.of(2016,3,7));
 
-        when(calendar.getTransitions()).thenReturn(Collections.singletonList(periodTransition));
+        PeriodTransition periodTransition2 = mock(PeriodTransition.class);
+        Period period2 = mock(Period.class);
+        when(period2.getName()).thenReturn(PERIOD2_NAME);
+        when(periodTransition2.getPeriod()).thenReturn(period2);
+        for(DayOfWeek dayOfWeek: DayOfWeek.values()) {
+            when(period2.getDayType(dayOfWeek)).thenReturn(dayType2);
+        }
+        when(periodTransition2.getOccurrence()).thenReturn(LocalDate.of(2016,4,7));
+
+        PeriodTransition periodTransition3 = mock(PeriodTransition.class);
+        Period period3 = mock(Period.class);
+        when(period3.getName()).thenReturn(PERIOD3_NAME);
+        when(periodTransition3.getPeriod()).thenReturn(period3);
+        for(DayOfWeek dayOfWeek: DayOfWeek.values()) {
+            when(period3.getDayType(dayOfWeek)).thenReturn(dayType2);
+        }
+        when(periodTransition3.getOccurrence()).thenReturn(LocalDate.of(2016,5,7));
+
+        List<PeriodTransition> periodTransitions = new ArrayList<>();
+        periodTransitions.add(periodTransition);
+        periodTransitions.add(periodTransition2);
+        periodTransitions.add(periodTransition3);
+
+        when(calendar.getTransitions()).thenReturn(periodTransitions);
         when(calendarService.findCalendar(1)).thenReturn(Optional.of(calendar));
     }
 
     @Test
     public void testGetCalendarForWeek () throws Exception {
         mockCalendar();
-        //DAY IS THURSDAY 21/04/2016
-        Response response = target("/calendars/timeofusecalendars/1").queryParam("weekOf",1461241773L).request().get();
+        //DAY IS TUESDAY 05/04/2016
+        Response response = target("/calendars/timeofusecalendars/1").queryParam("weekOf",1459814400000L).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("weekTemplate[0].name")).isEqualTo("TUESDAY");
+        assertThat(jsonModel.<Integer>get("weekTemplate[0].type")).isEqualTo(5);
+        assertThat(jsonModel.<String>get("weekTemplate[1].name")).isEqualTo("WEDNESDAY");
+        assertThat(jsonModel.<Integer>get("weekTemplate[1].type")).isEqualTo(5);
+        assertThat(jsonModel.<String>get("weekTemplate[2].name")).isEqualTo("THURSDAY");
+        assertThat(jsonModel.<Integer>get("weekTemplate[2].type")).isEqualTo(7);
+        assertThat(jsonModel.<String>get("weekTemplate[3].name")).isEqualTo("FRIDAY");
+        assertThat(jsonModel.<Integer>get("weekTemplate[3].type")).isEqualTo(7);
+        assertThat(jsonModel.<String>get("weekTemplate[4].name")).isEqualTo("SATURDAY");
+        assertThat(jsonModel.<Integer>get("weekTemplate[4].type")).isEqualTo(7);
+        assertThat(jsonModel.<String>get("weekTemplate[5].name")).isEqualTo("SUNDAY");
+        assertThat(jsonModel.<Integer>get("weekTemplate[5].type")).isEqualTo(7);
+        assertThat(jsonModel.<String>get("weekTemplate[6].name")).isEqualTo("MONDAY");
+        assertThat(jsonModel.<Integer>get("weekTemplate[6].type")).isEqualTo(7);
+
+        JSONArray periods = jsonModel.get("periods");
+        assertThat(periods).hasSize(2);
     }
 
 }

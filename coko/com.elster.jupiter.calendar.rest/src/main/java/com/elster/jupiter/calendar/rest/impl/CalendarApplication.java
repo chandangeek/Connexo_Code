@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.calendar.rest",
-        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true,
+        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        immediate = true,
         property = {"alias=/cal", "app=" + CalendarApplication.APP_KEY, "name=" + CalendarApplication.COMPONENT_NAME})
 public class CalendarApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
     public static final String APP_KEY = "SYS";

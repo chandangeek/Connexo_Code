@@ -12,11 +12,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Year;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+import java.util.TimeZone;
 
 @Path("/calendars")
 public class CalendarResource {
@@ -49,8 +53,11 @@ public class CalendarResource {
                     .map(calendarInfoFactory::fromCalendar)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_TIME_OF_USE_CALENDAR));
         } else {
+            Instant instant = Instant.ofEpochMilli(milliseconds);
             Calendar calendar = calendarService.findCalendar(id).get();
-            return transformToWeekCalendar(calendar, LocalDate.ofEpochDay(milliseconds));
+            LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
+                    .toLocalDate();
+            return transformToWeekCalendar(calendar, localDate);
         }
     }
 
