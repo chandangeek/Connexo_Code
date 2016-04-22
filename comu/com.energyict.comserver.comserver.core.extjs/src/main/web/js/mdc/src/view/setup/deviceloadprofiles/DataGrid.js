@@ -76,7 +76,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
                         }
                         if (validationData[channel.id].mainValidationInfo.estimatedByRule) {
-                            icon = '<span class="icon-play4" style="margin-left:10px; font-size:16px; color:#33CC33; position:absolute;"></span>';
+                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
                         }
                     }
 
