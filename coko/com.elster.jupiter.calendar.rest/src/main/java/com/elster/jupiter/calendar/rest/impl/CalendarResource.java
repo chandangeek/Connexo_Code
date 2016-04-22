@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 @Path("/calendars")
 public class CalendarResource {
@@ -39,9 +40,10 @@ public class CalendarResource {
     @Path("/timeofusecalendars")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public List<CalendarInfo> getAllTimeOfUseCalendars() {
-        List<CalendarInfo> infos = new ArrayList<>();
-
-        return infos;
+       return calendarService.findAllCalendars()
+               .stream()
+               .map(calendarInfoFactory::fromCalendar)
+               .collect(Collectors.toList());
     }
 
     @GET
