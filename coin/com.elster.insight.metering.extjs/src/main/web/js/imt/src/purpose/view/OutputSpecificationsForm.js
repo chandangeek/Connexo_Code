@@ -1,7 +1,7 @@
 Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.output-specifications-form',
-    itemId: 'purpose-details-form',
+    itemId: 'output-specifications-form',
     layout: {
         type: 'vbox',
         align: 'stretch'

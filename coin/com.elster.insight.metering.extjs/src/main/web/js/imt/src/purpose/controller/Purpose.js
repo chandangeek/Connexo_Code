@@ -5,15 +5,19 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Uni.controller.history.Router',
         'Imt.purpose.view.Outputs',
         'Imt.purpose.store.Outputs',
-        'Imt.purpose.view.OutputChannelMain'
+        'Imt.purpose.view.OutputChannelMain',
+        'Uni.store.DataIntervalAndZoomLevels'
     ],
 
     stores: [
-        'Imt.purpose.store.Outputs'
+        'Imt.purpose.store.Outputs',
+        'Imt.purpose.store.Readings',
+        'Uni.store.DataIntervalAndZoomLevels'
     ],
 
     models: [
-        'Imt.purpose.model.Output'
+        'Imt.purpose.model.Output',
+        'Imt.purpose.model.Reading'
     ],
 
     views: [
@@ -97,7 +101,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
                                 purpose: purpose,
                                 outputs: outputs,
                                 output: output,
-                                prevNextListLink: prevNextListLink
+                                prevNextListLink: prevNextListLink,
+                                controller: me
                             });
                             app.fireEvent('changecontentevent', widget);
                             mainView.setLoading(false);
@@ -108,15 +113,43 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         //    mainView.setLoading(false);
                         //}
                     //});
-
-
                 });
             },
             failure: function () {
                 mainView.setLoading(false);
             }
         });
+    },
+
+    showSpecificationsTab: function(panel) {
+
+    },
+
+    showReadingsTab: function(panel) {
+        var me = this,
+            output = panel.output,
+            intervalStore = me.getStore('Uni.store.DataIntervalAndZoomLevels'),
+            readingsStore = me.getStore('Imt.purpose.store.Readings'),
+            interval = intervalStore.getIntervalRecord(output.get('interval')),
+            filter;
+
+
+        filter = {};
+        filter.intervalEnd = output.get('lastReading') || new Date();
+        filter.intervalStart = interval.getIntervalStart(filter.intervalEnd);
+
+        debugger;
+
+        readingsStore.getProxy().extraParams = {
+            mRID: panel.usagePoint.get('mRID'),
+            purposeId: panel.purpose.getId(),
+            outputId: panel.output.getId(),
+            filter: filter
+        };
+
+        readingsStore.load();
     }
+
     //
     //    var me = this,
     //        mRID = params['mRID'],

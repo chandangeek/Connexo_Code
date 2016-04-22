@@ -34,21 +34,10 @@ Ext.define('Imt.purpose.view.Outputs', {
                             xtype: 'outputs-list',
                             router: me.router
                         },
-                        // TODO: empty component
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'ctr-no-metrology-configurations',
-                            title: Uni.I18n.translate('outputs.list.empty', 'IMT', 'No outputs is configured for selected purpose'),
-                            //reasons: [
-                            //    Uni.I18n.translate('metrologyconfiguration.list.undefined', 'IMT', 'No metrology configurations have been defined yet.')
-                            //],
-                            stepItems: [
-                                {
-                                    text: Uni.I18n.translate('outputs.actions.manage', 'IMT', 'Manage outputs'),
-//                                privileges : Cfg.privileges.Validation.admin,
-                                    href: '#' //TODO: future functionality
-                                }
-                            ]
+                            title: Uni.I18n.translate('outputs.list.empty', 'IMT', 'No outputs is configured for selected purpose')
                         }
                     }
                 ]
