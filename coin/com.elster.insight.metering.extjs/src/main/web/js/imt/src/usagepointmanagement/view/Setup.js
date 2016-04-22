@@ -1,150 +1,126 @@
 Ext.define('Imt.usagepointmanagement.view.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usage-point-management-setup',
-    itemId: 'usage-point-management-setup',
     requires: [
-        'Imt.usagepointmanagement.view.AssociatedDevices',
-        'Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration',
+        'Imt.usagepointmanagement.view.UsagePointSummary',
+        'Imt.usagepointmanagement.view.UsagePointMetrologyConfig',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
-        'Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
-        'Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAttributesPanel',
-        'Imt.usagepointmanagement.view.SetupActionMenu',
-        'Uni.view.widget.WhatsGoingOn'
+        'Imt.usagepointmanagement.model.MetrologyConfigOnUsagePoint'
     ],
-    parent: null,
+
     router: null,
-    //minWidth: 1600,
-    content: [
-        {
-            xtype: 'panel',
-            ui: 'large',
-            itemId: 'usagePointSetupPanel',
-            layout: {
-                type: 'fit',
-                align: 'stretch'
-            }
-        }
-    ],
+    usagePoint: null,
 
     initComponent: function () {
-        var me = this,
-            panel = me.content[0];
-        panel.title = me.router.getRoute().getTitle();
-        panel.tools = [
+        var me = this;
+
+        me.content = [
             {
-                xtype: 'toolbar',
-                margin: '0 20 0 0',
-                items: [
+                itemId: 'usage-point-content',
+                title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
+                ui: 'large',
+                tools: [
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'usage-point-last-updated-date',
+                        value: Uni.I18n.translate('general.lastUpdatedAt', 'IMT', 'Last updated at {0}', [Uni.DateTime.formatDateTimeShort(new Date())], false),
+                        height: 27 // just for aligning
+                    },
                     {
                         xtype: 'button',
-                        itemId: 'usage-point-setup-actions-btn',
-                        iconCls: 'x-uni-action-iconD',
-                        style: {
-                            'background-color': '#71adc7'
-                        },
-                        text: Uni.I18n.translate('usagepoint.general.setup.actions', 'IMT', 'Actions'),
-                        menu: {
-                            xtype: 'usage-point-setup-action-menu',
-                            itemId: 'usage-point-setup-action-menu-id',
-                            router: me.router,
-                            mRID: me.mRID
+                        itemId: 'usage-point-refresh-data',
+                        text: Uni.I18n.translate('general.refresh', 'IMT', 'Refresh'),
+                        iconCls: 'icon-spinner12',
+                        iconAlign: 'left',
+                        margin: '0 16 0 10',
+                        handler: function () {
+                            me.router.getRoute().forward();
                         }
-
+                    }
+                ],
+                layout: {
+                    type: 'hbox',
+                    align: 'stretchmax'
+                },
+                items: [
+                    {
+                        xtype: 'container',
+                        flex: 2,
+                        items: [
+                            {
+                                itemId: 'usage-point-going-on',
+                                title: Uni.I18n.translate('general.whatsGoingOn', 'IMT', "What's going on"),
+                                ui: 'tile2',
+                                flex: 1,
+                                minHeight: 185 // todo: remove after implementation of content for this panel
+                            },
+                            {
+                                xtype: 'container',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretchmax'
+                                },
+                                defaults: {
+                                    ui: 'tile2',
+                                    flex: 1
+                                },
+                                items: [
+                                    {
+                                        xtype: 'usage-point-metrology-config',
+                                        itemId: 'usage-point-metrology-config',
+                                        title: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
+                                        router: me.router
+                                    },
+                                    {
+                                        itemId: 'usage-point-validation-configuration',
+                                        title: Uni.I18n.translate('general.validationConfiguration', 'IMT', 'Validation configuration')
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'usage-point-summary',
+                        itemId: 'usage-point-summary',
+                        title: Uni.I18n.translate('general.usagePointSummary', 'IMT', 'Usage point summary'),
+                        ui: 'tile2',
+                        flex: 1,
+                        router: me.router
                     }
                 ]
             }
         ];
-
 
         me.side = [
             {
                 xtype: 'panel',
                 ui: 'medium',
+                style: {
+                    paddingRight: 0
+                },
                 items: [
                     {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
-                        mRID: me.mRID
+                        usagePoint: me.usagePoint
                     }
                 ]
             }
         ];
-        this.callParent(arguments);
 
-        me.down('#usagePointSetupPanel').add(
-            {
-                xtype: 'container',
-                padding: 5,
-                layout: {
-                    type: 'hbox',
-                    align: 'stretch'
-                },
-                defaults: {
-                    flex: 1
-                },
-                items: [
-                    {
-                        xtype: 'container',
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
-                        items: [
-                            {
-                                xtype: 'whatsgoingon',
-                                mrId: me.mRID,
-                                type: 'usagepoint',
-                                router: me.router,
-                                style: 'margin-bottom: 20px'
-                            },
-                            {
-                                //style: {
-                                //    marginRight: '20px',
-                                //    padding: '20px'
-                                //},
-                                ui: 'tile',
-                                parent: me.parent,
-                                title: Uni.I18n.translate('usagepoint.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-                                xtype: 'associated-metrology-configuration',
-                                router: me.router,
-                                layout: {
-                                    type: 'vbox',
-                                    align: 'stretch'
-                                },
-                                defaults: {
-                                    flex: 1
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'panel',
-                        itemId: 'usage-point-attributes-panel',
-                        ui: 'tile',
-                        style: {
-                            marginRight: '20px',
-                            padding: '20px'
-                        },
-                        items: [
-                            {
-                                xtype: 'panel',
-                                itemId: 'usage-point-main-attributes-panel',
-                                router: me.router
-                            },
-                            {
-                                xtype: 'custom-attribute-sets-placeholder-form',
-                                inline: true,
-                                parent: me.parent,
-                                itemId: 'custom-attribute-sets-placeholder-form-id',
-                                actionMenuXtype: 'usage-point-setup-action-menu',
-                                attributeSetType: 'up',
-                                router: me.router
-                            }
-                        ]
-                    }
-                ]
-            }
-        );
+        me.callParent(arguments);
+
+        me.loadUsagePoint(me.usagePoint);
+    },
+
+    loadUsagePoint: function (usagePoint) {
+        var me = this;
+
+        if (usagePoint) {
+            me.down('#usage-point-summary').loadRecord(usagePoint);
+            me.down('#usage-point-metrology-config').loadRecord(new Imt.usagepointmanagement.model.MetrologyConfigOnUsagePoint(usagePoint.get('metrologyConfiguration')));
+            me.usagePoint = usagePoint;
+        }
     }
 });

@@ -10,7 +10,17 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'serviceCategory', type: 'string'},
         {name: 'name', type: 'string'},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
-        {name: 'location', type: 'string'},
+        {
+            name: 'geoCoordinates',
+            type: 'auto'
+        },
+        {
+            name: 'location',
+            type: 'auto',
+            convert: function (value, record) {
+                return value != ""? value : record.get('geoCoordinates');
+            }
+        },
         {name: 'version', type: 'int'},
         {
             name: 'typeOfUsagePoint',
@@ -62,16 +72,17 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'isSdp', type: 'boolean', useNull: true},
         {name: 'isVirtual', type: 'boolean', useNull: true},
         {name: 'readRoute', type: 'string'},
-        {name: 'connectionState', type: 'string', defaultValue: 'UNKNOWN'},
+        {name: 'connectionState', type: 'auto', defaultValue: null},
         {name: 'servicePriority', type: 'string'},
         {name: 'serviceDeliveryRemark', type: 'string'},
-        {name: 'techInfo', type: 'auto', defaultValue: {}}
+        {name: 'techInfo', type: 'auto', defaultValue: {}},
+        {name: 'metrologyConfiguration', type: 'auto', defaultValue: null}
     ],
 
     associations: [
         {
             name: 'customPropertySets',
-            associationKey: 'customProperties',
+            associationKey: 'customPropertySets',
             type: 'hasMany',
             model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'
         }

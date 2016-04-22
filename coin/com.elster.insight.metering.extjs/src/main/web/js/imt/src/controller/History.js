@@ -35,6 +35,117 @@ Ext.define('Imt.controller.History', {
                         //    controller: 'Imt.usagepointmanagement.controller.Edit',
                         //    action: 'editUsagePoint'
                         //},
+                        attributes: {
+                            title: Uni.I18n.translate('general.usagePointAttributes', 'IMT', 'Usage point attributes'),
+                            route: 'attributes',
+                            controller: 'Imt.usagepointmanagement.controller.Attributes',
+                            action: 'showUsagePointAttributes'
+                        },
+                        history: {
+                            title: Uni.I18n.translate('general.history', 'IMT', 'History'),
+                            route: 'history',
+                            privileges: Imt.privileges.UsagePoint.view,
+                            controller: 'Imt.usagepointhistory.controller.History',
+                            action: 'showHistory',
+                            items: {
+                                customattributesversionsedit: {
+                                    title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                                    route: 'customattributes/{customAttributeSetId}/versions/{versionId}/edit',
+                                    privileges: Imt.privileges.UsagePoint.admin,
+                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStore,
+                                    dynamicPrivilege: Imt.dynamicprivileges.UsagePoint.viable,
+                                    controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
+                                    action: 'editCasVersion',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadCasVersionOnUsagePoint', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('period')], false));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
+                                },
+                                customattributesversionsadd: {
+                                    title: Uni.I18n.translate('general.add', 'IMT', 'Add'),
+                                    route: 'customattributes/{customAttributeSetId}/versions/add',
+                                    privileges: Imt.privileges.UsagePoint.hasFullAdministrateTimeSlicedCps(),
+                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStore,
+                                    dynamicPrivilege: Imt.dynamicprivileges.UsagePoint.viable,
+                                    controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
+                                    action: 'editCasVersion',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadCasOnUsagePointAdd', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.addxversion', 'IMT', "Add '{0}' version", [record.get('name')], false));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
+                                },
+                                customattributesversionsclone: {
+                                    title: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
+                                    route: 'customattributes/{customAttributeSetId}/versions/{versionId}/clone',
+                                    privileges: Imt.privileges.UsagePoint.hasFullAdministrateTimeSlicedCps(),
+                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStore,
+                                    dynamicPrivilege: Imt.dynamicprivileges.UsagePoint.viable,
+                                    controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
+                                    action: 'cloneCustomAttributeVersion',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadCustomAttributeSetVersionOnUsagePointClone', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.clonex', 'IMT', "Clone '{0}'", [record.get('period')], false));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
+                                }
+                            }
+                        },
+                        'processes': {
+                            title: Uni.I18n.translate('processes.title', 'IMT', 'Processes'),
+                            route: 'processes',
+                            controller: 'Imt.processes.controller.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showUsagePointProcesses'
+                        },
+                        'processesrunning': {
+                            title: Uni.I18n.translate('processes.title', 'IMT', 'Processes'),
+                            route: 'running',
+                            controller: 'Imt.processes.controller.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showUsagePointProcesses'
+                        },
+                        'processeshistory': {
+                            title: Uni.I18n.translate('processes.title', 'IMT', 'Processes'),
+                            route: 'processes/history',
+                            controller: 'Imt.processes.controller.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
+                            action: 'showUsagePointProcesses'
+                        },
+                        'processstart': {
+                            title: Uni.I18n.translate('processes.title', 'IMT', 'Processes'),
+                            route: 'processes/start',
+                            controller: 'Imt.processes.controller.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showUsagePointStartProcess'
+                        },
+                        servicecalls: {
+                            title: Uni.I18n.translate('general.serviceCalls', 'IMT', 'Service calls'),
+                            route: 'servicecalls',
+                            controller: 'Imt.servicecalls.controller.ServiceCalls',
+                            privileges: Imt.privileges.UsagePoint.view,
+                            action: 'showServiceCalls',
+                            items: {
+                                history: {
+                                    title: Uni.I18n.translate('general.history', 'IMT', 'History'),
+                                    route: 'history',
+                                    privileges: Imt.privileges.UsagePoint.view,
+                                    controller: 'Imt.servicecalls.controller.ServiceCalls',
+                                    action: 'showServiceCallHistory'
+                                }
+                            }
+                        },
                         channels: {
                             title: Uni.I18n.translate('general.channels', 'IMT', 'Channels'),
                             route: 'channels',
@@ -267,95 +378,6 @@ Ext.define('Imt.controller.History', {
                                }, {single: true});       
                                return this;
                            }  
-                        },
-                        history: {
-                            title: Uni.I18n.translate('general.history', 'IMT', 'History'),
-                            route: 'history',
-                            privileges: Imt.privileges.UsagePoint.view,
-                            controller: 'Imt.usagepointhistory.controller.History',
-                            action: 'showHistory',
-                            items: {
-                                customattributesversionsedit: {
-                                    title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
-                                    route: 'customattributes/{customAttributeSetId}/versions/{versionId}/edit',
-                                    privileges: Imt.privileges.UsagePoint.admin,
-                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStore,
-                                    dynamicPrivilege: Imt.dynamicprivileges.UsagePoint.viable,
-                                    controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
-                                    action: 'editCasVersion',
-                                    callback: function (route) {
-                                        this.getApplication().on('loadCasVersionOnUsagePoint', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('period')], false));
-                                            return true;
-                                        }, {single: true});
-
-                                        return this;
-                                    }
-                                },
-                                customattributesversionsadd: {
-                                    title: Uni.I18n.translate('general.add', 'IMT', 'Add'),
-                                    route: 'customattributes/{customAttributeSetId}/versions/add',
-                                    privileges: Imt.privileges.UsagePoint.hasFullAdministrateTimeSlicedCps(),
-                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStore,
-                                    dynamicPrivilege: Imt.dynamicprivileges.UsagePoint.viable,
-                                    controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
-                                    action: 'editCasVersion',
-                                    callback: function (route) {
-                                        this.getApplication().on('loadCasOnUsagePointAdd', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.addxversion', 'IMT', "Add '{0}' version", [record.get('name')], false));
-                                            return true;
-                                        }, {single: true});
-
-                                        return this;
-                                    }
-                                },
-                                customattributesversionsclone: {
-                                    title: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
-                                    route: 'customattributes/{customAttributeSetId}/versions/{versionId}/clone',
-                                    privileges: Imt.privileges.UsagePoint.hasFullAdministrateTimeSlicedCps(),
-                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStore,
-                                    dynamicPrivilege: Imt.dynamicprivileges.UsagePoint.viable,
-                                    controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
-                                    action: 'cloneCustomAttributeVersion',
-                                    callback: function (route) {
-                                        this.getApplication().on('loadCustomAttributeSetVersionOnUsagePointClone', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.clonex', 'IMT', "Clone '{0}'", [record.get('period')], false));
-                                            return true;
-                                        }, {single: true});
-
-                                        return this;
-                                    }
-                                }
-                            }
-                        },
-                        'processes': {
-                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
-                            route: 'processes',
-                            controller: 'Imt.processes.controller.MonitorProcesses',
-                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                            action: 'showUsagePointProcesses'
-                        },
-                        'processesrunning': {
-                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
-                            route: 'running',
-                            controller: 'Imt.processes.controller.MonitorProcesses',
-                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                            action: 'showUsagePointProcesses'
-                        },
-                        'processeshistory': {
-                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
-                            route: 'processes/history',
-                            controller: 'Imt.processes.controller.MonitorProcesses',
-                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                            filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
-                            action: 'showUsagePointProcesses'
-                        },
-                        'processstart': {
-                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
-                            route: 'processes/start',
-                            controller: 'Imt.processes.controller.MonitorProcesses',
-                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                            action: 'showUsagePointStartProcess'
                         }
            			}
            		},
@@ -441,7 +463,7 @@ Ext.define('Imt.controller.History', {
                                     action: 'showValidationRuleSetsOverview',
 	                                items: {
 	                                	addruleset: {
-	                                        title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'IMT', 'Add validation rule set'),
+	                                        title: Uni.I18n.translate('general.label.metrologyconfiguration.addValRule', 'IMT', 'Add validation rule set'),
 	                                        route: 'addruleset',
 	                                        controller: 'Imt.metrologyconfiguration.controller.ValidationRuleSets',
 	                                        action: 'showAddValidationRuleSets'
