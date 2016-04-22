@@ -27,16 +27,16 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
             persist: false,
             mapping: function(data){
                 if (data.isSdp && data.isVirtual) {
-                    return 'UNMEASURED';
+                    return 'MEASURED_SDP';
                 }
                 if (data.isSdp && !data.isVirtual) {
-                    return 'SMART_DUMB';
+                    return 'MEASURED_NON_SDP';
                 }
                 if (!data.isSdp && !data.isVirtual) {
-                    return 'INFRASTRUCTURE';
+                    return 'UNMEASURED_NON_SDP';
                 }
                 if (!data.isSdp && data.isVirtual) {
-                    return 'N_A';
+                    return 'UNMEASURED_SDP';
                 }
             },
             // workaround for broken functionality of 'Ext.data.Field.serialize' in 'Uni.override.JsonWriterOverride.getRecordData'
@@ -44,19 +44,19 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
                 record.beginEdit();
                 if (value) {
                     switch (value) {
-                        case 'UNMEASURED':
+                        case 'MEASURED_SDP':
                             record.set('isSdp', true);
                             record.set('isVirtual', true);
                             break;
-                        case 'SMART_DUMB':
+                        case 'MEASURED_NON_SDP':
                             record.set('isSdp', true);
                             record.set('isVirtual', false);
                             break;
-                        case 'INFRASTRUCTURE':
+                        case 'UNMEASURED_NON_SDP':
                             record.set('isSdp', false);
                             record.set('isVirtual', false);
                             break;
-                        case 'N_A':
+                        case 'UNMEASURED_SDP':
                             record.set('isSdp', false);
                             record.set('isVirtual', true);
                             break;
