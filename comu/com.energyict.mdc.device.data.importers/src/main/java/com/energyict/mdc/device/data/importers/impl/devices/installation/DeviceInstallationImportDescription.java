@@ -42,7 +42,7 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
                 .withSetter(record::setTransitionDate)
                 .markMandatory()
                 .build());
-        IntStream.range(0, 2).forEach(cnt ->
+        IntStream.range(0, 3).forEach(cnt ->
                 fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setGeoCoordinates)
                 .build()));
