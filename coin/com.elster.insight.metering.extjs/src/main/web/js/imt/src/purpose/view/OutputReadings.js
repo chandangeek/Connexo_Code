@@ -12,8 +12,14 @@ Ext.define('Imt.purpose.view.OutputReadings', {
     //overflowY: 'auto',
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            output = me.output,
+            interval = me.interval,
+            all = interval.get('all'),
+            duration = all.count + all.timeUnit,
+            durations = Ext.create('Uni.store.Durations');
 
+        durations.loadData(interval.get('duration'));
         me.items = [
             {
                 xtype: 'uni-grid-filterpaneltop',
@@ -26,12 +32,12 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         dataIndex: 'interval',
                         dataIndexFrom: 'intervalStart',
                         dataIndexTo: 'intervalEnd',
-                        defaultFromDate: me.filterDefault.fromDate,
-                        defaultDuration: me.filterDefault.duration,
+                        defaultFromDate: interval.getIntervalStart(output.get('lastReading') || new Date()),
+                        defaultDuration: duration,
                         text: Uni.I18n.translate('general.startDate', 'MDC', 'Start date'),
-                        durationStore: me.filterDefault.durationStore,
+                        durationStore: durations,
                         loadStore: false,
-                        hideDateTtimeSelect: me.filterDefault.hideDateTtimeSelect,
+                        //hideDateTtimeSelect: me.filterDefault.hideDateTtimeSelect,
                         itemId: 'devicechannels-topfilter-duration'
                     }
                 ]

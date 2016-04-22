@@ -101,6 +101,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                                 purpose: purpose,
                                 outputs: outputs,
                                 output: output,
+                                interval: me.getInterval(output),
                                 prevNextListLink: prevNextListLink,
                                 controller: me
                             });
@@ -125,6 +126,13 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
     },
 
+    getInterval: function(output) {
+        var me = this,
+            intervalStore = me.getStore('Uni.store.DataIntervalAndZoomLevels');
+
+        return intervalStore.getIntervalRecord(output.get('interval'));
+    },
+
     showReadingsTab: function(panel) {
         var me = this,
             output = panel.output,
@@ -134,17 +142,17 @@ Ext.define('Imt.purpose.controller.Purpose', {
             filter;
 
 
-        filter = {};
-        filter.intervalEnd = output.get('lastReading') || new Date();
-        filter.intervalStart = interval.getIntervalStart(filter.intervalEnd);
+        //filter = {};
+        //filter.intervalEnd = output.get('lastReading') || new Date();
+        //filter.intervalStart = interval.getIntervalStart(filter.intervalEnd);
 
         debugger;
 
         readingsStore.getProxy().extraParams = {
             mRID: panel.usagePoint.get('mRID'),
             purposeId: panel.purpose.getId(),
-            outputId: panel.output.getId(),
-            filter: filter
+            outputId: panel.output.getId()
+            //filter: filter
         };
 
         readingsStore.load();

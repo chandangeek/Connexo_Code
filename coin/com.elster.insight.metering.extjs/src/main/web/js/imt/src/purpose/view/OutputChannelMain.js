@@ -37,6 +37,8 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                         itemId: 'channel-data',
                         items: {
                             xtype: 'output-readings',
+                            interval: me.interval,
+                            output: me.output,
                             router: me.router
                         },
                         listeners: {
