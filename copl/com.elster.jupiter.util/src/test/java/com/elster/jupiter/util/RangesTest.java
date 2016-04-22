@@ -230,4 +230,178 @@ public class RangesTest {
         assertThat(copied.upperEndpoint()).isEqualTo('V');
     }
 
+    @Test
+    public void toOpenForOpenRangeWithEndPoints() {
+        Range<Character> originalRange = Range.open('R', 'V');
+
+        // Business method
+        Range<Character> copied = Ranges.copy(originalRange).asOpen();
+
+        // Asserts
+        assertThat(copied).isEqualTo(originalRange);
+    }
+
+    @Test
+    public void toOpenForRangeWithoutLowerEndPoint() {
+        Range<Character> originalRange = Range.atMost('V');
+
+        // Business method
+        Range<Character> copied = Ranges.copy(originalRange).asOpen();
+
+        // Asserts
+        assertThat(copied.hasLowerBound()).isFalse();
+        assertThat(copied.upperBoundType()).isEqualTo(BoundType.OPEN);
+        assertThat(copied.hasUpperBound()).isTrue();
+        assertThat(copied.upperEndpoint()).isEqualTo('V');
+    }
+
+    @Test
+    public void toOpenForClosedRangeWithoutUpperEndPoint() {
+        Range<Character> originalRange = Range.atLeast('V');
+
+        // Business method
+        Range<Character> copied = Ranges.copy(originalRange).asOpen();
+
+        // Asserts
+        assertThat(copied.lowerBoundType()).isEqualTo(BoundType.OPEN);
+        assertThat(copied.hasLowerBound()).isTrue();
+        assertThat(copied.lowerEndpoint()).isEqualTo('V');
+        assertThat(copied.hasUpperBound()).isFalse();
+    }
+
+    @Test
+    public void toOpenForClosedRangeWithEndPoints() {
+        Range<Character> originalRange = Range.closed('R', 'V');
+
+        // Business method
+        Range<Character> copied = Ranges.copy(originalRange).asOpen();
+
+        // Asserts
+        assertThat(copied.lowerBoundType()).isEqualTo(BoundType.OPEN);
+        assertThat(copied.hasLowerBound()).isTrue();
+        assertThat(copied.lowerEndpoint()).isEqualTo('R');
+        assertThat(copied.upperBoundType()).isEqualTo(BoundType.OPEN);
+        assertThat(copied.hasUpperBound()).isTrue();
+        assertThat(copied.upperEndpoint()).isEqualTo('V');
+    }
+
+    @Test
+    public void toOpenForClosedOpenRangeWithEndPoints() {
+        Range<Character> originalRange = Range.closedOpen('R', 'V');
+
+        // Business method
+        Range<Character> copied = Ranges.copy(originalRange).asOpen();
+
+        // Asserts
+        assertThat(copied.lowerBoundType()).isEqualTo(BoundType.OPEN);
+        assertThat(copied.hasLowerBound()).isTrue();
+        assertThat(copied.lowerEndpoint()).isEqualTo('R');
+        assertThat(copied.upperBoundType()).isEqualTo(BoundType.OPEN);
+        assertThat(copied.hasUpperBound()).isTrue();
+        assertThat(copied.upperEndpoint()).isEqualTo('V');
+    }
+
+    @Test
+    public void toOpenForOpenClosedRangeWithEndPoints() {
+        Range<Character> originalRange = Range.openClosed('R', 'V');
+
+        // Business method
+        Range<Character> copied = Ranges.copy(originalRange).asOpen();
+
+        // Asserts
+        assertThat(copied.lowerBoundType()).isEqualTo(BoundType.OPEN);
+        assertThat(copied.hasLowerBound()).isTrue();
+        assertThat(copied.lowerEndpoint()).isEqualTo('R');
+        assertThat(copied.upperBoundType()).isEqualTo(BoundType.OPEN);
+        assertThat(copied.hasUpperBound()).isTrue();
+        assertThat(copied.upperEndpoint()).isEqualTo('V');
+    }
+
+    @Test
+    public void toClosedForOpenRangeWithEndPoints() {
+        Range<Character> originalRange = Range.open('R', 'V');
+
+        // Business method
+        Range<Character> copied = Ranges.copy(originalRange).asClosed();
+
+        // Asserts
+        assertThat(copied.lowerBoundType()).isEqualTo(BoundType.CLOSED);
+        assertThat(copied.hasLowerBound()).isTrue();
+        assertThat(copied.lowerEndpoint()).isEqualTo('R');
+        assertThat(copied.upperBoundType()).isEqualTo(BoundType.CLOSED);
+        assertThat(copied.hasUpperBound()).isTrue();
+        assertThat(copied.upperEndpoint()).isEqualTo('V');
+    }
+
+    @Test
+    public void toClosedForRangeWithoutLowerEndPoint() {
+        Range<Character> originalRange = Range.atMost('V');
+
+        // Business method
+        Range<Character> copied = Ranges.copy(originalRange).asClosed();
+
+        // Asserts
+        assertThat(copied.hasLowerBound()).isFalse();
+        assertThat(copied.upperBoundType()).isEqualTo(BoundType.CLOSED);
+        assertThat(copied.hasUpperBound()).isTrue();
+        assertThat(copied.upperEndpoint()).isEqualTo('V');
+    }
+
+    @Test
+    public void toClosedForClosedRangeWithoutUpperEndPoint() {
+        Range<Character> originalRange = Range.atLeast('V');
+
+        // Business method
+        Range<Character> copied = Ranges.copy(originalRange).asClosed();
+
+        // Asserts
+        assertThat(copied.lowerBoundType()).isEqualTo(BoundType.CLOSED);
+        assertThat(copied.hasLowerBound()).isTrue();
+        assertThat(copied.lowerEndpoint()).isEqualTo('V');
+        assertThat(copied.hasUpperBound()).isFalse();
+    }
+
+    @Test
+    public void toClosedForClosedRangeWithEndPoints() {
+        Range<Character> originalRange = Range.closed('R', 'V');
+
+        // Business method
+        Range<Character> copied = Ranges.copy(originalRange).asClosed();
+
+        // Asserts
+        assertThat(copied).isEqualTo(originalRange);
+    }
+
+    @Test
+    public void toClosedForClosedOpenRangeWithEndPoints() {
+        Range<Character> originalRange = Range.closedOpen('R', 'V');
+
+        // Business method
+        Range<Character> copied = Ranges.copy(originalRange).asClosed();
+
+        // Asserts
+        assertThat(copied.lowerBoundType()).isEqualTo(BoundType.CLOSED);
+        assertThat(copied.hasLowerBound()).isTrue();
+        assertThat(copied.lowerEndpoint()).isEqualTo('R');
+        assertThat(copied.upperBoundType()).isEqualTo(BoundType.CLOSED);
+        assertThat(copied.hasUpperBound()).isTrue();
+        assertThat(copied.upperEndpoint()).isEqualTo('V');
+    }
+
+    @Test
+    public void toClosedForOpenClosedRangeWithEndPoints() {
+        Range<Character> originalRange = Range.openClosed('R', 'V');
+
+        // Business method
+        Range<Character> copied = Ranges.copy(originalRange).asClosed();
+
+        // Asserts
+        assertThat(copied.lowerBoundType()).isEqualTo(BoundType.CLOSED);
+        assertThat(copied.hasLowerBound()).isTrue();
+        assertThat(copied.lowerEndpoint()).isEqualTo('R');
+        assertThat(copied.upperBoundType()).isEqualTo(BoundType.CLOSED);
+        assertThat(copied.hasUpperBound()).isTrue();
+        assertThat(copied.upperEndpoint()).isEqualTo('V');
+    }
+
 }

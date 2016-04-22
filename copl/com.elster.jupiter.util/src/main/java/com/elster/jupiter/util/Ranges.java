@@ -118,12 +118,20 @@ public class Ranges {
             }
         }
 
+        public Range<C> asOpen() {
+            return Ranges.copy(withOpenLowerBound()).withOpenUpperBound();
+        }
+
         public Range<C> asOpenClosed() {
             return Ranges.copy(withOpenLowerBound()).withClosedUpperBound();
         }
 
         public Range<C> asClosedOpen() {
             return Ranges.copy(withClosedLowerBound()).withOpenUpperBound();
+        }
+
+        public Range<C> asClosed() {
+            return Ranges.copy(withClosedLowerBound()).withClosedUpperBound();
         }
 
         public Range<C> withOpenLowerBound(C c) {
