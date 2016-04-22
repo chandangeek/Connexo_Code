@@ -224,7 +224,7 @@ public class FirmwareVersionResource {
         }
     }
 
-    private void setFirmwareFile(FirmwareVersionBuilder firmwareVersionBuilder, InputStream fileInputStream) {
+    private void setFirmwareFile(Object firmwareFileReceiver, InputStream fileInputStream) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream(); InputStream fis = fileInputStream) {
             byte[] buffer = new byte[1024];
             int length;
@@ -236,26 +236,11 @@ public class FirmwareVersionResource {
             }
             byte[] firmwareFile = out.toByteArray();
             if (firmwareFile.length > 0) {
-                firmwareVersionBuilder.setFirmwareFile(firmwareFile);
-            }
-        } catch (IOException ex) {
-            throw exceptionFactory.newException(MessageSeeds.FILE_IO);
-        }
-    }
-
-    private void setFirmwareFile(FirmwareVersion firmwareVersion, InputStream fileInputStream) {
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream(); InputStream fis = fileInputStream) {
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = fis.read(buffer)) != -1) {
-                out.write(buffer, 0, length);
-                if (out.size() > FirmwareService.MAX_FIRMWARE_FILE_SIZE) {
-                    throw exceptionFactory.newException(MessageSeeds.MAX_FILE_SIZE_EXCEEDED);
+                if (firmwareFileReceiver instanceof FirmwareVersion) {
+                    ((FirmwareVersion)firmwareFileReceiver).setFirmwareFile(firmwareFile);
+                } else if (firmwareFileReceiver instanceof FirmwareVersionBuilder) {
+                    ((FirmwareVersionBuilder)firmwareFileReceiver).setFirmwareFile(firmwareFile);
                 }
-            }
-            byte[] firmwareFile = out.toByteArray();
-            if (firmwareFile.length > 0) {
-                firmwareVersion.setFirmwareFile(firmwareFile);
             }
         } catch (IOException ex) {
             throw exceptionFactory.newException(MessageSeeds.FILE_IO);
