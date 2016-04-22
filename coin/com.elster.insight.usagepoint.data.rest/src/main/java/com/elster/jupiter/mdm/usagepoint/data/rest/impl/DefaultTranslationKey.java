@@ -1,15 +1,11 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
-import java.text.MessageFormat;
-import java.util.Objects;
-
 public enum DefaultTranslationKey implements TranslationKey {
-//    PRE_TRANSITION_CHECKS_FAILED("PreTransitionChecksFailed" , "Pretransition checks failed"),
-
-    ;
+    //    PRE_TRANSITION_CHECKS_FAILED("PreTransitionChecksFailed" , "Pretransition checks failed"),
+    INCOMPLETE("incomplete", "Incomplete"),
+    COMPLETE("complete", "Complete");
 
     private String key;
     private String defaultFormat;
@@ -27,15 +23,5 @@ public enum DefaultTranslationKey implements TranslationKey {
     @Override
     public String getDefaultFormat() {
         return this.defaultFormat;
-    }
-
-    public String formatWith(Thesaurus thesaurus, Object... arguments){
-        Objects.requireNonNull(thesaurus);
-        String translated = thesaurus.getString(getKey(), getDefaultFormat());
-        return new MessageFormat(translated).format(arguments, new StringBuffer(), null).toString();
-    }
-
-    public String translateWith(Thesaurus thesaurus){
-        return thesaurus.getString(getKey(), getDefaultFormat());
     }
 }

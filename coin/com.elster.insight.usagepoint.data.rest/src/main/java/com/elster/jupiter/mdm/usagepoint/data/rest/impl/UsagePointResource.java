@@ -1,13 +1,10 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.mdm.common.rest.TimeDurationInfo;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -17,14 +14,11 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
@@ -39,7 +33,6 @@ import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
-import com.elster.jupiter.time.TimeDuration;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -379,23 +372,11 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public PagedInfoList getUsagePointPurposes(@PathParam("mrid") String mRid, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        List<PurposeInfo> purposeInfoList = new ArrayList<>();
         List<MetrologyContract> metrologyContractList = usagePoint.getMetrologyConfiguration().get().getContracts();
-        for (MetrologyContract metrologyContract : metrologyContractList) {
-            PurposeInfo info = new PurposeInfo();
-            info.id = metrologyContract.getMetrologyPurpose().getId();
-            info.name = metrologyContract.getMetrologyPurpose().getName();
-            info.required = metrologyContract.isMandatory();
-            info.active = info.required;
-
-            // todo (currently mocked for test purposes)
-            IdWithNameInfo status = new IdWithNameInfo();
-            status.id = "incomplete";
-            status.name = "Incomplete";
-            info.status = status;
-
-            purposeInfoList.add(info);
-        }
+        List<PurposeInfo> purposeInfoList = metrologyContractList
+                .stream()
+                .map(PurposeInfo::asInfo)
+                .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("purposes", purposeInfoList, queryParameters);
     }
 
@@ -404,35 +385,16 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public PagedInfoList getOutputsOfUsagePointPurpose(@PathParam("mrid") String mRid, @PathParam("id") long id, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
-        List<OutputInfo> outputInfoList = new ArrayList<>();
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        List<MetrologyContract> metrologyContractList = usagePoint.getMetrologyConfiguration().get().getContracts();
-        MetrologyContract metrologyContract = metrologyContractList
+        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
                 .stream()
                 .filter(mc -> mc.getMetrologyPurpose().getId() == id)
                 .findFirst()
                 .get();
-        for (ReadingTypeDeliverable readingTypeDeliverable : metrologyContract.getDeliverables()) {
-            TimeDuration timeDuration = null;
-            OutputInfo outputInfo = new OutputInfo();
-            ReadingType readingType = readingTypeDeliverable.getReadingType();
-            MacroPeriod macroPeriod = readingType.getMacroPeriod();
-            TimeAttribute measuringPeriod = readingType.getMeasuringPeriod();
-            outputInfo.id = readingTypeDeliverable.getId();
-            outputInfo.name = readingTypeDeliverable.getName();
-            outputInfo.readingType = new ReadingTypeInfo(readingType);
-            if (!measuringPeriod.equals(TimeAttribute.NOTAPPLICABLE)) {
-                timeDuration = TimeDuration.minutes(measuringPeriod.getMinutes());
-            } else if (macroPeriod.equals(MacroPeriod.DAILY)) {
-                timeDuration = TimeDuration.days(1);
-            } else if (macroPeriod.equals(MacroPeriod.MONTHLY)) {
-                timeDuration = TimeDuration.months(1);
-            } else if (macroPeriod.equals(MacroPeriod.WEEKLYS)) {
-                timeDuration = TimeDuration.weeks(1);
-            }
-            outputInfo.interval = new TimeDurationInfo(timeDuration);
-            outputInfoList.add(outputInfo);
-        }
+        List<OutputInfo> outputInfoList = metrologyContract.getDeliverables()
+                .stream()
+                .map(OutputInfo::asInfo)
+                .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
     }
 }
