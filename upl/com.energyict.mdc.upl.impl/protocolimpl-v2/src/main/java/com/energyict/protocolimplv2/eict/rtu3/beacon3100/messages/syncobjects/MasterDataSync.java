@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -40,8 +41,9 @@ public class MasterDataSync {
 
     private Logger logger = Logger.getLogger(this.getClass().toString());
 
-    public MasterDataSync(Beacon3100Messaging beacon3100Messaging) {
+    public MasterDataSync(Beacon3100Messaging beacon3100Messaging, Logger upperLogger) {
         this.beacon3100Messaging = beacon3100Messaging;
+        this.logger = upperLogger;
     }
 
     /**
@@ -168,13 +170,13 @@ public class MasterDataSync {
             if (existingBeaconDeviceTypes.containsKey(deviceType.getId())) {
                 if (deviceType.equals( existingBeaconDeviceTypes.get(deviceType.getId()))){
                     // do nothing, the same
-                    logger.info("Device type SKIPPED: [" + deviceType.getId() + "] " + deviceType.getName());
+                    logger.finest("Device type SKIPPED: [" + deviceType.getId() + "] " + deviceType.getName());
                 } else {
-                    logger.info("Device type UPDATED: [" + deviceType.getId() + "] " + deviceType.getName());
+                    logger.finest("Device type UPDATED: [" + deviceType.getId() + "] " + deviceType.getName());
                     deviceTypeManager.updateDeviceType(deviceType.toStructure());
                 }
             } else {
-                logger.info("Device type ADDED: [" + deviceType.getId() + "] " + deviceType.getName());
+                logger.finest("Device type ADDED: [" + deviceType.getId() + "] " + deviceType.getName());
                 deviceTypeManager.addDeviceType(deviceType.toStructure());
             }
         }
@@ -182,8 +184,12 @@ public class MasterDataSync {
         // delete the remaining inactive items
         for (Long beaconDeviceTypeId : active.keySet()){
             if (active.get(beaconDeviceTypeId).equals(Boolean.FALSE)){
-                deviceTypeManager.removeDeviceType(beaconDeviceTypeId);
-                logger.finest("Device type DELETED: [" + beaconDeviceTypeId + "] - this id existed in the Beacon, but not in masterdata");
+                try {
+                    deviceTypeManager.removeDeviceType(beaconDeviceTypeId);
+                    logger.finest("Device type DELETED: [" + beaconDeviceTypeId + "] - this id existed in the Beacon, but not in masterdata");
+                } catch (Exception ex){
+                    logger.log(Level.WARNING, "Could not delete device type [" + beaconDeviceTypeId + "] - "+ex.getMessage(),ex);
+                }
             }
         }
     }
@@ -222,8 +228,12 @@ public class MasterDataSync {
         // delete the remaining inactive items
         for (Long clientTypeId : active.keySet()){
             if (active.get(clientTypeId).equals(Boolean.FALSE)){
-                clientTypeManager.removeClientType(clientTypeId);
-                logger.finest("ClientType DELETED: [" + clientTypeId + "]");
+                try {
+                    clientTypeManager.removeClientType(clientTypeId);
+                    logger.finest("ClientType DELETED: [" + clientTypeId + "]");
+                } catch (Exception ex){
+                    logger.log(Level.WARNING, "Could not delete client type [" + clientTypeId + "] - "+ex.getMessage(),ex);
+                }
             }
         }
     }
@@ -261,8 +271,12 @@ public class MasterDataSync {
         // delete the remaining inactive items
         for (Long scheduleId : active.keySet()){
             if (active.get(scheduleId).equals(Boolean.FALSE)){
-                scheduleManager.removeSchedule(scheduleId);
-                logger.finest("Schedule DELETED: [" + scheduleId + "]");
+                try{
+                    scheduleManager.removeSchedule(scheduleId);
+                    logger.finest("Schedule DELETED: [" + scheduleId + "]");
+                } catch (Exception ex){
+                    logger.log(Level.WARNING, "Could not remove schedule [" + scheduleId + "] from beacon- "+ex.getMessage(),ex);
+                }
             }
         }
     }
