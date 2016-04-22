@@ -109,7 +109,7 @@ public class FirmwareCampaignResource {
         info.id = firmwareCampaignId;
         FirmwareCampaign firmwareCampaign = resourceHelper.lockFirmwareCampaign(info);
         firmwareCampaign.delete();
-        return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
+        return Response.noContent().build();
     }
 
     @GET @Transactional
