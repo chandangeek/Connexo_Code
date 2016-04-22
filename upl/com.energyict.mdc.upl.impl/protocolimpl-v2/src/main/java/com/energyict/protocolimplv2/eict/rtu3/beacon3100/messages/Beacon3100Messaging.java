@@ -826,7 +826,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private MasterDataSync getMasterDataSync() {
         if (masterDataSync == null) {
-            masterDataSync = new MasterDataSync(this, getProtocol().getLogger());
+            masterDataSync = new MasterDataSync(this);
         }
         return masterDataSync;
     }

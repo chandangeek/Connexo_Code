@@ -39,11 +39,10 @@ public class MasterDataSync {
 
     private final Beacon3100Messaging beacon3100Messaging;
 
-    private Logger logger = Logger.getLogger(this.getClass().toString());
+    private StringBuilder info = new StringBuilder();
 
-    public MasterDataSync(Beacon3100Messaging beacon3100Messaging, Logger upperLogger) {
+    public MasterDataSync(Beacon3100Messaging beacon3100Messaging) {
         this.beacon3100Messaging = beacon3100Messaging;
-        this.logger = upperLogger;
     }
 
     /**
@@ -65,6 +64,8 @@ public class MasterDataSync {
         syncSchedules(allMasterData);
         syncClientTypes(allMasterData);
         syncDeviceTypes(allMasterData);
+
+        collectedMessage.setDeviceProtocolInformation(info.toString());
 
         //Now see if there were any warning while parsing the EIServer model, and add them as proper issues.
         List<Issue> issues = new ArrayList<>();
@@ -164,19 +165,21 @@ public class MasterDataSync {
             }
         }
 
+        info.append("DeviceType Sync:\n");
+
         for (Beacon3100DeviceType deviceType : allMasterData.getDeviceTypes()) {
             active.put(deviceType.getId(), true); // types found in masterdata are still active
 
             if (existingBeaconDeviceTypes.containsKey(deviceType.getId())) {
                 if (deviceType.equals( existingBeaconDeviceTypes.get(deviceType.getId()))){
                     // do nothing, the same
-                    logger.finest("Device type SKIPPED: [" + deviceType.getId() + "] " + deviceType.getName());
+                    info.append("-DeviceType SKIPPED: [" + deviceType.getId() + "] " + deviceType.getName() + "\n");
                 } else {
-                    logger.finest("Device type UPDATED: [" + deviceType.getId() + "] " + deviceType.getName());
+                    info.append("-DeviceType UPDATED: [" + deviceType.getId() + "] " + deviceType.getName() + "\n");
                     deviceTypeManager.updateDeviceType(deviceType.toStructure());
                 }
             } else {
-                logger.finest("Device type ADDED: [" + deviceType.getId() + "] " + deviceType.getName());
+                info.append("-Device type ADDED: [" + deviceType.getId() + "] " + deviceType.getName() + "\n");
                 deviceTypeManager.addDeviceType(deviceType.toStructure());
             }
         }
@@ -186,9 +189,9 @@ public class MasterDataSync {
             if (active.get(beaconDeviceTypeId).equals(Boolean.FALSE)){
                 try {
                     deviceTypeManager.removeDeviceType(beaconDeviceTypeId);
-                    logger.finest("Device type DELETED: [" + beaconDeviceTypeId + "] - this id existed in the Beacon, but not in masterdata");
+                    info.append("-DeviceType DELETED: [" + beaconDeviceTypeId + "]\n");
                 } catch (Exception ex){
-                    logger.log(Level.WARNING, "Could not delete device type [" + beaconDeviceTypeId + "] - "+ex.getMessage(),ex);
+                    info.append("-Could not delete DeviceType [" + beaconDeviceTypeId + "] - " + ex.getMessage() + "\n");
                 }
             }
         }
@@ -209,19 +212,21 @@ public class MasterDataSync {
             }
         }
 
+        info.append("ClientType Sync:\n");
+
         for (Beacon3100ClientType beacon3100ClientType : allMasterData.getClientTypes()) {
             active.put(beacon3100ClientType.getId(), true); // types found in masterdata are still active
             if (existingClientTypes.containsKey(beacon3100ClientType.getId())) {
                 if (beacon3100ClientType.equals( existingClientTypes.get(beacon3100ClientType.getId()))){
                     // do nothing, the same
-                    logger.finest("ClientType SKIPPED: [" + beacon3100ClientType.getId() + "] ClientMacAddress:"+beacon3100ClientType.getClientMacAddress());
+                    info.append("-ClientType SKIPPED: [" + beacon3100ClientType.getId() + "] ClientMacAddress:"+beacon3100ClientType.getClientMacAddress()+"\n");
                 } else {
+                    info.append("-ClientType UPDATED: [" + beacon3100ClientType.getId() + "] ClientMacAddress:"+beacon3100ClientType.getClientMacAddress()+"\n");
                     clientTypeManager.updateClientType(beacon3100ClientType.toStructure());
-                    logger.finest("ClientType UPDATED: [" + beacon3100ClientType.getId() + "] ClientMacAddress:"+beacon3100ClientType.getClientMacAddress());
                 }
             } else {
+                info.append("-ClientType ADDED: [" + beacon3100ClientType.getId() + "]\n");
                 clientTypeManager.addClientType(beacon3100ClientType.toStructure());
-                logger.finest("ClientType ADDED: [" + beacon3100ClientType.getId() + "] ");
             }
         }
 
@@ -230,9 +235,9 @@ public class MasterDataSync {
             if (active.get(clientTypeId).equals(Boolean.FALSE)){
                 try {
                     clientTypeManager.removeClientType(clientTypeId);
-                    logger.finest("ClientType DELETED: [" + clientTypeId + "]");
+                    info.append("-ClientType DELETED: [" + clientTypeId + "]\n");
                 } catch (Exception ex){
-                    logger.log(Level.WARNING, "Could not delete client type [" + clientTypeId + "] - "+ex.getMessage(),ex);
+                    info.append("-Could not delete client type [" + clientTypeId + "] - "+ex.getMessage() +"\n");
                 }
             }
         }
@@ -252,19 +257,21 @@ public class MasterDataSync {
             }
         }
 
+        info.append("Schedules Sync:\n");
+
         for (Beacon3100Schedule beacon3100Schedule : allMasterData.getSchedules()) {
             active.put(beacon3100Schedule.getId(), true);
             if (existingSchedules.containsKey(beacon3100Schedule.getId())) {
                 if (beacon3100Schedule.equals( existingSchedules.get(beacon3100Schedule.getId()))){
                     // do nothing, the same
-                    logger.finest("Schedule SKIPPED: [" + beacon3100Schedule.getId() + "] "+beacon3100Schedule.getName());
+                    info.append("-Schedule SKIPPED: [" + beacon3100Schedule.getId() + "] " + beacon3100Schedule.getName() + "\n");
                 } else {
+                    info.append("-Schedule UPDATED: [" + beacon3100Schedule.getId() + "] "+beacon3100Schedule.getName()+"\n");
                     scheduleManager.updateSchedule(beacon3100Schedule.toStructure());
-                    logger.finest("Schedule UPDATED: [" + beacon3100Schedule.getId() + "] "+beacon3100Schedule.getName());
                 }
             } else {
+                info.append("-Schedule ADDED: [" + beacon3100Schedule.getId() + "] "+beacon3100Schedule.getName()+"\n");
                 scheduleManager.addSchedule(beacon3100Schedule.toStructure());
-                logger.finest("Schedule ADDED: [" + beacon3100Schedule.getId() + "] "+beacon3100Schedule.getName());
             }
         }
 
@@ -273,9 +280,9 @@ public class MasterDataSync {
             if (active.get(scheduleId).equals(Boolean.FALSE)){
                 try{
                     scheduleManager.removeSchedule(scheduleId);
-                    logger.finest("Schedule DELETED: [" + scheduleId + "]");
+                    info.append("-Schedule DELETED: [" + scheduleId + "]\n");
                 } catch (Exception ex){
-                    logger.log(Level.WARNING, "Could not remove schedule [" + scheduleId + "] from beacon- "+ex.getMessage(),ex);
+                    info.append("-Could not remove schedule [" + scheduleId + "] from beacon- " + ex.getMessage() + "\n");
                 }
             }
         }
