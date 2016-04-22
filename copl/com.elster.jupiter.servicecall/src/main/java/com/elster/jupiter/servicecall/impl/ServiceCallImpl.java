@@ -150,8 +150,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void requestTransition(DefaultState defaultState) {
-        getType().getServiceCallLifeCycle()
-                .triggerTransition(this, defaultState);
+        getType().getServiceCallLifeCycle().triggerTransition(this, defaultState);
     }
 
     void setState(DefaultState defaultState) {

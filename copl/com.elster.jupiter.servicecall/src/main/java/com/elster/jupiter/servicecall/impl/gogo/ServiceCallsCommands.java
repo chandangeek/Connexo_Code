@@ -13,7 +13,6 @@ import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
-import com.elster.jupiter.servicecall.impl.ServiceCallFilterImpl;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -54,7 +53,8 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=log",
                 "osgi.command.function=deleteServiceCallLifeCycle",
                 "osgi.command.function=hierarchy",
-                "osgi.command.function=deleteServiceCall"
+                "osgi.command.function=deleteServiceCall",
+                "osgi.command.function=cancel"
         }, immediate = true)
 public class ServiceCallsCommands {
 
@@ -111,7 +111,6 @@ public class ServiceCallsCommands {
             serviceCallService.createServiceCallType(name, versionName)
                     .customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
                             .get(0))
-                    .handler("DisconnectHandler1")
                     .create();
             context.commit();
         }
@@ -186,7 +185,7 @@ public class ServiceCallsCommands {
     }
 
     public void serviceCalls() {
-        serviceCallService.getServiceCallFinder(new ServiceCallFilterImpl()).find()
+        serviceCallService.getServiceCallFinder().find()
                 .stream()
                 .sorted(Comparator.comparing(ServiceCall::getId))
                 .map(sc -> sc.getNumber() + " "
@@ -295,10 +294,8 @@ public class ServiceCallsCommands {
         Optional<ServiceCall> serviceCall = serviceCallService.getServiceCall(parent);
         if (!serviceCall.isPresent()) {
             System.out.println("There is no parent service call with the reference '" + parent + "'.");
-            return;
         } else if (!serviceCallType.isPresent()) {
             System.out.println("There is no service call type with name: '" + type + "' and version: '" + typeVersion + "'");
-            return;
         } else {
             ServiceCallType scType = serviceCallType.get();
             ServiceCall call = serviceCall.get();
@@ -314,7 +311,7 @@ public class ServiceCallsCommands {
     }
 
     public void log() {
-        System.out.println("usage: log <service call id> <log level> <message>");
+        System.out.println("Usage: log <service call id> <log level> <message>");
         System.out.println("e.g.   log 7231 FINE That looks good to me");
     }
 
@@ -363,6 +360,21 @@ public class ServiceCallsCommands {
             serviceCallService.getServiceCall(serviceCallId)
                     .orElseThrow(() -> new IllegalArgumentException("No such service call"))
                     .delete();
+            context.commit();
+        }
+    }
+
+    public void cancel() {
+        System.out.println("usage: cancel <service call id>");
+        System.out.println("    Cancel the service call");
+    }
+
+    public void cancel(long serviceCallId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.getServiceCall(serviceCallId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such service call"))
+                    .cancel();
             context.commit();
         }
     }

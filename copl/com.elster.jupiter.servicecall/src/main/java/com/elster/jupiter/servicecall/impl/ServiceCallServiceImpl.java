@@ -209,11 +209,6 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
-    public ServiceCallFilter newServiceCallFilter() {
-        return new ServiceCallFilterImpl();
-    }
-
-    @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList(OrmService.COMPONENTNAME,
                 UserService.COMPONENTNAME,
@@ -312,6 +307,13 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     @Override
     public Finder<ServiceCall> getServiceCallFinder(ServiceCallFilter filter) {
          return DefaultFinder.of(ServiceCall.class, createConditionFromFilter(filter), dataModel, ServiceCallType.class, State.class)
+                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
+                .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
+    }
+
+    @Override
+    public Finder<ServiceCall> getServiceCallFinder() {
+        return DefaultFinder.of(ServiceCall.class, dataModel)
                 .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
                 .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
     }
