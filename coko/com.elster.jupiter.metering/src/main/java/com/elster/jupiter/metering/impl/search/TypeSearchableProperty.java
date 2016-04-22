@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.UsagePointTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -24,7 +24,7 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "type";
+    private static final String FIELD_NAME = "type";
 
     public TypeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
@@ -65,8 +65,8 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public String toDisplay(Object value) {
-        if (value instanceof UsagePointTypes) {
-            return ((UsagePointTypes) value).getDisplayName(thesaurus);
+        if (value instanceof UsagePointTypeInfo.UsagePointType) {
+            return ((UsagePointTypeInfo.UsagePointType) value).getDisplayName();
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
@@ -75,9 +75,9 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
     public PropertySpec getSpecification() {
         return propertySpecService
                 .specForValuesOf(new TypeValueFactory())
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_TYPE)
+                .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_TYPE)
                 .fromThesaurus(this.thesaurus)
-                .addValues(UsagePointTypes.values())
+                .addValues(UsagePointTypeInfo.UsagePointType.values())
                 .markExhaustive()
                 .finish();
     }
@@ -97,7 +97,7 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
     @Override
     public Condition toCondition(Condition specification) {
         return (((Contains) specification).getCollection()).stream()
-                .map(UsagePointTypes.class::cast).map(result -> {
+                .map(UsagePointTypeInfo.UsagePointType.class::cast).map(result -> {
                     switch (result) {
                         case MEASURED_SDP:
                             return Where.where("isVirtual").isEqualTo(true)
@@ -117,37 +117,7 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
                 }).findAny().orElseThrow(IllegalArgumentException::new);
     }
 
-    public static TranslationKey[] getTranslationKeys() {
-        return UsagePointTypes.values();
-    }
 
-    private enum UsagePointTypes implements TranslationKey {
-        MEASURED_SDP("usagePoint.type.measuredSDP", "Measured SDP"),
-        UNMEASURED_SDP("usagePoint.type.unmeasuredSDP", "Unmeasured SDP"),
-        MEASURED_NON_SDP("usagePoint.type.measuredNonSDP", "Measured non-SDP"),
-        UNMEASURED_NON_SDP("usagePoint.type.unmeasuredNonSDP", "Unmeasured non-SDP");
-
-        private String key, value;
-
-        private UsagePointTypes(String translationKey, String defaultValue) {
-            key = translationKey;
-            value = defaultValue;
-        }
-
-        @Override
-        public String getKey() {
-            return key;
-        }
-
-        @Override
-        public String getDefaultFormat() {
-            return value;
-        }
-
-        String getDisplayName(Thesaurus thesaurus) {
-            return thesaurus.getString(key, value);
-        }
-    }
 
     private static class TypeValueFactory extends AbstractValueFactory<Enum> {
 
@@ -158,7 +128,7 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
 
         @Override
         public Enum fromStringValue(String stringValue) {
-            return Arrays.stream(UsagePointTypes.values())
+            return Arrays.stream(UsagePointTypeInfo.UsagePointType.values())
                     .filter(enumValue -> stringValue.equalsIgnoreCase(enumValue.name()))
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);

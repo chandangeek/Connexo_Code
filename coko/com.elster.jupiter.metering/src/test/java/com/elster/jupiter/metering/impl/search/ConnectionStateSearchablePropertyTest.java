@@ -17,6 +17,7 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +56,8 @@ public class ConnectionStateSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private Clock clock;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -216,7 +219,7 @@ public class ConnectionStateSearchablePropertyTest {
     }
 
     private ConnectionStateSearchableProperty getTestInstance() {
-        return new ConnectionStateSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+        return new ConnectionStateSearchableProperty(this.domain, this.propertySpecService, this.thesaurus, this.clock);
     }
 
 }

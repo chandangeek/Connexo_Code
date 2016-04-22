@@ -98,7 +98,7 @@ public class LoadLimitSearchableProperty implements SearchableUsagePointProperty
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.singletonList(new LimiterSearchableProperty(this.propertySpecService, this.thesaurus));
+        return Collections.singletonList(new LimiterSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.group, this.clock));
     }
 
     @Override

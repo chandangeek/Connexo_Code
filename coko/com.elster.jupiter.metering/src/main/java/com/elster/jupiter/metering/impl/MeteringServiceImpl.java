@@ -49,7 +49,6 @@ import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFacto
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
-import com.elster.jupiter.metering.impl.search.TypeSearchableProperty;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
@@ -765,7 +764,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
         Arrays.stream(AmiBillingReadyKind.values()).forEach(translationKeys::add);
         Arrays.stream(BypassStatus.values()).forEach(translationKeys::add);
-        Arrays.stream(TypeSearchableProperty.getTranslationKeys()).forEach(translationKeys::add);
         Arrays.stream(YesNoAnswer.values()).map(answer -> new TranslationKey() {
             @Override
             public String getKey() {

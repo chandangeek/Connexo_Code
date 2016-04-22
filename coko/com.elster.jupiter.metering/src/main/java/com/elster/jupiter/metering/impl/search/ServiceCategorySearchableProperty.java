@@ -82,7 +82,10 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
                 .specForValuesOf(new EnumFactory(ServiceKind.class))
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY)
                 .fromThesaurus(this.thesaurus)
-                .addValues(ServiceKind.values())
+                .addValues(ServiceKind.ELECTRICITY,
+                        ServiceKind.GAS,
+                        ServiceKind.HEAT,
+                        ServiceKind.WATER)
                 .markExhaustive()
                 .finish();
     }
@@ -94,6 +97,7 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
+        //nothing to refresh
     }
 
     @Override
