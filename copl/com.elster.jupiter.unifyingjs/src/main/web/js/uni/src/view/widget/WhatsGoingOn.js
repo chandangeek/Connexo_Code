@@ -60,7 +60,9 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
             }
         ];
         me.callParent(arguments);
-       // me.buildWidget();
+        if(this.autoBuild){
+            me.buildWidget();
+        }
 
     },
 
