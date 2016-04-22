@@ -127,10 +127,11 @@ public class MetrologyConfigurationInfoFactory {
 
         ReadingTypeVisitor readingTypeVisitor = new ReadingTypeVisitor();
         expressionNode.accept(readingTypeVisitor);
-        return readingTypeVisitor.readingTypeRequirementNodes.stream().map(e -> asInfo(e.getReadingTypeRequirement())).collect(Collectors.toList());
+        return readingTypeVisitor.readingTypeRequirementNodes.stream().map(e -> asInfo(e)).collect(Collectors.toList());
     }
 
-    private ReadingTypeRequirementsInfo asInfo(ReadingTypeRequirement requirement) {
+    private ReadingTypeRequirementsInfo asInfo(ReadingTypeRequirementNode requirementNode) {
+        ReadingTypeRequirement requirement = requirementNode.getReadingTypeRequirement();
         ReadingTypeRequirementsInfo info = new ReadingTypeRequirementsInfo();
         info.meterRole = ((UsagePointMetrologyConfiguration)requirement.getMetrologyConfiguration())
                 .getMeterRoleFor(requirement)
@@ -145,7 +146,7 @@ public class MetrologyConfigurationInfoFactory {
             PartiallySpecifiedReadingTypeRequirement partiallySpecified = (PartiallySpecifiedReadingTypeRequirement) requirement;
             info.type = "partiallySpecified";
             info.readingTypePattern = new ReadingTypePatternInfo();
-            info.readingTypePattern.value = partiallySpecified.getDescription();
+            info.readingTypePattern.value = requirementNode.toString() + ", " + partiallySpecified.getDescription();
             info.readingTypePattern.attributes = new ReadingTypePatternAttributeInfo();
             info.readingTypePattern.attributes.multiplier = partiallySpecified
                     .getAttributeValue(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER)
