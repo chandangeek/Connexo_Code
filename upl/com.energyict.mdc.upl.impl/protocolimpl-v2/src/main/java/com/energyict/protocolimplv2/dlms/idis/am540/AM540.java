@@ -1,9 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.meterdata.CollectedMessageList;
@@ -12,7 +8,13 @@ import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
+
+import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
@@ -22,11 +24,13 @@ import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
+import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.slaveconnections.BeaconDlmsSession;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -47,12 +51,21 @@ public class AM540 extends AM130 implements SerialNumberSupport{
 
     @Override
     public String getProtocolDescription() {
-        return "AM540 DLMS (IDIS P2)";
+        return "Elster AM540 DLMS (IDIS P2)";
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-26 15:26:44 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2016-04-11 14:21:55 +0200 (Mon, 11 Apr 2016)$";
+    }
+
+    @Override
+    protected void initDlmsSession(ComChannel comChannel) {
+        if (getDlmsSessionProperties().useBeaconGatewayDeviceDialect() || getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            setDlmsSession(new BeaconDlmsSession(comChannel, getDlmsSessionProperties()));
+        } else {
+            super.initDlmsSession(comChannel);
+        }
     }
 
     /**
@@ -108,6 +121,15 @@ public class AM540 extends AM130 implements SerialNumberSupport{
     protected void readFrameCounter(ComChannel comChannel) {
         if (!getDlmsSessionProperties().usesPublicClient()) {
             super.readFrameCounter(comChannel);
+        }
+    }
+
+    @Override
+    protected DlmsSession getPublicDlmsSession(ComChannel comChannel, IDISProperties publicClientProperties) {
+        if (getDlmsSessionProperties().useBeaconGatewayDeviceDialect() || getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            return new BeaconDlmsSession(comChannel, publicClientProperties);
+        } else {
+            return super.getPublicDlmsSession(comChannel, publicClientProperties);
         }
     }
 
@@ -168,7 +190,7 @@ public class AM540 extends AM130 implements SerialNumberSupport{
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > getDlmsSessionProperties().getAARQRetries()) {
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
-                throw ConnectionCommunicationException.protocolConnectFailed(exception);
+                throw CommunicationException.protocolConnectFailed(exception);
             } else {
                 getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
@@ -208,6 +230,7 @@ public class AM540 extends AM130 implements SerialNumberSupport{
             am540Cache = (AM540Cache) deviceProtocolCache;
         }
     }
+
 
     /**
      * Method to check whether the cache needs to be read out or not, if so the read will be forced

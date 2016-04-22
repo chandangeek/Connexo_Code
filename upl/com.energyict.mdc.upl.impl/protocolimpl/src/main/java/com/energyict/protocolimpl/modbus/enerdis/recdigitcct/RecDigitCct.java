@@ -233,9 +233,7 @@ public class RecDigitCct extends Modbus {
     			}
     		}
     		
-    		if (debug) {
-				System.out.println("Next intervalTime: " + profileData.getIntervalData(i).getEndTime() );
-			}
+    	    getLogger().fine("Next intervalTime: " + profileData.getIntervalData(i).getEndTime());
     		
     	}
     	

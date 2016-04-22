@@ -70,14 +70,36 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.passwordPropertySpec(broadcastAuthenticationKeyAttributeName),
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.encryptionLevelAttributeName, DlmsEncryptionLevelMessageValues.getNames())
     ),
-    VerifyAndActivateFirmware(17);
+    VerifyAndActivateFirmware(17),
+    DataConcentratorMulticastFirmwareUpgrade(18,
+            PropertySpecFactory.stringPropertySpec(deviceIdsAttributeName),
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(UnicastClientWPort, BigDecimal.ONE),
+            PropertySpecFactory.bigDecimalPropertySpec(BroadcastClientWPort, BigDecimal.valueOf(64)),
+            PropertySpecFactory.bigDecimalPropertySpec(LogicalDeviceLSap, BigDecimal.ONE),
+            PropertySpecFactory.bigDecimalPropertySpec(SecurityLevelUnicast, BigDecimal.valueOf(3)),
+            PropertySpecFactory.bigDecimalPropertySpec(SecurityLevelBroadcast, BigDecimal.valueOf(3)),
+            PropertySpecFactory.bigDecimalPropertySpec(SecurityPolicyBroadcast, BigDecimal.ZERO),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayAfterLastBlock, new TimeDuration(5)),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayPerBlock, new TimeDuration(4)),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayBetweenBlockSentFast, new TimeDuration(250, TimeDuration.MILLISECONDS)),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DelayBetweenBlockSentSlow, new TimeDuration(500, TimeDuration.MILLISECONDS)),
+            PropertySpecFactory.bigDecimalPropertySpec(BlocksPerCycle, BigDecimal.valueOf(30)),
+            PropertySpecFactory.bigDecimalPropertySpec(MaxCycles, BigDecimal.ONE),
+            PropertySpecFactory.bigDecimalPropertySpec(RequestedBlockSize, BigDecimal.valueOf(1024)),
+            PropertySpecFactory.notNullableBooleanPropertySpec(PadLastBlock, false),
+            PropertySpecFactory.notNullableBooleanPropertySpec(UseTransferredBlockStatus, true)
+    ),
+    ReadMulticastProgress(19),
+    ;
 
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
 
-    private FirmwareDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    FirmwareDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
         this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }

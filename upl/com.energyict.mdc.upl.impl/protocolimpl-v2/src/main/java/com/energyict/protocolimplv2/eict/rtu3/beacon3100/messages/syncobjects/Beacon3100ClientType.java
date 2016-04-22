@@ -4,6 +4,7 @@ import com.energyict.dlms.axrdencoding.*;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
 
 /**
  * Copyrights EnergyICT
@@ -28,6 +29,22 @@ public class Beacon3100ClientType {
 
     //JSon constructor
     private Beacon3100ClientType() {
+    }
+
+    public boolean equals(AbstractDataType obj){
+        try {
+            Structure structure = obj.getStructure();
+            byte[] otherByteArray = structure.getContentByteArray();
+            byte[] thisByteArray = toStructure().getContentByteArray();
+
+            return Arrays.equals(thisByteArray, otherByteArray);
+        }catch (Exception ex){
+            return false;
+        }
+    }
+
+    public boolean equals(Beacon3100ClientType anotherClientType){
+        return this.equals(anotherClientType.toStructure());
     }
 
     public Structure toStructure() {

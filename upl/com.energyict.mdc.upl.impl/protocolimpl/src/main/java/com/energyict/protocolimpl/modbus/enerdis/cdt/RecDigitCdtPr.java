@@ -161,7 +161,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
     			}
     		}
     		
-    		System.out.println("Next intervalTime: " + profileData.getIntervalData(i).getEndTime() );
+    		getLogger().fine("Next intervalTime: " + profileData.getIntervalData(i).getEndTime());
     		
     	}
     	

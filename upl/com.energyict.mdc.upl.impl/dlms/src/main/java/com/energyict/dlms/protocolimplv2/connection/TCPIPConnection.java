@@ -40,7 +40,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     private boolean switchAddresses = false;
     private boolean useGeneralBlockTransfer;
     private int generalBlockTransferWindowSize;
-    private boolean usePolling;
+    private long pollingDelay;
 
     /**
      * The current retry count - 0 = first try / 1 = first retry / ...
@@ -63,7 +63,7 @@ public class TCPIPConnection implements DlmsV2Connection {
         this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
         this.useGeneralBlockTransfer = properties.useGeneralBlockTransfer();
         this.generalBlockTransferWindowSize = properties.getGeneralBlockTransferWindowSize();
-        this.usePolling = properties.isUsePolling();
+        this.pollingDelay = properties.getPollingDelay().getMilliSeconds();
         this.comChannel.setTimeout(this.timeout);
     }
 
@@ -92,7 +92,10 @@ public class TCPIPConnection implements DlmsV2Connection {
     }
 
     /**
-     * Listen for a while, to receive a response from the meter
+     * Listen for a while, to receive a response from the meter.
+     * <p/>
+     * Frames that have a wrong WPDU source or destination will be fully read & ignored.
+     * After that, we will attempt to read out the next full frame, so the normal protocol sequence can continue.
      *
      * @throws IOException       in case of a problem with the communication (e.g. timeout)
      * @throws ProtocolException in case of a response that contains unexpected data
@@ -111,7 +114,7 @@ public class TCPIPConnection implements DlmsV2Connection {
 
         //If the protocol indicates we should avoid polling, AND it is a TCP connection, use this way of reading responses.
         //Else, use the old way (polling .available() frequently).
-        if (!usePolling && ComChannelType.SocketComChannel.is(comChannel)) {
+        if ((pollingDelay == 0) && ComChannelType.SocketComChannel.is(comChannel)) {
             wpdu = new WPDU();
 
             //Read the header
@@ -187,14 +190,7 @@ public class TCPIPConnection implements DlmsV2Connection {
                             } else {
                                 wpdu.setSource(wpdu.getSource() * 256 + kar);
                                 count = 0;
-
-                                int address = this.switchAddresses ? this.serverAddress : this.clientAddress;
-                                if (wpdu.getSource() != address) {
-                                    state = State.STATE_HEADER_VERSION;
-                                    throw new ProtocolException("Received WPDU with wrong source address! Expected [" + address + "] but received [" + wpdu.getSource() + "].");
-                                } else {
-                                    state = State.STATE_HEADER_DESTINATION;
-                                }
+                                state = State.STATE_HEADER_DESTINATION;
                             }
                         }
                         break;
@@ -209,15 +205,7 @@ public class TCPIPConnection implements DlmsV2Connection {
                             } else {
                                 wpdu.setDestination(wpdu.getDestination() * 256 + kar);
                                 count = 0;
-
-                                int address = switchAddresses ? this.clientAddress : this.serverAddress;
-                                if (wpdu.getDestination() != address) {
-                                    state = State.STATE_HEADER_VERSION;
-                                    throw new ProtocolException("Received WPDU with wrong destination address! " +
-                                            "Expected [" + address + "] but received [" + wpdu.getDestination() + "].");
-                                } else {
-                                    state = State.STATE_HEADER_LENGTH;
-                                }
+                                state = State.STATE_HEADER_LENGTH;
                             }
                         }
                         break;
@@ -251,14 +239,25 @@ public class TCPIPConnection implements DlmsV2Connection {
                             resultArrayOutputStream.write(kar);
                             if (--count <= 0) {
                                 wpdu.setData(resultArrayOutputStream.toByteArray());
+
+                                //Now check the received source and destination fields.
+                                int expectedSource = this.switchAddresses ? this.serverAddress : this.clientAddress;
+                                if (wpdu.getSource() != expectedSource) {
+                                    //Invalid frame. Could be a late response that we considered missing (due to a timeout earlier). Ignore, read in the next full frame.
+                                    return receiveData();
+                                }
+                                int expectedDestination = switchAddresses ? this.clientAddress : this.serverAddress;
+                                if (wpdu.getDestination() != expectedDestination) {
+                                    //Invalid frame. Could be a late response that we considered missing (due to a timeout earlier). Ignore, read in the next full frame.
+                                    return receiveData();
+                                }
+
                                 return wpdu;
                             }
 
                         }
                         break; // STATE_DATA STATE_IDLE
-
                     }
-
                 }
 
                 if (((System.currentTimeMillis() - protocolTimeout)) > 0) {
@@ -268,7 +267,6 @@ public class TCPIPConnection implements DlmsV2Connection {
                 if (((System.currentTimeMillis() - interFrameTimeout)) > 0) {
                     throw new IOException("receiveResponse() interframe timeout error");
                 }
-
             } // while(true)
         }
     } // private byte waitForTCPIPFrameStateMachine()
@@ -330,7 +328,7 @@ public class TCPIPConnection implements DlmsV2Connection {
         if (comChannel.available() != 0) {
             return comChannel.read();
         } else {
-            delay(100);
+            delay(pollingDelay);
             return -1;
         }
     }

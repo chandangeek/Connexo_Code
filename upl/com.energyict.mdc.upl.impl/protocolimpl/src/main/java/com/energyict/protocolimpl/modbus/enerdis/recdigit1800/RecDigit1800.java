@@ -219,8 +219,7 @@ public class RecDigit1800 extends Modbus {
     			}
     		}
     		
-    		System.out.println("Next intervalTime: " + profileData.getIntervalData(i).getEndTime() );
-    		
+    		getLogger().fine("Next intervalTime: " + profileData.getIntervalData(i).getEndTime() );
     	}
     	
 		return profileData;

@@ -30,9 +30,9 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
     protected boolean supportMBus = true;
 
     /**
-     * Support the message to clear the MBus client
+     * Flag to decide if serial no or channel id should be used in the clear the MBus client message
      */
-    protected boolean supportClearMBusClient = false;
+    protected boolean useSerialNoInClearMBusClientMessage = false;
 
     /**
      * Boolean indicating whether or not to show the GPRS related messages in EIServer
@@ -92,7 +92,7 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
         MessageCategorySpec catFirmware = getFirmwareCategory();
         MessageCategorySpec catP1Messages = getP1Category();
         if (supportMBus) {
-            MessageCategorySpec mbusCategory = getSimpleInstallMbusCategory(supportClearMBusClient);
+            MessageCategorySpec mbusCategory = getSimpleInstallMbusCategory(useSerialNoInClearMBusClientMessage);
             mbusCategory.addMessageSpec(addMBusClientRemoteMessage(RtuMessageKeyIdConstants.MBUS_CLIENT_REMOTE_COMMISSION, RtuMessageConstant.MBUS_REMOTE_COMMISSION, false));
             mbusCategory.addMessageSpec(addChangeMBusAttributesMessage(RtuMessageKeyIdConstants.CHANGE_MBUS_CLIENT_ATTRIBUTES, RtuMessageConstant.CHANGE_MBUS_CLIENT_ATTRIBUTES, false));
             categories.add(mbusCategory);
@@ -243,8 +243,8 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
         this.supportXMLConfig = supportXMLConfig;
     }
 
-    public void setSupportClearMBusClient(boolean supportClearMBusClient) {
-        this.supportClearMBusClient = supportClearMBusClient;
+    public void setUseSerialNoInClearMBusClientMessage(boolean useSerialNoInClearMBusClientMessage) {
+        this.useSerialNoInClearMBusClientMessage = useSerialNoInClearMBusClientMessage;
     }
 
     private MessageSpec addMBusClientRemoteMessage(String keyId, String tagName, boolean advanced) {

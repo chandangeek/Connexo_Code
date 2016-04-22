@@ -6,10 +6,12 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.ClientTypeManager;
 import com.energyict.dlms.cosem.DeviceTypeManager;
 import com.energyict.dlms.cosem.ScheduleManager;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -21,7 +23,10 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -32,6 +37,8 @@ import java.util.List;
 public class MasterDataSync {
 
     private final Beacon3100Messaging beacon3100Messaging;
+
+    private Logger logger = Logger.getLogger(this.getClass().toString());
 
     public MasterDataSync(Beacon3100Messaging beacon3100Messaging) {
         this.beacon3100Messaging = beacon3100Messaging;
@@ -56,6 +63,17 @@ public class MasterDataSync {
         syncSchedules(allMasterData);
         syncClientTypes(allMasterData);
         syncDeviceTypes(allMasterData);
+
+        //Now see if there were any warning while parsing the EIServer model, and add them as proper issues.
+        List<Issue> issues = new ArrayList<>();
+        for (int index = 0; index < allMasterData.getWarningKeys().size(); index++) {
+            String warningKey = allMasterData.getWarningKeys().get(index);
+            String warningArgument = allMasterData.getWarningArguments().get(index);
+            issues.add(MdcManager.getIssueFactory().createWarning(pendingMessage, warningKey, warningArgument));
+        }
+        if (!issues.isEmpty()) {
+            collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, issues);
+        }
 
         return collectedMessage;
     }
@@ -131,21 +149,41 @@ public class MasterDataSync {
 
     private void syncDeviceTypes(AllMasterData allMasterData) throws IOException {
         final DeviceTypeManager deviceTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
-        final Array deviceTypesArray = deviceTypeManager.readDeviceTypes();
+        final Array existingBeaconDeviceTypesArray = deviceTypeManager.readDeviceTypes();
 
-        List<Long> deviceTypeIds = new ArrayList<>();
-        for (AbstractDataType deviceType : deviceTypesArray) {
-            if (deviceType.isStructure() && deviceType.getStructure().nrOfDataTypes() > 0) {
-                final long deviceTypeId = deviceType.getStructure().getDataType(0).longValue(); //First element of the structure is the deviceType ID
-                deviceTypeIds.add(deviceTypeId);
+        Map<Long, AbstractDataType> existingBeaconDeviceTypes = new HashMap<>();
+        Map<Long, Boolean> active = new HashMap<>();
+
+        for (AbstractDataType existingDeviceType : existingBeaconDeviceTypesArray) {
+            if (existingDeviceType.isStructure() && existingDeviceType.getStructure().nrOfDataTypes() > 0) {
+                final long existingDeviceTypeId = existingDeviceType.getStructure().getDataType(0).longValue(); //First element of the structure is the deviceType ID
+                existingBeaconDeviceTypes.put(existingDeviceTypeId, existingDeviceType);
+                active.put(existingDeviceTypeId, false); // for start consider that beacon items are obsolete
             }
         }
 
         for (Beacon3100DeviceType deviceType : allMasterData.getDeviceTypes()) {
-            if (deviceTypeIds.contains(deviceType.getId())) {
-                deviceTypeManager.updateDeviceType(deviceType.toStructure());   //TODO optimize: only update if something's different
+            active.put(deviceType.getId(), true); // types found in masterdata are still active
+
+            if (existingBeaconDeviceTypes.containsKey(deviceType.getId())) {
+                if (deviceType.equals( existingBeaconDeviceTypes.get(deviceType.getId()))){
+                    // do nothing, the same
+                    logger.info("Device type SKIPPED: [" + deviceType.getId() + "] " + deviceType.getName());
+                } else {
+                    logger.info("Device type UPDATED: [" + deviceType.getId() + "] " + deviceType.getName());
+                    deviceTypeManager.updateDeviceType(deviceType.toStructure());
+                }
             } else {
+                logger.info("Device type ADDED: [" + deviceType.getId() + "] " + deviceType.getName());
                 deviceTypeManager.addDeviceType(deviceType.toStructure());
+            }
+        }
+
+        // delete the remaining inactive items
+        for (Long beaconDeviceTypeId : active.keySet()){
+            if (active.get(beaconDeviceTypeId).equals(Boolean.FALSE)){
+                deviceTypeManager.removeDeviceType(beaconDeviceTypeId);
+                logger.finest("Device type DELETED: [" + beaconDeviceTypeId + "] - this id existed in the Beacon, but not in masterdata");
             }
         }
     }
@@ -154,19 +192,38 @@ public class MasterDataSync {
         final ClientTypeManager clientTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager();
         final Array clientTypesArray = clientTypeManager.readClients();
 
-        List<Long> clientTypeIds = new ArrayList<>();
+        Map<Long, AbstractDataType> existingClientTypes = new HashMap<>();
+        Map<Long, Boolean> active = new HashMap<>();
+
         for (AbstractDataType clientType : clientTypesArray) {
             if (clientType.isStructure() && clientType.getStructure().nrOfDataTypes() > 0) {
                 final long clientTypeId = clientType.getStructure().getDataType(0).longValue(); //First element of the structure is the clientType ID
-                clientTypeIds.add(clientTypeId);
+                existingClientTypes.put(clientTypeId, clientType);
+                active.put(clientTypeId, false); // for start consider that beacon items are obsolete
             }
         }
 
         for (Beacon3100ClientType beacon3100ClientType : allMasterData.getClientTypes()) {
-            if (clientTypeIds.contains(beacon3100ClientType.getId())) {
-                clientTypeManager.updateClientType(beacon3100ClientType.toStructure());     //TODO optimize: only update if something's different
+            active.put(beacon3100ClientType.getId(), true); // types found in masterdata are still active
+            if (existingClientTypes.containsKey(beacon3100ClientType.getId())) {
+                if (beacon3100ClientType.equals( existingClientTypes.get(beacon3100ClientType.getId()))){
+                    // do nothing, the same
+                    logger.finest("ClientType SKIPPED: [" + beacon3100ClientType.getId() + "] ClientMacAddress:"+beacon3100ClientType.getClientMacAddress());
+                } else {
+                    clientTypeManager.updateClientType(beacon3100ClientType.toStructure());
+                    logger.finest("ClientType UPDATED: [" + beacon3100ClientType.getId() + "] ClientMacAddress:"+beacon3100ClientType.getClientMacAddress());
+                }
             } else {
                 clientTypeManager.addClientType(beacon3100ClientType.toStructure());
+                logger.finest("ClientType ADDED: [" + beacon3100ClientType.getId() + "] ");
+            }
+        }
+
+        // delete the remaining inactive items
+        for (Long clientTypeId : active.keySet()){
+            if (active.get(clientTypeId).equals(Boolean.FALSE)){
+                clientTypeManager.removeClientType(clientTypeId);
+                logger.finest("ClientType DELETED: [" + clientTypeId + "]");
             }
         }
     }
@@ -175,19 +232,37 @@ public class MasterDataSync {
         final ScheduleManager scheduleManager = getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager();
         final Array schedulesArray = scheduleManager.readSchedules();
 
-        List<Long> scheduleIds = new ArrayList<>();
+        HashMap<Long, AbstractDataType> existingSchedules = new HashMap<>();
+        Map<Long, Boolean> active = new HashMap<>();
         for (AbstractDataType schedule : schedulesArray) {
             if (schedule.isStructure() && schedule.getStructure().nrOfDataTypes() > 0) {
                 final long scheduleId = schedule.getStructure().getDataType(0).longValue(); //First element of the structure is the schedule ID
-                scheduleIds.add(scheduleId);
+                existingSchedules.put(scheduleId, schedule);
+                active.put(scheduleId, false);
             }
         }
 
         for (Beacon3100Schedule beacon3100Schedule : allMasterData.getSchedules()) {
-            if (scheduleIds.contains(beacon3100Schedule.getId())) {
-                scheduleManager.updateSchedule(beacon3100Schedule.toStructure());   //TODO optimize: only update if something's different
+            active.put(beacon3100Schedule.getId(), true);
+            if (existingSchedules.containsKey(beacon3100Schedule.getId())) {
+                if (beacon3100Schedule.equals( existingSchedules.get(beacon3100Schedule.getId()))){
+                    // do nothing, the same
+                    logger.finest("Schedule SKIPPED: [" + beacon3100Schedule.getId() + "] "+beacon3100Schedule.getName());
+                } else {
+                    scheduleManager.updateSchedule(beacon3100Schedule.toStructure());
+                    logger.finest("Schedule UPDATED: [" + beacon3100Schedule.getId() + "] "+beacon3100Schedule.getName());
+                }
             } else {
                 scheduleManager.addSchedule(beacon3100Schedule.toStructure());
+                logger.finest("Schedule ADDED: [" + beacon3100Schedule.getId() + "] "+beacon3100Schedule.getName());
+            }
+        }
+
+        // delete the remaining inactive items
+        for (Long scheduleId : active.keySet()){
+            if (active.get(scheduleId).equals(Boolean.FALSE)){
+                scheduleManager.removeSchedule(scheduleId);
+                logger.finest("Schedule DELETED: [" + scheduleId + "]");
             }
         }
     }

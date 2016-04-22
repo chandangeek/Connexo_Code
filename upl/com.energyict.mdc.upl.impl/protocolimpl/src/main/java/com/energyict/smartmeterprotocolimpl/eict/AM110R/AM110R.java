@@ -51,12 +51,12 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
     /**
      * The used {@link AM110RRegisterFactory} to read and manage the AM110R registers
      */
-    private AM110RRegisterFactory registerFactory;
+    protected BulkRegisterProtocol registerFactory;
 
     /**
      * * The used {@link com.energyict.smartmeterprotocolimpl.eict.AM110R.events.AM110REventProfiles} to read and manage the AM110R event logs
      */
-    private AM110REventProfiles eventProfiles;
+    protected AM110REventProfiles eventProfiles;
 
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.eict.AM110R.messaging.AM110RMessaging} for messaging
@@ -191,7 +191,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
         return this.meterInfo;
     }
 
-    public AM110RRegisterFactory getRegisterFactory() {
+    public BulkRegisterProtocol getRegisterFactory() {
         if (this.registerFactory == null) {
             this.registerFactory = new AM110RRegisterFactory(this);
         }
@@ -228,7 +228,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
      * The protocol version
      */
     public String getVersion() {
-        return "$Date: 2015-11-26 15:26:01 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2016-03-25 14:54:31 +0200 (Fri, 25 Mar 2016)$";
     }
 
     public void disConnect() throws IOException {
@@ -299,7 +299,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
         }
     }
 
-    private void reInitDlmsSession(final Link link) throws ConnectionException {
+    protected void reInitDlmsSession(final Link link) throws ConnectionException {
         this.dlmsSession = new DlmsSession(link.getInputStream(), link.getOutputStream(), getLogger(), getProperties(), getTimeZone());
         enableHHUSignOn(link.getSerialCommunicationChannel(), false);
     }

@@ -1,9 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.Password;
-import com.energyict.cbo.TimeDuration;
+import com.energyict.cbo.*;
 import com.energyict.cpo.BusinessObject;
+import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
@@ -14,6 +13,7 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
@@ -24,27 +24,35 @@ import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.*;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.util.function.Consumer;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -61,11 +69,11 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public class Beacon3100Messaging extends AbstractMessageExecutor implements DeviceMessageSupport {
 
+    public static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
+    public static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
     private final static List<DeviceMessageSpec> supportedMessages;
     private static final String TEMP_DIR = "java.io.tmpdir";
-
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
-    private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
 
@@ -82,8 +90,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         supportedMessages.add(PLCConfigurationDeviceMessage.PingMeter);
 
-        supportedMessages.add(FirmwareDeviceMessage.BroadcastFirmwareUpgrade);
+        // supportedMessages.add(FirmwareDeviceMessage.BroadcastFirmwareUpgrade);
         supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
+        supportedMessages.add(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade);
+        supportedMessages.add(FirmwareDeviceMessage.ReadMulticastProgress);
 
         supportedMessages.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
         supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION);
@@ -205,7 +215,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             for (BusinessObject businessObject : group.getMembers()) {
                 if (businessObject instanceof Device) {
                     Device device = (Device) businessObject;
-                    String callHomeId = device.getProtocolProperties().<String>getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
+                    String callHomeId = device.getProtocolProperties().getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
                     if (!callHomeId.isEmpty()) {
                         if (macAddresses.length() != 0) {
                             macAddresses.append(SEPARATOR);
@@ -222,6 +232,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 }
             }
             return macAddresses.toString();
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.DelayAfterLastBlock)
+                || propertySpec.getName().equals(DeviceMessageConstants.DelayPerBlock)
+                || propertySpec.getName().equals(DeviceMessageConstants.DelayBetweenBlockSentFast)
+                || propertySpec.getName().equals(DeviceMessageConstants.DelayBetweenBlockSentSlow)) {
+            return String.valueOf(((TimeDuration) messageAttribute).getMilliSeconds());
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
         }
@@ -236,6 +251,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
             int configId = ((BigDecimal) deviceMessage.getAttributes().get(0).getValue()).intValue();
             return MasterDataSerializer.serializeMasterDataForOneConfig(configId);
+        } else if (deviceMessage.getSpecification().equals(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade)) {
+            return MulticastSerializer.serialize(offlineDevice, deviceMessage);
         } else {
             return "";
         }
@@ -435,6 +452,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                             }
                         }
 
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade)) {
+                        collectedMessage = dcMulticastUpgrade(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.ReadMulticastProgress)) {
+                        collectedMessage = readMulticastProgress(pendingMessage);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -456,6 +477,163 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             }
         }
 
+        return result;
+    }
+
+    /**
+     * Let the Beacon do a multicast firmware upgrade to a number of AM540 slave devices.
+     * https://confluence.eict.vpdc/display/G3IntBeacon3100/Meter+multicast+upgrade
+     */
+    private CollectedMessage dcMulticastUpgrade(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
+
+        String unicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastClientWPort).getDeviceMessageAttributeValue();
+        String broadcastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, BroadcastClientWPort).getDeviceMessageAttributeValue();
+        String logicalDeviceLSap = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, LogicalDeviceLSap).getDeviceMessageAttributeValue();
+        String securityLevelUnicast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelUnicast).getDeviceMessageAttributeValue();
+        String securityLevelBroadcast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelBroadcast).getDeviceMessageAttributeValue();
+        String securityPolicyBroadcast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityPolicyBroadcast).getDeviceMessageAttributeValue();
+        String delayAfterLastBlock = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayAfterLastBlock).getDeviceMessageAttributeValue();
+        String delayPerBlock = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayPerBlock).getDeviceMessageAttributeValue();
+        String delayBetweenBlockSentFast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayBetweenBlockSentFast).getDeviceMessageAttributeValue();
+        String delayBetweenBlockSentSlow = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DelayBetweenBlockSentSlow).getDeviceMessageAttributeValue();
+        String blocksPerCycle = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, BlocksPerCycle).getDeviceMessageAttributeValue();
+        String maxCycles = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MaxCycles).getDeviceMessageAttributeValue();
+        String requestedBlockSize = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, RequestedBlockSize).getDeviceMessageAttributeValue();
+        String padLastBlock = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, PadLastBlock).getDeviceMessageAttributeValue();
+        String useTransferredBlockStatus = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UseTransferredBlockStatus).getDeviceMessageAttributeValue();
+
+        ArrayList<MulticastProperty> multicastProperties = new ArrayList<>();
+        multicastProperties.add(new MulticastProperty("UnicastClientWPort", unicastClientWPort));
+        multicastProperties.add(new MulticastProperty("BroadcastClientWPort", broadcastClientWPort));
+        multicastProperties.add(new MulticastProperty("LogicalDeviceLSap", logicalDeviceLSap));
+        multicastProperties.add(new MulticastProperty("SecurityLevelUnicast", securityLevelUnicast));
+        multicastProperties.add(new MulticastProperty("SecurityLevelBroadcast", securityLevelBroadcast));
+        multicastProperties.add(new MulticastProperty("SecurityPolicyBroadcast", securityPolicyBroadcast));
+        multicastProperties.add(new MulticastProperty("DelayAfterLastBlock", delayAfterLastBlock));
+        multicastProperties.add(new MulticastProperty("DelayPerBlock", delayPerBlock));
+        multicastProperties.add(new MulticastProperty("DelayBetweenBlockSentFast", delayBetweenBlockSentFast));
+        multicastProperties.add(new MulticastProperty("DelayBetweenBlockSentSlow", delayBetweenBlockSentSlow));
+        multicastProperties.add(new MulticastProperty("BlocksPerCycle", blocksPerCycle));
+        multicastProperties.add(new MulticastProperty("MaxCycles", maxCycles));
+        multicastProperties.add(new MulticastProperty("RequestedBlockSize", requestedBlockSize));
+        multicastProperties.add(new MulticastProperty("PadLastBlock", padLastBlock));
+        multicastProperties.add(new MulticastProperty("UseTransferredBlockStatus", useTransferredBlockStatus));
+
+        MulticastProtocolConfiguration protocolConfiguration;
+        try {
+            final JSONObject jsonObject = new JSONObject(pendingMessage.getPreparedContext());  //This context field contains the serialized version of the protocol configuration
+            protocolConfiguration = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), MulticastProtocolConfiguration.class);
+        } catch (JSONException | IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.getMessage());
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+            return collectedMessage;
+        }
+        protocolConfiguration.getMulticastProperties().addAll(multicastProperties);
+
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer(MULTICAST_FIRMWARE_UPGRADE_OBISCODE);
+
+        //Write the full description of all AM540 slaves that needs to be upgraded using the DC multicast
+        it.writeMulticastProtocolConfiguration(protocolConfiguration.toStructure());
+
+        it.setUsePollingVerifyAndActivate(true);    //Poll verification
+        it.setPollingDelay(10000);
+        it.setPollingRetries(60);
+        it.setDelayBeforeSendingBlocks(5000);
+
+        try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
+            it.upgrade(new RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, true);
+            it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
+            it.imageActivation();
+        } catch (DataAccessResultException e) {
+            if (isTemporaryFailure(e)) {
+                getProtocol().getLogger().log(Level.INFO, "Received 'temporary failure', meaning that the multicast upgrade will start. Moving on.");
+            } else {
+                throw e;
+            }
+        }
+
+        return collectedMessage;
+    }
+
+    /**
+     * Read out the progress of the multicast FW upgrade.
+     * This contains information on all AM540 slave devices that are currently being upgraded.
+     * <p/>
+     * Note that this information will be stored on the proper AM540 slave devices in EIServer, as register 0.3.44.0.128.255
+     */
+    private CollectedMessage readMulticastProgress(OfflineDeviceMessage pendingMessage) throws IOException {
+        Structure structure = getCosemObjectFactory().getImageTransfer(MULTICAST_FIRMWARE_UPGRADE_OBISCODE).readMulticastUpgradeProgress();
+        if (structure.nrOfDataTypes() != 3) {
+            throw new ProtocolException("The structure describing the upgrade_progress attribute should contain 3 elements");
+        }
+
+        List<CollectedRegister> collectedRegisters = new ArrayList<>();
+
+        //First 2 fields of the structure describe the general progress state and will be stored as a register on the Beacon device.
+        int upgradeState = structure.getDataType(0).intValue();
+        OctetString upgradeProgressInfo = structure.getDataType(1).getOctetString();
+        String description = MulticastUpgradeState.fromValue(upgradeState).getDescription();
+        description = description + (upgradeProgressInfo == null ? "" : (". " + upgradeProgressInfo.stringValue()));
+        RegisterValue registerValue = new RegisterValue(MULTICAST_METER_PROGRESS, new Quantity(upgradeState, Unit.get(BaseUnit.UNITLESS)), null, null, new Date(), new Date(), 0, description);
+        CollectedRegister beaconRegister = createCollectedRegister(registerValue, pendingMessage);
+        collectedRegisters.add(beaconRegister);
+
+        //The third element in the structure is an array, describing the progress of each individual meter. These will be stored as a register value on the proper AM540 slave devices.
+        AbstractDataType dataType = structure.getDataType(2);
+        if (!dataType.isArray()) {
+            throw new ProtocolException("The third element in the upgrade_progress structure should be an array");
+        }
+        Array meterProgresses = dataType.getArray();
+        for (AbstractDataType meterProgress : meterProgresses) {
+            StringBuilder meterProgressDescription = new StringBuilder();
+            if (!meterProgress.isStructure() || meterProgress.getStructure().nrOfDataTypes() != 4) {
+                throw new ProtocolException("The meter_progress should be a structure of 4 elements");
+            }
+            AbstractDataType dataType1 = meterProgress.getStructure().getDataType(0);
+            if (!dataType1.isOctetString()) {
+                throw new ProtocolException("The first element in the meter_progress structure should be an octetstring");
+            }
+            AbstractDataType dataType2 = meterProgress.getStructure().getDataType(1);
+            if (!dataType2.isTypeEnum()) {
+                throw new ProtocolException("The second element in the meter_progress structure should be an enum");
+            }
+            AbstractDataType dataType3 = meterProgress.getStructure().getDataType(2);
+            if (!dataType3.isBitString()) {
+                throw new ProtocolException("The third element in the meter_progress structure should be a bitstring");
+            }
+            AbstractDataType dataType4 = meterProgress.getStructure().getDataType(3);
+            if (!dataType4.isOctetString()) {
+                throw new ProtocolException("The fourth element in the meter_progress structure should be an octetstring");
+            }
+            String macAddress = ProtocolTools.getHexStringFromBytes(dataType1.getOctetString().toByteArray(), "");
+            meterProgressDescription.append("Status: ");
+            meterProgressDescription.append(MulticastMeterState.fromValue(dataType2.intValue()).getDescription());
+            meterProgressDescription.append("\n\r ");
+
+            meterProgressDescription.append("Transferred blocks: ");
+            StringBuilder result = new StringBuilder();
+            BitSet bitSet = dataType3.getBitString().asBitSet();
+            for (int index = 0; index < bitSet.length(); index++) {
+                result.append(bitSet.get(index) ? "1" : "0");
+            }
+            meterProgressDescription.append(result.toString());
+            meterProgressDescription.append("\n\r ");
+
+            meterProgressDescription.append("Info: ");
+            meterProgressDescription.append(dataType4.getOctetString().stringValue());
+
+            CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(MULTICAST_METER_PROGRESS, new DialHomeIdDeviceIdentifier(macAddress)));
+            deviceRegister.setCollectedData(new Quantity(dataType2.intValue(), Unit.get(BaseUnit.UNITLESS)), meterProgressDescription.toString());
+            deviceRegister.setCollectedTimeStamps(new Date(), null, new Date());
+            collectedRegisters.add(deviceRegister);
+        }
+
+        CollectedMessage result = createCollectedMessageWithRegisterData(pendingMessage, collectedRegisters);
+        result.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         return result;
     }
 
@@ -665,7 +843,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         it.setUsePollingVerifyAndActivate(true);    //Poll verification
         it.setPollingDelay(10000);
-        it.setPollingRetries(30);
+        it.setPollingRetries(60);
         it.setDelayBeforeSendingBlocks(5000);
 
         try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
@@ -699,12 +877,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         Array encryptionKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
-        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey)));
+        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey, "")));
         encryptionKeyArray.addDataType(keyData);
         getSecuritySetup().transferGlobalKey(encryptionKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(plainHexKey));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(plainHexKey, ""));
 
         //Reset frame counter, only if a different key has been written
         if (!oldHexKey.equalsIgnoreCase(plainHexKey)) {
@@ -723,12 +901,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         Array authenticationKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey)));
+        keyData.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(wrappedHexKey, "")));
         authenticationKeyArray.addDataType(keyData);
         getSecuritySetup().transferGlobalKey(authenticationKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(plainHexKey));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(plainHexKey, ""));
     }
 
     private void activateDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {

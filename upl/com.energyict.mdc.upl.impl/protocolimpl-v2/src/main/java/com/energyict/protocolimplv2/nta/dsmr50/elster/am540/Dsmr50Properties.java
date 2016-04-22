@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
+import com.energyict.cbo.TimeDuration;
+import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
@@ -40,6 +41,14 @@ public class Dsmr50Properties extends DlmsProperties {
 
     public boolean isCumulativeCaptureTimeChannel() {
         return getProperties().getTypedProperty(CumulativeCaptureTimeChannel, false);
+    }
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        if (securityProvider == null) {
+            securityProvider = new Dsmr50SecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
+        }
+        return securityProvider;
     }
 
     public boolean isIgnoreDstStatusCode() {
@@ -120,12 +129,11 @@ public class Dsmr50Properties extends DlmsProperties {
     }
 
     /**
-     * In case of non-polling for TCP IP communication, frames that have a wrong WPDU source or destination will be fully read & ignored.
-     * After that, the connection layer will attempt to read out the next full frame, so the normal protocol sequence can continue.
+     * The AM540 protocol will also run embedded in the Beacon3100, so by default: avoid polling on the inputstream
      */
     @Override
-    public boolean isUsePolling() {
-        return false;
+    public TimeDuration getPollingDelay() {
+        return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.POLLING_DELAY, new TimeDuration(0));
     }
 
     public boolean getCheckNumberOfBlocksDuringFirmwareResume() {
