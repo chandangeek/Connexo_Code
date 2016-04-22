@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -127,5 +128,10 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
     @Override
     public List<UsagePointRequirement> getUsagePointRequirements() {
         return Collections.unmodifiableList(this.usagePointRequirements);
+    }
+
+    @Override
+    public List<MeterActivation> getMetersForRole(MeterRole meterRole) {
+        return null;
     }
 }
