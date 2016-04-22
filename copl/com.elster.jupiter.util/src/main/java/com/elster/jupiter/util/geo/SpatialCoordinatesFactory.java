@@ -3,15 +3,17 @@ package com.elster.jupiter.util.geo;
 import java.sql.*;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+
 import oracle.sql.NUMBER;
 
-public class SpatialCoordinatesFactory{
+public class SpatialCoordinatesFactory {
 
     public String getDbType() {
         return SpatialCoordinates.SQL_TYPE_NAME;
     }
 
-    public SpatialCoordinates valueFromDb(Object object ) {
+    public SpatialCoordinates valueFromDb(Object object) {
         if (object == null) {
             return null;
         } else {
@@ -22,7 +24,8 @@ public class SpatialCoordinatesFactory{
                 Object[] pointAttributes = point.getAttributes();
                 BigDecimal latitude = (BigDecimal) pointAttributes[0];
                 BigDecimal longitude = (BigDecimal) pointAttributes[1];
-                return new SpatialCoordinates(new DegreesWorldCoordinate(latitude), new DegreesWorldCoordinate(longitude));
+                BigDecimal elevation = (BigDecimal) pointAttributes[2];
+                return new SpatialCoordinates(new Latitude(latitude), new Longitude(longitude), new Elevation(elevation));
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -37,9 +40,9 @@ public class SpatialCoordinatesFactory{
 
                 NUMBER SDO_GTYPE = new NUMBER(2001);  //point = 2001
                 NUMBER SDO_SRID = new NUMBER(8307);   //datum = 8307
-                NUMBER x = new NUMBER(((DegreesWorldCoordinate) object.getLatitude()).getValue());  // latitude
-                NUMBER y = new NUMBER(((DegreesWorldCoordinate) object.getLongitude()).getValue());    //longitude
-                NUMBER z = null;
+                NUMBER x = new NUMBER((object.getLatitude()).getValue());  // latitude
+                NUMBER y = new NUMBER((object.getLongitude()).getValue());    //longitude
+                NUMBER z = new NUMBER((object.getElevation()).getValue());;
                 Object[] pointAttributes = {x, y, z};
                 Struct SDO_POINT = conn.createStruct("MDSYS.SDO_POINT_TYPE", pointAttributes);
 
@@ -77,32 +80,53 @@ public class SpatialCoordinatesFactory{
         return "MDSYS.SPATIAL_INDEX";
     }
 
-    private String LATITUDE_LONGITUDE_SEPARATOR = ":";
+    private String SEPARATOR = ":";
 
 
     public SpatialCoordinates fromStringValue(String stringValue) {
-        if (stringValue==null || stringValue.length()==0 || stringValue.indexOf(LATITUDE_LONGITUDE_SEPARATOR)==-1) {
+        if (stringValue == null || stringValue.length() == 0 || stringValue.indexOf(SEPARATOR) == -1) {
             return null;
         }
-        String[] parts = stringValue.split(LATITUDE_LONGITUDE_SEPARATOR);
-        if (parts.length!=2) {
-            return null;
+        String[] parts = stringValue.split(SEPARATOR);
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Incorrectly formatted coordinates.Please check format and range.");
         }
-        DegreesWorldCoordinate latitude = new DegreesWorldCoordinate( new BigDecimal(parts[0]) );
-        DegreesWorldCoordinate longitude = new DegreesWorldCoordinate( new BigDecimal(parts[1]) );
-        return new SpatialCoordinates(latitude, longitude);
+
+        if (Arrays.asList(parts)
+                .stream()
+                .anyMatch(element -> element.split(",").length > 2
+                        || element.split(".").length > 2)) {
+            throw new IllegalArgumentException("Incorrectly formatted coordinates.Please check format and range.");
+        }
+
+        BigDecimal numericLatitude = new BigDecimal(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
+        BigDecimal numericLongitude = new BigDecimal(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
+        BigDecimal numericElevation = new BigDecimal(parts[2]);
+        if (numericLatitude.compareTo(BigDecimal.valueOf(-90)) < 0
+                || numericLatitude.compareTo(BigDecimal.valueOf(90)) > 0
+                || numericLongitude.compareTo(BigDecimal.valueOf(-180)) < 0
+                || numericLongitude.compareTo(BigDecimal.valueOf(180)) > 0) {
+            throw new IllegalArgumentException("Incorrectly formatted coordinates.Please check format and range.");
+        }
+
+
+        Latitude latitude = new Latitude(numericLatitude);
+        Longitude longitude = new Longitude(numericLongitude);
+        Elevation elevation = new Elevation(numericElevation);
+        return new SpatialCoordinates(latitude, longitude, elevation);
     }
 
 
     public String toStringValue(SpatialCoordinates object) {
-        if (object==null) {
+        if (object == null) {
             return "";
         }
         // string representation: <latitude as BigDecimal>:<longitude as BigDecimal>
         SpatialCoordinates spatialCoordinates = object;
-        DegreesWorldCoordinate latitude = spatialCoordinates.getLatitude();
-        DegreesWorldCoordinate longitude = spatialCoordinates.getLongitude();
-        return latitude.getValue() + LATITUDE_LONGITUDE_SEPARATOR + longitude.getValue();
+        Latitude latitude = spatialCoordinates.getLatitude();
+        Longitude longitude = spatialCoordinates.getLongitude();
+        Elevation elevation = spatialCoordinates.getElevation();
+        return latitude.getValue() + SEPARATOR + longitude.getValue() + SEPARATOR + elevation.getValue();
     }
 
 }

@@ -11,6 +11,6 @@ public interface WorldCoordinate extends Serializable {
 
     Integer getMinutes();
 
-    BigDecimal getSeconds();
+    Integer getSeconds();
 
 }
