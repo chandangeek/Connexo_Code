@@ -180,7 +180,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
             }
 
             if (validationInfo.estimatedByRule && !record.isModified('value')) {
-                icon = '<span class="icon-play4" style="margin-left:10px; font-size:16px; color:#33CC33; position:absolute;"></span>';
+                icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
             } else if (validationInfo.isConfirmed && !record.isModified('value')) {
                 icon = '<span class="icon-checkmark3" style="margin-left:10px; position:absolute;"></span>';
             }
