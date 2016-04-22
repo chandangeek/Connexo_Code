@@ -54,6 +54,21 @@ public class SearchCriterionInfoFactory {
         PropertySpec propertySpec = property.getSpecification();
         propertyInfo.type = propertySpec.getValueFactory().getValueType().getSimpleName();
         propertyInfo.factoryName = propertySpec.getValueFactory().getClass().getName();
+
+        if (propertySpec.getValueFactory() instanceof QuantityValueFactory) {
+            PropertySpecPossibleValues possibleValuesOrNull = propertySpec.getPossibleValues();
+            if (possibleValuesOrNull != null) {
+                List<?> possibleValues = possibleValuesOrNull.getAllValues();
+                propertyInfo.exhaustive = possibleValuesOrNull.isExhaustive();
+                propertyInfo.values = possibleValues.stream()
+                        .map(v -> asJsonValueObject(property.toDisplay(v), v))
+                        .filter(getNameFilter(nameFilter))
+                        .collect(toList());
+                propertyInfo.total = propertyInfo.values != null ? propertyInfo.values.size() : 0;
+                return propertyInfo;
+            }
+        }
+
         PropertySpecPossibleValues possibleValuesOrNull = propertySpec.getPossibleValues();
         if (possibleValuesOrNull != null) {
             List<?> possibleValues = possibleValuesOrNull.getAllValues();
