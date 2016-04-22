@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.annotation.Priority;
@@ -73,11 +74,13 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     CustomPropertySetService customPropertySetService;
     @Mock
+    ServiceCallService serviceCallService;
+    @Mock
+    ServiceCallInfoFactory serviceCallInfoFactory;
+    @Mock
     IssueService issueService;
     @Mock
     BpmService bpmService;
-    @Mock
-    ServiceCallService serviceCallService;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -113,6 +116,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setBpmService(bpmService);
         application.setIssueService(issueService);
         application.setServiceCallService(serviceCallService);
+        application.setServiceCallInfoFactory(serviceCallInfoFactory);
         return application;
     }
 

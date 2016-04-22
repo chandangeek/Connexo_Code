@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -89,6 +90,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void setUp1() {
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
+        when(meteringService.findUsagePointLocation("MRID")).thenReturn(Optional.empty());
+        when(meteringService.findUsagePointGeoCoordinates("MRID")).thenReturn(Optional.empty());
 
         when(serviceCategory.newUsagePoint(anyString(), any(Instant.class))).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withIsSdp(anyBoolean())).thenReturn(usagePointBuilder);
@@ -104,9 +107,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.newElectricityDetailBuilder(any(Instant.class))).thenReturn(electricityDetailBuilder);
         when(electricityDetailBuilder.withCollar(any())).thenReturn(electricityDetailBuilder);
         when(electricityDetailBuilder.withEstimatedLoad(any(Quantity.class))).thenReturn(electricityDetailBuilder);
-        when(electricityDetailBuilder.withGrounded(anyBoolean())).thenReturn(electricityDetailBuilder);
-        when(electricityDetailBuilder.withInterruptible(anyBoolean())).thenReturn(electricityDetailBuilder);
-        when(electricityDetailBuilder.withLimiter(anyBoolean())).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withGrounded(any(YesNoAnswer.class))).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withInterruptible(any(YesNoAnswer.class))).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withLimiter(any(YesNoAnswer.class))).thenReturn(electricityDetailBuilder);
         when(electricityDetailBuilder.withLoadLimiterType(any())).thenReturn(electricityDetailBuilder);
         when(electricityDetailBuilder.withLoadLimit(any(Quantity.class))).thenReturn(electricityDetailBuilder);
         when(electricityDetailBuilder.withRatedPower(any(Quantity.class))).thenReturn(electricityDetailBuilder);
