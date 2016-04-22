@@ -13,8 +13,11 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -30,7 +33,21 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
+import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignStatus;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
+import com.energyict.mdc.firmware.FirmwareType;
+import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionBuilder;
+import com.energyict.mdc.firmware.FirmwareVersionFilter;
+import com.energyict.mdc.firmware.PassiveFirmwareVersion;
+import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -55,7 +72,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -64,7 +80,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link FirmwareService} interface.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 3/5/15
  * Time: 10:33 AM
@@ -83,6 +99,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
     private volatile MessageService messageService;
     private volatile UserService userService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile PropertySpecService propertySpecService;
 
     // For OSGI
     public FirmwareServiceImpl() {
@@ -99,7 +116,9 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
                                EventService eventService,
                                TaskService taskService,
                                MessageService messageService,
-                               UserService userService, CommunicationTaskService communicationTaskService) {
+                               UserService userService,
+                               CommunicationTaskService communicationTaskService,
+                               PropertySpecService propertySpecService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -112,6 +131,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
         setMessageService(messageService);
         setUserService(userService);
         setCommunicationTaskService(communicationTaskService);
+        setPropertySpecService(propertySpecService);
         if (!dataModel.isInstalled()) {
             install();
         }
@@ -126,6 +146,11 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -176,8 +201,9 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
 
     @Override
     public Optional<FirmwareVersion> getFirmwareVersionByVersionAndType(String version, FirmwareType firmwareType, DeviceType deviceType) {
-        return dataModel.mapper(FirmwareVersion.class).getUnique(new String[]{FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName(), FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), FirmwareVersionImpl.Fields.FIRMWARETYPE
-                .fieldName()}, new Object[]{version, deviceType, firmwareType});
+        return dataModel.mapper(FirmwareVersion.class)
+                .getUnique(new String[]{FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName(), FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), FirmwareVersionImpl.Fields.FIRMWARETYPE
+                        .fieldName()}, new Object[]{version, deviceType, firmwareType});
     }
 
     @Override
@@ -189,7 +215,9 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
     public boolean isFirmwareVersionInUse(long firmwareVersionId) {
         Optional<FirmwareVersion> firmwareVersionRef = getFirmwareVersionById(firmwareVersionId);
         return firmwareVersionRef.isPresent()
-                && !dataModel.query(ActivatedFirmwareVersion.class).select(where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName()).isEqualTo(firmwareVersionRef.get()), null, false, null, 1, 2).isEmpty();
+                && !dataModel.query(ActivatedFirmwareVersion.class)
+                .select(where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName()).isEqualTo(firmwareVersionRef.get()), null, false, null, 1, 2)
+                .isEmpty();
     }
 
     @Override
@@ -350,7 +378,8 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
 
     @Override
     public Optional<DeviceInFirmwareCampaign> getDeviceInFirmwareCampaignsForDevice(FirmwareCampaign firmwareCampaign, Device device) {
-        return dataModel.mapper(DeviceInFirmwareCampaign.class).getUnique(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName(), firmwareCampaign, DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName(), device);
+        return dataModel.mapper(DeviceInFirmwareCampaign.class)
+                .getUnique(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName(), firmwareCampaign, DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName(), device);
     }
 
     @Override
@@ -391,6 +420,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
                     bind(TaskService.class).toInstance(taskService);
                     bind(MessageService.class).toInstance(messageService);
                     bind(UserService.class).toInstance(userService);
+                    bind(PropertySpecService.class).toInstance(propertySpecService);
                 }
             });
         } catch (RuntimeException e) {
@@ -484,10 +514,10 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Stream.of(
-                Arrays.stream(Privileges.values()))
-                .flatMap(Function.identity())
-                .collect(Collectors.toList());
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(Privileges.values()));
+        keys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
+        return keys;
     }
 
     @Override

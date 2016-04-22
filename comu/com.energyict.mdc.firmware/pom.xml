@@ -137,6 +137,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <!--<dependency>-->
@@ -257,11 +261,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>search</artifactId>
             <scope>test</scope>
         </dependency>
         <!--        <dependency>
