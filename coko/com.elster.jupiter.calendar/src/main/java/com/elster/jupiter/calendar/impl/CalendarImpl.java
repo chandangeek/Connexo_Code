@@ -265,7 +265,6 @@ public class CalendarImpl implements Calendar {
                 calendarService.getDataModel().getInstance(FixedExceptionalOccurrenceImpl.class).init(this, dayType, day, month, year);
         Save.CREATE.validate(calendarService.getDataModel(), fixedExceptionalOccurrence);
         this.exceptionalOccurrences.add(fixedExceptionalOccurrence);
-        touch();
         return fixedExceptionalOccurrence;
     }
 
@@ -274,7 +273,6 @@ public class CalendarImpl implements Calendar {
                 calendarService.getDataModel().getInstance(RecurrentExceptionalOccurrenceImpl.class).init(this, dayType, day, month);
         Save.CREATE.validate(calendarService.getDataModel(), recurrentExceptionalOccurrence);
         this.exceptionalOccurrences.add(recurrentExceptionalOccurrence);
-        touch();
         return recurrentExceptionalOccurrence;
     }
 
@@ -301,10 +299,6 @@ public class CalendarImpl implements Calendar {
 
     public boolean isAbstract() {
         return abstractCalendar;
-    }
-
-    void touch() {
-        this.calendarService.getDataModel().touch(this);
     }
 
 
