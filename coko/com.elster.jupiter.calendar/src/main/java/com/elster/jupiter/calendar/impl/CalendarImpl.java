@@ -165,6 +165,34 @@ public class CalendarImpl implements Calendar {
             Save.UPDATE.save(calendarService.getDataModel(), this, Save.Update.class);
         } else {
             Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
+            saveDayTypes();
+            savePeriods();
+            savePeriodTransitionSpecs();
+            saveExceptionalOccurrences();
+        }
+    }
+
+    private void saveDayTypes() {
+        for (DayType dayType : dayTypes) {
+            ((DayTypeImpl) dayType).save();
+        }
+    }
+
+    private void savePeriodTransitionSpecs() {
+        for (PeriodTransitionSpec periodTransitionSpec : periodTransitionSpecs) {
+            ((PeriodTransitionSpecImpl) periodTransitionSpec).save();
+        }
+    }
+
+    private void savePeriods() {
+        for (Period period : periods) {
+            ((PeriodImpl) period).save();
+        }
+    }
+
+    private void saveExceptionalOccurrences() {
+        for (ExceptionalOccurrence occurrence : exceptionalOccurrences) {
+            ((ExceptionalOccurrenceImpl) occurrence).save();
         }
     }
 

@@ -19,7 +19,7 @@ public class FixedPeriodTransitionSpecImpl extends PeriodTransitionSpecImpl impl
     private int year;
 
     @Inject
-    FixedPeriodTransitionSpecImpl(CalendarService calendarService) {
+    FixedPeriodTransitionSpecImpl(ServerCalendarService calendarService) {
         super(calendarService);
     }
 

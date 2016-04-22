@@ -121,4 +121,15 @@ public class DayTypeImpl implements DayType {
         this.name = name;
     }
 
+     void save() {
+         for (EventOccurrence eventOccurrence : eventOccurrences) {
+             Event event = this.getCalendar().getEvents()
+                     .stream()
+                     .filter(evt -> evt.getName().equals(eventOccurrence.getEvent().getName())).findFirst().get();
+
+             ((EventOccurrenceImpl) eventOccurrence).setEvent(event);
+         }
+         Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
+    }
+
 }

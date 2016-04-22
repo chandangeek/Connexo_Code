@@ -6,6 +6,7 @@ import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.MessageSeeds;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -50,10 +51,10 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<DayType> dayType = ValueReference.absent();
 
-    private final CalendarService calendarService;
+    private final ServerCalendarService calendarService;
 
     @Inject
-    ExceptionalOccurrenceImpl(CalendarService calendarService) {
+    ExceptionalOccurrenceImpl(ServerCalendarService calendarService) {
         this.calendarService = calendarService;
     }
 
@@ -98,5 +99,10 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
     @Override
     public long getId() {
         return id;
+    }
+
+    void save() {
+        dayType.set(this.getCalendar().getDayTypes().stream().filter(type -> type.getName().equals(dayType.get().getName())).findFirst().get());
+        Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
     }
 }

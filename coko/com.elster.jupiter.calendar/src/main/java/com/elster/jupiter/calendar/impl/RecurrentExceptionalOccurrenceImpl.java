@@ -17,7 +17,7 @@ public class RecurrentExceptionalOccurrenceImpl extends ExceptionalOccurrenceImp
     }
 
     @Inject
-    RecurrentExceptionalOccurrenceImpl(CalendarService calendarService) {
+    RecurrentExceptionalOccurrenceImpl(ServerCalendarService calendarService) {
         super(calendarService);
     }
 

@@ -19,7 +19,7 @@ public class FixedExceptionalOccurrenceImpl extends ExceptionalOccurrenceImpl im
     private int year;
 
     @Inject
-    FixedExceptionalOccurrenceImpl(CalendarService calendarService) {
+    FixedExceptionalOccurrenceImpl(ServerCalendarService calendarService) {
         super(calendarService);
     }
 

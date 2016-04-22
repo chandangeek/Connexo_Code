@@ -2,7 +2,10 @@ package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.EventOccurrence;
+import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import org.junit.AfterClass;
@@ -54,6 +57,7 @@ public class CalendarCrudTest {
         CalendarService service = getCalendarService();
         Calendar calendar = service.newCalendar("Test", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
                 .description("Description remains to be completed :-)")
+                .endYear(Year.of(2018))
                 .mRID("Sample-TOU-rates")
                 .addEvent("On peak", 3)
                 .addEvent("Off peak", 5)
@@ -93,19 +97,38 @@ public class CalendarCrudTest {
                     .add()
                 .add();
 
-        assertThat(calendar.getName()).isEqualTo("test");
+        assertThat(calendar.getName()).isEqualTo("Test");
         assertThat(calendar.getDescription()).isEqualTo("Description remains to be completed :-)");
         assertThat(calendar.getTimeZone()).isEqualTo(TimeZone.getTimeZone("Europe/Brussels"));
         assertThat(calendar.getStartYear()).isEqualTo(Year.of(2010));
         assertThat(calendar.getEndYear()).isEqualTo(Year.of(2018));
         List<Event> events = calendar.getEvents();
         assertThat(events.size()).isEqualTo(3);
-        assertThat(events.get(0).getName()).isEqualTo("On peak");
-        assertThat(events.get(0).getCode()).isEqualTo(3);
+        Event onPeak = events.get(0);
+        assertThat(onPeak.getName()).isEqualTo("On peak");
+        assertThat(onPeak.getCode()).isEqualTo(3);
         assertThat(events.get(1).getName()).isEqualTo("Off peak");
         assertThat(events.get(1).getCode()).isEqualTo(5);
         assertThat(events.get(2).getName()).isEqualTo("Demand response");
         assertThat(events.get(2).getCode()).isEqualTo(97);
+
+        List<DayType> dayTypes = calendar.getDayTypes();
+        assertThat(dayTypes.size()).isEqualTo(5);
+        DayType daytype1 = dayTypes.get(0);
+        assertThat(daytype1.getName()).isEqualTo("Summer weekday");
+        List<EventOccurrence> eventOccurrences = daytype1.getEventOccurrences();
+        assertThat(eventOccurrences.size()).isEqualTo(2);
+        EventOccurrence occurrence1 = eventOccurrences.get(0);
+        assertThat(occurrence1.getFrom()).isEqualTo(LocalTime.of(13, 0, 0));
+        assertThat(occurrence1.getEvent().getName()).isEqualTo("On peak");
+
+        List<Period> periods = calendar.getPeriods();
+        assertThat(periods.size()).isEqualTo(2);
+        Period period1 = periods.get(0);
+        assertThat(period1.getName()).isEqualTo("Summer");
+        //todo check daytypes
+
+
     }
 
 }

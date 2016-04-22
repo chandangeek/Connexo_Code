@@ -3,10 +3,13 @@ package com.elster.jupiter.calendar.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.DayType;
+import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -49,10 +52,10 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
     private int month;
     private Reference<Period> period = ValueReference.absent();
 
-    private final CalendarService calendarService;
+    private final ServerCalendarService calendarService;
 
     @Inject
-    PeriodTransitionSpecImpl(CalendarService calendarService) {
+    PeriodTransitionSpecImpl(ServerCalendarService calendarService) {
         this.calendarService = calendarService;
     }
 
@@ -90,5 +93,10 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
 
     void setPeriod(Period period) {
         this.period.set(period);
+    }
+
+    void save() {
+        period.set(this.getCalendar().getPeriods().stream().filter(p -> p.getName().equals(period.get().getName())).findFirst().get());
+        Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
     }
 }

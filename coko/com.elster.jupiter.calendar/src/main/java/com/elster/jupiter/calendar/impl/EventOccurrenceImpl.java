@@ -86,4 +86,8 @@ public class EventOccurrenceImpl implements EventOccurrence {
         this.minutes = from.getMinute();
         this.seconds = from.getSecond();
     }
+
+    void setEvent(Event event) {
+        this.event.set(event);
+    }
 }

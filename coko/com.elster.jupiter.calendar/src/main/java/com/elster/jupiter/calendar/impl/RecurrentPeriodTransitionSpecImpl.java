@@ -20,7 +20,7 @@ public class RecurrentPeriodTransitionSpecImpl extends PeriodTransitionSpecImpl 
     }
 
     @Inject
-    RecurrentPeriodTransitionSpecImpl(CalendarService calendarService) {
+    RecurrentPeriodTransitionSpecImpl(ServerCalendarService calendarService) {
         super(calendarService);
     }
 

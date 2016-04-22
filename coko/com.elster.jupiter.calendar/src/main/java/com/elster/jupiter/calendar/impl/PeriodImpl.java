@@ -7,6 +7,7 @@ import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -74,10 +75,10 @@ public class PeriodImpl implements Period {
     private Instant modTime;
     private String userName;
 
-    private final CalendarService calendarService;
+    private final ServerCalendarService calendarService;
 
     @Inject
-    PeriodImpl(CalendarService calendarService) {
+    PeriodImpl(ServerCalendarService calendarService) {
         this.calendarService = calendarService;
     }
 
@@ -150,5 +151,25 @@ public class PeriodImpl implements Period {
                 return monday.get();
         }
     }
+
+
+    void save() {
+        monday.set(
+                this.getCalendar().getDayTypes().stream().filter(type -> type.getName().equals(monday.get().getName())).findFirst().get());
+        tuesday.set(
+                this.getCalendar().getDayTypes().stream().filter(type -> type.getName().equals(tuesday.get().getName())).findFirst().get());
+        wednesday.set(
+                this.getCalendar().getDayTypes().stream().filter(type -> type.getName().equals(wednesday.get().getName())).findFirst().get());
+        thursday.set(
+                this.getCalendar().getDayTypes().stream().filter(type -> type.getName().equals(thursday.get().getName())).findFirst().get());
+        friday.set(
+                this.getCalendar().getDayTypes().stream().filter(type -> type.getName().equals(friday.get().getName())).findFirst().get());
+        saturday.set(
+                this.getCalendar().getDayTypes().stream().filter(type -> type.getName().equals(saturday.get().getName())).findFirst().get());
+        sunday.set(
+                this.getCalendar().getDayTypes().stream().filter(type -> type.getName().equals(sunday.get().getName())).findFirst().get());
+        Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
+    }
+
 }
 

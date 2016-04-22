@@ -123,7 +123,7 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .map(DayTypeImpl.Fields.CALENDAR.fieldName())
                     .reverseMap(CalendarImpl.Fields.DAYTYPES.fieldName())
-                    .composition()
+                    //.composition()
                     .add();
         }
     },
@@ -172,7 +172,7 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .map(PeriodImpl.Fields.CALENDAR.fieldName())
                     .reverseMap(CalendarImpl.Fields.PERIODS.fieldName())
-                    .composition()
+                    //.composition()
                     .add();
 
             table.foreignKey("CAL_PERIOD_TO_MONDAY")
@@ -223,7 +223,7 @@ public enum TableSpecs {
 
             table.column("DAY").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.DAY.fieldName()).add();
             table.column("MONTH").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.MONTH.fieldName()).add();
-            table.column("YEAR").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.YEAR.fieldName()).add();
+            table.column("YEAR").type("number").conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.YEAR.fieldName()).add();
 
             Column dayTypeColumn = table.column(ExceptionalOccurrenceImpl.Fields.DAYTYPE.fieldName()).number().notNull().add();
 
@@ -234,7 +234,7 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .map(ExceptionalOccurrenceImpl.Fields.CALENDAR.fieldName())
                     .reverseMap(CalendarImpl.Fields.EXCEPTIONAL_OCCURRENCES.fieldName())
-                    .composition()
+                    //.composition()
                     .add();
             table.foreignKey("CAL_EXC_OCC_TO_DAYTYPE")
                     .references(DayType.class)
@@ -253,7 +253,7 @@ public enum TableSpecs {
 
             table.column("DAY").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.DAY.fieldName()).add();
             table.column("MONTH").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.MONTH.fieldName()).add();
-            table.column("YEAR").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.YEAR.fieldName()).add();
+            table.column("YEAR").type("number").conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.YEAR.fieldName()).add();
 
             Column periodColumn = table.column(PeriodTransitionSpecImpl.Fields.PERIOD.fieldName()).number().notNull().add();
 
@@ -264,7 +264,7 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .map(PeriodTransitionSpecImpl.Fields.CALENDAR.fieldName())
                     .reverseMap(CalendarImpl.Fields.PERIOD_TRANSITION_SPECS.fieldName())
-                    .composition()
+                    //.composition()
                     .add();
 
             table.foreignKey("CAL_PERIOD_TS_TO_PERIOD")
