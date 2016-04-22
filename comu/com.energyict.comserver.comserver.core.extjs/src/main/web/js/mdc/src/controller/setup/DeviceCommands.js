@@ -310,7 +310,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             } else {
                 previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('deviceCommands.view.trackingSource', 'MDC', 'Tracking source'));
                 previewForm.down('#tracking').renderer = function (val) {
-                    return val ? Ext.String.htmlEncode(val) : '';
+                    return !Ext.isEmpty(val) && !Ext.isEmpty(val.name) ? Ext.String.htmlEncode(val.name) : '-';
                 }
             }
             previewForm.loadRecord(record);
