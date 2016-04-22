@@ -75,8 +75,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges,
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
                     var status = record.get('status').value;
-
-                    return (status !== 'CommandWaiting' && status !== 'CommandPending');
+                    return (status !== 'WAITING' && status !== 'PENDING');
                 }
             }
         ];
