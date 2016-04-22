@@ -293,16 +293,16 @@ public class ConsoleCommands {
     }
 
     public void addDeviceGeoCoordinates() {
-        System.out.print("Example : addDeviceGeoCoordinates Device_mRID latitude longitude ");
+        System.out.print("Example : addDeviceGeoCoordinates Device_mRID latitude longitude elevation");
         System.out.println();
     }
 
-    public void addDeviceGeoCoordinates(String mRID, String latitude, String longitude) {
+    public void addDeviceGeoCoordinates(String mRID, String latitude, String longitude, String elevation) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             EndDevice endDevice = meteringService.findEndDevice(mRID)
                     .orElseThrow(() -> new RuntimeException("No device with mRID " + mRID + "!"));
-            GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude);
+            GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude + ":" + elevation);
             endDevice.setGeoCoordintes(geoCoordinates);
             endDevice.update();
             context.commit();
@@ -310,16 +310,16 @@ public class ConsoleCommands {
     }
 
     public void addUsagePointGeoCoordinates() {
-        System.out.print("Example : addUsagePointGeoCoordinates UsagePoint_mRID latitude longitude ");
+        System.out.print("Example : addUsagePointGeoCoordinates UsagePoint_mRID latitude longitude elevation ");
         System.out.println();
     }
 
-    public void addUsagePointGeoCoordinates(String mRID, String latitude, String longitude) {
+    public void addUsagePointGeoCoordinates(String mRID, String latitude, String longitude, String elevation) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(mRID)
                     .orElseThrow(() -> new RuntimeException("No usage point with mRID " + mRID + "!"));
-            GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude);
+            GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude + ":" + elevation);
             usagePoint.setGeoCoordinates(geoCoordinates);
             usagePoint.update();
             context.commit();
