@@ -54,12 +54,9 @@ public class EventOccurrenceImpl implements EventOccurrence {
         this.calendarService = calendarService;
     }
 
-    public EventOccurrenceImpl init(Event event, DayType dayType, int hours, int minutes, int seconds) {
+    EventOccurrenceImpl init(Event event, DayType dayType) {
         this.event.set(event);
         this.dayType.set(dayType);
-        this.hours = hours;
-        this.minutes = minutes;
-        this.seconds = seconds;
         return this;
     }
 
@@ -81,5 +78,12 @@ public class EventOccurrenceImpl implements EventOccurrence {
     @Override
     public DayType getDayType() {
         return this.dayType.orNull();
+    }
+
+
+    void setFrom(LocalTime from) {
+        this.hours = from.getHour();
+        this.minutes = from.getMinute();
+        this.seconds = from.getSecond();
     }
 }

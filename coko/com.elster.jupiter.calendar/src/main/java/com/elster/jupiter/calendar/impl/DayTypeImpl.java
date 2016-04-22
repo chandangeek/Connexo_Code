@@ -64,7 +64,7 @@ public class DayTypeImpl implements DayType {
         this.calendarService = calendarService;
     }
 
-    public DayTypeImpl init(Calendar calendar, String name) {
+    DayTypeImpl init(Calendar calendar, String name) {
         this.name = name;
         this.calendar.set(calendar);
         return this;
@@ -111,25 +111,14 @@ public class DayTypeImpl implements DayType {
         return userName;
     }
 
-    @Override
-    public EventOccurrence addEventOccurrence(Event event, int hours, int minutes, int seconds) {
-        EventOccurrenceImpl eventOccurrence = calendarService.getDataModel().getInstance(EventOccurrenceImpl.class).init(event, this, hours, minutes, seconds);
+    EventOccurrence addEventOccurrence(EventOccurrence eventOccurrence) {
         Save.CREATE.validate(calendarService.getDataModel(), eventOccurrence);
         this.eventOccurrences.add(eventOccurrence);
-        touch();
         return eventOccurrence;
     }
 
-
-    @Override
-    public void removeEventOccurrence(EventOccurrence eventOccurrence) {
-        Objects.requireNonNull(eventOccurrence);
-        eventOccurrences.remove(eventOccurrence);
-        touch();
-    }
-
-    void touch() {
-        this.calendarService.getDataModel().touch(this);
+    void setName(String name) {
+        this.name = name;
     }
 
 }

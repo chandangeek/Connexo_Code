@@ -117,34 +117,6 @@ public interface Calendar extends HasId, HasName {
 
     void delete();
 
-    DayType addDayType(String name);
-
-    void removeDayType(DayType dayType);
-
-    Period addPeriod(String name, DayType monday, DayType tuesday, DayType wednesday, DayType thursday, DayType friday, DayType saturday, DayType sunday);
-
-    //Event addEvent(String name, long code);
-
-    void removePeriod(Period period);
-
-    FixedExceptionalOccurrence addFixedExceptionalOccurrence(DayType dayType, int day, int month, int year);
-
-    void removeFixedExceptionalOccurrence(FixedExceptionalOccurrence fixedExceptionalOccurrence);
-
-    RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(DayType dayType, int day, int month);
-
-    void removeRecurrentExceptionalOccurrence(RecurrentExceptionalOccurrence recurrentExceptionalOccurrence);
-
-    FixedPeriodTransitionSpec addFixedPeriodTransitionSpec(Period period, int day, int month, int year);
-
-    void removeFixedPeriodTransitionSpec(FixedPeriodTransitionSpec fixedPeriodTransitionSpec);
-
-    RecurrentPeriodTransitionSpec addRecurrentPeriodTransitionSpec(Period period, int day, int month);
-
-    void removeRecurrentPeriodTransitionSpec(RecurrentPeriodTransitionSpec recurrentPeriodTransitionSpec);
-
-    void removeEvent(Event event);
-
     Year getStartYear();
 
     Year getEndYear();

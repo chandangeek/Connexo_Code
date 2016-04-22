@@ -15,8 +15,8 @@ public class RecurrentPeriodTransitionSpecImpl extends PeriodTransitionSpecImpl 
 
     static final String TYPE_IDENTIFIER = "REC";
 
-    public RecurrentPeriodTransitionSpecImpl init(Calendar calendar, Period period, int day, int month) {
-        return (RecurrentPeriodTransitionSpecImpl) super.init(calendar, period, day, month);
+    public RecurrentPeriodTransitionSpecImpl init(Calendar calendar, int day, int month) {
+        return (RecurrentPeriodTransitionSpecImpl) super.init(calendar, day, month);
     }
 
     @Inject
