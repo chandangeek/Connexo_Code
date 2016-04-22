@@ -15,6 +15,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.validation.constraints.AssertTrue;
+import java.time.LocalTime;
 import java.time.Year;
 import java.util.List;
 import java.util.TimeZone;
@@ -56,6 +57,10 @@ public class CalendarCrudTest {
                 .addEvent("On peak", 3)
                 .addEvent("Off peak", 5)
                 .addEvent("Demand response", 97)
+                .newDayType("Summer weekday")
+                    .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
+                    .add()
                 .add();
         assertThat(calendar.getName()).isEqualTo("test");
         assertThat(calendar.getDescription()).isEqualTo("Description remains to be completed :-)");

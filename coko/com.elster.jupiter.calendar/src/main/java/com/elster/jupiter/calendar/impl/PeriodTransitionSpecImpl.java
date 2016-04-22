@@ -56,9 +56,8 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
         this.calendarService = calendarService;
     }
 
-    public PeriodTransitionSpecImpl init(Calendar calendar, Period period, int day, int month) {
+    public PeriodTransitionSpecImpl init(Calendar calendar, int day, int month) {
         this.calendar.set(calendar);
-        this.period.set(period);
         this.day = day;
         this.month = month;
         return this;
@@ -87,5 +86,9 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
 
     protected int getMonth() {
         return month;
+    }
+
+    void setPeriod(Period period) {
+        this.period.set(period);
     }
 }

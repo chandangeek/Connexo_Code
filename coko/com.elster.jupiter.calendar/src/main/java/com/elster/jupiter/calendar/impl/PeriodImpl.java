@@ -81,7 +81,7 @@ public class PeriodImpl implements Period {
         this.calendarService = calendarService;
     }
 
-    public PeriodImpl init(Calendar calendar, String name, DayType monday, DayType tuesday, DayType wednesday, DayType thursday, DayType friday, DayType saturday, DayType sunday) {
+    PeriodImpl init(Calendar calendar, String name, DayType monday, DayType tuesday, DayType wednesday, DayType thursday, DayType friday, DayType saturday, DayType sunday) {
         this.name = name;
         this.calendar.set(calendar);
         this.monday.set(monday);

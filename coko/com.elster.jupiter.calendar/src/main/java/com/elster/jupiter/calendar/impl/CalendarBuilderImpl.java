@@ -2,11 +2,13 @@ package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.orm.DataModel;
 
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.Year;
+import java.util.Optional;
 import java.util.TimeZone;
 
 /**
@@ -15,72 +17,89 @@ import java.util.TimeZone;
 public class CalendarBuilderImpl implements CalendarService.CalendarBuilder {
 
     private DataModel dataModel;
-    private CalendarImpl underConstruction;
+    private CalendarImpl calendarImpl;
 
     public CalendarBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.underConstruction = this.dataModel.getInstance(CalendarImpl.class);
+        this.calendarImpl = this.dataModel.getInstance(CalendarImpl.class);
     }
 
     void init(String name, TimeZone timeZone, Year start) {
-        this.underConstruction.setName(name);
-        this.underConstruction.setTimeZone(timeZone);
-        this.underConstruction.setStartYear(start);
+        this.calendarImpl.setName(name);
+        this.calendarImpl.setTimeZone(timeZone);
+        this.calendarImpl.setStartYear(start);
     }
 
     @Override
     public CalendarService.CalendarBuilder endYear(Year setStartYear) {
-        this.underConstruction.setEndYear(setStartYear);
+        this.calendarImpl.setEndYear(setStartYear);
         return this;
     }
 
     @Override
     public CalendarService.CalendarBuilder mRID(String mRID) {
-        this.underConstruction.setmRID(mRID);
+        this.calendarImpl.setmRID(mRID);
         return this;
     }
 
     @Override
     public CalendarService.CalendarBuilder description(String description) {
-        this.underConstruction.setDescription(description);
+        this.calendarImpl.setDescription(description);
         return this;
     }
 
     @Override
     public CalendarService.CalendarBuilder addEvent(String name, int code) {
-        this.underConstruction.addEvent(name, code);
+        this.calendarImpl.addEvent(name, code);
         return this;
     }
 
     @Override
     public CalendarService.DayTypeBuilder newDayType(String name) {
-        return null;
+        return new DayTypeBuilderImpl(dataModel, this, calendarImpl, name);
     }
 
     @Override
     public CalendarService.CalendarBuilder addPeriod(String name, String mondayDayTypeName, String tuesdayDayTypeName, String wednesdayDayTypeName, String thursdayDayTypeName, String fridayDayTypeName, String saturdayDayTypeName, String sundayDayTypeName) {
-        return null;
+        this.calendarImpl.addPeriod(name,
+                getDayType(mondayDayTypeName),
+                getDayType(tuesdayDayTypeName),
+                getDayType(wednesdayDayTypeName),
+                getDayType(thursdayDayTypeName),
+                getDayType(fridayDayTypeName),
+                getDayType(saturdayDayTypeName),
+                getDayType(sundayDayTypeName));
+        return this;
     }
 
     @Override
     public CalendarService.TransitionBuilder on(MonthDay occurrence) {
-        return null;
+        return new TransitionBuilderImpl(dataModel, this, calendarImpl, occurrence);
     }
 
     @Override
     public CalendarService.TransitionBuilder on(LocalDate occurrence) {
-        return null;
+        return new TransitionBuilderImpl(dataModel, this, calendarImpl, occurrence);
     }
 
     @Override
     public CalendarService.ExceptionBuilder except(String dayTypeName) {
-        return null;
+        return new ExceptionBuilderImpl(dataModel, this, calendarImpl, dayTypeName);
     }
 
     @Override
     public Calendar add() {
-        this.underConstruction.save();
-        return this.underConstruction;
+        this.calendarImpl.save();
+        return this.calendarImpl;
+    }
+
+    private DayType getDayType(String name) {
+        Optional<DayType> dayType =
+                calendarImpl.getDayTypes().stream().filter(type -> type.getName().equals(name)).findAny();
+        if (!dayType.isPresent()) {
+            throw new IllegalArgumentException("No daytype defined yet with name '" + name + "'");
+        }
+        return dayType.get();
     }
 
 }

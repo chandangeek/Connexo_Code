@@ -85,11 +85,11 @@ public class CalendarImpl implements Calendar {
 
     private TimeZone timeZone;
     private Reference<Category> category = ValueReference.absent();
+    private List<Event> events = new ArrayList<>();
     private List<DayType> dayTypes = new ArrayList<>();
     private List<Period> periods = new ArrayList<>();
     private List<ExceptionalOccurrence> exceptionalOccurrences = new ArrayList<>();
     private List<PeriodTransitionSpec> periodTransitionSpecs = new ArrayList<>();
-    private List<Event> events = new ArrayList<>();
 
     private final ServerCalendarService calendarService;
 
@@ -247,42 +247,20 @@ public class CalendarImpl implements Calendar {
     }
 
 
-    @Override
-    public DayType addDayType(String name) {
-        DayTypeImpl dayType = calendarService.getDataModel().getInstance(DayTypeImpl.class).init(this, name);
+    DayType addDayType(DayType dayType) {
         Save.CREATE.validate(calendarService.getDataModel(), dayType);
         this.dayTypes.add(dayType);
-        touch();
         return dayType;
     }
 
-
-    @Override
-    public void removeDayType(DayType dayType) {
-        Objects.requireNonNull(dayType);
-        dayTypes.remove(dayType);
-        touch();
-    }
-
-    @Override
-    public Period addPeriod(String name, DayType monday, DayType tuesday, DayType wednesday, DayType thursday, DayType friday, DayType saturday, DayType sunday) {
+    Period addPeriod(String name, DayType monday, DayType tuesday, DayType wednesday, DayType thursday, DayType friday, DayType saturday, DayType sunday) {
         PeriodImpl period = calendarService.getDataModel().getInstance(PeriodImpl.class).init(this, name, monday, tuesday, wednesday, thursday, friday, saturday, sunday);
         Save.CREATE.validate(calendarService.getDataModel(), period);
         this.periods.add(period);
-        touch();
         return period;
     }
 
-
-    @Override
-    public void removePeriod(Period period) {
-        Objects.requireNonNull(period);
-        periods.remove(period);
-        touch();
-    }
-
-    @Override
-    public FixedExceptionalOccurrence addFixedExceptionalOccurrence(DayType dayType, int day, int month, int year) {
+    FixedExceptionalOccurrence addFixedExceptionalOccurrence(DayType dayType, int day, int month, int year) {
         FixedExceptionalOccurrenceImpl fixedExceptionalOccurrence =
                 calendarService.getDataModel().getInstance(FixedExceptionalOccurrenceImpl.class).init(this, dayType, day, month, year);
         Save.CREATE.validate(calendarService.getDataModel(), fixedExceptionalOccurrence);
@@ -291,16 +269,7 @@ public class CalendarImpl implements Calendar {
         return fixedExceptionalOccurrence;
     }
 
-
-    @Override
-    public void removeFixedExceptionalOccurrence(FixedExceptionalOccurrence fixedExceptionalOccurrence) {
-        Objects.requireNonNull(fixedExceptionalOccurrence);
-        exceptionalOccurrences.remove(fixedExceptionalOccurrence);
-        touch();
-    }
-
-    @Override
-    public RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(DayType dayType, int day, int month) {
+    RecurrentExceptionalOccurrence addRecurrentExceptionalOccurrence(DayType dayType, int day, int month) {
         RecurrentExceptionalOccurrenceImpl recurrentExceptionalOccurrence =
                 calendarService.getDataModel().getInstance(RecurrentExceptionalOccurrenceImpl.class).init(this, dayType, day, month);
         Save.CREATE.validate(calendarService.getDataModel(), recurrentExceptionalOccurrence);
@@ -309,64 +278,17 @@ public class CalendarImpl implements Calendar {
         return recurrentExceptionalOccurrence;
     }
 
-
-    @Override
-    public void removeRecurrentExceptionalOccurrence(RecurrentExceptionalOccurrence recurrentExceptionalOccurrence) {
-        Objects.requireNonNull(recurrentExceptionalOccurrence);
-        exceptionalOccurrences.remove(recurrentExceptionalOccurrence);
-        touch();
-    }
-
-    @Override
-    public FixedPeriodTransitionSpec addFixedPeriodTransitionSpec(Period period, int day, int month, int year) {
-        FixedPeriodTransitionSpecImpl fixedPeriodTransitionSpecImpl =
-                calendarService.getDataModel().getInstance(FixedPeriodTransitionSpecImpl.class).init(this, period, day, month, year);
-        Save.CREATE.validate(calendarService.getDataModel(), fixedPeriodTransitionSpecImpl);
-        this.periodTransitionSpecs.add(fixedPeriodTransitionSpecImpl);
-        touch();
-        return fixedPeriodTransitionSpecImpl;
-    }
-
-
-    @Override
-    public void removeFixedPeriodTransitionSpec(FixedPeriodTransitionSpec fixedPeriodTransitionSpec) {
-        Objects.requireNonNull(fixedPeriodTransitionSpec);
-        periodTransitionSpecs.remove(fixedPeriodTransitionSpec);
-        touch();
-    }
-
-    @Override
-    public RecurrentPeriodTransitionSpec addRecurrentPeriodTransitionSpec(Period period, int day, int month) {
-        RecurrentPeriodTransitionSpecImpl recurrentPeriodTransitionSpecImpl =
-                calendarService.getDataModel().getInstance(RecurrentPeriodTransitionSpecImpl.class).init(this, period, day, month);
-        Save.CREATE.validate(calendarService.getDataModel(), recurrentPeriodTransitionSpecImpl);
-        this.periodTransitionSpecs.add(recurrentPeriodTransitionSpecImpl);
-        touch();
-        return recurrentPeriodTransitionSpecImpl;
-    }
-
-
-    @Override
-    public void removeRecurrentPeriodTransitionSpec(RecurrentPeriodTransitionSpec recurrentPeriodTransitionSpec) {
-        Objects.requireNonNull(recurrentPeriodTransitionSpec);
-        periodTransitionSpecs.remove(recurrentPeriodTransitionSpec);
-        touch();
+    PeriodTransitionSpec addPeriodTransitionSpec(PeriodTransitionSpec periodTransitionSpec) {
+        Save.CREATE.validate(calendarService.getDataModel(), periodTransitionSpec);
+        this.periodTransitionSpecs.add(periodTransitionSpec);
+        return periodTransitionSpec;
     }
 
     Event addEvent(String name, long code) {
         EventImpl event = calendarService.getDataModel().getInstance(EventImpl.class).init(this, name, code);
         Save.CREATE.validate(calendarService.getDataModel(), event);
         this.events.add(event);
-        //touch();
         return event;
-    }
-
-
-    @Override
-    public void removeEvent(Event event) {
-        Objects.requireNonNull(event);
-        events.remove(event);
-        touch();
     }
 
     public Year getStartYear() {
