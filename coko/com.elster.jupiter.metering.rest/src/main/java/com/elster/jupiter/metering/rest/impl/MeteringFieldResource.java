@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.UsagePointTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
