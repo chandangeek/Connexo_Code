@@ -219,6 +219,9 @@ public enum TableSpecs {
             Table<ExceptionalOccurrence> table = dataModel.addTable(name(), ExceptionalOccurrence.class);
             table.map(ExceptionalOccurrenceImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
+
+            table.addDiscriminatorColumn("EXC_OCC_TYPE", "char(3)");
+
             Column calendarColumn = table.column("calendar").number().notNull().add();
 
             table.column("DAY").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.DAY.fieldName()).add();
@@ -249,6 +252,9 @@ public enum TableSpecs {
             Table<PeriodTransitionSpec> table = dataModel.addTable(name(), PeriodTransitionSpec.class);
             table.map(PeriodTransitionSpecImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
+
+            table.addDiscriminatorColumn("PERIOD_TRANSITION_TYPE", "char(3)");
+
             Column calendarColumn = table.column("calendar").number().notNull().add();
 
             table.column("DAY").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.DAY.fieldName()).add();

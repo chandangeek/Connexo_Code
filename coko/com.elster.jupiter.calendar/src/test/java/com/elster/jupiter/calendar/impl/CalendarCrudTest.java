@@ -6,6 +6,7 @@ import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.Period;
+import com.elster.jupiter.calendar.PeriodTransitionSpec;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import org.junit.AfterClass;
@@ -143,6 +144,9 @@ public class CalendarCrudTest {
         assertThat(period1.getDayType(DayOfWeek.FRIDAY).getName()).isEqualTo("Summer weekday");
         assertThat(period1.getDayType(DayOfWeek.SATURDAY).getName()).isEqualTo("Weekend");
         assertThat(period1.getDayType(DayOfWeek.SUNDAY).getName()).isEqualTo("Weekend");
+
+        assertThat(calendar.getPeriodTransitionSpecs().size()).isEqualTo(2);
+
         //todo check period transitions and exceptional occurrences
 
 

@@ -41,7 +41,9 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
     }
 
     // ORM inheritance map
-    public static final Map<String, Class<? extends ExceptionalOccurrence>> IMPLEMENTERS = getImplementers();
+    public static final Map<String, Class<? extends ExceptionalOccurrence>> IMPLEMENTERS = ImmutableMap.of(
+            FixedExceptionalOccurrenceImpl.TYPE_IDENTIFIER, FixedExceptionalOccurrenceImpl.class,
+            RecurrentExceptionalOccurrenceImpl.TYPE_IDENTIFIER, RecurrentExceptionalOccurrenceImpl.class);
 
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")

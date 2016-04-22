@@ -43,7 +43,10 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
     }
 
     // ORM inheritance map
-    public static final Map<String, Class<? extends PeriodTransitionSpec>> IMPLEMENTERS = getImplementers();
+    public static final Map<String, Class<? extends PeriodTransitionSpec>> IMPLEMENTERS = ImmutableMap.of(
+            FixedPeriodTransitionSpecImpl.TYPE_IDENTIFIER, FixedPeriodTransitionSpecImpl.class,
+            RecurrentPeriodTransitionSpecImpl.TYPE_IDENTIFIER, RecurrentPeriodTransitionSpecImpl.class);
+
 
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -69,13 +72,6 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
     @Override
     public Calendar getCalendar() {
         return this.calendar.orNull();
-    }
-
-    static Map<String, Class<? extends PeriodTransitionSpec>> getImplementers() {
-        ImmutableMap.Builder<String, Class<? extends PeriodTransitionSpec>> builder = ImmutableMap.builder();
-        builder.put(FixedPeriodTransitionSpecImpl.TYPE_IDENTIFIER, FixedPeriodTransitionSpecImpl.class)
-                .put(RecurrentPeriodTransitionSpecImpl.TYPE_IDENTIFIER, RecurrentPeriodTransitionSpecImpl.class);
-        return builder.build();
     }
 
     @Override
