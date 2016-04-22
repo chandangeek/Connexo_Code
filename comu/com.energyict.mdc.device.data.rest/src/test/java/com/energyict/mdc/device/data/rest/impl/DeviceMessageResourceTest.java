@@ -40,6 +40,7 @@ import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -151,7 +152,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<Integer>get("$.deviceMessages[0].id")).isEqualTo(1);
         assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.name")).isEqualTo("do delete rule");
         assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.id")).isEqualTo("DEVICE_ACTIONS_DEMAND_RESET");
-        assertThat(model.<String>get("$.deviceMessages[0].trackingId")).isEqualTo("14");
+        assertThat(model.<String>get("$.deviceMessages[0].trackingIdAndName.id")).isEqualTo("14");
         assertThat(model.<String>get("$.deviceMessages[0].trackingCategory.id")).isEqualTo("trackingCategory.serviceCall");
         assertThat(model.<String>get("$.deviceMessages[0].trackingCategory.name")).isEqualTo("Service call");
         assertThat(model.<Boolean>get("$.deviceMessages[0].trackingCategory.activeLink")).isEqualTo(false);
@@ -201,7 +202,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
 
-        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("trackingId");
+        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("trackingIdAndName");
     }
 
     @Test
@@ -883,6 +884,11 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         @Override
         public CollectedFirmwareVersion getFirmwareVersions() {
+            return null;
+        }
+
+        @Override
+        public CollectedBreakerStatus getBreakerStatus() {
             return null;
         }
     }

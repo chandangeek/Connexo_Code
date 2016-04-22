@@ -35,6 +35,7 @@ public class ChannelInfo {
     public long loadProfileId;
     public long version;
     public VersionInfo<String> parent;
+    public Boolean useMultiplier;
     public BigDecimal multiplier;
 
     // optionally filled if requesting details
@@ -56,6 +57,7 @@ public class ChannelInfo {
         info.loadProfileId = channel.getLoadProfile().getId();
         info.version = channel.getLoadProfile().getVersion();
         Device device = channel.getDevice();
+        info.useMultiplier = channel.getChannelSpec().isUseMultiplier();
         info.multiplier = channel.getMultiplier(clock.instant()).orElseGet(() -> null);
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return info;
@@ -71,6 +73,7 @@ public class ChannelInfo {
             info.id = simpleChannel.getId();
             info.name = simpleChannel.getName();
             info.readingType = new ReadingTypeInfo(simpleChannel.getReadingType());
+            info.lastValueTimestamp = simpleChannel.getLastDateTime().orElse(null);
             return info;
         }).collect(Collectors.toList());
     }

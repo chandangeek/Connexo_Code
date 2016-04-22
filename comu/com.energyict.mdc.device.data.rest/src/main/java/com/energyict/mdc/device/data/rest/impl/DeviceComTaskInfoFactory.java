@@ -230,7 +230,10 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
         deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskEnablement.getProtocolDialectConfigurationProperties();
-        deviceComTasksInfo.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+        if (protocolDialectConfigurationProperties.getDeviceProtocolDialect() != null) {
+            deviceComTasksInfo.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect()
+                    .getDisplayName();
+        }
         return deviceComTasksInfo;
     }
 

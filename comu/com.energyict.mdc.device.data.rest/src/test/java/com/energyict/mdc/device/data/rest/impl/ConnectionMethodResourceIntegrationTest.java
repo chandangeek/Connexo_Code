@@ -344,6 +344,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setCustomPropertySetService(inMemoryPersistence.getCustomPropertySetService());
         application.setServiceCallService(inMemoryPersistence.getServiceCallService());
         application.setBpmService(bpmService);
+        application.setServiceCallInfoFactory(inMemoryPersistence.getServiceCallInfoFactory());
         return application;
     }
 

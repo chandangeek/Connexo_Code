@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
@@ -16,8 +16,10 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DeviceAttributesInfoFactory {
     private final BatchService batchService;
@@ -41,9 +43,31 @@ public class DeviceAttributesInfoFactory {
     }
 
     public DeviceAttributesInfo from(Device device) {
-        DeviceAttributesInfo info = new DeviceAttributesInfo();
-        info.device = DeviceInfo.from(device);
         State state = device.getState();
+        DeviceAttributesInfo info = new DeviceAttributesInfo();
+        Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
+        Optional<GeoCoordinates> geoCoordinates = meteringService.findDeviceGeoCoordinates(device.getmRID());
+        String formattedLocation = "";
+        if (location.isPresent()) {
+            List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get()
+                    .getId());
+            formattedLocationMembers.stream().skip(1).forEach(list ->
+                    list.stream().findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
+            formattedLocation = formattedLocationMembers.stream()
+                    .flatMap(List::stream).filter(Objects::nonNull)
+                    .collect(Collectors.joining(", "));
+        }
+
+        info.device = DeviceInfo.from(device, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
+        info.location = new DeviceAttributeInfo();
+        info.location.displayValue = formattedLocation;
+        fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);
+
+        info.device = DeviceInfo.from(device, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
+        info.geoCoordinates = new DeviceAttributeInfo();
+        info.geoCoordinates.displayValue = geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null;
+        fillAvailableAndEditable(info.geoCoordinates, DeviceAttribute.GEOCOORDINATES, state);
+
 
         info.mrid = new DeviceAttributeInfo();
         info.mrid.displayValue = device.getmRID();
@@ -83,9 +107,10 @@ public class DeviceAttributesInfoFactory {
         });
         fillAvailableAndEditable(info.batch, DeviceAttribute.BATCH, state);
 
-        info.usagePoint = new DeviceAttributeInfo();
+        info.usagePoint = new UsagePointAttributeInfo();
         device.getUsagePoint().ifPresent(usagePoint -> {
             info.usagePoint.displayValue = usagePoint.getMRID();
+            info.usagePoint.mRID = usagePoint.getMRID();
             info.usagePoint.attributeId = usagePoint.getId();
         });
         fillAvailableAndEditable(info.usagePoint, DeviceAttribute.USAGE_POINT, state);
