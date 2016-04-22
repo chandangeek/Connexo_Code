@@ -13,11 +13,10 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.validation.constraints.AssertTrue;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
@@ -55,7 +54,7 @@ public class CalendarCrudTest {
     // formula = Requirement
     public void testCalendarCrudByBuilder() {
         CalendarService service = getCalendarService();
-        Calendar calendar = service.newCalendar("Test", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
+        service.newCalendar("Test", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
                 .description("Description remains to be completed :-)")
                 .endYear(Year.of(2018))
                 .mRID("Sample-TOU-rates")
@@ -97,6 +96,13 @@ public class CalendarCrudTest {
                     .add()
                 .add();
 
+
+        List<Calendar> calendars = service.findAllCalendars();
+        assertThat(calendars.size()).isEqualTo(1);
+
+        Calendar calendar = calendars.get(0);
+
+
         assertThat(calendar.getName()).isEqualTo("Test");
         assertThat(calendar.getDescription()).isEqualTo("Description remains to be completed :-)");
         assertThat(calendar.getTimeZone()).isEqualTo(TimeZone.getTimeZone("Europe/Brussels"));
@@ -122,11 +128,22 @@ public class CalendarCrudTest {
         assertThat(occurrence1.getFrom()).isEqualTo(LocalTime.of(13, 0, 0));
         assertThat(occurrence1.getEvent().getName()).isEqualTo("On peak");
 
+        EventOccurrence occurrence2 = eventOccurrences.get(1);
+        assertThat(occurrence2.getFrom()).isEqualTo(LocalTime.of(20, 0, 0));
+        assertThat(occurrence2.getEvent().getName()).isEqualTo("Off peak");
+
         List<Period> periods = calendar.getPeriods();
         assertThat(periods.size()).isEqualTo(2);
         Period period1 = periods.get(0);
         assertThat(period1.getName()).isEqualTo("Summer");
-        //todo check daytypes
+        assertThat(period1.getDayType(DayOfWeek.MONDAY).getName()).isEqualTo("Summer weekday");
+        assertThat(period1.getDayType(DayOfWeek.TUESDAY).getName()).isEqualTo("Summer weekday");
+        assertThat(period1.getDayType(DayOfWeek.WEDNESDAY).getName()).isEqualTo("Summer weekday");
+        assertThat(period1.getDayType(DayOfWeek.THURSDAY).getName()).isEqualTo("Summer weekday");
+        assertThat(period1.getDayType(DayOfWeek.FRIDAY).getName()).isEqualTo("Summer weekday");
+        assertThat(period1.getDayType(DayOfWeek.SATURDAY).getName()).isEqualTo("Weekend");
+        assertThat(period1.getDayType(DayOfWeek.SUNDAY).getName()).isEqualTo("Weekend");
+        //todo check period transitions and exceptional occurrences
 
 
     }

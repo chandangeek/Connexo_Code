@@ -158,6 +158,10 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         return builder;
     }
 
+    public List<Calendar> findAllCalendars() {
+        return this.getDataModel().mapper(Calendar.class).find();
+    }
+
     @Override
     public Optional<Calendar> findCalendar(long id) {
         return this.getDataModel().mapper(Calendar.class).getUnique("id", id);

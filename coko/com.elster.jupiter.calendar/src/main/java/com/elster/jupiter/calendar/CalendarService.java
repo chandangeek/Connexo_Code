@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
+import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -30,6 +31,8 @@ public interface CalendarService {
     String COMPONENTNAME = "CAL";
 
     CalendarBuilder newCalendar(String name, TimeZone timeZone, Year start);
+
+    List<Calendar> findAllCalendars();
 
     Optional<Calendar> findCalendar(long id);
 
