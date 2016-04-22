@@ -160,5 +160,9 @@ Ext.define('Uni.view.grid.SelectionGrid', {
                 me.extraTopToolbarComponent
             )
         }
+    },
+
+    getSelectedItems: function() {
+        return this.view.getSelectionModel().getSelection();
     }
 });
