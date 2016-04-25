@@ -183,7 +183,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         List<String> locationData = data.getLocation();
         List<String> geoCoordinatesData = data.getGeoCoordinates();
 
-        if(locationData != null && !locationData.isEmpty()) {
+        if(locationData != null && !locationData.stream().allMatch(s -> s.equals("")) && !locationData.isEmpty()) {
             LocationBuilder builder = context.getMeteringService().newLocationBuilder();
             Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
                     .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
