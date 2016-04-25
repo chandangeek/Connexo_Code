@@ -24,7 +24,7 @@ Ext.define('Imt.metrologyconfiguration.view.DefineMetrologyConfiguration', {
                     xtype: 'navigation-menu',
                     jumpForward: false,
                     jumpBack: true,
-                    width: 270,
+                    minWidth: 270,
                     ui: 'medium',
                     padding: '0 0 0 0',
                     itemId: 'define-metrology-configuration-navigation',
