@@ -15,6 +15,7 @@ public class TaskInfo {
     public String createdOn;
     public String actualOwner = "";
     public String processInstancesId;
+    public String optLock;
     public TaskInfo() {
     }
 
@@ -30,6 +31,7 @@ public class TaskInfo {
             this.status = jsonObject.isNull("status") ? "" : jsonObject.getString("status");
             this.actualOwner = jsonObject.isNull("actualOwner") ? "" : jsonObject.getString("actualOwner");
             this.processInstancesId = jsonObject.getString("processInstanceId").equals("-1") ? "" : jsonObject.getString("processInstanceId");
+            this.optLock = jsonObject.getString("optLock").equals("-1") ? "" : jsonObject.getString("optLock");
         } catch (JSONException e) {
     }
     }

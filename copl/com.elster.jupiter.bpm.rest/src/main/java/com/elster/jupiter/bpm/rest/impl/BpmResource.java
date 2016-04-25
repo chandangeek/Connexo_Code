@@ -44,6 +44,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -108,13 +109,15 @@ public class BpmResource {
 
     private final String errorNotFoundMessage;
     private final String errorInvalidMessage;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public BpmResource(BpmService bpmService, UserService userService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
+    public BpmResource(BpmService bpmService, UserService userService, Thesaurus thesaurus, PropertyUtils propertyUtils, ConcurrentModificationExceptionFactory conflictFactory) {
         this.bpmService = bpmService;
         this.userService = userService;
         this.thesaurus = thesaurus;
         this.propertyUtils = propertyUtils;
+        this.conflictFactory = conflictFactory;
 
         this.errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Connexo Flow is not available.");
         this.errorInvalidMessage = thesaurus.getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
@@ -408,23 +411,32 @@ public class BpmResource {
 
 
     @POST
-    @Path("tasks/{id}/assign")
+    @Path("tasks/{id}/{optLock}/assign")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
-    public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
+    public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @PathParam("optLock") long optLock, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String response;
         String userName = getQueryValue(uriInfo, "username");
+        String priority = getQueryValue(uriInfo, "priority");
+        String date = getQueryValue(uriInfo, "duedate");
         String rest = "/rest/tasks/";
-        rest += String.valueOf(id);
+        rest += String.valueOf(id) + "/";
+        rest += String.valueOf(optLock);
         String req = getQueryParam(queryParameters);
-        if (userName != null && !userName.isEmpty()) {
+        if(userName != null || date != null || priority != null) {
             rest += "/assign/" + req;
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             try {
                 response = bpmService.getBpmServer().doPost(rest, null, auth, 0);
             } catch (RuntimeException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                throw e.getMessage().contains("409")
+                        ? conflictFactory.conflict()
+                        .withActualVersion(() -> optLock)
+                        .withMessageTitle(MessageSeeds.EDIT_TASK_CONCURRENT_TITLE, e.getMessage().replace("409", ""))
+                        .withMessageBody(MessageSeeds.EDIT_TASK_CONCURRENT_BODY, e.getMessage().replace("409", ""))
+                        .supplier().get()
+                        : new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
                         .entity(this.errorNotFoundMessage)
                         .build());
             }
@@ -460,36 +472,6 @@ public class BpmResource {
             assigneeFilterListInfo = new AssigneeFilterListInfo(listUsers);
         }
         return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, params.getStart() == 0 ? 1 : 0);
-    }
-
-    @POST
-    @Path("tasks/{id}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
-    public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @HeaderParam("Authorization") String auth) {
-        String priority = getQueryValue(uriInfo, "priority");
-        String date = getQueryValue(uriInfo, "duedate");
-        String rest = "/rest/tasks/";
-        rest += String.valueOf(id) + "/set";
-        if (priority != null || date != null) {
-            if (priority != null) {
-                rest += "?priority=" + priority;
-                if (date != null) {
-                    rest += "&duedate=" + date;
-                }
-            } else {
-                rest += "?duedate=" + date;
-            }
-            try {
-                bpmService.getBpmServer().doPost(rest, null, auth);
-            } catch (RuntimeException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity(this.errorNotFoundMessage)
-                        .build());
-            }
-            return Response.ok().build();
-        }
-        return Response.notModified().build();
     }
 
     @GET
