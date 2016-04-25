@@ -1,9 +1,11 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.MeteringService;
@@ -64,6 +66,10 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     ServiceCallService serviceCallService;
     @Mock
     ServiceCallInfoFactory serviceCallInfoFactory;
+    @Mock
+    IssueService issueService;
+    @Mock
+    BpmService bpmService;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -96,6 +102,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setValidationService(validationService);
         application.setUsagePointDataService(usagePointDataService);
         application.setCustomPropertySetService(customPropertySetService);
+        application.setBpmService(bpmService);
+        application.setIssueService(issueService);
         application.setServiceCallService(serviceCallService);
         application.setServiceCallInfoFactory(serviceCallInfoFactory);
         return application;
