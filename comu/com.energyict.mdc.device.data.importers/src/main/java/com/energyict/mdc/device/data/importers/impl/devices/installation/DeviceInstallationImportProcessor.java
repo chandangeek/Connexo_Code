@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.importers.impl.devices.installation;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.InvalidValueException;
@@ -19,7 +20,6 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +48,18 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                     .stream()
                     .collect(Collectors.toMap(TemplateField::getName,
                             TemplateField::getRanking));
+            if(ranking.entrySet().size() != locationData.size()){
+                String fields = super.getContext()
+                        .getMeteringService()
+                        .getLocationTemplate()
+                        .getTemplateMembers()
+                        .stream()
+                        .sorted((t1, t2) -> Integer.compare(t1.getRanking(), t2.getRanking()))
+                        .map(TemplateField::getName)
+                        .map(s -> s = "<" + s + ">")
+                        .collect(Collectors.joining(" "));
+                throw new ProcessorException(MessageSeeds.INCORRECT_LOCATION_FORMAT, fields);
+            }
             Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData
                     .get(ranking.get("locale")));
             if (memberBuilder.isPresent()) {
