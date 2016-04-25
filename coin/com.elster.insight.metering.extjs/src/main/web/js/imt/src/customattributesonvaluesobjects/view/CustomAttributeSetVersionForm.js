@@ -124,7 +124,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                                 xtype: 'button',
                                 ui: 'link',
                                 itemId: 'custom-attributes-versions-cancel-btn',
-                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                                 handler: function () {
                                     me.fireEvent('moveToVersionsPage', me.type);
                                 }
