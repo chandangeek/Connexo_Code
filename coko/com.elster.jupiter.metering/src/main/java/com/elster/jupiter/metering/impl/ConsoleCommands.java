@@ -286,7 +286,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(mRID)
                     .orElseThrow(() -> new RuntimeException("No usage point with mRID " + mRID + "!"));
-            usagePoint.setUpLocation(getLocationBuilder(args).create());
+            usagePoint.setLocation(getLocationBuilder(args).create().getId());
             usagePoint.update();
             context.commit();
         }
