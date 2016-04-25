@@ -23,9 +23,9 @@ import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastUpgradeState;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
@@ -42,6 +42,8 @@ public class RegisterFactory {
 
     private final DlmsSession dlmsSession;
     private Beacon3100G3RegisterMapper beacon3100G3RegisterMapper;
+    private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
+    private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
 
     public RegisterFactory(DlmsSession dlmsSession) {
         this.dlmsSession = dlmsSession;
@@ -113,7 +115,7 @@ public class RegisterFactory {
                 } else if (universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
                     DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), NPTServerAddressAttributes.NTP_SERVER_NAME.getAttributeNumber(), universalObject.getClassID());
                     composedRegister.setRegisterValue(valueAttribute);
-                } else if (baseObisCode.equals(Beacon3100Messaging.MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
+                } else if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
                     //read out upgrade_state, attribute -1
                     DLMSAttribute valueAttribute = new DLMSAttribute(baseObisCode, ImageTransfer.ATTRIBUTE_PREVIOUS_UPGRADE_STATE, universalObject.getClassID());
                     composedRegister.setRegisterValue(valueAttribute);
@@ -126,7 +128,7 @@ public class RegisterFactory {
         ComposedCosemObject composedCosemObject = new ComposedCosemObject(this.getDlmsSession(), this.getDlmsSession().getProperties().isBulkRequest(), dlmsAttributes);
         List<CollectedRegister> result = new ArrayList<>();
         for (OfflineRegister offlineRegister : allRegisters) {
-            if (offlineRegister.getObisCode().equals(Beacon3100Messaging.MULTICAST_METER_PROGRESS)) {
+            if (offlineRegister.getObisCode().equals(MULTICAST_METER_PROGRESS)) {
                 result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Register with obiscode " + offlineRegister.getObisCode() + " cannot be read out, use the 'read DC multicast progress' message on the Beacon protocol for this."));
                 continue;
             }
@@ -167,7 +169,7 @@ public class RegisterFactory {
                                             ", total space: " + memoryStatisticsAttribute.getStructure().getDataType(2).toBigDecimal() + " " + unit);
                         }
 
-                    } else if (baseObisCode.equals(Beacon3100Messaging.MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
+                    } else if (baseObisCode.equals(MULTICAST_FIRMWARE_UPGRADE_OBISCODE) && universalObject.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
                         //read out upgrade_state, attribute -1
                         AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
                         if (attributeValue instanceof TypeEnum) {
@@ -175,7 +177,7 @@ public class RegisterFactory {
                             String description = MulticastUpgradeState.fromValue(value).getDescription();
                             registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(value, Unit.get(BaseUnit.UNITLESS)), null, null, new Date(), new Date(), 0, description);
                         } else {
-                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse attribute " + ImageTransfer.ATTRIBUTE_PREVIOUS_UPGRADE_STATE + " (previous_upgrade_state) of object " + Beacon3100Messaging.MULTICAST_FIRMWARE_UPGRADE_OBISCODE.toString() + ", should be of type Enum."));
+                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse attribute " + ImageTransfer.ATTRIBUTE_PREVIOUS_UPGRADE_STATE + " (previous_upgrade_state) of object " + MULTICAST_FIRMWARE_UPGRADE_OBISCODE.toString() + ", should be of type Enum."));
                             continue;
                         }
                     } else if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()
