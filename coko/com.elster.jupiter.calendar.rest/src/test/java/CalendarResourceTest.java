@@ -151,19 +151,12 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("weekTemplate[0].name")).isEqualTo("TUESDAY");
         assertThat(jsonModel.<Integer>get("weekTemplate[0].type")).isEqualTo(5);
-        assertThat(jsonModel.<String>get("weekTemplate[1].name")).isEqualTo("WEDNESDAY");
         assertThat(jsonModel.<Integer>get("weekTemplate[1].type")).isEqualTo(5);
-        assertThat(jsonModel.<String>get("weekTemplate[2].name")).isEqualTo("THURSDAY");
         assertThat(jsonModel.<Integer>get("weekTemplate[2].type")).isEqualTo(7);
-        assertThat(jsonModel.<String>get("weekTemplate[3].name")).isEqualTo("FRIDAY");
         assertThat(jsonModel.<Integer>get("weekTemplate[3].type")).isEqualTo(7);
-        assertThat(jsonModel.<String>get("weekTemplate[4].name")).isEqualTo("SATURDAY");
         assertThat(jsonModel.<Integer>get("weekTemplate[4].type")).isEqualTo(7);
-        assertThat(jsonModel.<String>get("weekTemplate[5].name")).isEqualTo("SUNDAY");
         assertThat(jsonModel.<Integer>get("weekTemplate[5].type")).isEqualTo(7);
-        assertThat(jsonModel.<String>get("weekTemplate[6].name")).isEqualTo("MONDAY");
         assertThat(jsonModel.<Integer>get("weekTemplate[6].type")).isEqualTo(7);
 
         JSONArray periods = jsonModel.get("periods");

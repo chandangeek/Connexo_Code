@@ -1,6 +1,7 @@
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.impl.CalendarApplication;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.nls.NlsService;
 
 import javax.ws.rs.core.Application;
 

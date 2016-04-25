@@ -2,8 +2,17 @@ package com.elster.jupiter.calendar.rest.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 
+import java.time.DayOfWeek;
+
 public enum TranslationKeys implements TranslationKey {
 
+    MONDAY(DayOfWeek.MONDAY.name(), "Monday"),
+    TUESDAY(DayOfWeek.TUESDAY.name(), "Tuesday"),
+    WEDNESDAY(DayOfWeek.WEDNESDAY.name(), "Wednesday"),
+    THURSDAY(DayOfWeek.THURSDAY.name(), "Thursday"),
+    FRIDAY(DayOfWeek.FRIDAY.name(), "Friday"),
+    SATURDAY(DayOfWeek.SATURDAY.name(), "Saturday"),
+    SUNDAY(DayOfWeek.SUNDAY.name(), "Sunday")
     ;
 
     private final String key;
