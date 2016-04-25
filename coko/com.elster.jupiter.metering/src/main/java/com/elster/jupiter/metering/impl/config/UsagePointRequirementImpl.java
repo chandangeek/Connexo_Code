@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
@@ -48,6 +49,8 @@ public class UsagePointRequirementImpl implements UsagePointRequirement {
     private SearchablePropertyOperator operator;
     private List<UsagePointRequirementValue> conditionValues = new ArrayList<>();
 
+    private SearchableProperty property;
+
     @Inject
     public UsagePointRequirementImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
@@ -72,8 +75,19 @@ public class UsagePointRequirementImpl implements UsagePointRequirement {
     }
 
     @Override
-    public String getSearchablePropertyName() {
-        return this.searchableProperty;
+    public SearchableProperty getSearchableProperty() {
+        if (this.property == null) {
+            if (!this.metrologyConfiguration.isPresent()) {
+                throw new IllegalStateException("You are trying to use uninitialized instance of UsagePointRequirement");
+            }
+            this.property = ((UsagePointMetrologyConfigurationImpl) this.metrologyConfiguration.get()).getUsagePointRequirementSearchableProperties()
+                    .stream()
+                    .map(SearchablePropertyValue::getProperty)
+                    .filter(property -> property.getName().equals(this.searchableProperty))
+                    .findAny()
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown searchable property: " + this.searchableProperty));
+        }
+        return this.property;
     }
 
     @Override

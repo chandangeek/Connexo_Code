@@ -13,6 +13,7 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.GeoCoordinates;
@@ -48,6 +49,7 @@ import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFacto
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
+import com.elster.jupiter.metering.impl.search.TypeSearchableProperty;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
@@ -72,6 +74,7 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -341,7 +344,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         );
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Query<Meter> getMeterQuery() {
         QueryExecutor<?> executor = dataModel.query(EndDevice.class,
@@ -443,9 +445,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             spec.addTo(dataModel);
         }
 
-        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService);
+        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this, this.metrologyConfigurationService);
         this.searchService.register(this.usagePointRequirementsSearchDomain);
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService); // has dependency to usagePointRequirementsSearchDomain
         registerMetrologyConfigurationService(bundleContext);
 
         dataModel.register(new AbstractModule() {
@@ -505,6 +507,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public final void deactivate() {
         if (!this.serviceRegistrations.isEmpty()) {
             this.serviceRegistrations.forEach(ServiceRegistration::unregister);
+        }
+        if (this.usagePointRequirementsSearchDomain != null) {
+            this.searchService.unregister(this.usagePointRequirementsSearchDomain);
         }
     }
 
@@ -759,6 +764,19 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         Arrays.stream(PropertyTranslationKeys.values()).forEach(translationKeys::add);
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
         Arrays.stream(AmiBillingReadyKind.values()).forEach(translationKeys::add);
+        Arrays.stream(BypassStatus.values()).forEach(translationKeys::add);
+        Arrays.stream(TypeSearchableProperty.getTranslationKeys()).forEach(translationKeys::add);
+        Arrays.stream(YesNoAnswer.values()).map(answer -> new TranslationKey() {
+            @Override
+            public String getKey() {
+                return answer.toString();
+            }
+
+            @Override
+            public String getDefaultFormat() {
+                return answer.toString();
+            }
+        }).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         return translationKeys;
     }

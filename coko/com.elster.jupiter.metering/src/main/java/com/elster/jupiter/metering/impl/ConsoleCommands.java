@@ -1,9 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.GeoCoordinates;
@@ -11,7 +8,6 @@ import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -19,36 +15,26 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
-import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
-import com.elster.jupiter.metering.impl.search.ServiceCategorySearchableProperty;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.search.SearchablePropertyOperator;
-import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.units.Unit;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -59,12 +45,10 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -541,7 +525,7 @@ public class ConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration(), deliverable.getFormula().getMode()).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration()).parse(formulaString);
 
             deliverable.setName(name);
             deliverable.setReadingType(readingType);
@@ -584,7 +568,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration(), deliverable.getFormula().getMode()).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration()).parse(formulaString);
 
             deliverable.getFormula().updateExpression(node);
             deliverable.update();
