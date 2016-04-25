@@ -5,23 +5,23 @@
  */
 
 Ext.define('Cal.privileges.Calendar', {
-    /*requires: [
-     'Uni.Auth'
-     ],
-     singleton: true,
-     view: ['privilege.view.calendar'],
+    requires: [
+        'Uni.Auth'
+    ],
+    singleton: true,
+    view: ['privilege.view.touCalendars'],
 
-     admin: ['privilege.administrate.calendar'],
+    viewPreview: ['privilege.view.touPreview'],
 
-     all: function () {
-     return Ext.Array.merge(Cal.privileges.Calendar.view, Cal.privileges.Calendar.admin);
-     },
+    all: function () {
+        return Ext.Array.merge(Cal.privileges.Calendar.view, Cal.privileges.Calendar.viewPreview);
+    },
 
-     canView: function () {
-     return Uni.Auth.checkPrivileges(Cal.privileges.Calendar.view);
-     },
+    canView: function () {
+        return Uni.Auth.checkPrivileges(Cal.privileges.Calendar.view);
+    },
 
-     canAdministrate: function() {
-     return Uni.Auth.checkPrivileges(Cal.privileges.Calendar.admin);
-     }*/
+    canViewPreview: function () {
+        return Uni.Auth.checkPrivileges(Cal.privileges.Calendar.viewPreview);
+    }
 });

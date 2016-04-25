@@ -55,6 +55,8 @@ Ext.define('Cal.controller.Calendars', {
 
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         previewForm.fillFieldContainers(record);
+        debugger;
+        preview.down('tou-action-menu').record = record;
     },
 
     chooseAction: function (menu, item) {
