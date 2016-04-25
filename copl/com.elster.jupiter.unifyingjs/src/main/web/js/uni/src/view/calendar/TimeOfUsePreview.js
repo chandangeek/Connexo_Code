@@ -36,43 +36,43 @@ Ext.define('Uni.view.calendar.TimeOfUsePreview', {
         me.callParent(arguments);
     },
 
-    fillFieldContainers: function (record) {
+    fillFieldContainers: function (calendarRecord) {
         var me = this;
         Ext.suspendLayouts();
 
-        me.setTitle(record.get('name'));
+        me.setTitle(calendarRecord.get('name'));
 
         me.down('#periodField').removeAll();
-        record.periods().each(function (record) {
+        calendarRecord.periods().each(function (record) {
             me.down('#periodField').add(
                 {
                     xtype: 'displayfield',
                     fieldLabel: undefined,
-                    value: record.get('name'),
+                    value: record.get('name') + ' (' + Uni.I18n.translate('general.fromX', 'UNI', 'from {0}', [me.calculateDate(record.get('fromMonth'), record.get('fromDay'))]) + ')',
                     margin: '0 0 -10 0'
                 }
             );
         });
 
         me.down('#dayTypesField').removeAll();
-        record.dayTypes().each(function (record) {
+        calendarRecord.dayTypes().each(function (record) {
             me.down('#dayTypesField').add(
                 {
                     xtype: 'displayfield',
                     fieldLabel: undefined,
-                    value: record.get('name'),
+                    value: record.get('name') + ' (' + me.getDaysForType(calendarRecord, record) + ')',
                     margin: '0 0 -10 0'
                 }
             );
         });
 
         this.down('#tariffsField').removeAll();
-        record.events().each(function (record) {
+        calendarRecord.events().each(function (record) {
             me.down('#tariffsField').add(
                 {
                     xtype: 'displayfield',
                     fieldLabel: undefined,
-                    value: record.get('name') + '(' + record.get('code') + ')',
+                    value: record.get('name') + ' (' + record.get('code') + ')',
                     margin: '0 0 -10 0'
                 }
             );
@@ -81,6 +81,31 @@ Ext.define('Uni.view.calendar.TimeOfUsePreview', {
         Ext.resumeLayouts(true);
         me.updateLayout();
         me.doLayout();
+    },
+
+    calculateDate: function (month, day) {
+        var date = new Date();
+        date.setMonth(month);
+        date.setDate(day);
+
+        return Ext.util.Format.date(date, 'j F')
+    },
+
+    getDaysForType: function (calendarRecord, record) {
+        var me = this,
+            i,
+            dayTypeId = record.get('id'),
+            dayArray = calendarRecord.get('weekTemplate'),
+            response = '';
+        for(i = 0; i < dayArray.length; i++) {
+            if(dayArray[i].type === dayTypeId) {
+                response += dayArray[i].name + ', '
+            }
+        }
+
+        response = response.substr(0, response.lastIndexOf(', '));
+
+        return response;
     }
 
 });
