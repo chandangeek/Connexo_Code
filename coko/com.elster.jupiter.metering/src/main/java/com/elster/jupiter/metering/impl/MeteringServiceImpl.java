@@ -445,7 +445,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         }
 
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService);
-        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this, this.metrologyConfigurationService);
+        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this, this.metrologyConfigurationService, this.clock);
         this.searchService.register(this.usagePointRequirementsSearchDomain);
         registerMetrologyConfigurationService(bundleContext);
 

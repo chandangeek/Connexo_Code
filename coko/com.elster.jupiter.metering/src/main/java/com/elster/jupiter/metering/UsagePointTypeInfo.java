@@ -1,6 +1,6 @@
-`package com.elster.jupiter.metering;
+package com.elster.jupiter.metering;
 
-        import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.Thesaurus;
 
 public class UsagePointTypeInfo {
     public String name;

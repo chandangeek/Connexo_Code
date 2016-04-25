@@ -7,6 +7,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,13 +15,13 @@ public class UsagePointRequirementsSearchDomain extends UsagePointSearchDomain i
 
     private volatile ServerMeteringService meteringService;
 
-    @SuppressWarnings("unused") // OSGI
-    public UsagePointRequirementsSearchDomain() {
-    }
-
     @Inject
-    public UsagePointRequirementsSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
-        super(propertySpecService, meteringService, metrologyConfigurationService);
+    public UsagePointRequirementsSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock) {
+        super();
+        setPropertySpecService(propertySpecService);
+        setServerMetrologyConfigurationService(metrologyConfigurationService);
+        setMeteringService(meteringService);
+        setClock(clock);
         this.meteringService = meteringService;
     }
 
