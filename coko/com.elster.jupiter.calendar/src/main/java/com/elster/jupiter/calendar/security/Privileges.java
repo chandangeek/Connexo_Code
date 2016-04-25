@@ -11,8 +11,7 @@ public enum Privileges implements TranslationKey {
     RESOURCE_TOU_CALENDARS_DESCRIPTION("calendars.timeOfUse.description", "Manage time of use calendars"),
 
     //Privileges
-    VIEW_TOU_CALENDARS(Constants.VIEW_TOU_CALENDARS, "View time of use calendars"),
-    VIEW_TO_PREVIEW(Constants.VIEW_TOU_PREVIEW, "Preview time of use calendar");
+    MANAGE_TOU_CALENDARS(Constants.MANAGE_TOU_CALENDARS, "View time of use calendars");
 
     private final String key;
     private final String description;
@@ -43,7 +42,6 @@ public enum Privileges implements TranslationKey {
     }
 
     public interface Constants {
-        String VIEW_TOU_CALENDARS = "privilege.view.touCalendars";
-        String VIEW_TOU_PREVIEW = "privilege.view.touPreview";
+        String MANAGE_TOU_CALENDARS = "privilege.administrate.touCalendars";
     }
 }

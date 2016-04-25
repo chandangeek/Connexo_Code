@@ -147,7 +147,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
                 Privileges.RESOURCE_TOU_CALENDARS.getKey(), Privileges.RESOURCE_TOU_CALENDARS_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.VIEW_TOU_CALENDARS, Privileges.Constants.VIEW_TOU_PREVIEW)));
+                Arrays.asList(Privileges.Constants.MANAGE_TOU_CALENDARS)));
         return resources;
     }
 
