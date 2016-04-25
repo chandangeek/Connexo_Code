@@ -482,7 +482,7 @@ Ext.define('Fim.controller.ImportServices', {
             modal: true,
             width: 600,
             minWidth: 350,
-            height: 350,
+            height: 365,
             layout: {
                 type: 'border',
                 padding: 5
