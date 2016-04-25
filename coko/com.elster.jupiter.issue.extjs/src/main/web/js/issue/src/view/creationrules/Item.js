@@ -55,7 +55,7 @@ Ext.define('Isu.view.creationrules.Item', {
                         fieldLabel: Uni.I18n.translate('general.title.dueIn', 'ISU', 'Due in'),
                         name: 'dueIn',
                         renderer: function (value) {
-                            var result = '';
+                            var result = '-';
 
                             if (value && value.number) {
                                 switch (value.type) {
