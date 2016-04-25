@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -45,6 +46,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     private volatile ServerMeteringService meteringService;
     private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
     private volatile Clock clock;
+    private volatile LicenseService licenseService;
 
 
     // For OSGi purposes
@@ -82,6 +84,11 @@ public class UsagePointSearchDomain implements SearchDomain {
         this.metrologyConfigurationService = (ServerMetrologyConfigurationService) metrologyConfigurationService;
     }
 
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
+    }
+
     @Override
     public String getId() {
         return UsagePoint.class.getName();
@@ -104,24 +111,20 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     @Override
     public List<SearchableProperty> getProperties() {
-        return new ArrayList<>(Arrays.asList(
-                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.clock),
-                new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.clock),
-                new LocationSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.clock),
-                new InstallationTimeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new TypeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new ReadRouteSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new ServicePrioritySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
-        ));
+        if (this.checkLicensesSet()) {
+            return this.getMultisenseProperties();
+        }
+
+        return this.getInsightProperties();
     }
 
     @Override
     public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         List<SearchableProperty> searchableProperties = getProperties();
         if (constrictions != null && !constrictions.isEmpty()) {
+            if (this.checkLicensesSet()) {
+                return searchableProperties;
+            }
             searchableProperties.addAll(getServiceCategoryDynamicProperties(constrictions));
         }
         return searchableProperties;
@@ -262,6 +265,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                         .getName(), Function.identity()));
         // 4) refresh all properties with their constrictions
         for (SearchablePropertyValue propertyValue : valuesMap.values()) {
+
             SearchableProperty property = propertyValue.getProperty();
             property.refreshWithConstrictions(property.getConstraints().stream()
                     .map(constrainingProperty -> valuesMap.get(constrainingProperty.getName()))
@@ -282,6 +286,34 @@ public class UsagePointSearchDomain implements SearchDomain {
                 .filter(uniqueName)
                 .forEach(properties::add);
         return properties;
+    }
+
+    private List<SearchableProperty> getMultisenseProperties() {
+        return Arrays.asList(new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService
+                        .getThesaurus()),
+                new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.clock),
+                new InstallationTimeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()));
+    }
+
+    private List<SearchableProperty> getInsightProperties() {
+        return new ArrayList<>(Arrays.asList(
+                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.clock),
+                new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.clock),
+                new LocationSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus(), this.clock),
+                new InstallationTimeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new TypeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new ReadRouteSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new ServicePrioritySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())));
+    }
+
+    private boolean checkLicensesSet() {
+        return !this.licenseService.getLicenseForApplication("INS")
+                .isPresent() && this.licenseService.getLicenseForApplication("MDC").isPresent();
     }
 
     @Override
