@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -16,12 +17,13 @@ public class UsagePointRequirementsSearchDomain extends UsagePointSearchDomain i
     private volatile ServerMeteringService meteringService;
 
     @Inject
-    public UsagePointRequirementsSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock) {
+    public UsagePointRequirementsSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock, LicenseService licenseService) {
         super();
         setPropertySpecService(propertySpecService);
         setServerMetrologyConfigurationService(metrologyConfigurationService);
         setMeteringService(meteringService);
         setClock(clock);
+        setLicenseService(licenseService);
         this.meteringService = meteringService;
     }
 
