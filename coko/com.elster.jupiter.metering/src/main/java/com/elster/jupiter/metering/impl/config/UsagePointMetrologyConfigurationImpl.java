@@ -132,6 +132,6 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
 
     @Override
     public List<MeterActivation> getMetersForRole(MeterRole meterRole) {
-        return null;
+        return Collections.emptyList();
     }
 }
