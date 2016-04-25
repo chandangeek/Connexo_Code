@@ -76,10 +76,14 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
     },
 
     loadNewData: function () {
-        var me = this;
+        var me = this,
+            date,
+            UTCtime;
+        date = new Date(me.down('#weekOf').getParamValue());
+        UTCtime = date.getTime() - date.getTimezoneOffset() * 60 * 1000;
         me.model.load(me.calendarId, {
             params: {
-                weekOf: me.down('#weekOf').getParamValue()
+                weekOf: UTCtime
             },
             success: function (newRecord) {
                 me.record = newRecord;
