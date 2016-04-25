@@ -1,6 +1,7 @@
 package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.bpm.BpmServer;
+
 import org.osgi.framework.BundleContext;
 
 import java.io.BufferedReader;
@@ -10,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
-import java.util.Optional;
 
 public class BpmServerImpl implements BpmServer {
 
@@ -103,6 +103,16 @@ public class BpmServerImpl implements BpmServer {
 
             int responseCode = httpConnection.getResponseCode();
             if (responseCode != 200) {
+                if(responseCode == 409){
+                    BufferedReader br = new BufferedReader(new InputStreamReader(
+                            (httpConnection.getErrorStream())));
+                    String output;
+                    StringBuilder jsonContent = new StringBuilder();
+                    while ((output = br.readLine()) != null) {
+                        jsonContent.append(output);
+                    }
+                    throw new RuntimeException(String.valueOf(responseCode) + jsonContent.toString());
+                }
                 return null;
             } else {
                 BufferedReader br = new BufferedReader(new InputStreamReader(
