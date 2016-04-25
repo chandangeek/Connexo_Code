@@ -121,7 +121,7 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
         return UsagePointTypes.values();
     }
 
-    private enum UsagePointTypes implements TranslationKey {
+    public enum UsagePointTypes implements TranslationKey {
         MEASURED_SDP("usagePoint.type.measuredSDP", "Measured SDP"),
         UNMEASURED_SDP("usagePoint.type.unmeasuredSDP", "Unmeasured SDP"),
         MEASURED_NON_SDP("usagePoint.type.measuredNonSDP", "Measured non-SDP"),
