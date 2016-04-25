@@ -20,11 +20,11 @@ public class PeriodTransitionImpl implements PeriodTransition {
 
     @Override
     public LocalDate getOccurrence() {
-        return null;
+        return occurrence;
     }
 
     @Override
     public Period getPeriod() {
-        return null;
+        return period;
     }
 }
