@@ -503,6 +503,25 @@ public class TableImpl<T> implements Table<T> {
     }
 
     @Override
+    public List<Column> addQuantityColumns(String name, boolean notNull, String fieldName, Range... versions) {
+        ImmutableList.Builder<Column> builder = ImmutableList.builder();
+        builder.add(column(name + "VALUE").number().notNull(notNull).map(fieldName + ".value").during(versions).add());
+        builder.add(column(name + "MULTIPLIER").number()
+                .notNull(notNull)
+                .conversion(NUMBER2INTWRAPPER)
+                .map(fieldName + ".multiplier")
+                .during(versions)
+                .add());
+        builder.add(column(name + "UNIT").varChar(8)
+                .notNull(notNull)
+                .conversion(CHAR2UNIT)
+                .map(fieldName + ".unit")
+                .during(versions)
+                .add());
+        return builder.build();
+    }
+
+    @Override
     public ImmutableList<Column> addMoneyColumns(String name, boolean notNull, String fieldName) {
         ImmutableList.Builder<Column> builder = ImmutableList.builder();
         builder.add(column(name + "VALUE").number().notNull(notNull).map(fieldName + ".value").add());

@@ -92,6 +92,15 @@ public interface Table<T> {
      */
     List<Column> addQuantityColumns(String name, boolean notNull, String fieldName);
     /*
+     *  Adds three columns to persist a Quantity field
+     *
+     *  column name + VALUE mapped to field fieldName.value
+     *  column name + MULTIPLIER mapped to fieldName.multiplier
+     *  column name + UNIT mapped to fieldName.unit
+     *
+     */
+    List<Column> addQuantityColumns(String name, boolean notNull, String fieldName, Range... versions);
+    /*
      *  Adds two column to persist a Money field
      *
      *	column name + VALUE mapped to fieldName.value

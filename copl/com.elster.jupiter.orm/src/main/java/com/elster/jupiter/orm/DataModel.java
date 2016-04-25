@@ -3,6 +3,7 @@ package com.elster.jupiter.orm;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.impl.TableImpl;
 
+import aQute.bnd.annotation.ConsumerType;
 import aQute.bnd.annotation.ProviderType;
 import com.google.inject.Module;
 
@@ -93,6 +94,27 @@ public interface DataModel {
     boolean isInstalled();
 
     Connection getConnection(boolean transactionRequired) throws SQLException;
+
+    default void useConnectionRequiringTransaction(ConnectionConsumer usage) {
+        try (Connection connection = getConnection(true)) {
+            usage.accept(connection);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    default void useConnectionNotRequiringTransaction(ConnectionConsumer usage) {
+        try (Connection connection = getConnection(false)) {
+            usage.accept(connection);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    @ConsumerType
+    static interface ConnectionConsumer {
+        void accept(Connection connection) throws SQLException;
+    }
 
     /*
      * gets the current principal from the ThreadPrincipalService
