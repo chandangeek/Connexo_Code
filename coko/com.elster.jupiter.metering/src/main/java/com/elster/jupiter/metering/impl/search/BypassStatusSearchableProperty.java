@@ -78,7 +78,7 @@ public class BypassStatusSearchableProperty implements SearchableUsagePointPrope
     @Override
     public String toDisplay(Object value) {
         if (value instanceof BypassStatus) {
-            return ((BypassStatus) value).getDisplayValue(thesaurus);
+            return ((BypassStatus) value).getDisplayValue(this.thesaurus);
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
@@ -96,7 +96,8 @@ public class BypassStatusSearchableProperty implements SearchableUsagePointPrope
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Collections.singletonList(new ServiceCategorySearchableProperty(domain, propertySpecService, thesaurus));
+        return Collections.singletonList(new BypassSearchableProperty(this.propertySpecService, this.thesaurus)
+                .init(this.domain, this.group, this.clock));
     }
 
     @Override

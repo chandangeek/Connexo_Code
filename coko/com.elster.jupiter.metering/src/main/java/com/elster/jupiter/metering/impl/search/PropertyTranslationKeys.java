@@ -38,10 +38,10 @@ public enum PropertyTranslationKeys implements TranslationKey {
 
     USAGEPOINT_GROUNDED("usagepoint.grounded", "Grounded"),
     USAGEPOINT_PHASECODE("usagepoint.phaseCode", "Phase code"),
-    USAGEPOINT_NOMINALVOLTAGE("usagepoint.nominalVoltage", "Nominal voltage (in volts)"),
-    USAGEPOINT_RATEDCURRENT("usagepoint.ratedCurrent", "Rated current (in amperes)"),
-    USAGEPOINT_RATEDPOWER("usagepoint.ratedPower", "Rated power (in watts)"),
-    USAGEPOINT_ESTIMATEDLOAD("usagepoint.estimatedLoad", "Estimated load (in watts)"),
+    USAGEPOINT_NOMINALVOLTAGE("usagepoint.nominalVoltage", "Nominal voltage"),
+    USAGEPOINT_RATEDCURRENT("usagepoint.ratedCurrent", "Rated current"),
+    USAGEPOINT_RATEDPOWER("usagepoint.ratedPower", "Rated power"),
+    USAGEPOINT_ESTIMATEDLOAD("usagepoint.estimatedLoad", "Estimated load"),
 
     USAGEPOINT_GROUP_ELECTRICITY("usagepoint.group.electricity", "Electricity"),
     USAGEPOINT_GROUP_GAS("usagepoint.group.gas", "Gas"),

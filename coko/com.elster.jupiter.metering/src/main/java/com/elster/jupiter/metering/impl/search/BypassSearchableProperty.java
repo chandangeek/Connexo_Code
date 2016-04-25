@@ -52,7 +52,7 @@ public class BypassSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return false;
+        return true;
     }
 
     @Override
