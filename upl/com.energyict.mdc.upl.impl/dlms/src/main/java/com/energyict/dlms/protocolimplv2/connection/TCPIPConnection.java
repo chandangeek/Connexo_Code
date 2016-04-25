@@ -261,10 +261,12 @@ public class TCPIPConnection implements DlmsV2Connection {
                 }
 
                 if (((System.currentTimeMillis() - protocolTimeout)) > 0) {
+                    //We did not receive a response within the configured timeout interval
                     throw new IOException("receiveResponse() response timeout error");
                 }
 
                 if (((System.currentTimeMillis() - interFrameTimeout)) > 0) {
+                    //We did not receive a response within the configured timeout interval
                     throw new IOException("receiveResponse() interframe timeout error");
                 }
             } // while(true)
@@ -294,8 +296,10 @@ public class TCPIPConnection implements DlmsV2Connection {
 
         } catch (ConnectionCommunicationException e) {
             if (isSocketTimeoutException(e)) {
+                //We did not receive a response within the configured timeout interval
                 throw new IOException("receiveResponse() response timeout error");
             } else {
+                //An I/O exception occurred on the input stream. Stop the session.
                 throw e;
             }
         }

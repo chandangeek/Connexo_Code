@@ -15,7 +15,7 @@ import com.energyict.protocol.exceptions.LowerLayerCommunicationException;
  * (read: Timeout, incorrect logicalId, ...) These exceptions should not terminate the connection itself.
  * This means that all connection-related exceptions should be wrapped as a lower-layer Communication related exception
  * <p>
- * Except when it is actually a connection-related exception (read: Socket-timeout, connection-closed, ...)
+ * Except when it is actually a connection-related exception (read: connection-closed, ...)
  * <p>
  * Copyrights EnergyICT
  * Date: 07.04.16
@@ -32,7 +32,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             super.prepareComChannelForReceiveOfNextPacket();
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -41,7 +41,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.getTimeout();
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -50,7 +50,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             super.setTimeout(timeout);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -59,7 +59,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             super.setRetries(retries);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -68,7 +68,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.sendRequest(encryptedRequest, isAlreadyEncrypted);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -77,7 +77,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             super.sendUnconfirmedRequest(request);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -86,7 +86,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             super.setHHUSignOn(hhuSignOn, meterId);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -95,7 +95,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             super.setHHUSignOn(hhuSignOn, meterId, hhuSignonBaudRateCode);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -104,7 +104,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.getHhuSignOn();
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -113,7 +113,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.getInvokeIdAndPriorityHandler();
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -122,7 +122,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             super.setInvokeIdAndPriorityHandler(iiapHandler);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -131,7 +131,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.getMaxRetries();
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -140,7 +140,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.getMaxTries();
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -149,7 +149,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.useGeneralBlockTransfer();
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -158,7 +158,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.getGeneralBlockTransferWindowSize();
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -167,7 +167,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.getForceDelay();
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -176,7 +176,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             super.connectMAC();
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -185,7 +185,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             super.disconnectMAC();
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -194,7 +194,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             super.delay(lDelay);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -203,7 +203,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             super.setSwitchAddresses(type);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -212,7 +212,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.readResponseWithRetries(retryRequest);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -221,7 +221,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.readResponseWithRetries(retryRequest, isAlreadyEncrypted);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -230,7 +230,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.sendRawBytes(data);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 
@@ -239,7 +239,7 @@ public class GatewayTCPIPConnection extends TCPIPConnection {
         try {
             return super.sendRequest(data);
         } catch (ConnectionCommunicationException e) {
-            throw LowerLayerCommunicationException.downgradeFromConnectionException(e);
+            throw LowerLayerCommunicationException.downgradeFromConnectionExceptionIfNecessary(e);
         }
     }
 }
