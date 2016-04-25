@@ -18,7 +18,7 @@ public class UsagePointTypeInfo {
     public UsagePointTypeInfo() {
     }
 
-    public static enum UsagePointType {
+    public enum UsagePointType {
         MEASURED_SDP("Measured SDP", true, true),
         UNMEASURED_SDP("Unmeasured SDP", false, true),
         MEASURED_NON_SDP("Measured non-SDP", true, false),

@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePointTypeInfo;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -55,7 +56,7 @@ public class MetrologyConfigurationInstaller {
                 PhaseCode.S1.toString(),
                 PhaseCode.S2.toString(),
                 PhaseCode.S12.toString()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, TypeSearchableProperty.UsagePointTypes.MEASURED_SDP.name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
@@ -114,7 +115,7 @@ public class MetrologyConfigurationInstaller {
                 PhaseCode.S1.toString(),
                 PhaseCode.S2.toString(),
                 PhaseCode.S12.toString()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, TypeSearchableProperty.UsagePointTypes.MEASURED_SDP.name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRoleConsumption = metrologyConfigurationService.findMeterRole(DefaultMeterRole.CONSUMPTION.getKey())
                 .orElseThrow(() -> new NoSuchElementException("Consumption meter role not found"));
@@ -157,7 +158,7 @@ public class MetrologyConfigurationInstaller {
                 PhaseCode.S1.toString(),
                 PhaseCode.S2.toString(),
                 PhaseCode.S12.toString()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, TypeSearchableProperty.UsagePointTypes.MEASURED_SDP.name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
