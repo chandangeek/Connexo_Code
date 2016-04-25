@@ -25,6 +25,7 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     private List<String> location = new ArrayList<>();
     private String latitude;
     private String longitude;
+    private String elevation;
 
     //Technical
 
@@ -92,14 +93,19 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     }
 
     public List<String> getGeoCoordinates() {
-        return Arrays.asList(latitude,longitude);
+        return Arrays.asList(latitude, longitude, elevation);
     }
 
     public void setLatitude(String latitude){
         this.latitude = latitude;
     }
+
     public void setLongitude(String longitude){
         this.longitude = longitude;
+    }
+
+    public void setElevation(String elevation){
+        this.elevation = elevation;
     }
 
     public Optional<String> getName() {

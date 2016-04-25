@@ -72,6 +72,10 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
                 .withSetter(record::setLongitude)
                 .withName("longitude")
                 .build());
+        fields.put("elevation", CommonField.withParser(stringParser)
+                .withSetter(record::setElevation)
+                .withName("elevation")
+                .build());
         context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
                 .sorted((t1,t2)->Integer.compare(t1.getRanking(),t2.getRanking()))
                 .map(LocationTemplate.TemplateField::getName)

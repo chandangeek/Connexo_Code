@@ -201,7 +201,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
 
         if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)){
             usagePointBuilder.withGeoCoordinates((context.getMeteringService()
-                    .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get())));
+                    .createGeoCoordinates(geoCoordinatesData.stream().collect(Collectors.joining(":")))));
             isVirtual = false;
         }
         usagePointBuilder.withIsVirtual(isVirtual);
