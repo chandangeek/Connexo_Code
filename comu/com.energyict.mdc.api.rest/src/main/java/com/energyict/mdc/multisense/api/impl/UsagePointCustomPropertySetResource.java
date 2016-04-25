@@ -1,12 +1,12 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetValuesManageException;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
@@ -35,13 +35,11 @@ import static java.util.stream.Collectors.toList;
 public class UsagePointCustomPropertySetResource {
 
     private final UsagePointCustomPropertySetInfoFactory usagePointCustomPropertySetInfoFactory;
-    private final CustomPropertySetService usagePointCustomPropertySetService;
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public UsagePointCustomPropertySetResource(CustomPropertySetService usagePointCustomPropertySetService, UsagePointCustomPropertySetInfoFactory usagePointCustomPropertySetInfoFactory, MeteringService meteringService, ExceptionFactory exceptionFactory) {
-        this.usagePointCustomPropertySetService = usagePointCustomPropertySetService;
+    public UsagePointCustomPropertySetResource(UsagePointCustomPropertySetInfoFactory usagePointCustomPropertySetInfoFactory, MeteringService meteringService, ExceptionFactory exceptionFactory) {
         this.usagePointCustomPropertySetInfoFactory = usagePointCustomPropertySetInfoFactory;
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
@@ -122,17 +120,17 @@ public class UsagePointCustomPropertySetResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{cpsId}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Transactional
     public UsagePointCustomPropertySetInfo updateUsagePointCustomPropertySet(@PathParam("usagePointId") long usagePointId,
                                                                              @PathParam("cpsId") long cpsId,
                                                                              UsagePointCustomPropertySetInfo propertySetInfo,
                                                                              @Context UriInfo uriInfo) {
 
-        if (propertySetInfo.version == null) {
+        if (propertySetInfo != null && propertySetInfo.version == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
         }
-
         try {
-            UsagePointPropertySet propertySet = meteringService.findUsagePoint(usagePointId)
+            UsagePointPropertySet propertySet = meteringService.findAndLockUsagePointByIdAndVersion(usagePointId, propertySetInfo.version)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_USAGE_POINT))
                     .forCustomProperties()
                     .getPropertySet(cpsId);

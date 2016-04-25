@@ -1,6 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.cps.rest.CustomPropertySetAttributeInfo;
 
 import java.util.List;
 
@@ -18,5 +18,5 @@ public class UsagePointCustomPropertySetInfo extends LinkInfo<Long> {
     public Long startTime; // time-sliced, current version start timestamp
     public Long endTime; // time-sliced, current version end timestamp
     public Long versionId; // time-sliced, current version start timestamp or 0
-    public List<PropertyInfo> properties;
+    public List<CustomPropertySetAttributeInfo> properties;
 }

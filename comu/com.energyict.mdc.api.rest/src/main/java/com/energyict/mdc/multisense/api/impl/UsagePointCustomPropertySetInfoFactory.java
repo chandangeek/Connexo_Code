@@ -70,6 +70,8 @@ public class UsagePointCustomPropertySetInfoFactory extends SelectableFieldFacto
                 .getId());
         map.put("link", ((usagePointCustomPropertySetInfo, usagePointCustomPropertySet, uriInfo) ->
                 usagePointCustomPropertySetInfo.link = link(usagePointCustomPropertySet, Relation.REF_SELF, uriInfo)));
+        map.put("version", (usagePointCustomPropertySetInfo, usagePointCustomPropertySet, uriInfo) ->
+                usagePointCustomPropertySetInfo.version = usagePointCustomPropertySet.getUsagePoint().getVersion());
         map.put("name", (usagePointCustomPropertySetInfo, usagePointCustomPropertySet, uriInfo) -> usagePointCustomPropertySetInfo.name = usagePointCustomPropertySet
                 .getCustomPropertySet()
                 .getName());

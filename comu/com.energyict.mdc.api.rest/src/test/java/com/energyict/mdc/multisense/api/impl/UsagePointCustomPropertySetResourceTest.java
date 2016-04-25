@@ -1,13 +1,13 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetAttributeInfo;
 import com.elster.jupiter.cps.rest.impl.SimplePropertyType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 
@@ -117,8 +117,9 @@ public class UsagePointCustomPropertySetResourceTest extends MultisensePublicApi
         PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null);
         PropertyValueInfo<BigDecimal> propertyValueInfo2 = new PropertyValueInfo<>(BigDecimal.valueOf(99), BigDecimal.valueOf(18), true);
         PropertyTypeInfo propertyTypeInfo2 = new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null);
-        info.properties = Arrays.asList(new PropertyInfo("name", "string.property", propertyValueInfo, propertyTypeInfo, true),
-                new PropertyInfo("age", "decimal.property", propertyValueInfo2, propertyTypeInfo2, true));
+        CustomPropertySetAttributeInfo info1 = new CustomPropertySetAttributeInfo();
+        CustomPropertySetAttributeInfo info2 = new CustomPropertySetAttributeInfo();
+        info.properties = Arrays.asList(info1, info2);
         Response response = target("/usagepoints/123/custompropertysets/31").request().put(Entity.json(info));
 
     }
@@ -128,8 +129,8 @@ public class UsagePointCustomPropertySetResourceTest extends MultisensePublicApi
         Response response = target("/usagepoints/123/custompropertysets").request("application/json")
                 .method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(11);
-        assertThat(model.<List<String>>get("$")).containsOnly("domainDomainName", "endTime", "id", "isActive", "isRequired", "isVersioned", "link", "name", "properties", "startTime", "versionId");
+        assertThat(model.<List>get("$")).hasSize(12);
+        assertThat(model.<List<String>>get("$")).containsOnly("version", "domainDomainName", "endTime", "id", "isActive", "isRequired", "isVersioned", "link", "name", "properties", "startTime", "versionId");
     }
 
 
