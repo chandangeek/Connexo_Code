@@ -84,13 +84,15 @@ public class UsagePointCustomPropertySetInfoFactory extends SelectableFieldFacto
                 .getCustomPropertySet()
                 .isVersioned());
         map.put("isActive", (usagePointCustomPropertySetInfo, usagePointCustomPropertySet, uriInfo) -> {
-            if (usagePointCustomPropertySet.getCustomPropertySet().isVersioned()) {
+            if (usagePointCustomPropertySet.getCustomPropertySet()
+                    .isVersioned() && usagePointCustomPropertySet.getValues() != null) {
                 usagePointCustomPropertySetInfo.isActive = !usagePointCustomPropertySet.getValues().isEmpty() &&
                         usagePointCustomPropertySet.getValues().getEffectiveRange().contains(clock.instant());
             }
         });
         map.put("startTime", (usagePointCustomPropertySetInfo, usagePointCustomPropertySet, uriInfo) -> {
-            if (usagePointCustomPropertySet.getCustomPropertySet().isVersioned()) {
+            if (usagePointCustomPropertySet.getCustomPropertySet()
+                    .isVersioned() && usagePointCustomPropertySet.getValues() != null) {
                 usagePointCustomPropertySetInfo.startTime = usagePointCustomPropertySet.getValues()
                         .getEffectiveRange()
                         .hasLowerBound() ?
@@ -101,7 +103,8 @@ public class UsagePointCustomPropertySetInfoFactory extends SelectableFieldFacto
             }
         });
         map.put("endTime", (usagePointCustomPropertySetInfo, usagePointCustomPropertySet, uriInfo) -> {
-            if (usagePointCustomPropertySet.getCustomPropertySet().isVersioned()) {
+            if (usagePointCustomPropertySet.getCustomPropertySet()
+                    .isVersioned() && usagePointCustomPropertySet.getValues() != null) {
                 usagePointCustomPropertySetInfo.endTime = usagePointCustomPropertySet.getValues()
                         .getEffectiveRange()
                         .hasUpperBound() ?
@@ -112,7 +115,8 @@ public class UsagePointCustomPropertySetInfoFactory extends SelectableFieldFacto
             }
         });
         map.put("versionId", (usagePointCustomPropertySetInfo, usagePointCustomPropertySet, uriInfo) -> {
-            if (usagePointCustomPropertySet.getCustomPropertySet().isVersioned()) {
+            if (usagePointCustomPropertySet.getCustomPropertySet()
+                    .isVersioned() && usagePointCustomPropertySet.getValues() != null) {
                 usagePointCustomPropertySetInfo.versionId = usagePointCustomPropertySet.getValues()
                         .getEffectiveRange()
                         .hasLowerBound() ?
@@ -125,8 +129,8 @@ public class UsagePointCustomPropertySetInfoFactory extends SelectableFieldFacto
             usagePointCustomPropertySetInfo.properties =
                     customPropertySet.getPropertySpecs().stream()
                             .map(cps -> customPropertySetInfoFactory.getPropertyInfo(cps, name -> usagePointCustomPropertySet
-                                    .getValues()
-                                    .getProperty(name)))
+                                    .getValues() != null ? usagePointCustomPropertySet.getValues()
+                                    .getProperty(name) : null))
                             .collect(toList());
         });
         return map;
