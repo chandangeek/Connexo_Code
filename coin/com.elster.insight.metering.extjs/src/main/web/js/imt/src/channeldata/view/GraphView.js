@@ -103,7 +103,7 @@ Ext.define('Imt.channeldata.view.GraphView', {
                         deltaIcon = '',
                         bulkIcon = '',
                         bgColor,
-                        editedIcon = '<span class="uni-icon-edit" style=" margin-left:4px; height:13px; width:13px; display:inline-block; vertical-align:top;"></span>',
+                        editedIcon = '<span class="icon-pencil4" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>',
                         mainValue,
                         bulkValue;
 
