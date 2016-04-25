@@ -23,15 +23,15 @@ import java.util.List;
  * </code></pre>
  * Or the following abstract grammer:
  * <pre><code>
- * ExpressionNode             ::= ConstantNodeImpl | ReadingTypeRequirementNodeImpl | ReadingTypeDeliverableNodeImpl | VariableNode | OperationNodeImpl | FunctionCallNodeImpl
+ * ExpressionNode                 ::= ConstantNodeImpl | ReadingTypeRequirementNodeImpl | ReadingTypeDeliverableNodeImpl | VariableNode | OperationNodeImpl | FunctionCallNodeImpl
  * ConstantNodeImpl               ::= LeafNode(BigDecimal)
  * ReadingTypeRequirementNodeImpl ::= LeafNode(ReadingTypeRequirement)
  * ReadingTypeDeliverableNodeImpl ::= LeafNode(ReadingTypeDeliverable)
- * VariableNode               ::= LeafNode(CustomPropertySet, PropertySpec)
- * IdentifierNode             ::= LeafNode(Function)
+ * VariableNode                   ::= LeafNode(CustomPropertySet, PropertySpec)
+ * IdentifierNode                 ::= LeafNode(Function)
  * OperationNodeImpl              ::= InternalNode(Operator)
- * Operator                   ::= + | - | * | /
- * Function                   ::= AVG | MIN | MAX | SUM
+ * Operator                       ::= + | - | * | /
+ * Function                       ::= AVG | MIN | MAX | SUM
  * FunctionCallNodeImpl           ::= InternalNode(IdentifierNode, ArgumentListNode)
  * </code></pre>
  *
