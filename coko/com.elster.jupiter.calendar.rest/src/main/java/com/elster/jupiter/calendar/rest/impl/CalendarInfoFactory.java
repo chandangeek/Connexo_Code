@@ -6,6 +6,7 @@ import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
+import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -17,14 +18,19 @@ import javax.inject.Inject;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class CalendarInfoFactory {
 
@@ -48,9 +54,10 @@ public class CalendarInfoFactory {
         addPeriods(calendarInfo, calendar.getTransitions());
         addEvents(calendarInfo, calendar.getEvents());
         addDayTypes(calendarInfo, calendar.getDayTypes());
-
+        addDaysPerType(calendarInfo, calendar.getPeriods(), calendar.getDayTypes());
         return calendarInfo;
     }
+
 
     public CalendarInfo fromCalendar(Calendar calendar, LocalDate localDate) {
         CalendarInfo calendarInfo = new CalendarInfo();
@@ -160,6 +167,22 @@ public class CalendarInfoFactory {
                 .forEach(dayType -> calendarInfo.dayTypes.add(createDayType(dayType)));
 
     }
+
+    private void addDaysPerType(CalendarInfo calendarInfo, List<Period> periods, List<DayType> dayTypes) {
+        calendarInfo.daysPerType = new ArrayList<>();
+        Map<Long, Set<String>> daysPerDaytype = new HashMap<>();
+        dayTypes.stream()
+                .forEach(dayType -> daysPerDaytype.put(dayType.getId(), new LinkedHashSet<>()));
+        for(Period period: periods) {
+            Stream.of(DayOfWeek.values())
+                    .forEach(dow -> daysPerDaytype.get(period.getDayType(dow).getId()).add(thesaurus.getTranslations().get(dow.name())));
+        }
+
+        daysPerDaytype.keySet()
+                .stream()
+                .forEach(key -> calendarInfo.daysPerType.add(new DaysPerTypeInfo(key, new ArrayList<>(daysPerDaytype.get(key)))));
+    }
+
 
     private DayTypeInfo createDayType(DayType dayType) {
         DayTypeInfo dayTypeInfo = new DayTypeInfo();
