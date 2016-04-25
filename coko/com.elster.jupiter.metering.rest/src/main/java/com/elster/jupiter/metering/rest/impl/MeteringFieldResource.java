@@ -205,6 +205,7 @@ public class MeteringFieldResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getUsagePointType(@BeanParam JsonQueryParameters queryParameters) {
         List<UsagePointTypeInfo> infos = Arrays.stream(UsagePointTypeInfo.UsagePointType.values()).map(t -> new UsagePointTypeInfo(t,thesaurus)).collect(Collectors.toList());
+        infos.sort((type1, type2) -> type1.displayName.compareTo(type2.displayName));
         return PagedInfoList.fromCompleteList("usagePointTypes", infos, queryParameters);
     }
 }
