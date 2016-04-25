@@ -197,5 +197,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             }
             return value + icon;
         }
+        return '-';
     }
 });
