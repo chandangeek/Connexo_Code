@@ -9,19 +9,13 @@ Ext.define('Cal.privileges.Calendar', {
         'Uni.Auth'
     ],
     singleton: true,
-    view: ['privilege.view.touCalendars'],
-
-    viewPreview: ['privilege.view.touPreview'],
+    admin: ['privilege.administrate.touCalendars'],
 
     all: function () {
-        return Ext.Array.merge(Cal.privileges.Calendar.view, Cal.privileges.Calendar.viewPreview);
+        return Ext.Array.merge(Cal.privileges.Calendar.admin);
     },
 
-    canView: function () {
-        return Uni.Auth.checkPrivileges(Cal.privileges.Calendar.view);
-    },
-
-    canViewPreview: function () {
-        return Uni.Auth.checkPrivileges(Cal.privileges.Calendar.viewPreview);
+    canAdministrate: function () {
+        return Uni.Auth.checkPrivileges(Cal.privileges.Calendar.admin);
     }
 });
