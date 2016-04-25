@@ -21,11 +21,8 @@ public class PurposeInfo {
         purposeInfo.required = metrologyContract.isMandatory();
         purposeInfo.active = purposeInfo.required;
         IdWithNameInfo status = new IdWithNameInfo();
-
-        // todo (currently mocked for test purposes)
-        status.id = "incomplete";
-        status.name = "Incomplete";
-
+        status.id = metrologyContract.getStatus().getKey().equals("COMPLETE") ? "complete" : "incomplete";
+        status.name = metrologyContract.getStatus().getName();
         purposeInfo.status = status;
         return purposeInfo;
     }
