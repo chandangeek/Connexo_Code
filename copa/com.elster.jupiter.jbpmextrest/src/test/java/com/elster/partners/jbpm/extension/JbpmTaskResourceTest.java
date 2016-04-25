@@ -9,18 +9,15 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jbpm.kie.services.api.RuntimeDataService;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.kie.services.impl.model.ProcessInstanceDesc;
+import org.jbpm.services.task.impl.model.TaskImpl;
 import org.jbpm.services.task.impl.model.UserImpl;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.kie.api.task.model.*;
+import org.kie.api.task.model.OrganizationalEntity;
+import org.kie.api.task.model.PeopleAssignments;
+import org.kie.api.task.model.Status;
+import org.kie.api.task.model.Task;
+import org.kie.api.task.model.TaskData;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.model.InternalTask;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -29,13 +26,27 @@ import javax.persistence.Query;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -110,7 +121,7 @@ public class JbpmTaskResourceTest {
 
     @Test
     public void testGetExistingTask() throws Exception {
-        Task task = mock(Task.class);
+        Task task = mock(TaskImpl.class);
         when(task.getId()).thenReturn(1L);
         when(task.getName()).thenReturn("TestTask");
         when(task.getPriority()).thenReturn(5);
@@ -406,7 +417,7 @@ public class JbpmTaskResourceTest {
 
     @Test
     public  void testAssignTask() throws Exception{
-        Task task = mock(Task.class);
+        Task task = mock(TaskImpl.class);
         TaskData taskData = mock(TaskData.class);
         PeopleAssignments peopleAssignments = mock(PeopleAssignments.class);
         List<OrganizationalEntity> businessAdministrators = new ArrayList<>();
@@ -422,7 +433,7 @@ public class JbpmTaskResourceTest {
         when(peopleAssignments.getBusinessAdministrators()).thenReturn(businessAdministrators);
         when(org.getId()).thenReturn("userName");
 
-        ClientRequest request = new ClientRequest(baseUri + "/1/assign");
+        ClientRequest request = new ClientRequest(baseUri + "/1/0/assign");
         request.queryParameter("username", "userName");
         request.queryParameter("currentuser", "currentUser");
 
@@ -431,10 +442,21 @@ public class JbpmTaskResourceTest {
     }
 
     @Test
+    public  void testAssignTaskDifferentOptLock() throws Exception{
+        Task task = mock(TaskImpl.class);
+        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+
+        ClientRequest request = new ClientRequest(baseUri + "/1/99/assign");
+        ClientResponse<Response> response = request.post(Response.class);
+
+        assertEquals(409, response.getResponseStatus().getStatusCode());
+    }
+
+    @Test
     public  void testSetDueDate() throws Exception{
         Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
 
-        ClientRequest request = new ClientRequest(baseUri + "/1/set");
+        ClientRequest request = new ClientRequest(baseUri + "/1/0/assign");
         request.queryParameter("priority", "1");
         request.queryParameter("duedate", calendar.getTimeInMillis());
 

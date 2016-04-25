@@ -335,31 +335,33 @@ public class JbpmTaskResource {
     }
 
     @POST
-    @Path("/{taskId: [0-9-]+}/assign")
-    public Response assignTask(@Context UriInfo uriInfo,@PathParam("taskId") long taskId){
+    @Path("/{taskId: [0-9-]+}/{optLock: [0-9-]+}/assign")
+    public Response assignTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId, @PathParam("optLock") long optLock){
         String userName = getQueryValue(uriInfo, "username");
         String currentuser = getQueryValue(uriInfo, "currentuser");
-        boolean check = assignTaskToUser(userName, currentuser, taskId);
-        if(!check){
-            return Response.status(403).build();
-        }
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/{taskId: [0-9-]+}/set")
-    public Response setDueDateAndPriority(@Context UriInfo uriInfo,@PathParam("taskId") long taskId){
         String priority = getQueryValue(uriInfo, "priority");
         String date = getQueryValue(uriInfo, "duedate");
-        if(priority != null || date != null){
-            if(priority != null && !priority.equals("")){
-                setPriority(Integer.valueOf(priority), taskId);
-
-            }
-            if(date != null && !date.equals("")){
-                Date millis = new Date();
-                millis.setTime(Long.valueOf(date));
-                setDueDate(millis, taskId);
+        Task task = internalTaskService.getTaskById(taskId);
+        if(task != null) {
+            if(((TaskImpl) task).getVersion() == optLock) {
+                if(userName != null && currentuser != null) {
+                    boolean check = assignTaskToUser(userName, currentuser, taskId);
+                    if (!check) {
+                        return Response.status(403).build();
+                    }
+                }
+                if(priority != null || date != null){
+                    if (priority != null && !priority.equals("")) {
+                        setPriority(Integer.valueOf(priority), taskId);
+                    }
+                    if (date != null && !date.equals("")) {
+                        Date millis = new Date();
+                        millis.setTime(Long.valueOf(date));
+                        setDueDate(millis, taskId);
+                    }
+                }
+            } else {
+                return Response.status(409).entity(task.getName()).build();
             }
         }
         return Response.ok().build();
