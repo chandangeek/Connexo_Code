@@ -6,16 +6,19 @@ import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyConstriction;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UsagePointRequirementsSearchDomain extends UsagePointSearchDomain implements SearchDomain {
-
-    private volatile ServerMeteringService meteringService;
-
     @Inject
     public UsagePointRequirementsSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock, LicenseService licenseService) {
         super();
@@ -24,7 +27,6 @@ public class UsagePointRequirementsSearchDomain extends UsagePointSearchDomain i
         setMeteringService(meteringService);
         setClock(clock);
         setLicenseService(licenseService);
-        this.meteringService = meteringService;
     }
 
     @Override
@@ -39,6 +41,21 @@ public class UsagePointRequirementsSearchDomain extends UsagePointSearchDomain i
 
     @Override
     public String displayName() {
-        return this.meteringService.getThesaurus().getFormat(PropertyTranslationKeys.USAGE_POINT_REQUIREMENT_SEARCH_DOMAIN).format();
+        return getMetrologyConfigurationService().getThesaurus().getFormat(PropertyTranslationKeys.USAGE_POINT_REQUIREMENT_SEARCH_DOMAIN).format();
+    }
+
+    @Override
+    public List<SearchableProperty> getProperties() {
+        return new ArrayList<>(Arrays.asList(
+                new ServiceCategorySearchableProperty(this, getPropertySpecService(), getMetrologyConfigurationService().getThesaurus()),
+                new TypeSearchableProperty(this, getPropertySpecService(), getMetrologyConfigurationService().getThesaurus())));
+    }
+
+    @Override
+    protected List<SearchableProperty> getServiceCategoryDynamicProperties(Collection<SearchablePropertyConstriction> constrictions) {
+        return super.getServiceCategoryDynamicProperties(constrictions)
+                .stream()
+                .filter(property -> !property.getName().startsWith(LoadLimiterTypeSearchableProperty.FIELD_NAME))
+                .collect(Collectors.toList());
     }
 }
