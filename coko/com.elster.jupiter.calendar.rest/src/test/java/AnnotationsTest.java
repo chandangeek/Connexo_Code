@@ -14,7 +14,6 @@ import static org.junit.Assert.fail;
 
 public class AnnotationsTest  extends CalendarApplicationTest {
     @Test
-    @Ignore
     public void testAllRestMethodsHaveRolesAllowedAnnotation() throws Exception {
         getApplication()
                 .getClasses().stream()

@@ -2,8 +2,10 @@ package com.elster.jupiter.calendar.rest.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -38,6 +40,7 @@ public class CalendarResource {
 
     @GET
     @Path("/timeofusecalendars")
+    @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public List<CalendarInfo> getAllTimeOfUseCalendars() {
        return calendarService.findAllCalendars()
@@ -48,6 +51,7 @@ public class CalendarResource {
 
     @GET
     @Path("/timeofusecalendars/{id}")
+    @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public CalendarInfo getTimeOfUseCalendar(@PathParam("id") long id, @QueryParam("weekOf") long milliseconds) {
         if(milliseconds <= 0) {
