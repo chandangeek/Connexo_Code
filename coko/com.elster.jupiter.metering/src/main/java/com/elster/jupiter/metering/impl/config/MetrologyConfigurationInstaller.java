@@ -48,7 +48,7 @@ public class MetrologyConfigurationInstaller {
 
 
         config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("PHASECODE", SearchablePropertyOperator.EQUAL,
+        config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
                 PhaseCode.S1N.toString(),
                 PhaseCode.S2N.toString(),
                 PhaseCode.S12N.toString(),
@@ -107,7 +107,7 @@ public class MetrologyConfigurationInstaller {
 
 
         config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("PHASECODE", SearchablePropertyOperator.EQUAL,
+        config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
                 PhaseCode.S1N.toString(),
                 PhaseCode.S2N.toString(),
                 PhaseCode.S12N.toString(),
@@ -150,7 +150,7 @@ public class MetrologyConfigurationInstaller {
                 .withDescription("Residential producer").create();
 
         config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("PHASECODE", SearchablePropertyOperator.EQUAL,
+        config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
                 PhaseCode.S1N.toString(),
                 PhaseCode.S2N.toString(),
                 PhaseCode.S12N.toString(),
