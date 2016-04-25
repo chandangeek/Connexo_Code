@@ -61,9 +61,9 @@ public class MasterDataSync {
             return collectedMessage;
         }
 
+        syncDeviceTypes(allMasterData);
         syncSchedules(allMasterData);
         syncClientTypes(allMasterData);
-        syncDeviceTypes(allMasterData);
 
         collectedMessage.setDeviceProtocolInformation(info.toString());
 
