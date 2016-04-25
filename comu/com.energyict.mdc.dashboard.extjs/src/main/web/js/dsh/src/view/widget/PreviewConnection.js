@@ -30,7 +30,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('general.device', 'DSH', 'Device'),
                     name: 'device',
                     renderer: function (val) {
-                        var res = '';
+                        var res = '-';
                         if (val) {
                             Mdc.privileges.Device.canViewOrAdministrateDeviceData()
                                 ? res = '<a href="#/devices/' + val.id + '">' + Ext.String.htmlEncode(val.name) + '</a>' : res = Ext.String.htmlEncode(val.name);
@@ -42,7 +42,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('general.deviceType', 'DSH', 'Device type'),
                     name: 'deviceType',
                     renderer: function (val) {
-                        var res = '';
+                        var res = '-';
                         if (val) {
                             Mdc.privileges.DeviceType.canView()
                                 ? res = '<a href="#/administration/devicetypes/' + val.id + '">' + Ext.String.htmlEncode(val.name) + '</a>' : res = Ext.String.htmlEncode(val.name);
@@ -54,7 +54,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('general.deviceConfig', 'DSH', 'Device configuration'),
                     name: 'devConfig',
                     renderer: function (val) {
-                        var res = '';
+                        var res = '-';
                         val && (res = '<a href="#/administration/devicetypes/' +
                             val.devType.id + '/deviceconfigurations/' +
                             val.config.id +
@@ -71,16 +71,22 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('general.connectionMethod', 'DSH', 'Connection method'),
                     name: 'connectionMethod',
                     renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.name) : ''
+                        return val ? Ext.String.htmlEncode(val.name) : '-'
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.connectionType', 'DSH', 'Connection type'),
-                    name: 'connectionType'
+                    name: 'connectionType',
+                    renderer: function(value) {
+                        return Ext.isEmpty(value) ? '-' : value;
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.direction', 'DSH', 'Direction'),
-                    name: 'direction'
+                    name: 'direction',
+                    renderer: function(value) {
+                        return Ext.isEmpty(value) ? '-' : value;
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.connWindow', 'DSH', 'Connection window'),
@@ -90,14 +96,14 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.strategy', 'DSH', 'Strategy'),
                     name: 'connectionStrategy',
                     renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.displayValue) : ''
+                        return val ? Ext.String.htmlEncode(val.displayValue) : '-'
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.commPortPool', 'DSH', 'Communication port pool'),
                     name: 'comPortPool',
                     renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.name) : ''
+                        return val ? Ext.String.htmlEncode(val.name) : '-'
                     }
                 }
             ]
@@ -113,21 +119,21 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
                     name: 'currentState',
                     renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.displayValue) : ''
+                        return val ? Ext.String.htmlEncode(val.displayValue) : '-'
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.latestStatus', 'DSH', 'Latest status'),
                     name: 'latestStatus',
                     renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.displayValue) : ''
+                        return val ? Ext.String.htmlEncode(val.displayValue) : '-'
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'),
                     name: 'latestResult',
                     renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.displayValue) : ''
+                        return val ? Ext.String.htmlEncode(val.displayValue) : '-'
                     }
                 },
                 {
@@ -140,7 +146,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                             success = val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : 0,
                             notCompleted = val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : 0;
                         if (failed === 0 && success === 0 && notCompleted === 0) {
-                            return '';
+                            return '-';
                         } else {
                             return '<tpl><span class="icon-checkmark"></span>' + success + '<br></tpl>' +
                                 '<tpl><span class="icon-close"></span>' + failed + '<br></tpl>' +
@@ -153,35 +159,35 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
                     name: 'startDateTime',
                     renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.finishedOn', 'DSH', 'Finished on'),
                     name: 'endDateTime',
                     renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.duration', 'DSH', 'Duration'),
                     name: 'duration',
                     renderer: function (val) {
-                        return val ? val.count + ' ' + val.timeUnit : '';
+                        return val ? val.count + ' ' + val.timeUnit : '-';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.commPort', 'DSH', 'Communication port'),
                     name: 'comPort',
                     renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.name) : ''
+                        return val ? Ext.String.htmlEncode(val.name) : '-'
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.nextConnection', 'DSH', 'Next connection'),
                     name: 'nextExecution',
                     renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                     }
                 }
             ]
