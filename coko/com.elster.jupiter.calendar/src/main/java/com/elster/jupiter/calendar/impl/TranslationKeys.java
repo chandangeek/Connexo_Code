@@ -2,6 +2,8 @@ package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 
+import java.time.DayOfWeek;
+
 /**
  * Created by igh on 18/04/2016.
  */
