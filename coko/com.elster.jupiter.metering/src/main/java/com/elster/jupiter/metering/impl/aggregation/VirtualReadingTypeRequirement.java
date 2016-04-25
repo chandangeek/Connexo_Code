@@ -150,7 +150,8 @@ public class VirtualReadingTypeRequirement {
     }
 
     private boolean aggregationIsRequired() {
-        return IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
+        return Formula.Mode.AUTO.equals(this.mode)
+            && IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
     }
 
     void appendReferenceTo(SqlBuilder sqlBuilder) {
