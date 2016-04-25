@@ -282,7 +282,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     private int readFixedNumberOfBytesWithoutPolling(byte[] frame) throws IOException {
         try {
             int offset = 0;
-            int numRead;
+            int numRead = 0;
             final long timeoutMoment = System.currentTimeMillis() + timeout;
 
             while (offset < frame.length && (numRead = comChannel.read(frame, offset, frame.length - offset)) >= 0) {
@@ -292,6 +292,12 @@ public class TCPIPConnection implements DlmsV2Connection {
                     throw new IOException("Could not read " + frame.length + " withing the given timeout interval, only received " + offset + " bytes");
                 }
             }
+
+            //End of stream detected!
+            if (numRead == -1) {
+                throw ConnectionCommunicationException.unexpectedIOException(new IOException("End of stream. The DLMS device unexpectedly closed the TCP/IP connection."));
+            }
+
             return offset;
 
         } catch (ConnectionCommunicationException e) {
