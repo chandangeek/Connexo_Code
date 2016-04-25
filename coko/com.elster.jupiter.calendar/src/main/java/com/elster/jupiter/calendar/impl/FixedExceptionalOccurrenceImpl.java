@@ -28,6 +28,10 @@ public class FixedExceptionalOccurrenceImpl extends ExceptionalOccurrenceImpl im
         return LocalDate.of(year, getMonth(), getDay());
     }
 
+    @Override
+    public boolean occursAt(LocalDate localDate) {
+        return super.occursAt(localDate) && year == localDate.getYear();
+    }
 
     public FixedExceptionalOccurrenceImpl init(Calendar calendar, DayType dayType, int day, int month, int year) {
         FixedExceptionalOccurrenceImpl fixedExceptionalOccurrenceImpl =

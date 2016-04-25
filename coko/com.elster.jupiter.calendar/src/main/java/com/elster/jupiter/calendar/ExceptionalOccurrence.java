@@ -4,6 +4,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasId;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 /**
  * Models an exception to the standard occurrences of {@link Event}s
@@ -19,6 +20,6 @@ public interface ExceptionalOccurrence extends HasId {
 
     DayType getDayType();
 
-    boolean occursAt(Instant instant);
+    boolean occursAt(LocalDate localDate);
 
 }

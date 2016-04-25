@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Map;
 
 /**
@@ -79,8 +80,8 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
     }
 
     @Override
-    public boolean occursAt(Instant instant) {
-        return false;
+    public boolean occursAt(LocalDate localDate) {
+        return localDate.getMonthValue() == month && localDate.getDayOfMonth() == day;
     }
 
     static Map<String, Class<? extends ExceptionalOccurrence>> getImplementers() {
