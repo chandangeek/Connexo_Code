@@ -2,6 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
@@ -27,9 +28,11 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,10 +44,18 @@ import static org.mockito.Mockito.when;
 
 public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
 
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        Finder<UsagePoint> finder = mockFinder(Collections.emptyList());
+        when(meteringService.getUsagePoints(any())).thenReturn(finder);
+    }
+
     @Test
     public void testAllGetUsagePointsPaged() throws Exception {
         Response response = target("/usagepoints").queryParam("start", 0).queryParam("limit", 10).request().get();
-        assertThat(response.getStatus()).isGreaterThan(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test

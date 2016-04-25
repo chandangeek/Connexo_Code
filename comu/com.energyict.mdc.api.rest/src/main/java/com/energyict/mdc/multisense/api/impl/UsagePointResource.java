@@ -2,11 +2,14 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
+import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -22,6 +25,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Collections;
@@ -68,6 +72,42 @@ public class UsagePointResource {
         return meteringService.findUsagePoint(usagePointId)
                 .map(ct -> usagePointInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
+    }
+
+    /**
+     * <p>A usage point is a point in the grid where data is measured (energy consumption and/or production). This point can
+     * be either virtual (in order to perform calculations within the system), or physical. A physical usage point can be
+     * either used to deliver a service or not in which case we speak of a service delivery point.</p>
+     * <p>
+     * <p>The usage point is often also refered to as a service delivery point or a point of delivery (typically UK with a
+     * meter point reference number - MPRN or MPAN).</p>
+     * <p>
+     * <p>On a physical usage point one or multiple meters can be installed (sub metering, subtracting or control metering,
+     * etc.), and these can change over time.</p>
+     *
+     * @param usagePointId Unique identifier of the usage point
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
+     * @return Paged list of usage poins
+     * @summary fetch a usage point by id
+     */
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public PagedInfoList<UsagePointInfo> getAllUsagePoints(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection,
+                                                           @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointFilter usagePointFilter = new UsagePointFilter();
+        usagePointFilter.setMrid(null);
+        usagePointFilter.setAccountabilityOnly(false);
+        List<UsagePointInfo> infos = meteringService.getUsagePoints(usagePointFilter)
+                .from(queryParameters).stream()
+                .map(ct -> usagePointInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
+                .collect(toList());
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                .path(UsagePointResource.class);
+
+        return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
     /**
