@@ -4,12 +4,9 @@ Ext.define('Imt.purpose.view.OutputReadings', {
     itemId: 'output-readings',
     requires: [
         'Uni.grid.FilterPanelTop',
+        'Imt.purpose.view.ReadingsGraph',
         'Imt.purpose.view.ReadingsList'
-        //'Uni.view.toolbar.PagingTop',
-        //'Uni.grid.column.ReadingType'
     ],
-    //store: 'Imt.purpose.store.Outputs',
-    //overflowY: 'auto',
 
     initComponent: function () {
         var me = this,
@@ -41,6 +38,11 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         itemId: 'devicechannels-topfilter-duration'
                     }
                 ]
+            },
+            {
+                xtype: 'readings-graph',
+                output: me.output,
+                interval: me.interval
             },
             {
                 xtype: 'emptygridcontainer',

@@ -6,7 +6,8 @@ Ext.define('Imt.purpose.model.Output', {
         {name: 'name', type: 'string'},
         {name: 'interval', type: 'auto', useNull: true},
         {name: 'readingType', type: 'auto', useNull: true},
-        {name: 'formula', type: 'auto', useNull: true}
+        {name: 'formula', type: 'auto', useNull: true},
+        {name: 'flowUnit', type: 'string', useNull: true}
     ],
     proxy: {
         type: 'rest',

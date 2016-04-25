@@ -145,8 +145,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         //filter = {};
         //filter.intervalEnd = output.get('lastReading') || new Date();
         //filter.intervalStart = interval.getIntervalStart(filter.intervalEnd);
-
-        debugger;
+        //debugger;
 
         readingsStore.getProxy().extraParams = {
             mRID: panel.usagePoint.get('mRID'),

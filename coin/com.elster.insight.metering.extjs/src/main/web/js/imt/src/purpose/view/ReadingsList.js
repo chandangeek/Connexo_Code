@@ -14,25 +14,17 @@ Ext.define('Imt.purpose.view.ReadingsList', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
-                flex: 1,
-                dataIndex: 'name',
-                renderer: function (value, b, record) {
-                    return '<a href="' + me.router.getRoute('usagepoints/view/purpose/output').buildUrl({outputId: record.getId()}) + '">' + Ext.String.htmlEncode(value) + '</a>';
-                }
-            },
-            {
-                xtype: 'reading-type-column',
-                dataIndex: 'readingType',
-                flex: 1
-            },
-            {
                 header: Uni.I18n.translate('outputs.label.interval', 'IMT', 'Interval'),
                 flex: 1,
                 dataIndex: 'interval',
-                renderer: function(value){
-                    return value.timeUnit;
+                renderer: function(interval){
+                    return interval.end;
                 }
+            },
+            {
+                header: Uni.I18n.translate('readings.label.value', 'IMT', 'Value'),
+                flex: 1,
+                dataIndex: 'value'
             }
         ];
 
