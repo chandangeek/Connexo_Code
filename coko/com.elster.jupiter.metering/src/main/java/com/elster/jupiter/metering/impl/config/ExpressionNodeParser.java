@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.AggregationLevel;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -46,11 +45,11 @@ public class ExpressionNodeParser {
     private Deque<String> tokens = new ArrayDeque<>();
     private Deque<AggregationLevel> aggregationLevels = new ArrayDeque<>();
 
-    private List<ExpressionNode> nodes = new ArrayList<>();
+    private List<ServerExpressionNode> nodes = new ArrayList<>();
 
     private List<Counter> argumentCounters = new ArrayList<> ();
 
-    public ExpressionNode parse(String input) {
+    public ServerExpressionNode parse(String input) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < input.length(); i++) {
             char value = input.charAt(i);

@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.config;
 
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.units.Dimension;
 
 import java.util.List;
@@ -51,25 +50,10 @@ public interface ExpressionNode {
 
     <T> T accept(Visitor<T> visitor);
 
-    /**
-     * Update this ExpressionNode.
-     */
-    void save(DataModel dataModel);
-    /**
-     * Delete this ExpressionNode.
-     */
-    void delete(DataModel dataModel);
-
-
-
-    void validate();
-
     Dimension getDimension();
 
     ExpressionNode getParent();
 
-    List<ExpressionNode> getChildren();
-
-    long getId();
+    List<? extends ExpressionNode> getChildren();
 
 }

@@ -26,19 +26,21 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
     private Operator operator;
     private Thesaurus thesaurus;
 
+    // For ORM layer
+    @SuppressWarnings("unused")
     public OperationNodeImpl() {}
 
-    public OperationNodeImpl(Operator operator, ExpressionNode operand1, ExpressionNode operand2, Thesaurus thesaurus) {
+    public OperationNodeImpl(Operator operator, ServerExpressionNode operand1, ServerExpressionNode operand2, Thesaurus thesaurus) {
         this(operator, Arrays.asList(operand1, operand2), thesaurus);
     }
 
-    public OperationNodeImpl(Operator operator, ExpressionNode operand1, ExpressionNode operand2, ExpressionNode zeroReplacementNode, Thesaurus thesaurus) {
+    public OperationNodeImpl(Operator operator, ServerExpressionNode operand1, ServerExpressionNode operand2, ServerExpressionNode zeroReplacementNode, Thesaurus thesaurus) {
         this(operator, Arrays.asList(operand1, operand2, zeroReplacementNode), thesaurus);
         this.operator = operator;
         this.thesaurus = thesaurus;
     }
 
-    private OperationNodeImpl(Operator operator, List<ExpressionNode> children, Thesaurus thesaurus) {
+    private OperationNodeImpl(Operator operator, List<ServerExpressionNode> children, Thesaurus thesaurus) {
         super(children);
         this.operator = operator;
         this.thesaurus = thesaurus;

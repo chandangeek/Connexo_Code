@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.AggregationLevel;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
@@ -24,10 +23,10 @@ public class FunctionCallNodeImpl extends AbstractNode implements FunctionCallNo
     private Thesaurus thesaurus;
 
     // For ORM layer
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unused")
     public FunctionCallNodeImpl() {}
 
-    public FunctionCallNodeImpl(List<? extends ExpressionNode> children, Function function, AggregationLevel aggregationLevel, Thesaurus thesaurus) {
+    public FunctionCallNodeImpl(List<? extends ServerExpressionNode> children, Function function, AggregationLevel aggregationLevel, Thesaurus thesaurus) {
         super(children);
         this.function = function;
         this.aggregationLevel = aggregationLevel;
@@ -51,7 +50,7 @@ public class FunctionCallNodeImpl extends AbstractNode implements FunctionCallNo
 
     public String toString() {
         StringBuilder result = new StringBuilder(function.toString() + "(");
-        List<ExpressionNode> children = this.getChildren();
+        List<ServerExpressionNode> children = this.getChildren();
         int size = children.size();
         for (int i = 0; i < size; i++) {
             result.append(children.get(i).toString());

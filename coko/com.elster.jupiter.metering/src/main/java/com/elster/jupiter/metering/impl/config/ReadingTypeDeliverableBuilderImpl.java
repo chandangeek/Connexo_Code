@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.AggregationLevel;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -43,7 +42,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         return doBuild();
     }
 
-    public ReadingTypeDeliverable build(ExpressionNode formulaPart) {
+    public ReadingTypeDeliverable build(ServerExpressionNode formulaPart) {
         formulaBuilder.setNode(formulaPart);
         return doBuild();
     }
@@ -239,7 +238,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         }
 
         @Override
-        public ExpressionNode create() {
+        public ServerExpressionNode create() {
             return this.expressionNodeBuilder.create();
         }
     }
@@ -251,8 +250,5 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     private boolean isExpertMode() {
         return !isAutoMode();
     }
-
-
-
 
 }
