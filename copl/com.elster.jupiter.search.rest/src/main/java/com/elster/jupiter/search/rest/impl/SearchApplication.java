@@ -1,5 +1,6 @@
 package com.elster.jupiter.search.rest.impl;
 
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -11,6 +12,7 @@ import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -38,6 +40,7 @@ public class SearchApplication extends Application implements MessageSeedProvide
     private volatile SearchLocationService searchLocationService;
     private volatile Thesaurus thesaurus;
     private volatile InfoFactoryService infoFactoryService;
+    private volatile LicenseService licenseService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -74,6 +77,11 @@ public class SearchApplication extends Application implements MessageSeedProvide
         this.infoFactoryService = infoFactoryService;
     }
 
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
+    }
+
     @Override
     public Layer getLayer() {
         return Layer.REST;
@@ -91,6 +99,7 @@ public class SearchApplication extends Application implements MessageSeedProvide
             bind(searchLocationService).to(SearchLocationService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(infoFactoryService).to(InfoFactoryService.class);
+            bind(licenseService).to(LicenseService.class);
             bind(SearchCriterionInfoFactory.class).to(SearchCriterionInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
