@@ -126,7 +126,7 @@ class ReadingTypeDeliverableForMeterActivation {
         SqlConstants.TimeSeriesColumnNames
                 .appendAllDeliverableSelectValues(
                         this.expressionNode,
-                        this.expertModeAppliesAggregation(),
+                        this.expertModeIntervalLength(),
                         this.targetReadingType,
                         withClauseBuilder);
     }
@@ -280,12 +280,22 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private boolean expertModeAppliesAggregation() {
+        return this.expertModeIntervalLength().isPresent();
+    }
+
+    private Optional<IntervalLength> expertModeIntervalLength() {
         if (Formula.Mode.EXPERT.equals(this.mode)) {
             Flatten visitor = new Flatten();
             this.expressionNode.accept(visitor);
-            return visitor.getFlattened().stream().anyMatch(each -> each instanceof TimeBasedAggregationNode);
+            return visitor
+                    .getFlattened()
+                    .stream()
+                    .filter(each -> each instanceof TimeBasedAggregationNode)
+                    .findFirst()
+                    .map(TimeBasedAggregationNode.class::cast)
+                    .map(TimeBasedAggregationNode::getIntervalLength);
         } else {
-            return false;
+            return Optional.empty();
         }
     }
 
