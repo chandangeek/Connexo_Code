@@ -39,7 +39,7 @@ public enum DefaultMetrologyPurpose {
 
         METROLOGY_CONTRACT_STATUS_COMPLETE("metrology.contract.status.complete", "Complete"),
         METROLOGY_CONTRACT_STATUS_INCOMPLETE("metrology.contract.status.incomplete", "Incomplete"),
-        METROLOGY_CONTRACT_STATUS_UNKNOWN("metrology.contract.status.incomplete", "Unknown"),;
+        METROLOGY_CONTRACT_STATUS_UNKNOWN("metrology.contract.status.unknown", "Unknown"),;
 
         private String key;
         private String defaultFormat;

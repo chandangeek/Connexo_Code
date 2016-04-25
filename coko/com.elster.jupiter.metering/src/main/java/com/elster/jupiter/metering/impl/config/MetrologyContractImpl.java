@@ -125,7 +125,7 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     @Override
     public Status getStatus() {
-        return new StausImpl(this.metrologyConfigurationService.getThesaurus(), getMetrologyContractStatusKey());
+        return new StatusImpl(this.metrologyConfigurationService.getThesaurus(), getMetrologyContractStatusKey());
     }
 
     @Override
@@ -145,11 +145,11 @@ public class MetrologyContractImpl implements MetrologyContract {
         return Long.hashCode(this.id);
     }
 
-    private static class StausImpl implements Status {
+    private static class StatusImpl implements Status {
         private final Thesaurus thesaurus;
         private final MetrologyContractStatusKey statusKey;
 
-        public StausImpl(Thesaurus thesaurus, MetrologyContractStatusKey statusKey) {
+        public StatusImpl(Thesaurus thesaurus, MetrologyContractStatusKey statusKey) {
             this.thesaurus = thesaurus;
             this.statusKey = statusKey;
         }
