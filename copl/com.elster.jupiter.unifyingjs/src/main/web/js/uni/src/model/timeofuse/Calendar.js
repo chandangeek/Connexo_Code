@@ -19,7 +19,8 @@ Ext.define('Uni.model.timeofuse.Calendar', {
         {name: 'description', type: 'string'},
         {name: 'timeZone', type: 'string'},
         {name: 'startYear', type: 'number'},
-        {name: 'weekTemplate', type: 'auto'}
+        {name: 'weekTemplate', type: 'auto'},
+        {name: 'daysPerType', type: 'auto'}
     ],
 
     associations: [
