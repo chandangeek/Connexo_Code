@@ -28,32 +28,32 @@ Ext.define('Cal.controller.Main', {
     },
 
     initMenu: function () {
-        //if (Scs.privileges.ServiceCall.canView() ){
+        if (Cal.privileges.Calendar.canAdministrate()) {
 
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.administration', 'CAL', 'Administration'),
-            portal: 'administration',
-            glyph: 'settings'
-        });
+            var menuItem = Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.administration', 'CAL', 'Administration'),
+                portal: 'administration',
+                glyph: 'settings'
+            });
 
-        Uni.store.MenuItems.add(menuItem);
+            Uni.store.MenuItems.add(menuItem);
 
-        var calendarItem = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.calendars', 'CAL', 'Calendars'),
-            portal: 'administration',
-            items: [
-                {
-                    text: Uni.I18n.translate('general.timeOfUseCalendars', 'CAL', 'Time of use calendars'),
-                    href: '#/administration/timeofusecalendars',
-                    //hidden: !(Uni.Auth.hasPrivilege('privilege.view.serviceCalls') || Uni.Auth.hasPrivilege('privilege.administrate.serviceCall')),
-                    route: 'timeofusecalendars'
-                }
-            ]
-        });
+            var calendarItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.calendars', 'CAL', 'Calendars'),
+                portal: 'administration',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.timeOfUseCalendars', 'CAL', 'Time of use calendars'),
+                        href: '#/administration/timeofusecalendars',
+                        hidden: !(Uni.Auth.hasPrivilege('privilege.administrate.touCalendars')),
+                        route: 'timeofusecalendars'
+                    }
+                ]
+            });
 
-        Uni.store.PortalItems.add(
-            calendarItem
-        );
+            Uni.store.PortalItems.add(
+                calendarItem
+            );
+        }
     }
-    //}
 });

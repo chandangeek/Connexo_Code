@@ -11,7 +11,7 @@ Ext.define('Cal.controller.history.Calendar', {
             items: {
                 timeofusecalendars: {
                     title: Uni.I18n.translate('general.timeOfUse', 'CAL', 'Time of use'),
-                    // privileges: Sct.privileges.ServiceCallType.view,
+                    privileges: Cal.privileges.Calendar.admin,
                     route: 'timeofusecalendars',
                     controller: 'Cal.controller.Calendars',
                     action: 'showTimeOfUseOverview',
@@ -21,6 +21,7 @@ Ext.define('Cal.controller.history.Calendar', {
                             route: '{id}',
                             controller: 'Cal.controller.Calendars',
                             action: 'viewPreviewOfCalendar',
+                            privileges: Cal.privileges.Calendar.admin,
                             callback: function (route) {
                                 this.getApplication().on('timeofusecalendarloaded', function (name) {
                                     route.setTitle(Uni.I18n.translate('general.previewX', 'CAL', "Preview '{0}'", name));
