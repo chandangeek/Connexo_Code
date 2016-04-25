@@ -4,7 +4,6 @@ Ext.define('Bpm.controller.OpenTask', {
         'Bpm.store.task.TasksFilterAllUsers'
     ],
     models: [
-        'Bpm.model.task.TaskEdit',
         'Bpm.model.task.Assign',
         'Bpm.model.task.OpenTask'
     ],
@@ -244,14 +243,18 @@ Ext.define('Bpm.controller.OpenTask', {
             taskRecord = button.taskRecord,
             assignUser = Ext.create('Bpm.model.task.Assign'),
             assigneeForm = me.getAssigneeUserForm();
+            editTaskForm = me.getEditTaskForm();
 
-        assignUser.getProxy().extraParams = {username: assigneeForm.down('#cbo-assignee-user').getValue()};
-        assignUser.getProxy().setUrl(taskRecord.get('id'));
+        assignUser.getProxy().extraParams = {
+            username: assigneeForm.down('#cbo-assignee-user').getValue(),
+            priority: editTaskForm.down('#num-priority').getValue(),
+            duedate: editTaskForm.down('#due-date').getValue() ? moment(editTaskForm.down('#due-date').getValue()).valueOf() : ''
+        };
+        assignUser.getProxy().setUrl(taskRecord.get('id'), taskRecord.get('optLock'));
         assigneeForm.setLoading();
         assignUser.save({
             success: function () {
                 assigneeForm.setLoading(false);
-                me.saveEditTask(button);
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
@@ -260,44 +263,6 @@ Ext.define('Bpm.controller.OpenTask', {
                 }
 
                 assigneeForm.setLoading(false);
-                me.saveEditTask(button);
-            }
-        })
-    },
-
-    saveEditTask: function (button) {
-        var me = this,
-            taskRecord = button.taskRecord,
-            taskEdit = Ext.create('Bpm.model.task.TaskEdit'),
-            editTaskForm = me.getEditTaskForm();
-
-        me.loadJbpmForm(taskRecord);
-
-        editTaskForm.setLoading();
-        editTaskForm.updateRecord(taskRecord);
-        taskEdit.getProxy().extraParams = {
-            priority: editTaskForm.down('#num-priority').getValue(),
-            duedate: editTaskForm.down('#due-date').getValue() ? moment(editTaskForm.down('#due-date').getValue()).valueOf() : ''
-        };
-
-        taskEdit.getProxy().setUrl(taskRecord.get('id'));
-        taskEdit.save({
-            success: function () {
-                editTaskForm.setLoading(false);
-
-                var task = me.getModel('Bpm.model.task.Task');
-                task.load(taskRecord.get('id'), {
-                        success: function (taskRec) {
-                            button.taskRecord = taskRec;
-                            me.loadAboutTaskForm(taskRec);
-                        }
-                    }
-                );
-
-                me.loadJbpmForm(taskRecord);
-            },
-            failure: function (record, operation) {
-                editTaskForm.setLoading(false);
             }
         })
     },
