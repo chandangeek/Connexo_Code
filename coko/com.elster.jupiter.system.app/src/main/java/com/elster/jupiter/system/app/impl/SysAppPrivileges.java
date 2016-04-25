@@ -42,7 +42,6 @@ class SysAppPrivileges {
                 com.elster.jupiter.servicecall.security.Privileges.Constants.VIEW_SERVICE_CALL_TYPES,
                 com.elster.jupiter.servicecall.security.Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES,
                 //calendars
-                com.elster.jupiter.calendar.security.Privileges.Constants.VIEW_TOU_CALENDARS,
-                com.elster.jupiter.calendar.security.Privileges.Constants.VIEW_TOU_PREVIEW);
+                com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS);
     }
 }
