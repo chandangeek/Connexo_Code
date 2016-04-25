@@ -96,6 +96,15 @@ class ReadingTypeDeliverableForMeterActivation {
         this.expressionNode.accept(new FinishRequirementAndDeliverableNodes());
     }
 
+    void appendReferenceTo(SqlBuilder sqlBuilder, VirtualReadingType targetReadingType) {
+        VirtualReadingType sourceReadingType = this.targetReadingType;
+        sqlBuilder.append(
+                sourceReadingType.buildSqlUnitConversion(
+                        this.mode,
+                        this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
+                        targetReadingType));
+    }
+
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
         SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(sqlComment()), SqlConstants.TimeSeriesColumnNames.names());
         this.appendWithClause(withClauseBuilder);
@@ -289,7 +298,6 @@ class ReadingTypeDeliverableForMeterActivation {
 
         @Override
         public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-            deliverable.finish();
             return null;
         }
 

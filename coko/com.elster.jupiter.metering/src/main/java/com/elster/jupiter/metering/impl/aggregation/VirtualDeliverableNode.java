@@ -1,8 +1,8 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 /**
@@ -22,16 +22,17 @@ import com.elster.jupiter.util.sql.SqlBuilder;
  */
 class VirtualDeliverableNode implements ServerExpressionNode {
 
-    private final VirtualFactory virtualFactory;
     private final ReadingTypeDeliverableForMeterActivation deliverable;
     private VirtualReadingType targetReadingType;
-    private VirtualReadingTypeDeliverable virtualDeliverable;
 
-    VirtualDeliverableNode(VirtualFactory virtualFactory, ReadingTypeDeliverableForMeterActivation deliverable) {
+    VirtualDeliverableNode(ReadingTypeDeliverableForMeterActivation deliverable) {
         super();
-        this.virtualFactory = virtualFactory;
         this.deliverable = deliverable;
         this.targetReadingType = VirtualReadingType.from(this.deliverable.getReadingType());
+    }
+
+    VirtualReadingType getPreferredReadingType() {
+        return this.targetReadingType;
     }
 
     void setTargetReadingType(VirtualReadingType targetReadingType) {
@@ -40,24 +41,6 @@ class VirtualDeliverableNode implements ServerExpressionNode {
 
     void setTargetIntervalLength(IntervalLength intervalLength) {
         this.targetReadingType = this.targetReadingType.withIntervalLength(intervalLength);
-    }
-
-    void finish() {
-        this.ensureVirtualized();
-    }
-
-    /**
-     * Ensures that the {@link ReadingTypeRequirement} is virtualized
-     * @see #virtualize()
-     */
-    private void ensureVirtualized() {
-        if (this.virtualDeliverable == null) {
-            this.virtualize();
-        }
-    }
-
-    private void virtualize() {
-        this.virtualDeliverable = this.virtualFactory.deliverableFor(this.deliverable, this.targetReadingType);
     }
 
     @Override
@@ -72,13 +55,11 @@ class VirtualDeliverableNode implements ServerExpressionNode {
      * @param sqlBuilder The SqlBuilder
      */
     void appendTo(SqlBuilder sqlBuilder) {
-        this.ensureVirtualized();
-        this.virtualDeliverable.appendReferenceTo(sqlBuilder);
+        this.deliverable.appendReferenceTo(sqlBuilder, this.targetReadingType);
     }
 
     String sqlName() {
-        this.ensureVirtualized();
-        return this.virtualDeliverable.sqlName();
+        return this.deliverable.sqlName();
     }
 
 }

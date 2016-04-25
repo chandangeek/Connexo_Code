@@ -168,7 +168,7 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(deliverable.getReadingType()).thenReturn(readingType);
-        VirtualDeliverableNode node = new VirtualDeliverableNode(this.virtualFactory, deliverable);
+        VirtualDeliverableNode node = new VirtualDeliverableNode(deliverable);
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitVirtualDeliverable(node);

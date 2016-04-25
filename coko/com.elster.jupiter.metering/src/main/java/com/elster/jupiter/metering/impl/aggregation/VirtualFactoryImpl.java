@@ -32,18 +32,8 @@ public class VirtualFactoryImpl implements VirtualFactory {
     }
 
     @Override
-    public VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverableForMeterActivation deliverable, VirtualReadingType readingType) {
-        return this.currentFactory.deliverableFor(deliverable, readingType);
-    }
-
-    @Override
     public List<VirtualReadingTypeRequirement> allRequirements() {
         return this.collectFromActualFactories(VirtualFactory::allRequirements);
-    }
-
-    @Override
-    public List<VirtualReadingTypeDeliverable> allDeliverables() {
-        return this.collectFromActualFactories(VirtualFactory::allDeliverables);
     }
 
     private <R> List<R> collectFromActualFactories(java.util.function.Function<VirtualFactory, ? extends List<? extends R>> mapper) {
@@ -77,17 +67,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
         }
 
         @Override
-        public VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverableForMeterActivation deliverable, VirtualReadingType readingType) {
-            throw new IllegalStateException("You need to set a current MeterActivation first");
-        }
-
-        @Override
         public List<VirtualReadingTypeRequirement> allRequirements() {
-            throw new UnsupportedOperationException("Parent class should not be delegating this");
-        }
-
-        @Override
-        public List<VirtualReadingTypeDeliverable> allDeliverables() {
             throw new UnsupportedOperationException("Parent class should not be delegating this");
         }
 
@@ -112,7 +92,6 @@ public class VirtualFactoryImpl implements VirtualFactory {
         private final Range<Instant> requestedPeriod;
         private final int sequenceNumber;
         private final Map<ReadingTypeRequirement, MeterActivationAndRequirementFactory> factoriesPerRequirement = new HashMap<>();
-        private final Map<ReadingTypeDeliverableForMeterActivation, MeterActivationAndDeliverableFactory> factoriesPerDeliverable = new HashMap<>();
 
         private MeterActivationFactory(MeterActivation meterActivation, Range<Instant> requestedPeriod, int sequenceNumber) {
             super();
@@ -134,22 +113,6 @@ public class VirtualFactoryImpl implements VirtualFactory {
                     .values()
                     .stream()
                     .flatMap(each -> each.allRequirements().stream())
-                    .collect(Collectors.toList());
-        }
-
-        @Override
-        public VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverableForMeterActivation deliverable, VirtualReadingType readingType) {
-            return this.factoriesPerDeliverable
-                    .computeIfAbsent(deliverable, key -> new MeterActivationAndDeliverableFactory())
-                    .deliverableFor(deliverable,  readingType);
-        }
-
-        @Override
-        public List<VirtualReadingTypeDeliverable> allDeliverables() {
-            return this.factoriesPerDeliverable
-                    .values()
-                    .stream()
-                    .flatMap(each -> each.allDeliverables().stream())
                     .collect(Collectors.toList());
         }
 
@@ -249,34 +212,6 @@ public class VirtualFactoryImpl implements VirtualFactory {
 
         public List<VirtualReadingTypeRequirement> allRequirements() {
             return new ArrayList<>(this.requirements.values());
-        }
-
-    }
-
-    /**
-     * Supports the {@link VirtualFactory} interface and focusses
-     * on a single {@link ReadingTypeDeliverable} in the context
-     * of a single {@link MeterActivation}.
-     */
-    private class MeterActivationAndDeliverableFactory {
-        private final Map<VirtualReadingType, VirtualReadingTypeDeliverable> deliverables = new HashMap<>();
-
-        private MeterActivationAndDeliverableFactory() {
-            super();
-        }
-
-        public VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverableForMeterActivation deliverable, VirtualReadingType readingType) {
-            return this.deliverables.computeIfAbsent(
-                    readingType,
-                    key -> this.newDeliverable(deliverable, key));
-        }
-
-        private VirtualReadingTypeDeliverable newDeliverable(ReadingTypeDeliverableForMeterActivation deliverable, VirtualReadingType readingType) {
-            return new VirtualReadingTypeDeliverable(deliverable, readingType);
-        }
-
-        public List<VirtualReadingTypeDeliverable> allDeliverables() {
-            return new ArrayList<>(this.deliverables.values());
         }
 
     }

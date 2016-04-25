@@ -64,7 +64,6 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
     public ServerExpressionNode visitDeliverable(com.elster.jupiter.metering.config.ReadingTypeDeliverableNode node) {
         // Replace this one with a VirtualDeliverableNode
         return new VirtualDeliverableNode(
-                this.virtualFactory,
                 this.deliverableProvider.from(
                         node.getReadingTypeDeliverable(),
                         this.meterActivation));

@@ -41,9 +41,8 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
     }
 
     @Override
-    public VirtualReadingType visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-        // Just another reference to a deliverable that we can aggregate to whatever level we need anyway
-        return VirtualReadingType.dontCare();
+    public VirtualReadingType visitVirtualDeliverable(VirtualDeliverableNode node) {
+        return node.getPreferredReadingType();
     }
 
     @Override

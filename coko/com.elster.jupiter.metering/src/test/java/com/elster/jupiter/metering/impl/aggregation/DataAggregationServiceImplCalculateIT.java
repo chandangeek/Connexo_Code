@@ -32,7 +32,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
@@ -202,15 +201,16 @@ public class DataAggregationServiceImplCalculateIT {
         return injector.getInstance(ServerMetrologyConfigurationService.class);
     }
 
-    private static ServerFormulaBuilder newFormulaBuilder() {
-        return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
+    private static SqlBuilderFactory getSqlBuilderFactory() {
+        return sqlBuilderFactory;
     }
 
     private static DataAggregationService getDataAggregationService() {
         return new DataAggregationServiceImpl(
                 injector.getInstance(ServerMeteringService.class),
+                DataAggregationServiceImplCalculateIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
-                sqlBuilderFactory);
+                ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
     }
 
     private static void setupReadingTypes() {
