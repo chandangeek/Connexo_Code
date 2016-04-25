@@ -108,6 +108,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         PeriodTransition periodTransition = mock(PeriodTransition.class);
         Period period = mock(Period.class);
         when(period.getName()).thenReturn(PERIOD_NAME);
+        when(period.getId()).thenReturn(1L);
         when(periodTransition.getPeriod()).thenReturn(period);
         for(DayOfWeek dayOfWeek: DayOfWeek.values()) {
             when(period.getDayType(dayOfWeek)).thenReturn(dayType);
@@ -117,6 +118,7 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         PeriodTransition periodTransition2 = mock(PeriodTransition.class);
         Period period2 = mock(Period.class);
         when(period2.getName()).thenReturn(PERIOD2_NAME);
+        when(period2.getId()).thenReturn(2L);
         when(periodTransition2.getPeriod()).thenReturn(period2);
         for(DayOfWeek dayOfWeek: DayOfWeek.values()) {
             when(period2.getDayType(dayOfWeek)).thenReturn(dayType2);

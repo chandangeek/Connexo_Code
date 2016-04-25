@@ -120,9 +120,9 @@ public class CalendarInfoFactory {
         addBasicInformation(calendar, calendarInfo);
         Map<DayOfWeek, PeriodTransition> transitionsPerDay = calculateWeekInfo(calendar, localDate);
         calendarInfo.weekTemplate = new ArrayList<>();
-        Set<DayType> dayTypes = new HashSet<>();
-        Set<Event> events = new HashSet<>();
-        Set<PeriodTransition> periodTransistions = new HashSet<>();
+        Map<Long, DayType> dayTypes = new HashMap<>();
+        Map<Long, Event> events = new HashMap<>();
+        Map<Long, PeriodTransition> periodTransistions = new HashMap<>();
         for (DayOfWeek day: transitionsPerDay.keySet()) {
             DayType dayType = transitionsPerDay.get(day).getPeriod().getDayType(day);
             //Add to week template
@@ -131,24 +131,24 @@ public class CalendarInfoFactory {
             dayInfo.type = dayType.getId();
             calendarInfo.weekTemplate.add(dayInfo);
             //if dagtype nog niet in dagtypes: voeg toe
-            dayTypes.add(dayType);
+            dayTypes.put(dayType.getId(), dayType);
             //ook event toevoegen waar het dagtype aan gelinked is
             dayType.getEventOccurrences()
                     .stream()
-                    .forEach(eventOccurrence -> events.add(eventOccurrence.getEvent()));
+                    .forEach(eventOccurrence -> events.put(eventOccurrence.getEvent().getId(),eventOccurrence.getEvent()));
             //add periods to set
-            periodTransistions.add(transitionsPerDay.get(day));
+            periodTransistions.put(transitionsPerDay.get(day).getPeriod().getId(),transitionsPerDay.get(day));
         }
         ArrayList<DayType> dayTypesList = new ArrayList<>();
-        dayTypesList.addAll(dayTypes);
+        dayTypesList.addAll(dayTypes.values());
         addDayTypes(calendarInfo, dayTypesList);
 
         ArrayList<Event> eventList = new ArrayList<>();
-        eventList.addAll(events);
+        eventList.addAll(events.values());
         addEvents(calendarInfo, eventList);
 
         ArrayList<PeriodTransition> periodList = new ArrayList<>();
-        periodList.addAll(periodTransistions);
+        periodList.addAll(periodTransistions.values());
         addPeriods(calendarInfo, periodList);
 
         return calendarInfo;
