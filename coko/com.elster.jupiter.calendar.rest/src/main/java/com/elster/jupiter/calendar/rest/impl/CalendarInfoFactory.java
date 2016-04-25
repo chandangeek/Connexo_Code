@@ -5,20 +5,20 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
-import com.elster.jupiter.calendar.Period;
+import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.PeriodTransition;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class CalendarInfoFactory {
     private int NUMBER_OF_EVENTS = 5;
@@ -107,7 +107,7 @@ public class CalendarInfoFactory {
         CalendarInfo calendarInfo = new CalendarInfo();
 
         addBasicInformation(calendar, calendarInfo);
-//        calendarInfo.startYear = calendar.getStartYear();
+        //calendarInfo.startYear = calendar.getStartYear();
         addPeriods(calendarInfo, calendar.getTransitions());
         addEvents(calendarInfo, calendar.getEvents());
         addDayTypes(calendarInfo, calendar.getDayTypes());
@@ -118,13 +118,13 @@ public class CalendarInfoFactory {
     public CalendarInfo fromCalendar(Calendar calendar, LocalDate localDate) {
         CalendarInfo calendarInfo = new CalendarInfo();
         addBasicInformation(calendar, calendarInfo);
-        Map<DayOfWeek, PeriodTransition> transitionsPerDay = calculateWeekInfo(calendar, localDate);
+        Map<Long, PeriodTransition> periodTransistions = new HashMap<>();
+        Map<DayOfWeek, DayType> dayTypesPerDay = calculateWeekInfo(calendar, localDate, periodTransistions);
         calendarInfo.weekTemplate = new ArrayList<>();
         Map<Long, DayType> dayTypes = new HashMap<>();
         Map<Long, Event> events = new HashMap<>();
-        Map<Long, PeriodTransition> periodTransistions = new HashMap<>();
-        for (DayOfWeek day: transitionsPerDay.keySet()) {
-            DayType dayType = transitionsPerDay.get(day).getPeriod().getDayType(day);
+        for (DayOfWeek day: dayTypesPerDay.keySet()) {
+            DayType dayType = dayTypesPerDay.get(day);
             //Add to week template
             DayInfo dayInfo = new DayInfo();
             dayInfo.name = day.toString();
@@ -136,8 +136,6 @@ public class CalendarInfoFactory {
             dayType.getEventOccurrences()
                     .stream()
                     .forEach(eventOccurrence -> events.put(eventOccurrence.getEvent().getId(),eventOccurrence.getEvent()));
-            //add periods to set
-            periodTransistions.put(transitionsPerDay.get(day).getPeriod().getId(),transitionsPerDay.get(day));
         }
         ArrayList<DayType> dayTypesList = new ArrayList<>();
         dayTypesList.addAll(dayTypes.values());
@@ -154,26 +152,44 @@ public class CalendarInfoFactory {
         return calendarInfo;
     }
 
-    private Map<DayOfWeek, PeriodTransition> calculateWeekInfo(Calendar calendar, LocalDate localDate) {
-        Map<DayOfWeek, PeriodTransition> transitionPerDay = new LinkedHashMap<>(DayOfWeek.values().length);
+    private Map<DayOfWeek, DayType> calculateWeekInfo(Calendar calendar, LocalDate localDate, Map<Long, PeriodTransition> periodTransistions) {
+        Map<DayOfWeek, DayType> dayTypesPerDay = new LinkedHashMap<>(DayOfWeek.values().length);
         for(int i = 0; i < DayOfWeek.values().length; i++) {
-            PeriodTransition transition = getTransitionForDate(calendar.getTransitions(), localDate.plusDays(i));
-            transitionPerDay.put(localDate.plusDays(i).getDayOfWeek(), transition);
+            DayType dayType = getDaytypeForDate(calendar, localDate.plusDays(i), periodTransistions);
+            dayTypesPerDay.put(localDate.plusDays(i).getDayOfWeek(), dayType);
         }
 
-        return transitionPerDay;
+        return dayTypesPerDay;
     }
 
 
-    private PeriodTransition getTransitionForDate( List<PeriodTransition> transitions, LocalDate localDate) {
+    private DayType getDaytypeForDate(Calendar calendar, LocalDate localDate, Map<Long, PeriodTransition> periodTransistions) {
+        DayType dayType = null;
+        List<PeriodTransition> transitions = calendar.getTransitions();
         for(int i = 0; i < transitions.size(); i++) {
             if(i == transitions.size() - 1) {
-                return transitions.get(i);
+                dayType = transitions.get(i).getPeriod().getDayType(localDate.getDayOfWeek());
+                periodTransistions.put(transitions.get(i).getPeriod().getId(), transitions.get(i));
+                break;
             } else if (isBetween(localDate, transitions.get(i), transitions.get(i + 1))) {
-                return transitions.get(i);
+                dayType = transitions.get(i).getPeriod().getDayType(localDate.getDayOfWeek());
+                periodTransistions.put(transitions.get(i).getPeriod().getId(), transitions.get(i));
+                break;
             }
         }
-        return null;
+        Optional<ExceptionalOccurrence> exception = checkException(calendar, localDate);
+        if(exception.isPresent()) {
+            dayType = exception.get().getDayType();
+        }
+        return dayType;
+    }
+
+    private Optional<ExceptionalOccurrence> checkException(Calendar calendar, LocalDate localDate) {
+        List<ExceptionalOccurrence> exceptionalOccurrences = calendar.getExceptionalOccurrences();
+        Optional<ExceptionalOccurrence> exception = exceptionalOccurrences.stream()
+                .filter(exceptionalOccurrence -> exceptionalOccurrence.occursAt(localDate))
+                .findFirst();
+        return exception;
     }
 
     private boolean isBetween(LocalDate localDate, PeriodTransition firstTransition, PeriodTransition nextTransition) {
@@ -193,6 +209,7 @@ public class CalendarInfoFactory {
     private void addPeriods(CalendarInfo calendarInfo, List<PeriodTransition> transitions) {
         calendarInfo.periods = new ArrayList<>();
         transitions.stream()
+                .filter(distinctByKey(o -> o.getPeriod().getId()))
                 .forEach(transition -> calendarInfo.periods.add(new PeriodInfo(transition.getPeriod().getName(), transition.getOccurrence().getMonthValue(), transition.getOccurrence().getDayOfMonth())));
     }
 
@@ -226,6 +243,11 @@ public class CalendarInfoFactory {
         calendarInfo.events = new ArrayList<>();
         events.stream()
                 .forEach(event -> calendarInfo.events.add(new EventInfo(event.getId(),event.getName(),event.getCode())));
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T,Object> keyExtractor) {
+        Map<Object,Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
 }
