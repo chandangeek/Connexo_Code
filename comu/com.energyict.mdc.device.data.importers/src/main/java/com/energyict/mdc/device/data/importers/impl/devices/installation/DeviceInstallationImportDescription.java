@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
+import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescription;
 import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
@@ -9,7 +10,6 @@ import com.energyict.mdc.device.data.importers.impl.parsers.BooleanParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
 import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
-import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,17 +50,9 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
                 .sorted((t1,t2)->Integer.compare(t1.getRanking(),t2.getRanking()))
                 .map(TemplateField::getName)
                 .forEach(s-> {
-                    if(context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                            .filter(m->m.isMandatory()).anyMatch(m -> m.getName().equals(s))){
-                        fields.add(CommonField.withParser(stringParser)
-                                .withSetter(record::addLocation)
-                                .markMandatory()
-                                .build());
-                    }else{
-                        fields.add(CommonField.withParser(stringParser)
-                                .withSetter(record::addLocation)
-                                .build());
-                    }
+                    fields.add(CommonField.withParser(stringParser)
+                            .withSetter(record::addLocation)
+                            .build());
                 });
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setMasterDeviceMrid)

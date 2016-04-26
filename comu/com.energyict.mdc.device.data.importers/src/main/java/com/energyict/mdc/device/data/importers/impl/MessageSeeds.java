@@ -57,7 +57,8 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_SETTINGS_NAME_IS_NOT_UNIQUE_IN_FILE(403, "SecuritySettingsNameIsNotUniqueInFile", "Failure in line {0}: Security settings name is not unique in the file.", Level.WARNING),
     REQUIRED_SECURITY_ATTRIBUTES_MISSED(404, "RequiredSecurityAttributesMissed", "Note for line {0}: Next required attribute(s) is(are) missed: {1}. The state of the security settings is \"Incomplete\".", Level.INFO),
     SECURITY_ATTRIBUTE_INVALID_VALUE(405, "SecurityAttributeInvalidValue", "Can''t process line {0}: Security attribute value ''{1}'' is invalid for attribute ''{2}''", Level.WARNING),
-    INCORRECT_LOCATION_FORMAT(406, "IncorrectLocationFormat", "Incorrect location format. Expected : {0}", Level.SEVERE)
+    INCORRECT_LOCATION_FORMAT(406, "IncorrectLocationFormat", "Incorrect location format. Expected : {0}", Level.SEVERE),
+    LINE_MISSING_LOCATION_VALUE(407, "LineMissingLocationValue", "Format error for line {0}: missing value for field ''{1}''.", Level.SEVERE),
     ;
 
     private final int number;

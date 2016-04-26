@@ -59,6 +59,18 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                         .map(s -> s = "<" + s + ">")
                         .collect(Collectors.joining(" "));
                 throw new ProcessorException(MessageSeeds.INCORRECT_LOCATION_FORMAT, fields);
+            }else{
+                super.getContext()
+                        .getMeteringService()
+                        .getLocationTemplate()
+                        .getTemplateMembers()
+                        .stream()
+                        .filter(TemplateField::isMandatory)
+                        .forEach(field -> {
+                            if(locationData.get(field.getRanking()) == null){
+                                throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
+                            }
+                        });
             }
             Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData
                     .get(ranking.get("locale")));
