@@ -101,6 +101,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
             var data = me.formatData();
             seriesObject['data'] = data.data;
             seriesObject['turboThreshold'] = Number.MAX_VALUE;
+            //seriesObject['pointInterval'] = intervalLengthInMs;
 
             series.push(seriesObject);
             container.show();
@@ -139,7 +140,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
 
             point.x = interval.start;
             point.id = point.x;
-            point.y = parseFloat(record.get('value'));
+            point.y = parseFloat(record.get('value')) || null;
             point.intervalEnd = interval.end;
             //point.collectedValue = record.get('collectedValue');
             point.collectedUnitOfMeasure = collectedUnitOfMeasure;
@@ -170,21 +171,23 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
             //}
 
             //Ext.merge(point, properties);
-            data.unshift(point);
+            data.push(point);
 
-            !point.y && (point.y = null);
-            if (!point.y) {
+
+            //!point.y && (point.y = null);
+            //if (!point.y) {
                 //if (properties.delta.suspect) {
-                    missedValues.push({
-                        id: record.get('interval').start,
-                        from: record.get('interval').start,
-                        to: record.get('interval').end,
-                        color: 'rgba(235, 86, 66, 0.3)'
-                    });
-                    record.set('plotBand', true);
+                //    missedValues.push({
+                //        id: record.get('interval').start,
+                //        from: record.get('interval').start,
+                //        to: record.get('interval').end,
+                //        color: 'rgba(235, 86, 66, 0.3)'
+                //    });
+                //    record.set('plotBand', true);
                 //}
-            }
+            //}
         });
+
         return {data: data, missedValues: missedValues};
     },
 
@@ -205,7 +208,6 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
             credits: {
                 enabled: false
             },
-
 
             xAxis: {
                 type: 'datetime',

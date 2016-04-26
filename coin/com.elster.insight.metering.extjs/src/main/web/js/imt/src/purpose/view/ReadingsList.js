@@ -14,16 +14,21 @@ Ext.define('Imt.purpose.view.ReadingsList', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('outputs.label.interval', 'IMT', 'Interval'),
-                flex: 1,
+                header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
                 dataIndex: 'interval',
-                renderer: function(interval){
-                    return interval.end;
-                }
+                renderer: function (interval) {
+                    return  interval.end
+                        ? Uni.I18n.translate(
+                        'general.dateAtTime', 'MDC', '{0} at {1}',
+                        [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))] )
+                        : '';
+                },
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('readings.label.value', 'IMT', 'Value'),
                 flex: 1,
+                align: 'right',
                 dataIndex: 'value'
             }
         ];
@@ -33,8 +38,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('outputs.pagingtoolbartop.displayMsg', 'IMT', '{2} outputs'),
-                emptyMsg: Uni.I18n.translate('outputs.pagingtoolbartop.emptyMsg', 'IMT', 'There are no outputs to display')
+                displayMsg: Uni.I18n.translate('readings.pagingtoolbartop.displayMsg', 'IMT', '{2} readings'),
+                emptyMsg: Uni.I18n.translate('readings.pagingtoolbartop.emptyMsg', 'IMT', 'There are no readings to display')
             }
         ];
 

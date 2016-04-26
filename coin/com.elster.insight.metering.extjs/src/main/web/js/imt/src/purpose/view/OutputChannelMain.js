@@ -18,11 +18,11 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                 ui: 'large',
                 title: router.getRoute().getTitle(),
                 itemId: 'channelTabPanel',
-                activeTab: me.activeTab,
+                activeTab: 'output-' + me.tab,
                 items: [
                     {
                         title: Uni.I18n.translate('deviceloadprofiles.specifications', 'MDC', 'Specifications'),
-                        itemId: 'channel-specifications',
+                        itemId: 'output-specifications',
                         items: {
                             xtype: 'output-specifications-form',
                             router: me.router
@@ -34,7 +34,7 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                     },
                     {
                         title:  Uni.I18n.translate('deviceloadprofiles.readings', 'MDC', 'Readings'),
-                        itemId: 'channel-data',
+                        itemId: 'output-readings',
                         items: {
                             xtype: 'output-readings',
                             interval: me.interval,

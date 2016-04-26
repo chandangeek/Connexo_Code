@@ -11,6 +11,8 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
         'Uni.form.field.ReadingTypeDisplay'
     ],
 
+    padding: '10 0 0 0',
+
     initComponent: function () {
         var me = this;
 
@@ -42,24 +44,24 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
                 renderer: function (formula) {
                     return formula.description;
                 }
-            },
-            {
-                xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('form.output.section.formulaComponents', 'IMT', 'Formula components'),
-                layout: 'vbox',
-                labelAlign: 'top',
-                items: [
-                    {
-                        xtype: 'displayfield',
-                        fieldLabel: 'Field 1',
-                        name: 'formula'
-                    }, {
-                        xtype: 'displayfield',
-                        fieldLabel: 'Field 2',
-                        name: 'formula'
-                    }
-                ]
             }
+            //{
+            //    xtype: 'fieldcontainer',
+            //    fieldLabel: Uni.I18n.translate('form.output.section.formulaComponents', 'IMT', 'Formula components'),
+            //    layout: 'vbox',
+            //    labelAlign: 'top',
+            //    items: [
+            //        {
+            //            xtype: 'displayfield',
+            //            fieldLabel: 'Field 1',
+            //            name: 'formula'
+            //        }, {
+            //            xtype: 'displayfield',
+            //            fieldLabel: 'Field 2',
+            //            name: 'formula'
+            //        }
+            //    ]
+            //}
         ];
 
         me.callParent();

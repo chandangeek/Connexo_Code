@@ -52,17 +52,11 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                 },
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
-                    itemId: 'ctr-no-metrology-configurations',
-                    title: Uni.I18n.translate('outputs.list.empty', 'IMT', 'No outputs is configured for selected purpose'),
-                    //reasons: [
-                    //    Uni.I18n.translate('metrologyconfiguration.list.undefined', 'IMT', 'No metrology configurations have been defined yet.')
-                    //],
-                    stepItems: [
-                        {
-                            text: Uni.I18n.translate('outputs.actions.manage', 'IMT', 'Manage outputs'),
-//                                privileges : Cfg.privileges.Validation.admin,
-                            href: '#' //TODO: future functionality
-                        }
+                    itemId: 'readings-empty-panel',
+                    title: Uni.I18n.translate('readings.list.empty', 'IMT', 'No data is available'),
+                    reasons: [
+                        Uni.I18n.translate('readings.list.reason1', 'IMT', 'No data has been collected yet'),
+                        Uni.I18n.translate('readings.list.reason2', 'IMT', 'Filter is too narrow')
                     ]
                 }
             }

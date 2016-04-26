@@ -398,7 +398,7 @@ Ext.define('Imt.controller.History', {
                             items: {
                                 output: {
                                     title: Uni.I18n.translate('general.label.output', 'IMT', 'Output'),
-                                    route: 'output/{outputId}',
+                                    route: 'output/{outputId}/:tab:',
                                     controller: 'Imt.purpose.controller.Purpose',
                                     action: 'showOutputDefaultTab',
                                     callback: function (route) {
