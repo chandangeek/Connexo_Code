@@ -78,7 +78,13 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     public PagedInfoList getMetrologyConfigurations(@BeanParam JsonQueryParameters queryParameters) {
-        List<UsagePointMetrologyConfiguration> allMetrologyConfigurations = metrologyConfigurationService.findAllUsagePointMetrologyConfigurations();
+        List<UsagePointMetrologyConfiguration> allMetrologyConfigurations =
+                metrologyConfigurationService
+                        .findAllMetrologyConfigurations()
+                        .stream()
+                        .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
+                        .map(UsagePointMetrologyConfiguration.class::cast)
+                        .collect(Collectors.toList());
         List<MetrologyConfigurationInfo> metrologyConfigurationsInfos = ListPager.of(allMetrologyConfigurations).from(queryParameters).find()
                 .stream()
                 .map(metrologyConfigurationInfoFactory::asInfo)

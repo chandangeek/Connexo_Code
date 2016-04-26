@@ -26,16 +26,24 @@ public class ResourceHelper {
     }
 
     public UsagePointMetrologyConfiguration getMetrologyConfigOrThrowException(long metrologyConfigId) {
-        return metrologyConfigurationService.findUsagePointMetrologyConfiguration(metrologyConfigId)
+        MetrologyConfiguration mc = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        if (mc instanceof UsagePointMetrologyConfiguration) {
+            return (UsagePointMetrologyConfiguration) mc;
+        } else {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
     }
 
     public Optional<UsagePointMetrologyConfiguration> getLockedMetrologyConfiguration(long id, long version) {
-        return metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(id, version);
+        return metrologyConfigurationService
+                .findAndLockMetrologyConfiguration(id, version)
+                .filter(metrologyConfiguration ->  metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration.class::cast);
     }
 
     public Long getCurrentMetrologyConfigurationVersion(long id) {
-        return metrologyConfigurationService.findUsagePointMetrologyConfiguration(id)
+        return metrologyConfigurationService.findMetrologyConfiguration(id)
                 .map(MetrologyConfiguration::getVersion)
                 .orElse(null);
     }
@@ -53,7 +61,7 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
-    // In fact the CPS has no version, so we rely on metrology version
+    // In fact the CPS values are considered part of the MetrologyConfiguration, so we need to rely on metrology version
     public UsagePointMetrologyConfiguration findAndLockCPSOnMetrologyConfiguration(CustomPropertySetInfo<MetrologyConfigurationInfo> info) {
         return getLockedMetrologyConfiguration(info.parent.id, info.parent.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)

@@ -6,14 +6,14 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -131,10 +131,11 @@ public class MetrologyConfigurationInfoFactory {
 
         ReadingTypeVisitor readingTypeVisitor = new ReadingTypeVisitor();
         expressionNode.accept(readingTypeVisitor);
-        return readingTypeVisitor.readingTypeRequirementNodes.stream().map(e -> asInfo(e.getReadingTypeRequirement())).collect(Collectors.toList());
+        return readingTypeVisitor.readingTypeRequirementNodes.stream().map(e -> asInfo(e)).collect(Collectors.toList());
     }
 
-    private ReadingTypeRequirementsInfo asInfo(ReadingTypeRequirement requirement) {
+    private ReadingTypeRequirementsInfo asInfo(ReadingTypeRequirementNode requirementNode) {
+        ReadingTypeRequirement requirement = requirementNode.getReadingTypeRequirement();
         ReadingTypeRequirementsInfo info = new ReadingTypeRequirementsInfo();
         info.meterRole = ((UsagePointMetrologyConfiguration) requirement.getMetrologyConfiguration())
                 .getMeterRoleFor(requirement)
@@ -148,12 +149,12 @@ public class MetrologyConfigurationInfoFactory {
             PartiallySpecifiedReadingType partiallySpecifiedReadingType = (PartiallySpecifiedReadingType) requirement;
             info.type = "partiallySpecified";
             info.readingTypePattern = new ReadingTypePatternInfo();
-            info.readingTypePattern.value = partiallySpecifiedReadingType.getDescription();
+            info.readingTypePattern.value = requirementNode.toString() + ", " + partiallySpecified.getDescription();
             info.readingTypePattern.attributes = new ReadingTypePatternAttributeInfo();
-            info.readingTypePattern.attributes.multiplier = partiallySpecifiedReadingType
+            info.readingTypePattern.attributes.multiplier = partiallySpecified
                     .getAttributeValue(ReadingTypeTemplateAttributeName.METRIC_MULTIPLIER)
                     .map(Collections::singletonList).orElse(null);
-            info.readingTypePattern.attributes.accumulation = partiallySpecifiedReadingType
+            info.readingTypePattern.attributes.accumulation = partiallySpecified
                     .getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION)
                     .map(Collections::singletonList).orElse(null);
             info.readingTypePattern.attributes.timePeriod =
