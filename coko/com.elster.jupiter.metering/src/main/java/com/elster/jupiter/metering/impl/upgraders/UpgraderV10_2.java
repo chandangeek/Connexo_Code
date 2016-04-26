@@ -1,6 +1,8 @@
-package com.elster.jupiter.metering.impl;
+package com.elster.jupiter.metering.impl.upgraders;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.impl.CreateLocationMemberTableOperation;
+import com.elster.jupiter.metering.impl.GeoCoordinatesSpatialMetaDataTableOperation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -10,7 +12,6 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
-
 import java.sql.SQLException;
 import java.sql.Statement;
 

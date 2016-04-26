@@ -45,6 +45,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
+import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -75,6 +76,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -431,7 +433,9 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
             createDefaultLocationTemplate();
         }
 
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+                version(10, 2), UpgraderV10_2.class
+        ));
 
     }
 
