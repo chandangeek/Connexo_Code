@@ -7,7 +7,18 @@ import com.elster.jupiter.cbo.EndDeviceType;
 
 public interface EndDeviceControlType {
     EndDeviceType getType();
+
     EndDeviceDomain getDomain();
+
     EndDeviceSubDomain getSubDomain();
+
     EndDeviceEventOrAction getEventOrAction();
+
+    String getAliasName();
+
+    String getDescription();
+
+    String getMRID();
+
+    String getName();
 }

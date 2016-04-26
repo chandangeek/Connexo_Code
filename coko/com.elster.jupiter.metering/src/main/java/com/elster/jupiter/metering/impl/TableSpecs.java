@@ -25,6 +25,8 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.ami.EndDeviceControlType;
+import com.elster.jupiter.metering.ami.EndDeviceControlTypeImpl;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -1100,7 +1102,21 @@ public enum TableSpecs {
                     .map(ServiceCategoryCustomPropertySetUsage.Fields.CUSTOMPROPERTYSET.fieldName())
                     .add();
         }
-    };
+    },
+
+    MTR_ENDDEVICECONTROLTYPE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EndDeviceControlType> table = dataModel.addTable(name(), EndDeviceControlType.class);
+            table.map(EndDeviceControlTypeImpl.class);
+            table.cache();
+            Column mRidColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").add();
+            table.column("ALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("aliasName").add();
+            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_ENDDEVICECONTROLTYPE").on(mRidColumn).add();
+        }
+    },;
 
     abstract void addTo(DataModel dataModel);
 
