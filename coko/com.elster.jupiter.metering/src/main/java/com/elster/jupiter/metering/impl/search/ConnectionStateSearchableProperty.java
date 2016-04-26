@@ -74,7 +74,8 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
     @Override
     public String toDisplay(Object value) {
         if (value instanceof ConnectionState) {
-            return ((ConnectionState) value).getName();
+            String string = ((ConnectionState) value).getName();
+            return this.thesaurus.getString(string, string);
         }
         throw new IllegalArgumentException("Value not compatible with domain");
     }
