@@ -1,26 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
-import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.mdc.messages.DeviceMessage;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.v2migration.MigrateFromV1Protocol;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
-import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
@@ -31,22 +10,33 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.v2migration.MigrateFromV1Protocol;
+import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
+import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.DataEncryptionException;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.exceptions.*;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.slaveconnections.BeaconDlmsSession;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
@@ -100,15 +90,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
             hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
         }
-        initDlmsSession(comChannel, hhuSignOn);
-    }
-
-    private void initDlmsSession(ComChannel comChannel, HHUSignOnV2 hhuSignOn) {
-        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect() || getDlmsSessionProperties().useBeaconGatewayDeviceDialect()) {
-            setDlmsSession(new BeaconDlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
-        } else {
-            setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
-        }
+        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
     }
 
     private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
@@ -383,7 +365,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-04-11 14:21:55 +0200 (Mon, 11 Apr 2016)$";
+        return "$Date: 2016-04-26 15:13:47 +0200 (Tue, 26 Apr 2016)$";
     }
 
     @Override

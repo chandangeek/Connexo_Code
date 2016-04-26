@@ -1,5 +1,9 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
+import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.meterdata.CollectedMessageList;
@@ -8,29 +12,18 @@ import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
-
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.DataEncryptionException;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.exceptions.*;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
-import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.slaveconnections.BeaconDlmsSession;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -44,7 +37,7 @@ import java.util.List;
  * @author sva
  * @since 11/08/2015 - 14:04
  */
-public class AM540 extends AM130 implements SerialNumberSupport{
+public class AM540 extends AM130 implements SerialNumberSupport {
 
     private AM540Cache am540Cache;
 
@@ -56,16 +49,7 @@ public class AM540 extends AM130 implements SerialNumberSupport{
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-04-11 14:21:55 +0200 (Mon, 11 Apr 2016)$";
-    }
-
-    @Override
-    protected void initDlmsSession(ComChannel comChannel) {
-        if (getDlmsSessionProperties().useBeaconGatewayDeviceDialect() || getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
-            setDlmsSession(new BeaconDlmsSession(comChannel, getDlmsSessionProperties()));
-        } else {
-            super.initDlmsSession(comChannel);
-        }
+        return "$Date: 2016-04-26 15:13:47 +0200 (Tue, 26 Apr 2016)$";
     }
 
     /**
@@ -121,15 +105,6 @@ public class AM540 extends AM130 implements SerialNumberSupport{
     protected void readFrameCounter(ComChannel comChannel) {
         if (!getDlmsSessionProperties().usesPublicClient()) {
             super.readFrameCounter(comChannel);
-        }
-    }
-
-    @Override
-    protected DlmsSession getPublicDlmsSession(ComChannel comChannel, IDISProperties publicClientProperties) {
-        if (getDlmsSessionProperties().useBeaconGatewayDeviceDialect() || getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
-            return new BeaconDlmsSession(comChannel, publicClientProperties);
-        } else {
-            return super.getPublicDlmsSession(comChannel, publicClientProperties);
         }
     }
 

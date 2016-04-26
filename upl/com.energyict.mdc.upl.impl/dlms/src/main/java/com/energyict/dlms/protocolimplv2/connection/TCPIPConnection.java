@@ -309,9 +309,9 @@ public class TCPIPConnection implements DlmsV2Connection {
 
             while (offset < frame.length && (numRead = comChannel.read(frame, offset, frame.length - offset)) >= 0) {
                 offset += numRead;
-                if (System.currentTimeMillis() > timeoutMoment) {
+                if ((System.currentTimeMillis() > timeoutMoment) && (offset < frame.length)) {
                     //Failsafe mechanism for incomplete frames. If we received some bytes but not enough, throw an IOException after the timeout period.
-                    throw new IOException("Could not read " + frame.length + " withing the given timeout interval, only received " + offset + " bytes");
+                    throw new IOException("Could not read " + frame.length + " bytes within the given timeout interval, only received " + offset + " bytes");
                 }
             }
 
