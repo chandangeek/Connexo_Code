@@ -10,6 +10,7 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,10 +34,29 @@ public class CustomPropertySetSearchDomainExtension implements SearchDomainExten
 
     @Override
     public List<SearchableProperty> getProperties() {
+        if (this.customPropertySet.isSearchableByDefault()) {
+            return getPropertiesWithConstrainingProperties(Collections.emptyList());
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
+        if (!this.customPropertySet.isSearchableByDefault()) {
+            List<SearchableProperty> constrainingProperties = constrictions
+                    .stream()
+                    .map(SearchablePropertyConstriction::getConstrainingProperty)
+                    .collect(Collectors.toList());
+            return getPropertiesWithConstrainingProperties(constrainingProperties);
+        }
+        return getProperties();
+    }
+
+    private List<SearchableProperty> getPropertiesWithConstrainingProperties(List<SearchableProperty> constrainingProperties) {
         CustomPropertySetSearchablePropertyGroup searchablePropertyGroup = new CustomPropertySetSearchablePropertyGroup(this.customPropertySet);
         return this.customPropertySet.getPropertySpecs()
                 .stream()
-                .map(propertySpec -> new CustomPropertySetSearchableProperty(this.customPropertySet, propertySpec, searchablePropertyGroup))
+                .map(propertySpec -> new CustomPropertySetSearchableProperty(this.customPropertySet, propertySpec, searchablePropertyGroup, constrainingProperties))
                 .collect(Collectors.toList());
     }
 
