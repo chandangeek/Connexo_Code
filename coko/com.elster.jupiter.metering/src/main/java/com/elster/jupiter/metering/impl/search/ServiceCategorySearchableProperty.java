@@ -28,7 +28,7 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    static final String FIELDNAME = "SERVICEKIND";
+    static final String FIELD_NAME = "SERVICEKIND";
 
     public ServiceCategorySearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();

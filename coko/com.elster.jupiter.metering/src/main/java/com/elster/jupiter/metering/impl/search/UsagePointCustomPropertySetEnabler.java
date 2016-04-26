@@ -30,7 +30,7 @@ public class UsagePointCustomPropertySetEnabler implements CustomPropertySetSear
         }
         boolean result = false;
         for (SearchablePropertyConstriction constriction : constrictions) {
-            if (constriction.getConstrainingProperty().hasName(ServiceCategorySearchableProperty.FIELDNAME)) {
+            if (constriction.getConstrainingProperty().hasName(ServiceCategorySearchableProperty.FIELD_NAME)) {
                 result = constriction.getConstrainingValues()
                         .stream()
                         .map(ServiceKind.class::cast)
