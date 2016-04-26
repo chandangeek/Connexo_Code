@@ -25,7 +25,7 @@ public class LoadLimiterTypeSearchableProperty implements SearchableUsagePointPr
     private SearchDomain domain;
     private SearchablePropertyGroup group;
     private Clock clock;
-    private static final String FIELD_NAME = "detail.loadLimiterType";
+    static final String FIELD_NAME = "detail.loadLimiterType";
     private String uniqueName;
 
     @Inject

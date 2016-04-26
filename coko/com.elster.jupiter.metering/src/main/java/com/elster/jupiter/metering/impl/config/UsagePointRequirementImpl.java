@@ -85,7 +85,7 @@ public class UsagePointRequirementImpl implements UsagePointRequirement {
                     .map(SearchablePropertyValue::getProperty)
                     .filter(property -> property.getName().equals(this.searchableProperty))
                     .findAny()
-                    .orElseThrow(() -> new IllegalArgumentException("Unknown searchable property: " + this.searchableProperty));
+                    .orElseThrow(() -> BadUsagePointRequirementException.underlyingSearchablePropertyNotFound(this.metrologyConfigurationService.getThesaurus(), this.searchableProperty));
         }
         return this.property;
     }

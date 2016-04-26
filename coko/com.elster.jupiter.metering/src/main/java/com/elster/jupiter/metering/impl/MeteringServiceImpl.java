@@ -10,6 +10,7 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.AmrSystem;
@@ -143,6 +144,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile SearchService searchService;
     private volatile PropertySpecService propertySpecService;
     private volatile UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
+    private volatile LicenseService licenseService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     private volatile boolean createAllReadingTypes;
@@ -160,7 +162,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public MeteringServiceImpl(
             Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
             FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService,
-            PropertySpecService propertySpecService, SearchService searchService) {
+            PropertySpecService propertySpecService, SearchService searchService, LicenseService licenseService) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -177,6 +179,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setCustomPropertySetService(customPropertySetService);
         setPropertySpecService(propertySpecService);
         setSearchService(searchService);
+        setLicenseService(licenseService);
         activate(null);
         if (!dataModel.isInstalled()) {
             install();
@@ -433,6 +436,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         this.searchService = searchService;
     }
 
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
+    }
+
     @Activate
     public final void activate(BundleContext bundleContext) {
         if (dataModel != null && bundleContext != null) {
@@ -445,7 +453,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         }
 
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService);
-        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this, this.metrologyConfigurationService);
+        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this, this.metrologyConfigurationService, this.clock, this.licenseService);
         this.searchService.register(this.usagePointRequirementsSearchDomain);
         registerMetrologyConfigurationService(bundleContext);
 
@@ -470,6 +478,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(UsagePointRequirementsSearchDomain.class).toInstance(usagePointRequirementsSearchDomain);
                 bind(SearchService.class).toInstance(searchService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(LicenseService.class).toInstance(licenseService);
             }
         });
 

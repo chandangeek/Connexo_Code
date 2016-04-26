@@ -20,15 +20,17 @@ public class UsagePointRequirementSqlBuilder implements Subquery {
     private final SearchDomain searchDomain;
     private final PropertySpecService propertySpecService;
     private final SearchService searchService;
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
     private UsagePoint usagePoint;
     private UsagePointMetrologyConfigurationImpl metrologyConfiguration;
 
     @Inject
-    public UsagePointRequirementSqlBuilder(UsagePointRequirementsSearchDomain searchDomain, PropertySpecService propertySpecService, SearchService searchService) {
+    public UsagePointRequirementSqlBuilder(UsagePointRequirementsSearchDomain searchDomain, PropertySpecService propertySpecService, SearchService searchService, ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.searchDomain = searchDomain;
         this.propertySpecService = propertySpecService;
         this.searchService = searchService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     public UsagePointRequirementSqlBuilder init(UsagePoint usagePoint, UsagePointMetrologyConfigurationImpl metrologyConfiguration) {
@@ -46,7 +48,7 @@ public class UsagePointRequirementSqlBuilder implements Subquery {
             }
             addUsagePointIdPropertyCondition(searchBuilder);
         } catch (InvalidValueException e) {
-            // TODO throw some exception
+            throw BadUsagePointRequirementException.badValue(metrologyConfigurationService.getThesaurus(), e);
         }
         return searchBuilder.toFinder().asFragment(String.valueOf(this.metrologyConfiguration.getId()));
     }
