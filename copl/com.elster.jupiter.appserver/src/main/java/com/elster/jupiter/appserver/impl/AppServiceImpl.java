@@ -76,6 +76,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -163,9 +164,8 @@ public class AppServiceImpl implements IAppService, Subscriber, PrivilegesProvid
 
             upgradeService.register(identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
 
-            if (dataModel.isInstalled()) {
-                tryActivate(context);
-            }
+            tryActivate(context);
+
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -447,7 +447,7 @@ public class AppServiceImpl implements IAppService, Subscriber, PrivilegesProvid
             if (allServerDestination.isPresent()) {
                 allServerDestination.get().message(jsonService.serialize(command)).send();
             } else {
-                if (dataModel.isInstalled()) {
+                if (upgradeService.isInstalled(identifier(COMPONENT_NAME), version(1, 0))) {
                     LOGGER.log(Level.SEVERE, "Could not notify other servers of InvalidateCacheRequest. AllServers queue does not exist!");
                 }
             }
