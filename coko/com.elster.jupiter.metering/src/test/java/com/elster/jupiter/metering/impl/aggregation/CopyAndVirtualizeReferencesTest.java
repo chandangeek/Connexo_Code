@@ -437,6 +437,30 @@ public class CopyAndVirtualizeReferencesTest {
         assertThat(((VirtualRequirementNode) operand).getRequirement()).isEqualTo(requirement);
     }
 
+    @Test
+    public void copySafeDivide() {
+        CopyAndVirtualizeReferences visitor = getTestInstance();
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
+        ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        ExpressionNode node =
+                formulaBuilder.safeDivide(
+                        formulaBuilder.requirement(requirement1),
+                        formulaBuilder.requirement(requirement2),
+                        formulaBuilder.constant(BigDecimal.ONE)).create();
+
+        // Business method
+        ServerExpressionNode copied = node.accept(visitor);
+
+        // Asserts
+        assertThat(copied).isNotNull();
+        assertThat(copied).isInstanceOf(OperationNode.class);
+        OperationNode copiedNode = (OperationNode) copied;
+        assertThat(copiedNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
+        ServerExpressionNode safeDivisorNode = copiedNode.getSafeDivisor();
+        assertThat(safeDivisorNode).isInstanceOf(NumericalConstantNode.class);
+    }
+
     private CopyAndVirtualizeReferences getTestInstance() {
         return this.getTestInstance(Formula.Mode.AUTO);
     }

@@ -312,4 +312,16 @@ public class VirtualReadingTypeRelativeComparatorTest {
             .isEqualTo(0);
     }
 
+    @Test
+    public void powerFromCurrentAndVoltage() {
+        VirtualReadingType wattHour = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.NOTAPPLICABLE);
+        VirtualReadingTypeRelativeComparator comparator = new VirtualReadingTypeRelativeComparator(wattHour);
+
+        // Business methods & asserts
+        assertThat(comparator.compare(
+                VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.VOLT, Commodity.NOTAPPLICABLE),
+                VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.AMPERE, Commodity.NOTAPPLICABLE)))
+            .isEqualTo(0);
+    }
+
 }

@@ -135,7 +135,7 @@ public class DeliverableValidator implements ConstraintValidator<ValidDeliverabl
             }
         }
 
-        private Boolean visitChildren(List<ExpressionNode> children) {
+        private Boolean visitChildren(List<? extends ExpressionNode> children) {
             return children
                     .stream()
                     .map(each -> each.accept(this))

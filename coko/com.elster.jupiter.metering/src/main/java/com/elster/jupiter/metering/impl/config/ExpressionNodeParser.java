@@ -2,11 +2,9 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.AggregationLevel;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -28,15 +26,11 @@ import java.util.Optional;
 public class ExpressionNodeParser {
 
     private Thesaurus thesaurus;
-    private MetrologyConfigurationService metrologyConfigurationService;
+    private ServerMetrologyConfigurationService metrologyConfigurationService;
     private MetrologyConfiguration metrologyConfiguration;
     private Formula.Mode mode;
 
-    public ExpressionNodeParser(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration) {
-        this(thesaurus, metrologyConfigurationService, metrologyConfiguration, Formula.Mode.AUTO);
-    }
-
-    public ExpressionNodeParser(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration, Formula.Mode mode) {
+    public ExpressionNodeParser(Thesaurus thesaurus, ServerMetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration, Formula.Mode mode) {
         this.thesaurus = thesaurus;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.metrologyConfiguration = metrologyConfiguration;
@@ -46,11 +40,11 @@ public class ExpressionNodeParser {
     private Deque<String> tokens = new ArrayDeque<>();
     private Deque<AggregationLevel> aggregationLevels = new ArrayDeque<>();
 
-    private List<ExpressionNode> nodes = new ArrayList<>();
+    private List<ServerExpressionNode> nodes = new ArrayList<>();
 
     private List<Counter> argumentCounters = new ArrayList<> ();
 
-    public ExpressionNode parse(String input) {
+    public ServerExpressionNode parse(String input) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < input.length(); i++) {
             char value = input.charAt(i);

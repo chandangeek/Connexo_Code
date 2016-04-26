@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
@@ -46,10 +47,14 @@ public class VirtualReadingTypeRequirement {
         this.mode = mode;
         this.requirement = requirement;
         this.deliverable = deliverable;
-        this.rawDataPeriod = requestedPeriod.intersection(meterActivation.getRange());
+        this.rawDataPeriod = this.toOpenClosed(requestedPeriod.intersection(meterActivation.getRange()));
         this.matchingChannels = Collections.unmodifiableList(matchingChannels);
         this.targetReadingType = targetReadingType;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
+    }
+
+    private Range<Instant> toOpenClosed(Range<Instant> period) {
+        return Ranges.copy(period).asOpenClosed();
     }
 
     /**
@@ -145,7 +150,8 @@ public class VirtualReadingTypeRequirement {
     }
 
     private boolean aggregationIsRequired() {
-        return IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
+        return Formula.Mode.AUTO.equals(this.mode)
+            && IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
     }
 
     void appendReferenceTo(SqlBuilder sqlBuilder) {

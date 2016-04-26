@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.AggregationLevel;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.Operator;
@@ -26,7 +25,7 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
     private Formula.Mode mode;
     private DataModel dataModel;
     private ExpressionNodeBuilder nodebuilder; // use with api (default)
-    private ExpressionNode node; // use with parser (first create a node from a String representation using ExpressionNodeParser)
+    private ServerExpressionNode node; // use with parser (first create a node from a String representation using ExpressionNodeParser)
     private Thesaurus thesaurus;
 
     public FormulaBuilderImpl(Formula.Mode mode, DataModel dataModel, Thesaurus thesaurus) {
@@ -42,7 +41,7 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
     }
 
     @Override
-    public ServerFormulaBuilder init(ExpressionNode formulaPart) {
+    public ServerFormulaBuilder init(ServerExpressionNode formulaPart) {
         this.node = formulaPart;
         return this;
     }
@@ -68,7 +67,7 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
     }
 
     public ExpressionNodeBuilder requirement(ReadingTypeRequirementNode existingNode) {
-        return () -> existingNode;
+        return () -> ((ServerExpressionNode) existingNode);
     }
 
     @Override
@@ -195,7 +194,7 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
         this.nodebuilder = nodebuilder;
     }
 
-    public void setNode(ExpressionNode node) {
+    public void setNode(ServerExpressionNode node) {
         this.node = node;
     }
 

@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -69,11 +70,22 @@ class VirtualRequirementNode implements ServerExpressionNode {
          * that is compatible with the target interval. */
         Optional<VirtualReadingType> preferredReadingType = new MatchingChannelSelector(this.requirement, this.meterActivation).getPreferredReadingType(this.getTargetReadingType());
         if (preferredReadingType.isPresent()) {
-            Loggers.ANALYSIS.debug(() -> "Preferred reading type for requirement " + this.requirement.getName() + " in meter activation " + this.meterActivation.getRange() + ":" + preferredReadingType.get().toString());
+            Loggers.ANALYSIS.debug(() ->
+                    MessageFormat.format(
+                        "Preferred reading type for requirement ''{0}'' in meter activation {1} for the calculation of deliverable ''{2}'' : {3}",
+                        this.requirement.getName() + "-" + this.targetReadingTypeForLogging(),
+                        this.meterActivation.getRange(),
+                        this.deliverable.getName() + "-" + this.getTargetReadingType(),
+                        preferredReadingType.get().toString()));
             return preferredReadingType.get();
         }
         else {
-            Loggers.ANALYSIS.severe(() -> "Unable to find matching channel for the requirement '" + this.requirement.getName() + "-" + this.targetReadingTypeForLogging() + "' in meter activation " + this.meterActivation.getRange());
+            Loggers.ANALYSIS.severe(() ->
+                    MessageFormat.format(
+                            "Unable to find matching channel for the requirement ''{0}'' in meter activation {1} as part of calculation for deliverable ''{2}''",
+                            this.requirement.getName() + "-" + this.targetReadingTypeForLogging(),
+                            this.meterActivation.getRange().toString(),
+                            this.deliverable.getName() + "-" + this.getTargetReadingType()));
             Loggers.ANALYSIS.debug(() -> verboseAvailableMainReadingTypesOnMeterActivation(this.meterActivation));
             return VirtualReadingType.notSupported();
         }

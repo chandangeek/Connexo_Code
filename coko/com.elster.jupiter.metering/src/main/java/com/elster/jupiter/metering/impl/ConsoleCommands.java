@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
+import com.elster.jupiter.metering.impl.config.ServerExpressionNode;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -482,8 +483,16 @@ public class ConsoleCommands {
 
     private void printDeliverables(List<ReadingTypeDeliverable> deliverables) {
         deliverables.stream()
-                .map(del -> del.getId() + " " + del.getName() + " " + del.getReadingType().getMRID() + " root node: " + del.getFormula().getExpressionNode().getId())
+                .map(del -> del.getId() + " " + del.getName() + " " + del.getReadingType().getMRID() + " root node: " + this.getExpressionNode(del).getId())
                 .forEach(System.out::println);
+    }
+
+    private ServerExpressionNode getExpressionNode(ReadingTypeDeliverable deliverable) {
+        return this.getExpressionNode(deliverable.getFormula());
+    }
+
+    private ServerExpressionNode getExpressionNode(Formula formula) {
+        return (ServerExpressionNode) formula.getExpressionNode();
     }
 
     public void addDeliverable() {
@@ -506,7 +515,7 @@ public class ConsoleCommands {
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration, mode).parse(formulaString);
+            ServerExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration, mode).parse(formulaString);
 
             long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, mode)).build(node).getId();
             System.out.println("Deliverable created: " + id);

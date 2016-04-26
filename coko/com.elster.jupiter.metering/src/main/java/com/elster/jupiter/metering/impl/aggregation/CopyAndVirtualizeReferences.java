@@ -64,7 +64,6 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
     public ServerExpressionNode visitDeliverable(com.elster.jupiter.metering.config.ReadingTypeDeliverableNode node) {
         // Replace this one with a VirtualDeliverableNode
         return new VirtualDeliverableNode(
-                this.virtualFactory,
                 this.deliverableProvider.from(
                         node.getReadingTypeDeliverable(),
                         this.meterActivation));
@@ -72,10 +71,21 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
 
     @Override
     public ServerExpressionNode visitOperation(com.elster.jupiter.metering.config.OperationNode operationNode) {
-        return new OperationNode(
-                Operator.from(operationNode.getOperator()),
-                operationNode.getLeftOperand().accept(this),
-                operationNode.getRightOperand().accept(this));
+        Operator operator = Operator.from(operationNode.getOperator());
+        ServerExpressionNode operand1 = operationNode.getLeftOperand().accept(this);
+        ServerExpressionNode operand2 = operationNode.getRightOperand().accept(this);
+        if (com.elster.jupiter.metering.config.Operator.SAFE_DIVIDE.equals(operationNode.getOperator())) {
+            return new OperationNode(
+                    operator,
+                    operand1,
+                    operand2,
+                    operationNode.getZeroReplacement().get().accept(this));
+        } else {
+            return new OperationNode(
+                    operator,
+                    operand1,
+                    operand2);
+        }
     }
 
     @Override

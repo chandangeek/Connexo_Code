@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.AggregationLevel;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -41,6 +40,6 @@ public interface ServerFormulaBuilder extends FormulaBuilder {
 
     ServerFormulaBuilder init(ExpressionNodeBuilder nodeBuilder);
 
-    ServerFormulaBuilder init(ExpressionNode expressionNode);
+    ServerFormulaBuilder init(ServerExpressionNode expressionNode);
 
 }

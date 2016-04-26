@@ -121,6 +121,26 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     }
 
     @Test
+    public void recursiveVisitsOnSafeDivideOperationNode() {
+        ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
+        ServerExpressionNode leftOperand = mock(ServerExpressionNode.class);
+        ServerExpressionNode rightOperand = mock(ServerExpressionNode.class);
+        ServerExpressionNode safeDivisor = mock(ServerExpressionNode.class);
+        OperationNode node = new OperationNode(Operator.SAFE_DIVIDE, leftOperand, rightOperand, safeDivisor);
+
+        // Business method
+        ServerExpressionNode replacement = testInstance.visitOperation(node);
+
+        // Asserts
+        verify(leftOperand).accept(testInstance);
+        verify(rightOperand).accept(testInstance);
+        verify(safeDivisor).accept(testInstance);
+        assertThat(replacement).isNotSameAs(node);
+        assertThat(replacement).isInstanceOf(OperationNode.class);
+        assertThat(((OperationNode) replacement).getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
+    }
+
+    @Test
     public void recursiveVisitsOnFunctionCallNode() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
         ServerExpressionNode firstArgument = mock(ServerExpressionNode.class);
@@ -148,7 +168,7 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(deliverable.getReadingType()).thenReturn(readingType);
-        VirtualDeliverableNode node = new VirtualDeliverableNode(this.virtualFactory, deliverable);
+        VirtualDeliverableNode node = new VirtualDeliverableNode(deliverable);
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitVirtualDeliverable(node);

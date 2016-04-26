@@ -17,7 +17,7 @@ public class ExpressionValidator implements ConstraintValidator<ValidExpression,
         try {
             if (formula.isPresent()) {
                 if (formula.get().getMode().equals(Formula.Mode.AUTO)) {
-                    formula.get().getExpressionNode().validate();
+                    ((ServerExpressionNode) formula.get().getExpressionNode()).validate();
                 }
             }
             return true;
@@ -27,4 +27,5 @@ public class ExpressionValidator implements ConstraintValidator<ValidExpression,
             return false;
         }
     }
+
 }
