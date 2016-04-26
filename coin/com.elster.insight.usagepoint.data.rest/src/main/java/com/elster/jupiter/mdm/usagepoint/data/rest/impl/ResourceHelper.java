@@ -50,9 +50,11 @@ public class ResourceHelper {
     }
 
     public UsagePointMetrologyConfiguration findAndLockUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
-        UsagePointMetrologyConfiguration upmc = metrologyConfigurationService.findUsagePointMetrologyConfiguration(id)
+        return metrologyConfigurationService
+                .findAndLockMetrologyConfiguration(id, version)
+                .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration.class::cast)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
-        return metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(id, version).get();
     }
 
     public UsagePoint lockUsagePointOrThrowException(UsagePointInfo info) {
