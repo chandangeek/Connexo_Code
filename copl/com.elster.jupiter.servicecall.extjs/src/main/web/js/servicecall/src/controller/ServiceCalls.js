@@ -57,12 +57,6 @@ Ext.define('Scs.controller.ServiceCalls', {
             },
             '#service-calls-overview-scs-menu': {
                 click: this.chooseAction
-            },
-            'servicecalls-grid': {
-                serviceCallLinkClicked: this.clickedColumn
-            },
-            'servicecalls-setup-overview #service-call-overview-tab': {
-                tabchange: this.onTabChange
             }
         });
     },
@@ -114,17 +108,16 @@ Ext.define('Scs.controller.ServiceCalls', {
                     logStore.getProxy().setUrl(servicecallId);
                     var parents = record.get('parents');
                     parents.push({id:record.get('id'),name:record.get('name')});
-
                     if (record.get('numberOfChildren') > 0) {
                         view = Ext.widget('servicecalls-setup-overview', {
                             router: me.getController('Uni.controller.history.Router'),
                             serviceCallId: record.get('name'),
-                            serviceCallParam: servicecallId,
                             store: store,
                             tab: tab,
                             breadcrumbs: parents,
                             record: record
                         });
+                        me.setBreadcrumb(parents);
                         view.down('scs-landing-page').updateLandingPage(record);
                             Uni.util.History.setSuspended(false);
                     } else {
@@ -133,6 +126,7 @@ Ext.define('Scs.controller.ServiceCalls', {
                             serviceCallId: record.get('name'),
                             record: record
                         });
+                        me.setBreadcrumb(parents);
                         view.updateLandingPage(record);
                     }
 
@@ -147,6 +141,34 @@ Ext.define('Scs.controller.ServiceCalls', {
             });
 
         }
+    },
+
+    setBreadcrumb: function (breadcrumbs) {
+        var me = this,
+            trail = this.getBreadcrumbs(),
+            root = Ext.create('Uni.model.BreadcrumbItem', {
+                text: 'Workspace',
+                href: me.getController('Scs.controller.history.ServiceCall').tokenizeShowOverview()
+            }),
+            parent = Ext.create('Uni.model.BreadcrumbItem', {
+                text: 'Service calls',
+                href: 'servicecalls'
+            }),
+            bc;
+        root.setChild(parent);
+        Ext.each(breadcrumbs, function (item) {
+            bc = Ext.create('Uni.model.BreadcrumbItem', {
+                key: item.id,
+                text: item.name,
+                href: '/' + item.id,
+                relative: false
+            });
+            parent.setChild(bc);
+            parent = bc;
+        });
+
+        trail.setBreadcrumbItem(root);
+        trail.doLayout();
     },
 
     showPreview: function (selectionModel, record) {
