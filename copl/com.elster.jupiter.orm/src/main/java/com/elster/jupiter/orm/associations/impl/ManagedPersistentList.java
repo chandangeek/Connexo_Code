@@ -79,19 +79,16 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 		if (collection.isEmpty() || isEmpty()) {
 			return false;
 		}
-		List<T> removedList = new ArrayList<>();
-		for (Object toRemove : collection) {
-			if (getTarget().remove(toRemove)) {
-				removedList.add(getDataMapper().cast(toRemove));
-			}
-		}
-		try {
-			getWriter().remove(removedList);
-		} catch (SQLException e) {
-			throw new UnderlyingSQLFailedException(e);
-		}
+		List<T> toRemove = new ArrayList<>(getTarget());
+		toRemove.retainAll(collection);
+        getTarget().removeAll(toRemove);
+        try {
+            getWriter().remove(toRemove);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
 		updatePositions(0);
-		return !removedList.isEmpty();
+		return !toRemove.isEmpty();
 	}
 	
 	public void clear() {
