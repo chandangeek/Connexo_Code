@@ -34,7 +34,9 @@ public enum MessageSeeds implements MessageSeed {
     IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID(1022, Constants.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, " Can''t process line {0}: No service category found with name: {1}", Level.SEVERE),
     IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE(1023, Constants.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, " Can''t process line {0}: It''s not possible to change service category on usage point", Level.SEVERE),
 
-    IMPORT_VERSIONED_VALUES_NOT_FOUND(2001, Constants.IMPORT_VERSIONED_VALUES_NOT_FOUND, "Can''t process line {0}: No such active versions for {1}", Level.SEVERE);
+    IMPORT_VERSIONED_VALUES_NOT_FOUND(2001, Constants.IMPORT_VERSIONED_VALUES_NOT_FOUND, "Can''t process line {0}: No such active versions for {1}", Level.SEVERE),
+    LINE_MISSING_LOCATION_VALUE(2002, Constants.LINE_MISSING_LOCATION_VALUE, "Format error for line {0}: missing mandatory value for field {1}.", Level.SEVERE),
+    ;
 
     private final int number;
     private final String key;
@@ -104,5 +106,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String IMPORT_USAGEPOINT_CONSTRAINT_VOLATION = "up.constraint.violation";
         public static final String IMPORT_QUANITITY_OUT_OF_BOUNDS = "quantity.out.of.bounds";
         public static final String IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE = "up.service.category.cannot.change";
+        public static final String LINE_MISSING_LOCATION_VALUE = "line.missing.location.value";
     }
 }

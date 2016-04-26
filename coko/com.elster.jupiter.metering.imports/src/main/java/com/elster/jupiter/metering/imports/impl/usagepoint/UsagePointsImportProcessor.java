@@ -184,6 +184,16 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         List<String> geoCoordinatesData = data.getGeoCoordinates();
 
         if(locationData != null && !locationData.stream().allMatch(s -> s.equals("")) && !locationData.isEmpty()) {
+            context.getMeteringService()
+                    .getLocationTemplate()
+                    .getTemplateMembers()
+                    .stream()
+                    .filter(LocationTemplate.TemplateField::isMandatory)
+                    .forEach(field -> {
+                        if(locationData.get(field.getRanking()).equals("")){
+                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
+                        }
+                    });
             LocationBuilder builder = context.getMeteringService().newLocationBuilder();
             Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
                     .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
@@ -216,7 +226,18 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
     private UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data, FileImportLogger logger) {
         List<String> locationData = data.getLocation();
         List<String> geoCoordinatesData = data.getGeoCoordinates();
-        if(locationData != null && !locationData.isEmpty()) {
+
+        if(locationData != null && !locationData.stream().allMatch(s -> s.equals("")) && !locationData.isEmpty()) {
+            context.getMeteringService()
+                    .getLocationTemplate()
+                    .getTemplateMembers()
+                    .stream()
+                    .filter(LocationTemplate.TemplateField::isMandatory)
+                    .forEach(field -> {
+                        if(locationData.get(field.getRanking()) == null){
+                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
+                        }
+                    });
             LocationBuilder builder = context.getMeteringService().newLocationBuilder();
             Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
                     .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));

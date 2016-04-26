@@ -80,19 +80,10 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
                 .sorted((t1,t2)->Integer.compare(t1.getRanking(),t2.getRanking()))
                 .map(LocationTemplate.TemplateField::getName)
                 .forEach(s-> {
-                    if(context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                            .filter(m->m.isMandatory()).anyMatch(m -> m.getName().equals(s))){
-                        fields.put(s, CommonField.withParser(stringParser)
-                                .withSetter(record::addLocation)
-                                .withName(s)
-                                .markMandatory()
-                                .build());
-                    }else{
-                        fields.put(s, CommonField.withParser(stringParser)
-                                .withSetter(record::addLocation)
-                                .withName(s)
-                                .build());
-                    }
+                    fields.put(s, CommonField.withParser(stringParser)
+                            .withSetter(record::addLocation)
+                            .withName(s)
+                            .build());
                 });
 
         fields.put("name", CommonField.withParser(stringParser)
