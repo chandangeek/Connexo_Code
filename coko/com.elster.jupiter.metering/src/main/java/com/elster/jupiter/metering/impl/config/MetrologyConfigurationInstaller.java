@@ -17,7 +17,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.search.TypeSearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
@@ -51,12 +50,12 @@ public class MetrologyConfigurationInstaller {
 
         config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
-                PhaseCode.S1N.toString(),
-                PhaseCode.S2N.toString(),
-                PhaseCode.S12N.toString(),
-                PhaseCode.S1.toString(),
-                PhaseCode.S2.toString(),
-                PhaseCode.S12.toString()));
+                PhaseCode.S1N.name(),
+                PhaseCode.S2N.name(),
+                PhaseCode.S12N.name(),
+                PhaseCode.S1.name(),
+                PhaseCode.S2.name(),
+                PhaseCode.S12.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
@@ -108,12 +107,12 @@ public class MetrologyConfigurationInstaller {
 
         config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
-                PhaseCode.S1N.toString(),
-                PhaseCode.S2N.toString(),
-                PhaseCode.S12N.toString(),
-                PhaseCode.S1.toString(),
-                PhaseCode.S2.toString(),
-                PhaseCode.S12.toString()));
+                PhaseCode.S1N.name(),
+                PhaseCode.S2N.name(),
+                PhaseCode.S12N.name(),
+                PhaseCode.S1.name(),
+                PhaseCode.S2.name(),
+                PhaseCode.S12.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRoleConsumption = metrologyConfigurationService.findMeterRole(DefaultMeterRole.CONSUMPTION.getKey())
@@ -151,12 +150,12 @@ public class MetrologyConfigurationInstaller {
 
         config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
-                PhaseCode.S1N.toString(),
-                PhaseCode.S2N.toString(),
-                PhaseCode.S12N.toString(),
-                PhaseCode.S1.toString(),
-                PhaseCode.S2.toString(),
-                PhaseCode.S12.toString()));
+                PhaseCode.S1N.name(),
+                PhaseCode.S2N.name(),
+                PhaseCode.S12N.name(),
+                PhaseCode.S1.name(),
+                PhaseCode.S2.name(),
+                PhaseCode.S12.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
@@ -187,12 +186,12 @@ public class MetrologyConfigurationInstaller {
 
         config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
-                PhaseCode.S1N.toString(),
-                PhaseCode.S2N.toString(),
-                PhaseCode.S12N.toString(),
-                PhaseCode.S1.toString(),
-                PhaseCode.S2.toString(),
-                PhaseCode.S12.toString()));
+                PhaseCode.S1N.name(),
+                PhaseCode.S2N.name(),
+                PhaseCode.S12N.name(),
+                PhaseCode.S1.name(),
+                PhaseCode.S2.name(),
+                PhaseCode.S12.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
