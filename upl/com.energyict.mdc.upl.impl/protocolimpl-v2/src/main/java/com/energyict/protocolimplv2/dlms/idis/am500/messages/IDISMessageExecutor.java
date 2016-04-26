@@ -169,7 +169,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         }
 
         imageTransfer.setUsePollingVerifyAndActivate(true);    //Poll verification
-        imageTransfer.upgrade(binaryImage, false, firmwareIdentifier, false);
+        imageTransfer.upgrade(binaryImage, false, firmwareIdentifier, true);
         try {
             imageTransfer.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation (the meter will immediately reboot)!
             imageTransfer.imageActivation();

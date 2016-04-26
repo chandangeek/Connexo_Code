@@ -28,6 +28,14 @@ public class TCPIPConnection implements DlmsV2Connection {
 
     private static final long TIMEOUT = 300000;
     private static final int WRAPPER_VERSION = 0x0001;
+
+    /**
+     * The maximum number of WPDUs that we will drop (having a wrong client or destination address), when trying to read in a single, valid WPDU.
+     * If this maximum is reached, the communication session will be aborted.
+     * Note that the counter resets when trying to receive the next, valid WPDU.
+     */
+    private static final int MAX_NUMBER_OF_DROPPED_WPDUS = 50;
+
     private final ComChannel comChannel;
 
     private boolean boolTCPIPConnected;
@@ -50,6 +58,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
     private HHUSignOnV2 hhuSignOn = null;
     private String meterId = "";
+    private int numberOfDroppedWPDUs = 0;
 
     public TCPIPConnection(ComChannel comChannel, CommunicationSessionProperties properties) {
         this.comChannel = comChannel;
@@ -139,11 +148,13 @@ public class TCPIPConnection implements DlmsV2Connection {
             int expectedSource = this.switchAddresses ? this.serverAddress : this.clientAddress;
             if (wpdu.getSource() != expectedSource) {
                 //Invalid frame. Could be a late response that we considered missing (due to a timeout earlier). Ignore, read in the next full frame.
+                dropReceivedWPDU();
                 return receiveData();
             }
             int expectedDestination = switchAddresses ? this.clientAddress : this.serverAddress;
             if (wpdu.getDestination() != expectedDestination) {
                 //Invalid frame. Could be a late response that we considered missing (due to a timeout earlier). Ignore, read in the next full frame.
+                dropReceivedWPDU();
                 return receiveData();
             }
 
@@ -244,11 +255,13 @@ public class TCPIPConnection implements DlmsV2Connection {
                                 int expectedSource = this.switchAddresses ? this.serverAddress : this.clientAddress;
                                 if (wpdu.getSource() != expectedSource) {
                                     //Invalid frame. Could be a late response that we considered missing (due to a timeout earlier). Ignore, read in the next full frame.
+                                    dropReceivedWPDU();
                                     return receiveData();
                                 }
                                 int expectedDestination = switchAddresses ? this.clientAddress : this.serverAddress;
                                 if (wpdu.getDestination() != expectedDestination) {
                                     //Invalid frame. Could be a late response that we considered missing (due to a timeout earlier). Ignore, read in the next full frame.
+                                    dropReceivedWPDU();
                                     return receiveData();
                                 }
 
@@ -261,15 +274,26 @@ public class TCPIPConnection implements DlmsV2Connection {
                 }
 
                 if (((System.currentTimeMillis() - protocolTimeout)) > 0) {
+                    //We did not receive a response within the configured timeout interval
                     throw new IOException("receiveResponse() response timeout error");
                 }
 
                 if (((System.currentTimeMillis() - interFrameTimeout)) > 0) {
+                    //We did not receive a response within the configured timeout interval
                     throw new IOException("receiveResponse() interframe timeout error");
                 }
             } // while(true)
         }
     } // private byte waitForTCPIPFrameStateMachine()
+
+    private void dropReceivedWPDU() {
+        numberOfDroppedWPDUs++;
+        if (numberOfDroppedWPDUs > MAX_NUMBER_OF_DROPPED_WPDUS) {
+            //Something is very wrong. It is not normal to receive that much WPDUs with an unexpected source/destination address.
+            //Abort all communication for this connection.
+            throw ConnectionCommunicationException.unexpectedIOException(new IOException("Received 50 invalid WPDUs (wrong source or destination address), while trying to receive a single, valid WPDU. Aborting communication session."));
+        }
+    }
 
     /**
      * Read in a fixed number of bytes, or throw an IOException in case of a timeout.
@@ -280,22 +304,30 @@ public class TCPIPConnection implements DlmsV2Connection {
     private int readFixedNumberOfBytesWithoutPolling(byte[] frame) throws IOException {
         try {
             int offset = 0;
-            int numRead;
+            int numRead = 0;
             final long timeoutMoment = System.currentTimeMillis() + timeout;
 
             while (offset < frame.length && (numRead = comChannel.read(frame, offset, frame.length - offset)) >= 0) {
                 offset += numRead;
-                if (System.currentTimeMillis() > timeoutMoment) {
+                if ((System.currentTimeMillis() > timeoutMoment) && (offset < frame.length)) {
                     //Failsafe mechanism for incomplete frames. If we received some bytes but not enough, throw an IOException after the timeout period.
-                    throw new IOException("Could not read " + frame.length + " withing the given timeout interval, only received " + offset + " bytes");
+                    throw new IOException("Could not read " + frame.length + " bytes within the given timeout interval, only received " + offset + " bytes");
                 }
             }
+
+            //End of stream detected!
+            if (numRead == -1) {
+                throw ConnectionCommunicationException.unexpectedIOException(new IOException("End of stream. The DLMS device unexpectedly closed the TCP/IP connection."));
+            }
+
             return offset;
 
         } catch (ConnectionCommunicationException e) {
             if (isSocketTimeoutException(e)) {
+                //We did not receive a response within the configured timeout interval
                 throw new IOException("receiveResponse() response timeout error");
             } else {
+                //An I/O exception occurred on the input stream. Stop the session.
                 throw e;
             }
         }
@@ -372,6 +404,7 @@ public class TCPIPConnection implements DlmsV2Connection {
                 } else {
                     sendOut(wpdu.getFrameData());   // Do send out retry request
                 }
+                resetNumberOfDroppedWPDUs();
                 return receiveData().getData();
             } catch (ProtocolException e) {    //Received invalid data, cannot continue...
                 throw ConnectionCommunicationException.unExpectedProtocolError(e);
@@ -392,6 +425,7 @@ public class TCPIPConnection implements DlmsV2Connection {
         while (true) {
             try {
                 sendOut(data);
+                resetNumberOfDroppedWPDUs();
                 return receiveData().getRawData();
             } catch (ProtocolException e) {    //Received invalid data, cannot continue...
                 throw ConnectionCommunicationException.unExpectedProtocolError(e);
@@ -420,6 +454,7 @@ public class TCPIPConnection implements DlmsV2Connection {
             try {
                 WPDU wpdu = new WPDU(this.clientAddress, this.serverAddress, byteRequestBuffer);
                 sendOut(wpdu.getFrameData());
+                resetNumberOfDroppedWPDUs();
                 return receiveData().getData();
             } catch (ProtocolException e) {    //Received invalid data, cannot continue...
                 throw ConnectionCommunicationException.unExpectedProtocolError(e);
@@ -429,6 +464,10 @@ public class TCPIPConnection implements DlmsV2Connection {
                 }
             }
         }
+    }
+
+    private void resetNumberOfDroppedWPDUs() {
+        numberOfDroppedWPDUs = 0;
     }
 
     private void sendOut(byte[] frameData) {

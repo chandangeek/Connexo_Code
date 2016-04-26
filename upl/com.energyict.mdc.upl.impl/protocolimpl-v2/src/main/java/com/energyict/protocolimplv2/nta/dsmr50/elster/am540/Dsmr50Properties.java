@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.energyict.cbo.TimeDuration;
+import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
@@ -40,6 +41,14 @@ public class Dsmr50Properties extends DlmsProperties {
 
     public boolean isCumulativeCaptureTimeChannel() {
         return getProperties().getTypedProperty(CumulativeCaptureTimeChannel, false);
+    }
+
+    @Override
+    public SecurityProvider getSecurityProvider() {
+        if (securityProvider == null) {
+            securityProvider = new Dsmr50SecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
+        }
+        return securityProvider;
     }
 
     public boolean isIgnoreDstStatusCode() {

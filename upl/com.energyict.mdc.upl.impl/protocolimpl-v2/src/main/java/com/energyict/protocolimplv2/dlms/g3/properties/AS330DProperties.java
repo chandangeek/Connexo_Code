@@ -74,16 +74,6 @@ public class AS330DProperties extends DlmsProperties {
     }
 
     @Override
-    public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
-        byte invokeIdAndPriority = (byte) (DEFAULT_INVOKE_ID_AND_PRIORITY.intValue());
-        if (getProperties().<Boolean>getTypedProperty(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID)) {
-            return new IncrementalInvokeIdAndPriorityHandler(invokeIdAndPriority);
-        } else {
-            return new NonIncrementalInvokeIdAndPriorityHandler(invokeIdAndPriority);
-        }
-    }
-
-    @Override
     public int getServerUpperMacAddress() {
         return useMirrorLogicalDevice ? getMirrorLogicalDeviceId() : getGatewayLogicalDeviceId();
     }

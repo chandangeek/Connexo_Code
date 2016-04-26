@@ -7,6 +7,7 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -48,8 +49,16 @@ public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialec
         );
     }
 
+    /**
+     * The default number of retries is 0 for this dialect.
+     * This dialect is exclusively used for TCP/IP communication with the Beacon device itself.
+     * Since TCP is a confirmed service, we know for sure that our request will arrive at the Beacon device.
+     * <p/>
+     * In fact, if we were to send a retry for a certain request, the Beacon would reject it.
+     * This is because this retry has the same frame counter as the original request!
+     */
     protected PropertySpec retriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(RETRIES, DEFAULT_RETRIES);
+        return PropertySpecFactory.bigDecimalPropertySpec(RETRIES, BigDecimal.ZERO);
     }
 
     protected PropertySpec timeoutPropertySpec() {

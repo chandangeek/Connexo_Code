@@ -13,10 +13,7 @@ import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.DataEncryptionException;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.exceptions.*;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
@@ -40,7 +37,7 @@ import java.util.List;
  * @author sva
  * @since 11/08/2015 - 14:04
  */
-public class AM540 extends AM130 implements SerialNumberSupport{
+public class AM540 extends AM130 implements SerialNumberSupport {
 
     private AM540Cache am540Cache;
 
@@ -52,7 +49,7 @@ public class AM540 extends AM130 implements SerialNumberSupport{
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-23 10:22:20 +0100 (Wed, 23 Mar 2016)$";
+        return "$Date: 2016-04-26 15:13:47 +0200 (Tue, 26 Apr 2016)$";
     }
 
     /**
@@ -168,7 +165,7 @@ public class AM540 extends AM130 implements SerialNumberSupport{
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > getDlmsSessionProperties().getAARQRetries()) {
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
-                throw ConnectionCommunicationException.protocolConnectFailed(exception);
+                throw CommunicationException.protocolConnectFailed(exception);
             } else {
                 getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
@@ -208,6 +205,7 @@ public class AM540 extends AM130 implements SerialNumberSupport{
             am540Cache = (AM540Cache) deviceProtocolCache;
         }
     }
+
 
     /**
      * Method to check whether the cache needs to be read out or not, if so the read will be forced

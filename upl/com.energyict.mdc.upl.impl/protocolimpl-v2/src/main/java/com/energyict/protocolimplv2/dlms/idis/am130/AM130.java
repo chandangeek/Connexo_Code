@@ -55,7 +55,7 @@ public class AM130 extends AM500 {
      */
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-21 15:53:44 +0100 (Mon, 21 Mar 2016)$";
+        return "$Date: 2016-04-26 15:13:47 +0200 (Tue, 26 Apr 2016)$";
     }
 
     protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
