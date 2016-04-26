@@ -53,7 +53,8 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=log",
                 "osgi.command.function=deleteServiceCallLifeCycle",
                 "osgi.command.function=hierarchy",
-                "osgi.command.function=deleteServiceCall"
+                "osgi.command.function=deleteServiceCall",
+                "osgi.command.function=cancel"
         }, immediate = true)
 public class ServiceCallsCommands {
 
@@ -359,6 +360,21 @@ public class ServiceCallsCommands {
             serviceCallService.getServiceCall(serviceCallId)
                     .orElseThrow(() -> new IllegalArgumentException("No such service call"))
                     .delete();
+            context.commit();
+        }
+    }
+
+    public void cancel() {
+        System.out.println("usage: cancel <service call id>");
+        System.out.println("    Cancel the service call");
+    }
+
+    public void cancel(long serviceCallId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.getServiceCall(serviceCallId)
+                    .orElseThrow(() -> new IllegalArgumentException("No such service call"))
+                    .cancel();
             context.commit();
         }
     }
