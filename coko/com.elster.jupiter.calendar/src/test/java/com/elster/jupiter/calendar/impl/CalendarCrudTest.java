@@ -5,8 +5,12 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
+import com.elster.jupiter.calendar.ExceptionalOccurrence;
+import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
+import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
+import com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import org.junit.AfterClass;
@@ -145,10 +149,51 @@ public class CalendarCrudTest {
         assertThat(period1.getDayType(DayOfWeek.SATURDAY).getName()).isEqualTo("Weekend");
         assertThat(period1.getDayType(DayOfWeek.SUNDAY).getName()).isEqualTo("Weekend");
 
-        assertThat(calendar.getPeriodTransitionSpecs().size()).isEqualTo(2);
+        List<? extends PeriodTransitionSpec> periodTransitionSpecs = calendar.getPeriodTransitionSpecs();
+        assertThat(periodTransitionSpecs.size()).isEqualTo(2);
 
-        //todo check period transitions and exceptional occurrences
+        PeriodTransitionSpec periodTransitionSpec1 = periodTransitionSpecs.get(0);
+        PeriodTransitionSpec periodTransitionSpec2 = periodTransitionSpecs.get(1);
 
+        assertThat(periodTransitionSpec1).isInstanceOf(RecurrentPeriodTransitionSpec.class);
+        assertThat(periodTransitionSpec2).isInstanceOf(RecurrentPeriodTransitionSpec.class);
+
+        assertThat(((RecurrentPeriodTransitionSpec) periodTransitionSpec1).getOccurrence()).isEqualTo(MonthDay.of(5, 1));
+        assertThat(((RecurrentPeriodTransitionSpec) periodTransitionSpec2).getOccurrence()).isEqualTo(MonthDay.of(11, 1));
+
+        List<ExceptionalOccurrence> exceptionalOccurrences = calendar.getExceptionalOccurrences();
+        ExceptionalOccurrence exceptionalOccurrence1 = exceptionalOccurrences.get(0);
+        ExceptionalOccurrence exceptionalOccurrence2 = exceptionalOccurrences.get(1);
+        ExceptionalOccurrence exceptionalOccurrence3 = exceptionalOccurrences.get(2);
+        ExceptionalOccurrence exceptionalOccurrence4 = exceptionalOccurrences.get(3);
+        ExceptionalOccurrence exceptionalOccurrence5 = exceptionalOccurrences.get(4);
+        ExceptionalOccurrence exceptionalOccurrence6 = exceptionalOccurrences.get(5);
+        ExceptionalOccurrence exceptionalOccurrence7 = exceptionalOccurrences.get(6);
+        ExceptionalOccurrence exceptionalOccurrence8 = exceptionalOccurrences.get(7);
+        ExceptionalOccurrence exceptionalOccurrence9 = exceptionalOccurrences.get(8);
+        ExceptionalOccurrence exceptionalOccurrence10 = exceptionalOccurrences.get(9);
+
+        assertThat(exceptionalOccurrence1).isInstanceOf(FixedExceptionalOccurrence.class);
+        assertThat(exceptionalOccurrence2).isInstanceOf(FixedExceptionalOccurrence.class);
+        assertThat(exceptionalOccurrence3).isInstanceOf(FixedExceptionalOccurrence.class);
+        assertThat(exceptionalOccurrence4).isInstanceOf(RecurrentExceptionalOccurrence.class);
+        assertThat(exceptionalOccurrence5).isInstanceOf(FixedExceptionalOccurrence.class);
+        assertThat(exceptionalOccurrence6).isInstanceOf(FixedExceptionalOccurrence.class);
+        assertThat(exceptionalOccurrence7).isInstanceOf(RecurrentExceptionalOccurrence.class);
+        assertThat(exceptionalOccurrence8).isInstanceOf(FixedExceptionalOccurrence.class);
+        assertThat(exceptionalOccurrence9).isInstanceOf(RecurrentExceptionalOccurrence.class);
+        assertThat(exceptionalOccurrence10).isInstanceOf(RecurrentExceptionalOccurrence.class);
+
+        assertThat(((FixedExceptionalOccurrence) exceptionalOccurrence1).getOccurrence()).isEqualTo(LocalDate.of(2016, 1, 18));
+        assertThat(((FixedExceptionalOccurrence) exceptionalOccurrence2).getOccurrence()).isEqualTo(LocalDate.of(2016, 2, 15));
+        assertThat(((FixedExceptionalOccurrence) exceptionalOccurrence3).getOccurrence()).isEqualTo(LocalDate.of(2016, 5, 30));
+        assertThat(((RecurrentExceptionalOccurrence) exceptionalOccurrence4).getOccurrence()).isEqualTo(MonthDay.of(7, 4));
+        assertThat(((FixedExceptionalOccurrence) exceptionalOccurrence5).getOccurrence()).isEqualTo(LocalDate.of(2016, 9, 5));
+        assertThat(((FixedExceptionalOccurrence) exceptionalOccurrence6).getOccurrence()).isEqualTo(LocalDate.of(2016, 10, 10));
+        assertThat(((RecurrentExceptionalOccurrence) exceptionalOccurrence7).getOccurrence()).isEqualTo(MonthDay.of(11, 11));
+        assertThat(((FixedExceptionalOccurrence) exceptionalOccurrence8).getOccurrence()).isEqualTo(LocalDate.of(2016, 11, 24));
+        assertThat(((RecurrentExceptionalOccurrence) exceptionalOccurrence9).getOccurrence()).isEqualTo(MonthDay.of(12, 25));
+        assertThat(((RecurrentExceptionalOccurrence) exceptionalOccurrence10).getOccurrence()).isEqualTo(MonthDay.of(12, 26));
 
     }
 
