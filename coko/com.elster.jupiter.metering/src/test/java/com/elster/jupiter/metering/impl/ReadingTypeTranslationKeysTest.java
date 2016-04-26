@@ -133,7 +133,7 @@ public class ReadingTypeTranslationKeysTest {
             bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
             bind(PartyService.class).toInstance(partyService);
             bind(IdsService.class).toInstance(idsService);
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.INSTANCE);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 

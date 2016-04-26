@@ -678,10 +678,10 @@ public enum TableSpecs {
             table.addDiscriminatorColumn("SERVICECATEGORY", "varchar2(1)");
 
             table.column("AMIBILLINGREADY").number().notNull().conversion(NUMBER2ENUM).map("amiBillingReady").upTo(version(10, 2)).add();
-            table.column("CHECKBILLING").bool().map("checkBilling").add();
-            table.column("CONNECTIONSTATE").number().notNull().conversion(NUMBER2ENUM).map("connectionState").add();
-            table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").add();
-            table.column("SERVICEDELIVERYREMARK").varChar(NAME_LENGTH).map("serviceDeliveryRemark").add();
+            table.column("CHECKBILLING").bool().map("checkBilling").upTo(version(10, 2)).add();
+            table.column("CONNECTIONSTATE").number().notNull().conversion(NUMBER2ENUM).map("connectionState").upTo(version(10, 2)).add();
+            table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").upTo(version(10, 2)).add();
+            table.column("SERVICEDELIVERYREMARK").varChar(NAME_LENGTH).map("serviceDeliveryRemark").upTo(version(10, 2)).add();
 
             Column groundedColumn1 = table.column("GROUNDED").type("char(1)").conversion(CHAR2BOOLEAN).map("grounded").upTo(version(10, 2)).add();
             table.column("GROUNDED").type("varchar2(7)").conversion(CHAR2ENUM).map("grounded").since(version(10, 2)).previously(groundedColumn1).add();
