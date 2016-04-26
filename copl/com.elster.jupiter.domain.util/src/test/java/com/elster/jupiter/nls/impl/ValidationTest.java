@@ -124,7 +124,7 @@ public class ValidationTest {
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.INSTANCE);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
