@@ -1,6 +1,5 @@
 package com.elster.jupiter.search.rest.impl;
 
-import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -34,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -50,15 +48,13 @@ public class DynamicSearchResource {
     private final ExceptionFactory exceptionFactory;
     private final SearchCriterionInfoFactory searchCriterionInfoFactory;
     private final InfoFactoryService infoFactoryService;
-    private final LicenseService licenseService;
 
     @Inject
-    public DynamicSearchResource(SearchService searchService, SearchLocationService searchLocationService, ExceptionFactory exceptionFactory, SearchCriterionInfoFactory searchCriterionInfoFactory, LicenseService licenseService, InfoFactoryService infoFactoryService) {
+    public DynamicSearchResource(SearchService searchService, SearchLocationService searchLocationService, ExceptionFactory exceptionFactory, SearchCriterionInfoFactory searchCriterionInfoFactory, InfoFactoryService infoFactoryService) {
         this.searchService = searchService;
         this.searchLocationService = searchLocationService;
         this.exceptionFactory = exceptionFactory;
         this.searchCriterionInfoFactory = searchCriterionInfoFactory;
-        this.licenseService = licenseService;
 
         this.infoFactoryService = infoFactoryService;
     }
@@ -70,24 +66,8 @@ public class DynamicSearchResource {
                                      @BeanParam JsonQueryFilter filter,
                                      @BeanParam UriInfo uriInfo) {
         List<SearchDomain> domains;
-        List<SearchDomain> domainsWithoutUsagePointSearchDomain = new ArrayList<>();
         if (filter.hasProperty("application")) {
-            if (filter.getPropertyList("application")
-                    .toString()
-                    .contains("COMU") && licenseService.getLicenseForApplication("INS").isPresent()) {
-                IntStream.range(0, searchService.getDomains(filter.getString("application")).size())
-                        .forEach(index -> {
-                            if (!searchService.getDomains(filter.getString("application")).get(index).getId()
-                                    .equals("com.elster.jupiter.metering.UsagePoint")) {
-                                domainsWithoutUsagePointSearchDomain.add(searchService
-                                        .getDomains(filter.getString("application"))
-                                        .get(index));
-                            }
-                        });
-                domains = domainsWithoutUsagePointSearchDomain;
-            } else {
-                domains = searchService.getDomains(filter.getString("application"));
-            }
+               domains = searchService.getDomains(filter.getString("application"));
         } else {
             domains = searchService.getDomains();
         }
