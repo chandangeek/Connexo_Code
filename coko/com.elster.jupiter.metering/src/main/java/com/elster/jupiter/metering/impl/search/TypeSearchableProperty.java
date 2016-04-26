@@ -114,9 +114,8 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
                         default:
                             throw new IllegalArgumentException("");
                     }
-                }).findAny().orElseThrow(IllegalArgumentException::new);
+                }).reduce(Condition::or).get();
     }
-
 
 
     private static class TypeValueFactory extends AbstractValueFactory<Enum> {
