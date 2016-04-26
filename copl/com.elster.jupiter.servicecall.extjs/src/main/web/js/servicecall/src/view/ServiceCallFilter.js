@@ -17,7 +17,7 @@ Ext.define('Scs.view.ServiceCallFilter', {
             {
                 type: 'text',
                 dataIndex: 'name',
-                emptyText: Uni.I18n.translate('general.ID', 'SCS', 'ID')
+                emptyText: Uni.I18n.translate('general.IDOrReference', 'SCS', 'ID or reference')
             },
             {
                 type: 'combobox',
