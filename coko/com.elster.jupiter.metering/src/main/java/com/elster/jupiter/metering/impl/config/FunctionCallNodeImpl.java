@@ -10,6 +10,7 @@ import com.elster.jupiter.util.units.Dimension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by igh on 4/02/2016.
@@ -50,13 +51,10 @@ public class FunctionCallNodeImpl extends AbstractNode implements FunctionCallNo
 
     public String toString() {
         StringBuilder result = new StringBuilder(function.toString() + "(");
-        List<ServerExpressionNode> children = this.getChildren();
-        int size = children.size();
-        for (int i = 0; i < size; i++) {
-            result.append(children.get(i).toString());
-            if (i != (size - 1)) {
-                result.append(", ");
-            }
+        result.append(this.getChildren().stream().map(ServerExpressionNode::toString).collect(Collectors.joining(", ")));
+        if (this.aggregationLevel != null) {
+            result.append(", ");
+            result.append(this.aggregationLevel.name());
         }
         result.append(")");
         return result.toString();

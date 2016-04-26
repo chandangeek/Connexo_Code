@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
@@ -36,6 +38,7 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
         ReadingType readingType = requirement.getPreferredChannel().getMainReadingType();
         return RequirementNodeReplacer
                 .from(readingType)
+                .to(requirement.getTargetReadingType())
                 .apply(new Context(
                         requirement,
                         this.meteringService,
@@ -220,25 +223,75 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
 
         abstract ServerExpressionNode apply(Context context);
 
-        static RequirementNodeReplacer from(ReadingType readingType) {
-            switch (readingType.getMeasurementKind()) {
+        static RequirementNodeReplacerTargetReadingType from(ReadingType readingType) {
+            if (Commodity.ELECTRICITY_SECONDARY_METERED.equals(readingType.getCommodity())) {
+                return from(readingType.getMeasurementKind());
+            } else {
+                return RequirementNodeReplacerTargetReadingType.NONE;
+            }
+        }
+
+        private static RequirementNodeReplacerTargetReadingType from(MeasurementKind measurementKind) {
+            switch (measurementKind) {
                 case ACVOLTAGEPEAK: // Intended fall-through
                 case DCVOLTAGE:     // Intended fall-through
                 case VOLTAGE: {
-                    return VT;
+                    return RequirementNodeReplacerTargetReadingType.VT;
                 }
                 case CURRENT: {
-                    return CT;
+                    return RequirementNodeReplacerTargetReadingType.CT;
                 }
                 case ENERGY: {
-                    return TRANSFORMER;
+                    return RequirementNodeReplacerTargetReadingType.TRANSFORMER;
                 }
                 default: {
-                    return NONE;
+                    return RequirementNodeReplacerTargetReadingType.NONE;
                 }
             }
         }
 
     }
 
+    private enum RequirementNodeReplacerTargetReadingType {
+        TRANSFORMER {
+            @Override
+            RequirementNodeReplacer forPrimaryMetered() {
+                return RequirementNodeReplacer.TRANSFORMER;
+            }
+        },
+        VT {
+            @Override
+            RequirementNodeReplacer forPrimaryMetered() {
+                return RequirementNodeReplacer.VT;
+            }
+        },
+        CT {
+            @Override
+            RequirementNodeReplacer forPrimaryMetered() {
+                return RequirementNodeReplacer.CT;
+            }
+        },
+        NONE {
+            @Override
+            RequirementNodeReplacer to(VirtualReadingType targetReadingType) {
+                return RequirementNodeReplacer.NONE;
+            }
+
+            @Override
+            RequirementNodeReplacer forPrimaryMetered() {
+                return RequirementNodeReplacer.NONE;
+            }
+        };
+
+        RequirementNodeReplacer to(VirtualReadingType targetReadingType) {
+            if (targetReadingType.isPrimaryMetered()) {
+                return this.forPrimaryMetered();
+            } else {
+                return RequirementNodeReplacer.NONE;
+            }
+        }
+
+        abstract RequirementNodeReplacer forPrimaryMetered();
+
+    }
 }
