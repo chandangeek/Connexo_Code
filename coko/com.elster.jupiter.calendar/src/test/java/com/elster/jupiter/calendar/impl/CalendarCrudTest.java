@@ -371,7 +371,7 @@ public class CalendarCrudTest {
 
     @Test
     @Transactional
-    public void testNoDayTypesAndPeriods() {
+    public void testNoPeriods() {
         try {
             CalendarService service = getCalendarService();
             service.newCalendar("test", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010)) .description("Description remains to be completed :-)")
@@ -379,19 +379,74 @@ public class CalendarCrudTest {
                     .mRID("Sample-TOU-rates")
                     .addEvent("On peak", 3)
                     .addEvent("Off peak", 5)
-                    .addEvent("Demand response", 97).add();
+                    .addEvent("Demand response", 97)
+                    .newDayType("Summer weekday")
+                    .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
+                    .add()
+                    .newDayType("Weekend")
+                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .newDayType("Holiday")
+                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .newDayType("Winter day")
+                    .event("On peak").startsFrom(LocalTime.of(5, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(21, 0, 0))
+                    .add()
+                    .newDayType("Demand response")
+                    .eventWithCode(97).startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .add();
             fail("ConstraintViolationException expected");
         } catch (ConstraintViolationException e) {
             assertThat(e.getMessage()).isEqualTo("\n" +
                     "Constraint violation : \n" +
-                    "\tMessage : dayTypes.required\n" +
-                    "\tClass : com.elster.jupiter.calendar.impl.CalendarImpl\n" +
-                    "\tElement : dayTypes\n" +
-                    "\n" +
-                    "Constraint violation : \n" +
                     "\tMessage : periods.required\n" +
                     "\tClass : com.elster.jupiter.calendar.impl.CalendarImpl\n" +
                     "\tElement : periods\n");
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testInvalidDayTypeForWednesday() {
+        try {
+            CalendarService service = getCalendarService();
+            service.newCalendar("test", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
+                    .description("Description remains to be completed :-)")
+                    .endYear(Year.of(2018))
+                    .mRID("Sample-TOU-rates")
+                    .addEvent("On peak", 3)
+                    .addEvent("Off peak", 5)
+                    .addEvent("Demand response", 97)
+                    .newDayType("Summer weekday")
+                    .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
+                    .add()
+                    .newDayType("Weekend")
+                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .newDayType("Holiday")
+                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .newDayType("Winter day")
+                    .event("On peak").startsFrom(LocalTime.of(5, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(21, 0, 0))
+                    .add()
+                    .newDayType("Demand response")
+                    .eventWithCode(97).startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .addPeriod("Summer", "Summer weekday", "Special day", "Summer weekday", "Summer weekday", "Summer weekday", "Weekend", "Weekend")
+                    .addPeriod("Winter", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day")
+                    .on(MonthDay.of(5, 1)).transitionTo("Summer")
+                    .on(MonthDay.of(11, 1)).transitionTo("Winter").add();
+            List<Calendar> calendars = service.findAllCalendars();
+            assertThat(calendars.size()).isEqualTo(1);
+            Calendar calendar = calendars.get(0);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).isEqualTo("No daytype defined yet with name 'Special day'");
         }
     }
 

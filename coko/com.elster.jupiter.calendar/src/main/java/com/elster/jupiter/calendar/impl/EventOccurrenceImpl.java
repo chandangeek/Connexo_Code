@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.time.LocalTime;
 
 /**
@@ -39,9 +40,12 @@ public class EventOccurrenceImpl implements EventOccurrence {
     }
 
     private long id;
-    private int hours;
-    private int minutes;
-    private int seconds;
+    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Integer hours;
+    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Integer minutes;
+    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Integer seconds;
 
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<DayType> dayType = ValueReference.absent();
@@ -82,9 +86,11 @@ public class EventOccurrenceImpl implements EventOccurrence {
 
 
     void setFrom(LocalTime from) {
-        this.hours = from.getHour();
-        this.minutes = from.getMinute();
-        this.seconds = from.getSecond();
+        if (from != null) {
+            this.hours = from.getHour();
+            this.minutes = from.getMinute();
+            this.seconds = from.getSecond();
+        }
     }
 
     void setEvent(Event event) {

@@ -4,9 +4,11 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedPeriodTransitionSpec;
+import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.Period;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 /**
@@ -16,7 +18,8 @@ public class FixedPeriodTransitionSpecImpl extends PeriodTransitionSpecImpl impl
 
     static final String TYPE_IDENTIFIER = "FIX";
 
-    private int year;
+    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Integer year;
 
     @Inject
     FixedPeriodTransitionSpecImpl(ServerCalendarService calendarService) {

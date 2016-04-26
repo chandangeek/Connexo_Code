@@ -4,8 +4,10 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
+import com.elster.jupiter.calendar.MessageSeeds;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -16,7 +18,8 @@ public class FixedExceptionalOccurrenceImpl extends ExceptionalOccurrenceImpl im
 
     static final String TYPE_IDENTIFIER = "FIX";
 
-    private int year;
+    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Integer year;
 
     @Inject
     FixedExceptionalOccurrenceImpl(ServerCalendarService calendarService) {

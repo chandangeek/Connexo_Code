@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
@@ -49,8 +50,10 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();
-    private int day;
-    private int month;
+    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Integer day;
+    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Integer month;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<DayType> dayType = ValueReference.absent();
 
