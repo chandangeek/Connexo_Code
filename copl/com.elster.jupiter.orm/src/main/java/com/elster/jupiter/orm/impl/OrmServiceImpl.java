@@ -46,7 +46,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class, InstallService.class}, property = "name=" + OrmService.COMPONENTNAME)
-public class OrmServiceImpl implements OrmService, InstallService {
+public class OrmServiceImpl implements OrmService {
 
     private volatile DataSource dataSource;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -64,7 +64,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
 
     // For testing purposes
     @Inject
-    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver, FileSystem fileSystem) {
+    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver, FileSystem fileSystem, SchemaInfoProvider schemaInfoProvider) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -73,10 +73,8 @@ public class OrmServiceImpl implements OrmService, InstallService {
         setPublisher(publisher);
         setValidationProviderResolver(validationProviderResolver);
         setFileSystem(fileSystem);
+        setSchemaInfoProvider(schemaInfoProvider);
         activate();
-        if (!getOrmDataModel().isInstalled()) {
-            install();
-        }
     }
 
     public Connection getConnection(boolean transactionRequired) throws SQLException {
@@ -112,16 +110,6 @@ public class OrmServiceImpl implements OrmService, InstallService {
 
     private DataModel getExistingTablesDataModel() {
         return dataModels.get(EXISTING_TABLES_DATA_MODEL);
-    }
-
-    @Override
-    public void install() {
-        createDataModel(false).install(true, true);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Collections.emptyList();
     }
 
     public Clock getClock() {

@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.internal.TableSpecs;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -20,6 +21,7 @@ import org.osgi.framework.BundleContext;
 
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.After;
@@ -44,18 +46,23 @@ public class OrmTest {
 
     @Before
     public void setUp() {
-		injector = Guice.createInjector(
-                    new MockModule(),
-					inMemoryBootstrapModule,
-        			new UtilModule(),
-        			new ThreadSecurityModule(principal),
-        			new PubSubModule(),
-        			new TransactionModule(false),
-        			new OrmModule());
-		try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-			injector.getInstance(OrmService.class);
-			ctx.commit();
-		}
+        injector = Guice.createInjector(
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new UtilModule(),
+                new ThreadSecurityModule(principal),
+                new PubSubModule(),
+                new TransactionModule(false),
+                new OrmModule());
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            OrmService service = injector.getInstance(OrmService.class);
+            DataModel dataModel = service.newDataModel("ORM", "forTest");
+            Arrays.stream(TableSpecs.values())
+                    .forEach(tableSpecs -> tableSpecs.addTo(dataModel));
+            dataModel.register();
+            dataModel.install(true, true);
+            ctx.commit();
+        }
     }
 
     @After
@@ -65,35 +72,35 @@ public class OrmTest {
 
     @Test
     public void testDataModel() {
-    	OrmService ormService = injector.getInstance(OrmService.class);
-    	DataModel dataModel = ((OrmServiceImpl) ormService).getDataModels().get(0);
-    	assertThat(dataModel.mapper(DataModel.class).find()).hasSize(1);
-    	assertThat(dataModel.mapper(Table.class).find().size()).isGreaterThan(4);
-    	assertThat(dataModel.mapper(Column.class).find().size()).isGreaterThan(10);
-    	assertThat(dataModel.mapper(TableConstraint.class).find()).isNotEmpty();
-    	assertThat(dataModel.mapper(ColumnInConstraintImpl.class).find()).isNotEmpty();
+        OrmService ormService = injector.getInstance(OrmService.class);
+        DataModel dataModel = ((OrmServiceImpl) ormService).getDataModels().get(0);
+        assertThat(dataModel.mapper(DataModel.class).find()).hasSize(1);
+        assertThat(dataModel.mapper(Table.class).find().size()).isGreaterThan(4);
+        assertThat(dataModel.mapper(Column.class).find().size()).isGreaterThan(10);
+        assertThat(dataModel.mapper(TableConstraint.class).find()).isNotEmpty();
+        assertThat(dataModel.mapper(ColumnInConstraintImpl.class).find()).isNotEmpty();
     }
 
     @Test
     public void testEagerQuery() {
-    	OrmService ormService = injector.getInstance(OrmService.class);
-    	DataModel dataModel = ormService.getDataModels().get(0);
-    	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-    		Optional<DataModel> copy = dataModel.mapper(DataModel.class).getEager("ORM");
-    		for (Table<?> each : copy.get().getTables()) {
-    			each.getColumns().size();
-    			each.getConstraints().size();
-    			for ( TableConstraint constraint : each.getConstraints()) {
-    				constraint.getColumns().size();
-    			}
-    		}
-    		ctx.commit();
-    		assertThat(ctx.getStats().getSqlCount()).isEqualTo(1);
-    	}
-    	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-    		Optional<Column> column = dataModel.mapper(Column.class).getEager("ORM","ORM_TABLE","NAME");
-    		assertThat(column.isPresent()).isTrue();
-    	}
+        OrmService ormService = injector.getInstance(OrmService.class);
+        DataModel dataModel = ormService.getDataModels().get(0);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            Optional<DataModel> copy = dataModel.mapper(DataModel.class).getEager("ORM");
+            for (Table<?> each : copy.get().getTables()) {
+                each.getColumns().size();
+                each.getConstraints().size();
+                for (TableConstraint constraint : each.getConstraints()) {
+                    constraint.getColumns().size();
+                }
+            }
+            ctx.commit();
+            assertThat(ctx.getStats().getSqlCount()).isEqualTo(1);
+        }
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            Optional<Column> column = dataModel.mapper(Column.class).getEager("ORM", "ORM_TABLE", "NAME");
+            assertThat(column.isPresent()).isTrue();
+        }
     }
 
     private static class MockModule extends AbstractModule {

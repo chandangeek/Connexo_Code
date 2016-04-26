@@ -11,16 +11,11 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 
 import java.security.Principal;
@@ -29,6 +24,13 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -79,16 +81,29 @@ public class LockTest {
     @Test
     public void testLockNoWait() throws InterruptedException {
         OrmService ormService = injector.getInstance(OrmService.class);
-        final DataModel dataModel = ((OrmServiceImpl) ormService).getDataModels().get(0);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            assertThat(dataModel.mapper(DataModel.class).lockNoWait("ORM").isPresent()).isTrue();
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-                        assertThat(dataModel.mapper(DataModel.class).lockNoWait("ORM").isPresent()).isFalse();
-                        assertThat(dataModel.mapper(Table.class).lockNoWait("ORM", "ORM_DATAMODEL").isPresent()).isTrue();
-                    }
+        final DataModel dataModel = getLockVersionDataModel(ormService);
+        final TransactionService transactionService = injector.getInstance(TransactionService.class);
+        dataModel.install(true, false);
+        dataModel.register(bootstrapModule,
+                new PubSubModule(),
+                new TransactionModule(false));
+        LockVersion version = transactionService.builder().principal(() -> "test").execute(() -> {
+            LockVersion lockVersion = new LockVersionImpl();
+            dataModel.persist(lockVersion);
+            return lockVersion;
+        });
+        LockVersion version2 = transactionService.builder().principal(() -> "test").execute(() -> {
+            LockVersion lockVersion = new LockVersionImpl();
+            dataModel.persist(lockVersion);
+            return lockVersion;
+        });
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            assertThat(dataModel.mapper(LockVersion.class).lockNoWait(version.getId()).isPresent()).isTrue();
+            Thread thread = new Thread(() -> {
+                try (TransactionContext ctx1 = transactionService.getContext()) {
+                    assertThat(dataModel.mapper(LockVersion.class).lockNoWait(version.getId()).isPresent()).isFalse();
+                    assertThat(dataModel.mapper(LockVersion.class).lockNoWait(version2.getId()).isPresent()).isTrue();
                 }
             });
             thread.start();
@@ -99,12 +114,7 @@ public class LockTest {
     @Test
     public void testLockVersion() throws InterruptedException, ExecutionException {
         OrmService ormService = injector.getInstance(OrmService.class);
-        DataModel dataModel = ormService.newDataModel("TST", "Test stuff");
-        Table<LockVersion> lockVersionTable = dataModel.addTable("LOCKVERSION", LockVersion.class);
-        lockVersionTable.map(LockVersionImpl.class);
-        Column idColumn = lockVersionTable.addAutoIdColumn();
-        lockVersionTable.addAuditColumns();
-        lockVersionTable.primaryKey("PK_LOCKVERSION").on(idColumn).add();
+        DataModel dataModel = getLockVersionDataModel(ormService);
         dataModel.install(true, false);
         dataModel.register(bootstrapModule,
                 new PubSubModule(),
@@ -140,15 +150,20 @@ public class LockTest {
         assertThat(lockVersion).isEmpty();
     }
 
-    @Test
-    public void testLockVersionOnNoUpdate() throws InterruptedException, ExecutionException {
-        OrmService ormService = injector.getInstance(OrmService.class);
+    private DataModel getLockVersionDataModel(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel("TST", "Test stuff");
         Table<LockVersion> lockVersionTable = dataModel.addTable("LOCKVERSION", LockVersion.class);
         lockVersionTable.map(LockVersionImpl.class);
         Column idColumn = lockVersionTable.addAutoIdColumn();
         lockVersionTable.addAuditColumns();
         lockVersionTable.primaryKey("PK_LOCKVERSION").on(idColumn).add();
+        return dataModel;
+    }
+
+    @Test
+    public void testLockVersionOnNoUpdate() throws InterruptedException, ExecutionException {
+        OrmService ormService = injector.getInstance(OrmService.class);
+        DataModel dataModel = getLockVersionDataModel(ormService);
         dataModel.install(true, false);
         dataModel.register(bootstrapModule,
                 new PubSubModule(),

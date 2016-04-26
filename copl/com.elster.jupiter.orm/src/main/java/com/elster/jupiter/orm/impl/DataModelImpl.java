@@ -427,6 +427,9 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public Version getVersion() {
+        if (version == null) {
+            return Version.latest();
+        }
         return version;
     }
 

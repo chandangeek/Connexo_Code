@@ -15,7 +15,6 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.schema.SchemaInfoProvider;
-import com.elster.jupiter.orm.schema.h2.H2SchemaInfo;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionService;
@@ -112,7 +111,6 @@ public class TableDdlGeneratorIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(MessageInterpolator.class).toInstance(messageInterpolator);
-            bind(SchemaInfoProvider.class).to(H2SchemaInfo.class);
 //            bind(ServiceCallTypeOneCustomPropertySet.class).to(ServiceCallTypeOneCustomPropertySet.class);
         }
     }

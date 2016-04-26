@@ -1,20 +1,6 @@
 package com.elster.jupiter.orm;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
-import java.security.Principal;
-import java.sql.SQLException;
-import java.time.Instant;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -23,10 +9,26 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import org.osgi.framework.BundleContext;
+
+import java.security.Principal;
+import java.sql.SQLException;
+import java.time.Instant;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LobTest {
@@ -85,7 +87,7 @@ public class LobTest {
     	table.primaryKey("TST_PK_LOBS").on(idColumn).add();
     	dataModel.register();
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-    		dataModel.install(true, true);
+    		service.getDataModelUpgrader().upgrade(dataModel, Version.latest());
     		LobTestTuple tuple = new LobTestTuple();
     		for (int i = 0 ; i < 100000 ; i++) {
     			tuple.charLob += "x";
