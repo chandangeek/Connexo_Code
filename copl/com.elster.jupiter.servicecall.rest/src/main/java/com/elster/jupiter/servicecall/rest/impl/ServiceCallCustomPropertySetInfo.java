@@ -9,8 +9,6 @@ public class ServiceCallCustomPropertySetInfo {
     public long id;
     public String name;
     public boolean editable;
-   // public boolean timesliced;
-    //public String customPropertySetId;
     public List<PropertyInfo> properties;
 
     public ServiceCallCustomPropertySetInfo() {
@@ -19,10 +17,8 @@ public class ServiceCallCustomPropertySetInfo {
     public ServiceCallCustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet, List<PropertyInfo> properties) {
         this.id = registeredCustomPropertySet.getId();
         this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
-        this.editable = false;//registeredCustomPropertySet.isEditableByCurrentUser();
-        //this.timesliced = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
+        this.editable = false;
         this.properties = properties;
-        //this.customPropertySetId = registeredCustomPropertySet.getCustomPropertySet().getId();
     }
 
 }
