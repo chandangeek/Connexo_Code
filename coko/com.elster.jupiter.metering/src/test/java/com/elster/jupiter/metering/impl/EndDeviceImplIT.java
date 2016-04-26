@@ -1,22 +1,14 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.impl.BpmModule;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTimeline;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineServiceImpl;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.LifecycleDates;
@@ -24,124 +16,65 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.UtilModule;
-
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceImplIT {
+    private static Clock clock = mock(Clock.class);
+    static MeteringInMemoryBootstrapModule inMemoryPersistentModule = new MeteringInMemoryBootstrapModule(clock, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
 
-    private Injector injector;
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(inMemoryPersistentModule.getTransactionService());
 
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private UserService userService;
-    @Mock
-    private EventAdmin eventAdmin;
-    @Mock
-    private Clock clock;
+    @BeforeClass
+    public static void beforeClass() {
+        when(clock.instant()).thenAnswer(invocationOnMock -> Instant.now());
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+        inMemoryPersistentModule.activate();
+    }
 
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-        }
+    @AfterClass
+    public static void afterClass() {
+        inMemoryPersistentModule.deactivate();
     }
 
     @Before
-    public void setUp() throws SQLException {
+    public void setUp() {
         when(this.clock.instant()).thenAnswer(invocationOnMock -> Instant.now());
-        when(this.clock.getZone()).thenReturn(ZoneId.systemDefault());
-        try {
-            injector = Guice.createInjector(
-                    new MockModule(),
-                    inMemoryBootstrapModule,
-                    new InMemoryMessagingModule(),
-                    new IdsModule(),
-                    new MeteringModule(),
-                    new PartyModule(),
-                    new EventsModule(),
-                    new DomainUtilModule(),
-                    new OrmModule(),
-                    new UtilModule(clock),
-                    new ThreadSecurityModule(),
-                    new PubSubModule(),
-                    new TransactionModule(),
-                    new BpmModule(),
-                    new FiniteStateMachineModule(),
-                    new NlsModule(),
-                    new CustomPropertySetsModule()
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        injector.getInstance(TransactionService.class).execute(() -> {
-            injector.getInstance(CustomPropertySetService.class);
-            injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(MeteringService.class);
-            return null;
-        });
-    }
-
-    @After
-    public void tearDown() throws SQLException {
-        inMemoryBootstrapModule.deactivate();
     }
 
     @Test
+    @Transactional
     public void testGetEvents() {
         Instant date = ZonedDateTime.of(2014, 2, 5, 14, 15, 16, 0, ZoneId.systemDefault()).toInstant();
         EndDevice endDevice;
         EndDeviceEventRecord eventRecord;
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            List<EndDeviceEventType> availableEndDeviceEventTypes = meteringService.getAvailableEndDeviceEventTypes();
-            endDevice = meteringService.findAmrSystem(1).get().createEndDevice("1", "1");
-            eventRecord = endDevice.addEventRecord(availableEndDeviceEventTypes.get(0), date).create();
-            context.commit();
-        }
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
+        List<EndDeviceEventType> availableEndDeviceEventTypes = meteringService.getAvailableEndDeviceEventTypes();
+        endDevice = meteringService.findAmrSystem(1).get().createEndDevice("1", "1");
+        eventRecord = endDevice.addEventRecord(availableEndDeviceEventTypes.get(0), date).create();
         List<EndDeviceEventRecord> deviceEvents = endDevice.getDeviceEvents(Range.atLeast(date));
         assertThat(deviceEvents).contains(eventRecord);
         List<EndDeviceEventType> endDeviceEventTypes = new ArrayList<>(meteringService.getAvailableEndDeviceEventTypes());
@@ -153,145 +86,146 @@ public class EndDeviceImplIT {
     }
 
     @Test
+    @Transactional
     public void createEndDeviceWithManagedState() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
 
-            // Business method
-            endDevice.update();
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-            // Asserts
-            assertThat(endDevice.getFiniteStateMachine().isPresent()).isTrue();
-            assertThat(endDevice.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
-            assertThat(endDevice.getState().isPresent()).isTrue();
-            assertThat(endDevice.getState().get().getId()).isEqualTo(stateMachine.getInitialState().getId());
-        }
+        FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+
+        // Business method
+        endDevice.update();
+
+        // Asserts
+        assertThat(endDevice.getFiniteStateMachine().isPresent()).isTrue();
+        assertThat(endDevice.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
+        assertThat(endDevice.getState().isPresent()).isTrue();
+        assertThat(endDevice.getState().get().getId()).isEqualTo(stateMachine.getInitialState().getId());
     }
 
     @Test(expected = UnsupportedOperationException.class)
+    @Transactional
     public void changeStateForDeviceWhoseStateIsNotManaged() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
-            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
 
-            // Business method
-            endDevice.changeState(stateMachine.getInitialState(), Instant.now());
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-            // Asserts: see expected exception rule
-        }
+        FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
+        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
+
+        // Business method
+        endDevice.changeState(stateMachine.getInitialState(), Instant.now());
+
+        // Asserts: see expected exception rule
     }
 
     @Test(expected = IllegalArgumentException.class)
+    @Transactional
     public void changeStateToOneThatIsNotPartOfTheStateMachine() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
-            FiniteStateMachine otherStateMachine = this.createBiggerFiniteStateMachine();
-            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
 
-            // Business method
-            endDevice.changeState(otherStateMachine.getInitialState(), Instant.now());
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-            // Asserts: see expected exception rule
-        }
+        FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
+        FiniteStateMachine otherStateMachine = this.createBiggerFiniteStateMachine();
+        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+
+        // Business method
+        endDevice.changeState(otherStateMachine.getInitialState(), Instant.now());
+
+        // Asserts: see expected exception rule
     }
 
     @Test
+    @Transactional
     public void changeState() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
+
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
         long deviceId;
         long stateId;
-        try (TransactionContext context = transactionService.getContext()) {
-            FiniteStateMachine stateMachine = this.createBiggerFiniteStateMachine();
-            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
-            endDevice.update();
-            deviceId = endDevice.getId();
+        Instant now = Instant.now();
+        when(clock.instant()).thenReturn(now);
 
-            // Business method
-            State second = stateMachine.getState("Second").get();
-            stateId = second.getId();
-            endDevice.changeState(second, Instant.now());
-            context.commit();
-        }
+        FiniteStateMachine stateMachine = this.createBiggerFiniteStateMachine();
+        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+        endDevice.update();
+        deviceId = endDevice.getId();
 
-        EndDevice endDevice = meteringService.findEndDevice(deviceId).get();
+        // Business method
+        State second = stateMachine.getState("Second").get();
+        stateId = second.getId();
+        endDevice.changeState(second, Instant.now());
+
+        when(clock.instant()).thenReturn(now.plus(1, ChronoUnit.SECONDS));
+        EndDevice endDeviceReloaded = meteringService.findEndDevice(deviceId).get();
 
         // Asserts
-        assertThat(endDevice.getState().isPresent()).isTrue();
-        assertThat(endDevice.getState().get().getId()).isEqualTo(stateId);
+        assertThat(endDeviceReloaded.getState().isPresent()).isTrue();
+        assertThat(endDeviceReloaded.getState().get().getId()).isEqualTo(stateId);
     }
 
     @Test
+    @Transactional
     public void changingStateAndHistory() {
         Instant march1st = Instant.ofEpochMilli(1425168000000L);    // Midnight of March 1st, 2015 (GMT)
         Instant april1st = Instant.ofEpochMilli(1427846400000L);    // Midnight of April 1st, 2015 (GMT)
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
+
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
         long deviceId;
         long initialStateId;
         long changedStateId;
-        try (TransactionContext context = transactionService.getContext()) {
-            when(this.clock.instant()).thenReturn(march1st);
-            FiniteStateMachine stateMachine = this.createBiggerFiniteStateMachine();
-            State initialState = stateMachine.getInitialState();
-            initialStateId = initialState.getId();
-            State changedState = stateMachine.getState("Second").get();
-            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
-            endDevice.update();
-            deviceId = endDevice.getId();
-            changedStateId = changedState.getId();
-            when(this.clock.instant()).thenReturn(april1st);
 
-            // Business method
-            endDevice.changeState(changedState, april1st);
-            context.commit();
-        }
+        when(clock.instant()).thenReturn(march1st);
+        FiniteStateMachine stateMachine = this.createBiggerFiniteStateMachine();
+        State initialState = stateMachine.getInitialState();
+        initialStateId = initialState.getId();
+        State changedState = stateMachine.getState("Second").get();
+        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+        endDevice.update();
+        deviceId = endDevice.getId();
+        changedStateId = changedState.getId();
+        when(clock.instant()).thenReturn(april1st);
 
-        EndDevice endDevice = meteringService.findEndDevice(deviceId).get();
+        // Business method
+        endDevice.changeState(changedState, april1st);
+
+        EndDevice endDeviceReloaded = meteringService.findEndDevice(deviceId).get();
 
         // Asserts
-        assertThat(endDevice.getState().isPresent()).isTrue();
-        assertThat(endDevice.getState().get().getId()).isEqualTo(changedStateId);
-        assertThat(endDevice.getState(march1st).isPresent()).isTrue();
-        assertThat(endDevice.getState(march1st).get().getId()).isEqualTo(initialStateId);
-        assertThat(endDevice.getState(april1st).isPresent()).isTrue();
-        assertThat(endDevice.getState(april1st).get().getId()).isEqualTo(changedStateId);
+        assertThat(endDeviceReloaded.getState().isPresent()).isTrue();
+        assertThat(endDeviceReloaded.getState().get().getId()).isEqualTo(changedStateId);
+        assertThat(endDeviceReloaded.getState(march1st).isPresent()).isTrue();
+        assertThat(endDeviceReloaded.getState(march1st).get().getId()).isEqualTo(initialStateId);
+        assertThat(endDeviceReloaded.getState(april1st).isPresent()).isTrue();
+        assertThat(endDeviceReloaded.getState(april1st).get().getId()).isEqualTo(changedStateId);
     }
 
     @Test
+    @Transactional
     public void getStateTimeline() {
         Instant march1st = Instant.ofEpochMilli(1425168000000L);    // Midnight of March 1st, 2015 (GMT)
         Instant april1st = Instant.ofEpochMilli(1427846400000L);    // Midnight of April 1st, 2015 (GMT)
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
+
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
         long deviceId;
         long initialStateId;
         long changedStateId;
-        try (TransactionContext context = transactionService.getContext()) {
-            when(this.clock.instant()).thenReturn(march1st);
-            FiniteStateMachine stateMachine = this.createBiggerFiniteStateMachine();
-            State initialState = stateMachine.getInitialState();
-            initialStateId = initialState.getId();
-            State changedState = stateMachine.getState("Second").get();
-            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
-            endDevice.update();
-            deviceId = endDevice.getId();
-            changedStateId = changedState.getId();
-            when(this.clock.instant()).thenReturn(april1st);
-            endDevice.changeState(changedState, april1st);
-            context.commit();
-        }
-        EndDevice endDevice = meteringService.findEndDevice(deviceId).get();
+
+        when(clock.instant()).thenReturn(march1st);
+        FiniteStateMachine stateMachine = this.createBiggerFiniteStateMachine();
+        State initialState = stateMachine.getInitialState();
+        initialStateId = initialState.getId();
+        State changedState = stateMachine.getState("Second").get();
+        ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+        endDevice.update();
+        deviceId = endDevice.getId();
+        changedStateId = changedState.getId();
+        when(clock.instant()).thenReturn(april1st);
+        endDevice.changeState(changedState, april1st);
+
+        EndDevice endDeviceReloaded = meteringService.findEndDevice(deviceId).get();
 
         // Business method
-        Optional<StateTimeline> stateTimeline = endDevice.getStateTimeline();
+        Optional<StateTimeline> stateTimeline = endDeviceReloaded.getStateTimeline();
 
         // Asserts
         assertThat(stateTimeline).isPresent();
@@ -309,211 +243,211 @@ public class EndDeviceImplIT {
     }
 
     @Test
+    @Transactional
     public void cimLifecycleDatesAreAllEmptyAtCreationTime() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
+
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
+
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
 
 
-            // Asserts
-            LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
-            assertThat(lifecycleDates).isNotNull();
-            assertThat(lifecycleDates.getManufacturedDate()).isEmpty();
-            assertThat(lifecycleDates.getPurchasedDate()).isEmpty();
-            assertThat(lifecycleDates.getReceivedDate()).isEmpty();
-            assertThat(lifecycleDates.getInstalledDate()).isEmpty();
-            assertThat(lifecycleDates.getRemovedDate()).isEmpty();
-            assertThat(lifecycleDates.getRetiredDate()).isEmpty();
-        }
+        // Asserts
+        LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
+        assertThat(lifecycleDates).isNotNull();
+        assertThat(lifecycleDates.getManufacturedDate()).isEmpty();
+        assertThat(lifecycleDates.getPurchasedDate()).isEmpty();
+        assertThat(lifecycleDates.getReceivedDate()).isEmpty();
+        assertThat(lifecycleDates.getInstalledDate()).isEmpty();
+        assertThat(lifecycleDates.getRemovedDate()).isEmpty();
+        assertThat(lifecycleDates.getRetiredDate()).isEmpty();
     }
 
     @Test
+    @Transactional
     public void cimLifecycleDatesAreAllEmptyAtCreationTimeAfterFind() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
 
-            // Business method
-            LifecycleDates lifecycleDates = meteringService.findEndDevice(endDevice.getId()).get().getLifecycleDates();
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-            // Asserts
-            assertThat(lifecycleDates).isNotNull();
-            assertThat(lifecycleDates.getManufacturedDate()).isEmpty();
-            assertThat(lifecycleDates.getPurchasedDate()).isEmpty();
-            assertThat(lifecycleDates.getReceivedDate()).isEmpty();
-            assertThat(lifecycleDates.getInstalledDate()).isEmpty();
-            assertThat(lifecycleDates.getRemovedDate()).isEmpty();
-            assertThat(lifecycleDates.getRetiredDate()).isEmpty();
-        }
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
+
+        // Business method
+        LifecycleDates lifecycleDates = meteringService.findEndDevice(endDevice.getId()).get().getLifecycleDates();
+
+        // Asserts
+        assertThat(lifecycleDates).isNotNull();
+        assertThat(lifecycleDates.getManufacturedDate()).isEmpty();
+        assertThat(lifecycleDates.getPurchasedDate()).isEmpty();
+        assertThat(lifecycleDates.getReceivedDate()).isEmpty();
+        assertThat(lifecycleDates.getInstalledDate()).isEmpty();
+        assertThat(lifecycleDates.getRemovedDate()).isEmpty();
+        assertThat(lifecycleDates.getRetiredDate()).isEmpty();
     }
 
     @Test
+    @Transactional
     public void updateCimLifecycleDates() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
 
-            // Business method
-            LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
-            Instant manufacturedDate = Instant.ofEpochMilli(1000L);
-            Instant purchasedDate = Instant.ofEpochMilli(2000L);
-            Instant receivedDate = Instant.ofEpochMilli(3000L);
-            Instant installedDate = Instant.ofEpochMilli(4000L);
-            Instant removedDate = Instant.ofEpochMilli(5000L);
-            Instant retiredDate = Instant.ofEpochMilli(6000L);
-            lifecycleDates.setManufacturedDate(manufacturedDate);
-            lifecycleDates.setPurchasedDate(purchasedDate);
-            lifecycleDates.setReceivedDate(receivedDate);
-            lifecycleDates.setInstalledDate(installedDate);
-            lifecycleDates.setRemovedDate(removedDate);
-            lifecycleDates.setRetiredDate(retiredDate);
-            endDevice.update();
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-            // Asserts
-            LifecycleDates datesAfterFind = meteringService.findEndDevice(endDevice.getId()).get().getLifecycleDates();
-            assertThat(datesAfterFind).isNotNull();
-            assertThat(datesAfterFind.getManufacturedDate()).contains(manufacturedDate);
-            assertThat(datesAfterFind.getPurchasedDate()).contains(purchasedDate);
-            assertThat(datesAfterFind.getReceivedDate()).contains(receivedDate);
-            assertThat(datesAfterFind.getInstalledDate()).contains(installedDate);
-            assertThat(datesAfterFind.getRemovedDate()).contains(removedDate);
-            assertThat(datesAfterFind.getRetiredDate()).contains(retiredDate);
-        }
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
+
+        // Business method
+        LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
+        Instant manufacturedDate = Instant.ofEpochMilli(1000L);
+        Instant purchasedDate = Instant.ofEpochMilli(2000L);
+        Instant receivedDate = Instant.ofEpochMilli(3000L);
+        Instant installedDate = Instant.ofEpochMilli(4000L);
+        Instant removedDate = Instant.ofEpochMilli(5000L);
+        Instant retiredDate = Instant.ofEpochMilli(6000L);
+        lifecycleDates.setManufacturedDate(manufacturedDate);
+        lifecycleDates.setPurchasedDate(purchasedDate);
+        lifecycleDates.setReceivedDate(receivedDate);
+        lifecycleDates.setInstalledDate(installedDate);
+        lifecycleDates.setRemovedDate(removedDate);
+        lifecycleDates.setRetiredDate(retiredDate);
+        endDevice.update();
+
+        // Asserts
+        LifecycleDates datesAfterFind = meteringService.findEndDevice(endDevice.getId()).get().getLifecycleDates();
+        assertThat(datesAfterFind).isNotNull();
+        assertThat(datesAfterFind.getManufacturedDate()).contains(manufacturedDate);
+        assertThat(datesAfterFind.getPurchasedDate()).contains(purchasedDate);
+        assertThat(datesAfterFind.getReceivedDate()).contains(receivedDate);
+        assertThat(datesAfterFind.getInstalledDate()).contains(installedDate);
+        assertThat(datesAfterFind.getRemovedDate()).contains(removedDate);
+        assertThat(datesAfterFind.getRetiredDate()).contains(retiredDate);
     }
 
     @Test
+    @Transactional
     public void updateCimLifecycleDatesAfterFind() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
 
-            // Business method
-            LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
-            Instant manufacturedDate = Instant.ofEpochMilli(1000L);
-            Instant purchasedDate = Instant.ofEpochMilli(2000L);
-            Instant receivedDate = Instant.ofEpochMilli(3000L);
-            Instant installedDate = Instant.ofEpochMilli(4000L);
-            Instant removedDate = Instant.ofEpochMilli(5000L);
-            Instant retiredDate = Instant.ofEpochMilli(6000L);
-            lifecycleDates.setManufacturedDate(manufacturedDate);
-            lifecycleDates.setPurchasedDate(purchasedDate);
-            lifecycleDates.setReceivedDate(receivedDate);
-            lifecycleDates.setInstalledDate(installedDate);
-            lifecycleDates.setRemovedDate(removedDate);
-            lifecycleDates.setRetiredDate(retiredDate);
-            endDevice.update();
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-            // Asserts
-            assertThat(lifecycleDates).isNotNull();
-            assertThat(lifecycleDates.getManufacturedDate()).contains(manufacturedDate);
-            assertThat(lifecycleDates.getPurchasedDate()).contains(purchasedDate);
-            assertThat(lifecycleDates.getReceivedDate()).contains(receivedDate);
-            assertThat(lifecycleDates.getInstalledDate()).contains(installedDate);
-            assertThat(lifecycleDates.getRemovedDate()).contains(removedDate);
-            assertThat(lifecycleDates.getRetiredDate()).contains(retiredDate);
-        }
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
+
+        // Business method
+        LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
+        Instant manufacturedDate = Instant.ofEpochMilli(1000L);
+        Instant purchasedDate = Instant.ofEpochMilli(2000L);
+        Instant receivedDate = Instant.ofEpochMilli(3000L);
+        Instant installedDate = Instant.ofEpochMilli(4000L);
+        Instant removedDate = Instant.ofEpochMilli(5000L);
+        Instant retiredDate = Instant.ofEpochMilli(6000L);
+        lifecycleDates.setManufacturedDate(manufacturedDate);
+        lifecycleDates.setPurchasedDate(purchasedDate);
+        lifecycleDates.setReceivedDate(receivedDate);
+        lifecycleDates.setInstalledDate(installedDate);
+        lifecycleDates.setRemovedDate(removedDate);
+        lifecycleDates.setRetiredDate(retiredDate);
+        endDevice.update();
+
+        // Asserts
+        assertThat(lifecycleDates).isNotNull();
+        assertThat(lifecycleDates.getManufacturedDate()).contains(manufacturedDate);
+        assertThat(lifecycleDates.getPurchasedDate()).contains(purchasedDate);
+        assertThat(lifecycleDates.getReceivedDate()).contains(receivedDate);
+        assertThat(lifecycleDates.getInstalledDate()).contains(installedDate);
+        assertThat(lifecycleDates.getRemovedDate()).contains(removedDate);
+        assertThat(lifecycleDates.getRetiredDate()).contains(retiredDate);
     }
 
     @Test
+    @Transactional
     public void newDeviceIsNotObsolete() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "newDeviceIsNotObsolete");
 
-            // Asserts
-            assertThat(endDevice.isObsolete()).isFalse();
-        }
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
+
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "newDeviceIsNotObsolete");
+
+        // Asserts
+        assertThat(endDevice.isObsolete()).isFalse();
     }
 
     @Test
+    @Transactional
     public void makeObsolete() {
         Instant now = Instant.ofEpochSecond(10000);
-        when(this.clock.instant()).thenReturn(now);
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "makeObsolete");
+        when(clock.instant()).thenReturn(now);
 
-            // Business method
-            endDevice.makeObsolete();
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-            // Asserts
-            assertThat(endDevice.isObsolete()).isTrue();
-            assertThat(endDevice.getObsoleteTime()).contains(now);
-        }
+        EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "makeObsolete");
+
+        // Business method
+        endDevice.makeObsolete();
+
+        // Asserts
+        assertThat(endDevice.isObsolete()).isTrue();
+        assertThat(endDevice.getObsoleteTime()).contains(now);
     }
 
     @Test
+    @Transactional
     public void findByIdAfterMakeObsolete() {
         Instant now = Instant.ofEpochSecond(10000);
-        when(this.clock.instant()).thenReturn(now);
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            Meter meter = amrSystem.newMeter("amrID")
-                    .setMRID("findByIdAfterMakeObsolete")
-                    .create();
-            meter.update();
-            meter.makeObsolete();
+        when(clock.instant()).thenReturn(now);
 
-            // Business method
-            Optional<Meter> shouldBeObsolete = amrSystem.findMeter(meter.getAmrId());
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-            // Asserts
-            assertThat(shouldBeObsolete).isPresent();
-            assertThat(shouldBeObsolete.get().isObsolete()).isTrue();
-            assertThat(meter.getObsoleteTime()).contains(now);
-        }
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        Meter meter = amrSystem.newMeter("amrID")
+                .setMRID("findByIdAfterMakeObsolete")
+                .create();
+        meter.update();
+        meter.makeObsolete();
+
+        // Business method
+        Optional<Meter> shouldBeObsolete = amrSystem.findMeter(meter.getAmrId());
+
+        // Asserts
+        assertThat(shouldBeObsolete).isPresent();
+        assertThat(shouldBeObsolete.get().isObsolete()).isTrue();
+        assertThat(meter.getObsoleteTime()).contains(now);
     }
 
     @Test
+    @Transactional
     public void reuseSameMRID() {
         String mRID = "reuseSameMRID";
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            EndDevice willBeObsolete = amrSystem.createEndDevice("amrID1", mRID);
-            willBeObsolete.makeObsolete();
 
-            // Business method
-            EndDevice endDevice = amrSystem.createEndDevice("amrID2", mRID);
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
 
-            // Asserts
-            assertThat(endDevice).isNotNull();
-            assertThat(endDevice.getMRID()).isEqualTo(mRID);
-        }
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        EndDevice willBeObsolete = amrSystem.createEndDevice("amrID1", mRID);
+        willBeObsolete.makeObsolete();
+
+        // Business method
+        EndDevice endDevice = amrSystem.createEndDevice("amrID2", mRID);
+
+        // Asserts
+        assertThat(endDevice).isNotNull();
+        assertThat(endDevice.getMRID()).isEqualTo(mRID);
     }
 
     @Test(expected = UnderlyingSQLFailedException.class)
+    @Transactional
     public void mRIDIsUnique() {
         String mRID = "mRIDIsUnique";
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            EndDevice first = amrSystem.createEndDevice("amrID", mRID);
-            EndDevice second = amrSystem.createEndDevice("amrID", mRID);
 
-            // Asserts: see expected exception rule
-        }
+        MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
+
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        EndDevice first = amrSystem.createEndDevice("amrID", mRID);
+        EndDevice second = amrSystem.createEndDevice("amrID", mRID);
+
+        // Asserts: see expected exception rule
     }
 
     private FiniteStateMachine createTinyFiniteStateMachine() {
-        FiniteStateMachineServiceImpl finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
+        FiniteStateMachineServiceImpl finiteStateMachineService = (FiniteStateMachineServiceImpl) inMemoryPersistentModule.getFiniteStateMachineService();
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Tiny");
         FiniteStateMachine stateMachine = builder.complete(builder.newCustomState("TheOneAndOnly").complete());
         return stateMachine;
     }
 
     private FiniteStateMachine createBiggerFiniteStateMachine() {
-        FiniteStateMachineServiceImpl finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
+        FiniteStateMachineServiceImpl finiteStateMachineService = (FiniteStateMachineServiceImpl) inMemoryPersistentModule.getFiniteStateMachineService();
         CustomStateTransitionEventType eventType = finiteStateMachineService.newCustomStateTransitionEventType("#whatever", "enddevice");
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Bigger");
         State second = builder.newCustomState("Second").complete();
@@ -521,5 +455,4 @@ public class EndDeviceImplIT {
         FiniteStateMachine stateMachine = builder.complete(first);
         return stateMachine;
     }
-
 }

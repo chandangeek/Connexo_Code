@@ -10,9 +10,11 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.GeoCoordinates;
@@ -20,6 +22,7 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -42,11 +45,16 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactory;
+import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactoryImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
+import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -59,11 +67,14 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -75,14 +86,16 @@ import com.elster.jupiter.util.streams.DecoratedStream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
 import javax.validation.constraints.NotNull;
 import java.time.Clock;
@@ -91,7 +104,8 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -104,15 +118,13 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.metering.impl.LocationTemplateImpl.LocationTemplateElements;
 import static com.elster.jupiter.metering.impl.LocationTemplateImpl.TemplateFieldImpl;
-
-import com.elster.jupiter.metering.LocationTemplate.TemplateField;
-
 import static com.elster.jupiter.util.conditions.Where.where;
 
 
 @Component(name = "com.elster.jupiter.metering",
         service = {MeteringService.class, ServerMeteringService.class, InstallService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + MeteringService.COMPONENTNAME)
+@Singleton
 public class MeteringServiceImpl implements ServerMeteringService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile IdsService idsService;
@@ -122,11 +134,18 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile UserService userService;
     private volatile EventService eventService;
     private volatile DataModel dataModel;
+    private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile MetrologyConfigurationServiceImpl metrologyConfigurationService;
+    private volatile SearchService searchService;
+    private volatile PropertySpecService propertySpecService;
+    private volatile UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
+    private volatile LicenseService licenseService;
+    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
@@ -142,7 +161,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Inject
     public MeteringServiceImpl(
             Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
-            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService) {
+            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService,
+            PropertySpecService propertySpecService, SearchService searchService, LicenseService licenseService) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -157,9 +177,13 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setJsonService(jsonService);
         setFiniteStateMachineService(finiteStateMachineService);
         setCustomPropertySetService(customPropertySetService);
+        setPropertySpecService(propertySpecService);
+        setSearchService(searchService);
+        setLicenseService(licenseService);
         activate(null);
         if (!dataModel.isInstalled()) {
             install();
+            this.metrologyConfigurationService.install();
         }
     }
 
@@ -322,7 +346,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         );
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Query<Meter> getMeterQuery() {
         QueryExecutor<?> executor = dataModel.query(EndDevice.class,
@@ -403,17 +426,36 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         this.customPropertySetService = customPropertySetService;
     }
 
-    @Activate
-    public final void activate(BundleContext context) {
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
-        if (dataModel != null && context != null) {
-            createNewTemplate(context);
-        } else if (context == null && locationTemplate == null) {
+    @Reference
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
+    }
+
+    @Activate
+    public final void activate(BundleContext bundleContext) {
+        if (dataModel != null && bundleContext != null) {
+            createNewTemplate(bundleContext);
+        } else if (bundleContext == null && locationTemplate == null) {
             createLocationTemplateDefaultData();
         }
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService);
+        this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this, this.metrologyConfigurationService, this.clock, this.licenseService);
+        this.searchService.register(this.usagePointRequirementsSearchDomain);
+        registerMetrologyConfigurationService(bundleContext);
 
         dataModel.register(new AbstractModule() {
             @Override
@@ -430,7 +472,13 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
-                bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class);
+                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
+                bind(ServerMetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
+                bind(CalculatedReadingRecordFactory.class).to(CalculatedReadingRecordFactoryImpl.class);
+                bind(UsagePointRequirementsSearchDomain.class).toInstance(usagePointRequirementsSearchDomain);
+                bind(SearchService.class).toInstance(searchService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(LicenseService.class).toInstance(licenseService);
             }
         });
 
@@ -441,14 +489,36 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             });
         }
 
-        if (context == null && locationTemplate == null) {
+        if (bundleContext == null && locationTemplate == null) {
             createDefaultLocationTemplate();
         }
 
     }
 
+    private void registerMetrologyConfigurationService(BundleContext bundleContext) {
+        if (bundleContext != null) {
+            Dictionary<String, Object> properties = new Hashtable<>(1);
+            properties.put("name", MetrologyConfigurationService.COMPONENT_NAME);
+            this.serviceRegistrations.add(bundleContext.registerService(
+                    new String[]{
+                            MetrologyConfigurationService.class.getName(),
+                            ServerMetrologyConfigurationService.class.getName(),
+                            InstallService.class.getName(),
+                            PrivilegesProvider.class.getName(),
+                            TranslationKeyProvider.class.getName()},
+                    this.metrologyConfigurationService,
+                    properties));
+        }
+    }
+
     @Deactivate
     public final void deactivate() {
+        if (!this.serviceRegistrations.isEmpty()) {
+            this.serviceRegistrations.forEach(ServiceRegistration::unregister);
+        }
+        if (this.usagePointRequirementsSearchDomain != null) {
+            this.searchService.unregister(this.usagePointRequirementsSearchDomain);
+        }
     }
 
     @Override
@@ -486,6 +556,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
     }
 
@@ -584,16 +655,17 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     // bulk insert
     public void createAllReadingTypes(List<Pair<String, String>> readingTypes) {
         List<ReadingType> availableReadingTypes = getAvailableReadingTypes();
-        List<String> availableReadingTypeCodes = availableReadingTypes.parallelStream()
+        List<String> availableReadingTypeCodes =
+            availableReadingTypes.parallelStream()
                 .map(ReadingType::getMRID)
                 .collect(Collectors.toList());
-        List<Pair<String, String>> filteredReadingTypes = readingTypes.parallelStream()
+        List<Pair<String, String>> filteredReadingTypes =
+            readingTypes.parallelStream()
                 .filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getFirst()))
                 .collect(Collectors.toList());
 
         DecoratedStream.decorate(filteredReadingTypes.stream())
-                .map(filteredReadingType -> dataModel.getInstance(ReadingTypeImpl.class)
-                        .init(filteredReadingType.getFirst(), filteredReadingType.getLast()))
+                .map(filteredReadingType -> dataModel.getInstance(ReadingTypeImpl.class).init(filteredReadingType.getFirst(), filteredReadingType.getLast()))
                 .map(readingType -> ((ReadingType) readingType))
                 .partitionPer(1000)
                 .forEach(listPer1000 -> dataModel.mapper(ReadingType.class).persist(listPer1000));
@@ -700,6 +772,18 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         Arrays.stream(PropertyTranslationKeys.values()).forEach(translationKeys::add);
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
         Arrays.stream(AmiBillingReadyKind.values()).forEach(translationKeys::add);
+        Arrays.stream(BypassStatus.values()).forEach(translationKeys::add);
+        Arrays.stream(YesNoAnswer.values()).map(answer -> new TranslationKey() {
+            @Override
+            public String getKey() {
+                return answer.toString();
+            }
+
+            @Override
+            public String getDefaultFormat() {
+                return answer.toString();
+            }
+        }).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         return translationKeys;
     }
@@ -711,14 +795,41 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public MultiplierType createMultiplierType(String name) {
-        MultiplierTypeImpl multiplierType = MultiplierTypeImpl.from(dataModel, name);
+        MultiplierTypeImpl multiplierType = dataModel.getInstance(MultiplierTypeImpl.class).initWithCustomName(name);
         multiplierType.save();
         return multiplierType;
     }
 
     @Override
+    public MultiplierType createMultiplierType(NlsKey name) {
+        String localKey = "MultiplierType.custom." + name.getKey();
+        this.copyKeyIfMissing(name, localKey);
+        MultiplierTypeImpl multiplierType = this.dataModel.getInstance(MultiplierTypeImpl.class).initWithNlsNameKey(localKey);
+        multiplierType.save();
+        return multiplierType;
+    }
+
+    @Override
+    public void copyKeyIfMissing(NlsKey name, String localKey) {
+        if (this.thesaurus.getTranslations().get(localKey) == null) {
+            this.nlsService.copy(name, COMPONENTNAME, Layer.DOMAIN, key -> localKey);
+        }
+    }
+
+    MultiplierType createMultiplierType(MultiplierType.StandardType standardType) {
+        MultiplierTypeImpl multiplierType = this.dataModel.getInstance(MultiplierTypeImpl.class).initWithNlsNameKey(standardType.translationKey());
+        multiplierType.save();
+        return multiplierType;
+    }
+
+    @Override
+    public MultiplierType getMultiplierType(MultiplierType.StandardType standardType) {
+        return this.dataModel.mapper(MultiplierType.class).getUnique("name", standardType.translationKey(), "nameIsKey", true).get();
+    }
+
+    @Override
     public Optional<MultiplierType> getMultiplierType(String name) {
-        return dataModel.mapper(MultiplierType.class).getOptional(name);
+        return this.dataModel.mapper(MultiplierType.class).getUnique("name", name, "nameIsKey", false);
     }
 
     @Override
@@ -785,13 +896,10 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
       return formattedLocation;
     }
 
-
-
     @Override
     public Optional<Location> findDeviceLocation(String mRID) {
         return findMeter(mRID).isPresent() ? findMeter(mRID).get().getLocation() : Optional.empty();
     }
-
 
     @Override
     public Optional<Location> findDeviceLocation(long id) {
@@ -847,8 +955,12 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         List<TemplateField> templateElements = new ArrayList<>();
         AtomicInteger index = new AtomicInteger(-1);
         Stream.of(LocationTemplateElements.values()).forEach(t ->
-                templateElements.add(new TemplateFieldImpl(t.getElementAbbreviation(), t.toString(), index.incrementAndGet(), index
-                        .intValue() % 2 == 0 ? true : false)));
+                templateElements.add(
+                        new TemplateFieldImpl(
+                                t.getElementAbbreviation(),
+                                t.toString(),
+                                index.incrementAndGet(),
+                                index .intValue() % 2 == 0 ? true : false)));
         locationTemplateMembers = ImmutableList.copyOf(templateElements);
     }
 
@@ -910,4 +1022,5 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 .parseTemplate(locationTemplateFields, locationTemplateMandatoryFields);
         locationTemplateMembers = ImmutableList.copyOf(locationTemplate.getTemplateMembers());
     }
+
 }

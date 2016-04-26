@@ -12,6 +12,9 @@ public final class ReadingQualityType {
 
     public static final String MDM_VALIDATED_OK_CODE = "3.0.1";
 
+    public static final String MDM_AGGREGATED_NOT_DERIVED_CODE = "3.11.0";
+    public static final String MDM_AGGREGATED_DERIVED_CODE = "3.11.1";
+
     private final String code;
 
     public ReadingQualityType(String code) {

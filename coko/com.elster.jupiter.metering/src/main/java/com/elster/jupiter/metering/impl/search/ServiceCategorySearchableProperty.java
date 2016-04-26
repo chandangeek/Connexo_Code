@@ -69,27 +69,23 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof ServiceKind) {
+            ServiceKind serviceKind = (ServiceKind) value;
+            return thesaurus.getStringBeyondComponent(serviceKind.getKey(), serviceKind.getDefaultFormat());
         }
-        return this.toDisplayAfterValidation(value);
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Enum;
-    }
-
-    protected String toDisplayAfterValidation(Object value) {
-        ServiceKind serviceKind = (ServiceKind) value;
-        return this.thesaurus.getStringBeyondComponent(serviceKind.getKey(), serviceKind.getDefaultFormat());
-    }
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .specForValuesOf(new EnumFactory(ServiceKind.class))
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY)
+                .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY)
                 .fromThesaurus(this.thesaurus)
-                .addValues(ServiceKind.values())
+                .addValues(ServiceKind.ELECTRICITY,
+                        ServiceKind.GAS,
+                        ServiceKind.HEAT,
+                        ServiceKind.WATER)
                 .markExhaustive()
                 .finish();
     }
@@ -101,9 +97,7 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("No constraint to refresh");
-        }
+        //nothing to refresh
     }
 
     @Override
