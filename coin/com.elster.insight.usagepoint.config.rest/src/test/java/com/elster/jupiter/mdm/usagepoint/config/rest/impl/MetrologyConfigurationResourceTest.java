@@ -9,7 +9,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -71,9 +71,9 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         UsagePointMetrologyConfiguration config1 = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE);
         UsagePointMetrologyConfiguration config2 = mockMetrologyConfiguration(2L, "config2", ServiceKind.WATER, MetrologyConfigurationStatus.ACTIVE);
 
-        when(metrologyConfigurationService.findAllUsagePointMetrologyConfigurations()).thenReturn(Arrays.asList(config1, config2));
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(1)).thenReturn(Optional.of(config1));
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(2)).thenReturn(Optional.of(config2));
+        when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn(Arrays.asList(config1, config2));
+        when(metrologyConfigurationService.findMetrologyConfiguration(1)).thenReturn(Optional.of(config1));
+        when(metrologyConfigurationService.findMetrologyConfiguration(2)).thenReturn(Optional.of(config2));
 
         List<ValidationRuleSet> ruleSets = new ArrayList<>();
         ruleSets.add(vrs);
@@ -118,7 +118,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         Formula formula = mock(Formula.class);
         when(formula.getDescription()).thenReturn("testDescription");
         ReadingTypeRequirementNode requirementNode = mock(ReadingTypeRequirementNode.class);
-        FullySpecifiedReadingType requirement = mock(FullySpecifiedReadingType.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement.getMetrologyConfiguration()).thenReturn(mock);
         when(requirement.getReadingType()).thenReturn(readingType);
         when(requirementNode.getReadingTypeRequirement()).thenReturn(requirement);
@@ -149,7 +149,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     @Test
     public void testGetMetrologyConfiguration() {
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "Residential", ServiceKind.GAS, MetrologyConfigurationStatus.INACTIVE);
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(13L)).thenReturn(Optional.of(metrologyConfiguration));
+        when(metrologyConfigurationService.findMetrologyConfiguration(13L)).thenReturn(Optional.of(metrologyConfiguration));
 
         //Business method
         String json = target("metrologyconfigurations/13").request().get(String.class);
@@ -183,7 +183,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         metrologyConfigurationInfo.name = "newName";
         Entity<MetrologyConfigurationInfo> json = Entity.json(metrologyConfigurationInfo);
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(2L, metrologyConfigurationInfo.name, ServiceKind.GAS, MetrologyConfigurationStatus.INACTIVE);
-        when(metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(anyLong(), anyLong())).thenReturn(Optional.of(metrologyConfiguration));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(anyLong(), anyLong())).thenReturn(Optional.of(metrologyConfiguration));
 
         Response response = target("/metrologyconfigurations/2").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -239,7 +239,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mConfig.isActive()).thenReturn(false);
         when(mConfig.getVersion()).thenReturn(1L);
         when(mConfig.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
+        when(metrologyConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").request().get();
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
@@ -291,7 +291,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(serviceCategory.getCustomPropertySets()).thenReturn(Stream.of(rcps3).collect(Collectors.toList()));
         when(rcps3.getCustomPropertySet()).thenReturn(cps3);
 
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
+        when(metrologyConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
         when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Arrays.asList(rcps1, rcps2));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").queryParam("linked", false).request().get();
@@ -330,7 +330,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mConfig.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
 
         when(customPropertySetService.findActiveCustomPropertySet("TestSPCId")).thenReturn(Optional.of(rcps));
-        when(metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(mConfigId, info.version)).thenReturn(Optional.of(mConfig));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(mConfigId, info.version)).thenReturn(Optional.of(mConfig));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").request().put(Entity.json(info));
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
@@ -351,8 +351,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         info.customPropertySets = Collections.singletonList(new CustomPropertySetInfo());
         info.customPropertySets.get(0).customPropertySetId = "TestSPCId";
 
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.empty());
-        when(metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(mConfigId, info.version)).thenReturn(Optional.empty());
+        when(metrologyConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.empty());
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(mConfigId, info.version)).thenReturn(Optional.empty());
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
@@ -385,8 +385,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mConfig.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
 
         when(customPropertySetService.findActiveCustomPropertySet("TestSPCId")).thenReturn(Optional.of(rcps));
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
-        when(metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(mConfigId, parent.version)).thenReturn(Optional.of(mConfig));
+        when(metrologyConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(mConfigId, parent.version)).thenReturn(Optional.of(mConfig));
 
         target("/metrologyconfigurations/" + mConfigId + "/custompropertysets/TestSPCId").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         verify(mConfig).removeCustomPropertySet(rcps);
@@ -418,8 +418,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         CustomPropertySetInfo<MetrologyConfigurationInfo> info = new CustomPropertySetInfo<>();
         info.parent = parent;
         info.customPropertySetId = "TestSPCId";
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
-        when(metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(mConfigId, parent.version)).thenReturn(Optional.empty());
+        when(metrologyConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(mConfigId, parent.version)).thenReturn(Optional.empty());
         when(customPropertySetService.findActiveCustomPropertySet("TestSPCId")).thenReturn(Optional.of(rcps));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets/TestSPCId").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
@@ -469,7 +469,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(metrologyConfiguration.getStatus()).thenReturn(MetrologyConfigurationStatus.INACTIVE);
         when(metrologyConfiguration.getServiceCategory()).thenReturn(serviceCategory);
 
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(1L)).thenReturn(Optional.of(metrologyConfiguration));
+        when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.of(metrologyConfiguration));
 
         Response response = target("/metrologyconfigurations/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

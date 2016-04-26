@@ -141,12 +141,12 @@ public class MetrologyConfigurationInfoFactory {
                 .getMeterRoleFor(requirement)
                 .map(this::asInfo)
                 .orElse(null);
-        if (requirement instanceof FullySpecifiedReadingType) {
-            FullySpecifiedReadingType fullySpecifiedReadingType = (FullySpecifiedReadingType) requirement;
-            info.readingType = new ReadingTypeInfo(fullySpecifiedReadingType.getReadingType());
+        if (requirement instanceof FullySpecifiedReadingTypeRequirement) {
+            FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = (FullySpecifiedReadingTypeRequirement) requirement;
+            info.readingType = new ReadingTypeInfo(fullySpecifiedReadingTypeRequirement.getReadingType());
             info.type = "fullySpecified";
-        } else if (requirement instanceof PartiallySpecifiedReadingType) {
-            PartiallySpecifiedReadingType partiallySpecifiedReadingType = (PartiallySpecifiedReadingType) requirement;
+        } else if (requirement instanceof PartiallySpecifiedReadingTypeRequirement) {
+            PartiallySpecifiedReadingTypeRequirement partiallySpecified = (PartiallySpecifiedReadingTypeRequirement) requirement;
             info.type = "partiallySpecified";
             info.readingTypePattern = new ReadingTypePatternInfo();
             info.readingTypePattern.value = requirementNode.toString() + ", " + partiallySpecified.getDescription();
@@ -158,11 +158,11 @@ public class MetrologyConfigurationInfoFactory {
                     .getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION)
                     .map(Collections::singletonList).orElse(null);
             info.readingTypePattern.attributes.timePeriod =
-                    Stream.of(partiallySpecifiedReadingType.getAttributeValue(ReadingTypeTemplateAttributeName.MACRO_PERIOD),
-                            partiallySpecifiedReadingType.getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION))
+                    Stream.of(partiallySpecified.getAttributeValue(ReadingTypeTemplateAttributeName.MACRO_PERIOD),
+                            partiallySpecified.getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION))
                             .flatMap(com.elster.jupiter.util.streams.Functions.asStream()).findFirst()
                             .map(Collections::singletonList).orElse(null);
-            List<String> unitValues = partiallySpecifiedReadingType.getAttributeValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE)
+            List<String> unitValues = partiallySpecified.getAttributeValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE)
                     .stream().flatMap(com.elster.jupiter.util.streams.Functions.asStream()).collect(Collectors.toList());
             if (!unitValues.isEmpty() && unitValues.size() > 1) {
                 info.readingTypePattern.attributes.unit = unitValues;
