@@ -51,6 +51,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_LOCATION(4018, Constants.NO_SUCH_LOCATION,"Location not found"),
     DUPLICATE_LOCATION_ENTRY(4019, Constants.DUPLICATE_LOCATION_ENTRY,"You attempted to enter a duplicate location address. Please check again or perform an editing."),
     CAN_NOT_DELETE_READING_TYPE_DELIVERABLE_IN_USE(4020, Constants.CAN_NOT_DELETE_READING_TYPE_DELIVERABLE_IN_USE, "The ''{0}'' is in use and can not be deleted."),
+    SEARCHABLE_PROPERTY_NOT_FOUND(4021, Constants.SEARCHABLE_PROPERTY_NOT_FOUND, "The ''{0}'' searchable property can not be used as usage point requirement."),
+    BAD_USAGE_POINT_REQUIREMENT_VALUE(4022, Constants.SEARCHABLE_PROPERTY_NOT_FOUND, "Bad usage point requirement value: {0}."),
 
     INVALID_DIMENSION(5000, Constants.INVALID_DIMENSION, "Invalid dimension"),
     INVALID_ARGUMENTS_FOR_MULTIPLICATION(5001, Constants.INVALID_ARGUMENTS_FOR_MULTIPLICATION, "Dimensions from multiplication arguments do not result in a valid dimension."),
@@ -182,6 +184,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INCOMPATIBLE_INTERVAL_LENGTHS = "incompatible.intervallengths";
         public static final String READING_TYPE_FOR_DELIVERABLE_ALREADY_USED = "reading.type.already.used.for.deliverable.on.same.metrologyconfig";
         public static final String CAN_NOT_DELETE_READING_TYPE_DELIVERABLE_IN_USE = "can.not.delete.reading.type.deliverable.in.use";
+        public static final String SEARCHABLE_PROPERTY_NOT_FOUND = "searchable.property.not.found";
     }
 
 }

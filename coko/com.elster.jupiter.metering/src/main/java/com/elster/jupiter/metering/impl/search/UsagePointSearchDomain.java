@@ -130,7 +130,10 @@ public class UsagePointSearchDomain implements SearchDomain {
         return searchableProperties;
     }
 
-    private List<SearchableProperty> getServiceCategoryDynamicProperties(Collection<SearchablePropertyConstriction> constrictions) {
+    /*
+     * Be aware that subclasses can filter out some properties
+     */
+    protected List<SearchableProperty> getServiceCategoryDynamicProperties(Collection<SearchablePropertyConstriction> constrictions) {
         List<SearchableProperty> properties = new ArrayList<>();
         DataModel injector = this.meteringService.getDataModel();
         ElectricityAttributesSearchablePropertyGroup electricityGroup = injector.getInstance(ElectricityAttributesSearchablePropertyGroup.class);
@@ -319,5 +322,13 @@ public class UsagePointSearchDomain implements SearchDomain {
     @Override
     public Finder<?> finderFor(List<SearchablePropertyCondition> conditions) {
         return new UsagePointFinder(this.meteringService, conditions);
+    }
+
+    protected ServerMetrologyConfigurationService getMetrologyConfigurationService() {
+        return this.metrologyConfigurationService;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return this.propertySpecService;
     }
 }
