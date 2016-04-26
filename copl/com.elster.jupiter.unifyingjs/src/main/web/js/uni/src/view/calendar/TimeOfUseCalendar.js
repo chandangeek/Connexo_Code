@@ -9,7 +9,10 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
         'Uni.grid.FilterPanelTop',
         'Uni.view.calendar.TimeOfUsePreview'
     ],
+    url: null,
+    calendarId: null,
     record: null,
+    model: null,
 
 
     initComponent: function () {
@@ -17,20 +20,22 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
 
 
         me.content = {
-            title: Uni.I18n.translate('general.previewX', 'UNI', "Preview '{0}'", [me.record.get('name')]),
             xtype: 'panel',
             ui: 'large',
+            itemId: 'tou-content-panel',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
-                },
+            },
             items: [
                 {
                     xtype: 'uni-grid-filterpaneltop',
+                    itemId: 'tou-filter',
                     filters: [
                         {
                             type: 'date',
                             dataIndex: 'weekOf',
+                            itemId: 'weekOf',
                             value: new Date(),
                             text: Uni.I18n.translate('general.weekOf', 'UNI', 'Week of')
                         }
@@ -49,14 +54,53 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
             ]
         };
 
-        this.on('afterrender', this.loadRecord);
+        this.on('afterrender', this.prepareComponent)
         this.on('resize', this.resizeChart);
         this.callParent(arguments);
     },
 
-    loadRecord: function () {
+    prepareComponent: function () {
         var me = this;
-        me.down('#timeOfUsePreview').fillFieldContainers(me.record);
+        me.model = Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar');
+
+        me.model.setProxy({
+            type: 'rest',
+            url: me.url,
+            timeout: 120000,
+            reader: {
+                type: 'json'
+            }
+        });
+        me.loadNewData();
+        me.down('#tou-filter').down('#filter-apply-all').on('click', me.loadNewData, me)
+    },
+
+    loadNewData: function () {
+        var me = this,
+            date,
+            UTCtime;
+        date = new Date(me.down('#weekOf').getParamValue());
+        UTCtime = date.getTime() - date.getTimezoneOffset() * 60 * 1000;
+        me.model.load(me.calendarId, {
+            params: {
+                weekOf: UTCtime
+            },
+            success: function (newRecord) {
+                me.record = newRecord;
+                if (me.rendered) {
+                    me.down('#tou-content-panel').setTitle(Uni.I18n.translate('general.previewX', 'UNI', "Preview '{0}'", newRecord.get('name')));
+                    me.down('#calendar-graph-view').record = newRecord;
+                    me.down('#calendar-graph-view').drawGraph();//.chart.redraw();
+                    me.loadRecord(newRecord);
+                }
+                me.fireEvent('timeofusecalendarloaded', newRecord);
+            }
+        })
+    },
+
+    loadRecord: function (record) {
+        var me = this;
+        me.down('#timeOfUsePreview').fillFieldContainers(record);
     },
 
     resizeChart: function () {

@@ -5,6 +5,8 @@ Ext.define('Uni.model.timeofuse.Range', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'event', type: 'number'},
-        {name: 'from', type: 'auto'}
+        {name: 'fromHour', type: 'number'},
+        {name: 'fromMinute', type: 'number'},
+        {name: 'fromSecond', type: 'number'},
     ]
 });
