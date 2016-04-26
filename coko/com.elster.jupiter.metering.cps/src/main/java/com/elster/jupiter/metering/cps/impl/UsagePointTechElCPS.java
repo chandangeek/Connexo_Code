@@ -97,7 +97,7 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
                 .fromThesaurus(this.getThesaurus())
                 .addValues("EU", "NA")
                 .finish();
-        `PropertySpec volatageLevelSpec = propertySpecService
+        PropertySpec volatageLevelSpec = propertySpecService
                 .stringSpec()
                 .named(UsagePointTechElDomExt.FieldNames.VOLTAGE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_VOLTAGE_LEVEL)
                 .fromThesaurus(this.getThesaurus())
