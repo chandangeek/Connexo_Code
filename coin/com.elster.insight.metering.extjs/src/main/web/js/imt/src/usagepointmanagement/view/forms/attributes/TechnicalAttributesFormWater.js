@@ -41,7 +41,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFo
             {
                 name: 'loadLimiterType',
                 itemId: 'fld-up-load-limiter-type',
-                fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Load limiter type'),
+                fieldLabel: Uni.I18n.translate('general.label.loadLimiterType', 'IMT', 'Load limiter type'),
                 listeners: {
                     beforerender: function (fld){
                         fld.setVisible(me.down('#fld-up-limiter').getValue() == "YES");
@@ -55,7 +55,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFo
                 xtype: 'measuredisplayfield',
                 name: 'loadLimit',
                 itemId: 'fld-up-load-limit',
-                fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Load limit'),
+                fieldLabel: Uni.I18n.translate('general.label.loadLimit', 'IMT', 'Load limit'),
                 unitType: 'volume',
                 listeners: {
                     beforerender: function (fld){
@@ -72,7 +72,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFo
             {
                 name: 'bypassStatus',
                 itemId: 'fld-up-bypass-status',
-                fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass status'),
+                fieldLabel: Uni.I18n.translate('general.label.bypassStatus', 'IMT', 'Bypass status'),
                 listeners: {
                     beforerender: function (fld){
                         fld.setVisible(me.down('#fld-up-bypass').getValue() == 'YES')
@@ -113,8 +113,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFo
 
         me.editForm = {
             xtype: 'water-info-form',
-            itemId: 'edit-form',
-            defaults: me.editDefaults
+            itemId: 'edit-form'
         };
 
         me.callParent();
