@@ -292,7 +292,7 @@ public class TableImpl<T> implements Table<T> {
     }
 
     List<ColumnImpl> getStandardColumns() {
-        return columns.stream().filter(ColumnImpl::isStandard).collect(Collectors.toList());
+        return getColumns(dataModel.get().getVersion()).stream().filter(ColumnImpl::isStandard).collect(Collectors.toList());
     }
 
     List<ColumnImpl> getAutoUpdateColumns() {
@@ -760,7 +760,7 @@ public class TableImpl<T> implements Table<T> {
         buildReferenceConstraints();
         buildReverseMappedConstraints();
         realColumns = new ArrayList<>();
-        for (ColumnImpl column : getColumns()) {
+        for (ColumnImpl column : getColumns(Version.latest())) {
             if (!column.isVirtual()) {
                 checkMapped(column);
                 realColumns.add(column);
