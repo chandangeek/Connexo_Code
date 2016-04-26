@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -27,15 +26,11 @@ import java.util.Optional;
 public class ExpressionNodeParser {
 
     private Thesaurus thesaurus;
-    private MetrologyConfigurationService metrologyConfigurationService;
+    private ServerMetrologyConfigurationService metrologyConfigurationService;
     private MetrologyConfiguration metrologyConfiguration;
     private Formula.Mode mode;
 
-    public ExpressionNodeParser(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration) {
-        this(thesaurus, metrologyConfigurationService, metrologyConfiguration, Formula.Mode.AUTO);
-    }
-
-    public ExpressionNodeParser(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration, Formula.Mode mode) {
+    public ExpressionNodeParser(Thesaurus thesaurus, ServerMetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration, Formula.Mode mode) {
         this.thesaurus = thesaurus;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.metrologyConfiguration = metrologyConfiguration;
