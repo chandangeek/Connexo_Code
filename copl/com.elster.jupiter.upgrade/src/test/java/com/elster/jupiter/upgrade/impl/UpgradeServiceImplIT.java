@@ -168,6 +168,8 @@ public class UpgradeServiceImplIT {
             }
         });
 
+        assertThat(upgradeService.isInstalled(identifier("TST"), version(1, 0))).isFalse();
+
         // initial install, Only the installer should be invoked
 
         upgradeService.register(identifier("TST"), dataModel, Installer.class, ImmutableMap.of(version(2, 0), UpgraderV2.class));
@@ -176,6 +178,8 @@ public class UpgradeServiceImplIT {
         assertThat(UpgraderV2.instances).isEqualTo(1);
         assertThat(Installer.invocations).isEqualTo(1);
         assertThat(UpgraderV2.invocations).isEqualTo(0);
+
+        assertThat(upgradeService.isInstalled(identifier("TST"), version(1, 0))).isTrue();
 
         // assume a normal system restart (no Installer /Upgrader should be instantiated
 
@@ -187,6 +191,8 @@ public class UpgradeServiceImplIT {
         assertThat(UpgraderV2.instances).isEqualTo(1);
         assertThat(Installer.invocations).isEqualTo(1);
         assertThat(UpgraderV2.invocations).isEqualTo(0);
+
+        assertThat(upgradeService.isInstalled(identifier("TST"), version(1, 0))).isTrue();
 
         // assume an upgrade (only the Upgrader should run)
 
@@ -200,6 +206,8 @@ public class UpgradeServiceImplIT {
         assertThat(Installer.invocations).isEqualTo(1);
         assertThat(UpgraderV2.invocations).isEqualTo(0);
         assertThat(UpgraderV3.invocations).isEqualTo(1);
+
+        assertThat(upgradeService.isInstalled(identifier("TST"), version(1, 0))).isTrue();
     }
 
     // TODO test for exception when upgrade is needed but not set to upgrade

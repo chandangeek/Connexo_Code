@@ -9,4 +9,6 @@ public interface UpgradeService {
 
     void register(InstallIdentifier installIdentifier, DataModel dataModel, Class<? extends FullInstaller> installerClass, Map<Version, Class<? extends Upgrader>> upgraders);
 
+    boolean isInstalled(InstallIdentifier installIdentifier, Version version);
+
 }

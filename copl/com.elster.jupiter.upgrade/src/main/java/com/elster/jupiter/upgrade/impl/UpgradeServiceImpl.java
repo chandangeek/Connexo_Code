@@ -13,7 +13,9 @@ import com.elster.jupiter.upgrade.Upgrader;
 
 import com.google.common.collect.ImmutableMap;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
+import org.flywaydb.core.api.MigrationVersion;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -21,8 +23,11 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Component(name = "com.elster.jupiter.upgrade", immediate = true, service = UpgradeService.class)
 public class UpgradeServiceImpl implements UpgradeService {
@@ -32,6 +37,7 @@ public class UpgradeServiceImpl implements UpgradeService {
     private volatile DataModelUpgrader dataModelUpgrader;
     private boolean doUpgrade;
     private Map<InstallIdentifier, UpgradeClasses> registered = new HashMap<>();
+    private Set<String> installed = new HashSet<>();
 
     @Inject
     public UpgradeServiceImpl(BootstrapService bootstrapService, TransactionService transactionService, OrmService ormService, BundleContext bundleContext) {
@@ -58,14 +64,8 @@ public class UpgradeServiceImpl implements UpgradeService {
             }
         }
         registered.put(installIdentifier, newUpgradeClasses);
-        Flyway flyway = new Flyway();
-        DataSource dataSource = bootstrapService.createDataSource();
-        flyway.setDataSource(dataSource);
 
-//        flyway.setLocations("com.elster.jupiter.flyway1.impl.upgrade");
-        flyway.setTable("FLYWAYMETA." + installIdentifier);
-        flyway.setBaselineVersionAsString("0.0");
-        flyway.setBaselineOnMigrate(true);
+        Flyway flyway = createFlyway(installIdentifier);
 
         flyway.setResolvers(new MigrationResolverImpl(dataModel, dataModelUpgrader, transactionService, installerClass, upgraders));
 
@@ -78,10 +78,31 @@ public class UpgradeServiceImpl implements UpgradeService {
                     throw new RuntimeException("Upgrade needed for " + installIdentifier);
                 }
             }
+            installed.add(dataModel.getName());
         } catch (RuntimeException e) { // TODO (maybe seperate exc handling for both modes?)
             e.printStackTrace();
             throw e;
         }
+    }
+
+    private Flyway createFlyway(InstallIdentifier installIdentifier) {
+        Flyway flyway = new Flyway();
+        DataSource dataSource = bootstrapService.createDataSource();
+        flyway.setDataSource(dataSource);
+        flyway.setTable("FLYWAYMETA." + installIdentifier);
+        flyway.setBaselineVersionAsString("0.0");
+        flyway.setBaselineOnMigrate(true);
+        return flyway;
+    }
+
+    @Override
+    public boolean isInstalled(InstallIdentifier installIdentifier, Version version) {
+        Flyway flyway = createFlyway(installIdentifier);
+        MigrationInfoService info = flyway.info();
+        return Arrays.stream(info.applied())
+                .map(MigrationInfo::getVersion)
+                .anyMatch(migrationVersion -> MigrationVersion.fromVersion(version.toString())
+                        .equals(migrationVersion));
     }
 
     @Reference
