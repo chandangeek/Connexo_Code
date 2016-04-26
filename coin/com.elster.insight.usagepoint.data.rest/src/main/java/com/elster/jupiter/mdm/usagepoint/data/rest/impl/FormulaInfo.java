@@ -10,8 +10,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FormulaInfo {
     public String description;
-    public List<ReadingTypeRequirementsInfo> readingTypeRequirements;
-    public List<CustomPropertiesInfo> customProperties;
 
     public FormulaInfo() {
     }
