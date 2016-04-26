@@ -9,11 +9,15 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
+import java.time.Instant;
 
-public class DeviceMRIDDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class DisconnectRequestDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
-        MRID("mRID", "dv_mrid");
+        REASON("reason", "disconnect_reason"),
+        ATTEMPTS("attempts", "disconnect_attempts"),
+        ENDDATE("endDate", "disconnect_enddate");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -36,9 +40,11 @@ public class DeviceMRIDDomainExtension implements PersistentDomainExtension<Serv
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
-    private String mRID;
+    private String reason;
+    private BigDecimal attempts;
+    private Instant endDate;
 
-    public DeviceMRIDDomainExtension() {
+    public DisconnectRequestDomainExtension() {
         super();
     }
 
@@ -46,23 +52,43 @@ public class DeviceMRIDDomainExtension implements PersistentDomainExtension<Serv
         return registeredCustomPropertySet.get();
     }
 
-    public String getMRID() {
-        return mRID;
+    public String getReason() {
+        return reason;
     }
 
-    public void setMRID(String mRID) {
-        this.mRID = mRID;
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public BigDecimal getAttempts() {
+        return attempts;
+    }
+
+    public void setAttempts(BigDecimal attempts) {
+        this.attempts = attempts;
+    }
+
+    public Instant getEnddate() {
+        return endDate;
+    }
+
+    public void setEnddate(Instant enddate) {
+        this.endDate = enddate;
     }
 
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setMRID((String) propertyValues.getProperty(FieldNames.MRID.javaName()));
+        this.setReason((String) propertyValues.getProperty(FieldNames.REASON.javaName()));
+        this.setAttempts(new BigDecimal(propertyValues.getProperty(FieldNames.ATTEMPTS.javaName()).toString()));
+        this.setEnddate((Instant) propertyValues.getProperty(FieldNames.ENDDATE.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(FieldNames.MRID.javaName(), this.getMRID());
+        propertySetValues.setProperty(FieldNames.REASON.javaName(), this.getReason());
+        propertySetValues.setProperty(FieldNames.ATTEMPTS.javaName(), this.getAttempts());
+        propertySetValues.setProperty(FieldNames.ENDDATE.javaName(), this.getEnddate());
     }
 
     @Override

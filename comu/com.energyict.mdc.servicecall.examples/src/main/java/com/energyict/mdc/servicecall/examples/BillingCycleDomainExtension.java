@@ -10,10 +10,10 @@ import com.elster.jupiter.servicecall.ServiceCall;
 
 import javax.validation.constraints.Size;
 
-public class UsagePointMRIDDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class BillingCycleDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
-        MRID("mRID", "up_mrid");
+        BILLING_CYCLE("billingCycle", "b_cycle");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -36,9 +36,9 @@ public class UsagePointMRIDDomainExtension implements PersistentDomainExtension<
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
-    private String mRID;
+    private String billingCycle;
 
-    public UsagePointMRIDDomainExtension() {
+    public BillingCycleDomainExtension() {
         super();
     }
 
@@ -46,23 +46,23 @@ public class UsagePointMRIDDomainExtension implements PersistentDomainExtension<
         return registeredCustomPropertySet.get();
     }
 
-    public String getMRID() {
-        return mRID;
+    public String getBillingCycle() {
+        return billingCycle;
     }
 
-    public void setMRID(String mRID) {
-        this.mRID = mRID;
+    public void setBillingCycle(String billingCycle) {
+        this.billingCycle = billingCycle;
     }
 
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setMRID((String) propertyValues.getProperty(FieldNames.MRID.javaName()));
+        this.setBillingCycle((String) propertyValues.getProperty(FieldNames.BILLING_CYCLE.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(FieldNames.MRID.javaName(), this.getMRID());
+        propertySetValues.setProperty(FieldNames.BILLING_CYCLE.javaName(), this.getBillingCycle());
     }
 
     @Override

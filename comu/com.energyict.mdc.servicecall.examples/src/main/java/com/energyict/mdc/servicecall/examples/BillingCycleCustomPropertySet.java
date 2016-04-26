@@ -23,16 +23,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "com.energyict.servicecall.UsagePointMRIDCustomPropertySet",
+@Component(name = "com.energyict.servicecall.BillingCycleCustomPropertySet",
         service = CustomPropertySet.class,
         immediate = true)
-public class UsagePointMRIDCustomPropertySet implements CustomPropertySet<ServiceCall, UsagePointMRIDDomainExtension> {
+public class BillingCycleCustomPropertySet implements CustomPropertySet<ServiceCall, BillingCycleDomainExtension> {
 
-    public UsagePointMRIDCustomPropertySet() {
+    public BillingCycleCustomPropertySet() {
     }
 
     @Inject
-    public UsagePointMRIDCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
+    public BillingCycleCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
         this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
     }
@@ -51,12 +51,12 @@ public class UsagePointMRIDCustomPropertySet implements CustomPropertySet<Servic
 
     @Activate
     public void activate() {
-        System.out.println("UsagePointMRIDCustomPropertySet activating");
+        System.out.println("BillingCycleCustomPropertySet activating");
     }
 
     @Override
     public String getName() {
-        return UsagePointMRIDCustomPropertySet.class.getSimpleName();
+        return BillingCycleCustomPropertySet.class.getSimpleName();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class UsagePointMRIDCustomPropertySet implements CustomPropertySet<Servic
     }
 
     @Override
-    public PersistenceSupport<ServiceCall, UsagePointMRIDDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<ServiceCall, BillingCycleDomainExtension> getPersistenceSupport() {
         return new MyPersistenceSupport();
     }
 
@@ -94,20 +94,20 @@ public class UsagePointMRIDCustomPropertySet implements CustomPropertySet<Servic
         return Collections.singletonList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(UsagePointMRIDDomainExtension.FieldNames.MRID.javaName(), UsagePointMRIDDomainExtension.FieldNames.MRID
+                        .named(BillingCycleDomainExtension.FieldNames.BILLING_CYCLE.javaName(), BillingCycleDomainExtension.FieldNames.BILLING_CYCLE
                                 .javaName())
-                        .describedAs("Device mRID")
-                        .setDefaultValue("no mRID")
+                        .describedAs("Billing Cycle")
+                        .setDefaultValue("No billing cycle")
                         .finish());
     }
 
-    private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, UsagePointMRIDDomainExtension> {
-        private final String TABLE_NAME = "TVN_SCS_CPS_UP";
-        private final String FK = "FK_SCS_CPS_UP";
+    private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, BillingCycleDomainExtension> {
+        private final String TABLE_NAME = "TVN_SCS_CPS_BC";
+        private final String FK = "FK_SCS_CPS_BC";
 
         @Override
         public String componentName() {
-            return "UsagePointMRID";
+            return "SCExamples1";
         }
 
         @Override
@@ -117,7 +117,7 @@ public class UsagePointMRIDCustomPropertySet implements CustomPropertySet<Servic
 
         @Override
         public String domainFieldName() {
-            return UsagePointMRIDDomainExtension.FieldNames.DOMAIN.javaName();
+            return BillingCycleDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -126,8 +126,8 @@ public class UsagePointMRIDCustomPropertySet implements CustomPropertySet<Servic
         }
 
         @Override
-        public Class<UsagePointMRIDDomainExtension> persistenceClass() {
-            return UsagePointMRIDDomainExtension.class;
+        public Class<BillingCycleDomainExtension> persistenceClass() {
+            return BillingCycleDomainExtension.class;
         }
 
         @Override
@@ -143,9 +143,9 @@ public class UsagePointMRIDCustomPropertySet implements CustomPropertySet<Servic
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(UsagePointMRIDDomainExtension.FieldNames.MRID.databaseName())
+                    .column(BillingCycleDomainExtension.FieldNames.BILLING_CYCLE.databaseName())
                     .varChar()
-                    .map(UsagePointMRIDDomainExtension.FieldNames.MRID.javaName())
+                    .map(BillingCycleDomainExtension.FieldNames.BILLING_CYCLE.javaName())
                     .notNull()
                     .add();
         }

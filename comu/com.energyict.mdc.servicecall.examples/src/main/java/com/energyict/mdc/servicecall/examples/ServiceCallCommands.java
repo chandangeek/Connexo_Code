@@ -433,9 +433,9 @@ public class ServiceCallCommands {
     private RegisteredCustomPropertySet getCustomPropertySet(String set) {
         String name = "";
         if ("DEVICE".equals(set)) {
-            name = DeviceMRIDCustomPropertySet.class.getSimpleName();
+            name = BillingCycleCustomPropertySet.class.getSimpleName();
         } else if ("UP".equals(set)) {
-            name = UsagePointMRIDCustomPropertySet.class.getSimpleName();
+            name = DisconnectRequestCustomPropertySet.class.getSimpleName();
         }
 
         if (!name.equals("")) {
@@ -518,12 +518,12 @@ public class ServiceCallCommands {
             return;
         }
         if(attributes[0].equals("UP")) {
-            UsagePointMRIDDomainExtension extension = new UsagePointMRIDDomainExtension();
-            extension.setMRID(attributes[1]);
+            DisconnectRequestDomainExtension extension = new DisconnectRequestDomainExtension();
+            extension.setReason(attributes[1]);
             serviceCallBuilder.extendedWith(extension);
         } else if (attributes[0].equals("DV")) {
-            DeviceMRIDDomainExtension extension = new DeviceMRIDDomainExtension();
-            extension.setMRID(attributes[1]);
+            BillingCycleDomainExtension extension = new BillingCycleDomainExtension();
+            extension.setBillingCycle(attributes[1]);
             serviceCallBuilder.extendedWith(extension);
         }
     }

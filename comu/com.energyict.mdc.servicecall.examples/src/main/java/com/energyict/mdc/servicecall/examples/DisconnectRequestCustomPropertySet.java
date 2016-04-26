@@ -6,7 +6,9 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -18,21 +20,23 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "com.energyict.servicecall.DeviceMRIDCustomPropertySet",
+@Component(name = "com.energyict.servicecall.DisconnectRequestCustomPropertySet",
         service = CustomPropertySet.class,
         immediate = true)
-public class DeviceMRIDCustomPropertySet implements CustomPropertySet<ServiceCall, DeviceMRIDDomainExtension> {
+public class DisconnectRequestCustomPropertySet implements CustomPropertySet<ServiceCall, DisconnectRequestDomainExtension> {
 
-    public DeviceMRIDCustomPropertySet() {
+    public DisconnectRequestCustomPropertySet() {
     }
 
     @Inject
-    public DeviceMRIDCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
+    public DisconnectRequestCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
         this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
     }
@@ -51,12 +55,12 @@ public class DeviceMRIDCustomPropertySet implements CustomPropertySet<ServiceCal
 
     @Activate
     public void activate() {
-        System.out.println("DeviceMRIDCustomPropertySet activating");
+        System.out.println("DisconnectRequestCustomPropertySet activating");
     }
 
     @Override
     public String getName() {
-        return DeviceMRIDCustomPropertySet.class.getSimpleName();
+        return DisconnectRequestCustomPropertySet.class.getSimpleName();
     }
 
     @Override
@@ -65,7 +69,7 @@ public class DeviceMRIDCustomPropertySet implements CustomPropertySet<ServiceCal
     }
 
     @Override
-    public PersistenceSupport<ServiceCall, DeviceMRIDDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<ServiceCall, DisconnectRequestDomainExtension> getPersistenceSupport() {
         return new MyPersistenceSupport();
     }
 
@@ -91,23 +95,36 @@ public class DeviceMRIDCustomPropertySet implements CustomPropertySet<ServiceCal
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.singletonList(
+        return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(DeviceMRIDDomainExtension.FieldNames.MRID.javaName(), DeviceMRIDDomainExtension.FieldNames.MRID
+                        .named(DisconnectRequestDomainExtension.FieldNames.REASON.javaName(), DisconnectRequestDomainExtension.FieldNames.REASON
                                 .javaName())
-                        .describedAs("Device mRID")
-                        .setDefaultValue("no mRID")
+                        .describedAs("Reason")
+                        .setDefaultValue("no reason given")
+                        .finish(),
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(DisconnectRequestDomainExtension.FieldNames.ATTEMPTS.javaName(), DisconnectRequestDomainExtension.FieldNames.ATTEMPTS
+                                .javaName())
+                        .describedAs("Attempts")
+                        .setDefaultValue(BigDecimal.ZERO)
+                        .finish(),
+                this.propertySpecService
+                        .specForValuesOf(new InstantFactory())
+                        .named(DisconnectRequestDomainExtension.FieldNames.ENDDATE.javaName(), DisconnectRequestDomainExtension.FieldNames.ENDDATE
+                                .javaName())
+                        .describedAs("End date")
                         .finish());
     }
 
-    private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, DeviceMRIDDomainExtension> {
-        private final String TABLE_NAME = "TVN_SCS_CPS_DV";
-        private final String FK = "FK_SCS_CPS_DV";
+    private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, DisconnectRequestDomainExtension> {
+        private final String TABLE_NAME = "TVN_SCS_CPS_DR";
+        private final String FK = "FK_SCS_CPS_DR";
 
         @Override
         public String componentName() {
-            return "DeviceMRID";
+            return "SCExamples2";
         }
 
         @Override
@@ -117,7 +134,7 @@ public class DeviceMRIDCustomPropertySet implements CustomPropertySet<ServiceCal
 
         @Override
         public String domainFieldName() {
-            return DeviceMRIDDomainExtension.FieldNames.DOMAIN.javaName();
+            return DisconnectRequestDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -126,8 +143,8 @@ public class DeviceMRIDCustomPropertySet implements CustomPropertySet<ServiceCal
         }
 
         @Override
-        public Class<DeviceMRIDDomainExtension> persistenceClass() {
-            return DeviceMRIDDomainExtension.class;
+        public Class<DisconnectRequestDomainExtension> persistenceClass() {
+            return DisconnectRequestDomainExtension.class;
         }
 
         @Override
@@ -143,9 +160,22 @@ public class DeviceMRIDCustomPropertySet implements CustomPropertySet<ServiceCal
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(DeviceMRIDDomainExtension.FieldNames.MRID.databaseName())
+                    .column(DisconnectRequestDomainExtension.FieldNames.REASON.databaseName())
                     .varChar()
-                    .map(DeviceMRIDDomainExtension.FieldNames.MRID.javaName())
+                    .map(DisconnectRequestDomainExtension.FieldNames.REASON.javaName())
+                    .notNull()
+                    .add();
+            table
+                    .column(DisconnectRequestDomainExtension.FieldNames.ATTEMPTS.databaseName())
+                    .number()
+                    .map(DisconnectRequestDomainExtension.FieldNames.ATTEMPTS.javaName())
+                    .notNull()
+                    .add();
+            table
+                    .column(DisconnectRequestDomainExtension.FieldNames.ENDDATE.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(DisconnectRequestDomainExtension.FieldNames.ENDDATE.javaName())
                     .notNull()
                     .add();
         }
