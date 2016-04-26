@@ -29,6 +29,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,12 +63,9 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         UsagePointMetrologyConfiguration config1 = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE);
         UsagePointMetrologyConfiguration config2 = mockMetrologyConfiguration(2L, "config2", ServiceKind.WATER, MetrologyConfigurationStatus.ACTIVE);
 
-        when(metrologyConfigurationService.findAllUsagePointMetrologyConfigurations()).thenReturn(Arrays.asList(config1, config2));
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(1)).thenReturn(Optional.of(config1));
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(2)).thenReturn(Optional.of(config2));
-
-//        when(config1.getStatus()).thenReturn(MetrologyConfigurationStatus.ACTIVE);
-//        when(config2.getStatus()).thenReturn(MetrologyConfigurationStatus.ACTIVE);
+        when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn(Arrays.asList(config1, config2));
+        when(metrologyConfigurationService.findMetrologyConfiguration(1)).thenReturn(Optional.of(config1));
+        when(metrologyConfigurationService.findMetrologyConfiguration(2)).thenReturn(Optional.of(config2));
 
         List<ValidationRuleSet> ruleSets = new ArrayList<>();
         ruleSets.add(vrs);
@@ -143,7 +141,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     @Test
     public void testGetMetrologyConfiguration() {
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "Residential", ServiceKind.GAS, MetrologyConfigurationStatus.INACTIVE);
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(13L)).thenReturn(Optional.of(metrologyConfiguration));
+        when(metrologyConfigurationService.findMetrologyConfiguration(13L)).thenReturn(Optional.of(metrologyConfiguration));
 
         //Business method
         String json = target("metrologyconfigurations/13").request().get(String.class);
@@ -177,7 +175,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         metrologyConfigurationInfo.name = "newName";
         Entity<MetrologyConfigurationInfo> json = Entity.json(metrologyConfigurationInfo);
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(2L, metrologyConfigurationInfo.name, ServiceKind.GAS, MetrologyConfigurationStatus.INACTIVE);
-        when(metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(anyLong(), anyLong())).thenReturn(Optional
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(anyLong(), anyLong())).thenReturn(Optional
                 .of(metrologyConfiguration));
 
         Response response = target("/metrologyconfigurations/2").request().put(json);
@@ -217,7 +215,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     }
 
     @Test
-    public void testGetListOfAssignedCPS() throws Exception {
+    public void testGetListOfAssignedCPS() throws IOException {
         long mConfigId = 123L;
         long rcpsId = 456L;
         String cpsId = "TestCPSId";
@@ -234,7 +232,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mConfig.isActive()).thenReturn(false);
         when(mConfig.getVersion()).thenReturn(1L);
         when(mConfig.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
+        when(metrologyConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").request().get();
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
@@ -246,7 +244,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     }
 
     @Test
-    public void testGetListOfUnassignedCPS() throws Exception {
+    public void testGetListOfUnassignedCPS() throws IOException {
         long mConfigId = 123L;
 
         CustomPropertySet cps1 = mock(CustomPropertySet.class);
@@ -286,7 +284,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(serviceCategory.getCustomPropertySets()).thenReturn(Stream.of(rcps3).collect(Collectors.toList()));
         when(rcps3.getCustomPropertySet()).thenReturn(cps3);
 
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
+        when(metrologyConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
         when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Arrays.asList(rcps1, rcps2));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").queryParam("linked", false).request().get();
@@ -301,7 +299,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     }
 
     @Test
-    public void testAddCustomPropertySetToMetrologyConfiguration() throws Exception {
+    public void testAddCustomPropertySetToMetrologyConfiguration() throws IOException {
         long mConfigId = 123L;
 
         MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
@@ -325,7 +323,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mConfig.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
 
         when(customPropertySetService.findActiveCustomPropertySet("TestSPCId")).thenReturn(Optional.of(rcps));
-        when(metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(mConfigId, info.version)).thenReturn(Optional
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(mConfigId, info.version)).thenReturn(Optional
                 .of(mConfig));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").request().put(Entity.json(info));
@@ -338,7 +336,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     }
 
     @Test
-    public void testAddCustomPropertySetConcurrentCheck() throws Exception {
+    public void testAddCustomPropertySetConcurrentCheck() {
         long mConfigId = 123L;
 
         MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
@@ -347,8 +345,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         info.customPropertySets = Collections.singletonList(new CustomPropertySetInfo());
         info.customPropertySets.get(0).customPropertySetId = "TestSPCId";
 
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.empty());
-        when(metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(mConfigId, info.version)).thenReturn(Optional
+        when(metrologyConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.empty());
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(mConfigId, info.version)).thenReturn(Optional
                 .empty());
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").request().put(Entity.json(info));
@@ -356,7 +354,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     }
 
     @Test
-    public void testRemoveCustomPropertySetFromMetrologyConfiguration() throws Exception {
+    public void testRemoveCustomPropertySetFromMetrologyConfiguration() {
         long mConfigId = 123L;
 
         MetrologyConfigurationInfo parent = new MetrologyConfigurationInfo();
@@ -382,8 +380,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mConfig.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
 
         when(customPropertySetService.findActiveCustomPropertySet("TestSPCId")).thenReturn(Optional.of(rcps));
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
-        when(metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(mConfigId, parent.version)).thenReturn(Optional
+        when(metrologyConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(mConfigId, parent.version)).thenReturn(Optional
                 .of(mConfig));
 
         target("/metrologyconfigurations/" + mConfigId + "/custompropertysets/TestSPCId").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
@@ -392,7 +390,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     }
 
     @Test
-    public void testRemoveCustomPropertySetConcurrentCheck() throws Exception {
+    public void testRemoveCustomPropertySetConcurrentCheck() {
         long mConfigId = 123L;
 
         CustomPropertySet cps = mock(CustomPropertySet.class);
@@ -416,8 +414,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         CustomPropertySetInfo<MetrologyConfigurationInfo> info = new CustomPropertySetInfo<>();
         info.parent = parent;
         info.customPropertySetId = "TestSPCId";
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
-        when(metrologyConfigurationService.findAndLockUsagePointMetrologyConfiguration(mConfigId, parent.version)).thenReturn(Optional
+        when(metrologyConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(mConfigId, parent.version)).thenReturn(Optional
                 .empty());
         when(customPropertySetService.findActiveCustomPropertySet("TestSPCId")).thenReturn(Optional.of(rcps));
 
