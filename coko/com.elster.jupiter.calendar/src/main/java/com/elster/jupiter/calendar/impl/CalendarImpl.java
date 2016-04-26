@@ -21,6 +21,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.time.Year;
@@ -75,8 +77,9 @@ public class CalendarImpl implements Calendar {
     private String mRID;
     private String timeZoneName;
     private boolean abstractCalendar = false;
-    private int startYear;
-    private int endYear;
+    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Integer startYear;
+    private Integer endYear;
 
     private long version;
     private Instant createTime;
@@ -85,10 +88,17 @@ public class CalendarImpl implements Calendar {
 
     private TimeZone timeZone;
     private Reference<Category> category = ValueReference.absent();
+    @Valid
     private List<Event> events = new ArrayList<>();
+    @Size(min = 1, message = "{" + MessageSeeds.Constants.DAYTYPES_REQUIRED + "}")
+    @Valid
     private List<DayType> dayTypes = new ArrayList<>();
+    @Size(min = 1, message = "{" + MessageSeeds.Constants.PERIODS_REQUIRED + "}")
+    @Valid
     private List<Period> periods = new ArrayList<>();
+    @Valid
     private List<ExceptionalOccurrence> exceptionalOccurrences = new ArrayList<>();
+    @Valid
     private List<PeriodTransitionSpec> periodTransitionSpecs = new ArrayList<>();
 
     private final ServerCalendarService calendarService;
@@ -337,7 +347,9 @@ public class CalendarImpl implements Calendar {
     }
 
     void setStartYear(Year startYear) {
-        this.startYear = startYear.getValue();
+        if (startYear != null) {
+            this.startYear = startYear.getValue();
+        }
     }
 
     void setEndYear(Year endYear) {
@@ -345,7 +357,9 @@ public class CalendarImpl implements Calendar {
     }
 
     void setTimeZone(TimeZone timeZone) {
-        this.timeZone = timeZone;
-        this.timeZoneName = timeZone.getID();
+        if (timeZone != null) {
+            this.timeZone = timeZone;
+            this.timeZoneName = timeZone.getID();
+        }
     }
 }

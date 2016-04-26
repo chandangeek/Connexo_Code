@@ -19,7 +19,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.validation.ConstraintViolationException;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -195,6 +199,200 @@ public class CalendarCrudTest {
         assertThat(((RecurrentExceptionalOccurrence) exceptionalOccurrence9).getOccurrence()).isEqualTo(MonthDay.of(12, 25));
         assertThat(((RecurrentExceptionalOccurrence) exceptionalOccurrence10).getOccurrence()).isEqualTo(MonthDay.of(12, 26));
 
+    }
+
+    @Test
+    @Transactional
+    public void testNullName() {
+        try {
+            CalendarService service = getCalendarService();
+            service.newCalendar(null, TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
+                    .description("Description remains to be completed :-)")
+                    .endYear(Year.of(2018))
+                    .mRID("Sample-TOU-rates")
+                    .addEvent("On peak", 3)
+                    .addEvent("Off peak", 5)
+                    .addEvent("Demand response", 97)
+                    .newDayType("Summer weekday")
+                    .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
+                    .add()
+                    .newDayType("Weekend")
+                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .newDayType("Holiday")
+                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .newDayType("Winter day")
+                    .event("On peak").startsFrom(LocalTime.of(5, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(21, 0, 0))
+                    .add()
+                    .newDayType("Demand response")
+                    .eventWithCode(97).startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .addPeriod("Summer", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Weekend", "Weekend")
+                    .addPeriod("Winter", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day")
+                    .on(MonthDay.of(5, 1)).transitionTo("Summer")
+                    .on(MonthDay.of(11, 1)).transitionTo("Winter").add();
+        } catch (ConstraintViolationException e) {
+            assertThat(e.getMessage()).isEqualTo("\n" +
+                    "Constraint violation : \n" +
+                    "\tMessage : isRequired\n" +
+                    "\tClass : com.elster.jupiter.calendar.impl.CalendarImpl\n" +
+                    "\tElement : name\n");
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testEmptyName() {
+        try {
+            CalendarService service = getCalendarService();
+            service.newCalendar("", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
+                    .description("Description remains to be completed :-)")
+                    .endYear(Year.of(2018))
+                    .mRID("Sample-TOU-rates")
+                    .addEvent("On peak", 3)
+                    .addEvent("Off peak", 5)
+                    .addEvent("Demand response", 97)
+                    .newDayType("Summer weekday")
+                    .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
+                    .add()
+                    .newDayType("Weekend")
+                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .newDayType("Holiday")
+                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .newDayType("Winter day")
+                    .event("On peak").startsFrom(LocalTime.of(5, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(21, 0, 0))
+                    .add()
+                    .newDayType("Demand response")
+                    .eventWithCode(97).startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .addPeriod("Summer", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Weekend", "Weekend")
+                    .addPeriod("Winter", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day")
+                    .on(MonthDay.of(5, 1)).transitionTo("Summer")
+                    .on(MonthDay.of(11, 1)).transitionTo("Winter").add();
+        } catch (ConstraintViolationException e) {
+            assertThat(e.getMessage()).isEqualTo("\n" +
+                    "Constraint violation : \n" +
+                    "\tMessage : isRequired\n" +
+                    "\tClass : com.elster.jupiter.calendar.impl.CalendarImpl\n" +
+                    "\tElement : name\n");
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testNullTimeZoneValue() {
+        try {
+            CalendarService service = getCalendarService();
+            service.newCalendar("test", null, Year.of(2010))
+                    .description("Description remains to be completed :-)")
+                    .endYear(Year.of(2018))
+                    .mRID("Sample-TOU-rates")
+                    .addEvent("On peak", 3)
+                    .addEvent("Off peak", 5)
+                    .addEvent("Demand response", 97)
+                    .newDayType("Summer weekday")
+                    .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
+                    .add()
+                    .newDayType("Weekend")
+                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .newDayType("Holiday")
+                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .newDayType("Winter day")
+                    .event("On peak").startsFrom(LocalTime.of(5, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(21, 0, 0))
+                    .add()
+                    .newDayType("Demand response")
+                    .eventWithCode(97).startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .addPeriod("Summer", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Weekend", "Weekend")
+                    .addPeriod("Winter", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day")
+                    .on(MonthDay.of(5, 1)).transitionTo("Summer")
+                    .on(MonthDay.of(11, 1)).transitionTo("Winter").add();
+            List<Calendar> calendars = service.findAllCalendars();
+            assertThat(calendars.size()).isEqualTo(1);
+            Calendar calendar = calendars.get(0);
+            assertThat(calendar.getTimeZone()).isEqualTo(null);
+        } catch (ConstraintViolationException e) {
+            fail("No ConstraintViolationException expected");
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testNoStartYear() {
+        try {
+            CalendarService service = getCalendarService();
+            service.newCalendar("test", TimeZone.getTimeZone("Europe/Brussels"), null) .description("Description remains to be completed :-)")
+                    .endYear(Year.of(2018))
+                    .mRID("Sample-TOU-rates")
+                    .addEvent("On peak", 3)
+                    .addEvent("Off peak", 5)
+                    .addEvent("Demand response", 97)
+                    .newDayType("Summer weekday")
+                    .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(20, 0, 0))
+                    .add()
+                    .newDayType("Weekend")
+                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .newDayType("Holiday")
+                    .event("Off peak").startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .newDayType("Winter day")
+                    .event("On peak").startsFrom(LocalTime.of(5, 0, 0))
+                    .event("Off peak").startsFrom(LocalTime.of(21, 0, 0))
+                    .add()
+                    .newDayType("Demand response")
+                    .eventWithCode(97).startsFrom(LocalTime.MIDNIGHT)
+                    .add()
+                    .addPeriod("Summer", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Weekend", "Weekend")
+                    .addPeriod("Winter", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day")
+                    .on(MonthDay.of(5, 1)).transitionTo("Summer")
+                    .on(MonthDay.of(11, 1)).transitionTo("Winter").add();
+            fail("ConstraintViolationException expected");
+        } catch (ConstraintViolationException e) {
+            assertThat(e.getMessage()).isEqualTo("\n" +
+                    "Constraint violation : \n" +
+                    "\tMessage : isRequired\n" +
+                    "\tClass : com.elster.jupiter.calendar.impl.CalendarImpl\n" +
+                    "\tElement : startYear\n");
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testNoDayTypesAndPeriods() {
+        try {
+            CalendarService service = getCalendarService();
+            service.newCalendar("test", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010)) .description("Description remains to be completed :-)")
+                    .endYear(Year.of(2018))
+                    .mRID("Sample-TOU-rates")
+                    .addEvent("On peak", 3)
+                    .addEvent("Off peak", 5)
+                    .addEvent("Demand response", 97).add();
+            fail("ConstraintViolationException expected");
+        } catch (ConstraintViolationException e) {
+            assertThat(e.getMessage()).isEqualTo("\n" +
+                    "Constraint violation : \n" +
+                    "\tMessage : dayTypes.required\n" +
+                    "\tClass : com.elster.jupiter.calendar.impl.CalendarImpl\n" +
+                    "\tElement : dayTypes\n" +
+                    "\n" +
+                    "Constraint violation : \n" +
+                    "\tMessage : periods.required\n" +
+                    "\tClass : com.elster.jupiter.calendar.impl.CalendarImpl\n" +
+                    "\tElement : periods\n");
+        }
     }
 
 }
