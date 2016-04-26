@@ -48,7 +48,7 @@ public class OutputInfo {
         outputInfo.id = readingTypeDeliverable.getId();
         outputInfo.name = readingTypeDeliverable.getName();
         outputInfo.readingType = new ReadingTypeInfo(readingType);
-        outputInfo.formula = readingTypeDeliverable.getFormula() != null ? asInfo(readingTypeDeliverable.getFormula()) : null;
+        outputInfo.formula = readingTypeDeliverable.getFormula() != null ? FormulaInfo.asInfo(readingTypeDeliverable.getFormula()) : null;
         if (!measuringPeriod.equals(TimeAttribute.NOTAPPLICABLE)) {
             timeDuration = TimeDuration.minutes(measuringPeriod.getMinutes());
         } else if (macroPeriod.equals(MacroPeriod.DAILY)) {
@@ -61,11 +61,5 @@ public class OutputInfo {
         outputInfo.interval = new TimeDurationInfo(timeDuration);
         outputInfo.flowUnit = ReadingTypeUnitConversion.isFlowUnit(readingType.getUnit().name()) ? "flow" : "volume";
         return outputInfo;
-    }
-
-    public static FormulaInfo asInfo(Formula formula) {
-        FormulaInfo info = new FormulaInfo();
-        info.description = formula.getDescription();
-        return info;
     }
 }
