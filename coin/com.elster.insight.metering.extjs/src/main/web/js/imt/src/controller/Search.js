@@ -147,9 +147,14 @@ Ext.define('Imt.controller.Search', {
 //            handler: me.showBulkAction,
 //            scope: me
 //        });
-        me.service.on('searchResultsBeforeLoad', me.availableClearAll, me);
+        var listeners = me.service.on({
+            change: me.availableClearAll,
+            reset: me.availableClearAll,
+            scope: me,
+            destroyable: true
+        });
         widget.on('destroy', function () {
-            me.service.un('searchResultsBeforeLoad', me.availableClearAll, me);
+            listeners.destroy();
         }, me);
     },
     availableClearAll: function () {

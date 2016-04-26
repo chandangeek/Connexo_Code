@@ -1,5 +1,8 @@
 Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm', {
     extend: 'Ext.form.Panel',
+    requires: [
+        'Uni.form.field.SearchCriteriaDisplay'
+    ],
     alias: 'widget.metrology-config-details-form',
     router: null,
     displayPurposes: true,
@@ -30,21 +33,12 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm', 
                     }
                 },
                 {
-                    xtype: 'fieldcontainer',
+                    xtype: 'search-criteria-display',
+                    name: 'usagePointRequirements',
                     itemId: 'area-mc-requirements',
                     fieldLabel: Uni.I18n.translate('general.label.usagePointRequirements', 'IMT', 'Usage point requirements'),
                     labelAlign: 'top',
-                    defaults: defaults,
-                    items: [
-                        {
-                            name: 'serviceCategory',
-                            itemId: 'fld-mc-service-category',
-                            fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
-                            renderer: function (value) {
-                                return value ? value.name : '';
-                            }
-                        }
-                    ]
+                    defaults: defaults
                 },
                 {
                     xtype: 'fieldcontainer',
