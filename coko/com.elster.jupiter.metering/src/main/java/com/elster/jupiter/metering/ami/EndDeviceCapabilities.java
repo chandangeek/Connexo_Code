@@ -1,29 +1,24 @@
 package com.elster.jupiter.metering.ami;
 
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.conditions.Operator;
-
+import java.util.Collections;
 import java.util.List;
 
 public final class EndDeviceCapabilities {
-    private final DataModel dataModel;
-    private final EndDevice endDevice;
+    private List<ReadingType> readingTypes;
+    private List<EndDeviceControlType> controlTypes;
 
-    public EndDeviceCapabilities(DataModel dataModel, EndDevice endDevice) {
-        this.dataModel = dataModel;
-        this.endDevice = endDevice;
+    public EndDeviceCapabilities(List<ReadingType> readingTypes, List<EndDeviceControlType> controlTypes) {
+        // todo : secure this : do not assign parameter to the actual member
+        this.readingTypes = readingTypes;
+        this.controlTypes = controlTypes;
     }
 
-    List<ReadingType> getConfiguredReadingTypes() {
-        return dataModel.query(ReadingType.class).select(Operator.EQUALIGNORECASE.compare("MRID", endDevice.getMRID()));
-
+    public List<ReadingType> getConfiguredReadingTypes() {
+       return Collections.unmodifiableList(readingTypes);
     }
 
-    List<EndDeviceControlType> getSupportedEndDeviceControlTypes() {
-        return dataModel.query(EndDeviceControlType.class).select(Operator.EQUALIGNORECASE.compare("MRID", endDevice.getMRID()));
-        //return dataModel.mapper(EndDeviceControlType.class).find();
+    public List<EndDeviceControlType> getSupportedControlTypes() {
+        return Collections.unmodifiableList(controlTypes);
     }
 }
