@@ -2,6 +2,7 @@ package com.elster.jupiter.servicecall.rest.impl;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
@@ -15,7 +16,8 @@ public enum PropertyType implements com.elster.jupiter.rest.util.properties.Prop
     BOOLEAN(new ClassBasedValueFactoryMatcher(BooleanFactory.class)),
     TEXT(new ClassBasedValueFactoryMatcher(StringFactory.class)),
     LISTVALUE(new ClassBasedValueFactoryMatcher(ListValueFactory.class)),
-    IDWITHNAME(new DomainClassValueFactoryMatcher(HasIdAndName.class));
+    IDWITHNAME(new DomainClassValueFactoryMatcher(HasIdAndName.class)),
+    TIMESTAMP(new ClassBasedValueFactoryMatcher(InstantFactory.class));
 
     private final ValueFactoryMachter matcher;
 
