@@ -7,37 +7,36 @@ Ext.define('Uni.view.highstock.GraphView', {
     extend: 'Ext.container.Container',
     alias: 'widget.highstockFixGraphView',
 
-    //initComponent: function () {
-    //    this.callParent(arguments);
-    //
-    //    var hsSeriesTranslate = Highcharts.Series.prototype.translate;
-    //
-    //    Highcharts.setOptions({
-    //        global: {
-    //            useUTC: false
-    //        }
-    //    });
-    //
-    //    Highcharts.Series.prototype.translate = function () {
-    //
-    //        hsSeriesTranslate.apply(this, arguments);
-    //        var series = this,
-    //            pointPlacement = series.options.pointPlacement,
-    //            dynamicallyPlaced = pointPlacement === 'between' || Ext.isNumber(pointPlacement);
-    //
-    //        if (dynamicallyPlaced) {
-    //            var xAxis = series.xAxis,
-    //                points = series.points,
-    //                dataLength = points.length,
-    //                i;
-    //
-    //            for (i = 0; i < dataLength; i += 1) {
-    //                var point = points[i],
-    //                    xValue = point.x;
-    //
-    //                point.clientX = xAxis.translate(xValue, 0, 0, 0, 1, pointPlacement);
-    //            }
-    //        }
-    //    };
-    //}
+    initComponent: function () {
+        this.callParent(arguments);
+
+        var hsSeriesTranslate = Highcharts.Series.prototype.translate;
+
+        Highcharts.setOptions({
+            global: {
+                useUTC: false
+            }
+        });
+
+        Highcharts.Series.prototype.translate = function () {
+            hsSeriesTranslate.apply(this, arguments);
+            var series = this,
+                pointPlacement = series.options.pointPlacement,
+                dynamicallyPlaced = pointPlacement === 'between' || Ext.isNumber(pointPlacement);
+
+            if (dynamicallyPlaced) {
+                var xAxis = series.xAxis,
+                    points = series.points,
+                    dataLength = points.length,
+                    i;
+
+                for (i = 0; i < dataLength; i += 1) {
+                    var point = points[i],
+                        xValue = point.x;
+
+                    point.clientX = xAxis.translate(xValue, 0, 0, 0, 1, pointPlacement);
+                }
+            }
+        };
+    }
 });
