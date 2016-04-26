@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -432,9 +433,9 @@ public class ServiceCallCommands {
 
     private RegisteredCustomPropertySet getCustomPropertySet(String set) {
         String name = "";
-        if ("DEVICE".equals(set)) {
+        if ("BC".equals(set)) {
             name = BillingCycleCustomPropertySet.class.getSimpleName();
-        } else if ("UP".equals(set)) {
+        } else if ("DR".equals(set)) {
             name = DisconnectRequestCustomPropertySet.class.getSimpleName();
         }
 
@@ -514,14 +515,16 @@ public class ServiceCallCommands {
 
     private void addCustomAttributes(String customAttributes, ServiceCallBuilder serviceCallBuilder) {
         String[] attributes = customAttributes.split(":", -1);
-        if(attributes.length != 2) {
+        if(attributes.length < 2) {
             return;
         }
-        if(attributes[0].equals("UP")) {
+        if(attributes[0].equals("DR")) {
             DisconnectRequestDomainExtension extension = new DisconnectRequestDomainExtension();
             extension.setReason(attributes[1]);
+            extension.setAttempts(BigDecimal.valueOf(Long.parseLong(attributes[2])));
+            extension.setEnddate(Instant.ofEpochMilli(Long.parseLong(attributes[3])));
             serviceCallBuilder.extendedWith(extension);
-        } else if (attributes[0].equals("DV")) {
+        } else if (attributes[0].equals("BC")) {
             BillingCycleDomainExtension extension = new BillingCycleDomainExtension();
             extension.setBillingCycle(attributes[1]);
             serviceCallBuilder.extendedWith(extension);
