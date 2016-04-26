@@ -75,10 +75,21 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     @Override
     public ServerExpressionNode visitOperation(OperationNode operationNode) {
         // Copy as child nodes may be replaced
-        return new OperationNode(
-                operationNode.getOperator(),
-                operationNode.getLeftOperand().accept(this),
-                operationNode.getRightOperand().accept(this));
+        Operator operator = operationNode.getOperator();
+        ServerExpressionNode operand1 = operationNode.getLeftOperand().accept(this);
+        ServerExpressionNode operand2 = operationNode.getRightOperand().accept(this);
+        if (Operator.SAFE_DIVIDE.equals(operator)) {
+            return new OperationNode(
+                    operator,
+                    operand1,
+                    operand2,
+                    operationNode.getSafeDivisor().accept(this));
+        } else {
+            return new OperationNode(
+                    operator,
+                    operand1,
+                    operand2);
+        }
     }
 
     @Override
@@ -90,7 +101,10 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
 
     @Override
     public ServerExpressionNode visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
-        return new TimeBasedAggregationNode(aggregationNode.getAggregatedExpression().accept(this), aggregationNode.getTargetReadingType());
+        return new TimeBasedAggregationNode(
+                        aggregationNode.getAggregatedExpression().accept(this),
+                        aggregationNode.getFunction(),
+                        aggregationNode.getIntervalLength());
     }
 
     private class Context {

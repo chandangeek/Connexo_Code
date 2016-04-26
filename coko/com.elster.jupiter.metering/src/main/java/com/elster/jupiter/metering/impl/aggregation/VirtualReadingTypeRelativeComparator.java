@@ -71,8 +71,10 @@ public class VirtualReadingTypeRelativeComparator implements Comparator<VirtualR
                      * we favour y over x to avoid volume to flow conversion. */
                     return 1;
                 } else {
-                    // Neither of the two are flow related, problem in the matching algorithm
-                    throw new UnsupportedOperationException("Matching algorithm produced two non flow related reading types");
+                    /* Neither of the two are flow related but they are somehow
+                     * combined in a formula that may end up being flow related.
+                     * No preference in sorting. */
+                    return 0;
                 }
             } else if (this.target.isVolumeRelated()) {
                 // Remember that flow to volume conversion requires division
@@ -86,8 +88,10 @@ public class VirtualReadingTypeRelativeComparator implements Comparator<VirtualR
                      * we favour y over x to avoid flow to volume conversion. */
                     return 1;
                 } else {
-                    // Neither of the two are volume related, problem in the matching algorithm
-                    throw new UnsupportedOperationException("Matching algorithm produced two non volume related reading types");
+                    /* Neither of the two are flow related but they are somehow
+                     * combined in a formula that may end up being volumne related.
+                     * No preference in sorting. */
+                    return 0;
                 }
             } else {
                 /* Target is neither flow nor volume related

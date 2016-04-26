@@ -31,6 +31,17 @@ public interface Formula extends HasId {
          * that need type, unit or time based aggregation.
          */
         EXPERT;
+
+        /**
+         * Tests if this Mode supports the specified {@link Function}.
+         *
+         * @param function The Function
+         * @return A flag that indicates if this Mode supports the Function
+         */
+        public boolean supports(Function function) {
+            return function.supportedBy(this);
+        }
+
     }
 
     Mode getMode();

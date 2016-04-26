@@ -15,28 +15,44 @@ import java.util.stream.Collectors;
  */
 public enum Function {
     SUM,
-    MAX,
     MIN,
+    MAX,
     AVG,
+    LEAST,
+    GREATEST,
     AGG_TIME,
+    POWER,
+    SQRT,
     COALESCE;
 
     public static Function from(com.elster.jupiter.metering.config.Function function) {
         switch (function) {
-            case SUM: {
-                return SUM;
+            case MIN: {
+                return LEAST;
             }
             case MAX: {
-                return MAX;
+                return GREATEST;
             }
-            case MIN: {
-                return MIN;
+            case SUM: {
+                return SUM;
             }
             case AVG: {
                 return AVG;
             }
+            case MIN_AGG: {
+                return MIN;
+            }
+            case MAX_AGG: {
+                return MAX;
+            }
             case AGG_TIME: {
                 return AGG_TIME;
+            }
+            case POWER: {
+                return POWER;
+            }
+            case SQRT: {
+                return SQRT;
             }
             case FIRST_NOT_NULL: {
                 return COALESCE;

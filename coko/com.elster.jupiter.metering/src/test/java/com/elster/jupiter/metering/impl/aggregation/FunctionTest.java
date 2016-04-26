@@ -13,13 +13,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FunctionTest {
 
     @Test
-    public void max() {
-        assertThat(Function.from(com.elster.jupiter.metering.config.Function.MAX)).isEqualTo(Function.MAX);
+    public void min() {
+        assertThat(Function.from(com.elster.jupiter.metering.config.Function.MIN_AGG)).isEqualTo(Function.MIN);
     }
 
     @Test
-    public void min() {
-        assertThat(Function.from(com.elster.jupiter.metering.config.Function.MIN)).isEqualTo(Function.MIN);
+    public void max() {
+        assertThat(Function.from(com.elster.jupiter.metering.config.Function.MAX_AGG)).isEqualTo(Function.MAX);
+    }
+
+    @Test
+    public void least() {
+        assertThat(Function.from(com.elster.jupiter.metering.config.Function.MIN)).isEqualTo(Function.LEAST);
+    }
+
+    @Test
+    public void greatest() {
+        assertThat(Function.from(com.elster.jupiter.metering.config.Function.MAX)).isEqualTo(Function.GREATEST);
     }
 
     @Test

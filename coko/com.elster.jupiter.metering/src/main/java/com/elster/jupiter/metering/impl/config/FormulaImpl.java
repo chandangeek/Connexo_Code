@@ -22,7 +22,7 @@ public class FormulaImpl implements ServerFormula {
     @SuppressWarnings("unused")// Managed by ORM
     private long id;
     private Mode mode;
-    private Reference<ExpressionNode> expressionNode = ValueReference.absent();
+    private Reference<ServerExpressionNode> expressionNode = ValueReference.absent();
     private final DataModel dataModel;
 
     @Inject
@@ -30,7 +30,7 @@ public class FormulaImpl implements ServerFormula {
         this.dataModel = dataModel;
     }
 
-    public FormulaImpl init(Mode mode, ExpressionNode expressionNode) {
+    public FormulaImpl init(Mode mode, ServerExpressionNode expressionNode) {
         this.mode = mode;
         this.expressionNode.set(expressionNode);
         return this;
@@ -43,7 +43,11 @@ public class FormulaImpl implements ServerFormula {
 
     @Override
     public void updateExpression(ExpressionNode nodeValue) {
-        ExpressionNode oldNode = this.expressionNode.get();
+        this.updateExpression((ServerExpressionNode) nodeValue);
+    }
+
+    private void updateExpression(ServerExpressionNode nodeValue) {
+        ServerExpressionNode oldNode = this.expressionNode.get();
         this.expressionNode = ValueReference.absent();
         this.expressionNode.set(nodeValue);
         this.expressionNode.get().save(dataModel);

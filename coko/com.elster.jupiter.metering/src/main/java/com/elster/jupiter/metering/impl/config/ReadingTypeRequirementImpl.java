@@ -5,9 +5,9 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
@@ -32,8 +32,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @SelfValid
 public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequirement, SelfObjectValidator {
     public static final Map<String, Class<? extends ReadingTypeRequirement>> IMPLEMENTERS = ImmutableMap.of(
-            PartiallySpecifiedReadingTypeImpl.TYPE_IDENTIFIER, PartiallySpecifiedReadingTypeImpl.class,
-            FullySpecifiedReadingTypeImpl.TYPE_IDENTIFIER, FullySpecifiedReadingTypeImpl.class);
+            PartiallySpecifiedReadingTypeRequirementImpl.TYPE_IDENTIFIER, PartiallySpecifiedReadingTypeRequirementImpl.class,
+            FullySpecifiedReadingTypeRequirementImpl.TYPE_IDENTIFIER, FullySpecifiedReadingTypeRequirementImpl.class);
 
     public enum Fields {
         ID("id"),
@@ -137,14 +137,14 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
 
     /**
      * <p>
-     * For {@link FullySpecifiedReadingType} checks that candidate is the same reading type as
-     * {@link FullySpecifiedReadingType#getReadingType()}
+     * For {@link FullySpecifiedReadingTypeRequirement} checks that candidate is the same reading type as
+     * {@link FullySpecifiedReadingTypeRequirement#getReadingType()}
      * </p>
      * <p>
-     * For {@link PartiallySpecifiedReadingType} checks that each candidate's attribute:
+     * For {@link PartiallySpecifiedReadingTypeRequirement} checks that each candidate's attribute:
      * <ul>
      * <li>is equal to overridden attribute value (if it was overridden,
-     * see {@link PartiallySpecifiedReadingType#overrideAttribute(ReadingTypeTemplateAttributeName, int)})</li>
+     * see {@link PartiallySpecifiedReadingTypeRequirement#overrideAttribute(ReadingTypeTemplateAttributeName, int)})</li>
      * <li>or is equal to template attribute value (if attribute has code or possible values,
      * see {@link ReadingTypeTemplateAttribute#matches(ReadingType)})</li>
      * <li>or has one of system allowed values, see

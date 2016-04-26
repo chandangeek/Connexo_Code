@@ -3,12 +3,8 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
-import com.elster.jupiter.metering.impl.config.AbstractNode;
-import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementImpl;
-import com.elster.jupiter.metering.impl.config.ServerFormula;
+import com.elster.jupiter.metering.config.AggregationLevel;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.math.BigDecimal;
@@ -22,8 +18,6 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.time.temporal.TemporalAmount;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -666,7 +660,7 @@ public enum IntervalLength {
         throw new UnsupportedOperationException("Volume to flow conversion is not (yet) supported for " + this.name());
     }
 
-    public static IntervalLength from(PartiallySpecifiedReadingType readingType) {
+    public static IntervalLength from(PartiallySpecifiedReadingTypeRequirement readingType) {
         MacroPeriod macroPeriod = readingType.getMacroPeriod();
         TimeAttribute measuringPeriod = readingType.getMeasuringPeriod();
         if ((macroPeriod.equals(MacroPeriod.NOTAPPLICABLE)) && (measuringPeriod.equals(TimeAttribute.NOTAPPLICABLE))) {
@@ -694,6 +688,29 @@ public enum IntervalLength {
             case SPECIFIEDPERIOD: // Intentional fall-through
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported macro period: " + macroPeriod.name());
+            }
+        }
+    }
+
+    public static IntervalLength from(AggregationLevel aggregationLevel) {
+        switch (aggregationLevel) {
+            case HOUR: {
+                return IntervalLength.HOUR1;
+            }
+            case DAY: {
+                return IntervalLength.DAY1;
+            }
+            case WEEK: {
+                return IntervalLength.WEEK1;
+            }
+            case MONTH: {
+                return IntervalLength.MONTH1;
+            }
+            case YEAR: {
+                return IntervalLength.YEAR1;
+            }
+            default: {
+                throw new IllegalArgumentException("Unknown or unsupported aggregation level: " + aggregationLevel.name());
             }
         }
     }

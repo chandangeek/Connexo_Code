@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.units.Dimension;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by igh on 4/02/2016.
@@ -18,18 +19,17 @@ public class FunctionCallNodeImpl extends AbstractNode implements FunctionCallNo
     static final String TYPE_IDENTIFIER = "FCT";
 
     private Function function;
+    private AggregationLevel aggregationLevel;
     private Thesaurus thesaurus;
 
+    // For ORM layer
+    @SuppressWarnings("unused")
     public FunctionCallNodeImpl() {}
 
-    public FunctionCallNodeImpl init(Function function) {
-        this.function = function;
-        return this;
-    }
-
-    public FunctionCallNodeImpl(List<? extends ExpressionNode> children, Function function, Thesaurus thesaurus) {
+    public FunctionCallNodeImpl(List<? extends ServerExpressionNode> children, Function function, AggregationLevel aggregationLevel, Thesaurus thesaurus) {
         super(children);
         this.function = function;
+        this.aggregationLevel = aggregationLevel;
         this.thesaurus = thesaurus;
     }
 
@@ -39,13 +39,18 @@ public class FunctionCallNodeImpl extends AbstractNode implements FunctionCallNo
     }
 
     @Override
+    public Optional<AggregationLevel> getAggregationLevel() {
+        return Optional.ofNullable(this.aggregationLevel);
+    }
+
+    @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visitFunctionCall(this);
     }
 
     public String toString() {
         StringBuilder result = new StringBuilder(function.toString() + "(");
-        List<ExpressionNode> children = this.getChildren();
+        List<ServerExpressionNode> children = this.getChildren();
         int size = children.size();
         for (int i = 0; i < size; i++) {
             result.append(children.get(i).toString());

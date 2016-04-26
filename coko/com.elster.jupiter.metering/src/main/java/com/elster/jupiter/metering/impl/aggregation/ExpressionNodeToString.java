@@ -86,7 +86,11 @@ public class ExpressionNodeToString implements ServerExpressionNode.Visitor<Stri
     @Override
     public String visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
         StringBuilder fragment = new StringBuilder();
-        aggregationNode.getFunction().appendTo(fragment, Collections.singletonList(aggregationNode.getAggregatedExpression().accept(this)));
+        aggregationNode
+                .getFunction()
+                .appendTo(
+                        fragment,
+                        Collections.singletonList(aggregationNode.getAggregatedExpression().accept(this)));
         return fragment.toString();
     }
 
