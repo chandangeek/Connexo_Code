@@ -149,7 +149,7 @@ public class CalendarInfoFactory {
 //        calendarInfo.mRID = calendar.getMrid();
         calendarInfo.id = calendar.getId();
         calendarInfo.description = calendar.getDescription();
-        calendarInfo.timeZone = calendar.getTimeZone().getDisplayName();
+        calendarInfo.timeZone = calendar.getTimeZone() == null ? "" : calendar.getTimeZone().getDisplayName();
     }
 
     private void addPeriods(CalendarInfo calendarInfo, List<PeriodTransition> transitions) {
@@ -170,7 +170,7 @@ public class CalendarInfoFactory {
 
     private void addDaysPerType(CalendarInfo calendarInfo, List<Period> periods, List<DayType> dayTypes) {
         calendarInfo.daysPerType = new ArrayList<>();
-        Map<Long, Set<String>> daysPerDaytype = new HashMap<>();
+        Map<Long, LinkedHashSet<String>> daysPerDaytype = new HashMap<>();
         dayTypes.stream()
                 .forEach(dayType -> daysPerDaytype.put(dayType.getId(), new LinkedHashSet<>()));
         for(Period period: periods) {
