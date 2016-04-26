@@ -8,6 +8,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,13 +17,11 @@ public class CustomPropertySetSearchableProperty implements SearchableProperty {
     private final CustomPropertySet<?, ?> customPropertySet;
     private final SearchablePropertyGroup searchablePropertyGroup;
     private final PropertySpec propertySpec;
-    private final List<SearchableProperty> constrictions;
 
-    public CustomPropertySetSearchableProperty(CustomPropertySet<?, ?> customPropertySet, PropertySpec propertySpec, SearchablePropertyGroup searchablePropertyGroup, List<SearchableProperty> constrictions) {
+    public CustomPropertySetSearchableProperty(CustomPropertySet<?, ?> customPropertySet, PropertySpec propertySpec, SearchablePropertyGroup searchablePropertyGroup) {
         this.customPropertySet = customPropertySet;
         this.propertySpec = propertySpec;
         this.searchablePropertyGroup = searchablePropertyGroup;
-        this.constrictions = constrictions;
     }
 
     @Override
@@ -76,7 +75,7 @@ public class CustomPropertySetSearchableProperty implements SearchableProperty {
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return this.constrictions;
+        return Collections.emptyList();
     }
 
     @Override
