@@ -37,7 +37,7 @@ public class ServiceCallResourceTest extends ServiceCallApplicationTest {
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("total")).isEqualTo(2);
         assertThat(jsonModel.<Integer>get("serviceCalls[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("serviceCalls[0].type")).isEqualTo("Mbus 1");
+        assertThat(jsonModel.<String>get("serviceCalls[0].type")).isEqualTo("Mbus 1 (v1)");
     }
 
     @Test
@@ -108,6 +108,7 @@ public class ServiceCallResourceTest extends ServiceCallApplicationTest {
         when(serviceCallLifeCycle.getId()).thenReturn(1L);
         when(serviceCallLifeCycle.getName()).thenReturn("default");
         when(serviceCallType.getName()).thenReturn("Mbus 1");
+        when(serviceCallType.getVersionName()).thenReturn("v1");
         when(serviceCall.getCreationTime()).thenReturn(Instant.EPOCH);
         when(serviceCall.getLastModificationTime()).thenReturn(Instant.EPOCH);
         when(serviceCall.getExternalReference()).thenReturn(Optional.empty());
