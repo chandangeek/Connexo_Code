@@ -1,5 +1,6 @@
 package com.elster.jupiter.search.rest.impl;
 
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.search.SearchableProperty;
 
 import javax.ws.rs.core.Link;

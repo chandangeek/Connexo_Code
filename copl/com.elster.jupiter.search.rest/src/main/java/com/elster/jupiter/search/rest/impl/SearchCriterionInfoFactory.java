@@ -3,13 +3,15 @@ package com.elster.jupiter.search.rest.impl;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.QuantityValueFactory;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.units.Quantity;
 
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -52,6 +54,21 @@ public class SearchCriterionInfoFactory {
         PropertySpec propertySpec = property.getSpecification();
         propertyInfo.type = propertySpec.getValueFactory().getValueType().getSimpleName();
         propertyInfo.factoryName = propertySpec.getValueFactory().getClass().getName();
+
+        if (propertySpec.getValueFactory() instanceof QuantityValueFactory) {
+            PropertySpecPossibleValues possibleValuesOrNull = propertySpec.getPossibleValues();
+            if (possibleValuesOrNull != null) {
+                List<?> possibleValues = possibleValuesOrNull.getAllValues();
+                propertyInfo.exhaustive = possibleValuesOrNull.isExhaustive();
+                propertyInfo.values = possibleValues.stream()
+                        .map(v -> asJsonValueObject(property.toDisplay(v), v))
+                        .filter(getNameFilter(nameFilter))
+                        .collect(toList());
+                propertyInfo.total = propertyInfo.values != null ? propertyInfo.values.size() : 0;
+                return propertyInfo;
+            }
+        }
+
         PropertySpecPossibleValues possibleValuesOrNull = propertySpec.getPossibleValues();
         if (possibleValuesOrNull != null) {
             List<?> possibleValues = possibleValuesOrNull.getAllValues();
@@ -87,8 +104,29 @@ public class SearchCriterionInfoFactory {
         return nameFilterPredicate;
     }
 
-    private IdWithDisplayValueInfo asJsonValueObject(String name, Object valueObject) {
+    public static IdWithDisplayValueInfo asJsonValueObject(String name, Object valueObject) {
         IdWithDisplayValueInfo info = new IdWithDisplayValueInfo();
+
+        if (valueObject instanceof Quantity) {
+            class QuantityInfo {
+                public String value;
+                public Integer multiplier;
+                public String unit;
+                public String displayValue;
+            }
+            QuantityInfo quantityInfo = new QuantityInfo();
+            QuantityValueFactory quantityValueFactory = new QuantityValueFactory();
+            Quantity value = (Quantity) valueObject;
+            quantityInfo.value = value.getValue().toPlainString();
+            quantityInfo.multiplier = value.getMultiplier();
+            quantityInfo.unit = value.getUnit().toString();
+            String[] valueParts = value.toString(true).split(" ");
+            quantityInfo.displayValue = valueParts[1];
+            info.id = quantityValueFactory.toStringValue(value);
+            info.displayValue = quantityInfo.displayValue;
+            return info;
+        }
+
         info.displayValue = name;
         info.id = name; // support for dynamic attributes, whose possible values don't match these classes
         if (HasId.class.isAssignableFrom(valueObject.getClass())) {
