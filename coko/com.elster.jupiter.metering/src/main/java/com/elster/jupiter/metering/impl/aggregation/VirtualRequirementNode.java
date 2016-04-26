@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -142,6 +143,10 @@ class VirtualRequirementNode implements ServerExpressionNode {
 
     void setTargetInterval(IntervalLength intervalLength) {
         this.targetReadingType = this.targetReadingType.withIntervalLength(intervalLength);
+    }
+
+    void setTargetMultiplier(MetricMultiplier multiplier) {
+        this.targetReadingType = this.targetReadingType.withMetricMultiplier(multiplier);
     }
 
     void finish() {
