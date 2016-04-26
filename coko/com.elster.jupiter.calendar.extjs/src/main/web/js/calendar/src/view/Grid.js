@@ -22,15 +22,15 @@ Ext.define('Cal.view.Grid', {
                 dataIndex: 'description',
                 flex: 3
             },
-            /* {
-             xtype: 'uni-actioncolumn',
-             //privileges: Scs.privileges.ServiceCall.admin,
-             menu: {
-             xtype: 'tou-action-menu',
-             //itemId: me.menuItemId
-             },
-             flex: 0.7
-             }*/
+            {
+                xtype: 'uni-actioncolumn',
+                //privileges: Scs.privileges.ServiceCall.admin,
+                menu: {
+                    xtype: 'tou-action-menu',
+                    //itemId: me.menuItemId
+                },
+                flex: 0.7
+            }
         ];
 
         me.dockedItems = [

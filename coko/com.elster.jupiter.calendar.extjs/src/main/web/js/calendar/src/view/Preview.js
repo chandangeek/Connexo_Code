@@ -9,18 +9,18 @@ Ext.define('Cal.view.Preview', {
 
     initComponent: function () {
         var me = this;
-        /* me.tools = [
-         {
-         xtype: 'button',
-         text: Uni.I18n.translate('general.actions', 'CAL', 'Actions'),
-         //privileges: Scs.privileges.ServiceCall.admin,
-         iconCls: 'x-uni-action-iconD',
-         itemId: 'touPreviewMenuButton',
-         menu: {
-         xtype: 'tou-action-menu'
-         }
-         }
-         ];*/
+        me.tools = [
+            {
+                xtype: 'button',
+                text: Uni.I18n.translate('general.actions', 'CAL', 'Actions'),
+                //privileges: Scs.privileges.ServiceCall.admin,
+                iconCls: 'x-uni-action-iconD',
+                itemId: 'touPreviewMenuButton',
+                menu: {
+                    xtype: 'tou-action-menu'
+                }
+            }
+        ];
 
         me.items = {
             xtype: 'tou-preview-form',

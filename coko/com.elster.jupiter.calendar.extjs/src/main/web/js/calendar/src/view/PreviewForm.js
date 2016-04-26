@@ -35,12 +35,12 @@ Ext.define('Cal.view.PreviewForm', {
         me.callParent(arguments);
     },
 
-    fillFieldContainers: function (record) {
+    fillFieldContainers: function (calendarRecord) {
         var me = this;
         Ext.suspendLayouts();
 
         me.down('#periodField').removeAll();
-        record.periods().each(function (record) {
+        calendarRecord.periods().each(function (record) {
             me.down('#periodField').add(
                 {
                     xtype: 'displayfield',
@@ -51,19 +51,19 @@ Ext.define('Cal.view.PreviewForm', {
             );
         });
         me.down('#dayTypesField').removeAll();
-        record.dayTypes().each(function (record) {
+        calendarRecord.dayTypes().each(function (record) {
             me.down('#dayTypesField').add(
                 {
                     xtype: 'displayfield',
                     fieldLabel: undefined,
-                    value: record.get('name'),
+                    value: record.get('name') + me.getDays(calendarRecord, record.get('id')),
                     margin: '0 0 -10 0'
                 }
             );
         });
 
         this.down('#tariffsField').removeAll();
-        record.events().each(function (record) {
+        calendarRecord.events().each(function (record) {
             me.down('#tariffsField').add(
                 {
                     xtype: 'displayfield',
@@ -77,6 +77,22 @@ Ext.define('Cal.view.PreviewForm', {
         Ext.resumeLayouts(true);
         me.updateLayout();
         me.doLayout();
+    },
+
+    getDays: function (record, id) {
+        var days = record.daysPerType().findRecord('dayTypeId', id).get('days'),
+            response = "";
+        if (days.length === 0) {
+            return response;
+        } else {
+            response = ' (';
+            Ext.Array.each(days, function (day) {
+                response += day + ', '
+            });
+            response = response.substr(0, response.lastIndexOf(', '));
+            response += ')';
+            return response;
+        }
     },
 
     calculateDate: function (month, day) {

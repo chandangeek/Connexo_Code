@@ -5,12 +5,12 @@ Ext.define('Cal.view.ActionMenu', {
     border: false,
     shadow: false,
     items: [
-        /* {
-         itemId: 'view-preview-cal',
-         text: Uni.I18n.translate('general.viewPreview', 'CAL', 'View preview'),
-         // privileges: Scs.privileges.ServiceCall.admin,
-         action: 'viewpreview'
-         },
+        {
+            itemId: 'view-preview-cal',
+            text: Uni.I18n.translate('general.viewPreview', 'CAL', 'View preview'),
+            // privileges: Scs.privileges.ServiceCall.admin,
+            action: 'viewpreview'
+        }/*,
          {
          itemId: 'remove-preview-cal',
          text: Uni.I18n.translate('general.remove', 'CAL', 'Remove'),
