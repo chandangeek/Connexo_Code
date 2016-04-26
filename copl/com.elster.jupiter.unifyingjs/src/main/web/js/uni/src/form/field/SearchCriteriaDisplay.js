@@ -109,16 +109,19 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
 
     formatValue: function (criteria, value) {
         var formatTimeDuration = function (timeDuration) {
-            var arr = value.split(':');
-            return arr[1]
-                + ' '
-                + Ext.getStore('Uni.property.store.TimeUnits').find('code', arr[1]).get('localizedValue');
-        };
+                var arr = value.split(':');
+                return arr[1]
+                    + ' '
+                    + Ext.getStore('Uni.property.store.TimeUnits').find('code', arr[1]).get('localizedValue');
+            },
+            selectFromPossibleValues = function (desiredValue) {
+                return Ext.Array.findBy(criteria.values, function (possibleValue) {
+                    return desiredValue == possibleValue.id;
+                }).displayValue
+            };
 
         if (criteria.selectionMode === 'multiple') {
-            return Ext.Array.findBy(criteria.values, function (possibleValue) {
-                return value == possibleValue.id;
-            }).displayValue
+            return selectFromPossibleValues(value);
         }
 
         switch (criteria.type + ':' + criteria.factoryName) {
@@ -138,6 +141,8 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
                 return formatTimeDuration(value);
             case 'TimeDuration:com.elster.jupiter.properties.StringReferenceFactory':
                 return formatTimeDuration(value);
+            case 'Quantity:com.elster.jupiter.properties.QuantityValueFactory':
+                return value.replace(/(\d*)\:\d*\:.*/, '$1') + ' ' + selectFromPossibleValues(value.replace(/\d*(\:\d*\:.*)/, '0$1'));
         }
 
         return value;
