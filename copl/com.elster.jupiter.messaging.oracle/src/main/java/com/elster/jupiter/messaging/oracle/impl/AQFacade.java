@@ -1,5 +1,7 @@
 package com.elster.jupiter.messaging.oracle.impl;
 
+import com.elster.jupiter.messaging.QueueTableSpec;
+
 import oracle.jdbc.aq.AQMessage;
 import oracle.jdbc.aq.AQMessageProperties;
 
@@ -32,4 +34,6 @@ interface AQFacade {
      * @throws JMSException
      */
     QueueConnection createQueueConnection(Connection connection) throws JMSException;
+
+    void activateAq(Connection connection, QueueTableSpec destinationSpec) throws SQLException;
 }

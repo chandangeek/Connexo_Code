@@ -91,11 +91,7 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     }
 
     private void tryActivateAq(Connection connection) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement(createSql())) {
-            statement.setString(1, name);
-            statement.setString(2, payloadType);
-            statement.execute();
-        }
+        aqFacade.activateAq(connection, this);
     }
 
     private void doActivateJms() {

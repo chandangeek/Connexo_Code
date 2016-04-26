@@ -11,6 +11,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.upgrade.UpgradeService;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -19,32 +21,36 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
 /**
  * Osgi Component class.
  */
 @Component(name = "com.elster.jupiter.messaging", service = {MessageService.class, InstallService.class},
         property = {"name=" + MessageService.COMPONENTNAME})
-public class MessageServiceImpl implements MessageService, InstallService {
+public class MessageServiceImpl implements MessageService {
 
-    private final DefaultAQFacade defaultAQMessageFactory = new DefaultAQFacade();
+    private volatile AQFacade defaultAQMessageFactory;
     private volatile Publisher publisher;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private volatile UpgradeService upgradeService;
 
     public MessageServiceImpl() {
     }
 
     @Inject
-    MessageServiceImpl(OrmService ormService, Publisher publisher, NlsService nlsService) {
+    MessageServiceImpl(OrmService ormService, Publisher publisher, NlsService nlsService, UpgradeService upgradeService, AQFacade aqFacade) {
         setOrmService(ormService);
         setPublisher(publisher);
         setNlsService(nlsService);
+        setUpgradeService(upgradeService);
+        this.defaultAQMessageFactory = aqFacade;
         activate();
-        dataModel.install(true, true);
     }
 
     @Reference
@@ -55,8 +61,16 @@ public class MessageServiceImpl implements MessageService, InstallService {
         }
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @Activate
     public final void activate() {
+        if (defaultAQMessageFactory == null) {
+            defaultAQMessageFactory = new DefaultAQFacade();
+        }
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -64,8 +78,10 @@ public class MessageServiceImpl implements MessageService, InstallService {
                 bind(Publisher.class).toInstance(publisher);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(MessageService.class).toInstance(MessageServiceImpl.this);
             }
         });
+        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     @Deactivate
@@ -81,25 +97,15 @@ public class MessageServiceImpl implements MessageService, InstallService {
     }
 
     @Override
-    public void install() {
-        new InstallerImpl(dataModel).install(this);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM");
-    }
-
-    @Override
     public Optional<QueueTableSpec> getQueueTableSpec(String name) {
         // check if dataModel is already installed because this method get potentially called before the initAll is run
-        return dataModel.isInstalled() ? dataModel.mapper(QueueTableSpec.class).getOptional(name) : Optional.<QueueTableSpec>empty();
+        return dataModel.mapper(QueueTableSpec.class).getOptional(name);
     }
 
     @Override
     public Optional<DestinationSpec> getDestinationSpec(String name) {
         // check if dataModel is already installed because this method get potentially called before the initAll is run
-        return dataModel.isInstalled() ? dataModel.mapper(DestinationSpec.class).getOptional(name) : Optional.<DestinationSpec>empty();
+        return dataModel.mapper(DestinationSpec.class).getOptional(name);
     }
 
     @Override
@@ -110,7 +116,7 @@ public class MessageServiceImpl implements MessageService, InstallService {
     @Override
     public Optional<SubscriberSpec> getSubscriberSpec(String destinationSpecName, String name) {
         // check if dataModel is already installed because this method get potentially called before the initAll is run
-        return dataModel.isInstalled() ? dataModel.mapper(SubscriberSpec.class).getOptional(destinationSpecName, name) : Optional.<SubscriberSpec>empty();
+        return dataModel.mapper(SubscriberSpec.class).getOptional(destinationSpecName, name);
     }
 
     @Override
@@ -140,5 +146,9 @@ public class MessageServiceImpl implements MessageService, InstallService {
 
     DataModel getDataModel() {
         return dataModel;
+    }
+
+    void setAqFacade(AQFacade aqFacade) {
+        this.defaultAQMessageFactory = aqFacade;
     }
 }

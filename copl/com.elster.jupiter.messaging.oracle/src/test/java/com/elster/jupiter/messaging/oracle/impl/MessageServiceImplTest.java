@@ -9,7 +9,14 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.upgrade.UpgradeService;
+
 import oracle.jdbc.OracleConnection;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,10 +24,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -65,6 +68,10 @@ public class MessageServiceImplTest {
     private SubscriberSpec subscriberSpec;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private UpgradeService upgradeService;
+    @Mock
+    private AQFacade aqFacade;
 
     @Before
     public void setUp() throws SQLException {
@@ -76,11 +83,12 @@ public class MessageServiceImplTest {
         when(dataModel.addTable(anyString(),any())).thenReturn(table);
         when(dataModel.getConnection(anyBoolean())).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(dataModel.getInstance(QueueTableSpecImpl.class)).thenReturn(new QueueTableSpecImpl(dataModel, null, thesaurus));
-        when(dataModel.isInstalled()).thenReturn(true);
+        when(dataModel.getInstance(QueueTableSpecImpl.class)).thenReturn(new QueueTableSpecImpl(dataModel, aqFacade, thesaurus));
 
         service = new MessageServiceImpl();
         service.setOrmService(ormService);
+        service.setUpgradeService(upgradeService);
+        service.setAqFacade(aqFacade);
         service.activate();
 
         messageService = service;
