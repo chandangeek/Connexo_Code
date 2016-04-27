@@ -73,7 +73,7 @@ public class UsagePointAssociationProviderTest {
 
         //Asserts
         assertThat(usagePointProcessAssociationProvider).isNotNull();
-        assertThat(usagePointProcessAssociationProvider.getPropertySpecs()).hasSize(1);
+        assertThat(usagePointProcessAssociationProvider.getPropertySpecs()).hasSize(2);
         Optional<PropertySpec> metrologyConfigurationProperty = usagePointProcessAssociationProvider.getPropertySpec(TranslationKeys.METROLOGY_CONFIGURATION_PROPERTY.getKey());
         assertThat(metrologyConfigurationProperty).isPresent();
         List<?> possibleValues = metrologyConfigurationProperty.get().getPossibleValues().getAllValues();
