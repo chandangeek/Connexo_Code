@@ -15,13 +15,13 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -41,7 +41,7 @@ import java.util.Optional;
 
 @Component(
         name = "com.elster.jupiter.events",
-        service = {InstallService.class, EventService.class, MessageSeedProvider.class},
+        service = {EventService.class, MessageSeedProvider.class},
         property = "name=" + EventService.COMPONENTNAME,
         immediate = true)
 public class EventServiceImpl implements EventService, MessageSeedProvider {
