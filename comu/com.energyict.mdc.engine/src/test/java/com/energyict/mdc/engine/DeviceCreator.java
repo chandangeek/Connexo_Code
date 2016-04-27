@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -139,7 +140,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
         @Override
         public Device create() {
             DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
-            Device device = deviceService.newDevice(deviceConfiguration, name, mRDI);
+            Device device = deviceService.newDevice(deviceConfiguration, name, mRDI, Instant.now());
             device.save();
             return device;
         }
