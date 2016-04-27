@@ -12,7 +12,6 @@ import java.time.Instant;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
-
 public class UsagePointInfo {
 
     public long id;
