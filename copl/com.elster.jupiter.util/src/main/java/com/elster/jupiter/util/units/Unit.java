@@ -1,9 +1,86 @@
 package com.elster.jupiter.util.units;
 
-import static com.elster.jupiter.util.units.Dimension.*;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import static com.elster.jupiter.util.units.Dimension.ABSORBED_DOSE;
+import static com.elster.jupiter.util.units.Dimension.ABSORBED_DOSE_RATE;
+import static com.elster.jupiter.util.units.Dimension.ACCELERATION;
+import static com.elster.jupiter.util.units.Dimension.ACTION;
+import static com.elster.jupiter.util.units.Dimension.AMOUNT_OF_SUBSTANCE;
+import static com.elster.jupiter.util.units.Dimension.ANGULAR_ACCELERATION;
+import static com.elster.jupiter.util.units.Dimension.ANGULAR_SPEED;
+import static com.elster.jupiter.util.units.Dimension.APPARENT_ENERGY;
+import static com.elster.jupiter.util.units.Dimension.APPARENT_POWER;
+import static com.elster.jupiter.util.units.Dimension.CATALYTIC_ACTIVITY;
+import static com.elster.jupiter.util.units.Dimension.CATALYTIC_ACTIVITY_CONCENTRATION;
+import static com.elster.jupiter.util.units.Dimension.CURRENCY;
+import static com.elster.jupiter.util.units.Dimension.DENSITY;
+import static com.elster.jupiter.util.units.Dimension.DIMENSIONLESS;
+import static com.elster.jupiter.util.units.Dimension.DOSE_EQUIVALENT;
+import static com.elster.jupiter.util.units.Dimension.DYNAMIC_VISCOSITY;
+import static com.elster.jupiter.util.units.Dimension.ELECTRICCONDUCTANCE;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_CAPACITANCE;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_CHARGE;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_CHARGE_DENSITY;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_CHARGE_SURFACE_DENSITY;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_CURRENT;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_CURRENT_SQUARED;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_CURRENT_SQUARED_TIME;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_FIELD_STRENGTH;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_INDUCTANCE;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_POTENTIAL;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_POTENTIAL_SQUARED;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_POTENTIAL_SQUARED_TIME;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_RESISTANCE;
+import static com.elster.jupiter.util.units.Dimension.ELECTRIC_RESISTIVITY;
+import static com.elster.jupiter.util.units.Dimension.ENERGY;
+import static com.elster.jupiter.util.units.Dimension.ENERGY_DENSITY;
+import static com.elster.jupiter.util.units.Dimension.EXPOSURE;
+import static com.elster.jupiter.util.units.Dimension.FORCE;
+import static com.elster.jupiter.util.units.Dimension.FREQUENCY;
+import static com.elster.jupiter.util.units.Dimension.FREQUENCY_CHANGE_RATE;
+import static com.elster.jupiter.util.units.Dimension.FUEL_ECONOMY;
+import static com.elster.jupiter.util.units.Dimension.FUEL_EFFICIENCY;
+import static com.elster.jupiter.util.units.Dimension.HEAT_CAPACITY;
+import static com.elster.jupiter.util.units.Dimension.ILLUMINANCE;
+import static com.elster.jupiter.util.units.Dimension.LENGTH;
+import static com.elster.jupiter.util.units.Dimension.LUMINOUS_FLUX;
+import static com.elster.jupiter.util.units.Dimension.LUMINOUS_INTENSITY;
+import static com.elster.jupiter.util.units.Dimension.MAGNETIC_FIELD_STRENGTH;
+import static com.elster.jupiter.util.units.Dimension.MAGNETIC_FLUX;
+import static com.elster.jupiter.util.units.Dimension.MAGNETIC_FLUX_DENSITY;
+import static com.elster.jupiter.util.units.Dimension.MASS;
+import static com.elster.jupiter.util.units.Dimension.MASSFLOW;
+import static com.elster.jupiter.util.units.Dimension.MASS_CONCENTRATION;
+import static com.elster.jupiter.util.units.Dimension.MOLAR_ENERGY;
+import static com.elster.jupiter.util.units.Dimension.MOLAR_ENTROPY;
+import static com.elster.jupiter.util.units.Dimension.MOMENT_OF_FORCE;
+import static com.elster.jupiter.util.units.Dimension.MOMENT_OF_MASS;
+import static com.elster.jupiter.util.units.Dimension.PERMEABILITY;
+import static com.elster.jupiter.util.units.Dimension.PERMITTIVITY;
+import static com.elster.jupiter.util.units.Dimension.POWER;
+import static com.elster.jupiter.util.units.Dimension.POWER_RAMP;
+import static com.elster.jupiter.util.units.Dimension.PRESSURE;
+import static com.elster.jupiter.util.units.Dimension.RADIANCE;
+import static com.elster.jupiter.util.units.Dimension.RADIOACTIVITY;
+import static com.elster.jupiter.util.units.Dimension.REACTIVE_ENERGY;
+import static com.elster.jupiter.util.units.Dimension.REACTIVE_POWER;
+import static com.elster.jupiter.util.units.Dimension.RECIPROCAL_LENGTH;
+import static com.elster.jupiter.util.units.Dimension.SPECIFIC_ENERGY;
+import static com.elster.jupiter.util.units.Dimension.SPECIFIC_HEAT_CAPACITY;
+import static com.elster.jupiter.util.units.Dimension.SPECIFIC_VOLUME;
+import static com.elster.jupiter.util.units.Dimension.SPEED;
+import static com.elster.jupiter.util.units.Dimension.SURFACE;
+import static com.elster.jupiter.util.units.Dimension.SURFACE_TENSION;
+import static com.elster.jupiter.util.units.Dimension.TEMPERATURE;
+import static com.elster.jupiter.util.units.Dimension.THERMAL_CONDUCTIVITY;
+import static com.elster.jupiter.util.units.Dimension.TIME;
+import static com.elster.jupiter.util.units.Dimension.TURBINE_INERTIA;
+import static com.elster.jupiter.util.units.Dimension.VISCOSITY;
+import static com.elster.jupiter.util.units.Dimension.VOLUME;
+import static com.elster.jupiter.util.units.Dimension.VOLUME_CONCENTRATION;
+import static com.elster.jupiter.util.units.Dimension.VOLUME_FLOW;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 
@@ -100,7 +177,7 @@ public enum Unit {
     WATT_HOUR_PER_ROTATION("watt hours per rotation", "Wh/rev", ENERGY, Constants.BD3600),
     VOLT_AMPERE_REACTIVE_HOUR_PER_ROTATION("volt ampere reactive hours per rotation", "VArh/rev", REACTIVE_ENERGY, Constants.BD3600),
     VOLT_AMPERE_HOUR_PER_ROTATION("volt ampere hours per rotation", "VAh/rev", APPARENT_ENERGY, Constants.BD3600),
-    END_DEVICE_EVENT_CODE("end device event code", "MeCode", DIMENSIONLESS), 
+    END_DEVICE_EVENT_CODE("end device event code", "MeCode", DIMENSIONLESS),
     CUBIC_FEET("cubic feet","ft\u00b3","ft3",VOLUME,Constants.CUBIC_METER_PER_CUBIC_FOOT),
     CUBIC_FEET_COMPENSATED("cubic feet compensated","ft\u00b3(compensated)","ft3(compensated)",VOLUME,Constants.CUBIC_METER_PER_CUBIC_FOOT),
     CUBIC_FEET_UNCOMPENSATED("cubic feet uncompensated","ft\u00b3(uncompensated)","ft3(uncompensated)",VOLUME,Constants.CUBIC_METER_PER_CUBIC_FOOT),
@@ -119,7 +196,7 @@ public enum Unit {
     LITRE("litre","L",VOLUME,-3),
     LITRE_PER_HOUR("litre per hour", "L/h", VOLUME_FLOW, ONE, Constants.BD3600.scaleByPowerOfTen(3)),
     LITRE_COMPENSATED_PER_HOUR("litre compensated per hour","L(compensated)/h",VOLUME_FLOW, ONE, Constants.BD3600.scaleByPowerOfTen(3)),
-    LITRE_UNCOMPENSATED_PER_HOUR("litre uncompensated per hour","L(uncompensated)/h",VOLUME_FLOW,ONE,Constants.BD3600.scaleByPowerOfTen(3)),   
+    LITRE_UNCOMPENSATED_PER_HOUR("litre uncompensated per hour","L(uncompensated)/h",VOLUME_FLOW,ONE,Constants.BD3600.scaleByPowerOfTen(3)),
     PASCAL_GAUGE("pascal gauge","PaG",PRESSURE),
     POUND_PER_SQUARE_INCH_ABSOLUTE("pounds per square inch, absolute","ps/A",PRESSURE,Constants.NEWTON_PER_POUND,Constants.SQUARE_METER_PER_SQUARE_INCH),
     POUND_PER_SQUARE_INCH_GAUGE("pounds per square inch, gauge","ps/G",PRESSURE,Constants.NEWTON_PER_POUND,Constants.SQUARE_METER_PER_SQUARE_INCH),
@@ -134,7 +211,7 @@ public enum Unit {
     VOLT_PER_VOLT("volt per volt","V/V",DIMENSIONLESS),
     AMPERE_PER_AMPERE("ampere per ampere","A/A",DIMENSIONLESS),
     WATT_PER_VOLTAMPERE("watt per voltampere","W/VA",DIMENSIONLESS),
-    REVOLUTIONS("revolutions","rev",DIMENSIONLESS), 
+    REVOLUTIONS("revolutions","rev",DIMENSIONLESS),
     PASCAL_ABSOLUTE("pascal absolute","PaA",PRESSURE),
     LITRE_UNCOMPENSATED("litre uncompensated","L(uncompensated)",VOLUME,-3),
     LITRE_COMPENSATED("litre compensated","L(compensated)",VOLUME,-3),
@@ -148,7 +225,7 @@ public enum Unit {
     JOULES_PER_KG("joule per kg","J/kg",SPECIFIC_ENERGY),
     CUBIC_METER_UNCOMPENSATED("cubic meter uncompensated","m\u00b3(uncompensated)","m3(uncompensated)",VOLUME),
     CUBIC_METER_COMPENSATED("cubic meter compensated","m\u00b3(compensated)","m3(compensated)",VOLUME),
-    WATT_PER_WATT("watt per watt","W/W",DIMENSIONLESS), 
+    WATT_PER_WATT("watt per watt","W/W",DIMENSIONLESS),
     THERM("therm", "therm", ENERGY, Constants.JOULE_PER_THERM),
     WAVENUMBER("wave number","/m",RECIPROCAL_LENGTH),
     CUBIC_METER_PER_KILOGRAM("cubic meter per kilogram","m\u00b3/kg","m3/kg",SPECIFIC_VOLUME),
@@ -266,9 +343,9 @@ public enum Unit {
     JOULE_SECOND("Joule second","Js",ACTION),
     GRAM_PER_SECOND("kilogram per second", "g/s", MASSFLOW),
     CUBIC_METER_PER_METER("cubic meter per meter" , "m\u00B3/m","m3/m",FUEL_ECONOMY);
-   
-    
-    
+
+
+
     private static final int EXTRA_PRECISION = 6;
 
     private final String name;
@@ -313,14 +390,14 @@ public enum Unit {
         this(name, symbol, symbol, dimension);
     }
 
-    Unit(String name, String symbol, Dimension dimension,int powerOfTen) {
+    Unit(String name, String symbol, Dimension dimension, int powerOfTen) {
         this(name, symbol, symbol, dimension, powerOfTen);
     }
-    
+
     Unit(String name, String symbol, String asciiSymbol, Dimension dimension, int powerOfTen) {
         this(name, symbol, asciiSymbol, dimension, ONE.scaleByPowerOfTen(powerOfTen));
     }
-    
+
     public static Unit unitForSymbol(String symbol) {
         for (Unit unit : values()) {
             if (unit.getSymbol().equals(symbol)) {
@@ -341,7 +418,7 @@ public enum Unit {
 
     private interface Constants {
         BigDecimal BD3600 = BigDecimal.valueOf(3600);
-        BigDecimal BD86400 = BigDecimal.valueOf(86400);  // seconds per 24h day       
+        BigDecimal BD86400 = BigDecimal.valueOf(86400);  // seconds per 24h day
         BigDecimal METER_PER_FOOT = BigDecimal.valueOf(3048, 4);
         BigDecimal SQUARE_METER_PER_SQUARE_FOOT = METER_PER_FOOT.multiply(METER_PER_FOOT);
         BigDecimal CUBIC_METER_PER_CUBIC_FOOT = SQUARE_METER_PER_SQUARE_FOOT.multiply(METER_PER_FOOT);
@@ -371,15 +448,15 @@ public enum Unit {
         return dimension;
     }
 
-    BigDecimal getSiMultiplier() {
+    public BigDecimal getSiMultiplier() {
         return siMultiplier;
     }
 
-    BigDecimal getSiDivisor() {
+    public BigDecimal getSiDivisor() {
         return siDivisor;
     }
 
-    BigDecimal getSiDelta() {
+    public BigDecimal getSiDelta() {
         return siDelta;
     }
 
@@ -421,19 +498,19 @@ public enum Unit {
     	}
     	return isPowerOfTen(siMultiplier) && isPowerOfTen(siDivisor);
     }
-    
+
     private int powerOfTen() {
     	return powerOfTen(siMultiplier) - powerOfTen(siDivisor);
     }
-    
+
     private boolean isPowerOfTen(BigDecimal value) {
     	return value.stripTrailingZeros().unscaledValue().equals(BigInteger.ONE);
     }
-    
+
     private int powerOfTen(BigDecimal value) {
     	return -value.stripTrailingZeros().scale();
     }
-    
+
     public static Unit getSIUnit(Dimension dimension) {
     	Unit candidate = null;
         for (Unit each : values()) {

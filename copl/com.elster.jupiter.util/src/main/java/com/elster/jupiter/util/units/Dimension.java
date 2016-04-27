@@ -81,7 +81,7 @@ public enum Dimension implements HasName {
 	ABSORBED_DOSE_RATE("absorbed dose rate",2,0,-3,0),
 	RADIANCE("radiance",0,1,-3,0),
 	ACTION("action",2,1,-1,0);
-	
+
 	private final String name;
 	private final int lengthDimension;
 	private final int massDimension;
@@ -90,8 +90,8 @@ public enum Dimension implements HasName {
 	private final int temperatureDimension;
 	private final int amountDimension;
 	private final int luminousIntensityDimension;
-	
-	private Dimension(String name, int lengthD, int massD, int timeD, int currentD, int temperatureD,int amountD,int luminousIntensityD) {
+
+	Dimension(String name, int lengthD, int massD, int timeD, int currentD, int temperatureD,int amountD,int luminousIntensityD) {
 		this.name = name;
 		this.lengthDimension = lengthD;
 		this.massDimension = massD;
@@ -101,11 +101,11 @@ public enum Dimension implements HasName {
 		this.amountDimension = amountD;
 		this.luminousIntensityDimension = luminousIntensityD;
 	}
-	
-	private Dimension(String name, int lengthD, int massD, int timeD, int currentD) {
+
+	Dimension(String name, int lengthD, int massD, int timeD, int currentD) {
 		this(name,lengthD,massD,timeD,currentD,0,0,0);
 	}
-		
+
 	public String getName() {
 		return name;
 	}
@@ -138,29 +138,28 @@ public enum Dimension implements HasName {
 		return luminousIntensityDimension;
 	}
 
-	
 	public String toString() {
 		return getName();
 	}
-	
+
 	public boolean isDimensionLess() {
-		return 
-			lengthDimension == 0 && massDimension == 0 && 
-			timeDimension == 0 && currentDimension == 0 && 
+		return
+			lengthDimension == 0 && massDimension == 0 &&
+			timeDimension == 0 && currentDimension == 0 &&
 			temperatureDimension == 0 && amountDimension == 0 &&
-			luminousIntensityDimension == 0; 
+			luminousIntensityDimension == 0;
 	}
-	
+
 	public boolean hasSameDimensions(Dimension other) {
 		return
-			lengthDimension == other.lengthDimension && massDimension ==  other.massDimension && 
-			timeDimension == other.timeDimension && currentDimension == other.currentDimension && 
+			lengthDimension == other.lengthDimension && massDimension ==  other.massDimension &&
+			timeDimension == other.timeDimension && currentDimension == other.currentDimension &&
 			temperatureDimension == other.temperatureDimension && amountDimension == other.amountDimension &&
-			luminousIntensityDimension == other.luminousIntensityDimension; 
+			luminousIntensityDimension == other.luminousIntensityDimension;
 	}
-	
+
 	public int[] getDimensions() {
 		return new int[] { lengthDimension , massDimension , timeDimension , currentDimension , temperatureDimension , amountDimension , luminousIntensityDimension };
 	}
-	
+
 }
