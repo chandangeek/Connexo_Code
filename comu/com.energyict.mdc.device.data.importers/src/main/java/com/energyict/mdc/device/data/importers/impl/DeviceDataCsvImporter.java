@@ -4,6 +4,7 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -66,11 +67,10 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
             for (CSVRecord csvRecord : csvParser) {
                 processRecord(csvRecord);
             }
+            processor.complete(logger);
             logger.importFinished();
         } catch (Exception e) {
             logger.importFailed(e);
-        } finally {
-            processor.complete(logger);
         }
     }
 
