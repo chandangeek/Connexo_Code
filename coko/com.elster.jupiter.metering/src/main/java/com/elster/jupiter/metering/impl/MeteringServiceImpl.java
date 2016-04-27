@@ -40,7 +40,10 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.ami.EndDeviceControlRecord;
+import com.elster.jupiter.metering.ami.EndDeviceControlType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
@@ -66,6 +69,7 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -909,5 +913,13 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         locationTemplate
                 .parseTemplate(locationTemplateFields, locationTemplateMandatoryFields);
         locationTemplateMembers = ImmutableList.copyOf(locationTemplate.getTemplateMembers());
+    }
+
+    @Override
+    public List<EndDeviceControlType> getDeviceControlTypes(EndDevice endDevice) {
+        Condition condition = Operator.EQUALIGNORECASE.compare("endDeviceId",endDevice.getId());
+        List<EndDeviceControlRecord> controlRecordList = dataModel.query(EndDeviceControlRecord.class).select(condition);
+        Condition typeCondition = where("mRID").in(controlRecordList);
+        return dataModel.query(EndDeviceControlType.class).select(typeCondition);
     }
 }

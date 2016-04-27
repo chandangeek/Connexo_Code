@@ -25,6 +25,8 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.ami.EndDeviceControlRecord;
+import com.elster.jupiter.metering.ami.EndDeviceControlRecordImpl;
 import com.elster.jupiter.metering.ami.EndDeviceControlType;
 import com.elster.jupiter.metering.ami.EndDeviceControlTypeImpl;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -1116,7 +1118,92 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("MTR_PK_ENDDEVICECONTROLTYPE").on(mRidColumn).add();
         }
-    },;
+    },
+
+    MTR_ENDDEVICECONTROLRECORD {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EndDeviceControlRecord> table = dataModel.addTable(name(), EndDeviceControlRecord.class);
+            table.map(EndDeviceControlRecordImpl.class);
+            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column controlTypeColumn = table.column("CONTROLTYPE").varChar(NAME_LENGTH).notNull().add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2INSTANT)
+                    .map("createdDateTime")
+                    .add();
+            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
+            table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
+            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.column("ISSUERID").varChar(NAME_LENGTH).map("issuerID").add();
+            table.column("ISSUERTRACKINGID").varChar(NAME_LENGTH).map("issuerTrackingID").add();
+            table.column("STATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("status.dateTime").add();
+            table.column("STATUSREASON").varChar(NAME_LENGTH).map("status.reason").add();
+            table.column("STATUSREMARK").varChar(NAME_LENGTH).map("status.remark").add();
+            table.column("STATUSVALUE").varChar(NAME_LENGTH).map("status.value").add();
+            table.column("PROCESSINGFLAGS").type("number").map("processingFlags").conversion(NUMBER2LONG).add();
+            table.column("LOGBOOKID").type("number").map("logBookId").conversion(NUMBER2LONG).add();
+            table.column("LOGBOOKPOSITION").type("number").map("logBookPosition").conversion(NUMBER2INT).add();
+            table.column("DEVICECONTROLTYPE").varChar(80).map("deviceControlType").add();
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_ENDDEVICECONTROLRECORD")
+                    .on(endDeviceColumn, controlTypeColumn, createdDateTimeColumn)
+                    .add();
+            table.partitionOn(createdDateTimeColumn);
+            table.foreignKey("MTR_FK_CONTROL_ENDDEVICE")
+                    .on(endDeviceColumn)
+                    .references(EndDevice.class)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map("endDevice")
+                    .add();
+            table.foreignKey("MTR_FK_CONTROL_CONTROLTYPE")
+                    .on(controlTypeColumn)
+                    .references(EndDeviceControlType.class)
+                    .onDelete(DeleteRule.RESTRICT)
+                    .map("controlType")
+                    .add();
+        }
+    },
+    MTR_ENDDEVICECONTROLDETAIL {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EndDeviceControlRecordImpl.EndDeviceControlDetailRecord> table = dataModel.addTable(name(), EndDeviceControlRecordImpl.EndDeviceControlDetailRecord.class);
+            table.map(EndDeviceControlRecordImpl.EndDeviceControlDetailRecord.class);
+            Column endDeviceColumn = table.column("ENDDEVICEID")
+                    .type("number")
+                    .notNull()
+                    .map("endDeviceId")
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column controlTypeColumn = table.column("CONTROLTYPE")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map("controlTypeCode")
+                    .add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME")
+                    .type("number")
+                    .notNull()
+                    .conversion(NUMBER2INSTANT)
+                    .map("createdDateTime")
+                    .add();
+            Column keyColumn = table.column("KEY").varChar(NAME_LENGTH).notNull().map("key").add();
+            table.column("DETAIL_VALUE").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("value").add();
+            table.primaryKey("MTR_PK_ENDDEVICECONTROLDETAIL")
+                    .on(endDeviceColumn, controlTypeColumn, createdDateTimeColumn, keyColumn)
+                    .add();
+            table.foreignKey("MTR_FK_ENDDEVICECONTROL_DETAIL")
+                    .on(endDeviceColumn, controlTypeColumn, createdDateTimeColumn)
+                    .references(EndDeviceControlRecord.class)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map("controlRecord")
+                    .reverseMap("detailRecords")
+                    .composition()
+                    .refPartition()
+                    .add();
+        }
+    };
 
     abstract void addTo(DataModel dataModel);
 
