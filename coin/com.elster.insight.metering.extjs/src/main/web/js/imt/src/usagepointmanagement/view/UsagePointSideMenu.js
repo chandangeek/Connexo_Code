@@ -55,7 +55,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
         if (me.purposes) {
             var items = [];
             me.purposes.map(function(purpose) {
-                if (true || purpose.get('active')) {
+                if (purpose.get('active')) {
                     var status = purpose.get('status'),
                         icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
                             + status.name
