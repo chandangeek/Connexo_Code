@@ -2,8 +2,15 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.exception.BaseException;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
@@ -11,13 +18,6 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.exception.BaseException;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -70,7 +70,7 @@ public class ForceValidationAndEstimation extends TranslatableServerMicroAction 
         estimationService.estimate(meterActivation, meterActivation.getRange());
         long nrOfSuspects = meterActivation.getChannels().stream()
                 .flatMap(channel ->
-                        channel.findActualReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.<Instant>all()).stream())
+                        channel.findActualReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), Range.<Instant>all()).stream())
                 .count();
         if (nrOfSuspects > 0) {
             throw new ForceValidationAndEstimationException(MessageSeeds.NOT_ALL_DATA_VALID_FOR_DEVICE);
