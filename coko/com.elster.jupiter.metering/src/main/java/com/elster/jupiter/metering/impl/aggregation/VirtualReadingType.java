@@ -139,6 +139,14 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         return new VirtualReadingType(this.intervalLength, this.unitMultiplier, unit, this.commodity, this.marker);
     }
 
+    Commodity getCommodity() {
+        return this.commodity;
+    }
+
+    VirtualReadingType withCommondity(Commodity commondity) {
+        return new VirtualReadingType(this.intervalLength, this.unitMultiplier, this.unit, commondity, this.marker);
+    }
+
     /**
      * Builds and returns the appropriate SQL constructs to achieve unit conversion for the specified
      * expression from this VirtualReadingType to the specified target VirtualReadingType.

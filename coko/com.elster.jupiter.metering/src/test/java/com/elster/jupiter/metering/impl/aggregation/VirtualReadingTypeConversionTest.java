@@ -45,6 +45,7 @@ public class VirtualReadingTypeConversionTest {
         assertThat(withIntervalLength.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         assertThat(withIntervalLength.getUnitMultiplier()).isEqualTo(MetricMultiplier.ZERO);
         assertThat(withIntervalLength.getUnit()).isEqualTo(ReadingTypeUnit.WATTHOUR);
+        assertThat(withIntervalLength.getCommodity()).isEqualTo(Commodity.ELECTRICITY_PRIMARY_METERED);
         assertThat(withIntervalLength.isUnsupported()).isFalse();
         assertThat(withIntervalLength.isDontCare()).isFalse();
     }
@@ -61,6 +62,7 @@ public class VirtualReadingTypeConversionTest {
         assertThat(withIntervalLength.getIntervalLength()).isEqualTo(IntervalLength.DAY1);
         assertThat(withIntervalLength.getUnitMultiplier()).isEqualTo(MetricMultiplier.ZERO);
         assertThat(withIntervalLength.getUnit()).isEqualTo(ReadingTypeUnit.WATTHOUR);
+        assertThat(withIntervalLength.getCommodity()).isEqualTo(Commodity.ELECTRICITY_PRIMARY_METERED);
         assertThat(withIntervalLength.isUnsupported()).isFalse();
         assertThat(withIntervalLength.isDontCare()).isFalse();
     }
@@ -114,6 +116,7 @@ public class VirtualReadingTypeConversionTest {
         assertThat(withMultiplier.getUnitMultiplier()).isEqualTo(MetricMultiplier.MILLI);
         assertThat(withMultiplier.getUnit()).isEqualTo(ReadingTypeUnit.WATTHOUR);
         assertThat(withMultiplier.getIntervalLength()).isEqualTo(IntervalLength.DAY1);
+        assertThat(withMultiplier.getCommodity()).isEqualTo(Commodity.ELECTRICITY_PRIMARY_METERED);
         assertThat(withMultiplier.isUnsupported()).isFalse();
         assertThat(withMultiplier.isDontCare()).isFalse();
     }
@@ -130,6 +133,7 @@ public class VirtualReadingTypeConversionTest {
         assertThat(withMultiplier.getUnitMultiplier()).isEqualTo(MetricMultiplier.KILO);
         assertThat(withMultiplier.getUnit()).isEqualTo(ReadingTypeUnit.WATTHOUR);
         assertThat(withMultiplier.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
+        assertThat(withMultiplier.getCommodity()).isEqualTo(Commodity.ELECTRICITY_PRIMARY_METERED);
         assertThat(withMultiplier.isUnsupported()).isFalse();
         assertThat(withMultiplier.isDontCare()).isFalse();
     }
@@ -183,6 +187,7 @@ public class VirtualReadingTypeConversionTest {
         assertThat(withUnit.getUnit()).isEqualTo(ReadingTypeUnit.CUBICMETER);
         assertThat(withUnit.getUnitMultiplier()).isEqualTo(MetricMultiplier.ZERO);
         assertThat(withUnit.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
+        assertThat(withUnit.getCommodity()).isEqualTo(Commodity.POTABLEWATER);
         assertThat(withUnit.isUnsupported()).isFalse();
         assertThat(withUnit.isDontCare()).isFalse();
     }
@@ -205,6 +210,60 @@ public class VirtualReadingTypeConversionTest {
 
         // Business method
         VirtualReadingType withMultiplier = dontCare.withUnit(ReadingTypeUnit.AMPERE);
+
+        // Asserts
+        assertThat(withMultiplier.isDontCare()).isTrue();
+        assertThat(withMultiplier.isUnsupported()).isFalse();
+    }
+
+    @Test
+    public void withSameCommodity() {
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+
+        // Business method
+        VirtualReadingType withUnit = readingType.withCommondity(Commodity.ELECTRICITY_PRIMARY_METERED);
+
+        // Asserts
+        assertThat(withUnit).isEqualTo(readingType);
+        assertThat(withUnit.isUnsupported()).isFalse();
+        assertThat(withUnit.isDontCare()).isFalse();
+    }
+
+    @Test
+    public void withOtherCommodity() {
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+
+        // Business method
+        VirtualReadingType withUnit = readingType.withCommondity(Commodity.ELECTRICITY_SECONDARY_METERED);
+
+        // Asserts
+        assertThat(withUnit).isNotEqualTo(readingType);
+        assertThat(withUnit.getCommodity()).isEqualTo(Commodity.ELECTRICITY_SECONDARY_METERED);
+        assertThat(withUnit.getUnit()).isEqualTo(ReadingTypeUnit.WATTHOUR);
+        assertThat(withUnit.getUnitMultiplier()).isEqualTo(MetricMultiplier.ZERO);
+        assertThat(withUnit.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
+        assertThat(withUnit.isUnsupported()).isFalse();
+        assertThat(withUnit.isDontCare()).isFalse();
+    }
+
+    @Test
+    public void unsupportedWithCommodityIsStillUnsupported() {
+        VirtualReadingType notSupported = VirtualReadingType.notSupported();
+
+        // Business method
+        VirtualReadingType withMultiplier = notSupported.withCommondity(Commodity.ELECTRICITY_SECONDARY_METERED);
+
+        // Asserts
+        assertThat(withMultiplier.isUnsupported()).isTrue();
+        assertThat(withMultiplier.isDontCare()).isFalse();
+    }
+
+    @Test
+    public void dontCareWithCommodityIsStillDontCare() {
+        VirtualReadingType dontCare = VirtualReadingType.dontCare();
+
+        // Business method
+        VirtualReadingType withMultiplier = dontCare.withCommondity(Commodity.ELECTRICITY_SECONDARY_METERED);
 
         // Asserts
         assertThat(withMultiplier.isDontCare()).isTrue();
