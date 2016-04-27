@@ -2,6 +2,8 @@ package com.elster.jupiter.calendar.rest.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfo;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
@@ -19,10 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Path("/calendars")

@@ -1,6 +1,7 @@
 package com.elster.jupiter.calendar.rest.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -93,7 +94,7 @@ public class CalendarApplication extends Application implements TranslationKeyPr
         protected void configure() {
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
-            bind(CalendarInfoFactory.class).to(CalendarInfoFactory.class);
+            bind(CalendarInfoFactoryImpl.class).to(CalendarInfoFactory.class);
             bind(transactionService).to(TransactionService.class);
             bind(calendarService).to(CalendarService.class);
             bind(thesaurus).to(Thesaurus.class);
