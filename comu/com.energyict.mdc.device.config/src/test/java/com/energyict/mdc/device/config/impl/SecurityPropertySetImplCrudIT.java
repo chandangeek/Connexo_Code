@@ -17,6 +17,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
@@ -152,6 +153,7 @@ public class SecurityPropertySetImplCrudIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
 
     }
