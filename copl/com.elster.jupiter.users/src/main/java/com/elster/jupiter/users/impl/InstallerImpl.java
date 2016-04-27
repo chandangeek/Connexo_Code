@@ -1,11 +1,17 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.FormatKey;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.security.Privileges;
 
+import org.osgi.framework.BundleContext;
+
+import javax.inject.Inject;
 import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.UUID;
@@ -14,26 +20,30 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.Checks.is;
 
-public class InstallerImpl {
+public class InstallerImpl implements FullInstaller {
     private final Logger logger = Logger.getLogger(InstallerImpl.class.getName());
 
-    private DataModel dataModel;
-    private String defaultDomain;
-    private UserService userService;
+    private final DataModel dataModel;
+    private final UserServiceImpl userService;
+    private final BundleContext bundleContext;
 
-    public InstallerImpl(DataModel dataModel, UserService userService) {
+    @Inject
+    public InstallerImpl(DataModel dataModel, UserService userService, BundleContext bundleContext) {
         this.dataModel = dataModel;
-        this.userService = userService;
+        this.userService = (UserServiceImpl) userService;
+        this.bundleContext = bundleContext;
     }
 
-    public void install(String defaultDomain) {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         try {
-            dataModel.install(true, true);
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
         } catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
+        userService.installPrivileges();
+        addDefaults(bundleContext != null ? bundleContext.getProperty("admin.password") : null);
 
-        this.defaultDomain = defaultDomain;
     }
 
     public void addDefaults(String adminPassword) {
@@ -43,7 +53,7 @@ public class InstallerImpl {
 
     private void createMasterData(String adminPassword) {
         try {
-            InternalDirectoryImpl directory = (InternalDirectoryImpl) userService.findUserDirectory(this.defaultDomain)
+            InternalDirectoryImpl directory = (InternalDirectoryImpl) userService.findUserDirectory(userService.getRealm())
                     .orElseGet(this::createDirectory);
             GroupImpl administrators = (GroupImpl) userService.findGroup(UserService.DEFAULT_ADMIN_ROLE)
                     .orElseGet(() -> userService.createGroup(UserService.DEFAULT_ADMIN_ROLE, UserService.DEFAULT_ADMIN_ROLE_DESCRIPTION));
@@ -59,7 +69,7 @@ public class InstallerImpl {
     }
 
     private InternalDirectoryImpl createDirectory() {
-        InternalDirectoryImpl directory = InternalDirectoryImpl.from(dataModel, defaultDomain);
+        InternalDirectoryImpl directory = InternalDirectoryImpl.from(dataModel, userService.getRealm());
         directory.setDefault(true);
         directory.update();
         return directory;

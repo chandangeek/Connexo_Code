@@ -17,6 +17,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.LdapUserDirectory;
@@ -62,6 +63,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -70,7 +73,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = {UserService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         immediate = true,
         property = "name=" + UserService.COMPONENTNAME)
-public class UserServiceImpl implements UserService, InstallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
+public class UserServiceImpl implements UserService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
@@ -81,6 +84,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private List<User> loggedInUsers = new CopyOnWriteArrayList<>();
     private volatile DataVaultService dataVaultService;
     private volatile BundleContext bundleContext;
+    private volatile UpgradeService upgradeService;
 
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
@@ -110,7 +114,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private final Object privilegeProviderRegistrationLock = new Object();
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService, UpgradeService upgradeService, BundleContext bundleContext) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
@@ -118,10 +122,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         setNlsService(nlsService);
         setDataVaultService(dataVaultService);
         setThreadPrincipalService(threadPrincipalService);
-        activate(null);
-        if (!dataModel.isInstalled()) {
-            installDataModel(true);
-        }
+        setUpgradeService(upgradeService);
+        activate(bundleContext);
     }
 
     @Activate
@@ -140,9 +142,14 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(UserService.class).toInstance(UserServiceImpl.this);
+                bind(BundleContext.class).toInstance(context);
             }
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
+        synchronized (privilegeProviderRegistrationLock) {
+            upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        }
+
     }
 
     public Optional<User> authenticate(String domain, String userName, String password) {
@@ -185,8 +192,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public List<UserDirectory> getUserDirectories() {
         return dataModel.mapper(UserDirectory.class).find();
-
-
     }
 
     @Override
@@ -416,13 +421,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public Optional<Privilege> getPrivilege(String privilegeName) {
-        // check if dataModel is installed because this method can be/us called before the install is run
-        return dataModel.isInstalled() ? privilegeFactory().getOptional(privilegeName) : Optional.<Privilege>empty();
+        return privilegeFactory().getOptional(privilegeName);
     }
 
     public Optional<Resource> getResource(String resourceName) {
-        // check if dataModel is installed because this method can be/us called before the install is run
-        return dataModel.isInstalled() ? resourceFactory().getOptional(resourceName) : Optional.<Resource>empty();
+        return resourceFactory().getOptional(resourceName);
     }
 
     private DataMapper<Privilege> privilegeFactory() {
@@ -431,21 +434,16 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public List<Privilege> getPrivileges(String applicationName) {
-        // check if dataModel is installed because this method can be/us called before the install is run
-        if (dataModel.isInstalled()) {
-            List<String> applicationPrivileges = applicationPrivilegesProviders
-                    .stream()
-                    .filter(ap -> ap.getApplicationName().equalsIgnoreCase(applicationName))
-                    .flatMap(ap -> ap.getApplicationPrivileges().stream())
-                    .collect(Collectors.toList());
-            return privilegeFactory()
-                    .find()
-                    .stream()
-                    .filter(p -> applicationPrivileges.contains(p.getName()))
-                    .collect(Collectors.toList());
-        } else {
-            return Collections.emptyList();
-        }
+        List<String> applicationPrivileges = applicationPrivilegesProviders
+                .stream()
+                .filter(ap -> ap.getApplicationName().equalsIgnoreCase(applicationName))
+                .flatMap(ap -> ap.getApplicationPrivileges().stream())
+                .collect(Collectors.toList());
+        return privilegeFactory()
+                .find()
+                .stream()
+                .filter(p -> applicationPrivileges.contains(p.getName()))
+                .collect(Collectors.toList());
     }
 
 
@@ -465,8 +463,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public List<Resource> getResources(String component) {
-        // check if dataModel is installed because this method can be/us called before the install is run
-        return dataModel.isInstalled() ? resourceFactory().find("componentName", component) : Collections.emptyList();
+        return resourceFactory().find("componentName", component);
     }
 
     @Override
@@ -509,22 +506,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         return getQueryService().wrap(dataModel.query(Resource.class));
     }
 
-    public void install() {
-        installDataModel(false);
-    }
-
-    private void installDataModel(boolean inTest) {
-        synchronized (privilegeProviderRegistrationLock) {
-            InstallerImpl installer = new InstallerImpl(dataModel, this);
-            installer.install(getRealm());
-            if (inTest) {
-                doInstallPrivileges(this);
-            }
-            installPrivileges();
-            installer.addDefaults(bundleContext != null ? bundleContext.getProperty("admin.password") : null);
-        }
-    }
-
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
@@ -547,11 +528,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Collections.singletonList("ORM");
     }
 
     @Override
@@ -635,7 +611,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @SuppressWarnings("unused")
     public void addModulePrivileges(PrivilegesProvider privilegesProvider) {
         synchronized (privilegeProviderRegistrationLock) {
-            if (dataModel.isInstalled()) {
+            if (upgradeService.isInstalled(identifier(COMPONENTNAME), version(1, 0))) {
                 try {
                     transactionService.builder().principal(() -> "Jupiter Installer").action("INSTALL-privilege").module(getModuleName()).run(() -> {
                         doInstallPrivileges(privilegesProvider);
@@ -647,6 +623,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
             }
             privilegesProviders.add(privilegesProvider);
         }
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @SuppressWarnings("unused")
@@ -667,7 +648,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         applicationPrivilegesProviders.remove(applicationPrivilegesProvider);
     }
 
-    private void installPrivileges() {
+    void installPrivileges() {
         for (PrivilegesProvider privilegesProvider : privilegesProviders) {
             try {
                 doInstallPrivileges(privilegesProvider);
