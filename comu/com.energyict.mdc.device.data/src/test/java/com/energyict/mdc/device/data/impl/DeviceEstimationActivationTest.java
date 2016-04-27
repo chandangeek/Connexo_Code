@@ -130,7 +130,6 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
         device.forEstimation().deactivateEstimationRuleSet(rs2);
         
         Meter meter = inMemoryPersistence.getMeteringService().findMeter("device").get();
-        meter.activate(Instant.now());
         MeterActivation meterActivation = meter.getMeterActivation(Instant.now()).get();
         
         List<EstimationRuleSet> resolvedRuleSets = resolver.resolve(meterActivation);
@@ -145,7 +144,7 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
     }
     
     private Device createSimpleDeviceWithName(String name, String mRID){
-        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID);
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID, Instant.now());
     }
     
     private EstimationRuleSet createEstimationRuleSet(String name) {

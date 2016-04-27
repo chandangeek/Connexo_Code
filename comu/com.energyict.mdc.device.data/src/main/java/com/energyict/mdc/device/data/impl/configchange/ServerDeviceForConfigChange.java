@@ -35,6 +35,12 @@ public interface ServerDeviceForConfigChange extends Device {
 
     void setNewDeviceConfiguration(DeviceConfiguration deviceConfiguration);
 
+    void setInitialActivationStartDate(Instant startDate);
+
+    @Deprecated
+    /**
+     * @deprecated Use the {@link Device#activate} method instead
+     */
     void createNewMeterActivation(Instant meterActivationStartTime);
 
     void removeLoadProfiles(List<LoadProfile> loadProfiles);
@@ -65,5 +71,5 @@ public interface ServerDeviceForConfigChange extends Device {
      *
      * @param updateTimeStamp the timeStamp of the update
      */
-    void updateMeterConfiguration(Instant updateTimeStamp);
+  //  void updateMeterConfiguration(Instant updateTimeStamp);
 }

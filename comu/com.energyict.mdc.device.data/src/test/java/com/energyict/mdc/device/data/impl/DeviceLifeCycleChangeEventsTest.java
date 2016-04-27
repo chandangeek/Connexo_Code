@@ -11,9 +11,9 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -105,8 +105,6 @@ public class DeviceLifeCycleChangeEventsTest {
     @Mock
     private LifecycleDates lifecycleDates;
     @Mock
-    private MeterActivation meterActivation;
-    @Mock
     private Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     @Mock
     private Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
@@ -134,6 +132,9 @@ public class DeviceLifeCycleChangeEventsTest {
     private Meter meter;
     @Mock
     private StateTimeline stateTimeline;
+    @Mock
+    private MultiplierType multiplierType;
+
 
     @Before
     public void initializeMocks() {
@@ -142,6 +143,8 @@ public class DeviceLifeCycleChangeEventsTest {
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(this.mdcAmrSystem));
+        when(meteringService.getMultiplierType("Default")).thenReturn(Optional.of(multiplierType));
+        when(multiplierType.getName()).thenReturn("Default");
         when(this.mdcAmrSystem.findMeter("0")).thenReturn(Optional.of(this.meter));
         when(this.meter.getStateTimeline()).thenReturn(Optional.of(this.stateTimeline));
         when(this.stateTimeline.getSlices()).thenReturn(Collections.<StateTimeSlice>emptyList());
@@ -155,6 +158,9 @@ public class DeviceLifeCycleChangeEventsTest {
         when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.create()).thenReturn(meter);
+        when(meter.getMeterActivations()).thenReturn(Collections.emptyList());
+        when(meter.getMeterActivation(any(Instant.class))).thenReturn(Optional.empty());
+        when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
         when(meter.getLifecycleDates()).thenReturn(lifecycleDates);
         when(meter.getConfiguration(any(Instant.class))).thenReturn(Optional.empty());
     }
@@ -171,7 +177,7 @@ public class DeviceLifeCycleChangeEventsTest {
         DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
         when(initial.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(initial.getUser()).thenReturn(Optional.of(this.user));
-        when(this.deviceType.getDeviceLifeCycleChangeEvents()).thenReturn(Arrays.asList(initial));
+        when(this.deviceType.getDeviceLifeCycleChangeEvents()).thenReturn(Collections.singletonList(initial));
 
         // Mock the state time line of the Kore meter
         StateTimeSlice initialState = mock(StateTimeSlice.class);
@@ -179,7 +185,7 @@ public class DeviceLifeCycleChangeEventsTest {
         State state = mock(State.class);
         when(initialState.getState()).thenReturn(state);
         when(initialState.getUser()).thenReturn(Optional.of(this.user));
-        when(this.stateTimeline.getSlices()).thenReturn(Arrays.<StateTimeSlice>asList(initialState));
+        when(this.stateTimeline.getSlices()).thenReturn(Collections.singletonList(initialState));
 
         DeviceImpl device = this.getTestInstance();
 
@@ -329,7 +335,7 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.meteringGroupsService,
                 customPropertySetService,
                 this.readingTypeUtilService)
-            .initialize(this.deviceConfiguration, "Hello world", "mRID");
+            .initialize(this.deviceConfiguration, "Hello world", "mRID", null);
         device.save();
         return device;
     }

@@ -17,6 +17,8 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -169,6 +171,10 @@ public class DeviceDeleteTest {
     private LifecycleDates lifecycleDates;
     @Mock
     private MeterActivation meterActivation;
+    @Mock
+    private MultiplierType defaultMultiplierType;
+    @Mock
+    private UsagePoint usagePoint;
 
 
     @Before
@@ -178,6 +184,9 @@ public class DeviceDeleteTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
+        when(meteringService.getMultiplierType(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE)).thenReturn(Optional.of(defaultMultiplierType));
+        when(defaultMultiplierType.getName()).thenReturn(SyncDeviceWithKoreMeter.MULTIPLIER_TYPE);
+
         when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
         when(amrSystem.newMeter(anyString())).thenReturn(meterBuilder);
 
@@ -192,6 +201,7 @@ public class DeviceDeleteTest {
         when(meter.getConfiguration(any(Instant.class))).thenReturn(Optional.empty());
 
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
+        when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
 
         when(issueService.query(OpenIssue.class)).thenReturn(openIssueQuery);
         when(openIssueQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
@@ -206,9 +216,6 @@ public class DeviceDeleteTest {
 
     @Test
     public void deleteDeviceTest() {
-//        Meter meter = mock(Meter.class);
-//        when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
-//        when(this.amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
         DeviceImpl device = getNewDeviceWithMockedServices();
         device.delete();
 
@@ -279,6 +286,7 @@ public class DeviceDeleteTest {
     private void setupWithActiveMeterActivation() {
         setupMocksForKoreMeter();
         doReturn(Optional.of(currentActiveMeterActivation)).when(meter).getCurrentMeterActivation();
+        when(currentActiveMeterActivation.getUsagePoint()).thenReturn(Optional.empty());
     }
 
     private void setupWithDeviceInStaticGroup() {
@@ -321,7 +329,7 @@ public class DeviceDeleteTest {
                 securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider,
                 connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider,
                 meteringGroupsService, customPropertySetService, readingTypeUtilService);
-        device.initialize(this.deviceConfiguration, "For testing purposes", "mRID");
+        device.initialize(this.deviceConfiguration, "For testing purposes", "mRID", null);
         device.save();
         return device;
     }
