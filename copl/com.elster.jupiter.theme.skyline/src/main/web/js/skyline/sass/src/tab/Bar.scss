@@ -10,10 +10,23 @@
         height: $strip-width;
     }
 
+    .#{$prefix}tab-bar-strip-#{$ui}-bottom {
+        border-style: solid;
+        border-color: white;
+        border-width: $strip-width;
+        background-color: transparent;
+        height: $strip-width;
+    }
+
     .#{$prefix}tab-bar-body-#{$ui}-top {
         padding-bottom: $strip-width * 2;
         position: relative;
         top: -3px;
+    }
+
+    .#{$prefix}tab-bar-body-#{$ui}-bottom {
+        border-style: none;
+        padding-top: 0px;
     }
 
     .#{$prefix}tab-bar-#{$ui} {
