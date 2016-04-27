@@ -2,6 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -42,25 +43,49 @@ public class ComPortPoolResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET
+    /**
+     * Models a collection of ComPorts with similar characteristics.
+     * <br>
+     * One of those characteristics is the nature of the ComPort, i.e. if it is inbound or outbound.
+     *
+     * @summary Fetch a set of communication port pools
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
+     * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
+     * field-param was provided. The list will be sorted according to db order.
+     */
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
-    public PagedInfoList<ComPortPoolInfo> getComPortPools(@BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public PagedInfoList<ComPortPoolInfo> getComPortPools(@BeanParam JsonQueryParameters queryParameters,
+                                                          @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         List<ComPortPoolInfo> page = ListPager.
                 of(engineConfigurationService.findAllComPortPools()).
                 from(queryParameters).stream().
-                map(cpp -> comPortPoolFactory.asHypermedia(cpp, uriInfo, fieldSelection.getFields())).
+                map(cpp -> comPortPoolFactory.from(cpp, uriInfo, fieldSelection.getFields())).
                 collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(ComPortPoolResource.class);
         return PagedInfoList.from(page, queryParameters, uriBuilder, uriInfo);
     }
 
-    @GET
+    /**
+     * Models a collection of ComPorts with similar characteristics.
+     * <br>
+     * One of those characteristics is the nature of the ComPort, i.e. if it is inbound or outbound.
+     *
+     * @summary Fetch a set of communication port pools
+     * @param id Id of the communication port pool
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Uniquely identified communication port pool
+     */
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public ComPortPoolInfo getComPortPool(@PathParam("id") long id, @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         ComPortPool comPortPool = engineConfigurationService.findComPortPool(id).orElseThrow(() -> exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NOT_FOUND));
-        return comPortPoolFactory.asHypermedia(comPortPool, uriInfo, fieldSelection.getFields());
+        return comPortPoolFactory.from(comPortPool, uriInfo, fieldSelection.getFields());
     }
 }

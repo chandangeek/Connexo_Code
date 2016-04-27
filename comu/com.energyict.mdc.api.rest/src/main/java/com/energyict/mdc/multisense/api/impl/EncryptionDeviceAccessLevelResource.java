@@ -1,8 +1,10 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
@@ -41,10 +43,24 @@ public class EncryptionDeviceAccessLevelResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET
+
+    /**
+     * An encryption device access level models a level of security for a physical device
+     * and the PropertySpecs that the device will require to be specified before accessing the data that is
+     * secured by this level.
+     *
+     * @summary Fetch an encryption device access level
+     *
+     * @param deviceProtocolPluggableClassId Id of the device protocol pluggable class
+     * @param encryptionDeviceAccessLevelId Id of the encryption device access level
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Uniquely identified encryption device access level
+     */
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{encryptionDeviceAccessLevelId}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public DeviceAccessLevelInfo getEncryptionDeviceAccessLevel(
             @PathParam("deviceProtocolPluggableClassId") long deviceProtocolPluggableClassId,
             @PathParam("encryptionDeviceAccessLevelId") long encryptionDeviceAccessLevelId,
@@ -60,12 +76,25 @@ public class EncryptionDeviceAccessLevelResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ENC_DEVICE_ACCESS_LEVEL));
     }
 
-    @GET
+    /**
+     * An encryption device access level models a level of security for a physical device
+     * and the PropertySpecs that the device will require to be specified before accessing the data that is
+     * secured by this level.
+     *
+     * @summary Fetch a set of encryption device access levels
+     *
+     * @param deviceProtocolPluggableClassId Id of the device protocol pluggable class
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
+     * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
+     * field-param was provided. The list will be sorted according to db order.
+     */
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<DeviceAccessLevelInfo> getEncryptionDeviceAccessLevels(
             @PathParam("deviceProtocolPluggableClassId") long deviceProtocolPluggableClassId,
-            @PathParam("encryptionDeviceAccessLevelId") long encryptionDeviceAccessLevelId,
             @BeanParam JsonQueryParameters queryParameters,
             @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         DeviceProtocolPluggableClass pluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId)
@@ -81,9 +110,26 @@ public class EncryptionDeviceAccessLevelResource {
         return PagedInfoList.from(infos,queryParameters,uriBuilder, uriInfo);
     }
 
+    /**
+     * List the fields available on this type of entity.
+     * <br>E.g.
+     * <br>[
+     * <br> "id",
+     * <br> "name",
+     * <br> "actions",
+     * <br> "batch"
+     * <br>]
+     * <br>Fields in the list can be used as parameter on a GET request to the same resource, e.g.
+     * <br> <i></i>GET ..../resource?fields=id,name,batch</i>
+     * <br> The call above will return only the requested fields of the entity. In the absence of a field list, all fields
+     * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
+     *
+     * @summary List the fields available on this type of entity
+     * @return A list of field names that can be requested as parameter in the GET method on this entity type
+     */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return encryptionDeviceAccessLevelInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

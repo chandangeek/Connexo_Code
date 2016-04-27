@@ -1,16 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
         <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>mdc.api.rest</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] multisense.api.rest [init MSI]</name>
     <description>
@@ -22,6 +21,10 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
@@ -260,41 +263,126 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <!--<plugin>-->
-              <!--<groupId>org.codehaus.mojo</groupId>-->
-              <!--<artifactId>templating-maven-plugin</artifactId>-->
-              <!--<version>1.0.5</version>-->
-              <!--<executions>-->
-                  <!--<execution>-->
-                      <!--<id>filter-src</id>-->
-                      <!--<goals>-->
-                          <!--<goal>filter-sources</goal>-->
-                      <!--</goals>-->
-                  <!--</execution>-->
-              <!--</executions>-->
-            <!--</plugin>-->
-            <plugin>
-                <groupId>com.qmino</groupId>
-                <artifactId>miredot-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>restdoc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <output>
-                        <title>Multisense API v${api.version}</title>
-                        <html>
-                            <baseUrl>http://localhost:8080/public/api/multisense/v${api.version}</baseUrl>
-                        </html>
-                    </output>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>restdoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.qmino</groupId>
+                        <artifactId>miredot-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>restdoc</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <analysis>
+                                <checks>
+                                    <JAVADOC_MISSING_SUMMARY>warn</JAVADOC_MISSING_SUMMARY>
+                                    <JAVADOC_MISSING_INTERFACEDOCUMENTATION>warn</JAVADOC_MISSING_INTERFACEDOCUMENTATION>
+                                    <JAVADOC_MISSING_PARAMETER_DOCUMENTATION>warn</JAVADOC_MISSING_PARAMETER_DOCUMENTATION>
+                                    <JAVADOC_MISSING_EXCEPTION_DOCUMENTATION>warn</JAVADOC_MISSING_EXCEPTION_DOCUMENTATION>
+                                    <JAVADOC_MISSING_AUTHORS>ignore</JAVADOC_MISSING_AUTHORS>
+                                    <JAXRS_MISSING_PRODUCES>warn</JAXRS_MISSING_PRODUCES>
+                                    <JAXRS_MISSING_CONSUMES>warn</JAXRS_MISSING_CONSUMES>
+                                    <JAXRS_MISSING_PATH_PARAM>warn</JAXRS_MISSING_PATH_PARAM>
+                                    <REST_UNMAPPED_EXCEPTION>failbuild</REST_UNMAPPED_EXCEPTION>
+                                    <UNREACHABLE_RESOURCE>warn</UNREACHABLE_RESOURCE>
+                                    <PARTIAL_RESOURCE_OVERLAP>warn</PARTIAL_RESOURCE_OVERLAP>
+                                </checks>
+                            </analysis>
+                            <output>
+                                <title>Multisense API v${api.version}</title>
+                                <html>
+                                    <baseUrl>http://localhost:8080/public/api/comu/v${api.version}</baseUrl>
+                                </html>
+                            </output>
+
+                            <restModel>
+                                <httpStatusCodes>
+                                    <httpStatusCode>
+                                        <httpCode>200</httpCode>
+                                        <document>get,put,propfind</document>
+                                        <defaultMessage>The service call has completed successfully.</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>204</httpCode>
+                                        <document>delete</document>
+                                        <defaultMessage>The service call has completed successfully, you shouldn't don't expect and answer</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>201</httpCode>
+                                        <document>post</document>
+                                        <defaultMessage>The service call has completed successfully and the requested entity has been created.</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>202</httpCode>
+                                        <document>post,put</document>
+                                        <defaultMessage>The service call has been accepted for processing, results may not be visible right away.</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>401</httpCode>
+                                        <document>always</document>
+                                        <defaultMessage>The user is logged in, but is not authorized to use this service.</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>404</httpCode>
+                                        <document>always</document>
+                                        <defaultMessage>The entity referred to in the URL does not exist.</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>409</httpCode>
+                                        <document>put,post,delete</document>
+                                        <defaultMessage>A version conflict was detected while processing the service call.</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>400</httpCode>
+                                        <document>put,post</document>
+                                        <document>explicit: com.elster.jupiter.rest.util.ConstraintViolationInfo</document>
+                                        <defaultMessage>Invalid JSON structure, missing parameters or constraint violations</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>500</httpCode>
+                                        <document>always</document>
+                                        <defaultMessage>Internal server exception. The service call did not succeed.</defaultMessage>
+                                    </httpStatusCode>
+                                </httpStatusCodes>
+                                <titleNamingStrategies>
+                                    <strategy>tag: summary</strategy>
+                                    <strategy>tag: title</strategy>
+                                    <strategy>firstsentence</strategy>
+                                </titleNamingStrategies>
+                                <typeReplacements>
+                                    <typeReplacement>
+                                        <source>javax.ws.rs.core.Link</source>
+                                        <target>com.energyict.mdc.multisense.api.impl.utils.doc.LinkJson</target>
+                                        <type>alternative</type>
+                                    </typeReplacement>
+                                    <typeReplacement>
+                                        <source>com.elster.jupiter.rest.util.JsonQueryParameters</source>
+                                        <target>com.energyict.mdc.multisense.api.impl.utils.doc.PagingParametersJson</target>
+                                        <type>alternative</type>
+                                    </typeReplacement>
+                                    <typeReplacement>
+                                        <source>java.time.Instant</source>
+                                        <target>Milliseconds since epoch</target>
+                                        <type>literal</type>
+                                    </typeReplacement>
+                                    <typeReplacement>
+                                        <source>javax.ws.rs.core.Response</source>
+                                        <target>Response</target>
+                                        <type>literal</type>
+                                    </typeReplacement>
+                                </typeReplacements>
+                            </restModel>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

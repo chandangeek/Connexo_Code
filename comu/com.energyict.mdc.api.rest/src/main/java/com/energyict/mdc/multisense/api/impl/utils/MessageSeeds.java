@@ -43,7 +43,22 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COM_SCHEDULE(34, "NoSuchComSchedule", "Communication schedule does not exist"),
     NO_SUCH_PROTOCOL_DIALECT_PROPERTIES(35, "NoSuchProtocolDialectProperties", "Protocol dialect properties do not exist"),
     NO_SUCH_COM_TASK_ENABLEMENT(36, "NoSuchComtaskEnablement", "Communication task enablement does not exist"),
-    NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE(37, "EitherDefaultorExplicit", "The communication task execution should either use default connection task or an explicitly set connection task");
+    NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE(37, "EitherDefaultorExplicit", "The communication task execution should either use default connection task or an explicitly set connection task"),
+    NO_SUCH_DEVICE_MESSAGE(38, "NoSuchDeviceMessage", "The device has no known device message with that id"),
+    UNKNOWN_STATUS(39, "StatusUnknown", "Unknown device contacter status"),
+    NO_COMTASK_FOR_COMMAND(40, "NoComtaskForCommand", "A comtask to execute the device messages could not be located"),
+    NO_SUCH_DEVICE_MESSAGE_SPEC(41, "NoSuchDeviceMessageSpec", "The device message category does not contain a message specification with that id"),
+    NO_SUCH_DEVICE_MESSAGE_CATEGORY(42 ,"NoSuchDeviceMessageCategory" , "No such device message category"),
+    NO_SUCH_DEVICE_MESSAGE_ENABLEMENT(43, "NoSuchMessageEnablement", "The device configuration does not contain a device message enablement with that id"),
+    EXPECTED_MESSAGE_ID(44, "ExpectedDeviceMessageId", "Device message id was expected in the request"),
+    EXPECTED_CONTACTOR_STATUS(45, "ExpectedContacterStatus", "Device contactor status was expected in the request"),
+    VERSION_MISSING(46, "VersionMissing", "Version value was expected for the ''{0}''-field"),
+    EXPECTED_METHOD_ID(47, "MethodIdExpected" , "Connection method id was expected"),
+    NOT_NULL_VALIDATION(48, "javax.validation.constraints.NotNull.message", "Expected field to be not null"),
+    EXPECTED_MESSAGE_SPEC_ID(49, "ExpectedDeviceMessageSpecId", "Device message specification id was expected in the request"),
+    EXPECTED_RELEASE_DATE(50, "ReleaseDateExpected", "Release date was expected in the request"),
+    EXPECTED_PROTOCOL_INFO(51, "ExpectedProtocolInfo", "Protocol information was expected in the request"),
+    EXPECTED_COM_TASK(52, "ExpectedComTask" , "Communication task was expected in the request");
 
     private final int number;
     private final String key;

@@ -4,6 +4,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -40,6 +41,7 @@ import static com.elster.jupiter.util.Checks.is;
 import static java.util.stream.Collectors.toList;
 
 /**
+ * @title A device represents a physical element in the grid. This can be e.g. a meter, gateway, controller, in home display, concentrator, etc.
  * @servicetag Device
  * @author bvn
  */
@@ -66,20 +68,20 @@ public class DeviceResource {
     }
 
     /**
-     * View the contents of a uniquely identified device
+     * View the contents of a uniquely identified device. A device represents a physical element in the grid.
+     * This can be e.g. a meter, gateway, controller, in home display, concentrator, etc.
      *
      * @summary View device identified by mRID
      *
-     * @statuscode 404 If there is no device with the provided mRID
-     * @statuscode 200 The device was successfully retrieved
      * @param mRID The device's mRID
-     * @param uriInfo added by Jersey framework
+     * @param uriInfo uriInfo
+     * @param fields field selection
      * @return Device information and links to related resources
      */
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{mrid}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public DeviceInfo getDevice(@PathParam("mrid") String mRID, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         return deviceService.findByUniqueMrid(mRID)
                 .map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields.getFields()))
@@ -91,15 +93,15 @@ public class DeviceResource {
      *
      * @summary View all devices
      *
-     * @statuscode 200 The devices were successfully retrieved
      * @param queryParameters Paging parameters 'start' and 'limit'
-     * @param fieldSelection comma separated list of fields that will be add to the response. If absent, all fields will be added
-     * @param uriInfo added by Jersey framework
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return Device information and links to related resources
      */
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream()
                 .map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fieldSelection.getFields())).collect(toList());
@@ -108,15 +110,20 @@ public class DeviceResource {
     }
 
     /**
-     * Create a new device
-     * @param info JSON payload describing the device
-     * @param uriInfo added by framework
+     * Adds a new device to the system
+     *
+     * @summary Create a new device
+     *
+     * @param info Payload describing the values for the to-be-created device
+     * @param uriInfo uriInfo
+     *
+     * @return location href to newly created device
      * @responseheader location href to newly created device
      */
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response createDevice(DeviceInfo info, @Context UriInfo uriInfo) {
         Optional<DeviceConfiguration> deviceConfiguration = Optional.empty();
         if (info.deviceConfiguration != null && info.deviceConfiguration.id != null) {
@@ -141,13 +148,26 @@ public class DeviceResource {
         return Response.created(uri).build();
     }
 
-    @PUT
+    /**
+     * Update an existing device
+     *
+     * @summary update a device with the provided values
+     *
+     * @param mrid The device's mRID
+     * @param info JSON description of new device field values
+     * @param uriInfo uriInfo
+     * @return Device with updated fields or an error if something went wrong
+     */
+    @PUT @Transactional
     @Path("/{mrid}")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public DeviceInfo updateDevice(@PathParam("mrid") String mrid, DeviceInfo info, @Context UriInfo uriInfo) {
-        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, info.version == null ? 0 : info.version)
+        if (info.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
+        }
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, info.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.CONFLICT_ON_DEVICE));
         if (info.masterDevice!=null && info.masterDevice.mRID != null) {
             if (device.getDeviceConfiguration().isDirectlyAddressable()) {
@@ -172,19 +192,46 @@ public class DeviceResource {
     }
 
 
-    @DELETE
+    /**
+     * Delete a device identified by mRID
+     *
+     * @summary Delete a device
+     *
+     * @param mrid The device's unique mRID identifier
+     *
+     * @return No content
+     */
+    @DELETE @Transactional
     @Path("/{mrid}")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response deleteDevice(@PathParam("mrid") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         device.delete();
-        return Response.ok().build();
+        return Response.noContent().build();
     }
 
+    /**
+     * List the fields available on this type of entity.
+     * <br>E.g.
+     * <br>[
+     * <br> "id",
+     * <br> "name",
+     * <br> "actions",
+     * <br> "batch"
+     * <br>]
+     * <br>Fields in the list can be used as parameter on a GET request to the same resource, e.g.
+     * <br> <i></i>GET ..../resource?fields=id,name,batch</i>
+     * <br> The call above will return only the requested fields of the entity. In the absence of a field list, all fields
+     * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
+     *
+     * @summary List the fields available on this type of entity
+     *
+     * @return A list of field names that can be requested as parameter in the GET method on this entity type
+     */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return deviceInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

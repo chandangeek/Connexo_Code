@@ -24,12 +24,13 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
 
     @Test
     public void testAllGetComTaskEnablementsPaged() throws Exception {
-        DeviceType deviceType = mockDeviceType(21, "Some type");
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(24L);
+        when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        ComTask comTask = mockComTask(23, "Com task");
+        ComTask comTask = mockComTask(23, "Com task", 3333L);
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(comTaskEnablement.getId()).thenReturn(102L);
         when(comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -39,6 +40,7 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
         ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
         when(properties.getId()).thenReturn(24L);
+        when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(properties);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
         Response response = target("/devicetypes/21/deviceconfigurations/22/comtaskenablements").queryParam("start",0).queryParam("limit",10).request().get();
@@ -51,16 +53,16 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         assertThat(model.<String>get("link[0].href")).isEqualTo("http://localhost:9998/devicetypes/21/deviceconfigurations/22/comtaskenablements?start=0&limit=10");
         assertThat(model.<List>get("data")).hasSize(1);
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(102);
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/devicetypes/21/deviceconfigurations/22/comtaskenablements/102");
     }
 
     @Test
     public void testGetSingleComTaskEnablementWithFields() throws Exception {
-        DeviceType deviceType = mockDeviceType(21, "Some type");
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        ComTask comTask = mockComTask(23, "Com task");
+        ComTask comTask = mockComTask(23, "Com task", 3333L);
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(comTaskEnablement.getId()).thenReturn(102L);
         when(comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -79,16 +81,17 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
 
     @Test
     public void testGetSingleComTaskEnablementWithoutFields() throws Exception {
-        DeviceType deviceType = mockDeviceType(21, "Some type");
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
+        when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
         when(properties.getId()).thenReturn(25L);
         when(securityPropertySet.getId()).thenReturn(24L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        ComTask comTask = mockComTask(23, "Com task");
+        ComTask comTask = mockComTask(23, "Com task", 3333L);
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        PartialScheduledConnectionTask connectionTask = mockPartialOutboundConnectionTask(26, "TCP", deviceConfiguration);
+        PartialScheduledConnectionTask connectionTask = mockPartialOutboundConnectionTask(26, "TCP", deviceConfiguration, 3333L);
         when(comTaskEnablement.getId()).thenReturn(102L);
         when(comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
@@ -100,6 +103,7 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         when(comTaskEnablement.isSuspended()).thenReturn(true);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(properties);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
         Response response = target("devicetypes/21/deviceconfigurations/22/comtaskenablements/102").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -122,8 +126,8 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         Response response = target("/devicetypes/x/deviceconfigurations/x/comtaskenablements").request("application/json").method("PROPFIND", Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(8);
-        assertThat(model.<List<String>>get("$")).containsOnly("id", "link", "partialConnectionTask", "priority", "protocolDialectConfigurationProperties", "securityPropertySet", "comTask", "suspended");
+        assertThat(model.<List>get("$")).hasSize(9);
+        assertThat(model.<List<String>>get("$")).containsOnly("id","version","link", "partialConnectionTask", "priority", "protocolDialectConfigurationProperties", "securityPropertySet", "comTask", "suspended");
     }
 
 

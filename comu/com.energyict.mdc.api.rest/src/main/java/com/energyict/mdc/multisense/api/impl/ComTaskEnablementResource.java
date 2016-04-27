@@ -3,6 +3,7 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
@@ -42,11 +43,30 @@ public class ComTaskEnablementResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET
+    /**
+     * Enables the execution of a ComTask against devices of a device configuration and specifies the security
+     * requirements for that execution.
+     * <br>
+     * In addition, specifies preferred scheduling (e.g. every day or every week)
+     * and preferred PartialConnectionTask or if the execution of the ComTask
+     * should use the default ConnectionTask.
+     *
+     * @summary Fetch a set of communication task enablements
+     *
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigId Id of the device configuration
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
+     * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
+     * field-param was provided. The list will be sorted according to db order.
+     */
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<ComTaskEnablementInfo> getComTaskEnablements(
-            @PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
+            @PathParam("deviceTypeId") long deviceTypeId,
+            @PathParam("deviceConfigId") long deviceConfigId,
             @BeanParam JsonQueryParameters queryParameters,
             @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
 
@@ -68,10 +88,27 @@ public class ComTaskEnablementResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
-    @GET
+    /**
+     * Enables the execution of a ComTask against devices of a device configuration and specifies the security
+     * requirements for that execution.
+     * <br>
+     * In addition, specifies preferred scheduling (e.g. every day or every week)
+     * and preferred PartialConnectionTask or if the execution of the ComTask
+     * should use the default ConnectionTask.
+     *
+     * @summary Fetch a communication task enablement
+     *
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigId Id of the device configuration
+     * @param comTaskEnablementId Id of the comtask enablement
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Uniquely identified communication task enablement
+     */
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{comTaskEnablementId}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public ComTaskEnablementInfo getComTaskEnablement(
             @PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
             @PathParam("comTaskEnablementId") long comTaskEnablementId,
@@ -93,9 +130,26 @@ public class ComTaskEnablementResource {
         return info;
     }
 
+    /**
+     * List the fields available on this type of entity.
+     * <br>E.g.
+     * <br>[
+     * <br> "id",
+     * <br> "name",
+     * <br> "actions",
+     * <br> "batch"
+     * <br>]
+     * <br>Fields in the list can be used as parameter on a GET request to the same resource, e.g.
+     * <br> <i></i>GET ..../resource?fields=id,name,batch</i>
+     * <br> The call above will return only the requested fields of the entity. In the absence of a field list, all fields
+     * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
+     *
+     * @summary List the fields available on this type of entity
+     * @return A list of field names that can be requested as parameter in the GET method on this entity type
+     */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return comTaskEnablementInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

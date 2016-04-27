@@ -1,11 +1,13 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -62,9 +64,20 @@ public class DeviceLifecycleActionResource {
         this.clock = clock;
     }
 
-    @GET
+    /**
+     * A device action models an action that can be authorized to initiate a StateTransition.
+     *
+     * @summary Fetch a device action
+     *
+     * @param mRID mRID of the device
+     * @param actionId Id of the action
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Returns a unqiuely identofied device action
+     */
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{actionId}")
     public LifeCycleActionInfo getAction(@PathParam("mrid") String mRID,
                                          @PathParam("actionId") long actionId,
@@ -77,10 +90,21 @@ public class DeviceLifecycleActionResource {
         return deviceLifecycleActionInfoFactory.createDeviceLifecycleActionInfo(device, (AuthorizedTransitionAction) executableAction.getAction(), uriInfo, fieldSelection.getFields());
     }
 
-
-    @GET
+    /**
+     * A device action models an action that can be authorized to initiate a StateTransition.
+     *
+     * @summary Fetch a set of device actions
+     *
+     * @param mRID mRID of the device
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
+     * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
+     * field-param was provided. The list will be sorted according to db order.
+     */
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<LifeCycleActionInfo> getDeviceExecutableActions(@PathParam("mrid") String mRID,
                                                     @BeanParam FieldSelection fieldSelection,
                                                     @Context UriInfo uriInfo,
@@ -99,21 +123,36 @@ public class DeviceLifecycleActionResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
-    @PUT
+    /**
+     * A device action models an action that can be authorized to initiate a StateTransition.
+     * This PUT method will not actually create an action, but execute it.
+     *
+     * @summary Execute an action
+     *
+     * @param mrid mRID of the device
+     * @param actionId Id of the action
+     * @param queryParameters queryParameters
+     * @param info Payload describing the parameters for the action execution
+     * @return Returns OK(http 200) if the action was executed
+     */
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{actionId}")
     public Response executeAction(
                 @PathParam("mrid") String mrid,
                 @PathParam("actionId") long actionId,
                 @BeanParam JsonQueryParameters queryParameters,
                 LifeCycleActionInfo info){
-        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         if (info==null) {
             throw exceptionFactory.newException(MessageSeeds.CONTENT_EXPECTED);
         }
-        device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.deviceVersion)
+        if (info.device == null || info.device.version == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device");
+        }
+        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.device.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.CONFLICT_ON_DEVICE));
         ExecutableAction requestedAction = getExecutableActionByIdOrThrowException(actionId, device);
         if (requestedAction.getAction() instanceof AuthorizedTransitionAction){

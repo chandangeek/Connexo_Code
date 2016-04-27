@@ -4,21 +4,59 @@ import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
 public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFactory<DeviceProtocolPluggableClassInfo, DeviceProtocolPluggableClass> {
 
+    private final Provider<AuthenticationDeviceAccessLevelInfoFactory> authenticationDeviceAccessLevelInfoFactoryProvider;
+    private final Provider<EncryptionDeviceAccessLevelInfoFactory> encryptionDeviceAccessLevelInfoFactoryProvider;
+
+    @Inject
+    public DeviceProtocolPluggableClassInfoFactory(Provider<AuthenticationDeviceAccessLevelInfoFactory> authenticationDeviceAccessLevelInfoFactory,
+                                                   Provider<EncryptionDeviceAccessLevelInfoFactory> encryptionDeviceAccessLevelInfoFactory) {
+        this.authenticationDeviceAccessLevelInfoFactoryProvider = authenticationDeviceAccessLevelInfoFactory;
+        this.encryptionDeviceAccessLevelInfoFactoryProvider = encryptionDeviceAccessLevelInfoFactory;
+    }
+
     public DeviceProtocolPluggableClassInfo from(DeviceProtocolPluggableClass deviceProtocolPluggableClass, UriInfo uriInfo, Collection<String> fields) {
         DeviceProtocolPluggableClassInfo info = new DeviceProtocolPluggableClassInfo();
         copySelectedFields(info, deviceProtocolPluggableClass, uriInfo, fields);
         return info;
+    }
+
+    public LinkInfo asLink(DeviceProtocolPluggableClass deviceProtocolPluggableClass, Relation relation, UriInfo uriInfo) {
+        DeviceProtocolPluggableClassInfo info = new DeviceProtocolPluggableClassInfo();
+        copySelectedFields(info,deviceProtocolPluggableClass,uriInfo, Arrays.asList("id"));
+        info.link = link(deviceProtocolPluggableClass,relation,uriInfo);
+        return info;
+    }
+
+    public List<LinkInfo> asLink(Collection<DeviceProtocolPluggableClass> deviceProtocolPluggableClasss, Relation relation, UriInfo uriInfo) {
+        return deviceProtocolPluggableClasss.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
+    }
+
+    private Link link(DeviceProtocolPluggableClass deviceProtocolPluggableClass, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
+                .rel(relation.rel())
+                .title("Pluggable class")
+                .build(deviceProtocolPluggableClass.getId());
+    }
+
+    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(DeviceProtocolPluggableClassResource.class)
+                .path(DeviceProtocolPluggableClassResource.class, "getDeviceProtocolPluggableClass");
     }
 
     @Override
@@ -29,56 +67,25 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
         map.put("javaClassName", (deviceProtocolPluggableClassInfo, deviceProtocolPluggableClass, uriInfo) -> deviceProtocolPluggableClassInfo.javaClassName = deviceProtocolPluggableClass.getJavaClassName());
         map.put("version", (deviceProtocolPluggableClassInfo, deviceProtocolPluggableClass, uriInfo) -> deviceProtocolPluggableClassInfo.version = deviceProtocolPluggableClass.getVersion());
         map.put("link", ((deviceProtocolPluggableClassInfo, deviceProtocolPluggableClass, uriInfo) ->
-            deviceProtocolPluggableClassInfo.link = Link.fromUriBuilder(uriInfo.
-                    getBaseUriBuilder().
-                    path(DeviceProtocolPluggableClassResource.class).
-                    path(DeviceProtocolPluggableClassResource.class, "getDeviceProtocolPluggableClass")).
-                    rel(LinkInfo.REF_SELF).
-                    title("pluggable class").
-                    build(deviceProtocolPluggableClass.getId())
-        ));
-        map.put("authenticationAccessLevels", ((deviceProtocolPluggableClassInfo, deviceProtocolPluggableClass, uriInfo) -> {
-            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                    .path(AuthenticationDeviceAccessLevelResource.class)
-                    .path(AuthenticationDeviceAccessLevelResource.class, "getAuthenticationDeviceAccessLevel")
-                    .resolveTemplate("deviceProtocolPluggableClassId", deviceProtocolPluggableClass.getId());
+                deviceProtocolPluggableClassInfo.link = link(deviceProtocolPluggableClass, Relation.REF_SELF, uriInfo)));
+        map.put("authenticationAccessLevels", ((deviceProtocolPluggableClassInfo, deviceProtocolPluggableClass, uriInfo) ->
             deviceProtocolPluggableClassInfo.authenticationAccessLevels = deviceProtocolPluggableClass
                     .getDeviceProtocol()
                     .getAuthenticationAccessLevels()
                     .stream()
                     .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
-                    .map(aal -> {
-                        LinkInfo linkInfo = new LinkInfo();
-                        linkInfo.id = (long)aal.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).
-                                rel(LinkInfo.REF_RELATION).
-                                title("Authentication access level").
-                                build(aal.getId());
-
-                        return linkInfo;
-                    }).collect(toList());
-        }));
-        map.put("encryptionAccessLevels", ((deviceProtocolPluggableClassInfo, deviceProtocolPluggableClass, uriInfo) -> {
-            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                    .path(EncryptionDeviceAccessLevelResource.class)
-                    .path(EncryptionDeviceAccessLevelResource.class, "getEncryptionDeviceAccessLevel")
-                    .resolveTemplate("deviceProtocolPluggableClassId", deviceProtocolPluggableClass.getId());
+                    .map(aal -> authenticationDeviceAccessLevelInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, aal, Relation.REF_RELATION, uriInfo))
+                    .collect(toList())
+        ));
+        map.put("encryptionAccessLevels", ((deviceProtocolPluggableClassInfo, deviceProtocolPluggableClass, uriInfo) ->
             deviceProtocolPluggableClassInfo.encryptionAccessLevels = deviceProtocolPluggableClass
                     .getDeviceProtocol()
                     .getEncryptionAccessLevels()
                     .stream()
                     .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
-                    .map(aal -> {
-                        LinkInfo linkInfo = new LinkInfo();
-                        linkInfo.id = (long)aal.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).
-                                rel(LinkInfo.REF_RELATION).
-                                title("Encryption access level").
-                                build(aal.getId());
-
-                        return linkInfo;
-                    }).collect(toList());
-        }));
+                    .map(eal -> encryptionDeviceAccessLevelInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, eal, Relation.REF_RELATION, uriInfo))
+                    .collect(toList())
+        ));
 
         return map;
     }
