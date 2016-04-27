@@ -10,26 +10,25 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.TimeZone;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -45,14 +44,13 @@ public class IdsCrudTest {
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-
         }
     }
 
     private ZoneId zoneId = ZoneId.systemDefault();
 
     @BeforeClass
-    public static void setUp() throws SQLException {
+    public static void setUp() {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
@@ -70,7 +68,7 @@ public class IdsCrudTest {
     }
 
     @AfterClass
-    public static void tearDown() throws SQLException {
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
@@ -82,7 +80,7 @@ public class IdsCrudTest {
         assertThat(idsService.getRecordSpec("IDS", 1).get().getFieldSpecs()).isNotEmpty();
         Vault vault = idsService.getVault("IDS", 1).get();
         RecordSpec recordSpec = idsService.getRecordSpec("IDS", 1).get();
-        TimeSeries ts = null;
+        TimeSeries ts;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             ts = vault.createRegularTimeSeries(recordSpec, TimeZone.getDefault(), Duration.ofMinutes(15), 0);
             TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
