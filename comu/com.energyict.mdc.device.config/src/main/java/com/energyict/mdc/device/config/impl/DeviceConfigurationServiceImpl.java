@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
@@ -840,5 +841,4 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id) {
         return this.getDataModel().mapper(DeviceConfigConflictMapping.class).getUnique("id", id);
     }
-
 }

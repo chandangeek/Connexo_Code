@@ -34,6 +34,11 @@ public class AllowedCalendarImpl implements AllowedCalendar {
     private String name;
     private Reference<Calendar> calendar;
 
+    public AllowedCalendarImpl(Calendar calendar, DeviceType deviceType) {
+        this.calendar.set(calendar);
+        this.deviceType.set(deviceType);
+    }
+
     @Override
     public boolean isGhost() {
         return false;

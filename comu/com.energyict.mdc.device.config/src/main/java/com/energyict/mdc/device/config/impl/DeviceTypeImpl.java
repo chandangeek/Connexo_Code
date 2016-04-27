@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
@@ -482,8 +483,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public void addAllowedCalendar(AllowedCalendar allowedCalendar) {
-        this.allowedCalendars.add(allowedCalendar);
+    public void addCalendar(Calendar calendar) {
+        this.allowedCalendars.add(new AllowedCalendarImpl(calendar, this));
     }
 
     @Override

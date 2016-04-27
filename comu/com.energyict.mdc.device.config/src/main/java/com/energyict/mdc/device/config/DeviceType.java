@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -128,7 +129,7 @@ public interface DeviceType extends HasId, HasName {
 
     List<AllowedCalendar> getAllowedCalendars();
 
-    void addAllowedCalendar(AllowedCalendar allowedCalendar);
+    void addCalendar(Calendar calendar);
 
     public boolean isTimeOfUseAllowed();
 
