@@ -161,7 +161,7 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
 
     private Device createDevice(DeviceConfiguration deviceConfiguration) {
         DeviceService deviceService = inMemoryPersistence.getService(DeviceService.class);
-        Device device = deviceService.newDevice(deviceConfiguration, "TestDevice", "TestDevice");
+        Device device = deviceService.newDevice(deviceConfiguration, "TestDevice", "TestDevice", Instant.now());
         device.save();
         return device;
     }

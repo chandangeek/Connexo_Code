@@ -10,6 +10,8 @@ import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 
+import java.time.Instant;
+
 import static com.elster.jupiter.util.Checks.is;
 
 public class DeviceShipmentImportProcessor implements FileImportProcessor<DeviceShipmentImportRecord> {
@@ -29,9 +31,9 @@ public class DeviceShipmentImportProcessor implements FileImportProcessor<Device
         DeviceConfiguration deviceConfiguration = getDeviceConfigurationOrThrowException(deviceType, data);
         Device device;
         if (!is(data.getBatch()).emptyOrOnlyWhiteSpace()) {
-            device = this.context.getDeviceService().newDevice(deviceConfiguration, data.getDeviceMRID(), data.getDeviceMRID(), data.getBatch());
+            device = this.context.getDeviceService().newDevice(deviceConfiguration, data.getDeviceMRID(), data.getDeviceMRID(), data.getBatch(), Instant.now());
         } else {
-            device = this.context.getDeviceService().newDevice(deviceConfiguration, data.getDeviceMRID(), data.getDeviceMRID());
+            device = this.context.getDeviceService().newDevice(deviceConfiguration, data.getDeviceMRID(), data.getDeviceMRID(), Instant.now());
         }
         device.setSerialNumber(data.getSerialNumber());
         device.setYearOfCertification(data.getYearOfCertification());

@@ -109,7 +109,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         Device device = mock(Device.class);
-        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"))).thenReturn(device);
+        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"), Instant.now())).thenReturn(device);
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(device.getLifecycleDates()).thenReturn(lifecycleDates);
         Batch batch = mock(Batch.class);
@@ -230,7 +230,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         doThrow(new RuntimeException("Error!")).when(deviceService)
-                .newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"));
+                .newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"), Instant.now());
 
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
