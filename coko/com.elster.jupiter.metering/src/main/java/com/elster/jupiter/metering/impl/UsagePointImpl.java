@@ -524,7 +524,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setConnectionState(ConnectionState connectionState) {
-        connectionState = connectionState;
+        this.connectionState = connectionState;
     }
 
     @Override
