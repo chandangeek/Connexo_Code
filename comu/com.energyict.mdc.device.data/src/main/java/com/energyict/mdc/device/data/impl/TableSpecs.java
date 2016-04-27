@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.kpi.Kpi;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -757,6 +758,32 @@ public enum TableSpecs {
                     .references(DDC_DEVICE.name())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
+        }
+    },
+
+    DDC_OVERRULEDOBISCODE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ReadingTypeObisCodeUsage> table = dataModel.addTable(name(), ReadingTypeObisCodeUsage.class);
+            table.map(ReadingTypeObisCodeUsage.class);
+            Column readingType = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
+            Column device = table.column("DEVICEID").number().notNull().add();
+            table.column("OBISCODE").varChar(NAME_LENGTH).notNull().map("obisCode").add();
+            table.addAuditColumns();
+            table.primaryKey("PK_DDC_OVERRULEDOBISCODE").on(readingType, device).add();
+            table.foreignKey("FK_DDC_OVEROBIS_DEVICE").
+                    on(device).
+                    references(DDC_DEVICE.name())
+                    .map("device").
+                    reverseMap("readingTypeObisCodeUsages").
+                    composition().
+                    onDelete(CASCADE).
+                    add();
+            table.foreignKey("FK_DDC_OVEROBIS_RDNGTYPE").
+                    on(readingType).
+                    references(ReadingType.class).
+                    map("readingType").
+                    add();
         }
     };
 

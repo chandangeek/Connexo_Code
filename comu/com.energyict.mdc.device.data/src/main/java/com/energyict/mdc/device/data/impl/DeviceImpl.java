@@ -205,6 +205,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
+    private List<ReadingTypeObisCodeUsage> readingTypeObisCodeUsages = new ArrayList<>();
     private static final String MULTIPLIER_TYPE = "Default";
     private final BigDecimal MULTIPLIER_ONE = BigDecimal.ONE;
 
@@ -531,6 +532,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private void doDelete() {
+        this.readingTypeObisCodeUsages.clear();
         deleteAllIssues();
         deleteProperties();
         this.removeCustomProperties();
@@ -2173,6 +2175,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
     }
+
+//    @Override
+//    public List<ObisCode> getOverrulesObisCodes() {
+//        return this.readingTypeObisCodeUsages
+//                .stream()
+//                .map(ReadingTypeObisCodeUsage::getObisCode)
+//                .collect(Collectors.toList());
+//    }
 
     @Override
     public long getVersion() {
