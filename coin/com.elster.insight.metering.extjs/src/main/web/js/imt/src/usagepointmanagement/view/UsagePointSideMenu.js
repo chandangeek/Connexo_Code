@@ -63,6 +63,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
 
                     items.push({
                         text: purpose.get('name') + icon,
+                        privileges: Imt.privileges.MetrologyConfig.view,
                         htmlEncode: false,
                         itemId: 'usage-point-pupose-' + purpose.getId(),
                         href: me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.getId()})
@@ -73,6 +74,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
             if (items.length) {
                 me.menuItems.push({
                     title: Uni.I18n.translate('usagepoint.menu.data', 'IMT', 'Data'),
+                    privileges: Imt.privileges.MetrologyConfig.view,
                     items: items
                 })
             }
