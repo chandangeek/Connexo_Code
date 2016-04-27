@@ -37,6 +37,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     private static final int MAX_NUMBER_OF_DROPPED_WPDUS = 50;
 
     private final ComChannel comChannel;
+    private final boolean timeoutMeansBrokenConnection;
 
     private boolean boolTCPIPConnected;
 
@@ -73,6 +74,7 @@ public class TCPIPConnection implements DlmsV2Connection {
         this.useGeneralBlockTransfer = properties.useGeneralBlockTransfer();
         this.generalBlockTransferWindowSize = properties.getGeneralBlockTransferWindowSize();
         this.pollingDelay = properties.getPollingDelay().getMilliSeconds();
+        this.timeoutMeansBrokenConnection = properties.timeoutMeansBrokenConnection();
         this.comChannel.setTimeout(this.timeout);
     }
 
@@ -410,7 +412,11 @@ public class TCPIPConnection implements DlmsV2Connection {
                 throw ConnectionCommunicationException.unExpectedProtocolError(e);
             } catch (IOException e) {
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw ConnectionCommunicationException.numberOfRetriesReached(e, maxRetries + 1);
+                    if (timeoutMeansBrokenConnection) {
+                        throw ConnectionCommunicationException.numberOfRetriesReached(e, maxRetries + 1);
+                    } else {
+                        throw ConnectionCommunicationException.numberOfRetriesReachedWithConnectionStillIntact(e, maxRetries + 1);
+                    }
                 }
             }
         }
@@ -431,7 +437,11 @@ public class TCPIPConnection implements DlmsV2Connection {
                 throw ConnectionCommunicationException.unExpectedProtocolError(e);
             } catch (IOException e) {
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw ConnectionCommunicationException.numberOfRetriesReached(e, maxRetries + 1);
+                    if (timeoutMeansBrokenConnection) {
+                        throw ConnectionCommunicationException.numberOfRetriesReached(e, maxRetries + 1);
+                    } else {
+                        throw ConnectionCommunicationException.numberOfRetriesReachedWithConnectionStillIntact(e, maxRetries + 1);
+                    }
                 }
             }
         }
@@ -460,7 +470,11 @@ public class TCPIPConnection implements DlmsV2Connection {
                 throw ConnectionCommunicationException.unExpectedProtocolError(e);
             } catch (IOException e) {
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw ConnectionCommunicationException.numberOfRetriesReached(e, maxRetries + 1);
+                    if (timeoutMeansBrokenConnection) {
+                        throw ConnectionCommunicationException.numberOfRetriesReached(e, maxRetries + 1);
+                    } else {
+                        throw ConnectionCommunicationException.numberOfRetriesReachedWithConnectionStillIntact(e, maxRetries + 1);
+                    }
                 }
             }
         }

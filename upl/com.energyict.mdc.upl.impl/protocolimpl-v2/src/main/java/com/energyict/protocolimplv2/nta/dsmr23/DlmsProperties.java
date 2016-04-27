@@ -323,4 +323,13 @@ public class DlmsProperties implements DlmsSessionProperties {
             return keyTypeDescription == null ? null : GeneralCipheringKeyType.fromDescription(keyTypeDescription);
         }
     }
+
+    /**
+     * By default, for all protocols, a timeout means that the available connection to the DLMS device is broken and can no longer be used,
+     * not even for other physical slave devices that share the same connection.
+     */
+    @Override
+    public boolean timeoutMeansBrokenConnection() {
+        return true;
+    }
 }
