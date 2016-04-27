@@ -39,6 +39,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.util.streams.Functions;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -707,7 +708,7 @@ public final class ChannelImpl implements ChannelContract {
         qualityRecords.stream()
                 .filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
                 .forEach(qualityRecord -> qualityRecord.delete());
-        ReadingQualityType rejected = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED);
+        ReadingQualityType rejected = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED);
         readingTimes.forEach(readingTime -> {
             createReadingQuality(rejected, mainReadingType.get(), readingTime);
             getBulkQuantityReadingType().ifPresent(bulkReadingType -> createReadingQuality(rejected, bulkReadingType, readingTime));
