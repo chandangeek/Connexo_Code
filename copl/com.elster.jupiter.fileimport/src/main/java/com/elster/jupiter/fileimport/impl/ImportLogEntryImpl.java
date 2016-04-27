@@ -1,8 +1,8 @@
 package com.elster.jupiter.fileimport.impl;
 
 
-import com.elster.jupiter.fileimport.ImportLogEntry;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.ImportLogEntry;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -28,7 +28,7 @@ public class ImportLogEntryImpl implements ImportLogEntry {
         this.fileImportOccurrenceReference.set(occurrence);
         this.timeStamp = timeStamp;
         this.level = level.intValue();
-        this.message = message.trim().substring(0, Math.min(message.trim().length(), Table.DESCRIPTION_LENGTH));
+        this.message = (message != null ? message.trim().substring(0, Math.min(message.trim().length(), Table.DESCRIPTION_LENGTH)) : "null");
         return this;
     }
 

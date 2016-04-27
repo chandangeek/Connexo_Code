@@ -13,6 +13,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 
+import java.sql.Connection;
+import java.sql.Savepoint;
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.List;
@@ -45,13 +47,23 @@ class StreamImportMessageHandler implements MessageHandler {
         ServerFileImportOccurrence fileImportOccurrence = getFileImportOccurrence(message);
         if (fileImportOccurrence != null) {
             try {
+
                 fileImportOccurrence.setStartDate(clock.instant());
                 String importerName = fileImportOccurrence.getImportSchedule().getImporterName();
                 FileImporterFactory fileImporterFactory = getFileImporterFactory(importerName);
 
                 if (fileImporterFactory.requiresTransaction()) {
-                    FileImporter importer = createFileImporter(fileImportOccurrence, fileImporterFactory);
-                    importer.process(fileImportOccurrence);
+                    Connection connection = fileImportOccurrence.getCurrentConnection();
+                    Savepoint savepoint = connection.setSavepoint();
+                    try {
+                        FileImporter importer = createFileImporter(fileImportOccurrence, fileImporterFactory);
+                        importer.process(fileImportOccurrence);
+                    } catch (Exception ex) {
+                        connection.rollback(savepoint);
+                        throw ex;
+                    } finally {
+                        fileImportOccurrence.save();
+                    }
                 } else {
                     this.fileImportOccurrence = fileImportOccurrence;
                     this.fileImportOccurrence.save();
@@ -71,7 +83,9 @@ class StreamImportMessageHandler implements MessageHandler {
                 FileImporter importer = createFileImporter(fileImportOccurrence, fileImporterFactory);
                 importer.process(new TransactionWrappedFileImportOccurenceImpl(transactionService, fileImportOccurrence));
             } catch (Exception ex) {
-                handleException(fileImportOccurrence, ex);
+                transactionService.builder().run(() -> {
+                    handleException(fileImportOccurrence, ex);
+                });
             } finally {
                 fileImportOccurrence = null;
             }
@@ -89,12 +103,10 @@ class StreamImportMessageHandler implements MessageHandler {
 
     private void handleException(ServerFileImportOccurrence occurrence, Exception ex) {
         occurrence.getLogger().log(Level.SEVERE, ex.getLocalizedMessage(), ex);
-        transactionService.builder().run(() -> {
-            if (Status.PROCESSING.equals(occurrence.getStatus())) {
-                fileImportOccurrence.markFailure(ex.getLocalizedMessage());
-            }
-            occurrence.save();
-        });
+        if (Status.PROCESSING.equals(occurrence.getStatus())) {
+            fileImportOccurrence.markFailure(ex.getLocalizedMessage());
+        }
+        occurrence.save();
     }
 
     private FileImporterFactory getFileImporterFactory(String importerName) {

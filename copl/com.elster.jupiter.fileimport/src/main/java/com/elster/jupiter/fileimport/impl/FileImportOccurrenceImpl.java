@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -303,5 +305,10 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
     public void setEndDate(Instant instant) {
         this.endDate = instant;
         save();
+    }
+
+    @Override
+    public Connection getCurrentConnection() throws SQLException {
+        return dataModel.getConnection(false);
     }
 }
