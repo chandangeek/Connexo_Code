@@ -22,7 +22,7 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
     private final PropertySpecService propertySpecService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private Clock clock;
-    private static final String FIELDNAME = "metrologyConfiguration.metrologyConfiguration";
+    static final String FIELD_NAME = "metrologyConfiguration.metrologyConfiguration";
 
     public MetrologyConfigurationSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock) {
         super();
@@ -39,7 +39,7 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return false;
+        return true;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
                 metrologyConfigurationService.findAllMetrologyConfigurations().stream().toArray(MetrologyConfiguration[]::new);
         return this.propertySpecService
                 .referenceSpec(MetrologyConfiguration.class)
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION)
+                .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION)
                 .fromThesaurus(this.metrologyConfigurationService.getThesaurus())
                 .addValues(metrologyConfigurations)
                 .markExhaustive()
