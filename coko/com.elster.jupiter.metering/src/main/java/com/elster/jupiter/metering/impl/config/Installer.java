@@ -21,8 +21,8 @@ public class Installer {
         ExceptionCatcher.executing(
                 this::createMeterRoles,
                 this::createMetrologyPurposes,
-                this::createReadingTypeTemplates/*,
-                this::createMetrologyConfigurations*/
+                this::createReadingTypeTemplates,
+                this::createMetrologyConfigurations
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
     }
