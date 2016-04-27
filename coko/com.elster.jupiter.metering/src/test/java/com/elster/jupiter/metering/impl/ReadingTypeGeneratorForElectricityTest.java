@@ -3,15 +3,19 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.Condition;
+
+import java.util.List;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,6 +26,8 @@ public class ReadingTypeGeneratorForElectricityTest {
     @BeforeClass
     public static void beforeClass() {
         inMemoryBootstrapModule.activate();
+        DataModel dataModel = inMemoryBootstrapModule.getMeteringService().getDataModel();
+        dataModel.query(ReadingType.class).select(Condition.TRUE).stream().forEach(dataModel::remove);
     }
 
     @AfterClass

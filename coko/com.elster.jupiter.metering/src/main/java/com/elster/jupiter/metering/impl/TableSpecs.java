@@ -318,6 +318,7 @@ public enum TableSpecs {
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
             table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
+            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
             table.column("INSTALLATIONTIME")
                     .number()
                     .notNull()
@@ -965,7 +966,7 @@ public enum TableSpecs {
             table.map(MultiplierValueImpl.class);
 
             Column meterActivationIdColumn = table.column("METERACTIVATIONID").number().notNull().add();
-            Column typeColumn = table.column("MULITPLIERTYPE").number().notNull().add();
+            Column typeColumn = table.column("MULTIPLIERTYPE").number().notNull().add();
             table.column("VALUE").number().map("value").notNull().add();
 
             table.primaryKey("MTR_PK_MULTIPLIERVALUE").on(meterActivationIdColumn, typeColumn).add();

@@ -113,6 +113,7 @@ public class InferReadingTypeTest {
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);    // Different from the target set in test instance
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
         ChannelContract channel = mock(ChannelContract.class);
         when(channel.getMainReadingType()).thenReturn(readingType);
         when(this.requirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(channel));
@@ -319,6 +320,111 @@ public class InferReadingTypeTest {
 
     /**
      * Setup: X = Y + Z
+     *        Y = requirement that is backed by 15 min Ampère
+     *        Z = requirement that is backed by 15 min Volt values
+     *        X explicitly needs 60 min kWh values
+     * Assert that the algorithm enforces both interval and multiplier to both X an Y.
+     */
+    @Test
+    public void inferCompatibleRequirementsWithSameDimensionInOperation() {
+        InferReadingType infer = this.testInstance();
+
+        ReadingType hourlyReadingType = this.mockHourlykWhReadingType();
+        when(this.deliverable.getReadingType()).thenReturn(hourlyReadingType);
+        ChannelContract ampereChannel = mock(ChannelContract.class);
+        ReadingType ampereReadingType = this.mock15minAmpereReadingType();
+        when(ampereChannel.getMainReadingType()).thenReturn(ampereReadingType);
+        ChannelContract voltChannel = mock(ChannelContract.class);
+        ReadingType voltReadingType = this.mock15minVoltReadingType();
+        when(voltChannel.getMainReadingType()).thenReturn(voltReadingType);
+
+        ReadingTypeRequirement y = mock(ReadingTypeRequirement.class);
+        when(y.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(ampereChannel));
+        VirtualRequirementNode nodeY =
+                new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
+                        this.virtualFactory,
+                        y,
+                        this.deliverable,
+                        this.meterActivation);
+        ReadingTypeRequirement z = mock(ReadingTypeRequirement.class);
+        when(z.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(voltChannel));
+        VirtualRequirementNode nodeZ =
+                new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
+                        this.virtualFactory,
+                        z,
+                        this.deliverable,
+                        this.meterActivation);
+        OperationNode sum = new OperationNode(Operator.PLUS, nodeY, nodeZ);
+        this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+
+        // Business method
+        VirtualReadingType preferredReadingType = sum.accept(infer);
+
+        // Asserts
+        assertThat(preferredReadingType).isEqualTo(VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED));
+        assertThat(nodeY.getTargetReadingType()).isEqualTo(VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.KILO, ReadingTypeUnit.AMPERE, Commodity.ELECTRICITY_PRIMARY_METERED));
+        assertThat(VirtualReadingType.from(nodeY.getPreferredChannel().getMainReadingType())).isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.AMPERE, Commodity.ELECTRICITY_PRIMARY_METERED));
+        assertThat(nodeZ.getTargetReadingType()).isEqualTo(VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.KILO, ReadingTypeUnit.VOLT, Commodity.ELECTRICITY_PRIMARY_METERED));
+        assertThat(VirtualReadingType.from(nodeZ.getPreferredChannel().getMainReadingType())).isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.VOLT, Commodity.ELECTRICITY_PRIMARY_METERED));
+    }
+
+    /**
+     * Same setup and purpose as {@link #inferCompatibleRequirementsWithSameDimensionInOperation()}.
+     */
+    @Test
+    public void inferCompatibleRequirementsWithSameDimensionInFunctionCall() {
+        InferReadingType infer = this.testInstance();
+
+        ReadingType hourlyReadingType = this.mockHourlykWhReadingType();
+        when(this.deliverable.getReadingType()).thenReturn(hourlyReadingType);
+        ChannelContract ampereChannel = mock(ChannelContract.class);
+        ReadingType ampereReadingType = this.mock15minAmpereReadingType();
+        when(ampereChannel.getMainReadingType()).thenReturn(ampereReadingType);
+        ChannelContract voltChannel = mock(ChannelContract.class);
+        ReadingType voltReadingType = this.mock15minVoltReadingType();
+        when(voltChannel.getMainReadingType()).thenReturn(voltReadingType);
+
+        ReadingTypeRequirement y = mock(ReadingTypeRequirement.class);
+        when(y.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(ampereChannel));
+        VirtualRequirementNode nodeY =
+                new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
+                        this.virtualFactory,
+                        y,
+                        this.deliverable,
+                        this.meterActivation);
+        ReadingTypeRequirement z = mock(ReadingTypeRequirement.class);
+        when(z.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(voltChannel));
+        VirtualRequirementNode nodeZ =
+                new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
+                        this.virtualFactory,
+                        z,
+                        this.deliverable,
+                        this.meterActivation);
+        FunctionCallNode maximum =
+                new FunctionCallNode(
+                        Function.MAX,
+                        nodeY,
+                        nodeZ,
+                        new NumericalConstantNode(BigDecimal.TEN));
+        this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+
+        // Business method
+        VirtualReadingType preferredReadingType = maximum.accept(infer);
+
+        // Asserts
+        assertThat(preferredReadingType).isEqualTo(VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED));
+        assertThat(nodeY.getTargetReadingType()).isEqualTo(VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.KILO, ReadingTypeUnit.AMPERE, Commodity.ELECTRICITY_PRIMARY_METERED));
+        assertThat(VirtualReadingType.from(nodeY.getPreferredChannel().getMainReadingType())).isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.AMPERE, Commodity.ELECTRICITY_PRIMARY_METERED));
+        assertThat(nodeZ.getTargetReadingType()).isEqualTo(VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.KILO, ReadingTypeUnit.VOLT, Commodity.ELECTRICITY_PRIMARY_METERED));
+        assertThat(VirtualReadingType.from(nodeZ.getPreferredChannel().getMainReadingType())).isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.VOLT, Commodity.ELECTRICITY_PRIMARY_METERED));
+    }
+
+    /**
+     * Setup: X = Y + Z
      *        Y = requirement that is backed by 15 min kW and 60 min kW values
      *        Z = requirement that is only backed by 15 min kWh values
      *        X explicitly needs 60 min kWh values
@@ -452,6 +558,26 @@ public class InferReadingTypeTest {
         return readingType;
     }
 
+    private ReadingType mock15minAmpereReadingType() {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        return readingType;
+    }
+
+    private ReadingType mock15minVoltReadingType() {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.VOLT);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        return readingType;
+    }
+
     private ReadingType mockHourlykWhReadingType() {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
@@ -486,6 +612,7 @@ public class InferReadingTypeTest {
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
         return readingType;
     }
 

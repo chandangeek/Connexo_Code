@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.util.streams.Predicates;
 
@@ -149,15 +151,15 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         if (compromise.isPresent()) {
             new EnforceReadingType(compromise.get()).enforceOntoAll(nodes);
             return compromise.get();
-        } else if (this.checkForCompromiseOnRequestedInterval(nodes)) {
-            new EnforceInterval(this.requestedReadingType.getIntervalLength()).enforceOntoAll(nodes);
+        } else if (this.checkForCompromiseOnRequestedIntervalAndMultiplier(nodes)) {
+            new EnforceIntervalMultiplierAndCommodity(this.requestedReadingType).enforceOntoAll(nodes);
             return this.requestedReadingType;
         } else {
             throw unsupportedOperationExceptionSupplier.get();
         }
     }
 
-    private Boolean checkForCompromiseOnRequestedInterval(List<ServerExpressionNode> nodes) {
+    private Boolean checkForCompromiseOnRequestedIntervalAndMultiplier(List<ServerExpressionNode> nodes) {
         return new CheckEnforceReadingType(this.requestedReadingType).forAll(nodes);
     }
 
@@ -322,11 +324,19 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
      *
      * @see CheckEnforceReadingType
      */
-    private class EnforceInterval implements ServerExpressionNode.Visitor<Void> {
+    private class EnforceIntervalMultiplierAndCommodity implements ServerExpressionNode.Visitor<Void> {
         private final IntervalLength intervalLength;
+        private final MetricMultiplier multiplier;
+        private final Commodity commodity;
 
-        private EnforceInterval(IntervalLength intervalLength) {
+        private EnforceIntervalMultiplierAndCommodity(VirtualReadingType readingType) {
+            this(readingType.getIntervalLength(), readingType.getUnitMultiplier(), readingType.getCommodity());
+        }
+
+        private EnforceIntervalMultiplierAndCommodity(IntervalLength intervalLength, MetricMultiplier multiplier, Commodity commodity) {
             this.intervalLength = intervalLength;
+            this.multiplier = multiplier;
+            this.commodity = commodity;
         }
 
         private void enforceOntoAll(List<ServerExpressionNode> expressions) {
@@ -361,12 +371,16 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         @Override
         public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
             requirement.setTargetInterval(this.intervalLength);
+            requirement.setTargetMultiplier(this.multiplier);
+            requirement.setCommodity(this.commodity);
             return null;
         }
 
         @Override
         public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
             deliverable.setTargetIntervalLength(this.intervalLength);
+            deliverable.setTargetMultiplier(this.multiplier);
+            deliverable.setCommodity(this.commodity);
             return null;
         }
 
