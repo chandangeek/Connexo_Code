@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
@@ -47,8 +46,10 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     private final DataModel dataModel;
     private final EventService eventService;
-    private final MetrologyConfigurationService metrologyConfigurationService;
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
+    // Managed by ORM
+    @SuppressWarnings("unused")
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
@@ -61,13 +62,21 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     @ValidExpression
     private Reference<Formula> formula = ValueReference.absent();
 
+    // Managed by ORM
+    @SuppressWarnings("unused")
     private long version;
+    // Managed by ORM
+    @SuppressWarnings("unused")
     private Instant createTime;
+    // Managed by ORM
+    @SuppressWarnings("unused")
     private Instant modTime;
+    // Managed by ORM
+    @SuppressWarnings("unused")
     private String userName;
 
     @Inject
-    public ReadingTypeDeliverableImpl(DataModel dataModel, EventService eventService, MetrologyConfigurationService metrologyConfigurationService) {
+    public ReadingTypeDeliverableImpl(DataModel dataModel, EventService eventService, ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.metrologyConfigurationService = metrologyConfigurationService;

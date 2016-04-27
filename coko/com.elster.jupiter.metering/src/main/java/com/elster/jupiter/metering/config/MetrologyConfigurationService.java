@@ -32,14 +32,6 @@ public interface MetrologyConfigurationService {
 
     UsagePointMetrologyConfigurationBuilder newUsagePointMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
-    Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(long id);
-
-    Optional<UsagePointMetrologyConfiguration> findAndLockUsagePointMetrologyConfiguration(long id, long version);
-
-    Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(String name);
-
-    List<UsagePointMetrologyConfiguration> findAllUsagePointMetrologyConfigurations();
-
     List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint);
 
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
@@ -54,22 +46,12 @@ public interface MetrologyConfigurationService {
 
     List<ReadingTypeTemplate> getReadingTypeTemplates();
 
-    Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id);
-
     Optional<ReadingTypeTemplate> findReadingTypeTemplate(String name);
-
-    Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version);
 
     MetrologyPurpose createMetrologyPurpose(NlsKey name, NlsKey description);
 
     Optional<MetrologyPurpose> findMetrologyPurpose(long id);
 
     List<MetrologyPurpose> getMetrologyPurposes();
-
-    List<ReadingTypeDeliverable> findReadingTypeDeliverable(ReadingTypeDeliverableFilter filter);
-
-    Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
-
-    Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id);
 
 }

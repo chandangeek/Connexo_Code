@@ -62,7 +62,7 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
     }
 
     @Override
-    public Void visitNull(NullNode nullNode) {
+    public Void visitNull(NullNodeImpl nullNode) {
         return null;
     }
 

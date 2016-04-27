@@ -16,31 +16,43 @@ public interface ReadingTypeDeliverableBuilder {
 
     FormulaBuilder requirement(ReadingTypeRequirementNode existingNode);
 
+    FormulaBuilder nullValue();
+
     FormulaBuilder constant(BigDecimal value);
 
     FormulaBuilder constant(long value);
 
     FormulaBuilder constant(double value);
 
-    FormulaBuilder sum(FormulaBuilder... terms);
+    FormulaBuilder minimum(FormulaBuilder firstTerm, FormulaBuilder secondTerm, FormulaBuilder... terms);
 
-    FormulaBuilder maximum(FormulaBuilder... terms);
+    FormulaBuilder maximum(FormulaBuilder firstTerm, FormulaBuilder secondTerm, FormulaBuilder... terms);
 
-    FormulaBuilder minimum(FormulaBuilder... terms);
+    FormulaBuilder sum(AggregationLevel aggregationLevel, FormulaBuilder term);
 
-    FormulaBuilder average(FormulaBuilder... terms);
+    FormulaBuilder minimum(AggregationLevel aggregationLevel, FormulaBuilder term);
+
+    FormulaBuilder maximum(AggregationLevel aggregationLevel, FormulaBuilder term);
+
+    FormulaBuilder average(AggregationLevel aggregationLevel, FormulaBuilder term);
 
     FormulaBuilder aggregate(FormulaBuilder expression);
+
+    FormulaBuilder power(FormulaBuilder expression, FormulaBuilder exponent);
+
+    FormulaBuilder squareRoot(FormulaBuilder expression);
 
     FormulaBuilder plus(FormulaBuilder term1, FormulaBuilder term2);
 
     FormulaBuilder minus(FormulaBuilder term1, FormulaBuilder term2);
 
+    FormulaBuilder multiply(FormulaBuilder multiplier, FormulaBuilder multiplicand);
+
     FormulaBuilder divide(FormulaBuilder dividend, FormulaBuilder divisor);
 
     FormulaBuilder safeDivide(FormulaBuilder dividend, FormulaBuilder divisor, FormulaBuilder zeroReplacement);
 
-    FormulaBuilder multiply(FormulaBuilder multiplier, FormulaBuilder multiplicand);
+    FormulaBuilder firstNotNull(FormulaBuilder firstTerm, FormulaBuilder... remainingTerms);
 
     ReadingTypeDeliverable build(FormulaBuilder nodeBuilder);
 

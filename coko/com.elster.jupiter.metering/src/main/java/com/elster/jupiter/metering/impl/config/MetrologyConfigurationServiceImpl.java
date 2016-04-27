@@ -143,26 +143,6 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(long id) {
-        return this.getDataModel().mapper(UsagePointMetrologyConfiguration.class).getUnique("id", id);
-    }
-
-    @Override
-    public Optional<UsagePointMetrologyConfiguration> findAndLockUsagePointMetrologyConfiguration(long id, long version) {
-        return this.getDataModel().mapper(UsagePointMetrologyConfiguration.class).lockObjectIfVersion(version, id);
-    }
-
-    @Override
-    public Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(String name) {
-        return this.getDataModel().mapper(UsagePointMetrologyConfiguration.class).getUnique("name", name);
-    }
-
-    @Override
-    public List<UsagePointMetrologyConfiguration> findAllUsagePointMetrologyConfigurations() {
-        return DefaultFinder.of(UsagePointMetrologyConfiguration.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
-    }
-
-    @Override
     public List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint) {
         LinkableMetrologyConfigurationFinder finder = new LinkableMetrologyConfigurationFinder(this.meteringService);
         List<UsagePointMetrologyConfiguration> activeConfigs = getDataModel().query(UsagePointMetrologyConfiguration.class)
@@ -249,18 +229,8 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id) {
-        return getDataModel().mapper(ReadingTypeTemplate.class).getOptional(id);
-    }
-
-    @Override
     public Optional<ReadingTypeTemplate> findReadingTypeTemplate(String name) {
         return getDataModel().mapper(ReadingTypeTemplate.class).getUnique(ReadingTypeTemplateImpl.Fields.NAME.fieldName(), name);
-    }
-
-    @Override
-    public Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version) {
-        return getDataModel().mapper(ReadingTypeTemplate.class).lockObjectIfVersion(version, id);
     }
 
     @Override

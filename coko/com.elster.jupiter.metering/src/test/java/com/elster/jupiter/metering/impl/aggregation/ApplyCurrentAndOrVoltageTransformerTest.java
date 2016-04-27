@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -121,6 +122,26 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     }
 
     @Test
+    public void recursiveVisitsOnSafeDivideOperationNode() {
+        ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
+        ServerExpressionNode leftOperand = mock(ServerExpressionNode.class);
+        ServerExpressionNode rightOperand = mock(ServerExpressionNode.class);
+        ServerExpressionNode safeDivisor = mock(ServerExpressionNode.class);
+        OperationNode node = new OperationNode(Operator.SAFE_DIVIDE, leftOperand, rightOperand, safeDivisor);
+
+        // Business method
+        ServerExpressionNode replacement = testInstance.visitOperation(node);
+
+        // Asserts
+        verify(leftOperand).accept(testInstance);
+        verify(rightOperand).accept(testInstance);
+        verify(safeDivisor).accept(testInstance);
+        assertThat(replacement).isNotSameAs(node);
+        assertThat(replacement).isInstanceOf(OperationNode.class);
+        assertThat(((OperationNode) replacement).getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
+    }
+
+    @Test
     public void recursiveVisitsOnFunctionCallNode() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
         ServerExpressionNode firstArgument = mock(ServerExpressionNode.class);
@@ -148,7 +169,7 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(deliverable.getReadingType()).thenReturn(readingType);
-        VirtualDeliverableNode node = new VirtualDeliverableNode(this.virtualFactory, deliverable);
+        VirtualDeliverableNode node = new VirtualDeliverableNode(deliverable);
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitVirtualDeliverable(node);
@@ -166,6 +187,49 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.METER);
         when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.DISTANCE);
+        when(readingType.getCommodity()).thenReturn(Commodity.NOTAPPLICABLE);
+        when(this.readingTypeDeliverable.getReadingType()).thenReturn(readingType);
+        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
+        when(this.preferredChannel.getMainReadingType()).thenReturn(readingType);
+
+        // Business method
+        ServerExpressionNode replacement = testInstance.visitVirtualRequirement(node);
+
+        // Asserts
+        assertThat(replacement).isSameAs(node);
+    }
+
+    @Test
+    public void noReplacementForPrimaryMetered() {
+        ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        when(this.readingTypeDeliverable.getReadingType()).thenReturn(readingType);
+        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
+        when(this.preferredChannel.getMainReadingType()).thenReturn(readingType);
+
+        // Business method
+        ServerExpressionNode replacement = testInstance.visitVirtualRequirement(node);
+
+        // Asserts
+        assertThat(replacement).isSameAs(node);
+    }
+
+    @Test
+    public void noReplacementForSecondaryMeteredOnly() {
+        ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_SECONDARY_METERED);
         when(this.readingTypeDeliverable.getReadingType()).thenReturn(readingType);
         VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
         when(this.preferredChannel.getMainReadingType()).thenReturn(readingType);
@@ -180,15 +244,23 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     @Test
     public void noReplacementIfVTIsMissing() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.VOLT);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.VOLTAGE);
-        when(this.readingTypeDeliverable.getReadingType()).thenReturn(readingType);
+        ReadingType voltPrimaryMetered = mock(ReadingType.class);
+        when(voltPrimaryMetered.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(voltPrimaryMetered.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(voltPrimaryMetered.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(voltPrimaryMetered.getUnit()).thenReturn(ReadingTypeUnit.VOLT);
+        when(voltPrimaryMetered.getMeasurementKind()).thenReturn(MeasurementKind.VOLTAGE);
+        when(voltPrimaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        when(this.readingTypeDeliverable.getReadingType()).thenReturn(voltPrimaryMetered);
         VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
-        when(this.preferredChannel.getMainReadingType()).thenReturn(readingType);
+        ReadingType voltSecondaryMetered = mock(ReadingType.class);
+        when(voltSecondaryMetered.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(voltSecondaryMetered.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(voltSecondaryMetered.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(voltSecondaryMetered.getUnit()).thenReturn(ReadingTypeUnit.VOLT);
+        when(voltSecondaryMetered.getMeasurementKind()).thenReturn(MeasurementKind.VOLTAGE);
+        when(voltSecondaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_SECONDARY_METERED);
+        when(this.preferredChannel.getMainReadingType()).thenReturn(voltSecondaryMetered);
         when(this.meterActivation.getMultiplier(this.vtMultiplierType)).thenReturn(Optional.empty());
 
         // Business method
@@ -201,15 +273,23 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     @Test
     public void noReplacementIfCTIsMissing() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.CURRENT);
-        when(this.readingTypeDeliverable.getReadingType()).thenReturn(readingType);
+        ReadingType amperePrimaryMetered = mock(ReadingType.class);
+        when(amperePrimaryMetered.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(amperePrimaryMetered.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(amperePrimaryMetered.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(amperePrimaryMetered.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
+        when(amperePrimaryMetered.getMeasurementKind()).thenReturn(MeasurementKind.CURRENT);
+        when(amperePrimaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        when(this.readingTypeDeliverable.getReadingType()).thenReturn(amperePrimaryMetered);
         VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
-        when(this.preferredChannel.getMainReadingType()).thenReturn(readingType);
+        ReadingType ampereSecondaryMetered = mock(ReadingType.class);
+        when(ampereSecondaryMetered.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(ampereSecondaryMetered.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(ampereSecondaryMetered.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(ampereSecondaryMetered.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
+        when(ampereSecondaryMetered.getMeasurementKind()).thenReturn(MeasurementKind.CURRENT);
+        when(ampereSecondaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_SECONDARY_METERED);
+        when(this.preferredChannel.getMainReadingType()).thenReturn(ampereSecondaryMetered);
         when(this.meterActivation.getMultiplier(this.ctMultiplierType)).thenReturn(Optional.empty());
 
         // Business method
@@ -222,15 +302,23 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     @Test
     public void noReplacementIfOnlyCTIsMissing() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
-        when(this.readingTypeDeliverable.getReadingType()).thenReturn(readingType);
+        ReadingType kWhPrimaryMetered = mock(ReadingType.class);
+        when(kWhPrimaryMetered.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(kWhPrimaryMetered.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(kWhPrimaryMetered.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(kWhPrimaryMetered.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(kWhPrimaryMetered.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        when(kWhPrimaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        when(this.readingTypeDeliverable.getReadingType()).thenReturn(kWhPrimaryMetered);
         VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
-        when(this.preferredChannel.getMainReadingType()).thenReturn(readingType);
+        ReadingType kWhSecondaryMetered = mock(ReadingType.class);
+        when(kWhSecondaryMetered.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(kWhSecondaryMetered.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(kWhSecondaryMetered.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(kWhSecondaryMetered.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(kWhSecondaryMetered.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        when(kWhSecondaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_SECONDARY_METERED);
+        when(this.preferredChannel.getMainReadingType()).thenReturn(kWhSecondaryMetered);
         when(this.meterActivation.getMultiplier(this.transformerMultiplierType)).thenReturn(Optional.empty());
         when(this.meterActivation.getMultiplier(this.vtMultiplierType)).thenReturn(Optional.of(BigDecimal.TEN));
         when(this.meterActivation.getMultiplier(this.ctMultiplierType)).thenReturn(Optional.empty());
@@ -245,15 +333,23 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     @Test
     public void noReplacementIfOnlyVTIsMissing() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
-        when(this.readingTypeDeliverable.getReadingType()).thenReturn(readingType);
+        ReadingType kWhPrimaryMetered = mock(ReadingType.class);
+        when(kWhPrimaryMetered.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(kWhPrimaryMetered.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(kWhPrimaryMetered.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(kWhPrimaryMetered.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(kWhPrimaryMetered.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        when(kWhPrimaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        when(this.readingTypeDeliverable.getReadingType()).thenReturn(kWhPrimaryMetered);
         VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
-        when(this.preferredChannel.getMainReadingType()).thenReturn(readingType);
+        ReadingType kWhSecondaryMetered = mock(ReadingType.class);
+        when(kWhSecondaryMetered.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(kWhSecondaryMetered.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(kWhSecondaryMetered.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(kWhSecondaryMetered.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(kWhSecondaryMetered.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        when(kWhSecondaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_SECONDARY_METERED);
+        when(this.preferredChannel.getMainReadingType()).thenReturn(kWhSecondaryMetered);
         when(this.meterActivation.getMultiplier(this.transformerMultiplierType)).thenReturn(Optional.empty());
         when(this.meterActivation.getMultiplier(this.vtMultiplierType)).thenReturn(Optional.empty());
         when(this.meterActivation.getMultiplier(this.ctMultiplierType)).thenReturn(Optional.of(BigDecimal.TEN));
@@ -268,15 +364,23 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     @Test
     public void tranformerMultiplierPresent() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
-        when(this.readingTypeDeliverable.getReadingType()).thenReturn(readingType);
+        ReadingType kWhPrimaryMetered = mock(ReadingType.class);
+        when(kWhPrimaryMetered.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(kWhPrimaryMetered.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(kWhPrimaryMetered.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(kWhPrimaryMetered.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(kWhPrimaryMetered.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        when(kWhPrimaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        when(this.readingTypeDeliverable.getReadingType()).thenReturn(kWhPrimaryMetered);
         VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
-        when(this.preferredChannel.getMainReadingType()).thenReturn(readingType);
+        ReadingType kWhSecondaryMetered = mock(ReadingType.class);
+        when(kWhSecondaryMetered.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(kWhSecondaryMetered.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(kWhSecondaryMetered.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(kWhSecondaryMetered.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(kWhSecondaryMetered.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        when(kWhSecondaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_SECONDARY_METERED);
+        when(this.preferredChannel.getMainReadingType()).thenReturn(kWhSecondaryMetered);
         BigDecimal multiplierValue = BigDecimal.valueOf(123L);
         when(this.meterActivation.getMultiplier(this.transformerMultiplierType)).thenReturn(Optional.of(multiplierValue));
         when(this.meterActivation.getMultiplier(this.vtMultiplierType)).thenReturn(Optional.empty());
@@ -300,15 +404,23 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     @Test
     public void bothCTandVTPresent() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
-        when(this.readingTypeDeliverable.getReadingType()).thenReturn(readingType);
+        ReadingType kWhPrimaryMetered = mock(ReadingType.class);
+        when(kWhPrimaryMetered.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(kWhPrimaryMetered.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(kWhPrimaryMetered.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(kWhPrimaryMetered.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(kWhPrimaryMetered.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        when(kWhPrimaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        when(this.readingTypeDeliverable.getReadingType()).thenReturn(kWhPrimaryMetered);
         VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
-        when(this.preferredChannel.getMainReadingType()).thenReturn(readingType);
+        ReadingType kWhSecondaryMetered = mock(ReadingType.class);
+        when(kWhSecondaryMetered.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(kWhSecondaryMetered.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(kWhSecondaryMetered.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(kWhSecondaryMetered.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(kWhSecondaryMetered.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        when(kWhSecondaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_SECONDARY_METERED);
+        when(this.preferredChannel.getMainReadingType()).thenReturn(kWhSecondaryMetered);
         BigDecimal ctMultiplierValue = BigDecimal.valueOf(123L);
         BigDecimal vtMultiplierValue = BigDecimal.valueOf(456L);
         when(this.meterActivation.getMultiplier(this.transformerMultiplierType)).thenReturn(Optional.empty());

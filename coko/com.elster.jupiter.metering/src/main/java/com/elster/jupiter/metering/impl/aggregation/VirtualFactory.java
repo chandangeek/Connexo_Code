@@ -11,8 +11,8 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Produces {@link VirtualReadingTypeRequirement}s and {@link VirtualReadingTypeDeliverable}s,
- * making sure that they are produced only once per {@link MeterActivation}.
+ * Produces {@link VirtualReadingTypeRequirement}s, making sure
+ * that they are produced only once per {@link MeterActivation}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-05 (08:38)
@@ -25,8 +25,7 @@ public interface VirtualFactory {
      * {@link VirtualReadingType} or one that was already produced before
      * if such a node has already been produced before.
      *
-     *
-     * @param mode
+     * @param mode The Formula.Mode
      * @param requirement The ReadingTypeRequirement
      * @param deliverable The ReadingTypeDeliverable
      * @param readingType The VirtualReadingType
@@ -35,30 +34,11 @@ public interface VirtualFactory {
     VirtualReadingTypeRequirement requirementFor(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType);
 
     /**
-     * Returns a new {@link VirtualDeliverableNode} for the specified
-     * {@link ReadingTypeDeliverableForMeterActivation} and {@link VirtualReadingType}
-     * or one that was already produced before if such a node has already
-     * been produced before.
-     *
-     * @param deliverable The ReadingTypeDeliverable
-     * @param readingType The VirtualReadingType
-     * @return The VirtualDeliverableNode
-     */
-    VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverableForMeterActivation deliverable, VirtualReadingType readingType);
-
-    /**
      * Returns all the {@link VirtualReadingTypeRequirement}s that were produced by this factory.
      *
      * @return The List of all VirtualReadingTypeRequirement
      */
     List<VirtualReadingTypeRequirement> allRequirements();
-
-    /**
-     * Returns all the {@link VirtualReadingTypeDeliverable}s that were produced by this factory.
-     *
-     * @return The List of all VirtualReadingTypeDeliverable
-     */
-    List<VirtualReadingTypeDeliverable> allDeliverables();
 
     /**
      * Notifies this VirtualNodeFactory that the processing of

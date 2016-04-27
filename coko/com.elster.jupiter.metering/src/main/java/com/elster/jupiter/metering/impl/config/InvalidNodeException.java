@@ -1,26 +1,45 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.Function;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-public class InvalidNodeException extends LocalizedException {
+class InvalidNodeException extends LocalizedException {
 
-    public InvalidNodeException(Thesaurus thesaurus, MessageSeed messageSeed) {
+    InvalidNodeException(Thesaurus thesaurus, MessageSeed messageSeed) {
         super(thesaurus, messageSeed);
     }
 
-    public InvalidNodeException(Thesaurus thesaurus, MessageSeed messageSeed, int value) {
+    InvalidNodeException(Thesaurus thesaurus, MessageSeed messageSeed, int value) {
         super(thesaurus, messageSeed, value);
     }
 
-    public InvalidNodeException(Thesaurus thesaurus, MessageSeed messageSeed, String value1, String value2) {
-        super(thesaurus, messageSeed, value1, value2);
+    static InvalidNodeException functionNotAllowedInAutoMode(Thesaurus thesaurus, Function function) {
+        InvalidNodeException exception = new InvalidNodeException(thesaurus, MessageSeeds.FUNCTION_NOT_ALLOWED_IN_AUTOMODE, function.name());
+        exception.set("Function", function);
+        throw exception;
     }
 
-    public InvalidNodeException(Thesaurus thesaurus, MessageSeed messageSeed, String value1, String value2, String value3) {
-        super(thesaurus, messageSeed, value1, value2, value3);
+    static InvalidNodeException incompatibleIntervalLengths(Thesaurus thesaurus, IntervalLength il1, IntervalLength il2) {
+        throw new InvalidNodeException(thesaurus, MessageSeeds.INCOMPATIBLE_INTERVAL_LENGTHS, il1.toString(), il2.toString());
+    }
+
+    static InvalidNodeException deliverableReadingTypeIsNotCompatibleWithFormula(Thesaurus thesaurus, ReadingType readingType, ReadingTypeDeliverable deliverable) {
+        throw new InvalidNodeException(
+                thesaurus,
+                MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA,
+                readingType.getMRID() + " (" + readingType.getFullAliasName() + ")",
+                deliverable.getFormula().getExpressionNode().toString(),
+                deliverable.getName());
+    }
+
+    private InvalidNodeException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
+        super(thesaurus, messageSeed, args);
     }
 
 }
-

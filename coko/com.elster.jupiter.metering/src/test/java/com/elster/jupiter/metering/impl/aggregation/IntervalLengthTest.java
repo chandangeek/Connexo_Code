@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.AggregationLevel;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
@@ -953,6 +954,31 @@ public class IntervalLengthTest {
         if (!doNotMultiplyToYear.isEmpty()) {
             fail(doNotMultiplyToYear.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " do not multiply to one year");
         }
+    }
+
+    @Test
+    public void aggregationLevelHour() {
+        assertThat(IntervalLength.from(AggregationLevel.HOUR)).isEqualTo(IntervalLength.HOUR1);
+    }
+
+    @Test
+    public void aggregationLevelDay() {
+        assertThat(IntervalLength.from(AggregationLevel.DAY)).isEqualTo(IntervalLength.DAY1);
+    }
+
+    @Test
+    public void aggregationLevelWeek() {
+        assertThat(IntervalLength.from(AggregationLevel.WEEK)).isEqualTo(IntervalLength.WEEK1);
+    }
+
+    @Test
+    public void aggregationLevelMonth() {
+        assertThat(IntervalLength.from(AggregationLevel.MONTH)).isEqualTo(IntervalLength.MONTH1);
+    }
+
+    @Test
+    public void aggregationLevelYear() {
+        assertThat(IntervalLength.from(AggregationLevel.YEAR)).isEqualTo(IntervalLength.YEAR1);
     }
 
     private Stream<IntervalLength> allButNotSupported() {

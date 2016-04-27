@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -371,5 +372,20 @@ public class ReadingTypeDeliverableImplTestIT {
 
         Optional<Formula> formulaRef = inMemoryBootstrapModule.getMetrologyConfigurationService().findFormula(formula.getId());
         assertThat(formulaRef.isPresent()).isFalse();
+    }
+
+    @Test(expected = CannotDeleteReadingTypeDeliverableException.class)
+    @Transactional
+    public void testCanNotDeleteDeliverableWhichIsPartOfFormulaAnotherDeliverable() {
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "reading type 1");
+        ReadingType readingType2 = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.71.0", "reading type 2");
+        FullySpecifiedReadingTypeRequirement requirement = metrologyConfiguration.newReadingTypeRequirement("Requirement").withReadingType(readingType);
+        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("deliverable", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable = builder.build(builder.requirement(requirement));
+        builder = metrologyConfiguration.newReadingTypeDeliverable("deliverable2", readingType2, Formula.Mode.AUTO);
+        builder.build(builder.deliverable(deliverable));
+
+        metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
+        // exception here
     }
 }
