@@ -36,8 +36,11 @@ Ext.define('Imt.purpose.view.Outputs', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            itemId: 'ctr-no-metrology-configurations',
-                            title: Uni.I18n.translate('outputs.list.empty', 'IMT', 'No outputs is configured for selected purpose')
+                            itemId: 'outputs-list-empty',
+                            title: Uni.I18n.translate('outputs.list.empty', 'IMT', 'No outputs is available'),
+                            reasons: [
+                                Uni.I18n.translate('outputs.list.empty.reason1', 'IMT', 'Selected purpose has no configured outputs')
+                            ]
                         }
                     }
                 ]
