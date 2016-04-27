@@ -31,7 +31,7 @@ Ext.define('Imt.purpose.view.OutputsList', {
                 flex: 1,
                 dataIndex: 'interval',
                 renderer: function(value){
-                    return value.timeUnit;
+                    return Uni.I18n.translate('outputs.interval', 'IMT', '{0} {1}', [value.count, value.timeUnit]);
                 }
             }
         ];
