@@ -12,17 +12,17 @@ Ext.define('Mdc.privileges.UsagePoint', {
     insightView: ['privilege.administer.anyUsagePoint', 'privilege.view.anyUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.view.ownUsagePoint'],
     insightAdmin: ['privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
     all: function () {
-        return this.checkApplication(Ext.Array.merge(Mdc.privileges.UsagePoint.view, Mdc.privileges.UsagePoint.admin));
+        return this.checkInsightLicense(Ext.Array.merge(Mdc.privileges.UsagePoint.view, Mdc.privileges.UsagePoint.admin));
     },
     canView: function () {
-        return this.checkApplication(Mdc.privileges.UsagePoint.view);
+        return this.checkInsightLicense(Mdc.privileges.UsagePoint.view);
     },
 
     canAdmin: function () {
-        return this.checkApplication(Mdc.privileges.UsagePoint.admin);
+        return this.checkInsightLicense(Mdc.privileges.UsagePoint.admin);
     },
 
-    checkApplication: function (privileges) {
+    checkInsightLicense: function (privileges) {
         var me = this,
             checkStatus = function(){
                 if(me.insightStatus != 'ACTIVE'){
