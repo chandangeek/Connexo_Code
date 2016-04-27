@@ -126,6 +126,8 @@ public interface DeviceType extends HasId, HasName {
 
     void removeRegisterType(RegisterType registerType);
 
+    List<AllowedCalendar> getAllowedCalendars();
+
     List<LoadProfileType> getLoadProfileTypes();
 
     void addLoadProfileType(LoadProfileType loadProfileType);

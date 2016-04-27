@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
@@ -8,6 +9,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
@@ -1013,6 +1015,32 @@ public enum TableSpecs {
                     .on(customPropertySet)
                     .onDelete(CASCADE)
                     .map(DeviceTypeCustomPropertySetUsageImpl.Fields.CUSTOMPROPERTYSET.fieldName())
+                    .add();
+        }
+    },
+
+    DTC_DEVICETYPECALENDARUSAGE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<AllowedCalendar> table = dataModel.addTable(name(), AllowedCalendar.class);
+            table.map(AllowedCalendarImpl.class);
+            Column deviceType = table.column("DEVICETYPE").number().notNull().add();
+            Column calendar = table.column("CALENDAR").number().notNull().add();
+            table.column("NAME").varChar().map(AllowedCalendarImpl.Fields.NAME.fieldName()).add();
+            table.primaryKey("PK_DTC_CALUSAGE").on(deviceType,calendar).add();
+            table.foreignKey("FK_DTC_CALDEVICETYPE")
+                    .references(DTC_DEVICETYPE.name())
+                    .on(deviceType)
+                    .onDelete(CASCADE)
+                    .map(AllowedCalendarImpl.Fields.DEVICETYPE.fieldName())
+                    .reverseMap(DeviceTypeImpl.Fields.ALLOWEDCALENDARS.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_DTC_CAL")
+                    .references(Calendar.class)
+                    .on(calendar)
+                    .map(AllowedCalendarImpl.Fields.CALENDAR.fieldName())
+                    .onDelete(CASCADE)
                     .add();
         }
     };

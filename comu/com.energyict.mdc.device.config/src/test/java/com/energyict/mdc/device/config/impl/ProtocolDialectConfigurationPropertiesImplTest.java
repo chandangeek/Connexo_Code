@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -222,7 +223,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new MdcDynamicModule(),
                 new PluggableModule(),
                 new TimeModule(),
-                new CustomPropertySetsModule());
+                new CustomPropertySetsModule(),
+                new CalendarModule());
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             injector.getInstance(FiniteStateMachineService.class);

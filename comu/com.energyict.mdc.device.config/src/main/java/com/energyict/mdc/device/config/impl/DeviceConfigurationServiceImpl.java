@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
@@ -134,6 +135,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
     private volatile QueryService queryService;
+    private volatile CalendarService calendarService;
 
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -142,7 +144,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, CalendarService calendarService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -160,6 +162,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setEstimationService(estimationService);
         this.setFiniteStateMachineService(finiteStateMachineService);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        this.setCalendarService(calendarService);
         this.activate();
         this.install();
     }
@@ -628,6 +631,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService){
+        this.calendarService = calendarService;
     }
 
     @Reference
