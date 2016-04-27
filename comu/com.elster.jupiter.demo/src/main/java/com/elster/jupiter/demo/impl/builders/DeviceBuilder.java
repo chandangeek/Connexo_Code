@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -63,7 +64,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     @Override
     public Device create() {
         Log.write(this);
-        Device device = deviceService.newDevice(deviceConfiguration, getName(), mrid);
+        Device device = deviceService.newDevice(deviceConfiguration, getName(), mrid, Instant.now());
         device.setSerialNumber(serialNumber);
         device.setYearOfCertification(this.yearOfCertification);
         if (comSchedules != null) {
