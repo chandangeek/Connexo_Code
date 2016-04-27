@@ -101,7 +101,7 @@ public class UsagePointResource {
                               ExceptionFactory exceptionFactory,
                               Thesaurus thesaurus,
                               ResourceHelper resourceHelper,
-                              MetrologyConfigurationService metrologyConfigurationService) {
+                              MetrologyConfigurationService metrologyConfigurationService,
                               Provider<GoingOnResource> goingOnResourceProvider) {
         this.queryService = queryService;
         this.meteringService = meteringService;
