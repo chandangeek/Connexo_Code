@@ -16,7 +16,9 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -28,12 +30,14 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
 import java.time.Clock;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
+
 @Component(name = "com.elster.jupiter.parties", service = {PartyService.class, InstallService.class}, property = "name=" + PartyService.COMPONENTNAME)
-public class PartyServiceImpl implements PartyService, InstallService {
+public class PartyServiceImpl implements PartyService {
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
@@ -42,12 +46,13 @@ public class PartyServiceImpl implements PartyService, InstallService {
     private volatile EventService eventService;
     private volatile OrmService ormService;
     private volatile Thesaurus thesaurus;
+    private volatile UpgradeService upgradeService;
 
     public PartyServiceImpl() {
     }
 
     @Inject
-    public PartyServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService, ThreadPrincipalService threadPrincipalService, NlsService nlsService) {
+    public PartyServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService, ThreadPrincipalService threadPrincipalService, NlsService nlsService, UpgradeService upgradeService) {
         setClock(clock);
         setOrmService(ormService);
         setQueryService(queryService);
@@ -55,10 +60,8 @@ public class PartyServiceImpl implements PartyService, InstallService {
         setEventService(eventService);
         setThreadPrincipalService(threadPrincipalService);
         setNlsService(nlsService);
+        setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     Module getModule() {
@@ -78,6 +81,8 @@ public class PartyServiceImpl implements PartyService, InstallService {
     @Activate
     public void activate() {
         dataModel.register(getModule());
+
+        upgradeService.register(identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
@@ -182,16 +187,6 @@ public class PartyServiceImpl implements PartyService, InstallService {
     }
 
     @Override
-    public void install() {
-        new Installer(dataModel, eventService).install(true, true, true);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT");
-    }
-
-    @Override
     public OrganizationBuilder newOrganization(String mRID) {
         return new OrganizationBuilderImpl(dataModel, mRID);
     }
@@ -238,6 +233,11 @@ public class PartyServiceImpl implements PartyService, InstallService {
     @Reference
     public void setNlsService(NlsService nlsService){
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
