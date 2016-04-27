@@ -111,7 +111,8 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                     {
                         xtype: 'metrology-configuration-side-menu',
                         itemId: 'metrology-configuration-side-menu',
-                        router: router
+                        router: router,
+                        metrologyConfig: me.metrologyConfiguration
                     }
                 ]
             }

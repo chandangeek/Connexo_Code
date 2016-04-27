@@ -367,17 +367,32 @@ Ext.define('Imt.controller.History', {
                              } 
                         },
                         metrologyconfiguration: {
-                           title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-                           route: 'metrologyconfiguration/{mcid}',
-                           controller: 'Imt.usagepointmanagement.controller.View',
-                           action: 'showMetrologyConfiguration',
-                           callback: function (route) {
+                            title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
+                            route: 'metrologyconfiguration',
+                            controller: 'Imt.usagepointmanagement.controller.View',
+                            action: 'showMetrologyConfiguration',
+                            callback: function (route) {
                                this.getApplication().on('metrologyConfigurationLoaded', function (record) {
                                    route.setTitle(record.get('name'));
                                    return true;
-                               }, {single: true});       
+                               }, {single: true});
                                return this;
-                           }  
+                            },
+                            //items: {
+                            //    define: {
+                            //        title: Uni.I18n.translate('general.label.definemetrologyconfiguration', 'IMT', 'Define metrology configuration'),
+                            //        controller: 'Imt.metrologyconfiguration.controller.Edit',
+                            //        action: 'showWizard',
+                            //        route: 'define',
+                            //    }
+                            //}
+                        },
+                        definemetrology: {
+                            title: Uni.I18n.translate('general.label.definemetrologyconfiguration', 'IMT', 'Define metrology configuration'),
+                            controller: 'Imt.metrologyconfiguration.controller.Edit',
+                            action: 'showWizard',
+                            privileges: Imt.privileges.UsagePoint.admin,
+                            route: 'metrologyconfiguration/define',
                         }
            			}
            		},
@@ -406,6 +421,7 @@ Ext.define('Imt.controller.History', {
                     route: 'metrologyconfiguration',
                     controller: 'Imt.metrologyconfiguration.controller.ViewList',
                     action: 'showMetrologyConfigurationList',
+                    privileges: Imt.privileges.MetrologyConfig.view,
                     items: {
                         add: {
                             title: Uni.I18n.translate('general.label.metrologyconfiguration.add', 'IMT', 'Add metrology configuration'),

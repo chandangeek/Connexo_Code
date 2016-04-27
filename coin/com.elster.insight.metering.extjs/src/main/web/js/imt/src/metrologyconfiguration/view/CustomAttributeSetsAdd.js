@@ -9,6 +9,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
         'Uni.view.container.EmptyGridContainer'
     ],
     router: null,
+    metrologyConfig: null,
 
     initComponent: function () {
         var me = this,
@@ -68,7 +69,8 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
                     {
                         xtype: 'metrology-configuration-side-menu',
                         itemId: 'metrology-configuration-side-menu',
-                        router: router
+                        router: router,
+                        metrologyConfig: me.metrologyConfig
                     }
                 ]
             }
