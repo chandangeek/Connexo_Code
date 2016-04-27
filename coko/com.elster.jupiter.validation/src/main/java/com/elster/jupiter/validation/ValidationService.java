@@ -46,7 +46,7 @@ public interface ValidationService {
 
     Query<ValidationRuleSet> getRuleSetQuery();
 
-    List<Validator> getAvailableValidators();
+    List<Validator> getAvailableValidators(String targetApplication);
 
     Validator getValidator(String implementation);
 

@@ -473,11 +473,12 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
-    public List<Validator> getAvailableValidators() {
+    public List<Validator> getAvailableValidators(String application) {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
         return validatorFactories.stream()
                 .flatMap(f -> f.available().stream())
                 .map(validatorCreator::getTemplateValidator)
+                .filter(validator -> validator.acceptsTargetApplication(application))
                 .collect(Collectors.toList());
     }
 

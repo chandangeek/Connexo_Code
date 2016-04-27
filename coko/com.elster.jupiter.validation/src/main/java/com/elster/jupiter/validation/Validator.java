@@ -1,12 +1,13 @@
 package com.elster.jupiter.validation;
 
-import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.HasDynamicProperties;
+
+import aQute.bnd.annotation.ConsumerType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -37,5 +38,15 @@ public interface Validator extends HasDynamicProperties {
     String getDisplayName(String property);
 
     String getDefaultFormat();
+
+    /**
+     * Checks if the Validator is intended to deal with the provided target application
+     *
+     * @return <code>true</code> if the Validator is intended to deal with the provided application
+     * @see ValidationService#getAvailableValidators(String)
+     */
+    default boolean acceptsTargetApplication(String application) {
+        return true;
+    }
 
 }
