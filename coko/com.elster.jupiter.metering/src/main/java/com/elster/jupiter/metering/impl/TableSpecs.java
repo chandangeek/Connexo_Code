@@ -640,6 +640,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MultiplierType> table = dataModel.addTable(name(), MultiplierType.class);
             table.map(MultiplierTypeImpl.class);
+            table.cache();
 
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
 
