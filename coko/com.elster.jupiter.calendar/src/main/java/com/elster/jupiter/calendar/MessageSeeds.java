@@ -1,5 +1,6 @@
 package com.elster.jupiter.calendar;
 
+import com.elster.jupiter.calendar.importers.impl.CalendarImporterFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -11,9 +12,13 @@ import java.util.logging.Logger;
  * Created by igh on 18/04/2016.
  */
 public enum MessageSeeds implements MessageSeed {
+
     REQUIRED(1001, Constants.REQUIRED, "This field is required"),
     DAYTYPES_REQUIRED(1002, Constants.DAYTYPES_REQUIRED, "At least one daytype is required"),
     PERIODS_REQUIRED(1003, Constants.PERIODS_REQUIRED, "At least one period is required"),
+
+    SCHEMA_FAILED(1003, Constants.SCHEMA_FAILED, "XSD schema for calendar import could not be read"),
+    JAXB_FAILED(1003, Constants.JAXB_FAILED, "JAXB error occurred"),
     ;
 
     private final int number;
@@ -73,5 +78,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_TOO_LONG = "invalidFieldLength";
         public static final String DAYTYPES_REQUIRED = "dayTypes.required";
         public static final String PERIODS_REQUIRED = "periods.required";
+        public static final String SCHEMA_FAILED = "calendar.import.schema.failed";
+        public static final String JAXB_FAILED = "calendar.import.jaxb.failed";
     }
 }
