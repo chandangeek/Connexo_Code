@@ -12,10 +12,10 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
-@Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class, MessageSeedProvider.class}, property = "name=" + IdsService.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.ids", service = {IdsService.class, MessageSeedProvider.class}, property = "name=" + IdsService.COMPONENTNAME)
 public class IdsServiceImpl implements IdsService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
