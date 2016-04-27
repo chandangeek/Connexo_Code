@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.OrganizationBuilder;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
@@ -36,7 +35,7 @@ import java.util.Optional;
 
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
-@Component(name = "com.elster.jupiter.parties", service = {PartyService.class, InstallService.class}, property = "name=" + PartyService.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.parties", service = {PartyService.class}, property = "name=" + PartyService.COMPONENTNAME)
 public class PartyServiceImpl implements PartyService {
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
