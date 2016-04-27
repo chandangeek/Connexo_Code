@@ -346,6 +346,11 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
+    public String getDisplayName(DefaultState state) {
+        return state.getDisplayName(thesaurus);
+    }
+
+    @Override
     public DestinationSpec getServiceCallQueue() {
         if (!dataModel.isInstalled()) {
             throw new IllegalStateException();
