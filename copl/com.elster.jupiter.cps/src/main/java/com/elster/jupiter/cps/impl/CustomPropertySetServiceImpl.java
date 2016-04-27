@@ -26,6 +26,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -52,6 +53,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -185,6 +187,13 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     boolean isSearchEnabledForCustomPropertySet(CustomPropertySet<?, ?> customPropertySet, List<SearchablePropertyConstriction> constrictions) {
         List<CustomPropertySetSearchEnabler> enablers = this.searchEnablers.get(customPropertySet.getDomainClass());
         return enablers != null && enablers.stream().allMatch(enabler -> enabler.enableWhen(customPropertySet, constrictions));
+    }
+
+    List<SearchableProperty> getConstrainingPropertiesForCustomPropertySet(CustomPropertySet<?, ?> customPropertySet, List<SearchablePropertyConstriction> constrictions) {
+        List<CustomPropertySetSearchEnabler> enablers = this.searchEnablers.get(customPropertySet.getDomainClass());
+        return enablers == null ? Collections.emptyList() : enablers.stream()
+                .flatMap(enabler -> enabler.getConstrainingProperties(customPropertySet, constrictions).stream())
+                .collect(Collectors.toList());
     }
 
     @Reference

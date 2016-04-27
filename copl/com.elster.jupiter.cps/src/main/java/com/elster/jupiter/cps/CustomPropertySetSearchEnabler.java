@@ -1,5 +1,6 @@
 package com.elster.jupiter.cps;
 
+import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 
 import aQute.bnd.annotation.ConsumerType;
@@ -37,4 +38,5 @@ public interface CustomPropertySetSearchEnabler {
      */
     boolean enableWhen(CustomPropertySet customPropertySet, List<SearchablePropertyConstriction> constrictions);
 
+    List<SearchableProperty> getConstrainingProperties(CustomPropertySet customPropertySet, List<SearchablePropertyConstriction> constrictions);
 }

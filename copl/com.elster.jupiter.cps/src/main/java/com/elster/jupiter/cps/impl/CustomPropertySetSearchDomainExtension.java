@@ -10,6 +10,7 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,11 +34,30 @@ public class CustomPropertySetSearchDomainExtension implements SearchDomainExten
 
     @Override
     public List<SearchableProperty> getProperties() {
-        CustomPropertySetSearchablePropertyGroup searchablePropertyGroup = new CustomPropertySetSearchablePropertyGroup(this.customPropertySet);
-        return this.customPropertySet.getPropertySpecs()
-                .stream()
-                .map(propertySpec -> new CustomPropertySetSearchableProperty(this.customPropertySet, propertySpec, searchablePropertyGroup))
-                .collect(Collectors.toList());
+        if (this.customPropertySet.isSearchableByDefault()) {
+            CustomPropertySetSearchablePropertyGroup searchablePropertyGroup = new CustomPropertySetSearchablePropertyGroup(this.customPropertySet);
+            return this.customPropertySet.getPropertySpecs()
+                    .stream()
+                    .map(propertySpec -> new CustomPropertySetSearchableProperty(this.customPropertySet, propertySpec, searchablePropertyGroup, Collections.emptyList()))
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
+        if (!this.customPropertySet.isSearchableByDefault()) {
+            CustomPropertySetSearchablePropertyGroup searchablePropertyGroup = new CustomPropertySetSearchablePropertyGroup(this.customPropertySet);
+            return this.customPropertySet.getPropertySpecs()
+                    .stream()
+                    .map(propertySpec -> new CustomPropertySetSearchableProperty(this.customPropertySet, propertySpec, searchablePropertyGroup, getConstraints(constrictions)))
+                    .collect(Collectors.toList());
+        }
+        return getProperties();
+    }
+
+    private List<SearchableProperty> getConstraints(List<SearchablePropertyConstriction> constrictions) {
+        return this.customPropertySetService.getConstrainingPropertiesForCustomPropertySet(this.customPropertySet, constrictions);
     }
 
     @Override
