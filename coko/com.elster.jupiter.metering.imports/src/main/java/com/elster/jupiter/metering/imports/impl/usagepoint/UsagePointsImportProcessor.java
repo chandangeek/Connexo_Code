@@ -183,14 +183,16 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         List<String> locationData = data.getLocation();
         List<String> geoCoordinatesData = data.getGeoCoordinates();
 
-        if(locationData != null && locationData.stream().allMatch(s -> s != null) && !locationData.isEmpty()) {
+        if(locationData.stream().anyMatch(s -> s != null)) {
             context.getMeteringService()
                     .getLocationTemplate()
                     .getTemplateMembers()
                     .stream()
                     .filter(LocationTemplate.TemplateField::isMandatory)
                     .forEach(field -> {
-                        if(locationData.get(field.getRanking()).equals("")){
+                        if(locationData.get(field.getRanking()) == null){
+                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
+                        }else if(locationData.get(field.getRanking()).equals("")){
                             throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
                         }
                     });
@@ -226,7 +228,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         List<String> locationData = data.getLocation();
         List<String> geoCoordinatesData = data.getGeoCoordinates();
 
-        if(locationData != null && locationData.stream().allMatch(s -> s != null) && !locationData.isEmpty()) {
+        if(locationData.stream().anyMatch(s -> s != null)) {
             context.getMeteringService()
                     .getLocationTemplate()
                     .getTemplateMembers()
@@ -234,6 +236,8 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                     .filter(LocationTemplate.TemplateField::isMandatory)
                     .forEach(field -> {
                         if(locationData.get(field.getRanking()) == null){
+                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
+                        }else if(locationData.get(field.getRanking()).equals("")){
                             throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
                         }
                     });
