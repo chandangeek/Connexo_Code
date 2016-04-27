@@ -14,6 +14,7 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -298,6 +299,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(Thesaurus.class).toInstance(thesaurus);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
 
     }
