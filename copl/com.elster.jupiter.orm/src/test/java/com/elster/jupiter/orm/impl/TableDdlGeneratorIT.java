@@ -5,6 +5,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryPersistence;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.OrmService;
@@ -17,6 +18,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
@@ -183,6 +185,29 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(2);
             }
         }
+
+        DataMapper<Movie1> movieDao = dataModel.mapper(Movie1.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            Movie1 movie1 = new Movie1();
+            movie1.title = "The Graduate";
+            movieDao.persist(movie1);
+            context.commit();
+        }
+        List<Movie1> movies = movieDao.find();
+        assertThat(movies).hasSize(1);
+        Movie1 movie1 = movies.get(0);
+        assertThat(movie1.title).isEqualTo("The Graduate");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            movie1.title = "The Nutty Professor";
+            movieDao.update(movie1);
+            context.commit();
+        }
+
+        movies = movieDao.find();
+        assertThat(movies).hasSize(1);
+        movie1 = movies.get(0);
+        assertThat(movie1.title).isEqualTo("The Nutty Professor");
     }
 
     @Test
@@ -203,6 +228,33 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(3);
             }
         }
+
+        DataMapper<Movie2> movieDao = dataModel.mapper(Movie2.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            Movie2 movie = new Movie2();
+            movie.title = "The Graduate";
+            movie.director = "Mike Nichols";
+            movieDao.persist(movie);
+            context.commit();
+        }
+        List<Movie2> movies = movieDao.find();
+        assertThat(movies).hasSize(1);
+        Movie2 movie = movies.get(0);
+        assertThat(movie.title).isEqualTo("The Graduate");
+        assertThat(movie.director).isEqualTo("Mike Nichols");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            movie.title = "The Nutty Professor";
+            movie.director = "Tom Shadyac";
+            movieDao.update(movie);
+            context.commit();
+        }
+
+        movies = movieDao.find();
+        assertThat(movies).hasSize(1);
+        movie = movies.get(0);
+        assertThat(movie.title).isEqualTo("The Nutty Professor");
+        assertThat(movie.director).isEqualTo("Tom Shadyac");
     }
 
     @Test
@@ -221,6 +273,11 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.findColumn("TITLE")).isEqualTo(2);
                 assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(2);
             }
+            try (PreparedStatement statement = connection.prepareStatement("INSERT INTO TST_MOVIE (ID, TITLE) values (?, ?)")) {
+                statement.setLong(1, 5000);
+                statement.setString(2, "The Shawshank Redemption");
+                statement.executeUpdate();
+            }
         }
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(2, 0));
@@ -234,6 +291,42 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(3);
             }
         }
+
+        DataMapper<Movie2> movieDao = dataModel.mapper(Movie2.class);
+
+        List<Movie2> movies = movieDao.find();
+        assertThat(movies).hasSize(1);
+        Movie2 movie = movies.get(0);
+        assertThat(movie.title).isEqualTo("The Shawshank Redemption");
+        assertThat(movie.director).isNull();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            movieDao.remove(movie);
+            movie = new Movie2();
+            movie.title = "The Graduate";
+            movie.director = "Mike Nichols";
+            movieDao.persist(movie);
+            context.commit();
+        }
+
+        movies = movieDao.find();
+        assertThat(movies).hasSize(1);
+        movie = movies.get(0);
+        assertThat(movie.title).isEqualTo("The Graduate");
+        assertThat(movie.director).isEqualTo("Mike Nichols");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            movie.title = "The Nutty Professor";
+            movie.director = "Tom Shadyac";
+            movieDao.update(movie);
+            context.commit();
+        }
+
+        movies = movieDao.find();
+        assertThat(movies).hasSize(1);
+        movie = movies.get(0);
+        assertThat(movie.title).isEqualTo("The Nutty Professor");
+        assertThat(movie.director).isEqualTo("Tom Shadyac");
     }
 
     @Test
