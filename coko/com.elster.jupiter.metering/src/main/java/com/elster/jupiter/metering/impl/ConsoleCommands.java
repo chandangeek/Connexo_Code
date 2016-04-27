@@ -89,7 +89,7 @@ import java.util.stream.Stream;
         "osgi.command.function=getDeliverablesOnContract",
         "osgi.command.function=addDeliverableToContract",
         "osgi.command.function=removeDeliverableFromContract",
-        "osgi.command.function=metrologyConfigs"
+        "osgi.command.function=metrologyConfigs",
         "osgi.command.function=addDeviceLocation",
         "osgi.command.function=addDeviceGeoCoordinates",
         "osgi.command.function=addUsagePointLocation",
