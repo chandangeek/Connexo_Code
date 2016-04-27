@@ -147,7 +147,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                                     return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
                                 }
                             } else if (Mdc.privileges.UsagePoint.canView()) {
-                                url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.attributeId});
+                                url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.mrid});
                                 return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
                             }
                             return Ext.String.htmlEncode(value.displayValue);
@@ -155,6 +155,18 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                     } else {
                         this.hide();
                         return null;
+                    }
+                }
+            },
+            {
+                name: 'location',
+                itemId: 'fld-device-location',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
+                renderer: function (value) {
+                    if (!Ext.isEmpty(value)) {
+                        return Ext.String.htmlEncode(value).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>');
+                    } else {
+                        return '-'
                     }
                 }
             },
@@ -216,18 +228,6 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 itemId: 'fld-device-batch',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.batch', 'MDC', 'Batch'),
                 hidden: !me.fullInfo,
-                renderer: function (value) {
-                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue)) {
-                        return value.displayValue
-                    } else {
-                        return '-'
-                    }
-                }
-            },
-            {
-                name: 'location',
-                itemId: 'fld-device-location',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
                 renderer: function (value) {
                     if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue)) {
                         return value.displayValue
