@@ -128,6 +128,12 @@ public interface DeviceType extends HasId, HasName {
 
     List<AllowedCalendar> getAllowedCalendars();
 
+    void addAllowedCalendar(AllowedCalendar allowedCalendar);
+
+    public boolean isTimeOfUseAllowed();
+
+    public void setTimeOfUseAllowed(boolean timeOfUseAllowed);
+
     List<LoadProfileType> getLoadProfileTypes();
 
     void addLoadProfileType(LoadProfileType loadProfileType);
@@ -196,7 +202,7 @@ public interface DeviceType extends HasId, HasName {
          * Note that there is no need to call the add method as that
          * will be done by the {@link DeviceConfigurationBuilder#add()} method.
          *
-         * @param channelType     The ChannelType
+         * @param channelType The ChannelType
          * @param loadProfileSpec The LoadProfileSpec
          * @return The builder
          * @see DeviceConfiguration#createChannelSpec(com.energyict.mdc.masterdata.ChannelType, LoadProfileSpec)
@@ -211,7 +217,7 @@ public interface DeviceType extends HasId, HasName {
          * Note that there is no need to call the add method as that
          * will be done by the {@link DeviceConfigurationBuilder#add()} method.
          *
-         * @param channelType            The ChannelType
+         * @param channelType The ChannelType
          * @param loadProfileSpecBuilder The LoadProfileSpecBuilder
          * @return The builder
          * @see DeviceConfiguration#createChannelSpec(com.energyict.mdc.masterdata.ChannelType, LoadProfileSpec)

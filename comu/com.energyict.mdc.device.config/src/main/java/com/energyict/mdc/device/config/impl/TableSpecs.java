@@ -82,6 +82,10 @@ public enum TableSpecs {
                     .conversion(NUMBER2ENUM)
                     .map(DeviceTypeImpl.Fields.DEVICETYPEPURPOSE.fieldName())
                     .add();
+            table.column("TIMEOFUSEALLOWED")
+                    .bool()
+                    .map(DeviceTypeImpl.Fields.TIME_OF_USE_ALLOWED.fieldName())
+                    .add();
             table.unique("UK_DTC_DEVICETYPE").on(name).add();
             table.primaryKey("PK_DTC_DEVICETYPE").on(id).add();
         }
