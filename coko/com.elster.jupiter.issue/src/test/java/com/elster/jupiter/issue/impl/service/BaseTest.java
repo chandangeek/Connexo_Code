@@ -32,6 +32,7 @@ import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
@@ -117,6 +118,7 @@ public abstract class BaseTest {
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
 
             TaskService taskService = mock(TaskService.class);
             bind(TaskService.class).toInstance(taskService);
