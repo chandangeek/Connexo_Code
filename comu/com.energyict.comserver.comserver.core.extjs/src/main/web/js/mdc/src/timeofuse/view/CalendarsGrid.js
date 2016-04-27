@@ -35,7 +35,7 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
                 xtype: 'pagingtoolbartop',
                 //store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('timeofuse.pagingtoolbartop.displayMsg', 'SCS', '{0} Time of use calendars'),
+                displayMsg: Uni.I18n.translate('timeofuse.pagingtoolbartop.displayMsg', 'MDC', '{0} Time of use calendars'),
                 items: [
                     {
                         xtype: 'button',

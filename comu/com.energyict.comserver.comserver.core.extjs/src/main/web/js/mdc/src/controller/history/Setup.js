@@ -668,7 +668,7 @@ Ext.define('Mdc.controller.history.Setup', {
 
                                         },
                                         edit: {
-                                            title: Uni.I18n.translate('tou.addTouCalendars', 'MDC', 'Edit time of use specifications'),
+                                            title: Uni.I18n.translate('tou.editTouSpecifications', 'MDC', 'Edit time of use specifications'),
                                             route: 'edit',
                                             privileges: Mdc.privileges.DeviceType.admin,
                                             controller: 'Mdc.timeofuse.controller.TimeOfUse',
