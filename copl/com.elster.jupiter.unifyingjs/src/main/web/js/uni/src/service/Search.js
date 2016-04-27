@@ -482,19 +482,7 @@ Ext.define('Uni.service.Search', {
 
         if (property.get('type') === 'Quantity') {
             Ext.apply(config, {
-                xtype: 'uni-search-criteria-quantity',
-                listeners: {
-                    change: {
-                        fn: function(widget, value) {
-                            me.setFilter(new Ext.util.Filter({
-                                property: widget.dataIndex,
-                                value: value ? value.map(function(v){return v.getData()}) : null,
-                                id: widget.dataIndex
-                            }));
-                        },
-                        scope: me
-                    }
-                }
+                xtype: 'uni-search-criteria-quantity'
             });
         }
 
