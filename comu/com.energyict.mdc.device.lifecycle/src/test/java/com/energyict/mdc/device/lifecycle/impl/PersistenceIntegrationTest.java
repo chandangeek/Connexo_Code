@@ -94,7 +94,7 @@ public abstract class PersistenceIntegrationTest {
     }
 
     protected Device createSimpleDeviceWithName(String name, String mRID){
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID, Instant.now());
         device.save();
         return device;
     }
