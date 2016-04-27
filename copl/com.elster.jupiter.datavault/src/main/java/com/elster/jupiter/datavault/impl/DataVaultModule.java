@@ -22,4 +22,24 @@ public class DataVaultModule extends AbstractModule {
         bind(DataVaultService.class).to(DataVaultServiceImpl.class).in(Scopes.SINGLETON);
     }
 
+    public static class FakeDataVaultService implements DataVaultService {
+
+        private FakeDataVaultService() {
+
+        }
+
+        public static DataVaultService getInstance() {
+            return new FakeDataVaultService();
+        }
+
+        @Override
+        public String encrypt(byte[] decrypted) {
+            return new String(decrypted);
+        }
+
+        @Override
+        public byte[] decrypt(String encrypted) {
+            return encrypted.getBytes();
+        }
+    }
 }

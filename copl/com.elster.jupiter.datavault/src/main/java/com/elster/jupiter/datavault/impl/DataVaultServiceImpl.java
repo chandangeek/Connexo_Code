@@ -46,8 +46,8 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService, M
         setNlsService(nlsService);
         setOrmService(ormService);
         activate();
-        if (!dataModel.isInstalled()){
-            install();
+        if (!dataModel.isInstalled()) {
+            dataModel.install(true, false);
         }
     }
 
