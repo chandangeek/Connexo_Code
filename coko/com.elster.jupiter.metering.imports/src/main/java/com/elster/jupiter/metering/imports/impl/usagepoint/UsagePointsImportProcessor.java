@@ -183,7 +183,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         List<String> locationData = data.getLocation();
         List<String> geoCoordinatesData = data.getGeoCoordinates();
 
-        if(locationData != null && !locationData.stream().allMatch(s -> s.equals("")) && !locationData.isEmpty()) {
+        if(locationData != null && !locationData.stream().allMatch(s -> s != null) && !locationData.stream().allMatch(s -> s.equals("")) && !locationData.isEmpty()) {
             context.getMeteringService()
                     .getLocationTemplate()
                     .getTemplateMembers()
@@ -208,8 +208,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             usagePointBuilder.withLocation(builder.create());
             isVirtual = false;
         }
-
-        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)){
+        if(geoCoordinatesData != null && !geoCoordinatesData.stream().allMatch(s -> s != null) && !geoCoordinatesData.stream().allMatch(s -> s.equals("")) && !geoCoordinatesData.contains(null)) {
             usagePointBuilder.withGeoCoordinates((context.getMeteringService()
                     .createGeoCoordinates(geoCoordinatesData.stream().collect(Collectors.joining(":")))));
             isVirtual = false;
@@ -227,7 +226,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         List<String> locationData = data.getLocation();
         List<String> geoCoordinatesData = data.getGeoCoordinates();
 
-        if(locationData != null && !locationData.stream().allMatch(s -> s.equals("")) && !locationData.isEmpty()) {
+        if(locationData != null && !locationData.stream().allMatch(s -> s != null) && !locationData.stream().allMatch(s -> s.equals("")) && !locationData.isEmpty()) {
             context.getMeteringService()
                     .getLocationTemplate()
                     .getTemplateMembers()
@@ -251,8 +250,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             }
             usagePoint.setLocation(builder.create().getId());
         }
-        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty()
-                && !geoCoordinatesData.contains(null)){
+        if(geoCoordinatesData != null && !geoCoordinatesData.stream().allMatch(s -> s != null) && !geoCoordinatesData.stream().allMatch(s -> s.equals("")) && !geoCoordinatesData.contains(null)) {
             usagePoint.setGeoCoordinates(context.getMeteringService()
                     .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
