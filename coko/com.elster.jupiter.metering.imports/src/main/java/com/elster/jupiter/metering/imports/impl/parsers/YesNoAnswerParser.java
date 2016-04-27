@@ -6,6 +6,7 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.YesNoAnswer;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class YesNoAnswerParser implements FieldParser<YesNoAnswer> {
 
@@ -18,12 +19,10 @@ public class YesNoAnswerParser implements FieldParser<YesNoAnswer> {
     }
 
     public YesNoAnswer parse(String value) {
-        if (!Checks.is(value).emptyOrOnlyWhiteSpace()) {
-            return Arrays.stream(YesNoAnswer.values()).filter(e -> e.name().equals(value.trim())).findFirst()
-                    .orElseThrow(() -> new ValueParserException(value, String.join(", ", YesNoAnswer.YES.name(), YesNoAnswer.NO
-                            .name(), YesNoAnswer.UNKNOWN.name())));
-        } else {
-            return null;
-        }
+        return Checks.is(value).emptyOrOnlyWhiteSpace() ? null : Arrays.stream(YesNoAnswer.values())
+                .filter(e -> e.toString().equalsIgnoreCase(value.trim()))
+                .findFirst()
+                .orElseThrow(() -> new ValueParserException(value,
+                        Arrays.stream(YesNoAnswer.values()).map(YesNoAnswer::toString).collect(Collectors.joining(", "))));
     }
 }
