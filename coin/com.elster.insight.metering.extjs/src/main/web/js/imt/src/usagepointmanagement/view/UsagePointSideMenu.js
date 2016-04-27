@@ -7,15 +7,16 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
     alias: 'widget.usage-point-management-side-menu',
     router: null,
     usagePoint: null,
-    purposes: null,
     
     initComponent: function () {
         var me = this,
+            usagePoint = me.usagePoint,
+            purposes = usagePoint.get('purposes'),
             iconStyle,
             serviceCategory,
             connectionState;
 
-        me.title = Ext.htmlEncode(me.usagePoint ? me.usagePoint.get('mRID') : me.router.arguments.mRID);
+        me.title = Ext.htmlEncode(usagePoint ? usagePoint.get('mRID') : me.router.arguments.mRID);
 
         me.menuItems = [
             {
@@ -52,9 +53,9 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
             }
         ];
 
-        if (me.purposes) {
+        if (purposes && purposes.length) {
             var items = [];
-            me.purposes.map(function(purpose) {
+            purposes.map(function(purpose) {
                 if (purpose.get('active')) {
                     var status = purpose.get('status'),
                         icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
@@ -80,10 +81,10 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
             }
         }
 
-        if (me.usagePoint) {
+        if (usagePoint) {
             iconStyle = "color: #686868;font-size: 16px;";
-            serviceCategory = me.usagePoint.get('serviceCategory');
-            connectionState = me.usagePoint.get('connectionState');
+            serviceCategory = usagePoint.get('serviceCategory');
+            connectionState = usagePoint.get('connectionState');
             me.tools = [];
             if (serviceCategory) {
                 me.tools.push({
