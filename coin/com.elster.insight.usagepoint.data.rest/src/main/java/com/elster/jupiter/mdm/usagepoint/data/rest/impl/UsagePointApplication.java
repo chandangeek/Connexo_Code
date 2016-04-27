@@ -10,6 +10,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -48,6 +49,7 @@ public class UsagePointApplication extends Application implements TranslationKey
 
     private volatile TransactionService transactionService;
     private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
     private volatile MeteringService meteringService;
     private volatile RestQueryService restQueryService;
     private volatile Clock clock;
@@ -62,6 +64,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile IssueService issueService;
     private volatile BpmService bpmService;
     private volatile ServiceCallService serviceCallService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -88,6 +91,7 @@ public class UsagePointApplication extends Application implements TranslationKey
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
@@ -118,7 +122,6 @@ public class UsagePointApplication extends Application implements TranslationKey
     public void setMeteringGroupService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
-
 
     @Reference
     public void setRestQueryService(RestQueryService restQueryService) {
@@ -185,11 +188,17 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.bpmService = bpmService;
     }
 
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
         protected void configure() {
             bind(transactionService).to(TransactionService.class);
+            bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(meteringService).to(MeteringService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
@@ -202,6 +211,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(serviceCallService).to(ServiceCallService.class);
             bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
+            bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(issueService).to(IssueService.class);
             bind(bpmService).to(BpmService.class);
 
