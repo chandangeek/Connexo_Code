@@ -75,6 +75,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -213,10 +214,10 @@ public class FavoritesServiceImplTest {
             configuration.save();
             configuration.activate();
 
-            device = deviceService.newDevice(configuration, "ZABF0000100001", "ZABF0000100001");
+            device = deviceService.newDevice(configuration, "ZABF0000100001", "ZABF0000100001", Instant.now());
             device.save();
 
-            device1 = deviceService.newDevice(configuration, "ZABF0000100002", "ZABF0000100002");
+            device1 = deviceService.newDevice(configuration, "ZABF0000100002", "ZABF0000100002", Instant.now());
             device1.save();
 
             ctx.commit();
