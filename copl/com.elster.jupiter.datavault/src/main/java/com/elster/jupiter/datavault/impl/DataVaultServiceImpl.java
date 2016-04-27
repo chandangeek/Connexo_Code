@@ -9,8 +9,10 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -21,6 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,27 +31,26 @@ import java.util.List;
  */
 @Component(
         name = "com.elster.kore.datavault",
-        service = {DataVaultService.class, InstallService.class, MessageSeedProvider.class},
+        service = {DataVaultService.class, MessageSeedProvider.class},
         property = "name=" + DataVaultService.COMPONENT_NAME,
         immediate = true)
-public class DataVaultServiceImpl implements DataVaultService, InstallService, MessageSeedProvider {
+public class DataVaultServiceImpl implements DataVaultService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
+    private volatile UpgradeService upgradeService;
 
     public DataVaultServiceImpl() {
     }
 
     @Inject
-    public DataVaultServiceImpl(NlsService nlsService, OrmService ormService) {
+    public DataVaultServiceImpl(NlsService nlsService, OrmService ormService, UpgradeService upgradeService) {
         this();
         setNlsService(nlsService);
         setOrmService(ormService);
+        setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            dataModel.install(true, false);
-        }
     }
 
     @Reference
@@ -64,6 +66,11 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService, M
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     private Module getModule() {
@@ -84,16 +91,7 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService, M
     public void activate() {
         this.dataModel.register(this.getModule());
         LegacyDataVaultProvider.instance.set(() -> dataModel.getInstance(DataVault.class));
-    }
-
-    @Override
-    public void install() {
-        new Installer(this.dataModel).install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, NlsService.COMPONENTNAME);
+        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override

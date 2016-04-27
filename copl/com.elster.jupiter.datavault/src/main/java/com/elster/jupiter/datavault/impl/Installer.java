@@ -1,43 +1,37 @@
 package com.elster.jupiter.datavault.impl;
 
 import com.elster.jupiter.datavault.DataVault;
-import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
+
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class Installer {
+class Installer implements FullInstaller {
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
 
+    @Inject
     Installer(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    public void install() {
-        installDataModel();
-        if (dataModel.mapper(OrmKeyStoreImpl.class).find().isEmpty()) {
-            generateKeyStore();
-        }
-    }
-
-    private void installDataModel() {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         try {
-            this.dataModel.install(true, true);
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+        if (dataModel.mapper(OrmKeyStoreImpl.class).find().isEmpty()) {
+            generateKeyStore();
         }
     }
 
