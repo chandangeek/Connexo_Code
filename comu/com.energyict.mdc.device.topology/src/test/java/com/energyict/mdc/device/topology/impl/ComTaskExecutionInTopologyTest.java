@@ -11,6 +11,8 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 
+import java.time.Instant;
+
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +31,7 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
     public void makeObsoleteWhenDefaultConnectionTaskHasComServerFilledInTest() {
         OutboundComPort outboundComPort = createOutboundComPort();
         ComServer comServer = outboundComPort.getComServer();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest", Instant.now());
         device.save();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
@@ -49,7 +51,8 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
     @Test
     @Transactional
     public void setUseDefaultConnectionTaskClearsConnectionTaskTest() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setUseDefaultConnectionTaskClearsConnectionTaskTest", "setUseDefaultConnectionTaskClearsConnectionTaskTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setUseDefaultConnectionTaskClearsConnectionTaskTest", "setUseDefaultConnectionTaskClearsConnectionTaskTest", Instant
+                .now());
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
@@ -66,7 +69,7 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
     @Test
     @Transactional
     public void setUseDefaultOnUpdaterClearsConnectionTaskTest() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest", Instant.now());
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
@@ -87,7 +90,7 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
     @Test
     @Transactional
     public void clearingDefaultFlagOnConnectionTaskClearsTheConnectionTaskOnTheComTaskExecutionTest() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "dcf", "dcf");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "dcf", "dcf", Instant.now());
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);

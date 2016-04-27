@@ -80,6 +80,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import java.security.Principal;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -231,7 +232,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
             deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new TestDialect());
             deviceConfiguration.save();
             deviceConfiguration.activate();
-            this.device = this.deviceService.newDevice(deviceConfiguration, "SimpleDevice", "mrid");
+            this.device = this.deviceService.newDevice(deviceConfiguration, "SimpleDevice", "mrid", Instant.now());
             this.device.save();
             ConnectionTypePluggableClass connectionTypePluggableClass = this.protocolPluggableService.newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class
                     .getName());

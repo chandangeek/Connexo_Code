@@ -67,7 +67,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF + "}")
     public void updatePhysicalGatewayWithSameAsOriginDeviceTest() {
         Device physicalGateway = createSimpleDeviceWithName("PhysicalGateway");
-        Device device = getDeviceService().newDevice(deviceConfiguration, "Slave", "SlaveMrid");
+        Device device = getDeviceService().newDevice(deviceConfiguration, "Slave", "SlaveMrid", Instant.now());
         device.save();
         getTopologyService().setPhysicalGateway(device, physicalGateway);
         Device reloadedDevice = getReloadedDevice(device);
@@ -81,7 +81,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void createWithPhysicalGatewayTest() {
         Device masterDevice = createSimpleDeviceWithName("Physical_MASTER");
 
-        Device device = getDeviceService().newDevice(deviceConfiguration, "Slave", MRID);
+        Device device = getDeviceService().newDevice(deviceConfiguration, "Slave", MRID, Instant.now());
         device.save();
 
         // Business method
@@ -177,10 +177,10 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void findPhysicalConnectedDevicesTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
+        Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID, Instant.now());
         device1.save();
         this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
-        Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", MRID+"2");
+        Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", MRID+"2", Instant.now());
         device2.save();
         this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
 
@@ -205,10 +205,10 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void findDownstreamDevicesAfterRemovalOfOneTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1");
+        Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1", Instant.now());
         device1.save();
         this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
-        Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2");
+        Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2", Instant.now());
         device2.save();
         this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
 
@@ -225,10 +225,10 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void findDownstreamDevicesAfterRemovingGatewayReferenceTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1");
+        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1", Instant.now());
         device1.save();
         this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
-        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2");
+        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2", Instant.now());
         device2.save();
         this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
 
@@ -246,10 +246,10 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void findDownstreamDevicesAfterSettingToOtherPhysicalGatewayTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster","pm");
         Device otherPhysicalMaster = createSimpleDeviceWithName("OtherPhysicalMaster", "opm");
-        Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1");
+        Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1", Instant.now());
         device1.save();
         this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
-        Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2");
+        Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2", Instant.now());
         device2.save();
         this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
 
@@ -268,26 +268,26 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void testGetSortedPhysicalGatewayReferences() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway");
+        Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway", Instant.now());
         gateway.save();
 
-        Device slave1 = deviceService.newDevice(deviceConfiguration, "slave1", "slave1");
+        Device slave1 = deviceService.newDevice(deviceConfiguration, "slave1", "slave1", Instant.now());
         slave1.save();
         topologyService.setPhysicalGateway(slave1, gateway);
 
-        Device slave2 = deviceService.newDevice(deviceConfiguration, "slave2", "slave2");
+        Device slave2 = deviceService.newDevice(deviceConfiguration, "slave2", "slave2", Instant.now());
         slave2.save();
         topologyService.setPhysicalGateway(slave2, gateway);
 
-        Device slave3 = deviceService.newDevice(deviceConfiguration, "slave3", "slave3");
+        Device slave3 = deviceService.newDevice(deviceConfiguration, "slave3", "slave3", Instant.now());
         slave3.save();
         topologyService.setPhysicalGateway(slave3, gateway);
 
-        Device slave4 = deviceService.newDevice(deviceConfiguration, "slave4", "slave4");
+        Device slave4 = deviceService.newDevice(deviceConfiguration, "slave4", "slave4", Instant.now());
         slave4.save();
         topologyService.setPhysicalGateway(slave4, gateway);
 
-        Device slave5 = deviceService.newDevice(deviceConfiguration, "slave5", "slave5");
+        Device slave5 = deviceService.newDevice(deviceConfiguration, "slave5", "slave5", Instant.now());
         slave5.save();
         topologyService.setPhysicalGateway(slave5, gateway);
 
@@ -311,9 +311,9 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void addFinalCommunicationPathSegment() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway");
+        Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway", Instant.now());
         gateway.save();
-        Device slave = deviceService.newDevice(deviceConfiguration, "slave", "slave");
+        Device slave = deviceService.newDevice(deviceConfiguration, "slave", "slave", Instant.now());
         slave.save();
         int expectedCost = 13;
         Duration expectedTimeToLive = Duration.ofMinutes(1);
@@ -338,12 +338,12 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void addIntermediateCommunicationPathSegment() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway");
+        Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway", Instant.now());
         gateway.save();
-        Device slave1 = deviceService.newDevice(deviceConfiguration, "slave1", "slave1");
+        Device slave1 = deviceService.newDevice(deviceConfiguration, "slave1", "slave1", Instant.now());
         slave1.save();
         topologyService.setPhysicalGateway(slave1, gateway);
-        Device slave2 = deviceService.newDevice(deviceConfiguration, "slave2", "slave2");
+        Device slave2 = deviceService.newDevice(deviceConfiguration, "slave2", "slave2", Instant.now());
         slave2.save();
         int expectedCost = 17;
         Duration expectedTimeToLive = Duration.ofMinutes(1);
@@ -370,15 +370,15 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void addBuildCommunicationPath() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway");
+        Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway", Instant.now());
         gateway.save();
-        Device slave1 = deviceService.newDevice(deviceConfiguration, "slave1", "slave1");
+        Device slave1 = deviceService.newDevice(deviceConfiguration, "slave1", "slave1", Instant.now());
         slave1.save();
         topologyService.setPhysicalGateway(slave1, gateway);
-        Device slave2 = deviceService.newDevice(deviceConfiguration, "slave2", "slave2");
+        Device slave2 = deviceService.newDevice(deviceConfiguration, "slave2", "slave2", Instant.now());
         slave2.save();
         topologyService.setPhysicalGateway(slave2, gateway);
-        Device slave3 = deviceService.newDevice(deviceConfiguration, "slave3", "slave3");
+        Device slave3 = deviceService.newDevice(deviceConfiguration, "slave3", "slave3", Instant.now());
         slave3.save();
         topologyService.setPhysicalGateway(slave3, gateway);
         int cost = 17;
@@ -401,11 +401,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(initialTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
         neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
@@ -438,9 +438,9 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void buildNeigborhoodFromScratchWithAllProperties() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
 
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
@@ -485,11 +485,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(initialTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
         neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
@@ -516,11 +516,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(initialTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
         neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
@@ -548,11 +548,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(now);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
         neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
@@ -574,11 +574,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(now);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
         neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
@@ -600,11 +600,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(now);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
         neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
@@ -632,11 +632,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(now);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
         neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
@@ -663,11 +663,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(past);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder initialBuilder = topologyService.buildG3Neighborhood(device);
         initialBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
@@ -694,11 +694,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(past);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder initialBuilder = topologyService.buildG3Neighborhood(device);
         initialBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
@@ -725,11 +725,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(initialTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
         initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
@@ -769,11 +769,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(initialTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
         initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
@@ -816,9 +816,9 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(initialTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
         TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
         initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
@@ -884,11 +884,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(initialTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
         initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
@@ -919,11 +919,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(fromDateForExistingNeighbors);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
         initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
@@ -961,11 +961,11 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void completeTwice () {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
-        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1", Instant.now());
         neighbor1.save();
-        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2", Instant.now());
         neighbor2.save();
         TopologyService.G3NeighborhoodBuilder builder = topologyService.buildG3Neighborhood(device);
         builder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
@@ -982,7 +982,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void findG3AddressInformationThatWasNeverCreated() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
 
         //Business method
@@ -999,7 +999,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(effectiveTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
 
         // Business method
@@ -1023,7 +1023,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void createG3AddressInformationWithInvalidIPv6Address() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
 
         // Business method
@@ -1038,7 +1038,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void createG3AddressInformationWithIPv4Address() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
 
         // Business method
@@ -1053,7 +1053,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void createG3AddressInformationWithVeryLongIPv6Address() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
 
         // Business method
@@ -1068,7 +1068,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void createG3AddressInformationWithEmptyIPv6Address() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
 
         // Business method
@@ -1083,7 +1083,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void createG3AddressInformationWithNullIPv6Address() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
 
         // Business method
@@ -1100,7 +1100,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(effectiveTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
         int expectedIPv6ShortAddress = 0x417A;
         int expectedLogicalDeviceId = 13;
@@ -1128,7 +1128,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(initialEffectiveTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
         int expectedIPv6ShortAddress = 0x417A;
         int expectedLogicalDeviceId = 13;
@@ -1152,7 +1152,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(initialEffectiveTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
         int initialIPv6ShortAddress = 0x14A7;
         int initialLogicalDeviceId = 19;
@@ -1184,7 +1184,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(initialEffectiveTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
-        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE", Instant.now());
         device.save();
         int initialIPv6ShortAddress = 0x14A7;
         int initialLogicalDeviceId = 19;

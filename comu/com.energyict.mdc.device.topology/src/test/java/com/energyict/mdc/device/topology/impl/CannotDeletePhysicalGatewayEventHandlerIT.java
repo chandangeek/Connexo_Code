@@ -5,20 +5,18 @@ import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.topology.StillGatewayException;
 import com.energyict.mdc.device.topology.TopologyService;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.Subscriber;
 
+import java.time.Instant;
+
 import org.junit.*;
-import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link CannotDeletePhysicalGatewayEventHandler} compnent.
@@ -39,7 +37,7 @@ public class CannotDeletePhysicalGatewayEventHandlerIT extends PersistenceIntegr
     @Transactional
     public void cannotDeleteBecauseStillUsedAsPhysicalGatewayTest() {
         Device physicalMaster = this.createSimpleDeviceWithName("PhysicalMaster");
-        Device device1 = getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
+        Device device1 = getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID, Instant.now());
         device1.save();
         this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
 
@@ -58,7 +56,7 @@ public class CannotDeletePhysicalGatewayEventHandlerIT extends PersistenceIntegr
     @Transactional
     public void deletePhysicalMasterAfterDeletingSlaveTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        Device device = getDeviceService().newDevice(deviceConfiguration, "Origin", MRID);
+        Device device = getDeviceService().newDevice(deviceConfiguration, "Origin", MRID, Instant.now());
         device.save();
         this.getTopologyService().setPhysicalGateway(device, physicalMaster);
 

@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -121,7 +122,7 @@ public class LoadProfileInTopologyTest extends PersistenceTestWithMockedDevicePr
     @Test
     @Transactional
     public void isVirtualLoadProfileTest() {
-        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "dwl");
+        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "dwl", Instant.now());
         masterWithLoadProfile.save();
 
         Device slave = createSlaveDeviceWithSameLoadProfileType(masterWithLoadProfile);
@@ -144,7 +145,7 @@ public class LoadProfileInTopologyTest extends PersistenceTestWithMockedDevicePr
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceConfiguration.activate();
 
-        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", MRID);
+        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", MRID, Instant.now());
         slaveWithLoadProfile.save();
         inMemoryPersistence.getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
         return slaveWithLoadProfile;
@@ -164,7 +165,7 @@ public class LoadProfileInTopologyTest extends PersistenceTestWithMockedDevicePr
     @Test
     @Transactional
     public void isNotVirtualLoadProfileBecauseSlaveHasLoadProfileTypeWithWildCardBFieldTest() {
-        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "M");
+        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "M", Instant.now());
         masterWithLoadProfile.save();
 
         LoadProfileType slaveLoadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("SlaveType", ObisCode.fromString("0.x.24.3.0.255"), interval, Arrays.asList(registerType1));
@@ -180,7 +181,7 @@ public class LoadProfileInTopologyTest extends PersistenceTestWithMockedDevicePr
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceConfiguration.activate();
 
-        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", "S");
+        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", "S", Instant.now());
         slaveWithLoadProfile.save();
         inMemoryPersistence.getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
 

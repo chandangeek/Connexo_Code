@@ -597,7 +597,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     }
 
     private Device createSimpleDevice(String mRID) {
-        Device simpleDevice = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "SimpleDevice", mRID);
+        Device simpleDevice = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "SimpleDevice", mRID, Instant.now());
         simpleDevice.save();
         return simpleDevice;
     }

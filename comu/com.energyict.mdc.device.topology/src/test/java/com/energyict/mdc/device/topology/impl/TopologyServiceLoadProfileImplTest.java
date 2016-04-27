@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -125,7 +126,7 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
     @Test
     @Transactional
     public void getAllChannelsTestWithASlaveDeviceTest() {
-        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "dwl");
+        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "dwl", Instant.now());
         masterWithLoadProfile.save();
         Device slave = createSlaveDeviceWithSameLoadProfileType(masterWithLoadProfile);
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(masterWithLoadProfile);
@@ -164,7 +165,7 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
     @Test
     @Transactional
     public void getAllChannelsTestWithoutSlaveDevices() {
-        Device deviceWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", MRID);
+        Device deviceWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", MRID, Instant.now());
         deviceWithLoadProfile.save();
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(deviceWithLoadProfile);
 
@@ -188,9 +189,9 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
     @Test
     @Transactional
     public void isNotVirtualLoadProfileBecauseDeviceProtocolNotLogicalSlaveTest() {
-        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "dwl");
+        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "dwl", Instant.now());
         masterWithLoadProfile.save();
-        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "Slave", "slave");
+        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "Slave", "slave", Instant.now());
         slaveWithLoadProfile.save();
         getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
 
@@ -228,7 +229,7 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceConfiguration.activate();
 
-        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", MRID);
+        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", MRID, Instant.now());
         slaveWithLoadProfile.save();
         getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
         return slaveWithLoadProfile;
