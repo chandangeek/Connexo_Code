@@ -19,7 +19,7 @@ Ext.define('Scs.view.ServiceCallPreviewContainer', {
         reasons: [
             Uni.I18n.translate('serviceCalls.empty.list.item1', 'SCS', 'No service calls have been defined yet.'),
             Uni.I18n.translate('serviceCalls.empty.list.item4', 'SCS', 'The filter is too narrow and did not found any service calls in the system.'),
-            Uni.I18n.translate('serviceCalls.empty.list.item2', 'SCS', 'You don’t have permission to see (all) service calls.')
+            Uni.I18n.translate('serviceCalls.empty.list.item2', 'SCS', "You don't have permission to see (all) service calls.")
         ]
     },
 
