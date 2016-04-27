@@ -252,18 +252,20 @@ public class MetrologyConfigurationInstaller {
                 .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.4.2.1.12.0.0.0.0.1.0.0.0.3.73.0", "Reactive energy+"));
         ReadingType readingTypeMonthlyReactiveEnergyToU2 = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.2.1.12.0.0.0.0.2.0.0.0.3.73.0"))
                 .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.4.2.1.12.0.0.0.0.2.0.0.0.3.73.0", "Reactive energy+"));
-        ReadingType readingTypeMonthlyActivePower = meteringService.findReadingTypes(Collections.singletonList("13.0.0.12.1.1.37.0.0.0.0.0.0.0.0.3.38.0"))
-                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.12.1.1.37.0.0.0.0.0.0.0.0.3.38.0", "Active power+"));
-        ReadingType readingTypeMonthlyReactivePower = meteringService.findReadingTypes(Collections.singletonList("13.0.0.12.1.1.37.0.0.0.0.0.0.0.0.3.63.0"))
-                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.12.1.1.37.0.0.0.0.0.0.0.0.3.63.0", "Reactive power+"));
-        ReadingType readingTypeMonthlyApparentPower = meteringService.findReadingTypes(Collections.singletonList("13.2.0.6.1.1.37.0.0.0.0.0.0.0.0.0.61.0"))
-                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.2.0.6.1.1.37.0.0.0.0.0.0.0.0.0.61.0", "Apparent power+"));
-        ReadingType readingTypeMonthlyPowerFactor = meteringService.findReadingTypes(Collections.singletonList("13.0.0.6.1.1.38.0.0.0.0.0.0.0.0.0.0.0"))
-                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.6.1.1.38.0.0.0.0.0.0.0.0.0.0.0", "Active power factor+"));
+        ReadingType readingTypeAverageVoltagePhaseA = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.128.0.29.0"))
+                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.128.0.29.0", "Average voltage"));
+        ReadingType readingTypeAverageVoltagePhaseB = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.64.0.29.0"))
+                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.64.0.29.0", "Average voltage"));
+        ReadingType readingTypeAverageVoltagePhaseC = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.32.0.29.0"))
+                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.32.0.29.0", "Average voltage"));
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                 .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+        MetrologyPurpose purposeVoltageMonitoring = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.VOLTAGE_MONITORING)
+                .orElseThrow(() -> new NoSuchElementException("Voltage monitoring metrology purpose not found"));
+
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
+        MetrologyContract contractVoltageMonitoring = config.addMandatoryMetrologyContract(purposeVoltageMonitoring);
 
         ReadingTypeRequirement requirementAplusToU1 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat() + " ToU1")
                 .withMeterRole(meterRole).withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
@@ -277,6 +279,15 @@ public class MetrologyConfigurationInstaller {
         ReadingTypeRequirement requirementReactiveEnergyPlusToU2 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.REACTIVE_ENERGY_PLUS.getNameTranslation().getDefaultFormat() + " ToU2")
                 .withMeterRole(meterRole).withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.REACTIVE_ENERGY_PLUS))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 2);
+        ReadingTypeRequirement requirementAverageVoltagePhaseA = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE.getNameTranslation().getDefaultFormat() + " phase A")
+                .withMeterRole(meterRole).withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
+                .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 128);
+        ReadingTypeRequirement requirementAverageVoltagePhaseB = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE.getNameTranslation().getDefaultFormat() + " phase B")
+                .withMeterRole(meterRole).withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
+                .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 64);
+        ReadingTypeRequirement requirementAverageVoltagePhaseC = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE.getNameTranslation().getDefaultFormat() + " phase C")
+                .withMeterRole(meterRole).withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
+                .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 32);
 
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyActiveEnergyToU1, requirementAplusToU1, "Daily active energy kWh ToU1"));
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyActiveEnergyToU2, requirementAplusToU2, "Daily active energy kWh ToU2"));
@@ -286,6 +297,9 @@ public class MetrologyConfigurationInstaller {
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyActiveEnergyToU2, requirementAplusToU2, "Monthly active energy kWh ToU2"));
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyReactiveEnergyToU1, requirementReactiveEnergyPlusToU1, "Monthly reactive energy kVArh ToU1"));
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyReactiveEnergyToU2, requirementReactiveEnergyPlusToU2, "Monthly reactive energy kVArh ToU2"));
+        contractVoltageMonitoring.addDeliverable(buildFormulaSingleRequirement(config, readingTypeAverageVoltagePhaseA, requirementAverageVoltagePhaseA, "Hourly average voltage V phase 1 vs N"));
+        contractVoltageMonitoring.addDeliverable(buildFormulaSingleRequirement(config, readingTypeAverageVoltagePhaseB, requirementAverageVoltagePhaseB, "Hourly average voltage V phase 2 vs N"));
+        contractVoltageMonitoring.addDeliverable(buildFormulaSingleRequirement(config, readingTypeAverageVoltagePhaseC, requirementAverageVoltagePhaseC, "Hourly average voltage V phase 3 vs N"));
     }
 
     private ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement requirement, String name) {
