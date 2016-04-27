@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -321,10 +322,10 @@ public final class TimeSeriesImpl implements TimeSeries {
 	
 	Instant next(Instant instant , int numberOfEntries) {
 		if (!isRegular()) {
-			throw new UnsupportedOperationException();
+			throw new UnsupportedOperationException("Unsupported operation on non-regular timeseries");
 		}
 		if (!isValid(instant)) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Interval timestamp \'" + instant + "\' is not valid");
 		}
 		if (intervalLengthUnit == MINUTE) {
 			return instant.plusSeconds(numberOfEntries * intervalLength * 60);
