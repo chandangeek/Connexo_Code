@@ -91,7 +91,7 @@ public class InMemoryPersistence {
                 readingTypes.length==0?MeteringModule.withAllReadingTypes_AVOID_AVOID():new MeteringModule(readingTypes),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule()RegisterTypeImplTest
         );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
@@ -152,6 +152,7 @@ public class InMemoryPersistence {
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
 
     }
