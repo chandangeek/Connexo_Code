@@ -3,7 +3,7 @@ Ext.define('Imt.usagepointmanagement.view.MetrologyConfigurationSetup', {
     alias: 'widget.up-metrology-configuration-setup',
     itemId: 'up-metrology-configuration-setup',
     requires: [
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm'
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm'
     ],
     router: null,
     content: [

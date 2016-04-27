@@ -23,8 +23,9 @@ Ext.define('Imt.channeldata.view.ValidationPreview', {
             name: 'dataValidated',
             htmlEncode: false,
             renderer: function (value) {
-                return value ? Uni.I18n.translate('general.yes', 'IMT', 'Yes')
-                    : Uni.I18n.translate('general.no', 'IMT', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>';
+                return value
+                    ? Uni.I18n.translate('general.yes', 'IMT', 'Yes')
+                    : Uni.I18n.translate('general.no', 'IMT', 'No') + '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
             }
         },
         {
@@ -41,7 +42,7 @@ Ext.define('Imt.channeldata.view.ValidationPreview', {
                             return Uni.I18n.translate('general.notSuspect', 'IMT', 'Not suspect');
                             break;
                         case 'validationStatus.suspect':
-                            return Uni.I18n.translate('validationStatus.suspect', 'IMT', 'Suspect') + ' ' + '<span class="icon-validation icon-validation-red"></span>';
+                            return Uni.I18n.translate('validationStatus.suspect', 'IMT', 'Suspect') + '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
                             break;
                         default:
                             field.hide();

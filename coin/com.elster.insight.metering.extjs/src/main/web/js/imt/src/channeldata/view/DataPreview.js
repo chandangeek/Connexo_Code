@@ -197,16 +197,16 @@ Ext.define('Imt.channeldata.view.DataPreview', {
             switch (validationInfo.validationResult.split('.')[1]) {
                 case 'notValidated':
                     validationResultText = '(' + Uni.I18n.translate('channelsreadings.validationResult.notvalidated', 'IMT', 'Not validated') + ')' +
-                        '<img style="vertical-align: top; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Not-validated.png"/>';
+                        '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
                     break;
                 case 'suspect':
                     validationResultText = '(' + Uni.I18n.translate('channelsreadings.validationResult.suspect', 'IMT', 'Suspect') + ')' +
-                        '<img style="vertical-align: top; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Suspect.png"/>';
+                        '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
                     break;
                 case 'ok':
                     validationResultText = '(' + Uni.I18n.translate('channelsreadings.validationResult.notsuspect', 'IMT', 'Not suspect') + ')';
                     if (!me.channels && validationInfo.isConfirmed) {
-                        validationResultText += '<span style="margin-left: 5px; vertical-align: top" class="icon-checkmark3"</span>';
+                        validationResultText += '<span class="icon-checkmark3" style="margin-left:5px; vertical-align:top;"></span>';
                     }
                     break;
             }
