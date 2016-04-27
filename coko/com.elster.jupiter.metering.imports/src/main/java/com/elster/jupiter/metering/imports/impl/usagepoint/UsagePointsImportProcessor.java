@@ -226,7 +226,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         List<String> locationData = data.getLocation();
         List<String> geoCoordinatesData = data.getGeoCoordinates();
 
-        if(locationData != null && !locationData.stream().allMatch(s -> s != null) && !locationData.stream().allMatch(s -> s.equals("")) && !locationData.isEmpty()) {
+        if(locationData != null && locationData.stream().allMatch(s -> s != null) && !locationData.isEmpty()) {
             context.getMeteringService()
                     .getLocationTemplate()
                     .getTemplateMembers()
@@ -250,7 +250,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             }
             usagePoint.setLocation(builder.create().getId());
         }
-        if(geoCoordinatesData != null && !geoCoordinatesData.stream().allMatch(s -> s != null) && !geoCoordinatesData.stream().allMatch(s -> s.equals("")) && !geoCoordinatesData.contains(null)) {
+        if(geoCoordinatesData != null && geoCoordinatesData.stream().allMatch(s -> s != null)) {
             usagePoint.setGeoCoordinates(context.getMeteringService()
                     .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
