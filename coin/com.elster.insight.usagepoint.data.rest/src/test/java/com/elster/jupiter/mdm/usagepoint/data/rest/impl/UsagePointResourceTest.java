@@ -189,7 +189,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Arrays.asList(registeredCustomPropertySet));
         when(registeredCustomPropertySet.getId()).thenReturn(1L);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
         when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Arrays.asList(usagePointMetrologyConfiguration));
         when(usagePoint.forCustomProperties().getPropertySet(1L)).thenReturn(usagePointPropertySet);
         when(usagePointPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
@@ -317,6 +317,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         MetrologyConfigurationInfo usagePointMetrologyConfigurationInfo = new MetrologyConfigurationInfo();
         usagePointMetrologyConfigurationInfo.id = 1L;
+        usagePointMetrologyConfigurationInfo.version = 1L;
         usagePointMetrologyConfigurationInfo.name = "Test";
         usagePointMetrologyConfigurationInfo.customPropertySets = Arrays.asList(casInfo);
         Response response = target("usagepoints/test/metrologyconfiguration").queryParam("validate", "true")
