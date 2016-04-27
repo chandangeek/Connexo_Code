@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks;
 
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.time.TimeService;
 
@@ -28,6 +29,7 @@ public class MockModule extends AbstractModule {
         bind(EventAdmin.class).toInstance(eventAdmin);
         bind(TimeService.class).toInstance(this.timeService);
         bind(SearchService.class).toInstance(mock(SearchService.class));
+        bind(LicenseService.class).toInstance(mock(LicenseService.class));
     }
 
 }
