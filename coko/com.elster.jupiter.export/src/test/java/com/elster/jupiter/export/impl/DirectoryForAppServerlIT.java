@@ -19,6 +19,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
@@ -86,6 +87,7 @@ public class DirectoryForAppServerlIT {
             bind(LogService.class).toInstance(logService);
 
             bind(FileImportService.class).toInstance(fileImportService);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
 
