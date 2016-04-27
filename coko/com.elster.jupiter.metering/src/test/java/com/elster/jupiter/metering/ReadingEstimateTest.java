@@ -19,6 +19,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -26,7 +27,9 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -60,6 +63,7 @@ import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.MetricMultiplier.quantity;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingEstimateTest {
@@ -81,6 +85,9 @@ public class ReadingEstimateTest {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
 

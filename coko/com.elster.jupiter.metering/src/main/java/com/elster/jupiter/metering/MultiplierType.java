@@ -1,6 +1,22 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
-public interface MultiplierType extends HasName {
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
+public interface MultiplierType extends HasId, HasName {
+
+    /**
+     * The MultiplierTypes that are provided by default.
+     */
+    enum StandardType {
+        CT, VT, Transformer, Pulse;
+
+        public String translationKey() {
+            return "MultiplierType." + this.name();
+        }
+    }
+
 }

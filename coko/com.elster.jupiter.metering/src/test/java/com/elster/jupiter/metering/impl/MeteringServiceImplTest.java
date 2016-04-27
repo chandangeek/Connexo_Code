@@ -7,12 +7,20 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
+
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,10 +28,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -47,7 +51,13 @@ public class MeteringServiceImplTest {
     @Mock
     private ReadingType readingType;
     @Mock
-    private Column column1, column2;
+    private Column startTimeColumn;
+    @Mock
+    private Column endTimeColumn;
+    @Mock
+    private Column deliverableColumn;
+    @Mock
+    private Column requirementColumn;
     @Mock
     private DataMapper<ServiceLocation> serviceLocationFactory;
     @Mock
@@ -65,13 +75,15 @@ public class MeteringServiceImplTest {
     public void setUp() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
+        when(dataModel.getTable(anyString())).thenReturn(table);
         when(dataModel.getInstance(ServiceLocationImpl.class)).thenReturn(new ServiceLocationImpl(dataModel, eventService));
-        when(table.addIntervalColumns(anyString())).thenReturn(Arrays.asList(column1, column2));
+        when(table.addIntervalColumns(anyString())).thenReturn(Arrays.asList(startTimeColumn, endTimeColumn));
+        when(table.getColumn("READINGTYPE_DELIVERABLE")).thenReturn(Optional.of(deliverableColumn));
+        when(table.getColumn("READINGTYPE_REQUIREMENT")).thenReturn(Optional.of(requirementColumn));
         when(dataModel.mapper(ReadingType.class)).thenReturn(readingTypeFactory);
         when(dataModel.mapper(ServiceLocation.class)).thenReturn(serviceLocationFactory);
         when(dataModel.mapper(ServiceCategory.class)).thenReturn(serviceCategoryTypeCache);
         meteringService = new MeteringServiceImpl();
-
         meteringService.setOrmService(ormService);
         meteringService.setIdsService(idsService);
     }
@@ -145,5 +157,32 @@ public class MeteringServiceImplTest {
                 .contains(journalEntry);
     }
 
+    @Test
+    public void testTranslationKeys() {
+        Set<String> uniqueKeys = new HashSet<>();
+        for (TranslationKey entry : meteringService.getKeys()) {
+            String key = entry.getKey();
+            String defaultFormat = entry.getDefaultFormat();
+            String translation = "Translation (" + key + "=" + defaultFormat + ")";
+            assertThat(key).as(translation + " has null key")
+                    .isNotNull()
+                    .as(translation + " has empty key")
+                    .isNotEmpty();
+            assertThat(key.length())
+                    .as(translation + " key should not start or end with a non-printable character")
+                    .isEqualTo(key.trim().length())
+                    .as(translation + " key is longer than max of 256")
+                    .isLessThanOrEqualTo(256);
+            assertThat(uniqueKeys.add(key)).as(translation + " does not have a unique key")
+                    .isEqualTo(true);
+            assertThat(defaultFormat).as(translation + " has null default format")
+                    .isNotNull()
+                    .as(translation + " has empty default format")
+                    .isNotEmpty();
+            assertThat(defaultFormat.length())
+                    .as(translation + " default format should not start or end with a non-printable character")
+                    .isEqualTo(defaultFormat.trim().length());
+        }
+    }
 
 }

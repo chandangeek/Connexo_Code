@@ -64,17 +64,17 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
     public void after() {
         inMemoryBootstrapModule.getMeteringService()
                 .findUsagePoint(USAGE_POINT_MRID)
-                .ifPresent(usagePoint -> usagePoint.delete());
+                .ifPresent(UsagePoint::delete);
         inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .findMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID)
-                .ifPresent(metrologyConfiguration -> metrologyConfiguration.delete());
+                .ifPresent(MetrologyConfiguration::delete);
         getServiceCategory().removeCustomPropertySet(getRegisteredCustomPropertySet());
         inMemoryBootstrapModule.getThreadPrincipalService().set(() -> "Test");
     }
 
     private MetrologyConfiguration createMetrologyConfiguration() {
         return inMemoryBootstrapModule.getMetrologyConfigurationService()
-                .newMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID);
+                .newMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID, getServiceCategory()).create();
     }
 
     private MetrologyConfiguration getMetrologyConfiguration() {
