@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.internal.TableSpecs;
 import com.elster.jupiter.orm.schema.ExistingConstraint;
 import com.elster.jupiter.orm.schema.ExistingTable;
@@ -45,7 +44,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class, InstallService.class}, property = "name=" + OrmService.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class}, property = "name=" + OrmService.COMPONENTNAME)
 public class OrmServiceImpl implements OrmService {
 
     private volatile DataSource dataSource;
