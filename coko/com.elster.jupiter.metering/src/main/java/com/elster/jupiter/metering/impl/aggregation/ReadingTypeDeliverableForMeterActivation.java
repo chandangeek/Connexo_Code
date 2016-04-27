@@ -108,8 +108,8 @@ class ReadingTypeDeliverableForMeterActivation {
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
         SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(sqlComment()), SqlConstants.TimeSeriesColumnNames.names());
         this.appendWithClause(withClauseBuilder);
-        SqlBuilder withSelectClause = sqlBuilder.select();
-        this.appendSelectClause(withSelectClause);
+        SqlBuilder selectClause = sqlBuilder.select();
+        this.appendSelectClause(selectClause);
         if (this.expertModeAppliesAggregation()) {
             this.appendWithGroupByClause(withClauseBuilder);
         }

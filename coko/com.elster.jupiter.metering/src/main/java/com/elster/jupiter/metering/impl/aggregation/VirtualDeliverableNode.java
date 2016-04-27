@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -41,6 +43,14 @@ class VirtualDeliverableNode implements ServerExpressionNode {
 
     void setTargetIntervalLength(IntervalLength intervalLength) {
         this.targetReadingType = this.targetReadingType.withIntervalLength(intervalLength);
+    }
+
+    void setTargetMultiplier(MetricMultiplier multiplier) {
+        this.targetReadingType = this.targetReadingType.withMetricMultiplier(multiplier);
+    }
+
+    void setCommodity(Commodity commodity) {
+        this.targetReadingType = this.targetReadingType.withCommondity(commodity);
     }
 
     @Override
