@@ -1,9 +1,3 @@
-/* line 360, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-panel-header-tile-bottom-tc { height: 0; }
-
-/* line 363, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-panel-header-tile-bottom-bc { height: 10px; }
-
 /* line 374, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-panel-header-tile-bottom-tl, .x-panel-header-tile-bottom-bl, .x-panel-header-tile-bottom-tr, .x-panel-header-tile-bottom-br, .x-panel-header-tile-bottom-tc, .x-panel-header-tile-bottom-bc, .x-panel-header-tile-bottom-ml, .x-panel-header-tile-bottom-mr { zoom: 1; background-image: url(images/panel-header/panel-header-tile-bottom-corners.gif); }
 

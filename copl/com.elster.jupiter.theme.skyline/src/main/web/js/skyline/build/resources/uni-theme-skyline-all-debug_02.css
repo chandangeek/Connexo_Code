@@ -3279,15 +3279,6 @@ h6 { font-size: 14px; }
 /* line 35, ../../sass/src/grid/DefaultColumn.scss */
 .x-grid-row-checker { cursor: pointer; }
 
-/* line 1, ../../sass/src/grid/ValidationStatusColumn.scss */
-.icon-validation-cell { background-repeat: no-repeat; background-position: 100% 50%; padding: 0px 8px 0 0; }
-
-/* line 7, ../../sass/src/grid/ValidationStatusColumn.scss */
-.icon-validation-black { background-image: url("images/shared/Not-validated.png"); }
-
-/* line 11, ../../sass/src/grid/ValidationStatusColumn.scss */
-.icon-validation-red { background-image: url("images/shared/Suspect.png"); }
-
 /* line 1, ../../sass/src/grid/ImageColumn.scss */
 .uni-icon-drop-no { background-image: url("images/grid/drop-no.png") !important; width: 16px !important; height: 16px !important; background-repeat: no-repeat; background-position: 8px 6px; padding: 0 0 0 16px; }
 
@@ -3300,16 +3291,16 @@ h6 { font-size: 14px; }
 /* line 26, ../../sass/src/grid/ImageColumn.scss */
 .uni-no-icon { width: 16px !important; height: 16px !important; background-repeat: no-repeat; background-position: 8px 6px; padding: 0 0 0 16px; }
 
-/* line 11, ../../sass/src/Component.scss */
+/* line 10, ../../sass/src/Component.scss */
 .uni-icon-delete { background-image: url("images/button/ico_delete.png") !important; width: 16px !important; height: 16px !important; }
 
-/* line 17, ../../sass/src/Component.scss */
+/* line 16, ../../sass/src/Component.scss */
 .uni-icon-delete:hover { background-image: url("images/button/ico_deleteA.png") !important; width: 16px !important; height: 16px !important; }
 
-/* line 23, ../../sass/src/Component.scss */
+/* line 22, ../../sass/src/Component.scss */
 .force-no-border *[class*='x-grid-'] { border: none !important; }
 
-/* line 27, ../../sass/src/Component.scss */
+/* line 26, ../../sass/src/Component.scss */
 .instructional-note { color: #686868; font-style: italic; }
 
 /* line 1, ../../sass/src/container/ActionsContainer.scss */
@@ -8150,3 +8141,7 @@ a:hover, a.x-btn:hover { color: #75a6bb; }
 
 /* line 655, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-tag-medium-disabled .x-frame-tl, .x-btn-tag-medium-disabled .x-frame-bl, .x-btn-tag-medium-disabled .x-frame-tr, .x-btn-tag-medium-disabled .x-frame-br, .x-btn-tag-medium-disabled .x-frame-tc, .x-btn-tag-medium-disabled .x-frame-bc { background-image: url(images/btn/btn-tag-medium-disabled-corners.gif); }
+/* line 659, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-tag-medium-disabled .x-frame-ml, .x-btn-tag-medium-disabled .x-frame-mr { background-image: url(images/btn/btn-tag-medium-disabled-sides.gif); }
+/* line 662, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-tag-medium-disabled .x-frame-mc { background-color: #d8d8d8; background-image: url(images/btn/btn-tag-medium-disabled-fbg.gif); }
