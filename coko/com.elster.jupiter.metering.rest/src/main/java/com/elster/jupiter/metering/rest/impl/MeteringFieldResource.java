@@ -194,7 +194,7 @@ public class MeteringFieldResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getBypassStatus(@BeanParam JsonQueryParameters queryParameters) {
-        return PagedInfoList.fromCompleteList("bypassStatus", Arrays.stream(BypassStatus.values()).map(bs -> new IdWithDisplayValueInfo<>(bs.name(),bs.getDisplayValue())).collect(Collectors.toList()), queryParameters);
+        return PagedInfoList.fromCompleteList("bypassStatus", Arrays.stream(BypassStatus.values()).map(bs -> new IdWithDisplayValueInfo<>(bs.name(),bs.getDisplayValue(thesaurus))).collect(Collectors.toList()), queryParameters);
     }
 
     @GET
