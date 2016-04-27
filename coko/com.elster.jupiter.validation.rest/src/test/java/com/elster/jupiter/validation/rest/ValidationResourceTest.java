@@ -40,10 +40,8 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
 import com.elster.jupiter.validation.Validator;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -62,9 +60,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ValidationResourceTest extends BaseValidationRestTest {
     public static final long OK_VERSION = 23L;
@@ -198,7 +205,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
     @Test
     public void testGetValidatorsNoValidators() {
-        when(validationService.getAvailableValidators()).thenReturn(Collections.emptyList());
+        when(validationService.getAvailableValidators("")).thenReturn(Collections.emptyList());
 
         ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
 
@@ -206,11 +213,10 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         assertThat(validatorInfos.validators).hasSize(0);
     }
 
-
     @Test
     public void testGetValidators() {
         List<Validator> mockValidator = Arrays.asList(mockValidator("B Validator"), mockValidator("A Validator"));
-        when(validationService.getAvailableValidators()).thenReturn(mockValidator);
+        when(validationService.getAvailableValidators("")).thenReturn(mockValidator);
 
         ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
 

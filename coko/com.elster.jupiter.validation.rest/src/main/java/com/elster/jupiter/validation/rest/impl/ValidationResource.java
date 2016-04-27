@@ -471,7 +471,7 @@ public class ValidationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
 
-        List<Validator> toAdd = validationService.getAvailableValidators();
+        List<Validator> toAdd = validationService.getAvailableValidators("");
         Collections.sort(toAdd, Compare.BY_DISPLAY_NAME);
 
         ValidatorInfos infos = new ValidatorInfos();
