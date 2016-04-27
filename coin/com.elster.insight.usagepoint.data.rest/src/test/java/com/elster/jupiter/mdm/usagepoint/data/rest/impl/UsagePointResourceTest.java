@@ -189,7 +189,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Arrays.asList(registeredCustomPropertySet));
         when(registeredCustomPropertySet.getId()).thenReturn(1L);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
+        //when(metrologyConfigurationService.findUsagePointMetrologyConfiguration(1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
         when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Arrays.asList(usagePointMetrologyConfiguration));
         when(usagePoint.forCustomProperties().getPropertySet(1L)).thenReturn(usagePointPropertySet);
         when(usagePointPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
