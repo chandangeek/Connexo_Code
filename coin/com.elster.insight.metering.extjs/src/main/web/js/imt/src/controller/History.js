@@ -384,7 +384,9 @@ Ext.define('Imt.controller.History', {
                             route: 'purpose/{purposeId}',
                             controller: 'Imt.purpose.controller.Purpose',
                             action: 'showOutputs',
-                            privileges: Imt.privileges.MetrologyConfig.view,
+                            privileges:
+                                Uni.Auth.checkPrivileges(Imt.privileges.MetrologyConfig.view)
+                            &&  Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.view),
                             callback: function (route) {
                                 var me = this;
                                 this.getApplication().on('purposes-loaded', function (purposes) {
@@ -402,7 +404,9 @@ Ext.define('Imt.controller.History', {
                                     route: 'output/{outputId}/:tab:',
                                     controller: 'Imt.purpose.controller.Purpose',
                                     action: 'showOutputDefaultTab',
-                                    privileges: Imt.privileges.MetrologyConfig.view,
+                                    privileges:
+                                        Uni.Auth.checkPrivileges(Imt.privileges.MetrologyConfig.view)
+                                    &&  Uni.Auth.checkPrivileges(Imt.privileges.UsagePoint.view),
                                     callback: function (route) {
                                         this.getApplication().on('output-loaded', function (output) {
                                             if (output) {
