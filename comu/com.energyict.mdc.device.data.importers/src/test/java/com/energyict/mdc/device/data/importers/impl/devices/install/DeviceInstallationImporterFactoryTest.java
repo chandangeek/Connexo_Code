@@ -194,7 +194,7 @@ public class DeviceInstallationImporterFactoryTest {
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.FILE_FORMAT_ERROR).format(2, 16, 1));
+        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.FILE_FORMAT_ERROR).format(2, 2, 1));
     }
 
     @Test
