@@ -544,7 +544,7 @@ public class FormulaCrudTest {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
                     "The readingtype \"" + readingTypeDeliverable .getMRID() + " (" + readingTypeDeliverable.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
-                            "deliverable" + " = R(" +  req.getId() + ")"
+                            "deliverable" + " = " +  req.getName()
                             + "\".");
             throw e;
         }
