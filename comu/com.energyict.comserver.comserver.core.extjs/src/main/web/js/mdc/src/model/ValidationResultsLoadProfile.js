@@ -2,7 +2,7 @@ Ext.define('Mdc.model.ValidationResultsLoadProfile', {
     extend: 'Ext.data.Model',
 	requires: [
         'Uni.property.model.Property',
-        'Mdc.store.DataIntervalAndZoomLevels'
+        'Uni.store.DataIntervalAndZoomLevels'
     ],
     fields: [
         'id',

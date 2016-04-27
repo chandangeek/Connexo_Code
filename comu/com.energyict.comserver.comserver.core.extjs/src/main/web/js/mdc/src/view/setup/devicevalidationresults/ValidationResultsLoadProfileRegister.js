@@ -167,7 +167,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
             dataViewValidateNowBtn = me.down('#btn-data-view-validate-now'),
             loadProfilesGrid = me.down('mdc-load-profile-list'),
             registerssGrid = me.down('mdc-register-list'),
-            zoomLevelsStore = Ext.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+            zoomLevelsStore = Ext.getStore('Uni.store.DataIntervalAndZoomLevels'),
             loadProfilesStore = Ext.getStore('Mdc.store.LoadProfilesOfDevice'),
             loadProfiles,
             registers;
