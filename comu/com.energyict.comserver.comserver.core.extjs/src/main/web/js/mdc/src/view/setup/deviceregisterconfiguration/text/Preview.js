@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Preview', {
                             },
                             {
                                 xtype: 'obis-displayfield',
-                                name: 'obisCode'
+                                name: 'overruledObisCode'
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),

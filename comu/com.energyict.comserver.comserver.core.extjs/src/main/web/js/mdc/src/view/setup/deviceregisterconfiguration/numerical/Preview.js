@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                             },
                             {
                                 xtype: 'obis-displayfield',
-                                name: 'obisCode'
+                                name: 'overruledObisCode'
                             },
                             {
                                 xtype: 'displayfield',
