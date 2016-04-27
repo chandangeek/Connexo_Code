@@ -42,6 +42,8 @@ public class MetrologyConfigurationInstaller {
         residentialNetMeteringConsumption();
         threePhasedConsumerWith2ToU();
         residentialConsumerWith4ToU();
+        waterConfigurationCI();
+        residentialGas();
     }
 
     private void residentialProsumerWith1Meter() {
@@ -138,7 +140,7 @@ public class MetrologyConfigurationInstaller {
         ReadingTypeRequirement requirementAminus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat())
                 .withMeterRole(meterRoleProduction).withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_MINUS));
 
-        contractBilling.addDeliverable(buildFormulaSingleRequirementMax(config, readingTypeMonthlyAplusWh, requirementAplus, requirementAminus, "Monthly A+ kWh"));
+        contractBilling.addDeliverable(buildFormulaRequirementMax(config, readingTypeMonthlyAplusWh, requirementAplus, requirementAminus, "Monthly A+ kWh"));
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAminusWh, requirementAminus, "Monthly A- kWh"));
     }
 
@@ -355,13 +357,106 @@ public class MetrologyConfigurationInstaller {
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAplusToU4, requirementAplusToU4, "Monthly A+ kWh ToU4"));
     }
 
+    private void residentialGas() {
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS)
+                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.GAS));
+        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential gas", serviceCategory)
+                .withDescription("Residential gas installation").create();
+
+        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.GAS
+                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP
+                .name()));
+
+        MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
+                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+        config.addMeterRole(meterRole);
+
+        ReadingType readingTypeDailyVolume = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0"))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0", "Daily volume m³"));
+        ReadingType readingTypeMonthlyVolume = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0"))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0", "Monthly volume m³"));
+        ReadingType readingTypeHourlyVolume = meteringService.findReadingTypes(Collections.singletonList("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0"))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0", "Hourly volume m³"));
+
+
+        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
+                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+        MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
+        MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMetrologyContract(purposeInformation);
+
+        ReadingTypeRequirement requirementGasVolume = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.GAS_VOLUME
+                .getNameTranslation()
+                .getDefaultFormat())
+                .withMeterRole(meterRole)
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.GAS_VOLUME))
+                .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, 42);
+
+        contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyVolume, requirementGasVolume, "Daily volume m³"));
+        contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyVolume, requirementGasVolume, "Monthly volume m³"));
+        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeHourlyVolume, requirementGasVolume, "Hourly volume m³"));
+    }
+
+    private void waterConfigurationCI() {
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.WATER)
+                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.WATER));
+        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("C&I water configuration", serviceCategory)
+                .withDescription("C&I water configuration with 2 meters").create();
+
+        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.WATER
+                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP
+                .name()));
+
+        MeterRole meterRolePeakConsumption = metrologyConfigurationService.findMeterRole(DefaultMeterRole.PEAK_CONSUMPTION
+                .getKey())
+                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+        config.addMeterRole(meterRolePeakConsumption);
+        MeterRole meterRoleOffPeakConsumption = metrologyConfigurationService.findMeterRole(DefaultMeterRole.OFF_PEAK_CONSUMPTION
+                .getKey())
+                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+        config.addMeterRole(meterRoleOffPeakConsumption);
+
+        ReadingType readingTypeMonthlyConsumption = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0"))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0", "Monthly consumption m³"));
+
+
+        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
+                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+        MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
+
+        ReadingTypeRequirement requiremenPeakConsumption = config.newReadingTypeRequirement("Peak consumption")
+                .withMeterRole(meterRolePeakConsumption)
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.WATER_VOLUME))
+                .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, 42);
+        ReadingTypeRequirement requirementOffPeakConsumption = config.newReadingTypeRequirement("Off peak consumption")
+                .withMeterRole(meterRoleOffPeakConsumption)
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.WATER_VOLUME))
+                .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, 42);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Monthly consumption m³", readingTypeMonthlyConsumption, Formula.Mode.EXPERT);
+        contractBilling.addDeliverable(builder.build(builder.plus(builder.requirement(requiremenPeakConsumption), builder
+                .requirement(requirementOffPeakConsumption))));
+
+    }
+
     private ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement requirement, String name) {
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.EXPERT);
         return builder.build(builder.requirement(requirement));
     }
 
-    private ReadingTypeDeliverable buildFormulaSingleRequirementMax(UsagePointMetrologyConfiguration config, ReadingType readingType,
-                                                                    ReadingTypeRequirement requirementPlus, ReadingTypeRequirement requirementMinus, String name) {
+    private ReadingTypeDeliverable buildFormulaRequirementMax(UsagePointMetrologyConfiguration config, ReadingType readingType,
+                                                              ReadingTypeRequirement requirementPlus, ReadingTypeRequirement requirementMinus, String name) {
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.EXPERT);
         return builder.build(builder.maximum(builder.minus(builder.requirement(requirementPlus), builder.requirement(requirementMinus)), builder.constant(0)));
