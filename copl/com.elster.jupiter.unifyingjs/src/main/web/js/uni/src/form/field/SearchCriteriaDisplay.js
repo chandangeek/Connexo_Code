@@ -117,11 +117,11 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
             selectFromPossibleValues = function (desiredValue) {
                 return Ext.Array.findBy(criteria.values, function (possibleValue) {
                     return desiredValue == possibleValue.id;
-                })
+                }).displayValue
             };
 
-        if (criteria.selectionMode === 'multiple') {
-            return selectFromPossibleValues(value).displayValue;
+        if (criteria.selectionMode === 'multiple' && criteria.type != 'Quantity') {
+            return selectFromPossibleValues(value);
         }
 
         switch (criteria.type + ':' + criteria.factoryName) {
