@@ -9,7 +9,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.upgrade.UpgradeService;
 
@@ -30,7 +29,7 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 /**
  * Osgi Component class.
  */
-@Component(name = "com.elster.jupiter.messaging", service = {MessageService.class, InstallService.class},
+@Component(name = "com.elster.jupiter.messaging", service = {MessageService.class},
         property = {"name=" + MessageService.COMPONENTNAME})
 public class MessageServiceImpl implements MessageService {
 
