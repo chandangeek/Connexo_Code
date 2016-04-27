@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointMetrologyConfigurationTestIT {
 
-    private static final String DEFAULT_SEARCH_PROPERTY = "usagePointRequirementSearchableProperty";
+    private static final String DEFAULT_SEARCH_PROPERTY = "SERVICEKIND";
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
 
     @Rule
