@@ -78,7 +78,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                         htmlEncode: false,
                         style: 'font-style: italic',
                         value: '<span style="color: #686868; font-style: italic">'
-                        + Uni.I18n.translate('metrologyConfiguration.wizard.noAvailable', 'IMT', 'No available metrology configuration')
+                        + Uni.I18n.translate('metrologyConfiguration.wizard.noAvailable', 'IMT', 'No available metrology configurations')
                         + '</span>'
                     },
                 ]
