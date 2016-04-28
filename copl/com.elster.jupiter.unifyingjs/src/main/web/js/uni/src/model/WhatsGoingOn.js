@@ -12,6 +12,7 @@ Ext.define('Uni.model.WhatsGoingOn', {
         'severity',
         'assignee',
         'assigneeIsCurrentUser',
+        'reference',
         'status',
         {
             name: 'internalId',
@@ -25,6 +26,7 @@ Ext.define('Uni.model.WhatsGoingOn', {
                 return {
                     type: record.type,
                     id: record.id,
+                    reference : record.reference,
                     description: record.description,
                     dueDate: record.dueDate,
                     severity: record.severity,
