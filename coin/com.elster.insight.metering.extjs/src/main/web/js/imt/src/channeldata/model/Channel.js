@@ -35,8 +35,9 @@ Ext.define('Imt.channeldata.model.Channel', {
             name: 'validationInfo_dataValidated',
             persist: false,
             mapping: function (data) {
-                return (data.validationInfo && data.validationInfo.dataValidated) ? Uni.I18n.translate('general.yes', 'IMT', 'Yes')
-                    : Uni.I18n.translate('general.no', 'IMT', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>';
+                return (data.validationInfo && data.validationInfo.dataValidated)
+                    ? Uni.I18n.translate('general.yes', 'IMT', 'Yes')
+                    : Uni.I18n.translate('general.no', 'IMT', 'No') + '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
             }
         },
         {
