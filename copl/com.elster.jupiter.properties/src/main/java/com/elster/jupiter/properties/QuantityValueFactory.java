@@ -59,6 +59,6 @@ public class QuantityValueFactory extends AbstractValueFactory<Quantity> {
             return null;
         }
         return quantity.getValue() + VALUE_UNIT_SEPARATOR + quantity.getMultiplier() +
-                VALUE_UNIT_SEPARATOR + quantity.getUnit();
+                VALUE_UNIT_SEPARATOR + quantity.getUnit().getAsciiSymbol();
     }
 }
