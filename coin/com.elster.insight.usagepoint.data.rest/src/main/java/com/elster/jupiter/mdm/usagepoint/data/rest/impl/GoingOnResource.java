@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -19,6 +20,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.streams.Functions;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -34,6 +36,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -71,20 +74,7 @@ public class GoingOnResource {
             goingOnInfoFactory = new GoingOnInfoFactory((User) securityContext.getUserPrincipal());
         }
 
-        Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
-        Optional<Meter> foundMeter = amrSystem.get().findMeter(String.valueOf(usagePoint.getId()));
-
-        List<GoingOnInfo> issues = foundMeter
-                .map(meter -> {
-                    IssueFilter issueFilter = issueService.newIssueFilter();
-                    issueFilter.addDevice(meter);
-                    return issueFilter;
-                })
-                .map(issueService::findIssues)
-                .map(Finder::stream)
-                .orElseGet(Stream::empty)
-                .map(goingOnInfoFactory::toGoingOnInfo)
-                .collect(Collectors.toList());
+        List<GoingOnInfo> issues = Collections.emptyList();
 
         List<GoingOnInfo> serviceCalls = serviceCallService.findServiceCalls(usagePoint, nonFinalStates())
                 .stream()
