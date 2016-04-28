@@ -123,6 +123,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         setDataVaultService(dataVaultService);
         setThreadPrincipalService(threadPrincipalService);
         setUpgradeService(upgradeService);
+        privilegesProviders.add(this);
         activate(bundleContext);
     }
 
