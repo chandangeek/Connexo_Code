@@ -465,6 +465,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
         }
 
+
+
         @Override
         public void terminate() {
         }
@@ -533,6 +535,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
             return null;
         }
+
+
 
         @Override
         public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {

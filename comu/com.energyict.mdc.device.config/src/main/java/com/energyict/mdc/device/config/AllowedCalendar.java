@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.calendar.Calendar;
+
+import java.util.Optional;
+
 public interface AllowedCalendar {
 
     /**
@@ -13,5 +17,7 @@ public interface AllowedCalendar {
      * @return the name of the calendar
      */
     String getName();
+
+    Optional<Calendar> getCalendar();
 
 }

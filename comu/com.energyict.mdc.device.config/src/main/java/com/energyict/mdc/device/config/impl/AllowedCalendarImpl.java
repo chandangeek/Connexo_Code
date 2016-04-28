@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.validation.constraints.Size;
+import java.util.Optional;
 
 public class AllowedCalendarImpl implements AllowedCalendar {
     public enum Fields {
@@ -53,5 +54,10 @@ public class AllowedCalendarImpl implements AllowedCalendar {
                     .get()
                     .getName();
         }
+    }
+
+    @Override
+    public Optional<Calendar> getCalendar() {
+        return this.calendar.getOptional();
     }
 }
