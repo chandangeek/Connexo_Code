@@ -28,7 +28,7 @@ public interface ValidationService {
 
     ValidationRuleSet createValidationRuleSet(String name);
 
-    ValidationRuleSet createValidationRuleSet(String name, String description);
+    ValidationRuleSet createValidationRuleSet(String name, String description, String application);
 
     List<ValidationRuleSet> getValidationRuleSets();
 

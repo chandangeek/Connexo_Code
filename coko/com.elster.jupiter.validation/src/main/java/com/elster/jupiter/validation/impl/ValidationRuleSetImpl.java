@@ -49,6 +49,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     private Instant obsoleteTime;
+    @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    private String application;
 
     private long version;
     private Instant createTime;
@@ -71,12 +73,13 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     ValidationRuleSetImpl init(String name) {
-        return init(name, null);
+        return init(name, null, null);
     }
 
-    ValidationRuleSetImpl init(String name, String description) {
+    ValidationRuleSetImpl init(String name, String description, String application) {
         this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
         this.description = description;
+        this.application = application;
         return this;
     }
 
