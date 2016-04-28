@@ -37,7 +37,7 @@ public class CalendarCommands {
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
-    
+
     public void createCalendar() {
         System.out.println("Usage: createCalendar <name>");
     }
@@ -48,7 +48,7 @@ public class CalendarCommands {
             calendarService.newCalendar(name, TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
                     .endYear(Year.of(2020))
                     .description("Description remains to be completed :-)")
-                    .mRID("Sample-TOU-rates")
+                    .mRID(name)
                     .addEvent("On peak", 3)
                     .addEvent("Off peak", 5)
                     .addEvent("Demand response", 97)
