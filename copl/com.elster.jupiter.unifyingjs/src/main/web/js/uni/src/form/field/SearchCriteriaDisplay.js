@@ -126,13 +126,13 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
 
         switch (criteria.type + ':' + criteria.factoryName) {
             case 'Date:com.energyict.mdc.dynamic.DateFactory':
-                return Uni.DateTime.formatDateShort(new Date(value));
+                return Uni.DateTime.formatDateShort(new Date(parseInt(value)));
             case 'Date:com.energyict.mdc.dynamic.DateAndTimeFactory':
-                return Uni.DateTime.formatDateTimeShort(new Date(value));
+                return Uni.DateTime.formatDateTimeShort(new Date(parseInt(value)));
             case 'Instant:com.elster.jupiter.properties.InstantFactory':
-                return Uni.DateTime.formatDateTimeShort(new Date(value));
+                return Uni.DateTime.formatDateTimeShort(new Date(parseInt(value)));
             case 'TimeOfDay:com.energyict.mdc.dynamic.TimeOfDayFactory':
-                return Uni.DateTime.formatTimeShort(new Date(value * 60000));
+                return Uni.DateTime.formatTimeShort(new Date(parseInt(value) * 60000));
             case 'Boolean:com.elster.jupiter.properties.BooleanFactory':
                 return value
                     ? Uni.I18n.translate('general.yes', 'UNI', 'Yes')
