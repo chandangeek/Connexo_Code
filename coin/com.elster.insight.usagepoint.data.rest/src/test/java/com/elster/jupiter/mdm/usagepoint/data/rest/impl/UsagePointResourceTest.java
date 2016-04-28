@@ -1,5 +1,9 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -14,8 +18,11 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
-import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
+import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
+import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
@@ -95,6 +102,18 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private ElectricityDetailBuilder electricityDetailBuilder;
     @Mock
     private BaseReadingRecord readingRecord1, readingRecord2;
+    @Mock
+    private RegisteredCustomPropertySet registeredCustomPropertySet;
+    @Mock
+    private CustomPropertySetInfoFactory customPropertySetInfoFactory;
+    @Mock
+    private CustomPropertySet customPropertySet;
+    @Mock
+    private UsagePointMetrologyConfiguration usagePointMetrologyConfiguration;
+    @Mock
+    private UsagePointPropertySet usagePointPropertySet;
+    @Mock
+    private MetrologyConfigurationCustomPropertySetUsage metrologyConfigurationCustomPropertySetUsage;
 
     @Before
     public void setUp1() {
@@ -172,6 +191,17 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         DataValidationStatus statusForSuspect = mockDataValidationStatus(readingQualitySuspect, false);
         when(evaluator.getValidationStatus(eq(channel), any(), any())).thenReturn(Arrays.asList(statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect));
         when(evaluator.getValidationStatus(eq(register), any(), any())).thenReturn(Arrays.asList(statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect));
+
+        when(meteringService.findUsagePoint("test")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
+        when(registeredCustomPropertySet.isEditableByCurrentUser()).thenReturn(true);
+        when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Arrays.asList(registeredCustomPropertySet));
+        when(registeredCustomPropertySet.getId()).thenReturn(1L);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
+        when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Arrays.asList(usagePointMetrologyConfiguration));
+        when(usagePoint.forCustomProperties().getPropertySet(1L)).thenReturn(usagePointPropertySet);
+        when(usagePointPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
 
         Range<Instant> range1 = Ranges.openClosed(Instant.ofEpochMilli(1410774620100L), Instant.ofEpochMilli(1410774620200L));
         Range<Instant> range2 = Ranges.openClosed(Instant.ofEpochMilli(1410774621100L), Instant.ofEpochMilli(1410774621200L));
@@ -278,6 +308,44 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         verify(usagePoint, times(1)).setServiceDeliveryRemark("upd");
         verify(usagePoint, times(1)).update();
         verify(usagePoint, times(1)).newElectricityDetailBuilder(any(Instant.class));
+    }
+
+    @Test
+    public void testGetLinkableMetrologyConfigurations() {
+        when(usagePointMetrologyConfiguration.getCustomPropertySets()).thenReturn(Arrays.asList(registeredCustomPropertySet));
+        when(usagePointMetrologyConfiguration.getId()).thenReturn(1L);
+        when(usagePointMetrologyConfiguration.getName()).thenReturn("TestMC");
+        when(metrologyConfigurationCustomPropertySetUsage.getRegisteredCustomPropertySet()).thenReturn(registeredCustomPropertySet);
+        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
+        CustomPropertySetInfo info = new CustomPropertySetInfo();
+        info.id = registeredCustomPropertySet.getId();
+        when(customPropertySetInfoFactory.getGeneralAndPropertiesInfo(any(RegisteredCustomPropertySet.class))).thenReturn(info);
+        MetrologyConfigurationInfos metrologyConfigs = target("usagepoints/test/metrologyconfiguration/linkable").request().get(MetrologyConfigurationInfos.class);
+        assertThat(metrologyConfigs.total == 1);
+        assertThat(metrologyConfigs.metrologyConfigurations.get(0).id == 1);
+        assertThat(metrologyConfigs.metrologyConfigurations.get(0).customPropertySets.get(0).id == 1);
+    }
+
+    @Test
+    public void testLinkMetrologyConfigurationToUsagePoint() {
+        CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
+        casInfo.id = 1L;
+
+        MetrologyConfigurationInfo usagePointMetrologyConfigurationInfo = new MetrologyConfigurationInfo();
+        usagePointMetrologyConfigurationInfo.id = 1L;
+        usagePointMetrologyConfigurationInfo.version = 1L;
+        usagePointMetrologyConfigurationInfo.name = "Test";
+        usagePointMetrologyConfigurationInfo.customPropertySets = Arrays.asList(casInfo);
+        Response response = target("usagepoints/test/metrologyconfiguration").queryParam("validate", "true")
+                .queryParam("customPropertySetId", 1L)
+                .request()
+                .put(Entity.json(usagePointMetrologyConfigurationInfo));
+        assertThat(response.getStatus()).isEqualTo(202);
+        verify(usagePoint, never()).apply(any(MetrologyConfiguration.class));
+
+        response = target("usagepoints/test/metrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(usagePointMetrologyConfigurationInfo));
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(usagePoint, times(1)).apply(any(MetrologyConfiguration.class));
     }
 
     private DataValidationStatus mockDataValidationStatus(ReadingQualityType readingQualityType, boolean isBulk) {
