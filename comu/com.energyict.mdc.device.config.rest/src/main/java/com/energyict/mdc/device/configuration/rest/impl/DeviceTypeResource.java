@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
@@ -52,6 +53,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -499,16 +501,26 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response getCalendars(@PathParam("id") long id) {
-        List<CalendarInfo> infos;
+        List<AllowedCalendarInfo> infos;
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         infos = deviceType.getAllowedCalendars()
                 .stream()
-                .map(allowedCalendar ->  calendarInfoFactory.fromCalendar(allowedCalendar.getCalendar().get()))
+                .map(allowedCalendar -> getAllowedCalendarInfo(allowedCalendar))
                 .collect(Collectors.toList());
 
-
-
         return Response.ok(infos).build();
+    }
+
+    @GET
+    @Path("/{id}/timeofuse/{calendarId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response getCaelndar(@PathParam("id") long id, @PathParam("calendarId") long calendarId) {
+        CalendarInfo calendarInfo;
+        calendarInfo = calendarInfoFactory.detailedWeekFromCalendar(calendarService.findCalendar(calendarId)
+                .get(), LocalDate.now());
+
+        return Response.ok(calendarInfo).build();
     }
 
     @GET
@@ -516,8 +528,11 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response getAllCalendars() {
-        List<CalendarInfo> infos = new ArrayList<>();
-
+        List<CalendarInfo> infos;
+        infos = calendarService.findAllCalendars()
+                .stream()
+                .map(cal ->calendarInfoFactory.summaryFromCalendar(cal))
+                .collect(Collectors.toList());
 
         return Response.ok(infos).build();
     }
@@ -602,5 +617,13 @@ public class DeviceTypeResource {
             registerTypeInfos.add(info);
         }
         return registerTypeInfos;
+    }
+
+    private AllowedCalendarInfo getAllowedCalendarInfo(AllowedCalendar allowedCalendar) {
+        if(allowedCalendar.isGhost()) {
+            return new AllowedCalendarInfo(allowedCalendar);
+        } else {
+            return new AllowedCalendarInfo(allowedCalendar, calendarInfoFactory.detailedFromCalendar(allowedCalendar.getCalendar().get()));
+        }
     }
 }
