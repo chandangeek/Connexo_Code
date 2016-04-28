@@ -97,6 +97,30 @@ enum AggregationFunction {
         }
     };
 
+    static AggregationFunction from(com.elster.jupiter.metering.config.Function function) {
+        switch (function) {
+            case AVG: {
+                return AggregationFunction.AVG;
+            }
+            case SUM: {
+                return AggregationFunction.SUM;
+            }
+            case MIN_AGG: {
+                return AggregationFunction.MIN;
+            }
+            case MAX_AGG: {
+                return AggregationFunction.MAX;
+            }
+            case MAX:   // Intentional fall-through
+            case MIN:   // Intentional fall-through
+            case AGG_TIME:   // Intentional fall-through
+            case FIRST_NOT_NULL:   // Intentional fall-through
+            default: {
+                throw new IllegalArgumentException("Unsupported aggregation function " + function.name());
+            }
+        }
+    }
+
     String sqlName() {
         return this.name();
     }

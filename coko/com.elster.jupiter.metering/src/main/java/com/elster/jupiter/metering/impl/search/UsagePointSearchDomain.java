@@ -106,12 +106,15 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     @Override
     public List<String> targetApplications() {
+        if (this.licenseService.getLicenseForApplication("INS").isPresent()) {
+            return Arrays.asList("COKO", "COIN");
+        }
         return Arrays.asList("COKO", "COIN", "COMU");
     }
 
     @Override
     public List<SearchableProperty> getProperties() {
-        if (this.checkLicensesSet()) {
+        if (this.isMultisensePropertiesOnly()) {
             return this.getMultisenseProperties();
         }
 
@@ -122,7 +125,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         List<SearchableProperty> searchableProperties = getProperties();
         if (constrictions != null && !constrictions.isEmpty()) {
-            if (this.checkLicensesSet()) {
+            if (this.isMultisensePropertiesOnly()) {
                 return searchableProperties;
             }
             searchableProperties.addAll(getServiceCategoryDynamicProperties(constrictions));
@@ -314,7 +317,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                 new ServicePrioritySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())));
     }
 
-    private boolean checkLicensesSet() {
+    private boolean isMultisensePropertiesOnly() {
         return !this.licenseService.getLicenseForApplication("INS")
                 .isPresent() && this.licenseService.getLicenseForApplication("MDC").isPresent();
     }

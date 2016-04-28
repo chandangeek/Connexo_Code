@@ -299,23 +299,21 @@ public class ExpressionNodeToSqlTest {
 
     @Test
     public void testDeliverable() {
-        VirtualFactory virtualFactory = mock(VirtualFactory.class);
         ReadingType hourlyWattHours = this.mockHourlyWattHoursReadingType();
+        when(hourlyWattHours.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(hourlyWattHours.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
+        when(hourlyWattHours.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(hourlyWattHours.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(hourlyWattHours.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
         ReadingTypeDeliverableForMeterActivation deliverable = mock(ReadingTypeDeliverableForMeterActivation.class);
         when(deliverable.getReadingType()).thenReturn(hourlyWattHours);
-        VirtualReadingTypeDeliverable virtualDeliverable = mock(VirtualReadingTypeDeliverable.class);
-        when(virtualFactory.deliverableFor(eq(deliverable), any(VirtualReadingType.class)))
-            .thenReturn(virtualDeliverable);
-        VirtualDeliverableNode node =
-                new VirtualDeliverableNode(
-                        virtualFactory,
-                        deliverable);
+        VirtualDeliverableNode node = new VirtualDeliverableNode(deliverable);
 
         // Business method
         testInstance().visitVirtualDeliverable(node);
 
         // Asserts
-        verify(virtualDeliverable).appendReferenceTo(any(SqlBuilder.class));
+        verify(deliverable).appendReferenceTo(any(SqlBuilder.class), eq(VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED)));
     }
 
     private ReadingType mockHourlyWattHoursReadingType() {

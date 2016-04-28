@@ -14,7 +14,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.math.BigDecimal;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -248,23 +248,16 @@ public class ExpressionNodeToStringTest {
 
     @Test
     public void testDeliverable() {
-        VirtualFactory virtualFactory = mock(VirtualFactory.class);
         ReadingType hourlyWattHours = this.mockHourlyWattHoursReadingType();
         ReadingTypeDeliverableForMeterActivation deliverable = mock(ReadingTypeDeliverableForMeterActivation.class);
         when(deliverable.getReadingType()).thenReturn(hourlyWattHours);
-        VirtualReadingTypeDeliverable virtualDeliverable = mock(VirtualReadingTypeDeliverable.class);
-        when(virtualFactory.deliverableFor(eq(deliverable), any(VirtualReadingType.class)))
-            .thenReturn(virtualDeliverable);
-        VirtualDeliverableNode node =
-                new VirtualDeliverableNode(
-                        virtualFactory,
-                        deliverable);
+        VirtualDeliverableNode node = new VirtualDeliverableNode(deliverable);
 
         // Business method
         testInstance().visitVirtualDeliverable(node);
 
         // Asserts
-        verify(virtualDeliverable).appendReferenceTo(any(SqlBuilder.class));
+        verify(deliverable).appendReferenceTo(any(SqlBuilder.class), eq(VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED)));
     }
 
     private ReadingType mockHourlyWattHoursReadingType() {

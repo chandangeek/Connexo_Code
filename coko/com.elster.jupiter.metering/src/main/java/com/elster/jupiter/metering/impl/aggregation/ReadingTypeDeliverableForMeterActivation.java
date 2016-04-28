@@ -96,11 +96,20 @@ class ReadingTypeDeliverableForMeterActivation {
         this.expressionNode.accept(new FinishRequirementAndDeliverableNodes());
     }
 
+    void appendReferenceTo(SqlBuilder sqlBuilder, VirtualReadingType targetReadingType) {
+        VirtualReadingType sourceReadingType = this.targetReadingType;
+        sqlBuilder.append(
+                sourceReadingType.buildSqlUnitConversion(
+                        this.mode,
+                        this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
+                        targetReadingType));
+    }
+
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
         SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(sqlComment()), SqlConstants.TimeSeriesColumnNames.names());
         this.appendWithClause(withClauseBuilder);
-        SqlBuilder withSelectClause = sqlBuilder.select();
-        this.appendSelectClause(withSelectClause);
+        SqlBuilder selectClause = sqlBuilder.select();
+        this.appendSelectClause(selectClause);
         if (this.expertModeAppliesAggregation()) {
             this.appendWithGroupByClause(withClauseBuilder);
         }
@@ -117,7 +126,7 @@ class ReadingTypeDeliverableForMeterActivation {
         SqlConstants.TimeSeriesColumnNames
                 .appendAllDeliverableSelectValues(
                         this.expressionNode,
-                        this.expertModeAppliesAggregation(),
+                        this.expertModeIntervalLength(),
                         this.targetReadingType,
                         withClauseBuilder);
     }
@@ -181,7 +190,7 @@ class ReadingTypeDeliverableForMeterActivation {
                             this.targetReadingType));
             sqlBuilder.append(")");
         } else {
-            if (this.expressionReadingType.equalsIgnoreCommodity(this.targetReadingType)) {
+            if (!this.expressionReadingType.equalsIgnoreCommodity(this.targetReadingType)) {
                 sqlBuilder.append(
                         this.expressionReadingType.buildSqlUnitConversion(
                                 this.mode,
@@ -216,11 +225,17 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendTruncatedTimeline(SqlBuilder sqlBuilder, String sqlName) {
-        Loggers.SQL.debug(() -> "Truncating " + sqlName + " to " + this.targetReadingType.getIntervalLength().toOracleTruncFormatModel());
+        IntervalLength intervalLength;
+        if (Formula.Mode.EXPERT.equals(this.mode)) {
+            intervalLength = this.expressionNode.accept(new IntervalLengthFromExpressionNode());
+        } else {
+            intervalLength = this.targetReadingType.getIntervalLength();
+        }
+        Loggers.SQL.debug(() -> "Truncating " + sqlName + " to " + intervalLength.toOracleTruncFormatModel());
         sqlBuilder.append("TRUNC(");
         sqlBuilder.append(sqlName);
         sqlBuilder.append(", '");
-        sqlBuilder.append(this.targetReadingType.getIntervalLength().toOracleTruncFormatModel());
+        sqlBuilder.append(intervalLength.toOracleTruncFormatModel());
         sqlBuilder.append("')");
     }
 
@@ -265,12 +280,22 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private boolean expertModeAppliesAggregation() {
+        return this.expertModeIntervalLength().isPresent();
+    }
+
+    private Optional<IntervalLength> expertModeIntervalLength() {
         if (Formula.Mode.EXPERT.equals(this.mode)) {
             Flatten visitor = new Flatten();
             this.expressionNode.accept(visitor);
-            return visitor.getFlattened().stream().anyMatch(each -> each instanceof TimeBasedAggregationNode);
+            return visitor
+                    .getFlattened()
+                    .stream()
+                    .filter(each -> each instanceof TimeBasedAggregationNode)
+                    .findFirst()
+                    .map(TimeBasedAggregationNode.class::cast)
+                    .map(TimeBasedAggregationNode::getIntervalLength);
         } else {
-            return false;
+            return Optional.empty();
         }
     }
 
@@ -283,7 +308,6 @@ class ReadingTypeDeliverableForMeterActivation {
 
         @Override
         public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-            deliverable.finish();
             return null;
         }
 

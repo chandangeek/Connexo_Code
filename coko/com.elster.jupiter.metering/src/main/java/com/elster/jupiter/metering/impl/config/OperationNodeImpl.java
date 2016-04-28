@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.impl.aggregation.IntermediateDimension;
@@ -13,6 +14,7 @@ import com.elster.jupiter.util.units.Dimension;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by igh on 4/02/2016.
@@ -24,19 +26,21 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
     private Operator operator;
     private Thesaurus thesaurus;
 
+    // For ORM layer
+    @SuppressWarnings("unused")
     public OperationNodeImpl() {}
 
-    public OperationNodeImpl(Operator operator, ExpressionNode operand1, ExpressionNode operand2, Thesaurus thesaurus) {
+    public OperationNodeImpl(Operator operator, ServerExpressionNode operand1, ServerExpressionNode operand2, Thesaurus thesaurus) {
         this(operator, Arrays.asList(operand1, operand2), thesaurus);
     }
 
-    public OperationNodeImpl(Operator operator, ExpressionNode operand1, ExpressionNode operand2, ExpressionNode zeroReplacementNode, Thesaurus thesaurus) {
+    public OperationNodeImpl(Operator operator, ServerExpressionNode operand1, ServerExpressionNode operand2, ServerExpressionNode zeroReplacementNode, Thesaurus thesaurus) {
         this(operator, Arrays.asList(operand1, operand2, zeroReplacementNode), thesaurus);
         this.operator = operator;
         this.thesaurus = thesaurus;
     }
 
-    private OperationNodeImpl(Operator operator, List<ExpressionNode> children, Thesaurus thesaurus) {
+    private OperationNodeImpl(Operator operator, List<ServerExpressionNode> children, Thesaurus thesaurus) {
         super(children);
         this.operator = operator;
         this.thesaurus = thesaurus;
@@ -57,6 +61,14 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
         return this.getChildren().get(1);
     }
 
+    @Override
+    public Optional<ExpressionNode> getZeroReplacement() {
+        if (this.getOperator().equals(Operator.SAFE_DIVIDE) && this.getChildren().size() > 2) {
+            return Optional.of(this.getChildren().get(2));
+        } else {
+            return Optional.empty();
+        }
+    }
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visitOperation(this);
@@ -93,9 +105,9 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
                 }
                 else {
                     ExpressionNode constantReplacingZero = this.getChildren().get(2);
-                    if (!this.isConstantNode(constantReplacingZero)) {
+                    if ((!this.isConstantNode(constantReplacingZero)) && (!this.isNullNode(constantReplacingZero))) {
                         throw new InvalidNodeException(thesaurus, MessageSeeds.SAFE_DIVISION_REQUIRES_NUMERICAL_CONSTANT);
-                    } else {
+                    } else if (this.isConstantNode(constantReplacingZero)) {
                         ConstantNode constant = (ConstantNode) constantReplacingZero;
                         if (constant.getValue().equals(BigDecimal.ZERO)) {
                             throw new InvalidNodeException(thesaurus, MessageSeeds.SAFE_DIVISION_REQUIRES_NON_ZERO_NUMERICAL_CONSTANT);
@@ -109,6 +121,10 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
 
     private boolean isConstantNode(ExpressionNode node) {
         return node instanceof ConstantNode;
+    }
+
+    private boolean isNullNode(ExpressionNode node) {
+        return node instanceof NullNode;
     }
 
     @Override

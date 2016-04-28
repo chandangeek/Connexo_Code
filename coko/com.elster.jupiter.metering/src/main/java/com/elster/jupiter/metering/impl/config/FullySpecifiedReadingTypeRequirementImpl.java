@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -14,23 +14,20 @@ import com.elster.jupiter.util.units.Dimension;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
 
-import java.time.temporal.TemporalAmount;
-import java.util.Optional;
-
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class FullySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl implements FullySpecifiedReadingType {
+public class FullySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequirementImpl implements FullySpecifiedReadingTypeRequirement {
     public static final String TYPE_IDENTIFIER = "FUL";
 
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
 
     @Inject
-    public FullySpecifiedReadingTypeImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
+    public FullySpecifiedReadingTypeRequirementImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
         super(metrologyConfigurationService);
     }
 
-    public FullySpecifiedReadingTypeImpl init(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType) {
+    public FullySpecifiedReadingTypeRequirementImpl init(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType) {
         super.init(metrologyConfiguration, name);
         this.readingType.set(readingType);
         return this;
@@ -38,7 +35,7 @@ public class FullySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl im
 
     private boolean hasRequirementsWithTheSameReadingType() {
         return getMetrologyConfigurationService().getDataModel()
-                .query(FullySpecifiedReadingType.class)
+                .query(FullySpecifiedReadingTypeRequirement.class)
                 .select(where(Fields.READING_TYPE.fieldName()).isEqualTo(getReadingType())
                         .and(where(Fields.METROLOGY_CONFIGURATION.fieldName()).isEqualTo(getMetrologyConfiguration())))
                 .stream()

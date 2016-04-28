@@ -9,6 +9,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -69,6 +70,7 @@ public class ReadingTypeGeneratorForParametersTest {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
 

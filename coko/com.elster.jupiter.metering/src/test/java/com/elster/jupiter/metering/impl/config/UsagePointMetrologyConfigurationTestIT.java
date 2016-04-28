@@ -10,7 +10,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointMetrologyConfigurationTestIT {
 
-    private static final String DEFAULT_SEARCH_PROPERTY = "usagePointRequirementSearchableProperty";
+    private static final String DEFAULT_SEARCH_PROPERTY = "SERVICEKIND";
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
 
     @Rule
@@ -68,7 +68,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
         valueBean.propertyName = DEFAULT_SEARCH_PROPERTY;
         valueBean.operator = SearchablePropertyOperator.EQUAL;
-        valueBean.values = Collections.singletonList("value");
+        valueBean.values = Collections.singletonList("GAS");
         return valueBean;
     }
 
@@ -227,7 +227,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Reading type requirement";
-        FullySpecifiedReadingType readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
                 .withMeterRole(meterRole)
                 .withReadingType(readingType);
         assertThat(readingTypeRequirement.getName()).isEqualTo(name);
@@ -244,13 +244,12 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Reading type requirement";
-        FullySpecifiedReadingType readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
                 .withMeterRole(meterRole)
                 .withReadingType(readingType);
 
-        Optional<MeterRole> meterRoleRef = getMetrologyConfigurationService().findUsagePointMetrologyConfiguration(metrologyConfiguration.getId())
-                .get()
-                .getMeterRoleFor(readingTypeRequirement);
+        UsagePointMetrologyConfiguration mc = (UsagePointMetrologyConfiguration) getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).get();
+        Optional<MeterRole> meterRoleRef = mc.getMeterRoleFor(readingTypeRequirement);
 
         assertThat(meterRoleRef).isPresent();
         assertThat(meterRoleRef.get()).isEqualTo(meterRole);
@@ -267,7 +266,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         SearchablePropertyValue.ValueBean valueBean = usagePointRequirement.toValueBean();
         assertThat(valueBean.operator).isEqualTo(SearchablePropertyOperator.EQUAL);
         assertThat(valueBean.propertyName).isEqualTo(DEFAULT_SEARCH_PROPERTY);
-        assertThat(valueBean.values).containsExactly("value");
+        assertThat(valueBean.values).containsExactly("GAS");
     }
 
     @Test
@@ -290,17 +289,15 @@ public class UsagePointMetrologyConfigurationTestIT {
                 .create();
         SearchablePropertyValue.ValueBean valueBean = getSearchablePropertyValueBean();
         metrologyConfiguration.addUsagePointRequirement(valueBean);
-        valueBean.values = Collections.singletonList("changed");
+        valueBean.values = Collections.singletonList("ELECTRICITY");
         valueBean.operator = SearchablePropertyOperator.NOT_EQUAL;
         metrologyConfiguration.addUsagePointRequirement(valueBean);
 
-        metrologyConfiguration = getMetrologyConfigurationService()
-                .findUsagePointMetrologyConfiguration(metrologyConfiguration.getId())
-                .get();
+        metrologyConfiguration = (UsagePointMetrologyConfiguration) getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).get();
         assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(1);
         valueBean = metrologyConfiguration.getUsagePointRequirements().get(0).toValueBean();
         assertThat(valueBean.propertyName).isEqualTo(DEFAULT_SEARCH_PROPERTY);
-        assertThat(valueBean.values).contains("changed");
+        assertThat(valueBean.values).contains("ELECTRICITY");
         assertThat(valueBean.operator).isEqualTo(SearchablePropertyOperator.NOT_EQUAL);
     }
 
@@ -315,20 +312,20 @@ public class UsagePointMetrologyConfigurationTestIT {
         UsagePointRequirement requirement1 = metrologyConfiguration.addUsagePointRequirement(valueBean);
 
         valueBean.propertyName = "requirement2";
-        valueBean.values = Collections.singletonList("some");
+        valueBean.values = Collections.singletonList("ELECTRICITY");
         valueBean.operator = SearchablePropertyOperator.NOT_EQUAL;
         metrologyConfiguration.addUsagePointRequirement(valueBean);
         assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(2);
 
-        metrologyConfiguration = getMetrologyConfigurationService()
-                .findUsagePointMetrologyConfiguration(metrologyConfiguration.getId())
+        metrologyConfiguration = (UsagePointMetrologyConfiguration) getMetrologyConfigurationService()
+                .findMetrologyConfiguration(metrologyConfiguration.getId())
                 .get();
         metrologyConfiguration.removeUsagePointRequirement(requirement1);
 
         assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(1);
         valueBean = metrologyConfiguration.getUsagePointRequirements().get(0).toValueBean();
         assertThat(valueBean.propertyName).isEqualTo("requirement2");
-        assertThat(valueBean.values).containsExactly("some");
+        assertThat(valueBean.values).containsExactly("ELECTRICITY");
         assertThat(valueBean.operator).isEqualTo(SearchablePropertyOperator.NOT_EQUAL);
     }
 
@@ -342,7 +339,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Reading type requirement";
-        FullySpecifiedReadingType readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
                 .withMeterRole(meterRole)
                 .withReadingType(readingType);
 
@@ -416,6 +413,6 @@ public class UsagePointMetrologyConfigurationTestIT {
 
         metrologyConfiguration.delete();
 
-        assertThat(inMemoryBootstrapModule.getMetrologyConfigurationService().findUsagePointMetrologyConfiguration(metrologyConfiguration.getId()).isPresent()).isFalse();
+        assertThat(inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).isPresent()).isFalse();
     }
 }

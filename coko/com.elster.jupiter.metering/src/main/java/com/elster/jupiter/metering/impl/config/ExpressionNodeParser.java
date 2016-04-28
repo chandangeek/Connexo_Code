@@ -1,11 +1,10 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -27,42 +26,43 @@ import java.util.Optional;
 public class ExpressionNodeParser {
 
     private Thesaurus thesaurus;
-    private MetrologyConfigurationService metrologyConfigurationService;
+    private ServerMetrologyConfigurationService metrologyConfigurationService;
     private MetrologyConfiguration metrologyConfiguration;
     private Formula.Mode mode;
 
-    public ExpressionNodeParser(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration) {
-        this(thesaurus, metrologyConfigurationService, metrologyConfiguration, Formula.Mode.AUTO);
-    }
-
-    public ExpressionNodeParser(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration, Formula.Mode mode) {
+    public ExpressionNodeParser(Thesaurus thesaurus, ServerMetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration, Formula.Mode mode) {
         this.thesaurus = thesaurus;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.metrologyConfiguration = metrologyConfiguration;
         this.mode = mode;
     }
 
-    private Deque<String> stack = new ArrayDeque<>();
+    private Deque<String> tokens = new ArrayDeque<>();
+    private Deque<AggregationLevel> aggregationLevels = new ArrayDeque<>();
 
-    private List<ExpressionNode> nodes = new ArrayList<>();
+    private List<ServerExpressionNode> nodes = new ArrayList<>();
 
     private List<Counter> argumentCounters = new ArrayList<> ();
 
-    public ExpressionNode parse(String input) {
+    public ServerExpressionNode parse(String input) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < input.length(); i++) {
             char value = input.charAt(i);
             if (value == '(') {
-                stack.push(builder.toString());
+                tokens.push(builder.toString());
                 newArgumentCounter();
                 builder = new StringBuilder();
             } else if (value == ')') {
                 constructNode(builder.toString());
                 builder = new StringBuilder();
             } else if (value == ',') {
-
+                Optional<AggregationLevel> aggregationLevel = AggregationLevel.from(builder.toString());
+                if (aggregationLevel.isPresent()) {
+                    this.aggregationLevels.push(aggregationLevel.get());
+                    builder = new StringBuilder();
+                }
             } else if (value == ' ') {
-
+                // Ignore whitespace
             }
             else {
                 builder.append(value);
@@ -71,22 +71,25 @@ public class ExpressionNodeParser {
         return nodes.get(0);
     }
 
-    private void constructNode(String value) {
-        String last = stack.pop();
-        if ("constant".equals(last)) {
-            handleConstantNode(value);
-        } else if (last.equals("D")) {
-            handleDeliverableNode(value);
-        } else if (last.equals("R")) {
-            handleRequirementNode(value);
-        } else if (Function.names().contains(last)) {
-            handleFunctionNode(last);
-        } else if (Operator.names().contains(last)) {
-            handleOperationNode(last);
+    private void constructNode(String currentToken) {
+        String lastToken = tokens.pop();
+        if ("constant".equals(lastToken)) {
+            handleConstantNode(currentToken);
+        } else if ("D".equals(lastToken)) {
+            handleDeliverableNode(currentToken);
+        } else if ("R".equals(lastToken)) {
+            handleRequirementNode(currentToken);
+        } else if (Function.names().contains(lastToken)) {
+            AggregationLevel.from(currentToken).ifPresent(this.aggregationLevels::push);
+            handleFunctionNode(lastToken);
+        } else if (Operator.names().contains(lastToken)) {
+            if ("null".equals(currentToken)) {
+                handleNullNode();
+            }
+            handleOperationNode(lastToken);
         }
         removeArgumentCounter();
         incrementArgumentCounter();
-
     }
 
     private void handleDeliverableNode(String value) {
@@ -140,6 +143,10 @@ public class ExpressionNodeParser {
         nodes.add(new ConstantNodeImpl(new BigDecimal(value)));
     }
 
+    private void handleNullNode() {
+        nodes.add(new NullNodeImpl());
+    }
+
     private void handleOperationNode(String operatorValue) {
         if (nodes.size() < 2) {
             throw new IllegalArgumentException("Operator '" + operatorValue + "' requires at least 2 arguments");
@@ -159,17 +166,28 @@ public class ExpressionNodeParser {
         nodes.add(operationNode);
     }
 
-    private void handleFunctionNode(String function) {
-        if (mode.equals(Formula.Mode.AUTO)) {
-            throw new InvalidNodeException(thesaurus, MessageSeeds.NO_FUNCTIONS_ALLOWED_IN_AUTOMODE);
-        }
+    private void handleFunctionNode(String functionName) {
         if (nodes.size() < 1) {
-            throw new IllegalArgumentException("Operator '" + function + "' requires at least 1 argument");
+            throw new IllegalArgumentException("Operator '" + functionName + "' requires at least 1 argument");
         }
         int numberOfArguments = getNumberOfArguments();
-        FunctionCallNodeImpl functionCallNode = new FunctionCallNodeImpl(
-                nodes.subList(nodes.size() - numberOfArguments, nodes.size()),
-                getFunction(function), thesaurus);
+        Function function = getFunction(functionName);
+        if (!this.mode.supports(function)) {
+            throw InvalidNodeException.functionNotAllowedInAutoMode(thesaurus, function);
+        }
+        AggregationLevel aggregationLevel = null;
+        if (function.requiresAggregationLevel()) {
+            if (this.aggregationLevels.isEmpty()) {
+                throw new IllegalArgumentException("Aggregation function '" + functionName + "' requires aggregation level");
+            }
+            aggregationLevel = this.aggregationLevels.pop();
+        }
+        FunctionCallNodeImpl functionCallNode =
+                new FunctionCallNodeImpl(
+                    nodes.subList(nodes.size() - numberOfArguments, nodes.size()),
+                    function,
+                    aggregationLevel,
+                    thesaurus);
         for (int i = 0; i < numberOfArguments; i++) {
             nodes.remove(nodes.size() - 1);
         }

@@ -9,6 +9,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImpl;
+import com.elster.jupiter.metering.impl.aggregation.ReadingTypeDeliverableForMeterActivationFactory;
+import com.elster.jupiter.metering.impl.aggregation.ReadingTypeDeliverableForMeterActivationFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactory;
 import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactory;
@@ -73,6 +75,7 @@ public class MeteringModule extends AbstractModule {
         bind(ServerMeteringService.class).to(MeteringServiceImpl.class).in(Scopes.SINGLETON);
         bind(VirtualFactory.class).to(VirtualFactoryImpl.class).in(Scopes.SINGLETON);
         bind(SqlBuilderFactory.class).to(SqlBuilderFactoryImpl.class).in(Scopes.SINGLETON);
+        bind(ReadingTypeDeliverableForMeterActivationFactory.class).to(ReadingTypeDeliverableForMeterActivationFactoryImpl.class).in(Scopes.SINGLETON);
         bind(DataAggregationService.class).to(DataAggregationServiceImpl.class).in(Scopes.SINGLETON);
     }
 
