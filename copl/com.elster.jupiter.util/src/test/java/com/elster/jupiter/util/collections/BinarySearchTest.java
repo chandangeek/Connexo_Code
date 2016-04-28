@@ -1,10 +1,10 @@
 package com.elster.jupiter.util.collections;
 
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,7 +69,6 @@ public class BinarySearchTest {
         for (int i = 0; i < strings.size(); i++) {
             for (int j = i + 1; j < strings.size(); j++) {
                 List<String> list = strings.subList(0, j);
-                System.out.println("finding " + strings.get(i) + " in list length " + j);
                 assertThat(BinarySearch.usingValueAsKey(list).lastOccurrence(strings.get(i))).as("finding " + strings.get(i) + " in list length " + j).isEqualTo(i);
             }
 
