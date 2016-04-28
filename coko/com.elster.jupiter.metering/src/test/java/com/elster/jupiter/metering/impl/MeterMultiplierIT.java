@@ -11,6 +11,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -19,13 +20,13 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 
@@ -49,6 +50,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeterMultiplierIT {
@@ -57,8 +59,6 @@ public class MeterMultiplierIT {
     public static final BigDecimal VALUE = BigDecimal.valueOf(2, 0);
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
-
-    private Injector injector;
 
     private static final ZonedDateTime ACTIVE_DATE = ZonedDateTime.of(2014, 4, 9, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
 
@@ -69,23 +69,23 @@ public class MeterMultiplierIT {
     @Mock
     private EventAdmin eventAdmin;
 
-
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private Injector injector;
     private Meter meter;
     private MeterActivation meterActivation;
     private MultiplierType multiplierType;
     private MeteringService meteringService;
     private TransactionService transactionService;
 
-
     private class MockModule extends AbstractModule {
-
         @Override
         protected void configure() {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.INSTANCE);
+            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
 
@@ -129,17 +129,6 @@ public class MeterMultiplierIT {
     }
 
     @Test
-    public void testCreateMultiplierType() {
-        createAndActivateMeter();
-
-        // business method
-        createMultiplierType();
-
-        assertThat(meteringService.getMultiplierType(MULTIPLIER_TYPE_NAME)).contains(multiplierType);
-
-    }
-
-    @Test
     public void testSetMultiplier() {
         createAndActivateMeter();
         createMultiplierType();
@@ -172,6 +161,5 @@ public class MeterMultiplierIT {
         meter = meteringService.findMeter(meter.getId()).get();
         meterActivation = meter.getMeterActivations().get(0);
     }
-
 
 }
