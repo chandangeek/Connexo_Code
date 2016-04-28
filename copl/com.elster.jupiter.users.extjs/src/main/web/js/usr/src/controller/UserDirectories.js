@@ -201,7 +201,7 @@ Ext.define('Usr.controller.UserDirectories', {
         record.set('isDefault', true);
         record.save({
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.acknowlegment.setAsDefault', 'USR', 'User directory set as default'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.acknowledgment.setAsDefault', 'USR', 'User directory set as default'));
             },
             callback: function () {
                 me.getUserDirectoriesGrid().store.load();
