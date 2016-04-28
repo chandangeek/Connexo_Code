@@ -29,18 +29,24 @@ Ext.define('Imt.purpose.view.Outputs', {
                         record: me.purpose
                     },
                     {
-                        xtype: 'emptygridcontainer',
-                        grid: {
-                            xtype: 'outputs-list',
-                            router: me.router
-                        },
-                        emptyComponent: {
-                            xtype: 'no-items-found-panel',
-                            itemId: 'outputs-list-empty',
-                            title: Uni.I18n.translate('outputs.list.empty', 'IMT', 'No outputs is available'),
-                            reasons: [
-                                Uni.I18n.translate('outputs.list.empty.reason1', 'IMT', 'Selected purpose has no configured outputs')
-                            ]
+                        xtype: 'panel',
+                        ui: 'medium',
+                        title: 'Outputs',
+                        items: {
+                            xtype: 'emptygridcontainer',
+                            title: me.router.getRoute().getTitle(),
+                            grid: {
+                                xtype: 'outputs-list',
+                                router: me.router
+                            },
+                            emptyComponent: {
+                                xtype: 'no-items-found-panel',
+                                itemId: 'outputs-list-empty',
+                                title: Uni.I18n.translate('outputs.list.empty', 'IMT', 'No outputs found'),
+                                reasons: [
+                                    Uni.I18n.translate('outputs.list.empty.reason1', 'IMT', 'No outputs have been configured on the purpose')
+                                ]
+                            }
                         }
                     }
                 ]
