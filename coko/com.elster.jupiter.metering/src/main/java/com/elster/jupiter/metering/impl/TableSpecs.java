@@ -318,6 +318,7 @@ public enum TableSpecs {
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
             table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
+            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
             table.column("INSTALLATIONTIME")
                     .number()
                     .notNull()
@@ -1166,6 +1167,9 @@ public enum TableSpecs {
 
             //FunctionCallNodeImpl function value
             table.column("FUNCTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("function").add();
+
+            //FunctionCallNodeImpl function value
+            table.column("AGGLEVEL").number().conversion(ColumnConversion.NUMBER2ENUM).map("aggregationLevel").add();
 
             //ConstantNodeImpl constantValue
             table.column("CONSTANTVALUE").number().map("constantValue").add();

@@ -1,7 +1,9 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
@@ -18,20 +20,21 @@ import com.elster.jupiter.util.units.Quantity;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.metering.aggregation.console", service = DataAggregationCommands.class, property = {
         "osgi.command.scope=dag",
         "osgi.command.function=aggregate",
         "osgi.command.function=activateMetrologyConfig",
-        "osgi.command.function=linkMetrologyConfig"
+        "osgi.command.function=linkMetrologyConfig",
+        "osgi.command.function=setMultiplierValue",
+        "osgi.command.function=matchingChannels"
 }, immediate = true)
 public class DataAggregationCommands {
 
@@ -89,11 +92,8 @@ public class DataAggregationCommands {
             Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
             CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), null));
 
-            data.getCalculatedDataFor(deliverable).stream()
-                    .filter(reading -> Optional.ofNullable(reading.getQuantity(reading.getReadingType())).isPresent())
-                    .map(reading -> LocalDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault())
-                            .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + " " + this.getValue(reading))
-                    .forEach(System.out::println);
+            List<? extends BaseReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
+            System.out.println("records found for deliverable:" + dataForDeliverable.size());
             context.commit();
         }
     }
@@ -131,5 +131,30 @@ public class DataAggregationCommands {
 
             context.commit();
         }
+    }
+
+    public void setMultiplierValue(String meterMRID, String standardMultiplierType, long value) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            MeterActivation meterActivation = meteringService.findMeter(meterMRID).get().getCurrentMeterActivation().get();
+            MultiplierType multiplierType = meteringService.getMultiplierType(MultiplierType.StandardType.valueOf(standardMultiplierType));
+            meterActivation.setMultiplier(multiplierType, BigDecimal.valueOf(value));
+            context.commit();
+        }
+    }
+
+    public void matchingChannels(String meterMRID, long metrologyConfigId, String requirementName) {
+        metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"))
+                .getRequirements().stream()
+                .filter(rq -> rq.getName().equals(requirementName))
+                .findFirst().orElseThrow(() -> new NoSuchElementException("No such requirement"))
+                .getMatchingChannelsFor(meteringService.findMeter(meterMRID)
+                        .orElseThrow(() -> new NoSuchElementException("No such meter"))
+                        .getCurrentMeterActivation()
+                        .orElseThrow(() -> new NoSuchElementException("No current meter activation")))
+                .stream()
+                .map(ch -> ch.getMainReadingType().getMRID() + " " + ch.getMainReadingType().getFullAliasName())
+                .forEach(System.out::println);
     }
 }

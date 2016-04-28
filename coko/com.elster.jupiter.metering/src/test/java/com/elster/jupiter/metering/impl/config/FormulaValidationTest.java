@@ -1,14 +1,13 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -61,11 +60,6 @@ public class FormulaValidationTest {
         return inMemoryBootstrapModule.getMetrologyConfigurationService();
     }
 
-    private TransactionService getTransactionService() {
-        return inMemoryBootstrapModule.getTransactionService();
-    }
-
-
     @Test
     // formula = minus(readingTypeRequirement1, readingTypeRequirement2)
     public void testSubstractionOfSameDimensions() {
@@ -78,7 +72,7 @@ public class FormulaValidationTest {
         ExpressionNodeBuilder nodeBuilder = builder.minus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
 
         node.validate();
     }
@@ -95,7 +89,7 @@ public class FormulaValidationTest {
         ExpressionNodeBuilder nodeBuilder = builder.plus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
 
         node.validate();
     }
@@ -112,7 +106,7 @@ public class FormulaValidationTest {
         ExpressionNodeBuilder nodeBuilder = builder.minus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
         } catch (InvalidNodeException e) {
@@ -133,7 +127,7 @@ public class FormulaValidationTest {
         ExpressionNodeBuilder nodeBuilder = builder.plus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
         } catch (InvalidNodeException e) {
@@ -154,7 +148,7 @@ public class FormulaValidationTest {
         ExpressionNodeBuilder nodeBuilder = builder.multiply(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
         } catch (InvalidNodeException e) {
@@ -175,7 +169,7 @@ public class FormulaValidationTest {
         ExpressionNodeBuilder nodeBuilder = builder.multiply(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
 
         node.validate();
 
@@ -194,7 +188,7 @@ public class FormulaValidationTest {
         ExpressionNodeBuilder nodeBuilder = builder.divide(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
 
         node.validate();
 
@@ -213,7 +207,7 @@ public class FormulaValidationTest {
         ExpressionNodeBuilder nodeBuilder = builder.divide(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
         } catch (InvalidNodeException e) {
@@ -234,7 +228,7 @@ public class FormulaValidationTest {
         ExpressionNodeBuilder nodeBuilder = builder.plus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
 
         node.validate();
 
@@ -252,10 +246,11 @@ public class FormulaValidationTest {
         ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.maximum(
-                builder.requirement(readingTypeRequirement1),
-                builder.requirement(readingTypeRequirement2),
-                builder.requirement(readingTypeRequirement3));
-        ExpressionNode node = nodeBuilder.create();
+                Arrays.asList(
+                    builder.requirement(readingTypeRequirement1),
+                    builder.requirement(readingTypeRequirement2),
+                    builder.requirement(readingTypeRequirement3)));
+        ServerExpressionNode node = nodeBuilder.create();
 
         node.validate();
 
@@ -273,10 +268,11 @@ public class FormulaValidationTest {
         ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
         ExpressionNodeBuilder nodeBuilder = builder.maximum(
-                builder.requirement(readingTypeRequirement1),
-                builder.requirement(readingTypeRequirement2),
-                builder.requirement(readingTypeRequirement3));
-        ExpressionNode node = nodeBuilder.create();
+                Arrays.asList(
+                    builder.requirement(readingTypeRequirement1),
+                    builder.requirement(readingTypeRequirement2),
+                    builder.requirement(readingTypeRequirement3)));
+        ServerExpressionNode node = nodeBuilder.create();
         try {
             node.validate();
         } catch (InvalidNodeException e) {
@@ -302,7 +298,7 @@ public class FormulaValidationTest {
                                 builder.requirement(pressure1), builder.requirement(volume1)),
                         builder.requirement(temperature1)),
                 builder.divide(builder.requirement(temperature2), builder.requirement(pressure2)) );
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
 
         node.validate();
 
@@ -322,7 +318,7 @@ public class FormulaValidationTest {
                     builder.requirement(readingTypeRequirement1),
                     builder.requirement(readingTypeRequirement2),
                     builder.constant(BigDecimal.ONE));
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
 
         // Business method
         node.validate();
@@ -344,7 +340,7 @@ public class FormulaValidationTest {
                     builder.requirement(readingTypeRequirement1),
                     builder.requirement(readingTypeRequirement2),
                     builder.constant(BigDecimal.ZERO));
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
 
         // Business method
         try {
@@ -370,7 +366,7 @@ public class FormulaValidationTest {
                     builder.requirement(readingTypeRequirement1),
                     builder.requirement(readingTypeRequirement2),
                     builder.requirement(readingTypeRequirement3));
-        ExpressionNode node = nodeBuilder.create();
+        ServerExpressionNode node = nodeBuilder.create();
 
         try {
             // Business method

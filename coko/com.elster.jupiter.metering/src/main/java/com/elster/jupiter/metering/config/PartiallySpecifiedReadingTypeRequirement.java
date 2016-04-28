@@ -1,17 +1,16 @@
 package com.elster.jupiter.metering.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 
-import java.util.Optional;
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
 
 @ProviderType
-public interface PartiallySpecifiedReadingType extends ReadingTypeRequirement {
+public interface PartiallySpecifiedReadingTypeRequirement extends ReadingTypeRequirement {
 
     /**
      * Overrides a specific reading type attribute's value.
@@ -20,7 +19,7 @@ public interface PartiallySpecifiedReadingType extends ReadingTypeRequirement {
      * @param code value for the attribute
      * @return that object
      */
-    PartiallySpecifiedReadingType overrideAttribute(ReadingTypeTemplateAttributeName name, int code);
+    PartiallySpecifiedReadingTypeRequirement overrideAttribute(ReadingTypeTemplateAttributeName name, int code);
 
     /**
      * Resets a specific reading type attribute's value back to the value from template.
@@ -28,7 +27,7 @@ public interface PartiallySpecifiedReadingType extends ReadingTypeRequirement {
      * @param name attribute unique id
      * @return that object
      */
-    PartiallySpecifiedReadingType removeOverriddenAttribute(ReadingTypeTemplateAttributeName name);
+    PartiallySpecifiedReadingTypeRequirement removeOverriddenAttribute(ReadingTypeTemplateAttributeName name);
 
     /**
      * @return A source template

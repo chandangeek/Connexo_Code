@@ -91,7 +91,11 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
     @Override
     public SqlFragment visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
         SqlBuilder fragment = new SqlBuilder();
-        aggregationNode.getFunction().appendTo(fragment, Collections.singletonList(aggregationNode.getAggregatedExpression().accept(this)));
+        aggregationNode
+                .getFunction()
+                .appendTo(
+                    fragment,
+                    Collections.singletonList(aggregationNode.getAggregatedExpression().accept(this)));
         return fragment;
     }
 

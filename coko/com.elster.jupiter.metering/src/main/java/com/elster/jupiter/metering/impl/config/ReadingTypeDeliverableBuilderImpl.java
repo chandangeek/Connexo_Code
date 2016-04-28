@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -14,6 +14,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -39,7 +42,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         return doBuild();
     }
 
-    public ReadingTypeDeliverable build(ExpressionNode formulaPart) {
+    public ReadingTypeDeliverable build(ServerExpressionNode formulaPart) {
         formulaBuilder.setNode(formulaPart);
         return doBuild();
     }
@@ -76,6 +79,12 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     }
 
     @Override
+    public
+    FormulaBuilder nullValue(){
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.nullValue());
+    }
+
+    @Override
     public FormulaBuilder constant(BigDecimal value) {
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.constant(value));
     }
@@ -91,27 +100,63 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     }
 
     @Override
-    public FormulaBuilder sum(FormulaBuilder... terms) {
-        return new FormulaAndExpressionNodeBuilder(formulaBuilder.sum(this.toExpressionNodeBuilders(terms)));
-    }
-
-    protected FormulaAndExpressionNodeBuilder[] toExpressionNodeBuilders(FormulaBuilder[] terms) {
-        return Stream.of(terms).map(FormulaAndExpressionNodeBuilder.class::cast).toArray(FormulaAndExpressionNodeBuilder[]::new);
+    public FormulaBuilder minimum(FormulaBuilder firstTerm, FormulaBuilder secondTerm, FormulaBuilder... remainingTerms) {
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.minimum(this.toExpressionNodeBuilders(firstTerm, secondTerm, remainingTerms)));
     }
 
     @Override
-    public FormulaBuilder maximum(FormulaBuilder... terms) {
-        return new FormulaAndExpressionNodeBuilder(formulaBuilder.maximum(this.toExpressionNodeBuilders(terms)));
+    public FormulaBuilder maximum(FormulaBuilder firstTerm, FormulaBuilder secondTerm, FormulaBuilder... remainingTerms) {
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.maximum(this.toExpressionNodeBuilders(firstTerm, secondTerm, remainingTerms)));
     }
 
     @Override
-    public FormulaBuilder minimum(FormulaBuilder... terms) {
-        return new FormulaAndExpressionNodeBuilder(formulaBuilder.minimum(this.toExpressionNodeBuilders(terms)));
+    public FormulaBuilder sum(AggregationLevel aggregationLevel, FormulaBuilder term) {
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.sum(aggregationLevel, this.toExpressionNodeBuilders(term)));
     }
 
     @Override
-    public FormulaBuilder average(FormulaBuilder... terms) {
-        return new FormulaAndExpressionNodeBuilder(formulaBuilder.average(this.toExpressionNodeBuilders(terms)));
+    public FormulaBuilder maximum(AggregationLevel aggregationLevel, FormulaBuilder term) {
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.maximum(aggregationLevel, this.toExpressionNodeBuilders(term)));
+    }
+
+    @Override
+    public FormulaBuilder minimum(AggregationLevel aggregationLevel, FormulaBuilder term) {
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.minimum(aggregationLevel, this.toExpressionNodeBuilders(term)));
+    }
+
+    @Override
+    public FormulaBuilder average(AggregationLevel aggregationLevel, FormulaBuilder term) {
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.average(aggregationLevel, this.toExpressionNodeBuilders(term)));
+    }
+
+    private List<ExpressionNodeBuilder> toExpressionNodeBuilders(FormulaBuilder firstTerm) {
+        return this.allToExpressionNodeBuilders(firstTerm);
+    }
+
+    private List<ExpressionNodeBuilder> toExpressionNodeBuilders(FormulaBuilder firstTerm, FormulaBuilder... remainingTerms) {
+        return this.allToExpressionNodeBuilders(
+                Stream.of(
+                        Stream.of(firstTerm),
+                        Stream.of(remainingTerms))
+                    .flatMap(Function.identity()));
+    }
+
+    private List<ExpressionNodeBuilder> toExpressionNodeBuilders(FormulaBuilder firstTerm, FormulaBuilder secondTerm, FormulaBuilder... remainingTerms) {
+        return this.allToExpressionNodeBuilders(
+                Stream.of(
+                        Stream.of(firstTerm, secondTerm),
+                        Stream.of(remainingTerms))
+                    .flatMap(Function.identity()));
+    }
+
+    private List<ExpressionNodeBuilder> allToExpressionNodeBuilders(FormulaBuilder... terms) {
+        return this.allToExpressionNodeBuilders(Stream.of(terms));
+    }
+
+    private List<ExpressionNodeBuilder> allToExpressionNodeBuilders(Stream<FormulaBuilder> terms) {
+        return terms
+                .map(FormulaAndExpressionNodeBuilder.class::cast)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -121,17 +166,26 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
 
     @Override
     public FormulaBuilder plus(FormulaBuilder term1, FormulaBuilder term2) {
-        return new FormulaAndExpressionNodeBuilder(formulaBuilder.plus((FormulaAndExpressionNodeBuilder) term1, (FormulaAndExpressionNodeBuilder) term2));
+        return new FormulaAndExpressionNodeBuilder(
+                formulaBuilder.plus(
+                        (FormulaAndExpressionNodeBuilder) term1,
+                        (FormulaAndExpressionNodeBuilder) term2));
     }
 
     @Override
     public FormulaBuilder minus(FormulaBuilder term1, FormulaBuilder term2) {
-        return new FormulaAndExpressionNodeBuilder(formulaBuilder.minus((FormulaAndExpressionNodeBuilder) term1, (FormulaAndExpressionNodeBuilder) term2));
+        return new FormulaAndExpressionNodeBuilder(
+                formulaBuilder.minus(
+                        (FormulaAndExpressionNodeBuilder) term1,
+                        (FormulaAndExpressionNodeBuilder) term2));
     }
 
     @Override
     public FormulaBuilder divide(FormulaBuilder dividend, FormulaBuilder divisor) {
-        return new FormulaAndExpressionNodeBuilder(formulaBuilder.divide((FormulaAndExpressionNodeBuilder) dividend, (FormulaAndExpressionNodeBuilder) divisor));
+        return new FormulaAndExpressionNodeBuilder(
+                formulaBuilder.divide(
+                        (FormulaAndExpressionNodeBuilder) dividend,
+                        (FormulaAndExpressionNodeBuilder) divisor));
     }
 
     @Override
@@ -144,8 +198,29 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     }
 
     @Override
+    public FormulaBuilder power(FormulaBuilder expression, FormulaBuilder exponent) {
+        return new FormulaAndExpressionNodeBuilder(
+                formulaBuilder.power(
+                        (FormulaAndExpressionNodeBuilder) expression,
+                        (FormulaAndExpressionNodeBuilder) exponent));
+    }
+
+    @Override
+    public FormulaBuilder squareRoot(FormulaBuilder expression) {
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.squareRoot((FormulaAndExpressionNodeBuilder) expression));
+    }
+
+    @Override
+    public FormulaBuilder firstNotNull(FormulaBuilder firstTerm, FormulaBuilder... remainingTerms) {
+        return new FormulaAndExpressionNodeBuilder(formulaBuilder.firstNotNull(this.toExpressionNodeBuilders(firstTerm, remainingTerms)));
+    }
+
+    @Override
     public FormulaBuilder multiply(FormulaBuilder multiplier, FormulaBuilder multiplicand) {
-        return new FormulaAndExpressionNodeBuilder(formulaBuilder.multiply((FormulaAndExpressionNodeBuilder) multiplier, (FormulaAndExpressionNodeBuilder) multiplicand));
+        return new FormulaAndExpressionNodeBuilder(
+                formulaBuilder.multiply(
+                        (FormulaAndExpressionNodeBuilder) multiplier,
+                        (FormulaAndExpressionNodeBuilder) multiplicand));
     }
 
     public ReadingTypeDeliverable doBuild() {
@@ -163,7 +238,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         }
 
         @Override
-        public ExpressionNode create() {
+        public ServerExpressionNode create() {
             return this.expressionNodeBuilder.create();
         }
     }
@@ -175,8 +250,5 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     private boolean isExpertMode() {
         return !isAutoMode();
     }
-
-
-
 
 }

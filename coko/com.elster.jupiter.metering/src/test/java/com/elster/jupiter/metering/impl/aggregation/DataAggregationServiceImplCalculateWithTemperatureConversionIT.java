@@ -195,11 +195,16 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         return injector.getInstance(MeteringService.class);
     }
 
+    private static SqlBuilderFactory getSqlBuilderFactory() {
+        return sqlBuilderFactory;
+    }
+
     private static DataAggregationService getDataAggregationService() {
         return new DataAggregationServiceImpl(
                 injector.getInstance(ServerMeteringService.class),
+                DataAggregationServiceImplCalculateWithTemperatureConversionIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
-                sqlBuilderFactory);
+                ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
     }
 
     private static void setupReadingTypes() {

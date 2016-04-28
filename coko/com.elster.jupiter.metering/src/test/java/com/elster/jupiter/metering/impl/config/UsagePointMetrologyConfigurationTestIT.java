@@ -10,7 +10,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -227,7 +227,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Reading type requirement";
-        FullySpecifiedReadingType readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
                 .withMeterRole(meterRole)
                 .withReadingType(readingType);
         assertThat(readingTypeRequirement.getName()).isEqualTo(name);
@@ -244,13 +244,12 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Reading type requirement";
-        FullySpecifiedReadingType readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
                 .withMeterRole(meterRole)
                 .withReadingType(readingType);
 
-        Optional<MeterRole> meterRoleRef = getMetrologyConfigurationService().findUsagePointMetrologyConfiguration(metrologyConfiguration.getId())
-                .get()
-                .getMeterRoleFor(readingTypeRequirement);
+        UsagePointMetrologyConfiguration mc = (UsagePointMetrologyConfiguration) getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).get();
+        Optional<MeterRole> meterRoleRef = mc.getMeterRoleFor(readingTypeRequirement);
 
         assertThat(meterRoleRef).isPresent();
         assertThat(meterRoleRef.get()).isEqualTo(meterRole);
@@ -294,9 +293,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         valueBean.operator = SearchablePropertyOperator.NOT_EQUAL;
         metrologyConfiguration.addUsagePointRequirement(valueBean);
 
-        metrologyConfiguration = getMetrologyConfigurationService()
-                .findUsagePointMetrologyConfiguration(metrologyConfiguration.getId())
-                .get();
+        metrologyConfiguration = (UsagePointMetrologyConfiguration) getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).get();
         assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(1);
         valueBean = metrologyConfiguration.getUsagePointRequirements().get(0).toValueBean();
         assertThat(valueBean.propertyName).isEqualTo(DEFAULT_SEARCH_PROPERTY);
@@ -320,8 +317,8 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addUsagePointRequirement(valueBean);
         assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(2);
 
-        metrologyConfiguration = getMetrologyConfigurationService()
-                .findUsagePointMetrologyConfiguration(metrologyConfiguration.getId())
+        metrologyConfiguration = (UsagePointMetrologyConfiguration) getMetrologyConfigurationService()
+                .findMetrologyConfiguration(metrologyConfiguration.getId())
                 .get();
         metrologyConfiguration.removeUsagePointRequirement(requirement1);
 
@@ -342,7 +339,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Reading type requirement";
-        FullySpecifiedReadingType readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
                 .withMeterRole(meterRole)
                 .withReadingType(readingType);
 
@@ -416,6 +413,6 @@ public class UsagePointMetrologyConfigurationTestIT {
 
         metrologyConfiguration.delete();
 
-        assertThat(inMemoryBootstrapModule.getMetrologyConfigurationService().findUsagePointMetrologyConfiguration(metrologyConfiguration.getId()).isPresent()).isFalse();
+        assertThat(inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).isPresent()).isFalse();
     }
 }

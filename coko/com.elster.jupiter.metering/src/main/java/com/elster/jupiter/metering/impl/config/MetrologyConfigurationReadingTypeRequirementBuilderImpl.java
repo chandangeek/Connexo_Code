@@ -1,10 +1,9 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 
 class MetrologyConfigurationReadingTypeRequirementBuilderImpl implements MetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder {
@@ -20,18 +19,18 @@ class MetrologyConfigurationReadingTypeRequirementBuilderImpl implements Metrolo
     }
 
     @Override
-    public FullySpecifiedReadingType withReadingType(ReadingType readingType) {
-        FullySpecifiedReadingTypeImpl fullySpecifiedReadingType = this.metrologyConfigurationService.getDataModel().getInstance(FullySpecifiedReadingTypeImpl.class)
+    public FullySpecifiedReadingTypeRequirement withReadingType(ReadingType readingType) {
+        FullySpecifiedReadingTypeRequirementImpl fullySpecifiedReadingType = this.metrologyConfigurationService.getDataModel().getInstance(FullySpecifiedReadingTypeRequirementImpl.class)
                 .init(this.metrologyConfiguration, this.name, readingType);
         this.metrologyConfiguration.addReadingTypeRequirement(fullySpecifiedReadingType);
         return fullySpecifiedReadingType;
     }
 
     @Override
-    public PartiallySpecifiedReadingType withReadingTypeTemplate(ReadingTypeTemplate readingTypeTemplate) {
-        PartiallySpecifiedReadingType partiallySpecifiedReadingType = this.metrologyConfigurationService.getDataModel().getInstance(PartiallySpecifiedReadingTypeImpl.class)
+    public PartiallySpecifiedReadingTypeRequirement withReadingTypeTemplate(ReadingTypeTemplate readingTypeTemplate) {
+        PartiallySpecifiedReadingTypeRequirement partiallySpecified = this.metrologyConfigurationService.getDataModel().getInstance(PartiallySpecifiedReadingTypeRequirementImpl.class)
                 .init(this.metrologyConfiguration, this.name, readingTypeTemplate);
-        this.metrologyConfiguration.addReadingTypeRequirement(partiallySpecifiedReadingType);
-        return partiallySpecifiedReadingType;
+        this.metrologyConfiguration.addReadingTypeRequirement(partiallySpecified);
+        return partiallySpecified;
     }
 }
