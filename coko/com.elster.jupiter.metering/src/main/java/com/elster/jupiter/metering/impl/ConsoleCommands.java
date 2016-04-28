@@ -93,7 +93,8 @@ import java.util.stream.Stream;
         "osgi.command.function=addDeviceLocation",
         "osgi.command.function=addDeviceGeoCoordinates",
         "osgi.command.function=addUsagePointLocation",
-        "osgi.command.function=addUsagePointGeoCoordinates"
+        "osgi.command.function=addUsagePointGeoCoordinates",
+        "osgi.command.function=activateMetrologyConfig"
 
 }, immediate = true)
 public class ConsoleCommands {
@@ -755,4 +756,13 @@ public class ConsoleCommands {
         return builder.toString();
     }
 
+    public void activateMetrologyConfig(String name) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            metrologyConfigurationService.findMetrologyConfiguration(name)
+                    .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"))
+                    .activate();
+            context.commit();
+        }
+    }
 }
