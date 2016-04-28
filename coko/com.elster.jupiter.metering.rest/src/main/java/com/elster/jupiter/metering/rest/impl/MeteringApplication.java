@@ -62,6 +62,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     private volatile ServiceCallService serviceCallService;
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
+    private volatile NlsService nlsService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -102,6 +103,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer()).join(nlsService.getThesaurus(getComponentName(), Layer.DOMAIN));
     }
 
@@ -162,6 +164,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
         @Override
         protected void configure() {
             bind(restQueryService).to(RestQueryService.class);
+            bind(nlsService).to(NlsService.class);
             bind(transactionService).to(TransactionService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(meteringService).to(MeteringService.class);

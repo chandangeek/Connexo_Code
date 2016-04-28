@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.metering.UsagePointTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
@@ -42,10 +43,10 @@ public enum TranslationSeeds implements TranslationKey {
     BILLING_READY_DISPLAY("displayAmiBillingReady", "AMI billing ready"),
     LOCATION("location", "Location"),
 
-    UNMEASURED(UsagePointTypeInfo.UsagePointType.UNMEASURED.name(), UsagePointTypeInfo.UsagePointType.UNMEASURED.displayName),
-    SMART_DUMB(UsagePointTypeInfo.UsagePointType.SMART_DUMB.name(), UsagePointTypeInfo.UsagePointType.SMART_DUMB.displayName),
-    INFRASTRUCTURE(UsagePointTypeInfo.UsagePointType.INFRASTRUCTURE.name(), UsagePointTypeInfo.UsagePointType.INFRASTRUCTURE.displayName),
-    N_A(UsagePointTypeInfo.UsagePointType.N_A.name(), UsagePointTypeInfo.UsagePointType.N_A.displayName)
+    MEASURED_SDP(UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name(), UsagePointTypeInfo.UsagePointType.MEASURED_SDP.displayName),
+    MEASURED_NON_SDP(UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP.name(), UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP.displayName),
+    UNMEASURED_NON_SDP(UsagePointTypeInfo.UsagePointType.UNMEASURED_NON_SDP.name(), UsagePointTypeInfo.UsagePointType.UNMEASURED_NON_SDP.displayName),
+    UNMEASURED_SDP(UsagePointTypeInfo.UsagePointType.UNMEASURED_SDP.name(), UsagePointTypeInfo.UsagePointType.UNMEASURED_SDP.displayName)
 ;
 
     private final String key;

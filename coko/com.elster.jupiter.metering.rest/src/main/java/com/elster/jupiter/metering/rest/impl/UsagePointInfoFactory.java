@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -26,17 +27,17 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
-    private volatile Thesaurus valueThesaurus;
     private volatile MeteringService meteringService;
 
-    @Inject
-    public UsagePointInfoFactory(Clock clock, Thesaurus thesaurus, MeteringService meteringService) {
-        this.clock = clock;
-        this.thesaurus = thesaurus;
-        this.meteringService = meteringService;
+    public UsagePointInfoFactory() {
     }
 
-    public UsagePointInfoFactory() {
+    @Inject
+    public UsagePointInfoFactory(Clock clock, NlsService nlsService, MeteringService meteringService) {
+        this();
+        this.setClock(clock);
+        this.setNlsService(nlsService);
+        this.setMeteringService(meteringService);
     }
 
     @Reference
@@ -51,8 +52,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(MeteringApplication.COMPONENT_NAME, Layer.REST);
-        this.valueThesaurus = nlsService.getThesaurus(MeteringApplication.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus =  nlsService.getThesaurus(MeteringApplication.COMPONENT_NAME, Layer.REST)
+                    .join(nlsService.getThesaurus(MeteringApplication.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Override

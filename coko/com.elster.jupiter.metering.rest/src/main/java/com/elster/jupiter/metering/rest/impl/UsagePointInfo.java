@@ -3,16 +3,15 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.stream.Collectors;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
-
 public class UsagePointInfo {
 
     public long id;
