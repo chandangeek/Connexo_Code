@@ -36,14 +36,14 @@ public class MetrologyConfigurationInstaller {
     }
 
     public void install() {
-//        residentialProsumerWith1Meter();
-//        residentialProsumerWith2Meters();
-//        residentialNetMeteringProduction();
-//        residentialNetMeteringConsumption();
-//        threePhasedConsumerWith2ToU();
-//        residentialConsumerWith4ToU();
-//        waterConfigurationCI();
-//        residentialGas();
+        residentialProsumerWith1Meter();
+        residentialProsumerWith2Meters();
+        residentialNetMeteringProduction();
+        residentialNetMeteringConsumption();
+        threePhasedConsumerWith2ToU();
+        residentialConsumerWith4ToU();
+        waterConfigurationCI();
+        residentialGas();
     }
 
     private void residentialProsumerWith1Meter() {

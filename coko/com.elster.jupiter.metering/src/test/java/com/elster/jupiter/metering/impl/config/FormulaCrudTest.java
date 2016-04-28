@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -26,6 +27,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.metering.impl.TableSpecs;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.validation.ConstraintViolationException;
@@ -36,6 +38,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,6 +66,11 @@ public class FormulaCrudTest {
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
+
+    @Before
+    public void before() {
+        inMemoryBootstrapModule.getOrmService().invalidateCache(MeteringService.COMPONENTNAME, TableSpecs.MTR_READINGTYPE.name());
+    }
 
     @BeforeClass
     public static void setUp() {
@@ -660,8 +668,11 @@ public class FormulaCrudTest {
         }
 
         ReadingType conskWhMonthlyRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhMonthlyRT");
+                inMemoryBootstrapModule.getMeteringService()
+                        .getReadingType(
+                                "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0")
+                        .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                                "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhMonthlyRT"));
 
         try {
             deliverable1.setReadingType(conskWhMonthlyRT);
