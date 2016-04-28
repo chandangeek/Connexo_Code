@@ -73,7 +73,13 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     ValidationRuleSetImpl init(String name) {
-        return init(name, null, null);
+        return init(name, null);
+    }
+
+    ValidationRuleSetImpl init(String name, String description) {
+        this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
+        this.description = description;
+        return this;
     }
 
     ValidationRuleSetImpl init(String name, String description, String application) {

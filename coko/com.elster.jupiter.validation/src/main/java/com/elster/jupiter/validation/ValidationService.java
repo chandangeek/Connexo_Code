@@ -28,6 +28,8 @@ public interface ValidationService {
 
     ValidationRuleSet createValidationRuleSet(String name);
 
+    ValidationRuleSet createValidationRuleSet(String name, String description);
+
     ValidationRuleSet createValidationRuleSet(String name, String description, String application);
 
     List<ValidationRuleSet> getValidationRuleSets();
@@ -45,6 +47,8 @@ public interface ValidationService {
     boolean isValidationRuleSetInUse(ValidationRuleSet validationRuleSet);
 
     Query<ValidationRuleSet> getRuleSetQuery();
+
+    List<Validator> getAvailableValidators();
 
     List<Validator> getAvailableValidators(String targetApplication);
 

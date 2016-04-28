@@ -214,7 +214,14 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Override
     public ValidationRuleSet createValidationRuleSet(String name) {
-        return createValidationRuleSet(name, null, null);
+        return createValidationRuleSet(name, null);
+    }
+
+    @Override
+    public ValidationRuleSet createValidationRuleSet(String name, String description) {
+        ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, description);
+        set.save();
+        return set;
     }
 
     @Override
@@ -470,6 +477,15 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     List<? extends IChannelValidation> getChannelValidations(Channel channel) {
         return dataModel.mapper(IChannelValidation.class).find("channel", channel);
+    }
+
+    @Override
+    public List<Validator> getAvailableValidators() {
+        ValidatorCreator validatorCreator = new DefaultValidatorCreator();
+        return validatorFactories.stream()
+                .flatMap(f -> f.available().stream())
+                .map(validatorCreator::getTemplateValidator)
+                .collect(Collectors.toList());
     }
 
     @Override
