@@ -54,7 +54,7 @@ Ext.define('Bpm.controller.Task', {
             {property: 'creationDate', direction: Uni.component.sort.model.Sort.DESC}];
 
         if (queryString.param === 'noFilter') {
-            delete queryString.param;
+            queryString.param = undefined;
             queryString.sort = Ext.JSON.encode(sort);
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         }
@@ -63,7 +63,7 @@ Ext.define('Bpm.controller.Task', {
                 url: '/api/bpm/runtime/assignees?me=true',
                 method: 'GET',
                 success: function (operation) {
-                    delete queryString.param;
+                    queryString.param = undefined;
                     queryString.user = Ext.JSON.decode(operation.responseText).data[0].name;
                     queryString.status = ['OPEN'];
                     queryString.sort = Ext.JSON.encode(sort);
@@ -78,14 +78,14 @@ Ext.define('Bpm.controller.Task', {
                     var rowIndex = usersStore.findExact('id', -1);
                     queryString.user = usersStore.getAt(rowIndex).get('name');
 
-                    delete queryString.param;
+                    queryString.param = undefined;
                     queryString.sort = Ext.JSON.encode(sort);
                     window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                 }
             });
         }
         else if (queryString.param === 'dueDate') {
-            delete queryString.param;
+            queryString.param = undefined;
             queryString.dueDate = 'OVERDUE';
             queryString.sort = Ext.JSON.encode(sort);
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
