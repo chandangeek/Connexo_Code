@@ -54,7 +54,7 @@ Ext.define('Bpm.controller.Task', {
             {property: 'creationDate', direction: Uni.component.sort.model.Sort.DESC}];
 
         if (queryString.param === 'noFilter') {
-            queryString.param = undefined;
+            delete queryString.param;
             queryString.sort = Ext.JSON.encode(sort);
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         }
@@ -63,7 +63,7 @@ Ext.define('Bpm.controller.Task', {
                 url: '/api/bpm/runtime/assignees?me=true',
                 method: 'GET',
                 success: function (operation) {
-                    queryString.param = undefined;
+                    delete queryString.param;
                     queryString.user = Ext.JSON.decode(operation.responseText).data[0].name;
                     queryString.status = ['OPEN'];
                     queryString.sort = Ext.JSON.encode(sort);
@@ -78,14 +78,14 @@ Ext.define('Bpm.controller.Task', {
                     var rowIndex = usersStore.findExact('id', -1);
                     queryString.user = usersStore.getAt(rowIndex).get('name');
 
-                    queryString.param = undefined;
+                    delete queryString.param;
                     queryString.sort = Ext.JSON.encode(sort);
                     window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                 }
             });
         }
         else if (queryString.param === 'dueDate') {
-            queryString.param = undefined;
+            delete queryString.param;
             queryString.dueDate = 'OVERDUE';
             queryString.sort = Ext.JSON.encode(sort);
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
@@ -97,7 +97,7 @@ Ext.define('Bpm.controller.Task', {
                 argProcess = router.arguments.process;
 
             router.getRoute('workspace/tasks').params.use = false;
-            queryString.param = undefined;
+            delete queryString.param;
             argSort && (argSort != '') && (queryString.sort = argSort);
             argUser && (argUser != '') && (queryString.user = argUser);
             argDueDate && (argDueDate != '') && (queryString.dueDate = argDueDate);
