@@ -40,10 +40,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>fileimport</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
         </dependency>
         <dependency>
@@ -132,6 +128,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.persistence</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

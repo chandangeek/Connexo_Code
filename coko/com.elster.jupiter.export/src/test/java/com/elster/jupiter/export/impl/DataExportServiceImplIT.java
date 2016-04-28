@@ -14,7 +14,7 @@ import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
-import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -111,7 +111,6 @@ public class DataExportServiceImplIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
 
-            bind(FileImportService.class).toInstance(fileImportService);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
@@ -146,8 +145,6 @@ public class DataExportServiceImplIT {
     private DataFormatter dataFormatter;
     @Mock
     private PropertySpec propertySpec;
-    @Mock
-    private FileImportService fileImportService;
     @Mock
     private Thesaurus thesaurus;
 
@@ -215,7 +212,8 @@ public class DataExportServiceImplIT {
                     new DataVaultModule(),
                     new FtpModule(),
                     new UserModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new FileImportModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
