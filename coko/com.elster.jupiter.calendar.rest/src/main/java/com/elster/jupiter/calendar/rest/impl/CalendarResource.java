@@ -44,7 +44,7 @@ public class CalendarResource {
     public List<CalendarInfo> getAllTimeOfUseCalendars() {
        return calendarService.findAllCalendars()
                .stream()
-               .map(calendarInfoFactory::fromCalendar)
+               .map(calendarInfoFactory::detailedFromCalendar)
                .collect(Collectors.toList());
     }
 
@@ -55,7 +55,7 @@ public class CalendarResource {
     public CalendarInfo getTimeOfUseCalendar(@PathParam("id") long id, @QueryParam("weekOf") long milliseconds) {
         if(milliseconds <= 0) {
             return  calendarService.findCalendar(id)
-                    .map(calendarInfoFactory::fromCalendar)
+                    .map(calendarInfoFactory::detailedFromCalendar)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_TIME_OF_USE_CALENDAR));
         } else {
             Instant instant = Instant.ofEpochMilli(milliseconds);
@@ -68,7 +68,7 @@ public class CalendarResource {
 
     private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
         calendarService.newCalendar(calendar.getName(), calendar.getTimeZone(), Year.of(localDate.getYear()));
-        return calendarInfoFactory.fromCalendar(calendar, localDate);
+        return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);
     }
 
 }

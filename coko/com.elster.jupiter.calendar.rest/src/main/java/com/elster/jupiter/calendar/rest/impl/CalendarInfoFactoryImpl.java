@@ -54,8 +54,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         this.thesaurus = nlsService.getThesaurus(CalendarApplication.COMPONENT_NAME, Layer.REST);
     }
 
-    @Override
-    public CalendarInfo fromCalendar(Calendar calendar) {
+    public CalendarInfo detailedFromCalendar(Calendar calendar) {
         CalendarInfo calendarInfo = new CalendarInfo();
 
         addBasicInformation(calendar, calendarInfo);
@@ -69,7 +68,14 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
 
 
     @Override
-    public CalendarInfo fromCalendar(Calendar calendar, LocalDate localDate) {
+    public CalendarInfo summaryFromCalendar(Calendar calendar) {
+        CalendarInfo calendarInfo = new CalendarInfo();
+        addBasicInformation(calendar, calendarInfo);
+        return calendarInfo;
+    }
+
+    @Override
+    public CalendarInfo detailedWeekFromCalendar(Calendar calendar, LocalDate localDate) {
         CalendarInfo calendarInfo = new CalendarInfo();
         addBasicInformation(calendar, calendarInfo);
         Map<Long, PeriodTransition> periodTransistions = new HashMap<>();

@@ -9,7 +9,9 @@ import java.time.LocalDate;
 
 @ProviderType
 public interface CalendarInfoFactory {
-    CalendarInfo fromCalendar(Calendar calendar);
+    CalendarInfo summaryFromCalendar(Calendar calendar);
 
-    CalendarInfo fromCalendar(Calendar calendar, LocalDate localDate);
+    CalendarInfo detailedFromCalendar(Calendar calendar);
+
+    CalendarInfo detailedWeekFromCalendar(Calendar calendar, LocalDate localDate);
 }
