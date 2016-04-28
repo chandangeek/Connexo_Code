@@ -4,6 +4,7 @@ import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.properties.PropertySpec;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.Component;
 
@@ -18,13 +19,21 @@ import java.util.Map;
  */
 
 @Component(name = "com.elster.jupiter.calendar.importers.impl.CalendarImporterFactory",
-        service = CalendarImporterFactory.class,
+        service = FileImporterFactory.class,
         immediate = true)
 public class CalendarImporterFactory implements FileImporterFactory {
 
     public static final String NAME = "CalendarImporterFactory";
 
     private volatile CalendarImporterContext context;
+
+    @Activate
+    public void activate() {
+        System.out.println("test");
+    }
+
+    public CalendarImporterFactory() {
+    }
 
     @Inject
     public CalendarImporterFactory(CalendarImporterContext context) {
@@ -34,7 +43,8 @@ public class CalendarImporterFactory implements FileImporterFactory {
 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
-        return null;
+        return new TimeOfUseCalendarImporter();
+
     }
 
     @Override
@@ -45,12 +55,12 @@ public class CalendarImporterFactory implements FileImporterFactory {
 
     @Override
     public String getDestinationName() {
-        return null;
+        return CalendarImporterMessageHandler.DESTINATION_NAME;
     }
 
     @Override
     public String getApplicationName() {
-        return null;
+        return "SYS";
     }
 
     @Override

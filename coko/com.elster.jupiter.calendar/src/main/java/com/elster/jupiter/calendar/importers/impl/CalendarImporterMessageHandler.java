@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.elster.jupiter.util.exception.MessageSeed;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -40,6 +41,11 @@ public class CalendarImporterMessageHandler implements MessageHandlerFactory, Tr
     private volatile FileImportService fileImportService;
 
     public CalendarImporterMessageHandler() {}
+
+    @Activate
+    public void activate() {
+        System.out.println("test");
+    }
 
     @Inject
     public CalendarImporterMessageHandler(MessageService messageService, FileImportService fileImportService) {

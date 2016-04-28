@@ -5,13 +5,14 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.Clock;
 
-@Component(name = "com.elster.jupiter.calendar.importers.importers.CalendarImporterContext", service = {CalendarImporterContext.class})
+@Component(name = "com.elster.jupiter.calendar.importers.impl.CalendarImporterContext", service = {CalendarImporterContext.class})
 public class CalendarImporterContext {
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
@@ -30,6 +31,11 @@ public class CalendarImporterContext {
         setUserService(userService);
         setThreadPrincipalService(threadPrincipalService);
         setClock(clock);
+    }
+
+    @Activate
+    public void activate() {
+        System.out.println("test");
     }
 
 
