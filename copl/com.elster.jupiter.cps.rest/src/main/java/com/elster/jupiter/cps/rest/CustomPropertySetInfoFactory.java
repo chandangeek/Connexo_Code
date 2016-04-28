@@ -348,7 +348,7 @@ public class CustomPropertySetInfoFactory {
                 quantityInfo.value = value.getValue().toPlainString();
                 quantityInfo.multiplier = value.getMultiplier();
                 quantityInfo.unit = value.getUnit().toString();
-                String[] valueParts = value.toString(true).split(" ");
+                String[] valueParts = value.toString(false).split(" ");
                 quantityInfo.displayValue = valueParts[1];
             }
             return quantityInfo;
