@@ -12,7 +12,8 @@ Ext.define('Imt.metrologyconfiguration.model.MetrologyConfiguration', {
         {name: 'serviceCategory', type: 'auto', defaultValue: null},
         {name: 'meterRoles', type: 'auto', defaultValue: null},
         {name: 'purposes', type: 'auto', defaultValue: null},
-        {name: 'usagePointRequirements', type: 'auto', defaultValue: null}
+        {name: 'usagePointRequirements', type: 'auto', defaultValue: null},
+        {name: 'customPropertySets', type: 'auto', defaultValue: null, useNull: true}
     ],
 
     associations: [

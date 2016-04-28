@@ -78,7 +78,7 @@ Ext.define('Imt.controller.Main', {
 	            text: Uni.I18n.translate('general.label.usagepoints', 'IMT', 'Usage points'),
 	            href: 'usagepoints',
 	            portal: 'usagepoints',
-	            glyph: 'devices',
+	            glyph: 'usagepoints',
 	            index: 20
 	        });
 	
