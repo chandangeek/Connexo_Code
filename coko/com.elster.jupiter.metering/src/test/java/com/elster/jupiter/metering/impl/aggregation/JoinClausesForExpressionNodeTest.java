@@ -59,7 +59,7 @@ public class JoinClausesForExpressionNodeTest {
     @Test
     public void variableReferenceNodesDoNotProvideJoinClauseInformation() {
         JoinClausesForExpressionNode testInstance = this.testInstance();
-        ServerExpressionNode node = new VariableReferenceNode("varName");
+        ServerExpressionNode node = new SqlFragmentNode("varName");
 
         // Business method
         node.accept(testInstance);

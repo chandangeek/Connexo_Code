@@ -2,12 +2,12 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 
 /**
- * Models a {@link ServerExpressionNode} that represents the <code>null</code> leteral.
+ * Models a {@link ServerExpressionNode} that represents the <code>null</code> literal.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-19 (09:35)
  */
-class NullNodeImpl implements ServerExpressionNode {
+class NullNode implements ServerExpressionNode {
 
     @Override
     public <T> T accept(Visitor<T> visitor) {

@@ -52,12 +52,12 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
     }
 
     @Override
-    public ExpressionNode getLeftOperand() {
+    public ServerExpressionNode getLeftOperand() {
         return this.getChildren().get(0);
     }
 
     @Override
-    public ExpressionNode getRightOperand() {
+    public ServerExpressionNode getRightOperand() {
         return this.getChildren().get(1);
     }
 
@@ -83,8 +83,8 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
 
     public void validate() {
         if (this.getParent() == null) {
-            AbstractNode left = (AbstractNode) getLeftOperand();
-            AbstractNode right = (AbstractNode) getRightOperand();
+            ServerExpressionNode left = getLeftOperand();
+            ServerExpressionNode right = getRightOperand();
             if (operator.equals(Operator.MINUS) || operator.equals(Operator.PLUS)) {
                 if (!UnitConversionSupport.areCompatibleForAutomaticUnitConversion(
                         left.getDimension(), right.getDimension())) {
@@ -116,7 +116,6 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
                 }
             }
         }
-
     }
 
     private boolean isConstantNode(ExpressionNode node) {
@@ -138,17 +137,32 @@ public class OperationNodeImpl extends AbstractNode implements OperationNode {
 
     @Override
     public IntermediateDimension getIntermediateDimension() {
-        if (operator.equals(Operator.MINUS) || operator.equals(Operator.PLUS)) {
-            return ((AbstractNode) getLeftOperand()).getIntermediateDimension();
-        } else if (operator.equals(Operator.MULTIPLY)) {
-            return
+        switch (operator) {
+            case MINUS: // Intentional fall-through
+            case PLUS: {
+                IntermediateDimension leftDimension = getLeftOperand().getIntermediateDimension();
+                if (leftDimension.isDimensionless()) {
+                    return this.getRightOperand().getIntermediateDimension();
+                } else {
+                    return leftDimension;
+                }
+            }
+            case MULTIPLY: {
+                return
                     UnitConversionSupport.multiply(
-                            ((AbstractNode) getLeftOperand()).getIntermediateDimension(),
-                            ((AbstractNode) getRightOperand()).getIntermediateDimension());
-        } else {
-            return UnitConversionSupport.divide(
-                    ((AbstractNode) getLeftOperand()).getIntermediateDimension(),
-                    ((AbstractNode) getRightOperand()).getIntermediateDimension());
+                            getLeftOperand().getIntermediateDimension(),
+                            getRightOperand().getIntermediateDimension());
+            }
+            case SAFE_DIVIDE:   // Intentional fall-througg
+            case DIVIDE : {
+                return
+                    UnitConversionSupport.divide(
+                            getLeftOperand().getIntermediateDimension(),
+                            getRightOperand().getIntermediateDimension());
+            }
+            default: {
+                throw new IllegalArgumentException("Unknown or unsupported operation for getIntermediateDimension: " + operator);
+            }
         }
     }
 

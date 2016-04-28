@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.impl.RecordSpecs;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -49,7 +50,7 @@ final class SqlConstants {
          */
         ID("id", "TIMESERIESID") {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 sqlBuilder.append(VIRTUAL_TIMESERIES_ID);
             }
 
@@ -70,7 +71,7 @@ final class SqlConstants {
          */
         TIMESTAMP("timestamp", "UTCSTAMP") {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 String value = expressionNode.accept(new TimeStampFromExpressionNode());
                 if (value == null) {
                     sqlBuilder.append("0");
@@ -101,7 +102,7 @@ final class SqlConstants {
          */
         VERSIONCOUNT("versioncount", "VERSIONCOUNT") {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 sqlBuilder.append(VIRTUAL_VERSION_COUNT);
             }
 
@@ -122,7 +123,7 @@ final class SqlConstants {
          */
         RECORDTIME("recordtime", "RECORDTIME") {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 sqlBuilder.append(VIRTUAL_RECORD_TIME);
             }
 
@@ -143,7 +144,7 @@ final class SqlConstants {
          */
         PROCESSSTATUS("processStatus", RecordSpecs.PROCESS_STATUS) {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 String value = expressionNode.accept(new ProcessStatusFromExpressionNode());
                 if (value == null) {
                     sqlBuilder.append("0");
@@ -166,8 +167,8 @@ final class SqlConstants {
          */
         VALUE("value", RecordSpecs.VALUE) {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
-                sqlBuilder.add(expressionNode.accept(new ExpressionNodeToSql()));
+            void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+                sqlBuilder.add(expressionNode.accept(new ExpressionNodeToSql(mode)));
             }
 
             @Override
@@ -182,7 +183,7 @@ final class SqlConstants {
          */
         LOCALDATE("localdate", "LOCALDATE") {
             @Override
-            void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+            void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
                 String value = expressionNode.accept(new LocalDateFromExpressionNode());
                 if (value == null) {
                     sqlBuilder.append("sysdate");
@@ -230,21 +231,22 @@ final class SqlConstants {
          * Append the appropriate select value for the specified {@link ServerExpressionNode}
          * for all TimeSeriesColumnNames to the specified SqlBuilder.
          *
+         * @param mode The Formula.Mode
          * @param expressionNode The ServerExpressionNode
          * @param expertIntervalLength The target IntervalLength that is applied by the expert mode
          * @param targetReadingType The target VirtualReadingType
          * @param sqlBuilder The SqlBuilder
          */
-        static void appendAllDeliverableSelectValues(ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+        static void appendAllDeliverableSelectValues(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
             for (TimeSeriesColumnNames columnName : values()) {
-                columnName.appendAsDeliverableSelectValue(expressionNode, expertIntervalLength, targetReadingType, sqlBuilder);
+                columnName.appendAsDeliverableSelectValue(mode, expressionNode, expertIntervalLength, targetReadingType, sqlBuilder);
                 if (columnName != LOCALDATE) {
                     sqlBuilder.append(", ");
                 }
             }
         }
 
-        abstract void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder);
+        abstract void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder);
 
         /**
          * Append the appropriate select value to (if necessary) convert values

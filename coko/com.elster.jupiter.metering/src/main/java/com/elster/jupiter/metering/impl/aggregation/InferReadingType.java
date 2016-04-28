@@ -58,13 +58,18 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
     }
 
     @Override
-    public VirtualReadingType visitNull(NullNodeImpl nullNode) {
+    public VirtualReadingType visitNull(NullNode nullNode) {
         return VirtualReadingType.dontCare();
     }
 
     @Override
-    public VirtualReadingType visitVariable(VariableReferenceNode variable) {
+    public VirtualReadingType visitSqlFragment(SqlFragmentNode variable) {
         return VirtualReadingType.dontCare();
+    }
+
+    @Override
+    public VirtualReadingType visitUnitConversion(UnitConversionNode unitConversionNode) {
+        return unitConversionNode.getTargetReadingType();
     }
 
     @Override
@@ -210,7 +215,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         }
 
         @Override
-        public Boolean visitNull(NullNodeImpl nullNode) {
+        public Boolean visitNull(NullNode nullNode) {
             return Boolean.TRUE;
         }
 
@@ -220,7 +225,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         }
 
         @Override
-        public Boolean visitVariable(VariableReferenceNode variable) {
+        public Boolean visitSqlFragment(SqlFragmentNode variable) {
             return Boolean.TRUE;
         }
 
@@ -233,6 +238,11 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         public Boolean visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
             // This is just another reference to a deliverable that we can always aggregate to a different interval
             return true;
+        }
+
+        @Override
+        public Boolean visitUnitConversion(UnitConversionNode unitConversionNode) {
+            return UnitConversionSupport.areCompatibleForAutomaticUnitConversion(this.getReadingType(), unitConversionNode.getTargetReadingType());
         }
 
         @Override
@@ -283,12 +293,12 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         }
 
         @Override
-        public Void visitNull(NullNodeImpl nullNode) {
+        public Void visitNull(NullNode nullNode) {
             return null;
         }
 
         @Override
-        public Void visitVariable(VariableReferenceNode variable) {
+        public Void visitSqlFragment(SqlFragmentNode variable) {
             return null;
         }
 
@@ -301,6 +311,12 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         @Override
         public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
             deliverable.setTargetReadingType(this.readingType);
+            return null;
+        }
+
+        @Override
+        public Void visitUnitConversion(UnitConversionNode unitConversionNode) {
+            unitConversionNode.setTargetReadingType(this.readingType);
             return null;
         }
 
@@ -359,20 +375,20 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         }
 
         @Override
-        public Void visitNull(NullNodeImpl nullNode) {
+        public Void visitNull(NullNode nullNode) {
             return null;
         }
 
         @Override
-        public Void visitVariable(VariableReferenceNode variable) {
+        public Void visitSqlFragment(SqlFragmentNode variable) {
             return null;
         }
 
         @Override
         public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
-            requirement.setTargetInterval(this.intervalLength);
+            requirement.setTargetIntervalLength(this.intervalLength);
             requirement.setTargetMultiplier(this.multiplier);
-            requirement.setCommodity(this.commodity);
+            requirement.setTargetCommodity(this.commodity);
             return null;
         }
 
@@ -380,7 +396,15 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
             deliverable.setTargetIntervalLength(this.intervalLength);
             deliverable.setTargetMultiplier(this.multiplier);
-            deliverable.setCommodity(this.commodity);
+            deliverable.setTargetCommodity(this.commodity);
+            return null;
+        }
+
+        @Override
+        public Void visitUnitConversion(UnitConversionNode unitConversionNode) {
+            unitConversionNode.setTargetIntervalLength(this.intervalLength);
+            unitConversionNode.setTargetMultiplier(this.multiplier);
+            unitConversionNode.setTargetCommodity(this.commodity);
             return null;
         }
 

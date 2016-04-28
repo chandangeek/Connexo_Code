@@ -58,13 +58,13 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     }
 
     @Override
-    public ServerExpressionNode visitNull(NullNodeImpl nullNode) {
+    public ServerExpressionNode visitNull(NullNode nullNode) {
         // No replacement
         return nullNode;
     }
 
     @Override
-    public ServerExpressionNode visitVariable(VariableReferenceNode variable) {
+    public ServerExpressionNode visitSqlFragment(SqlFragmentNode variable) {
         // No replacement
         return variable;
     }
@@ -73,6 +73,11 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     public ServerExpressionNode visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         // No replacement
         return deliverable;
+    }
+
+    @Override
+    public ServerExpressionNode visitUnitConversion(UnitConversionNode unitConversionNode) {
+        return new UnitConversionNode(unitConversionNode.getExpressionNode().accept(this), unitConversionNode.getTargetReadingType());
     }
 
     @Override

@@ -142,16 +142,16 @@ class VirtualRequirementNode implements ServerExpressionNode {
         this.targetReadingType = targetReadingType;
     }
 
-    void setTargetInterval(IntervalLength intervalLength) {
-        this.targetReadingType = this.targetReadingType.withIntervalLength(intervalLength);
+    void setTargetIntervalLength(IntervalLength intervalLength) {
+        this.setTargetReadingType(this.targetReadingType.withIntervalLength(intervalLength));
     }
 
     void setTargetMultiplier(MetricMultiplier multiplier) {
-        this.targetReadingType = this.targetReadingType.withMetricMultiplier(multiplier);
+        this.setTargetReadingType(this.targetReadingType.withMetricMultiplier(multiplier));
     }
 
-    void setCommodity(Commodity commodity) {
-        this.targetReadingType = this.targetReadingType.withCommondity(commodity);
+    void setTargetCommodity(Commodity commodity) {
+        this.setTargetReadingType(this.targetReadingType.withCommondity(commodity));
     }
 
     void finish() {
@@ -185,11 +185,23 @@ class VirtualRequirementNode implements ServerExpressionNode {
 
     /**
      * Appends the necessary sql constructs to the specified {@link SqlBuilder}
-     * to get the value of this nodes's {@link ReadingTypeRequirement}.
+     * to get the simple value of this nodes's {@link ReadingTypeRequirement}.
      *
      * @param sqlBuilder The SqlBuilder
      */
     void appendTo(SqlBuilder sqlBuilder) {
+        this.ensureVirtualized();
+        this.virtualRequirement.appendSimpleReferenceTo(sqlBuilder);
+    }
+
+    /**
+     * Appends the necessary sql constructs to the specified {@link SqlBuilder}
+     * to get the value of this nodes's {@link ReadingTypeRequirement}
+     * and apply unit conversion if that is necessary.
+     *
+     * @param sqlBuilder The SqlBuilder
+     */
+    void appendToWithUnitConversion(SqlBuilder sqlBuilder) {
         this.ensureVirtualized();
         this.virtualRequirement.appendReferenceTo(sqlBuilder);
     }

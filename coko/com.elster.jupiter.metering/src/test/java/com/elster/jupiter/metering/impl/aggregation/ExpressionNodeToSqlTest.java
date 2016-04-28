@@ -37,7 +37,7 @@ public class ExpressionNodeToSqlTest {
     @Test
     public void testNull() {
         // Business method
-        String expression = testInstance().visitNull(new NullNodeImpl()).getText();
+        String expression = testInstance().visitNull(new NullNode()).getText();
 
         // Asserts
         assertThat(expression).isEqualTo("null");
@@ -76,7 +76,7 @@ public class ExpressionNodeToSqlTest {
         String name = "variableName";
 
         // Business method
-        String expression = testInstance().visitVariable(new VariableReferenceNode(name)).getText();
+        String expression = testInstance().visitSqlFragment(new SqlFragmentNode(name)).getText();
 
         // Asserts
         assertThat(expression).isEqualTo(name);
@@ -85,7 +85,7 @@ public class ExpressionNodeToSqlTest {
     @Test
     public void testVariablePlusConstant() throws SQLException {
         String variableName = "var";
-        VariableReferenceNode variable = new VariableReferenceNode(variableName);
+        SqlFragmentNode variable = new SqlFragmentNode(variableName);
         OperationNode operation = new OperationNode(Operator.PLUS, variable, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
@@ -102,7 +102,7 @@ public class ExpressionNodeToSqlTest {
     @Test
     public void testVariableMinusConstant() throws SQLException {
         String variableName = "var";
-        VariableReferenceNode variable = new VariableReferenceNode(variableName);
+        SqlFragmentNode variable = new SqlFragmentNode(variableName);
         OperationNode operation = new OperationNode(Operator.MINUS, variable, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
@@ -119,7 +119,7 @@ public class ExpressionNodeToSqlTest {
     @Test
     public void testVariableTimesConstant() throws SQLException {
         String variableName = "var";
-        VariableReferenceNode variable = new VariableReferenceNode(variableName);
+        SqlFragmentNode variable = new SqlFragmentNode(variableName);
         OperationNode operation = new OperationNode(Operator.MULTIPLY, variable, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
@@ -136,7 +136,7 @@ public class ExpressionNodeToSqlTest {
     @Test
     public void testVariableDividedByConstant() throws SQLException {
         String variableName = "var";
-        VariableReferenceNode variable = new VariableReferenceNode(variableName);
+        SqlFragmentNode variable = new SqlFragmentNode(variableName);
         OperationNode operation = new OperationNode(Operator.DIVIDE, variable, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
@@ -152,8 +152,8 @@ public class ExpressionNodeToSqlTest {
 
     @Test
     public void testSafeVariableDivision() throws SQLException {
-        VariableReferenceNode variable1 = new VariableReferenceNode("var1");
-        VariableReferenceNode variable2 = new VariableReferenceNode("var2");
+        SqlFragmentNode variable1 = new SqlFragmentNode("var1");
+        SqlFragmentNode variable2 = new SqlFragmentNode("var2");
         OperationNode operation = new OperationNode(Operator.SAFE_DIVIDE, variable1, variable2, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
@@ -169,8 +169,8 @@ public class ExpressionNodeToSqlTest {
 
     @Test
     public void testFunctionCall() throws SQLException {
-        VariableReferenceNode variable1 = new VariableReferenceNode("var1");
-        VariableReferenceNode variable2 = new VariableReferenceNode("var2");
+        SqlFragmentNode variable1 = new SqlFragmentNode("var1");
+        SqlFragmentNode variable2 = new SqlFragmentNode("var2");
         FunctionCallNode node = new FunctionCallNode(Function.SUM, variable1, variable2, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
@@ -327,7 +327,7 @@ public class ExpressionNodeToSqlTest {
     }
 
     private ExpressionNodeToSql testInstance() {
-        return new ExpressionNodeToSql();
+        return new ExpressionNodeToSql(Formula.Mode.AUTO);
     }
 
 }

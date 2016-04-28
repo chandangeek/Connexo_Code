@@ -37,20 +37,24 @@ class VirtualDeliverableNode implements ServerExpressionNode {
         return this.targetReadingType;
     }
 
+    VirtualReadingType getTargetReadingType() {
+        return targetReadingType;
+    }
+
     void setTargetReadingType(VirtualReadingType targetReadingType) {
         this.targetReadingType = targetReadingType;
     }
 
     void setTargetIntervalLength(IntervalLength intervalLength) {
-        this.targetReadingType = this.targetReadingType.withIntervalLength(intervalLength);
+        this.setTargetReadingType(this.targetReadingType.withIntervalLength(intervalLength));
     }
 
     void setTargetMultiplier(MetricMultiplier multiplier) {
-        this.targetReadingType = this.targetReadingType.withMetricMultiplier(multiplier);
+        this.setTargetReadingType(this.targetReadingType.withMetricMultiplier(multiplier));
     }
 
-    void setCommodity(Commodity commodity) {
-        this.targetReadingType = this.targetReadingType.withCommondity(commodity);
+    void setTargetCommodity(Commodity commodity) {
+        this.setTargetReadingType(this.targetReadingType.withCommondity(commodity));
     }
 
     @Override
@@ -60,11 +64,22 @@ class VirtualDeliverableNode implements ServerExpressionNode {
 
     /**
      * Appends the necessary sql constructs to the specified {@link SqlBuilder}
-     * to get the value of this nodes's {@link ReadingTypeRequirement}.
+     * to get the simple value of this nodes's {@link ReadingTypeRequirement}.
      *
      * @param sqlBuilder The SqlBuilder
      */
     void appendTo(SqlBuilder sqlBuilder) {
+        this.deliverable.appendSimpleReferenceTo(sqlBuilder, this.targetReadingType);
+    }
+
+    /**
+     * Appends the necessary sql constructs to the specified {@link SqlBuilder}
+     * to get the value of this nodes's {@link ReadingTypeRequirement}
+     * and apply unit conversion if necessary.
+     *
+     * @param sqlBuilder The SqlBuilder
+     */
+    void appendToWithUnitConversion(SqlBuilder sqlBuilder) {
         this.deliverable.appendReferenceTo(sqlBuilder, this.targetReadingType);
     }
 

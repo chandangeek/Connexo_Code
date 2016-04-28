@@ -154,6 +154,10 @@ public class VirtualReadingTypeRequirement {
             && IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
     }
 
+    void appendSimpleReferenceTo(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
+    }
+
     void appendReferenceTo(SqlBuilder sqlBuilder) {
         VirtualReadingType sourceReadingType = this.getSourceReadingType();
         sqlBuilder.append(

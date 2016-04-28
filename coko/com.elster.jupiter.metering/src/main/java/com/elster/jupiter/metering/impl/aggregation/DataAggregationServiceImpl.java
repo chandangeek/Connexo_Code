@@ -176,7 +176,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     /**
      * Copies the formula of the {@link ReadingTypeDeliverable} and replaces
      * references to requirements and deliverables with virtual references
-     * as described by {@link CopyAndVirtualizeReferences}.
+     * as described by {@link Copy}.
      *
      * @param deliverable The ReadingTypeDeliverable
      * @param meterActivation The MeterActivation
@@ -185,8 +185,8 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      */
     private ServerExpressionNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation, Formula.Mode mode) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
-        CopyAndVirtualizeReferences visitor =
-                new CopyAndVirtualizeReferences(
+        Copy visitor =
+                new Copy(
                         mode,
                         virtualFactory,
                         new ReadingTypeDeliverablePerMeterActivationProviderImpl(deliverablesPerMeterActivation),

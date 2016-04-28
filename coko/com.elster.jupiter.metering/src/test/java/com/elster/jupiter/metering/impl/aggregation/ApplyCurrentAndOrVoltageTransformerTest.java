@@ -94,10 +94,10 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     @Test
     public void noReplacementOfVariableReferences() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
-        VariableReferenceNode node = new VariableReferenceNode("noReplacementOfVariableReferences");
+        SqlFragmentNode node = new SqlFragmentNode("noReplacementOfVariableReferences");
 
         // Business method
-        ServerExpressionNode replacement = testInstance.visitVariable(node);
+        ServerExpressionNode replacement = testInstance.visitSqlFragment(node);
 
         // Asserts
         assertThat(replacement).isSameAs(node);

@@ -96,6 +96,10 @@ class ReadingTypeDeliverableForMeterActivation {
         this.expressionNode.accept(new FinishRequirementAndDeliverableNodes());
     }
 
+    void appendSimpleReferenceTo(SqlBuilder sqlBuilder, VirtualReadingType targetReadingType) {
+        sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
+    }
+
     void appendReferenceTo(SqlBuilder sqlBuilder, VirtualReadingType targetReadingType) {
         VirtualReadingType sourceReadingType = this.targetReadingType;
         sqlBuilder.append(
@@ -125,6 +129,7 @@ class ReadingTypeDeliverableForMeterActivation {
         withClauseBuilder.append("SELECT ");
         SqlConstants.TimeSeriesColumnNames
                 .appendAllDeliverableSelectValues(
+                        this.mode,
                         this.expressionNode,
                         this.expertModeIntervalLength(),
                         this.targetReadingType,
@@ -324,13 +329,19 @@ class ReadingTypeDeliverableForMeterActivation {
         }
 
         @Override
-        public Void visitVariable(VariableReferenceNode variable) {
+        public Void visitSqlFragment(SqlFragmentNode variable) {
             // Nothing to finish here
             return null;
         }
 
         @Override
-        public Void visitNull(NullNodeImpl nullNode) {
+        public Void visitNull(NullNode nullNode) {
+            // Nothing to finish here
+            return null;
+        }
+
+        @Override
+        public Void visitUnitConversion(UnitConversionNode unitConversionNode) {
             // Nothing to finish here
             return null;
         }
