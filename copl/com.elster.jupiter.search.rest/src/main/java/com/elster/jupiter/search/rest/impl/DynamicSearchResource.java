@@ -1,9 +1,7 @@
 package com.elster.jupiter.search.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -17,7 +15,6 @@ import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
 import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
-import com.elster.jupiter.util.HasId;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -33,11 +30,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -71,8 +66,8 @@ public class DynamicSearchResource {
                                      @BeanParam JsonQueryFilter filter,
                                      @BeanParam UriInfo uriInfo) {
         List<SearchDomain> domains;
-        if (filter.hasProperty("application")){
-            domains = searchService.getDomains(filter.getString("application"));
+        if (filter.hasProperty("application")) {
+               domains = searchService.getDomains(filter.getString("application"));
         } else {
             domains = searchService.getDomains();
         }
