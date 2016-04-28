@@ -21,7 +21,7 @@ public final class Version implements Comparable<Version> {
         return new Version(MigrationVersion.fromVersion(version));
     }
 
-    public static Version version(int... parts) {
+    public static Version version(int major, int... parts) {
         return version(Arrays.stream(parts).mapToObj(Integer::toString).collect(Collectors.joining(".")));
     }
 
