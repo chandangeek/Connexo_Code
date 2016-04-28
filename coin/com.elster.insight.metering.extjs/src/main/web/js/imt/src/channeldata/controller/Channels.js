@@ -306,10 +306,11 @@ Ext.define('Imt.channeldata.controller.Channels', {
             formRecord = form.getRecord();
         }
         formRecord.set('validationInfo_dataValidated',
-            record.get('dataValidated')? Uni.I18n.translate('general.yes', 'IMT', 'Yes')
-                : Uni.I18n.translate('general.no', 'IMT', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>');
-        formRecord.set('lastChecked_formatted',
-            Uni.DateTime.formatDateTimeLong(new Date(record.get('lastChecked'))));
+            record.get('dataValidated')
+                ? Uni.I18n.translate('general.yes', 'IMT', 'Yes')
+                : Uni.I18n.translate('general.no', 'IMT', 'No') + '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>'
+        );
+        formRecord.set('lastChecked_formatted', Uni.DateTime.formatDateTimeLong(new Date(record.get('lastChecked'))));
 
         form.loadRecord(formRecord);
     }
