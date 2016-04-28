@@ -485,4 +485,17 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         assertThat((String) model.get("$.usagePointRequirements[0].value[0].operator")).isEqualTo("==");
         assertThat((List) model.get("$.usagePointRequirements[0].value[0].criteria")).containsOnly("Value 1", "Value 2");
     }
+
+    @Test
+    public void testActivateMetrologyConfiguration() throws Exception {
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "Residential", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE);
+        MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
+        info.id = 13L;
+        info.version = 1;
+
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(info.id, info.version)).thenReturn(Optional.of(metrologyConfiguration));
+
+        Response response = target("metrologyconfigurations/13/activate").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
 }
