@@ -216,7 +216,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     @Test
     public void testGetValidators() {
         List<Validator> mockValidator = Arrays.asList(mockValidator("B Validator"), mockValidator("A Validator"));
-        when(validationService.getAvailableValidators("")).thenReturn(mockValidator);
+        when(validationService.getAvailableValidators(any(String.class))).thenReturn(mockValidator);
 
         ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
 
@@ -436,7 +436,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         info.description = "desc";
 
         ValidationRuleSet ruleSet = mockValidationRuleSet(V_RULE_SET_ID);
-        when(validationService.createValidationRuleSet(info.name, info.description)).thenReturn(ruleSet);
+        when(validationService.createValidationRuleSet(info.name, info.description, null)).thenReturn(ruleSet);
         Response response = target("/validation").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }

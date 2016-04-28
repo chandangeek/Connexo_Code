@@ -37,6 +37,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -89,9 +90,9 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public Response getValidationRuleSets(@Context UriInfo uriInfo) {
+    public Response getValidationRuleSets(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName, @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<ValidationRuleSet> list = queryRuleSets(params);
+        List<ValidationRuleSet> list = queryRuleSets(params, applicationName);
 
         ValidationRuleSetInfos infos = new ValidationRuleSetInfos(params.clipToLimit(list));
         infos.total = params.determineTotal(list.size());
@@ -103,10 +104,10 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public Response createValidationRuleSet(final ValidationRuleSetInfo info) {
+    public Response createValidationRuleSet(final ValidationRuleSetInfo info, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         return Response.status(Response.Status.CREATED)
                 .entity(new ValidationRuleSetInfo(transactionService.execute(
-                        () -> validationService.createValidationRuleSet(info.name, info.description)))).build();
+                        () -> validationService.createValidationRuleSet(info.name, info.description, applicationName)))).build();
     }
 
     @PUT
@@ -153,9 +154,10 @@ public class ValidationResource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
-    private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters) {
+    private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters, String applicationName) {
         Query<ValidationRuleSet> query = validationService.getRuleSetQuery();
         query.setRestriction(where("obsoleteTime").isNull());
+        query.setRestriction(where("application").isEqualTo(applicationName));
         RestQuery<ValidationRuleSet> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
@@ -469,9 +471,9 @@ public class ValidationResource {
     @Path("/validators")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
-    public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
+    public ValidatorInfos getAvailableValidators(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName, @Context UriInfo uriInfo) {
 
-        List<Validator> toAdd = validationService.getAvailableValidators("");
+        List<Validator> toAdd = validationService.getAvailableValidators(applicationName);
         Collections.sort(toAdd, Compare.BY_DISPLAY_NAME);
 
         ValidatorInfos infos = new ValidatorInfos();
