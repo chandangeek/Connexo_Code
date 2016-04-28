@@ -1209,6 +1209,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 getCurrentMeterActivation().ifPresent(ma -> ma.endAt(startTime));
                 MeterActivation meterActivation = activator.get();
                 meterActivation.setMultiplier(getDefaultMultiplierType(), getMultiplier());
+                if (usagePoint != null) {
+                    usagePoint.getLocation().ifPresent(loc -> {
+                        location = location == null ? loc : location;
+                    });
+                }
             });
         });
     }
