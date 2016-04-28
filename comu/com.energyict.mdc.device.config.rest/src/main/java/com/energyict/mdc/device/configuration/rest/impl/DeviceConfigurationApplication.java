@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
+import com.elster.jupiter.calendar.rest.impl.CalendarInfoFactoryImpl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.license.License;
@@ -76,6 +79,8 @@ public class DeviceConfigurationApplication extends Application implements Messa
     private volatile FirmwareService firmwareService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile CalendarInfoFactory calendarInfoFactory;
+    private volatile CalendarService calendarService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -162,6 +167,16 @@ public class DeviceConfigurationApplication extends Application implements Messa
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setCalendarInfoFactory(CalendarInfoFactory calendarInfoFactory) {
+        this.calendarInfoFactory = calendarInfoFactory;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Reference
@@ -257,6 +272,8 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(calendarInfoFactory).to(CalendarInfoFactory.class);
+            bind(calendarService).to(CalendarService.class);
             bind(engineConfigurationService).to(EngineConfigurationService.class);
             bind(validationService).to(ValidationService.class);
             bind(estimationService).to(EstimationService.class);

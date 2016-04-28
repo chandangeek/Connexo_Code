@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfo;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -13,6 +16,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -68,6 +72,8 @@ public class DeviceTypeResource {
     private final Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider;
     private final Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider;
     private final ProtocolPluggableService protocolPluggableService;
+    private final CalendarInfoFactory calendarInfoFactory;
+    private final CalendarService calendarService;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -79,6 +85,8 @@ public class DeviceTypeResource {
             ProtocolPluggableService protocolPluggableService,
             Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider,
             Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider,
+            CalendarInfoFactory calendarInfoFactory,
+            CalendarService calendarService,
             Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
@@ -87,6 +95,8 @@ public class DeviceTypeResource {
         this.loadProfileTypeResourceProvider = loadProfileTypeResourceProvider;
         this.deviceConfigurationResourceProvider = deviceConfigurationResourceProvider;
         this.deviceConflictMappingResourceProvider = deviceConflictMappingResourceProvider;
+        this.calendarInfoFactory = calendarInfoFactory;
+        this.calendarService = calendarService;
         this.thesaurus = thesaurus;
     }
 
@@ -483,6 +493,35 @@ public class DeviceTypeResource {
         deviceType.removeRegisterType(registerType);
         return Response.ok().build();
     }
+
+    @GET
+    @Path("/{id}/timeofuse")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response getCalendars(@PathParam("id") long id) {
+        List<CalendarInfo> infos;
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        infos = deviceType.getAllowedCalendars()
+                .stream()
+                .map(allowedCalendar ->  calendarInfoFactory.fromCalendar(allowedCalendar.getCalendar().get()))
+                .collect(Collectors.toList());
+
+
+
+        return Response.ok(infos).build();
+    }
+
+    @GET
+    @Path("/timeofusecalendars")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response getAllCalendars() {
+        List<CalendarInfo> infos = new ArrayList<>();
+
+
+        return Response.ok(infos).build();
+    }
+
 
     private void updateRegisterTypeAssociations(DeviceType deviceType, List<RegisterTypeInfo> newRegisterTypeInfos) {
         Set<Long> newRegisterTypeIds = asIdz(newRegisterTypeInfos);

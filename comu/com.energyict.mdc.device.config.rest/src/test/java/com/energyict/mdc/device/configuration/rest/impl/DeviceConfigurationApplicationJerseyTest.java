@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.cps.*;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
@@ -70,6 +72,10 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
     CustomPropertySetService customPropertySetService;
+    @Mock
+    CalendarInfoFactory calendarInfoFactory;
+    @Mock
+    CalendarService calendarService;
 
     @Before
     public void setup() {
@@ -103,6 +109,8 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setFirmwareService(firmwareService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         application.setCustomPropertySetService(customPropertySetService);
+        application.setCalendarInfoFactory(calendarInfoFactory);
+        application.setCalendarService(calendarService);
         return application;
     }
 
