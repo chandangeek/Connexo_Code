@@ -80,6 +80,15 @@ public class RegisterResource {
         return deviceDataInfoFactory.createRegisterInfo(register, validationInfoHelper.getRegisterValidationInfo(register));
     }
 
+    @PUT @Transactional
+    @Path("/{registerId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE})
+    public Response updateRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, RegisterInfo registerInfo) {
+        return Response.ok().build();
+    }
+
     @GET @Transactional
     @Path("/{registerId}/customproperties")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
