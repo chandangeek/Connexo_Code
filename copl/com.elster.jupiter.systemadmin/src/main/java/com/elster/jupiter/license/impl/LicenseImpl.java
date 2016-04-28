@@ -1,14 +1,12 @@
 package com.elster.jupiter.license.impl;
 
 import com.elster.jupiter.license.License;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -135,7 +133,7 @@ public class LicenseImpl implements License {
 
     @Override
     public String getApplicationKey() {
-        return appKey;
+        return getProperties().getProperty(LICENSE_APP_KEY);
     }
 
     @Override
