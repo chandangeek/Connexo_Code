@@ -106,6 +106,7 @@ public class UsagePointApplication extends Application implements TranslationKey
         List<TranslationKey> keys = new ArrayList<>();
         Collections.addAll(keys, DefaultTranslationKey.values());
         Collections.addAll(keys, ConnectionStateTranslationKeys.values());
+        Collections.addAll(keys, UsagePointModelTranslationKeys.values());
         return keys;
     }
 
