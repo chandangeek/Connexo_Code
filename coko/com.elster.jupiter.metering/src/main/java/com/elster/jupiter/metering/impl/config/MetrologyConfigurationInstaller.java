@@ -36,14 +36,14 @@ public class MetrologyConfigurationInstaller {
     }
 
     public void install() {
-        residentialProsumerWith1Meter();
-        residentialProsumerWith2Meters();
-        residentialNetMeteringProduction();
-        residentialNetMeteringConsumption();
-        threePhasedConsumerWith2ToU();
-        residentialConsumerWith4ToU();
-        waterConfigurationCI();
-        residentialGas();
+//        residentialProsumerWith1Meter();
+//        residentialProsumerWith2Meters();
+//        residentialNetMeteringProduction();
+//        residentialNetMeteringConsumption();
+//        threePhasedConsumerWith2ToU();
+//        residentialConsumerWith4ToU();
+//        waterConfigurationCI();
+//        residentialGas();
     }
 
     private void residentialProsumerWith1Meter() {
@@ -270,10 +270,10 @@ public class MetrologyConfigurationInstaller {
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
         MetrologyContract contractVoltageMonitoring = config.addMandatoryMetrologyContract(purposeVoltageMonitoring);
 
-        ReadingTypeRequirement requirementAplusToU1 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat() + " ToU1")
+        ReadingTypeRequirement requirementAplusToU1 = config.newReadingTypeRequirement("Active energy+ ToU1")
                 .withMeterRole(meterRole).withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 1);
-        ReadingTypeRequirement requirementAplusToU2 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat() + " ToU2")
+        ReadingTypeRequirement requirementAplusToU2 = config.newReadingTypeRequirement("Active energy+ ToU2")
                 .withMeterRole(meterRole).withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 2);
         ReadingTypeRequirement requirementReactiveEnergyPlusToU1 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.REACTIVE_ENERGY_PLUS.getNameTranslation().getDefaultFormat() + " ToU1")

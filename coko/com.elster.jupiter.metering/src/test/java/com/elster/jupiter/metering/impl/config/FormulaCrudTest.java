@@ -92,8 +92,9 @@ public class FormulaCrudTest {
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
         assertThat(config).isNotNull();
         ReadingType readingType =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.1.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.1.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.1.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "readingtype"));
         assertThat(readingType).isNotNull();
         config.newReadingTypeRequirement("Aplus").withReadingType(readingType);
 
@@ -563,8 +564,8 @@ public class FormulaCrudTest {
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
         assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         assertThat(conskWhRT15min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
@@ -616,13 +617,16 @@ public class FormulaCrudTest {
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
         assertThat(config).isNotNull();
+
         ReadingType conskWhRT15min =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh"));
 
         ReadingType conskWhRT60min =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhRT60min");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhRT60min"));
 
         assertThat(conskWhRT15min).isNotNull();
         assertThat(conskWhRT60min).isNotNull();
@@ -639,8 +643,10 @@ public class FormulaCrudTest {
         builder2.build(builder2.deliverable(deliverable1));
 
         ReadingType temperatureRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp"));
+
         try {
             deliverable1.setReadingType(temperatureRT);
             deliverable1.update();
@@ -774,12 +780,14 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
 
         ReadingType monthly =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "monthly");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "monthly"));
 
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(monthly).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -812,12 +820,14 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
 
         ReadingType monthly =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "monthly");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "monthly"));
 
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(monthly).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -845,16 +855,19 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
 
         ReadingType thirtyMinTR =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "monthly");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR"));
 
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         ReadingType sixtyMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "sixtyMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "sixtyMinRT"));
 
         assertThat(thirtyMinTR).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -892,12 +905,14 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
 
         ReadingType thirtyMinTR =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR"));
 
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(thirtyMinTR).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -938,12 +953,14 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
 
         ReadingType thirtyMinTR =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR"));
 
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(thirtyMinTR).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -985,12 +1002,14 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
 
         ReadingType thirtyMinTR =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.5.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "thirtyMinTR"));
 
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(thirtyMinTR).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -1032,16 +1051,20 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
 
         ReadingType monthly =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "monthly");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "monthly"));
 
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         ReadingType sixtyMinTR =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "60MinTR");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "60MinTR"));
+
 
         assertThat(monthly).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -1070,13 +1093,17 @@ public class FormulaCrudTest {
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
         assertThat(config).isNotNull();
+
         ReadingType conskWhRT15min =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh"));
 
         ReadingType conskWhRT60min =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhRT60min");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhRT60min"));
+
         assertThat(conskWhRT15min).isNotNull();
         assertThat(conskWhRT60min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
@@ -1090,8 +1117,10 @@ public class FormulaCrudTest {
         ReadingTypeDeliverable deliverable2 = builder2.build(builder2.deliverable(deliverable1));
 
         ReadingType temperatureRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp"));
+
         try {
             deliverable1.setReadingType(temperatureRT);
             deliverable1.update();
@@ -1118,8 +1147,9 @@ public class FormulaCrudTest {
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
         assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(()-> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh"));
         assertThat(conskWhRT15min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
@@ -1150,8 +1180,9 @@ public class FormulaCrudTest {
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
         assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh"));
         assertThat(conskWhRT15min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
@@ -1179,7 +1210,12 @@ public class FormulaCrudTest {
         MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config4", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
         assertThat(config).isNotNull();
-        ReadingType conskWhRT15min = inMemoryBootstrapModule.getMeteringService().createReadingType( "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh");
+
+        ReadingType conskWhRT15min =
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh"));
+
         assertThat(conskWhRT15min).isNotNull();
         FullySpecifiedReadingTypeRequirement requirement = config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
 
@@ -1369,9 +1405,11 @@ public class FormulaCrudTest {
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.1.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "10MinRT");
 
+
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(tenMinRT).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -1452,12 +1490,14 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
 
         ReadingType sixtyMinTR =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "sixtyMinTR");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.7.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "sixtyMinTR"));
 
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(sixtyMinTR).isNotNull();
         assertThat(fifteenMinRT).isNotNull();
@@ -1496,8 +1536,9 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
 
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(fifteenMinRT).isNotNull();
         config.newReadingTypeRequirement("15Min").withReadingType(fifteenMinRT);
@@ -1525,8 +1566,9 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
 
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
 
         assertThat(fifteenMinRT).isNotNull();
         config.newReadingTypeRequirement("15Min").withReadingType(fifteenMinRT);
@@ -1557,11 +1599,15 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
 
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
+
         ReadingType fifteenMinWhRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "fifteenMinWhRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "fifteenMinWhRT"));
+
         ReadingTypeRequirement req_kWh = config.newReadingTypeRequirement("15Min_kWh").withReadingType(fifteenMinRT);
         ReadingTypeRequirement req_Wh = config.newReadingTypeRequirement("15Min_Wh").withReadingType(fifteenMinWhRT);
 
@@ -1587,8 +1633,9 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
 
         ReadingType fifteenMinRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT");
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "fifteenMinRT"));
         ReadingTypeRequirement req_kWh = config.newReadingTypeRequirement("15Min_kWh").withReadingType(fifteenMinRT);
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("monthly", fifteenMinRT, Formula.Mode.AUTO);
@@ -1938,7 +1985,8 @@ public class FormulaCrudTest {
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
         assertThat(config).isNotNull();
 
-        ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
+        ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT"));
         assertThat(AplusRT).isNotNull();
         FullySpecifiedReadingTypeRequirement aPlus = config.newReadingTypeRequirement("AplusRT").withReadingType(AplusRT);
 
