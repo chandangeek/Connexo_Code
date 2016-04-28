@@ -456,7 +456,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 jsonData: jsonIds,
                 success: function () {
                     router.getRoute('administration/devicetypes/view/deviceconfigurations/view/securitysettings').forward();
-                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevels.acknowlegment.added', 'MDC', 'Privileges added'));
+                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevels.acknowledgment.added', 'MDC', 'Privileges added'));
                 },
                 failure: function (response) {
                     if (response.status == 400) {
@@ -511,7 +511,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 jsonData: executionLevelToDelete.getRecordData(),
                 waitMsg: Uni.I18n.translate('general.removing','MDC','Removing...'),
                 success: function () {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevel.acknowlegment.removed', 'MDC', 'Privilege removed'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevel.acknowledgment.removed', 'MDC', 'Privilege removed'));
                     me.store.load(function(){
                         me.getSecurityGridPanel().getSelectionModel().select(selectedIndex);
                     });

@@ -264,8 +264,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                 success: function () {
                     window.location.href = backUrl;
                     me.getApplication().fireEvent('acknowledge', editPage.edit
-                        ? Uni.I18n.translate('loadprofileconfig.acknowlegment.saved', 'MDC', 'Load profile configuration saved')
-                        : Uni.I18n.translate('loadprofileconfig.acknowlegment.added', 'MDC', 'Load profile configuration added'));
+                        ? Uni.I18n.translate('loadprofileconfig.acknowledgment.saved', 'MDC', 'Load profile configuration saved')
+                        : Uni.I18n.translate('loadprofileconfig.acknowledgment.added', 'MDC', 'Load profile configuration added'));
                 },
                 failure: function (record, options) {
                     var responseObj;

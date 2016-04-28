@@ -15,12 +15,14 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         'setup.deviceregisterconfiguration.ValidationPreview',
         'setup.deviceregisterconfiguration.TabbedDeviceRegisterView',
         'Mdc.view.setup.deviceregisterconfiguration.EditCustomAttributes',
-        'Mdc.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm'
+        'Mdc.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
+        'Mdc.view.setup.deviceregisterconfiguration.EditRegister'
     ],
 
     models: [
         'Mdc.model.RegisterValidationPreview',
-        'Mdc.customattributesonvaluesobjects.model.AttributeSetOnRegister'
+        'Mdc.customattributesonvaluesobjects.model.AttributeSetOnRegister',
+        'Mdc.model.DeviceRegister'
     ],
 
     stores: [
@@ -38,10 +40,25 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         {ref: 'editPropertyForm', selector: '#deviceRegisterConfigurationEditCustomAttributes property-form'},
         {ref: 'editCustomAttributesPanel', selector: '#deviceRegisterConfigurationEditCustomAttributes'},
         {ref: 'editCustomRestoreBtn', selector: '#deviceRegisterCustomRestoreBtn'},
-        {ref: 'deviceRegistersOverview', selector: 'tabbedDeviceRegisterView'}
+        {ref: 'deviceRegistersOverview', selector: 'tabbedDeviceRegisterView'},
+        {ref: 'registerEditForm', selector: '#mdc-device-register-edit-form'},
+        {ref: 'restoreObisCodeBtn', selector: '#mdc-device-register-edit-form #mdc-restore-obiscode-btn'},
+        {ref: 'restoreOverflowBtn', selector: '#mdc-device-register-edit-form #mdc-restore-overflow-btn'},
+        {ref: 'restoreNumberOfFractionDigitsBtn', selector: '#mdc-device-register-edit-form #mdc-restore-fractionDigits-btn'},
+        {ref: 'overruledObisCodeField', selector: '#mdc-device-register-edit-form #mdc-editOverruledObisCodeField'},
+        {ref: 'overflowContainer', selector: '#mdc-device-register-edit-form #overflowValue-container'},
+        {ref: 'overflowField', selector: '#mdc-device-register-edit-form #mdc-editOverflowValueField'},
+        {ref: 'numberOfFractionDigitsContainer', selector: '#mdc-device-register-edit-form #fractionDigits-container'},
+        {ref: 'numberOfFractionDigitsField', selector: '#mdc-device-register-edit-form #mdc-editNumberOfFractionDigitsField'},
+        {ref: 'overflowField', selector: '#mdc-device-register-edit-form #mdc-editOverflowValueField'}
+
+
     ],
 
     fromSpecification: false,
+    originalOverruledObisCode: null, // The overruled OBIS code of the edited register
+    originalOverflow: null, // The overflow value of the edited register
+    originalNumberOfFractionDigits: null, // The NumberOfFractionDigits value of the edited register
 
     init: function () {
         var me = this;
@@ -66,6 +83,27 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             },
             '#deviceRegisterConfigurationEditCustomAttributes #device-register-configuration-property-form': {
                 showRestoreAllBtn: this.showRestoreAllBtn
+            },
+            '#mdc-device-register-edit-form #mdc-editOverruledObisCodeField': {
+                change: this.onOverruledObisCodeChange
+            },
+            '#mdc-device-register-edit-form #mdc-restore-obiscode-btn': {
+                click: this.onRestoreObisCodeBtnClicked
+            },
+            '#mdc-device-register-edit-form #mdc-editOverflowValueField': {
+                change: this.onOverflowChange
+            },
+            '#mdc-device-register-edit-form #mdc-restore-overflow-btn': {
+                click: this.onRestoreOverflowBtnClicked
+            },
+            '#mdc-device-register-edit-form #mdc-editNumberOfFractionDigitsField': {
+                change: this.onNumberOfFractionDigitsChange
+            },
+            '#mdc-device-register-edit-form #mdc-restore-fractionDigits-btn': {
+                click: this.onRestoreNumberOfFractionDigitsBtnClicked
+            },
+            '#btn-save-register[action=saveRegister]': {
+                click: this.saveRegister
             }
         });
     },
@@ -76,8 +114,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             routeParams = router.arguments,
             route,
             filterParams = {};
-        routeParams.registerId = menu.record.getId();
 
+        routeParams.registerId = menu.record.getId();
         switch (item.action) {
             case 'validate':
                 me.showValidateNowMessage(menu.record);
@@ -85,6 +123,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             case 'viewSuspects':
                 filterParams.suspect = 'suspect';
                 route = 'devices/device/registers/registerdata';
+                break;
+            case 'edit':
+                route = 'devices/device/registers/register/edit';
                 break;
         }
 
@@ -160,7 +201,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
     previewRegisterConfiguration: function (record) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
             type = record.get('type'),
             widget = Ext.widget('deviceRegisterConfigurationPreview-' + type, {router: me.getController('Uni.controller.history.Router')}),
             form = widget.down('#deviceRegisterConfigurationPreviewForm'),
@@ -208,7 +248,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets');
         customAttributesStore.getProxy().setUrl(me.mRID, record.get('id'));
         customAttributesStore.load(function () {
-            widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+            var placeHolderForm = widget.down('#custom-attribute-sets-placeholder-form-id');
+            if (placeHolderForm) {
+                placeHolderForm.loadStore(customAttributesStore);
+            }
         });
 
         widget.on('render', function () {
@@ -227,7 +270,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.Register');
-                model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
+                model.getProxy().setUrl(mRID);
                 model.load(registerId, {
                     success: function (register) {
                         var type = register.get('type'),
@@ -407,10 +450,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 var model = Ext.ModelManager.getModel('Mdc.model.Register');
-                model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
+                model.getProxy().setUrl(mRID);
                 model.load(registerId, {
                     success: function (register) {
-
                         var widget = Ext.widget('deviceRegisterConfigurationEditCustomAttributes', {device: device});
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
@@ -495,6 +537,167 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 restoreBtn.enable();
             }
         }
+    },
+
+    editRegister: function(deviceMRID, registerIdAsString) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        me.mRID = deviceMRID;
+        viewport.setLoading();
+        Ext.ModelManager.getModel('Mdc.model.Device').load(me.mRID, {
+            success: function(device) {
+                var widget = Ext.widget('device-register-edit', {
+                    itemId: 'mdc-device-register-edit',
+                    device: device,
+                    returnLink: router.getRoute('devices/device/registers').buildUrl({mRID: device.get('mRID')})
+                });
+                me.getApplication().fireEvent('loadDevice', device);
+                var model = Ext.ModelManager.getModel('Mdc.model.DeviceRegister');
+                model.getProxy().setUrl(me.mRID);
+                model.load(registerIdAsString, {
+                    success: function(register) {
+                        me.getApplication().fireEvent('loadRegisterConfiguration', register);
+                        widget.setRegister(register);
+                        me.updateEditRegisterFields(register);
+                        me.originalOverruledObisCode = register.get('overruledObisCode');
+                        me.originalOverflow = register.get('overflow');
+                        me.originalNumberOfFractionDigits = register.get('numberOfFractionDigits');
+                        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.originalOverruledObisCode);
+                        me.onOverflowChange(me.getOverflowField(), me.originalOverflow);
+                        me.onNumberOfFractionDigitsChange(me.getNumberOfFractionDigitsField(), me.originalNumberOfFractionDigits);
+                        viewport.setLoading(false);
+                    }
+                });
+                me.getApplication().fireEvent('changecontentevent', widget);
+            }
+        });
+    },
+
+    updateEditRegisterFields: function(register) {
+        var me = this,
+            type = register.get('type'),
+            isCumulative = register.get('isCumulative'),
+            overflowContainer = me.getOverflowContainer(),
+            overflowField = me.getOverflowField();
+
+        if (type === 'text') {
+            overflowContainer.hide();
+            overflowField.setDisabled(true);
+            me.getNumberOfFractionDigitsContainer().hide();
+            me.getNumberOfFractionDigitsField().setDisabled(true);
+        } else {
+            overflowField.setDisabled(false);
+            overflowContainer.show();
+            me.getNumberOfFractionDigitsField().setDisabled(false);
+            me.getNumberOfFractionDigitsContainer().show();
+
+            overflowContainer.required = isCumulative;
+            overflowField.required = isCumulative;
+            overflowField.allowBlank = !isCumulative;
+            // Geert: I find the following lines of code not so neat. If anyone finds another way to make (dis)appear
+            //        the label's little red star indicating the field is (not) required, please tell me.
+            if (isCumulative && !overflowContainer.labelEl.dom.classList.contains('uni-form-item-label-required')) {
+                overflowContainer.labelEl.dom.classList.add('uni-form-item-label-required');
+            } else if (!isCumulative && overflowContainer.labelEl.dom.classList.contains('uni-form-item-label-required')) {
+                overflowContainer.labelEl.dom.classList.remove('uni-form-item-label-required');
+            }
+            overflowContainer.labelEl.repaint();
+        }
+    },
+
+    onOverruledObisCodeChange: function(overruledObisCodeField, newValue) {
+        var me = this;
+        me.getRestoreObisCodeBtn().setDisabled(newValue === me.originalOverruledObisCode);
+        me.getRestoreObisCodeBtn().setTooltip(
+            newValue === me.originalOverruledObisCode
+                ? null
+                : Uni.I18n.translate('general.obisCode.reset.tooltip4', 'MDC', 'Reset to {0}, the OBIS code of the device configuration', me.originalOverruledObisCode)
+        );
+    },
+
+    onRestoreObisCodeBtnClicked: function() {
+        var me = this;
+        me.getRegisterEditForm().down('#mdc-editOverruledObisCodeField').setValue(me.originalOverruledObisCode);
+        me.getOverruledObisCodeField().setValue(me.originalOverruledObisCode);
+        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.originalOverruledObisCode);
+    },
+
+    onOverflowChange: function(overflowField, newValue) {
+        var me = this;
+        me.getRestoreOverflowBtn().setDisabled(newValue === me.originalOverflow);
+        me.getRestoreOverflowBtn().setTooltip(
+            newValue === me.originalOverflow
+                ? null
+                : Uni.I18n.translate('general.overflow.reset.tooltip', 'MDC', 'Reset to {0}, the overflow value of the device configuration', me.originalOverflow)
+        );
+    },
+
+    onRestoreOverflowBtnClicked: function() {
+        var me = this;
+        //me.getRegisterEditForm().down('#mdc-editOverruledObisCodeField').setValue(me.originalOverruledObisCode);
+        me.getOverflowField().setValue(me.originalOverflow);
+        me.onOverflowChange(me.getOverflowField(), me.originalOverflow);
+    },
+
+    onNumberOfFractionDigitsChange: function(fractionField, newValue) {
+        var me = this;
+        me.getRestoreNumberOfFractionDigitsBtn().setDisabled(newValue === me.originalNumberOfFractionDigits);
+        me.getRestoreNumberOfFractionDigitsBtn().setTooltip(
+            newValue === me.originalNumberOfFractionDigits
+                ? null
+                : Uni.I18n.translate('general.numberOfFractionDigits.reset.tooltip', 'MDC', 'Reset to {0}, the number of fraction digits of the device configuration', me.originalNumberOfFractionDigits)
+        );
+    },
+
+    onRestoreNumberOfFractionDigitsBtnClicked: function() {
+        var me = this;
+        //me.getRegisterEditForm().down('#mdc-editOverruledObisCodeField').setValue(me.originalOverruledObisCode);
+        me.getNumberOfFractionDigitsField().setValue(me.originalNumberOfFractionDigits);
+        me.onNumberOfFractionDigitsChange(me.getNumberOfFractionDigitsField(), me.originalNumberOfFractionDigits);
+    },
+
+    saveRegister: function () {
+        var me = this,
+            form = me.getRegisterEditForm(),
+            record = form.getRecord(),
+            baseForm = form.getForm(),
+            errorMsgPnl = form.down('uni-form-error-message');
+
+        Ext.suspendLayouts();
+        baseForm.clearInvalid();
+        errorMsgPnl.hide();
+        Ext.resumeLayouts(true);
+        if (!form.isValid()) {
+            errorMsgPnl.show();
+            return;
+        }
+
+        form.setLoading();
+        form.updateRecord(record);
+        if (record.get('type') === 'text') {
+            delete record.data.overflow;
+            delete record.data.numberOfFractionDigits;
+        }
+        record.save({
+            success: function (record) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('register.acknowledgment.saved', 'MDC', 'Register saved'));
+                me.getController('Uni.controller.history.Router').getRoute('devices/device/registers').forward();
+            },
+            failure: function (record, operation) {
+                Ext.suspendLayouts();
+                errorMsgPnl.show();
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    baseForm.markInvalid(json.errors);
+                }
+                Ext.resumeLayouts(true);
+            },
+            callback: function () {
+                form.setLoading(false);
+            }
+        });
     }
 });
 

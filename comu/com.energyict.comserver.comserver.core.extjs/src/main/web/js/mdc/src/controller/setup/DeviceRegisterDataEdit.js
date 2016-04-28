@@ -209,7 +209,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.Register');
-                model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
+                model.getProxy().setUrl(mRID);
                 model.load(registerId, {
                     success: function (register) {
                         model = Ext.ModelManager.getModel(me.getReadingModelClassByType(register.get('type')));
@@ -260,7 +260,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.Register');
-                model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
+                model.getProxy().setUrl(mRID);
                 model.load(registerId, {
                     success: function (register) {
                         var type = register.get('type');

@@ -123,7 +123,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
                 backUrl: backUrl,
                 success: function (record) {
                     location.href = backUrl;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicecommunicationprotocol.acknowlegment', 'MDC', 'Protocol saved') );
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicecommunicationprotocol.acknowledgment', 'MDC', 'Protocol saved') );
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);

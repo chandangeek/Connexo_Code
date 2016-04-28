@@ -318,7 +318,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 form.setLoading();
                 record.save({
                     success: function () {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.added', 'MDC', 'Register configuration added'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowledgment.added', 'MDC', 'Register configuration added'));
                         router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
                     },
                     failure: function (record, operation) {
@@ -368,7 +368,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             registerConfigurationToDelete.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
             registerConfigurationToDelete.destroy({
                 success: function () {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.removed', 'MDC', 'Register configuration removed'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowledgment.removed', 'MDC', 'Register configuration removed'));
                     me.getController('Uni.controller.history.Router').getRoute().forward();
                 }
             });
@@ -479,7 +479,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 record.save({
                     backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').buildUrl(),
                     success: function (record) {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.saved', 'MDC', 'Register configuration saved'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowledgment.saved', 'MDC', 'Register configuration saved'));
                         router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
                     },
                     failure: function (record, operation) {

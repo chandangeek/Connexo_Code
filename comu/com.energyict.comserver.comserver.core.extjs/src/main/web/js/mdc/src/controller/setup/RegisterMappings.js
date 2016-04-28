@@ -245,7 +245,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         record.destroy({
             success: function () {
                 me.getController('Uni.controller.history.Router').getRoute().forward();
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.acknowlegment.removed', 'MDC', 'Register type removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.acknowledgment.removed', 'MDC', 'Register type removed'));
             },
             callback: function () {
                 page.setLoading(false);

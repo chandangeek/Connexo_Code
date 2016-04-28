@@ -16,6 +16,12 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ActionMenu', {
             text: Uni.I18n.translate('deviceregisterconfiguration.menu.validate', 'MDC', 'Validate now'),
             privileges: Cfg.privileges.Validation.validateManual,
             action: 'validate'
+        },
+        {
+            itemId: 'editRegister',
+            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+            privileges: Mdc.privileges.Device.administrateDevice,
+            action: 'edit'
         }
     ],
 
