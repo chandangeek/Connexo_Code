@@ -17,10 +17,13 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -95,6 +98,7 @@ public class InMemoryPersistence {
         this.threadSecurityModule = new ThreadSecurityModule(this.principal);
         this.injector = Guice.createInjector(this.guiceModules());
         this.transactionService = this.injector.getInstance(TransactionService.class);
+
         this.threadPrincipalService = this.injector.getInstance(ThreadPrincipalService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.injector.getInstance(OrmService.class);
@@ -148,6 +152,7 @@ public class InMemoryPersistence {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 

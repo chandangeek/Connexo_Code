@@ -26,16 +26,19 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
+import com.elster.jupiter.util.concurrent.RegistrationHandler;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -48,7 +51,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,7 +59,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Currying.perform;
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.stream.Collectors.toMap;
 
@@ -67,9 +72,9 @@ import static java.util.stream.Collectors.toMap;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (16:50)
  */
-@Component(name = "com.elster.jupiter.fsm", service = {FiniteStateMachineService.class, ServerFiniteStateMachineService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + FiniteStateMachineService.COMPONENT_NAME)
+@Component(name = "com.elster.jupiter.fsm", service = {FiniteStateMachineService.class, ServerFiniteStateMachineService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + FiniteStateMachineService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineService, InstallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
+public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
@@ -79,7 +84,9 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private volatile List<StandardEventPredicate> standardEventPredicates = new CopyOnWriteArrayList<>();
     private volatile Thesaurus thesaurus;
     private volatile Publisher publisher;
-    private volatile boolean registered = false;
+    private volatile UpgradeService upgradeService;
+
+    private final RegistrationHandler registrationHandler = new DelayedRegistrationHandler();
 
     // For OSGi purposes
     public FiniteStateMachineServiceImpl() {
@@ -88,24 +95,16 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     // For unit testing purposes
     @Inject
-    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService, Publisher publisher) {
+    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService, Publisher publisher, UpgradeService upgradeService) {
         this();
-        this.setOrmService(ormService);
-        this.setNlsService(nlsService);
-        this.setUserService(userService);
-        this.setEventService(eventService);
-        this.setTransactionService(transactionService);
-        this.setPublisher(publisher);
+        setOrmService(ormService);
+        setNlsService(nlsService);
+        setUserService(userService);
+        setEventService(eventService);
+        setTransactionService(transactionService);
+        setPublisher(publisher);
+        setUpgradeService(upgradeService);
         this.activate();
-        if (!this.dataModel.isInstalled()) {
-            install();
-        }
-    }
-
-    @Override
-    public void install() {
-        new Installer(this.dataModel, eventService).install(true);
-        createStandardEventTypeNoTransaction(new ArrayList<>(standardEventPredicates));
     }
 
     @Override
@@ -131,18 +130,13 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         return Layer.DOMAIN;
     }
 
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "EVT");
-    }
-
     @Activate
     public void activate() {
         dataModel.register(this.getModule());
-        if (!standardEventPredicates.isEmpty()) {
-            createStandardEventType(new ArrayList<>(standardEventPredicates));
-        }
-        registered = true;
+        upgradeService.register(identifier(COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
+                version(10, 2), UpgraderV10_2.class
+        ));
+        registrationHandler.ready();
     }
 
     // For integration testing components only
@@ -202,6 +196,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         this.publisher = publisher;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @Override
     public List<StateChangeBusinessProcess> findStateChangeBusinessProcesses() {
         return this.dataModel.mapper(StateChangeBusinessProcess.class).find();
@@ -245,11 +244,15 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Override
     @Reference(name = "zStandardEventPredicates", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addStandardEventPredicate(StandardEventPredicate predicate) {
+        registrationHandler.handle(perform(this::doRegister).on(predicate));
+    }
+
+    private void doRegister(StandardEventPredicate predicate) {
         this.standardEventPredicates.add(predicate);
-        // check if dataModel is installed because this method can be/us called before the install is run
-        // the install() will install predicates that have been registerd before the dataModel was installed
-        if (dataModel.isInstalled() && registered) {
-            this.createStandardEventType(predicate);
+        if (transactionService.isInTransaction()) {
+            createStandardEventTypeNoTransaction(predicate);
+        } else {
+            createStandardEventType(predicate);
         }
     }
 
@@ -262,19 +265,15 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         return EventType.CHANGE_EVENT.topic();
     }
 
-    private void createStandardEventType(List<StandardEventPredicate> predicateList) {
+    private void createStandardEventType(StandardEventPredicate predicate) {
         transactionService
                 .builder()
                 .principal(() -> "Fsm Install")
-                .run(() -> createStandardEventTypeNoTransaction(predicateList));
+                .run(() -> createStandardEventTypeNoTransaction(predicate));
     }
 
-    private void createStandardEventType(StandardEventPredicate predicate) {
-        createStandardEventType(Collections.singletonList(predicate));
-    }
-
-    private void createStandardEventTypeNoTransaction(List<StandardEventPredicate> predicates) {
-        predicates.forEach(predicate -> this.createStandardEventType(predicate, this.eventService.getEventTypes()));
+    private void createStandardEventTypeNoTransaction(StandardEventPredicate predicate) {
+        this.createStandardEventType(predicate, this.eventService.getEventTypes());
     }
 
     private void createStandardEventType(StandardEventPredicate predicate, List<com.elster.jupiter.events.EventType> allEventTypes) {
