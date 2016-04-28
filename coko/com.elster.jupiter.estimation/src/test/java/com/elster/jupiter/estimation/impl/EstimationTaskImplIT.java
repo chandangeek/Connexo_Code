@@ -11,7 +11,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -102,7 +102,6 @@ public class EstimationTaskImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
-            bind(FileImportService.class).toInstance(fileImportService);
             bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
@@ -123,8 +122,6 @@ public class EstimationTaskImplIT {
     private UserService userService;
     @Mock
     private EventAdmin eventAdmin;
-    @Mock
-    private FileImportService fileImportService;
     @Mock
     private ValidatorFactory validatorFactory;
     @Mock
@@ -198,7 +195,8 @@ public class EstimationTaskImplIT {
                     new SearchModule(),
                     new AppServiceModule(),
                     new DataVaultModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new FileImportModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
