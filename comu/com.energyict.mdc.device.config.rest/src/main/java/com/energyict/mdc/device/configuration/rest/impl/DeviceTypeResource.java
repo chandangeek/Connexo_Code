@@ -524,13 +524,22 @@ public class DeviceTypeResource {
     }
 
     @GET
-    @Path("/timeofusecalendars")
+    @Path("/{id}/unusedcalendars")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public Response getAllCalendars() {
+    public Response getAllCalendars(@PathParam("id") long id) {
+        Set<Calendar> usedCalendars;
         List<CalendarInfo> infos;
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        usedCalendars = deviceType.getAllowedCalendars()
+                .stream()
+                .filter(ac -> !ac.isGhost())
+                .map(allowedCalendar -> allowedCalendar.getCalendar().get())
+                .collect(Collectors.toSet());
+
         infos = calendarService.findAllCalendars()
                 .stream()
+                .filter(calendar -> !usedCalendars.contains(calendar))
                 .map(cal ->calendarInfoFactory.summaryFromCalendar(cal))
                 .collect(Collectors.toList());
 
