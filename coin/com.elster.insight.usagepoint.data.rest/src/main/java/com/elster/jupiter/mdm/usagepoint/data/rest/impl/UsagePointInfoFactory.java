@@ -1,7 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
@@ -119,9 +118,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 info.techInfo = new HeatUsagePointDetailsInfo((HeatDetail) detailHolder.get());
             }
         }
+
         usagePoint.getMetrologyConfiguration()
                 .ifPresent(mc -> {
-                    info.metrologyConfiguration = new IdWithNameInfo(mc.getId(), mc.getName());
+                    info.metrologyConfiguration =new MetrologyConfigurationInfo((UsagePointMetrologyConfiguration) mc, usagePoint, this.thesaurus));
                     info.displayMetrologyConfiguration = mc.getName();
                 });
 
@@ -142,7 +142,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get()
                     .getId());
             formattedLocationMembers.stream().skip(1).forEach(list ->
-                    list.stream().findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
+                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
             formattedLocation = formattedLocationMembers.stream()
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
@@ -198,8 +198,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .orElseThrow(IllegalArgumentException::new)
                 .newUsagePoint(
                         usagePointInfo.mRID,
-                        usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock
-                                .instant())
+                        usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant())
                 .withName(usagePointInfo.name)
                 .withIsSdp(usagePointInfo.isSdp)
                 .withIsVirtual(usagePointInfo.isVirtual)
@@ -207,8 +206,5 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withServicePriority(usagePointInfo.servicePriority)
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
                 .withServiceLocationString(usagePointInfo.location);
-    }
-
-    static class EmptyDomain {
     }
 }

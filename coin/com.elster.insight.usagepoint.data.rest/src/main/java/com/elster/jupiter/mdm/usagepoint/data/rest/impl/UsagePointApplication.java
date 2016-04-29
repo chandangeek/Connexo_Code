@@ -1,9 +1,11 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
@@ -57,9 +59,11 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile EstimationService estimationService;
     private volatile UsagePointDataService usagePointDataService;
     private volatile CustomPropertySetService customPropertySetService;
-    private volatile ServiceCallService serviceCallService;
     private volatile ServiceCallInfoFactory serviceCallInfoFactory;
     private volatile License license;
+    private volatile IssueService issueService;
+    private volatile BpmService bpmService;
+    private volatile ServiceCallService serviceCallService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     @Override
@@ -176,6 +180,16 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
+    }
+
+    @Reference
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
@@ -199,6 +213,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(serviceCallService).to(ServiceCallService.class);
             bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
+            bind(issueService).to(IssueService.class);
+            bind(bpmService).to(BpmService.class);
 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
@@ -213,6 +229,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
+            bind(GoingOnResource.class).to(GoingOnResource.class);
         }
     }
 }

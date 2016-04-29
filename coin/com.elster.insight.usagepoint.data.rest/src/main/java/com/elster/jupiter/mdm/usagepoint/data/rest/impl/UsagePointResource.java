@@ -80,6 +80,7 @@ public class UsagePointResource {
     private final Provider<RegisterResource> registersOnUsagePointResourceProvider;
     private final Provider<UsagePointValidationResource> usagePointValidationResourceProvider;
     private final Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider;
+    private final Provider<GoingOnResource> goingOnResourceProvider;
 
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final ExceptionFactory exceptionFactory;
@@ -100,7 +101,8 @@ public class UsagePointResource {
                               ExceptionFactory exceptionFactory,
                               Thesaurus thesaurus,
                               ResourceHelper resourceHelper,
-                              MetrologyConfigurationService metrologyConfigurationService) {
+                              MetrologyConfigurationService metrologyConfigurationService,
+                              Provider<GoingOnResource> goingOnResourceProvider) {
         this.queryService = queryService;
         this.meteringService = meteringService;
         this.clock = clock;
@@ -117,6 +119,7 @@ public class UsagePointResource {
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
+        this.goingOnResourceProvider = goingOnResourceProvider;
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
@@ -374,6 +377,11 @@ public class UsagePointResource {
     @Path("/{mrid}/customproperties")
     public UsagePointCustomPropertySetResource getUsagePointCustomPropertySetResource() {
         return usagePointCustomPropertySetResourceProvider.get();
+    }
+
+    @Path("/{mRID}/whatsgoingon")
+    public GoingOnResource getGoingOnResource() {
+        return goingOnResourceProvider.get();
     }
 
     private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
