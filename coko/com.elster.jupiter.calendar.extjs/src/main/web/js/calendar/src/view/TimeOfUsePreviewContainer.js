@@ -13,7 +13,7 @@ Ext.define('Cal.view.TimeOfUsePreviewContainer', {
         itemId: 'no-tou-cals',
         title: Uni.I18n.translate('calendars.tou.empty.title', 'CAL', 'No time of use calendars found'),
         reasons: [
-            Uni.I18n.translate('calendars.tou.empty.list.item1', 'CAL', 'No time of use calendars have been defined in the system yet.'),
+            Uni.I18n.translate('calendars.tou.empty.list.item1', 'CAL', 'No time of use calendars have been defined yet.'),
         ]
     },
 

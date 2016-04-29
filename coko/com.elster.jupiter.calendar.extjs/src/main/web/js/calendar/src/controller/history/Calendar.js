@@ -10,7 +10,7 @@ Ext.define('Cal.controller.history.Calendar', {
             disabled: true,
             items: {
                 timeofusecalendars: {
-                    title: Uni.I18n.translate('general.timeOfUse', 'CAL', 'Time of use'),
+                    title: Uni.I18n.translate('general.timeOfUseCalendars', 'CAL', 'Time of use calendars'),
                     privileges: Cal.privileges.Calendar.admin,
                     route: 'timeofusecalendars',
                     controller: 'Cal.controller.Calendars',

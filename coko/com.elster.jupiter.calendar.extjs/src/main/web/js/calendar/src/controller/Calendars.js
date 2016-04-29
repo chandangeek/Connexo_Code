@@ -40,7 +40,15 @@ Ext.define('Cal.controller.Calendars', {
             view,
             store = me.getStore('Cal.store.TimeOfUseCalendars');
 
-        store.load();
+        store.load({
+            callback: function (records, operation, success) {
+                if(success === true) {
+                    me.getTimeOfUseGrid().down('pagingtoolbartop #displayItem').setText(
+                        Uni.I18n.translatePlural('general.calendarCount', store.getCount(), 'CAL', 'No time of use calendars', '{0} time of use calendar', '{0} time of use calendars')
+                    );
+                }
+            }
+        });
 
         view = Ext.widget('tou-setup');
         me.getApplication().fireEvent('changecontentevent', view);

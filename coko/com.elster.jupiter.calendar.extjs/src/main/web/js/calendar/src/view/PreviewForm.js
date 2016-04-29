@@ -17,7 +17,7 @@ Ext.define('Cal.view.PreviewForm', {
             items: [
                 {
                     xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.period', 'CAL', 'Period'),
+                    fieldLabel: Uni.I18n.translate('general.periods', 'CAL', 'Periods'),
                     itemId: 'periodField'
                 },
                 {

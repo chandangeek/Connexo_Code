@@ -20,7 +20,7 @@ Ext.define('Cal.view.Grid', {
             {
                 header: Uni.I18n.translate('general.Description', 'CAL', 'Description'),
                 dataIndex: 'description',
-                flex: 3
+                flex: 5
             },
             {
                 xtype: 'uni-actioncolumn',
@@ -29,7 +29,7 @@ Ext.define('Cal.view.Grid', {
                     xtype: 'tou-action-menu',
                     //itemId: me.menuItemId
                 },
-                flex: 0.7
+                flex: 0.5
             }
         ];
 
@@ -40,6 +40,8 @@ Ext.define('Cal.view.Grid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('calendars.timeOfUse.pagingtoolbartop.displayMsg', 'CAL', '{0} time of use calendars'),
                 emptyMsg: Uni.I18n.translate('calendars.timeOfUse.pagingtoolbartop.emptyMsg', 'CAL', 'There are no time of use calendars to display'),
+                usesExactCount: true,
+                noBottomPaging: true
             }
         ];
 
