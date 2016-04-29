@@ -111,7 +111,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             }
         }
         usagePoint.getMetrologyConfiguration()
-                .ifPresent(mc -> info.metrologyConfiguration = new IdWithNameInfo(mc.getId(), mc.getName()));
+                .ifPresent(mc -> info.metrologyConfiguration =  new MetrologyConfigurationInfo(mc, usagePoint));
 
         UsagePointCustomPropertySetExtension customPropertySetExtension = usagePoint.forCustomProperties();
 
