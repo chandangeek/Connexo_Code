@@ -44,7 +44,12 @@ public class QuantityValueFactory extends AbstractValueFactory<Quantity> {
             String value = (String) object;
             String[] quantityParameters = value.split(VALUE_UNIT_SEPARATOR);
             if (quantityParameters.length == 3) {
-                BigDecimal bigDecimalValue = new BigDecimal(quantityParameters[0]);
+                BigDecimal bigDecimalValue;
+                if (quantityParameters[0].equals("null")) {
+                    bigDecimalValue = new BigDecimal(0);
+                } else {
+                    bigDecimalValue = new BigDecimal(quantityParameters[0]);
+                }
                 int multiplier = Integer.parseInt(quantityParameters[1]);
                 String unit = quantityParameters[2];
                 return Quantity.create(bigDecimalValue, multiplier, unit);
