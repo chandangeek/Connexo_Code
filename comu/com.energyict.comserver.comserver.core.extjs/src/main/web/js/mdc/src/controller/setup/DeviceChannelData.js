@@ -445,9 +445,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         return changedData;
     },
 
-    beforeEditRecord: function (editor, event) {
-        var intervalFlags = event.record.get('intervalFlags');
-        event.column.getEditor().allowBlank = !(intervalFlags && intervalFlags.length);
+    beforeEditRecord: function (editor, context) {
+        var intervalFlags = context.record.get('intervalFlags');
+        context.column.getEditor().allowBlank = !(intervalFlags && intervalFlags.length);
+        this.showPreview(context.grid.getSelectionModel(), context.record);
     },
 
     resumeEditorFieldValidation: function (editor, event) {

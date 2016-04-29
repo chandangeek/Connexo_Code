@@ -310,7 +310,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             } else {
                 previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('deviceCommands.view.trackingSource', 'MDC', 'Tracking source'));
                 previewForm.down('#tracking').renderer = function (val) {
-                    return val ? Ext.String.htmlEncode(val) : '';
+                    return !Ext.isEmpty(val) && !Ext.isEmpty(val.name) ? Ext.String.htmlEncode(val.name) : '-';
                 }
             }
             previewForm.loadRecord(record);
@@ -348,6 +348,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         me.getAddPropertyForm().hide();
         me.getAddPropertyHeader().hide();
         if (Ext.isDefined(cat)) {
+            me.getCommandCombo().enable();
             me.getCommandCombo().reset();
             me.getCommandCombo().bindStore(cat.deviceMessageSpecs(), true);
         }
@@ -395,7 +396,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             releaseDate && record.set('releaseDate', releaseDate);
             messageSpecification && record.set('messageSpecification', messageSpecification);
             record.set('status', null);
-            if (commandForm.getValues().trackingCategory === "" || commandForm.getValues().trackingCategory === undefined) {
+            if (Ext.isEmpty(commandForm.getValues().trackingCategory)) {
                 record.set('trackingCategory', null);
             }
             record.endEdit();

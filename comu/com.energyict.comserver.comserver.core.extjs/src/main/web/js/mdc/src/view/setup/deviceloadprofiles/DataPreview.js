@@ -162,7 +162,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
 
                     if (record.data.channelValidationData[channel.id]) {
 
-                        record.data.channelValidationData[channel.id].dataValidated ? form.down('#channelDataValidated' + channel.id).setValue(Uni.I18n.translate('general.yes', 'MDC', 'Yes')) : form.down('#channelDataValidated' + channel.id).setValue(Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>');
+                        record.data.channelValidationData[channel.id].dataValidated
+                            ? form.down('#channelDataValidated' + channel.id).setValue(Uni.I18n.translate('general.yes', 'MDC', 'Yes'))
+                            : form.down('#channelDataValidated' + channel.id).setValue(Uni.I18n.translate('general.no', 'MDC', 'No') + '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>');
 
                         switch (record.data.channelValidationData[channel.id].validationResult) {
                             case 'validationStatus.notValidated':
@@ -172,7 +174,10 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                                 form.down('#channelValidationResult' + channel.id).setValue(Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect'));
                                 break;
                             case 'validationStatus.suspect':
-                                form.down('#channelValidationResult' + channel.id).setValue(Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + ' ' + '<span class="icon-validation icon-validation-red"></span>');
+                                form.down('#channelValidationResult' + channel.id).setValue(
+                                    Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') +
+                                        '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>'
+                                );
                                 break;
                             default:
                                 form.down('#channelValidationResult' + channel.id).hide();
@@ -235,7 +240,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                         }
                     } else {
                         form.down('#channelValidationResult' + channel.id).hide();
-                        form.down('#channelDataValidated' + channel.id).setValue(Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>');
+                        form.down('#channelDataValidated' + channel.id).setValue(
+                            Uni.I18n.translate('general.no', 'MDC', 'No') + '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>');
                         form.down('#channelValidationResult' + channel.id).hide();
                         form.down('#channelSuspectReason' + channel.id).hide();
                     }
