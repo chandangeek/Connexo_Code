@@ -1,5 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.am130;
 
+import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.meterdata.CollectedRegister;
@@ -7,12 +12,6 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
@@ -56,7 +55,7 @@ public class AM130 extends AM500 {
      */
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-21 15:53:44 +0100 (Mon, 21 Mar 2016)$";
+        return "$Date: 2016-04-26 15:13:47 +0200 (Tue, 26 Apr 2016)$";
     }
 
     protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
@@ -104,11 +103,11 @@ public class AM130 extends AM500 {
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-        readFrameCounter(comChannel);
         initDlmsSession(comChannel);
     }
 
-    protected void initDlmsSession(ComChannel comChannel) {
+    private void initDlmsSession(ComChannel comChannel) {
+        readFrameCounter(comChannel);
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
 
@@ -123,7 +122,7 @@ public class AM130 extends AM500 {
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
 
         long frameCounter;
-        DlmsSession publicDlmsSession = getPublicDlmsSession(comChannel, publicClientProperties);
+        DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
         connectToPublicClient(publicDlmsSession);
         try {
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
@@ -136,10 +135,6 @@ public class AM130 extends AM500 {
         disconnectFromPublicClient(publicDlmsSession);
 
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
-    }
-
-    protected DlmsSession getPublicDlmsSession(ComChannel comChannel, IDISProperties publicClientProperties) {
-        return new DlmsSession(comChannel, publicClientProperties);
     }
 
     /**

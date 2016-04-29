@@ -118,4 +118,14 @@ public class AM540Properties extends IDISProperties {
     public long getAARQTimeout() {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.AARQ_TIMEOUT_PROPERTY, new TimeDuration(AM540ConfigurationSupport.NOT_USED_AARQ_TIMEOUT)).getMilliSeconds();
     }
+
+    /**
+     * A timeout (lack of response from the AM540) should be handled differently according to the context:
+     * - in case of G3 gateway mode, you can still read out the next physical slave devices if one slave device does not reply.
+     * - in case of Beacon DC mode (reading out 'mirror' logical devices), a timeout is fatal, the next physical slaves cannot be read out.
+     */
+    @Override
+    public boolean timeoutMeansBrokenConnection() {
+        return !useBeaconGatewayDeviceDialect();
+    }
 }

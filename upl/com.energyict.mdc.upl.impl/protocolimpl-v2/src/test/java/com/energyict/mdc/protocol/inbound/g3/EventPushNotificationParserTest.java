@@ -15,6 +15,7 @@ import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
 import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
@@ -53,6 +54,12 @@ public class EventPushNotificationParserTest extends TestCase {
 
     private static final String AK = "B6C52294F40A30B9BDF9FE4270B03685";
     private static final String EK = "EFD82FCB93E5826ED805E38A6B2EC9F1";
+
+    private static final byte[] METER_EVENT_NOTIFICATION_1_3_0 = ProtocolTools.getBytesFromHexString("0001000100010037c2004e2c000080000cff030204090e33343135303030303030303234350910454c532d5547572d00237efffefd77361200120600200000", "");
+    private static final byte[] BEACON_NOTIFICATION_1_3_0 = ProtocolTools.getBytesFromHexString("0001000100010042C2004E2C000080000CFF030205090E3334313537333030303238303033090C07E00318040A152B2C000000120017120000090F54616D706572206465746563746564", "");
+
+    private static final byte[] METER_EVENT_NOTIFICATION_1_4_0 = ProtocolTools.getBytesFromHexString("0001000100010028C2004E2C000080000CFF030203090D53455249414C2D4E554D424552120016020209000600003039", "");
+    private static final byte[] BEACON_NOTIFICATION_1_4_0 = ProtocolTools.getBytesFromHexString("000100010001004DC2004E2C000080000CFF030203091445717569706D656E742D4964656E7469666965721200010204090C07B20102050B11244E00000012007B1201C8090F4164646974696F6E616C20696E666F", "");
 
     @Mock
     protected CollectedDataFactoryProvider collectedDataFactoryProvider;
@@ -110,6 +117,62 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(meterProtocolEvent.getMessage(), "G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network");
         assertEquals(meterProtocolEvent.getEiCode(), 0);
         assertEquals(meterProtocolEvent.getProtocolCode(), 194);
+    }
+
+    @Test
+    public void testMeterEventNotification_1_3_0() throws IOException, SQLException, BusinessException {
+        EventPushNotificationParser parser = spyParser(METER_EVENT_NOTIFICATION_1_3_0);
+        Throwable expected = null;
+        try {
+            //Business code
+            parser.parseInboundFrame();
+        } catch (DataParseException e) {
+            expected = e;
+        }
+        assertNotNull("Parsing a relayed meter event should have thrown an exception, since it is not supported yet", expected);
+    }
+
+    @Test
+    public void testBeaconNotification1_3_0() throws IOException, SQLException, BusinessException {
+        EventPushNotificationParser parser = spyParser(BEACON_NOTIFICATION_1_3_0);
+
+        //Business code
+        parser.parseInboundFrame();
+
+        assertEquals(parser.getDeviceIdentifier().getIdentifier(), "34157300028003");
+        MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
+        assertEquals(meterProtocolEvent.getTime().getTime(), 1458814903000L);
+        assertEquals(meterProtocolEvent.getMessage(), "Tamper detected");
+        assertEquals(meterProtocolEvent.getEiCode(), 23);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 0);
+    }
+
+    @Test
+    public void testMeterEventNotification_1_4_0() throws IOException, SQLException, BusinessException {
+        EventPushNotificationParser parser = spyParser(METER_EVENT_NOTIFICATION_1_4_0);
+        Throwable expected = null;
+        try {
+            //Business code
+            parser.parseInboundFrame();
+        } catch (DataParseException e) {
+            expected = e;
+        }
+        assertNotNull("Parsing a relayed meter event should have thrown an exception, since it is not supported yet", expected);
+    }
+
+    @Test
+    public void testBeaconNotification1_4_0() throws IOException, SQLException, BusinessException {
+        EventPushNotificationParser parser = spyParser(BEACON_NOTIFICATION_1_4_0);
+
+        //Business code
+        parser.parseInboundFrame();
+
+        assertEquals(parser.getDeviceIdentifier().getIdentifier(), "Equipment-Identifier");
+        MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
+        assertEquals(meterProtocolEvent.getTime().getTime(), 127056000L);
+        assertEquals(meterProtocolEvent.getMessage(), "Additional info");
+        assertEquals(meterProtocolEvent.getEiCode(), 123);
+        assertEquals(meterProtocolEvent.getProtocolCode(), 456);
     }
 
     @Test

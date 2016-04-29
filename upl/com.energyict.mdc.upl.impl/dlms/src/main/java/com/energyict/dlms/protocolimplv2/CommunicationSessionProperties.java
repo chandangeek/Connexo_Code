@@ -107,4 +107,12 @@ public interface CommunicationSessionProperties {
      * Non polling: use blocking read calls on the inputstream without checking periodically.
      */
     TimeDuration getPollingDelay();
+
+    /**
+     * Indicate if a timeout error means that the connection should be considered as 'broken'.
+     * This has impact on the next physical slaves that re-use the same connection.
+     * <p/>
+     * Default is true, specific protocols can override this.
+     */
+    boolean timeoutMeansBrokenConnection();
 }

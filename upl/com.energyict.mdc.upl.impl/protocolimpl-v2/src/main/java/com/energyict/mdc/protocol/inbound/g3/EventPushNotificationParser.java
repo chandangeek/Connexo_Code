@@ -8,6 +8,7 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
@@ -197,8 +198,15 @@ public class EventPushNotificationParser {
         return ByteBuffer.wrap(ProtocolTools.concatByteArrays(header, frame));
     }
 
+    /**
+     * EventNotificationRequest ::= SEQUENCE
+     * - date-time (OCTET STRING, optional)
+     * - cosem-attribute-descriptor (class ID, obiscode and attribute number)
+     * - attribute-value (Data)
+     */
     protected void parseAPDU(ByteBuffer inboundFrame) {
-        byte optionalDate = inboundFrame.get(); //Should be 0x00, meaning there is no date.
+        byte dateLength = inboundFrame.get();
+        inboundFrame.get(new byte[dateLength]); //Skip the date field
 
         short classId = inboundFrame.getShort();
         if (classId != DLMSClassId.EVENT_NOTIFICATION.getClassId()) {
@@ -227,44 +235,83 @@ public class EventPushNotificationParser {
             throw DataParseException.ioException(e);
         }
         int nrOfDataTypes = structure.nrOfDataTypes();
-        if (nrOfDataTypes != 5) {
-            throw DataParseException.ioException(new ProtocolException("Expected a structure with 5 elements, but received a structure with " + nrOfDataTypes + " element(s)"));
+
+        if (nrOfDataTypes == 5) {
+            //This is the case for the G3 gateway and the Beacon gateway/DC with firmware < 1.4.0
+            parseNotificationWith5Elements(structure);
+        } else if (nrOfDataTypes == 4) {
+            //Relayed meter event
+            throw DataParseException.ioException(new ProtocolException("Receiving relayed meter events is currently not implemented"));
+        } else if (nrOfDataTypes == 3) {
+            //This is the case for the Beacon gateway/DC with firmware >= 1.4.0
+            parseNotificationWith3Elements(structure);
+        } else {
+            throw DataParseException.ioException(new ProtocolException("Expected a structure with 3, 4 or 5 elements, but received a structure with " + nrOfDataTypes + " element(s)"));
         }
-        OctetString equipmentIdentifier = structure.getDataType(0).getOctetString();
+    }
+
+    private void parseNotificationWith5Elements(Structure eventPayLoad) {
+        OctetString equipmentIdentifier = eventPayLoad.getDataType(0).getOctetString();
         if (equipmentIdentifier == null) {
             throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure (equipment identifier) to be of type OctetString"));
         }
         deviceIdentifier = new DeviceIdentifierBySerialNumber(equipmentIdentifier.stringValue());
 
-        parseEvent(structure);
+        Date dateTime = parseDateTime(eventPayLoad.getDataType(1).getOctetString());
+        int eiCode = eventPayLoad.getDataType(2).intValue();
+        int protocolCode = eventPayLoad.getDataType(3).intValue();
+        String description = parseDescription(eventPayLoad.getDataType(4).getOctetString());
+
+        createCollectedLogBook(dateTime, eiCode, protocolCode, description);
     }
 
-    private void parseEvent(Structure structure) {
-        Date dateTime = parseDateTime(structure);
-        int eiCode = structure.getDataType(2).intValue();
-        int protocolCode = structure.getDataType(3).intValue();
-        String description = parseDescription(structure);
-
+    private void createCollectedLogBook(Date dateTime, int eiCode, int protocolCode, String description) {
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
         meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(new MeterEvent(dateTime, eiCode, protocolCode, description)));
         collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 
+    private void parseNotificationWith3Elements(Structure eventWrapper) {
+        OctetString equipmentIdentifier = eventWrapper.getDataType(0).getOctetString();
+        if (equipmentIdentifier == null) {
+            throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure (equipment identifier) to be of type OctetString"));
+        }
+        deviceIdentifier = new DeviceIdentifierBySerialNumber(equipmentIdentifier.stringValue());
+
+        AbstractDataType dataType = eventWrapper.getDataType(2);
+        if (!dataType.isStructure()) {
+            throw DataParseException.ioException(new ProtocolException("The event-payload (third element in the event-wrapper structure) should be of type Structure"));
+        }
+
+        Structure eventPayLoad = dataType.getStructure();
+        int nrOfDataTypes = eventPayLoad.nrOfDataTypes();
+        if (nrOfDataTypes == 2) {
+            //Relayed meter event
+            throw DataParseException.ioException(new ProtocolException("Receiving relayed meter events is currently not implemented"));
+        } else if (nrOfDataTypes == 4) {
+            Date dateTime = parseDateTime(eventPayLoad.getDataType(0).getOctetString());
+            int eiCode = eventPayLoad.getDataType(1).intValue();
+            int protocolCode = eventPayLoad.getDataType(2).intValue();
+            String description = parseDescription(eventPayLoad.getDataType(3).getOctetString());
+            createCollectedLogBook(dateTime, eiCode, protocolCode, description);
+        } else {
+            throw DataParseException.ioException(new ProtocolException("Expected the event-payload to be a structure with 3, 4 or 5 elements, but received a structure with " + nrOfDataTypes + " element(s)"));
+        }
+    }
+
     public CollectedLogBook getCollectedLogBook() {
         return collectedLogBook;
     }
 
-    private String parseDescription(Structure structure) {
-        OctetString octetString = structure.getDataType(4).getOctetString();
+    private String parseDescription(OctetString octetString) {
         if (octetString == null) {
             throw DataParseException.ioException(new ProtocolException("Expected the fourth element of the received structure to be an OctetString"));
         }
         return octetString.stringValue();
     }
 
-    private Date parseDateTime(Structure structure) {
-        OctetString octetString = structure.getDataType(1).getOctetString();
+    private Date parseDateTime(OctetString octetString) {
         if (octetString == null) {
             throw DataParseException.ioException(new ProtocolException("Expected the second element of the received structure to be an OctetString"));
         }

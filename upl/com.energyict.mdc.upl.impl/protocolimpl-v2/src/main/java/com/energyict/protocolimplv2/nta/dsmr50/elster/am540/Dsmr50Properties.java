@@ -143,4 +143,14 @@ public class Dsmr50Properties extends DlmsProperties {
     public boolean useEquipmentIdentifierAsSerialNumber() {
         return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, Dsmr50ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
     }
+
+    /**
+     * A timeout (lack of response from the AM540) should be handled differently according to the context:
+     * - in case of G3 gateway mode, you can still read out the next physical slave devices if one slave device does not reply.
+     * - in case of Beacon DC mode (reading out 'mirror' logical devices), a timeout is fatal, the next physical slaves cannot be read out.
+     */
+    @Override
+    public boolean timeoutMeansBrokenConnection() {
+        return !useBeaconGatewayDeviceDialect();
+    }
 }
