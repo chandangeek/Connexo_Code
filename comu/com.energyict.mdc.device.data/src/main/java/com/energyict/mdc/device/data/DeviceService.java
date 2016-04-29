@@ -28,7 +28,7 @@ public interface DeviceService {
      * @param deviceConfiguration the deviceConfiguration which models the device
      * @param name                the name which should be used for the device
      * @param mRID                the new Device's master resource identifier
-     * @param startDate
+     * @param startDate           the meter activation's start date
      * @return the newly created Device
      */
     Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, Instant startDate);
