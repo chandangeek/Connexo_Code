@@ -27,31 +27,17 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 minWidth: 150,
                 flex: 1,
                 renderer: function (data, metaData, record) {
-                    if (record.data.validationStatus) {
-                        var result = record.data.validationResult,
-                            status = result.split('.')[1],
-                            cls = 'icon-validation-cell';
-
-                        if (status === 'suspect') {
-                            cls +=  ' icon-validation-red'
-                        }
-                        if (status === 'notValidated') {
-                            cls +=  ' icon-validation-black'
-                        }
-                        metaData.tdCls = cls;
-                    }else{
-                        var result = record.data.validationResult,
-                            status = result.split('.')[1],
-                            cls = 'icon-validation-cell';
-                        if (status === 'notValidated') {
-                            cls +=  ' icon-validation-black'
-                        }
-                        metaData.tdCls = cls;
-                    }
                     if (!Ext.isEmpty(data)) {
-                        return record.get('isConfirmed')
-                            ? Uni.Number.formatNumber(data, -1) + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>'
-                            : Uni.Number.formatNumber(data, -1);
+                        var status = record.data.validationResult ? record.data.validationResult.split('.')[1] : 'unknown',
+                            icon = '';
+                        if (record.get('isConfirmed')) {
+                            icon = '<span class="icon-checkmark3" style="margin-left:10px; position:absolute;"></span>'
+                        } else if (status === 'suspect') {
+                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
+                        } else if (status === 'notValidated') {
+                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+                        }
+                        return Uni.Number.formatNumber(data, -1) + icon;
                     }
                 }
             },
@@ -69,30 +55,17 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 hidden: true,
                 flex: 1,
                 renderer: function (data, metaData, record) {
-                    if (record.data.validationStatus) {
-                        var result = record.data.validationResult,
-                            status = result.split('.')[1],
-                            cls = 'icon-validation-cell';
-                        if (status === 'suspect') {
-                            cls +=  ' icon-validation-red'
-                        }
-                        if (status === 'notValidated') {
-                            cls +=  ' icon-validation-black'
-                        }
-                        metaData.tdCls = cls;
-                    }else{
-                        var result = record.data.validationResult,
-                            status = result.split('.')[1],
-                            cls = 'icon-validation-cell';
-                        if (status === 'notValidated') {
-                            cls +=  ' icon-validation-black'
-                        }
-                        metaData.tdCls = cls;
-                    }
                     if (!Ext.isEmpty(data)) {
-                        return record.get('isConfirmed')
-                            ? Uni.Number.formatNumber(data, -1) + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>'
-                            : Uni.Number.formatNumber(data, -1);
+                        var status = record.data.validationResult ? record.data.validationResult.split('.')[1] : 'unknown',
+                            icon = '';
+                        if (record.get('isConfirmed')) {
+                            icon = '<span class="icon-checkmark3" style="margin-left:10px; position:absolute"></span>'
+                        } else if (status === 'suspect') {
+                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
+                        } else if (status === 'notValidated') {
+                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+                        }
+                        return Uni.Number.formatNumber(data, -1) + icon;
                     }
                 }
             },
