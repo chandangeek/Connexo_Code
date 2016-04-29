@@ -1,5 +1,8 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -21,11 +24,13 @@ import java.util.logging.Logger;
 import static com.elster.jupiter.util.Checks.is;
 
 public class InstallerImpl implements FullInstaller {
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private final Logger logger = Logger.getLogger(InstallerImpl.class.getName());
 
     private final DataModel dataModel;
     private final UserServiceImpl userService;
     private final BundleContext bundleContext;
+    private final MessageService messageService;
 
     @Inject
     public InstallerImpl(DataModel dataModel, UserService userService, BundleContext bundleContext) {
@@ -37,6 +42,8 @@ public class InstallerImpl implements FullInstaller {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader) {
         try {
+            createUSRQueue(messageService);
+            dataModel.install(true, true);
             dataModelUpgrader.upgrade(dataModel, Version.latest());
         } catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
@@ -44,6 +51,17 @@ public class InstallerImpl implements FullInstaller {
         userService.installPrivileges();
         addDefaults(bundleContext != null ? bundleContext.getProperty("admin.password") : null);
 
+    }
+
+    private void createUSRQueue(MessageService messageService) {
+        try {
+            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(UserService.USR_QUEUE_DEST, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            destinationSpec.activate();
+            destinationSpec.subscribe(UserService.USR_QUEUE_SUBSC);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
     }
 
     public void addDefaults(String adminPassword) {

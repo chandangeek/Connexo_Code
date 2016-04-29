@@ -3,9 +3,12 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -37,6 +40,7 @@ import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -84,11 +88,15 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private List<User> loggedInUsers = new CopyOnWriteArrayList<>();
     private volatile DataVaultService dataVaultService;
     private volatile BundleContext bundleContext;
+    private volatile MessageService messageService;
+    private volatile JsonService jsonService;
     private volatile UpgradeService upgradeService;
 
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
     private static final String TRUSTSTORE_PASS = "com.elster.jupiter.users.truststorepass";
+    private static final String SUCCESSFUL_LOGIN = "Successful login for user ";
+    private static final String UNSUCCESSFUL_LOGIN = "Unsuccessful login attempt for user ";
 
     private static final String JUPITER_REALM = "Local";
 
@@ -114,7 +122,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private final Object privilegeProviderRegistrationLock = new Object();
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService, UpgradeService upgradeService, BundleContext bundleContext) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService, MessageService messageService, JsonService jsonService, UpgradeService upgradeService, BundleContext bundleContext) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
@@ -122,6 +130,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         setNlsService(nlsService);
         setDataVaultService(dataVaultService);
         setThreadPrincipalService(threadPrincipalService);
+        setMessageService(messageService);
+        setJsonService(jsonService);
         setUpgradeService(upgradeService);
         privilegesProviders.add(this);
         activate(bundleContext);
@@ -143,6 +153,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(UserService.class).toInstance(UserServiceImpl.this);
+                bind(MessageService.class).toInstance(messageService);
+                bind(JsonService.class).toInstance(jsonService);
                 bind(BundleContext.class).toInstance(context);
             }
         });
@@ -227,6 +239,9 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         String[] names = plainText.split(":");
 
         if (names.length <= 1) {
+            if(names.length == 1) {
+                logMessage(UNSUCCESSFUL_LOGIN, "[" + names[0] + "]");
+            }
             return Optional.empty();
         }
 
@@ -243,8 +258,15 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             domain = items[0];
             userName = items[1];
         }
-
-        return authenticate(domain, userName, names[1]);
+        Optional<User> user = authenticate(domain, userName, names[1]);
+        if(user.isPresent() && !user.get().getPrivileges().isEmpty()){
+            logMessage(SUCCESSFUL_LOGIN, "["+userName+"]");
+        }else{
+            if(!userName.equals("")) {
+                logMessage(UNSUCCESSFUL_LOGIN, "[" + userName + "]");
+            }
+        }
+        return user;
     }
 
     @Override
@@ -509,10 +531,12 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Stream.of(
+        List<TranslationKey> keys = Stream.of(
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
+        keys.add(new SimpleTranslationKey(UserService.USR_QUEUE_SUBSC, UserService.USR_QUEUE_DISPLAYNAME));
+        return keys;
     }
 
     @Override
@@ -606,6 +630,16 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Reference
     public final void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public final void setMessageService(MessageService messageService){
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public  final void setJsonService(JsonService jsonService){
+        this.jsonService = jsonService;
     }
 
     @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -793,6 +827,16 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public void removeLoggedUser(User user) {
         this.loggedInUsers.remove(user);
+    }
+
+    private void logMessage(String message, String userName){
+        Map<String, String> messageProperties = new HashMap<>();
+        messageProperties.put(message, userName);
+        Optional<DestinationSpec> found = messageService.getDestinationSpec(USR_QUEUE_DEST);
+        if(found.isPresent()){
+            String json = jsonService.serialize(messageProperties);
+            found.get().message(json).send();
+        }
     }
 
 }
