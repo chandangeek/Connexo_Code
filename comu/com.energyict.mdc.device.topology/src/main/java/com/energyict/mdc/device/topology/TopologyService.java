@@ -1,17 +1,20 @@
 package com.energyict.mdc.device.topology;
 
 import aQute.bnd.annotation.ProviderType;
+
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
+
 import com.google.common.collect.Range;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -23,11 +26,11 @@ import java.util.Optional;
 @ProviderType
 public interface TopologyService {
 
-    public static final String COMPONENT_NAME = "DTL";
+    String COMPONENT_NAME = "DTL";
 
-    public Optional<Device> getPhysicalGateway(Device slave);
+    Optional<Device> getPhysicalGateway(Device slave);
 
-    public Optional<Device> getPhysicalGateway(Device slave, Instant when);
+    Optional<Device> getPhysicalGateway(Device slave, Instant when);
 
     /**
      * Sets the physical gateway of the slave {@link Device} to the specified Device.
@@ -35,7 +38,7 @@ public interface TopologyService {
      * @param slave The slave Device
      * @param gateway The physical gateway Device
      */
-    public void setPhysicalGateway(Device slave, Device gateway);
+    void setPhysicalGateway(Device slave, Device gateway);
 
     /**
      * Clears the physical gateway of the slave {@link Device},
@@ -43,16 +46,17 @@ public interface TopologyService {
      *
      * @param slave The slave Device
      */
-    public void clearPhysicalGateway(Device slave);
+    void clearPhysicalGateway(Device slave);
 
 
     /**
      * Finds the {@link Device}s that are physically connected to the specified Device.
+     * When the Device is a DataLogger device this will result in a list of slave devices.
      *
      * @param device the 'master' device
      * @return The List of physically connected devices
      */
-    public List<Device> findPhysicalConnectedDevices(Device device);
+    List<Device> findPhysicalConnectedDevices(Device device);
 
     /**
      * Gets the {@link DeviceTopology physical topology} for this Device
@@ -62,7 +66,7 @@ public interface TopologyService {
      * @param period The period in time during which the devices were physically linked to this Device
      * @return The DeviceTopology
      */
-    public DeviceTopology getPhysicalTopology(Device root, Range<Instant> period);
+    DeviceTopology getPhysicalTopology(Device root, Range<Instant> period);
 
     /**
      * Gets the {@link TopologyTimeline} of the devices that are
@@ -72,7 +76,7 @@ public interface TopologyService {
      * @return The TopologyTimeline
      * @see #getPhysicalGateway(Device)
      */
-    public TopologyTimeline getPysicalTopologyTimeline(Device device);
+    TopologyTimeline getPysicalTopologyTimeline(Device device);
 
     /**
      * Gets the most recent additions to the {@link TopologyTimeline}
@@ -83,7 +87,7 @@ public interface TopologyService {
      * @return The TopologyTimeline
      * @see #getPhysicalGateway(Device)
      */
-    public TopologyTimeline getPhysicalTopologyTimelineAdditions(Device device, int maximumNumberOfAdditions);
+    TopologyTimeline getPhysicalTopologyTimelineAdditions(Device device, int maximumNumberOfAdditions);
 
     /**
      * Gets the {@link G3CommunicationPath} that was used to communication
@@ -93,7 +97,7 @@ public interface TopologyService {
      * @param target The target Device
      * @return The G3CommunicationPath
      */
-    public G3CommunicationPath getCommunicationPath(Device source, Device target);
+    G3CommunicationPath getCommunicationPath(Device source, Device target);
 
     /**
      * Starts the process to add {@link G3CommunicationPathSegment}s
@@ -102,7 +106,7 @@ public interface TopologyService {
      * @param source The source Device
      * @return The G3CommunicationPathSegmentBuilder
      */
-    public G3CommunicationPathSegmentBuilder addCommunicationSegments(Device source);
+    G3CommunicationPathSegmentBuilder addCommunicationSegments(Device source);
 
     /**
      * Counts the number of communication errors that have occurred in the specified
@@ -111,7 +115,7 @@ public interface TopologyService {
      * @param interval The Interval during which the communication errors have occurred
      * @return The number of communication errors
      */
-    public int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, Device device, Interval interval);
+    int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, Device device, Interval interval);
 
     /**
      * Gets the {@link Device}'s {@link Channel}s AND the Channels of all
@@ -119,7 +123,7 @@ public interface TopologyService {
      *
      * @return a <CODE>List</CODE> of <CODE>Channel</CODE> objects
      */
-    public List<Channel> getAllChannels(LoadProfile loadProfile);
+    List<Channel> getAllChannels(LoadProfile loadProfile);
 
     /**
      * Finds the default {@link ConnectionTask} for the specified Device.
@@ -129,7 +133,7 @@ public interface TopologyService {
      * @param device The Device for which we need to search the default ConnectionTask
      * @return The default ConnectionTask for the given Device if one exists
      */
-    public Optional<ConnectionTask> findDefaultConnectionTaskForTopology(Device device);
+    Optional<ConnectionTask> findDefaultConnectionTaskForTopology(Device device);
 
     /**
      * Starts the building process of the specified {@link Device}'s neighborhood,
@@ -139,7 +143,7 @@ public interface TopologyService {
      * @param device The Device whose neighborhood will be built
      * @return The G3NeighborhoodBuilder
      */
-    public G3NeighborhoodBuilder buildG3Neighborhood(Device device);
+    G3NeighborhoodBuilder buildG3Neighborhood(Device device);
 
     /**
      * Find the neighboring {@link Device}s,
@@ -148,7 +152,7 @@ public interface TopologyService {
      * @param device The Device whose neighborhood will be returned
      * @return The List of Device
      */
-    public List<Device> findDevicesInG3Neighborhood(Device device);
+    List<Device> findDevicesInG3Neighborhood(Device device);
 
     /**
      * Find the {@link G3Neighbor}s of the specified {@link Device},
@@ -157,7 +161,7 @@ public interface TopologyService {
      * @param device The Device whose neighbors will be returned
      * @return The List of G3Neighbor
      */
-    public List<G3Neighbor> findG3Neighbors(Device device);
+    List<G3Neighbor> findG3Neighbors(Device device);
 
     /**
      * Find the neighboring {@link Device}s,
@@ -167,7 +171,7 @@ public interface TopologyService {
      * @param when The timestamp on which the Devices were effectively in the Device's neighborhood
      * @return The List of Device
      */
-    public List<Device> findDevicesInG3Neighborhood(Device device, Instant when);
+    List<Device> findDevicesInG3Neighborhood(Device device, Instant when);
 
     /**
      * Find the {@link G3Neighbor}s of the specified {@link Device},
@@ -177,7 +181,7 @@ public interface TopologyService {
      * @param when The timestamp on which the G3Neighbor were effectively part of the Device's neighborhood
      * @return The List of G3Neighbor
      */
-    public List<G3Neighbor> findG3Neighbors(Device device, Instant when);
+    List<G3Neighbor> findG3Neighbors(Device device, Instant when);
 
     /**
      * Gets the current {@link G3DeviceAddressInformation} for the specified {@link Device}.
@@ -185,7 +189,7 @@ public interface TopologyService {
      * @param device The Device
      * @return The G3DeviceAddressInformation
      */
-    public Optional<G3DeviceAddressInformation> getG3DeviceAddressInformation(Device device);
+    Optional<G3DeviceAddressInformation> getG3DeviceAddressInformation(Device device);
 
     /**
      * Gets the {@link G3DeviceAddressInformation} for the specified {@link Device}
@@ -195,7 +199,7 @@ public interface TopologyService {
      * @param when The timestamp on which the G3DeviceAddressInformation should be effective
      * @return The G3DeviceAddressInformation
      */
-    public Optional<G3DeviceAddressInformation> getG3DeviceAddressInformation(Device device, Instant when);
+    Optional<G3DeviceAddressInformation> getG3DeviceAddressInformation(Device device, Instant when);
 
     /**
      * Sets the {@link G3DeviceAddressInformation} for the specified {@link Device}.
@@ -209,7 +213,28 @@ public interface TopologyService {
      * @param logicalDeviceId The logical device identifier
      * @return The newly created G3DeviceAddressInformation or the existing one if nothing was changed
      */
-    public G3DeviceAddressInformation setG3DeviceAddressInformation(Device device, String ipv6Address, int ipv6ShortAddress, int logicalDeviceId);
+    G3DeviceAddressInformation setG3DeviceAddressInformation(Device device, String ipv6Address, int ipv6ShortAddress, int logicalDeviceId);
+
+    /**
+     * Link the slave device to the data logger device
+     * @param datalogger which can have slave devices
+     * @param slave device to link to the datalogger
+     *
+     * The datalogger's {@link com.energyict.mdc.device.config.DeviceType} purpose must be REGULAR{@link com.energyict.mdc.device.config.DeviceTypePurpose} and its actual
+     * {@link DeviceConfiguration} must be set as datalogger enabled.
+     * The slave device's DeviceType must have the DATALOGGER_SLAVE {@link com.energyict.mdc.device.config.DeviceTypePurpose}
+     *
+     * Technically the link is persisted as a {@link com.energyict.mdc.device.topology.impl.PhysicalGatewayReference} object.
+     * This PhysicalGateWayReference holds a List of DataLoggerChannelUsage linking the slave channel to the datalogger channel
+     */
+    void setDataLogger(Device slave, Device datalogger, Map<Channel, Channel> slaveDataLoggerChannelMap);
+
+    /**
+     *
+     * Unlink the slave device from its data logger device
+     * @param slave to remove from its logger device;
+     */
+    void clearDataLogger(Device slave);
 
     public interface G3CommunicationPathSegmentBuilder {
 
@@ -228,7 +253,7 @@ public interface TopologyService {
          * @param timeToLive The time to live
          * @param cost The segment's cost
          */
-        public G3CommunicationPathSegmentBuilder add(Device target, Device intermediateHop, Duration timeToLive, int cost);
+        G3CommunicationPathSegmentBuilder add(Device target, Device intermediateHop, Duration timeToLive, int cost);
 
         /**
          * Completes the building process, effectively creating all segments
@@ -236,7 +261,7 @@ public interface TopologyService {
          *
          * @return The newly created segments
          */
-        public List<G3CommunicationPathSegment> complete();
+        List<G3CommunicationPathSegment> complete();
 
     }
 
@@ -262,7 +287,7 @@ public interface TopologyService {
          * @param phaseInfo The PhaseInfo
          * @return The G3NeighborBuilder that allows you to specify the optional neighboring information
          */
-        public G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo);
+        G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo);
 
         /**
          * Completes the building process and returns
@@ -271,17 +296,17 @@ public interface TopologyService {
          * and will throw IllegalStateExceptions when
          * attempting to complete again.
          */
-        public List<G3Neighbor> complete();
+        List<G3Neighbor> complete();
     }
 
     public interface G3NeighborBuilder {
-        public G3NeighborBuilder txGain(int txGain);
-        public G3NeighborBuilder txResolution(int txResolution);
-        public G3NeighborBuilder txCoefficient(int txCoefficient);
-        public G3NeighborBuilder linkQualityIndicator(int linkQualityIndicator);
-        public G3NeighborBuilder timeToLiveSeconds(int seconds);
-        public G3NeighborBuilder toneMap(long toneMap);
-        public G3NeighborBuilder toneMapTimeToLiveSeconds(int seconds);
+        G3NeighborBuilder txGain(int txGain);
+        G3NeighborBuilder txResolution(int txResolution);
+        G3NeighborBuilder txCoefficient(int txCoefficient);
+        G3NeighborBuilder linkQualityIndicator(int linkQualityIndicator);
+        G3NeighborBuilder timeToLiveSeconds(int seconds);
+        G3NeighborBuilder toneMap(long toneMap);
+        G3NeighborBuilder toneMapTimeToLiveSeconds(int seconds);
     }
 
 }

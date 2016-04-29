@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -721,7 +722,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void switchAllNeighboringDevicesFromDifferentialToCoherent() {
-        Instant initialTimestamp = LocalDateTime.of(2014, 12, 1, 12, 00).toInstant(ZoneOffset.UTC);
+        Instant initialTimestamp = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(initialTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
@@ -735,7 +736,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
         initialNeighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
         initialNeighborhoodBuilder.complete();
-        Instant updateTimestamp = LocalDateTime.of(2014, 12, 15, 12, 00).toInstant(ZoneOffset.UTC);
+        Instant updateTimestamp = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(updateTimestamp);
 
         // Business method
@@ -765,7 +766,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void rebuildNeighboorhoodWithAllSamePropertiesDoesNotUpdate() {
-        Instant initialTimestamp = LocalDateTime.of(2014, 12, 1, 12, 00).toInstant(ZoneOffset.UTC);
+        Instant initialTimestamp = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(initialTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
@@ -779,7 +780,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
         initialNeighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
         initialNeighborhoodBuilder.complete();
-        Instant updateTimestamp = LocalDateTime.of(2014, 12, 15, 12, 00).toInstant(ZoneOffset.UTC);
+        Instant updateTimestamp = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(updateTimestamp);
 
         // Business method
@@ -812,7 +813,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void rebuildNeighboorhoodWithAllProperties() {
-        Instant initialTimestamp = LocalDateTime.of(2014, 12, 1, 12, 00).toInstant(ZoneOffset.UTC);
+        Instant initialTimestamp = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(initialTimestamp);
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
@@ -1210,6 +1211,58 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(addressInformation.get().getLogicalDeviceId()).isEqualTo(initialLogicalDeviceId);
         assertThat(addressInformation.get().isEffectiveAt(initialEffectiveTimestamp)).isTrue();
     }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(strict=false, messageId = "{" + MessageSeeds.Keys.DEVICE_CANNOT_BE_DATA_LOGGER_FOR_ITSELF + "}")
+    public void setDataLoggerGatewaySameAsOriginDeviceTest() {
+        Device slave = createDataLoggerDevice("Data Logger");
+
+        // Business method
+        this.getTopologyService().setDataLogger(slave, slave, Collections.emptyMap());
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(strict=false, messageId = "{" + MessageSeeds.Keys.NOT_A_DATALOGGER_SLAVE_DEVICE + "}")
+    public void originNotADataLoggerTest() {
+        Device slave = createSimpleDeviceWithName("Not a datalogger slave");
+        Device datalogger = createDataLoggerEnabledDevice("Data logger enabled");
+        // Business method
+        this.getTopologyService().setDataLogger(slave, datalogger, Collections.emptyMap());
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(strict=false, messageId = "{" + MessageSeeds.Keys.GATEWAY_NOT_DATALOGGER_ENABLED + "}")
+    public void setNotDataLoggerEnabledGatewayTest() {
+        Device slave = createDataLoggerDevice("Slave");
+        Device datalogger = createSimpleDeviceWithName("Data logger");
+        // Business method
+        this.getTopologyService().setDataLogger(slave, datalogger, Collections.emptyMap());
+    }
+
+    @Test
+    @Transactional
+    public void setDataLoggerTest() {
+        Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(now);
+
+        Device slave = createDataLoggerDevice("Slave2");
+        Device dataLogger = createDataLoggerEnabledDevice("Data logger enabled");
+        // Business method
+        this.getTopologyService().setDataLogger(slave, dataLogger, Collections.emptyMap());
+
+        List<PhysicalGatewayReference> gatewayReferences = ((ServerTopologyService) this.getTopologyService()).dataModel().query(PhysicalGatewayReference.class).select(com.elster.jupiter.util.conditions.Condition.TRUE);
+        assertThat(gatewayReferences).hasSize(1);
+        assertThat(gatewayReferences.get(0)).isInstanceOf(DataLoggerReferenceImpl.class);
+        DataLoggerReferenceImpl dataLoggerReference = (DataLoggerReferenceImpl) gatewayReferences.get(0);
+        assertThat(dataLoggerReference.getOrigin().getId()).isEqualTo(slave.getId());
+        assertThat(dataLoggerReference.getGateway().getId()).isEqualTo(dataLogger.getId());
+        assertThat(dataLoggerReference.getRange().lowerEndpoint()).isEqualTo(now);
+        assertThat(dataLoggerReference.getDataLoggerChannelUsages()).hasSize(0);
+    }
+
 
     private ServerDeviceService getDeviceService() {
         return inMemoryPersistence.getDeviceService();

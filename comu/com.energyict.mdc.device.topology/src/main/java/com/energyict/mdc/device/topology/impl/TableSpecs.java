@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.CommunicationPathSegment;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
 import com.energyict.mdc.device.topology.PLCNeighbor;
 
@@ -29,27 +30,27 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<PhysicalGatewayReference> table = dataModel.addTable(name(), PhysicalGatewayReference.class);
-            table.map(PhysicalGatewayReferenceImpl.class);
+            table.map(AbstractPhysicalGatewayReferenceImpl.IMPLEMENTERS);
             Column originId = table.column("ORIGINID").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
-            table.addAuditColumns();
             Column physicalGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
+            table.addAuditColumns();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.primaryKey("PK_DTL_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).add();
             table.foreignKey("FK_DTL_PHYSGATEWAYREF_ORIGIN").
                     on(originId).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).
                     add();
             table.foreignKey("FK_DTL_PHYSGATEWAYREF_GATEWAY").
                     on(physicalGatewayId).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(PhysicalGatewayReferenceImpl.Field.GATEWAY.fieldName()).
                     add();
         }
     },
-
     DTL_COMPATHSEGMENT {
         @Override
         void addTo(DataModel dataModel) {
@@ -66,19 +67,19 @@ public enum TableSpecs {
             table.primaryKey("PK_DTL_COMPATHSEGMENT").on(source, target, intervalColumns.get(0)).add();
             table.foreignKey("FK_DTL_COMPATHSEGMENT_SRC").
                     on(source).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(CommunicationPathSegmentImpl.Field.SOURCE.fieldName()).
                     add();
             table.foreignKey("FK_DTL_COMPATHSEGMENT_TARGET").
                     on(target).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(CommunicationPathSegmentImpl.Field.TARGET.fieldName()).
                     add();
             table.foreignKey("FK_DTL_COMPATHSEGMENT_NEXTHOP").
                     on(nextHop).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(CommunicationPathSegmentImpl.Field.NEXT_HOP.fieldName()).
                     add();
@@ -108,13 +109,13 @@ public enum TableSpecs {
             table.primaryKey("PK_DTL_PLCNEIGHBOR").on(device, neighbor, intervalColumns.get(0)).add();
             table.foreignKey("FK_DTL_PLCNEIGHBOR_DEV").
                     on(device).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(PLCNeighborImpl.Field.DEVICE.fieldName()).
                     add();
             table.foreignKey("FK_DTL_PLCNEIGHBOR_NEIGHBOR").
                     on(neighbor).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(PLCNeighborImpl.Field.NEIGHBOR.fieldName()).
                     add();
@@ -135,10 +136,45 @@ public enum TableSpecs {
             table.primaryKey("PK_DTL_G3ADDRESSINFO").on(device, intervalColumns.get(0)).add();
             table.foreignKey("FK_DTL_G3ADDRESSINFO_DEVICE").
                     on(device).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(G3DeviceAddressInformationImpl.Field.DEVICE.fieldName()).
                     add();
+        }
+    },
+    DTL_DATALOGGERCHANNELUSAGE {
+        void addTo(DataModel dataModel) {
+            Table<DataLoggerChannelUsage> table = dataModel.addTable(name(), DataLoggerChannelUsage.class);
+            table.map(DataLoggerChannelUsageImpl.class);
+            Column origin = table.column(DataLoggerChannelUsageImpl.Field.ORIGIN.name()).notNull().number().conversion(NUMBER2LONG).add();
+            Column startTime = table.column(DataLoggerChannelUsageImpl.Field.STARTTIME.name())
+                    .notNull()
+                    .number()
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column originChannel = table.column(DataLoggerChannelUsageImpl.Field.ORIGIN_CHANNEL.name())
+                    .notNull()
+                    .number()
+                    .conversion(NUMBER2LONG)
+                    .map(DataLoggerChannelUsageImpl.Field.ORIGIN_CHANNEL.fieldName())
+                    .add();
+            Column gatewayChannel = table.column(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.name())
+                    .notNull()
+                    .number()
+                    .conversion(NUMBER2LONG)
+                    .map(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.fieldName())
+                    .add();
+
+            table.primaryKey("PK_DTL_DATALOGGERCHANNELUSAGE").on(origin, startTime, originChannel).add();
+            table.index("IX_DTL_DATALOGGERCHANNELUSAGE_SLAVE").on(gatewayChannel).add();
+            table.foreignKey("FK_DTL_CU_GATEWAYREFERENCE")
+                    .references(DTL_PHYSICALGATEWAYREFERENCE.name())
+                    .on(origin, startTime)
+                    .onDelete(CASCADE)
+                    .map(DataLoggerChannelUsageImpl.Field.ORIGIN.fieldName())
+                    .reverseMap("dataLoggerChannelUsages")
+                    .composition()
+                    .add();
         }
     }
     ;

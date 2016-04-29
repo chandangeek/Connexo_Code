@@ -38,7 +38,6 @@ public class CannotDeletePhysicalGatewayEventHandlerIT extends PersistenceIntegr
     public void cannotDeleteBecauseStillUsedAsPhysicalGatewayTest() {
         Device physicalMaster = this.createSimpleDeviceWithName("PhysicalMaster");
         Device device1 = getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID, Instant.now());
-        device1.save();
         this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
 
         try {

@@ -9,6 +9,7 @@ import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.data.Device;
@@ -51,13 +52,20 @@ import static org.mockito.Mockito.when;
 public abstract class PersistenceIntegrationTest {
 
     static final String DEVICE_TYPE_NAME = PersistenceIntegrationTest.class.getName() + "Type";
+    static final String DATA_LOGGER_ENABLED_DEVICE_TYPE_NAME = "DataLoggerEnabledType";
+    static final String DATA_LOGGER_DEVICE_TYPE = "DataLoggerType";
     static final String DEVICE_CONFIGURATION_NAME = PersistenceIntegrationTest.class.getName() + "Config";
+    static final String DATA_LOGGER_ENABLED_DEVICE_CONFIGURATION_NAME = "DataLoggerConfig";
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     protected static final String MRID = "MyUniqueMRID";
 
     protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     protected DeviceType deviceType;
+    protected DeviceType dataLoggerEnabledDeviceType;
+    protected DeviceType dataLoggerSlaveDeviceType;
     protected DeviceConfiguration deviceConfiguration;
+    protected DeviceConfiguration dataLoggerEnabledDeviceConfiguration;
+    protected DeviceConfiguration dataLoggerSlaveDeviceConfiguration;
     protected SecurityPropertySet securityPropertySet;
 
     @Rule
@@ -117,12 +125,34 @@ public abstract class PersistenceIntegrationTest {
         when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.empty());
         when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
         when(clock.instant()).thenReturn(Instant.ofEpochMilli(0L));  // Create DeviceType as early as possible to support unit tests that go back in time
+
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
+
+        dataLoggerEnabledDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DATA_LOGGER_ENABLED_DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
+
+        dataLoggerSlaveDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DATA_LOGGER_DEVICE_TYPE, deviceProtocolPluggableClass);
+        dataLoggerSlaveDeviceType.setDeviceTypePurpose(DeviceTypePurpose.DATALOGGER_SLAVE);
+
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfigurationBuilder.isDirectlyAddressable(true);
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
+
+        DeviceType.DeviceConfigurationBuilder dataLoggerEnabledDeviceConfigurationBuilder = dataLoggerEnabledDeviceType.newConfiguration(DATA_LOGGER_ENABLED_DEVICE_CONFIGURATION_NAME);
+        dataLoggerEnabledDeviceConfigurationBuilder.isDirectlyAddressable(true);
+        dataLoggerEnabledDeviceConfigurationBuilder.dataloggerEnabled(true);
+
+        dataLoggerEnabledDeviceConfiguration = dataLoggerEnabledDeviceConfigurationBuilder.add();
+        deviceMessageIds.stream().forEach(dataLoggerEnabledDeviceConfiguration::createDeviceMessageEnablement);
+        dataLoggerEnabledDeviceConfiguration.activate();
+
+        DeviceType.DeviceConfigurationBuilder dataLoggerSlaveDeviceConfigurationBuilder = dataLoggerSlaveDeviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
+        dataLoggerSlaveDeviceConfigurationBuilder.isDirectlyAddressable(true);
+        dataLoggerSlaveDeviceConfiguration = dataLoggerSlaveDeviceConfigurationBuilder.add();
+        deviceMessageIds.stream().forEach(dataLoggerSlaveDeviceConfiguration::createDeviceMessageEnablement);
+        dataLoggerSlaveDeviceConfiguration.activate();
+
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
         securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
         securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
@@ -158,13 +188,19 @@ public abstract class PersistenceIntegrationTest {
     }
 
     protected Device createSimpleDeviceWithName(String name, String mRID){
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID, Instant.now());
-        device.save();
-        return device;
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID, Instant.now());
     }
 
     protected Device createSimpleDeviceWithName(String name) {
         return createSimpleDeviceWithName(name, "SimpleMrId");
+    }
+
+    protected Device createDataLoggerDevice(String name){
+        return inMemoryPersistence.getDeviceService().newDevice(dataLoggerSlaveDeviceConfiguration, name, name+"MrId", Instant.now());
+    }
+
+    protected Device createDataLoggerEnabledDevice(String name){
+        return inMemoryPersistence.getDeviceService().newDevice(dataLoggerEnabledDeviceConfiguration, name, name+"MrId", Instant.now());
     }
 
     protected Device getReloadedDevice(Device device) {

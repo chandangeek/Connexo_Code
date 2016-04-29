@@ -13,7 +13,7 @@ import javax.validation.ConstraintValidatorContext;
  * Date: 3/14/14
  * Time: 3:57 PM
  */
-public class PhysicalGatewayNotSameAsOriginValidator implements ConstraintValidator<PhysicalGatewayNotSameAsOrigin, PhysicalGatewayReferenceImpl> {
+public class PhysicalGatewayNotSameAsOriginValidator implements ConstraintValidator<PhysicalGatewayNotSameAsOrigin, PhysicalGatewayReference> {
 
     private String message;
 
@@ -23,7 +23,7 @@ public class PhysicalGatewayNotSameAsOriginValidator implements ConstraintValida
     }
 
     @Override
-    public boolean isValid(PhysicalGatewayReferenceImpl physicalGatewayReference, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(PhysicalGatewayReference physicalGatewayReference, ConstraintValidatorContext constraintValidatorContext) {
         Device gateway = physicalGatewayReference.getGateway();
         if (gateway != null && gateway.getId() == physicalGatewayReference.getOrigin().getId()) {
             constraintValidatorContext.disableDefaultConstraintViolation();

@@ -326,11 +326,44 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     public void setPhysicalGateway(Device slave, Device gateway) {
         Instant now = this.clock.instant();
         this.getPhysicalGatewayReference(slave, now).ifPresent(r -> terminateTemporal(r, now));
+        this.newPhysicalGatewayReference(slave, gateway, now);
+        this.slaveTopologyChanged(slave, Optional.of(gateway));
+    }
+
+    private PhysicalGatewayReferenceImpl newPhysicalGatewayReference(Device slave, Device gateway, Instant start){
         PhysicalGatewayReferenceImpl physicalGatewayReference =
-                this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class).createFor(Interval.startAt(now), gateway, slave);
+                this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class).createFor(slave, gateway, Interval.startAt(start));
         Save.CREATE.validate(this.dataModel, physicalGatewayReference);
         this.dataModel.persist(physicalGatewayReference);
-        this.slaveTopologyChanged(slave, Optional.of(gateway));
+        return physicalGatewayReference;
+    }
+
+    public void setDataLogger(Device slave, Device dataLogger, Map<Channel, Channel> slaveDataLoggerChannelMap){
+        Instant now = this.clock.instant();
+        this.getPhysicalGatewayReference(slave, now).ifPresent(r -> terminateTemporal(r, now));
+
+        final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, now);
+        slaveDataLoggerChannelMap.forEach((k,v) -> this.addChannelDataLoggerUsage(dataLoggerReference, k, v));
+        Save.CREATE.validate(this.dataModel, dataLoggerReference);
+        this.dataModel.persist(dataLoggerReference);
+    }
+
+    private DataLoggerReferenceImpl newDataLoggerReference(Device slave, Device gateway, Instant start ){
+        return this.dataModel.getInstance(DataLoggerReferenceImpl.class).createFor(slave, gateway, Interval.startAt(start));
+    }
+
+    public void clearDataLogger(Device slave){
+        this.clearPhysicalGateway(slave);
+    }
+
+    private void addChannelDataLoggerUsage(DataLoggerReferenceImpl gatewayReference, Channel slave, Channel dataLogger){
+        Optional<com.elster.jupiter.metering.Channel> channelForSlave = getMeteringChannel(slave);
+        Optional<com.elster.jupiter.metering.Channel> channelForDataLogger = getMeteringChannel(dataLogger);
+        gatewayReference.getDataLoggerChannelUsages().add(this.dataModel.getInstance(DataLoggerChannelUsageImpl.class).createFor(gatewayReference,channelForSlave.get(),channelForDataLogger.get()));
+    }
+
+    private Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final com.energyict.mdc.device.data.Channel channel){
+        return channel.getDevice().getCurrentMeterActivation().get().getChannels().stream().filter((x)-> x.getMainReadingType() == channel.getReadingType()).findFirst();
     }
 
     private void terminateTemporal(PhysicalGatewayReference gatewayReference, Instant now) {
