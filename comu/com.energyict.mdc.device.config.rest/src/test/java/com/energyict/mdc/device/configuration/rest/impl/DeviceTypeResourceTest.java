@@ -1628,7 +1628,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<String>get("[0].name")).isEqualTo("CALENDAR_NAME");
         assertThat(jsonModel.<String>get("[0].status")).isEqualTo("Active");
-        assertThat(jsonModel.<String>get("[0].calendarInfo.name")).isEqualTo("CALENDAR_NAME");
+        assertThat(jsonModel.<String>get("[0].calendar.name")).isEqualTo("CALENDAR_NAME");
     }
 
     private Calendar mockCalendar() {

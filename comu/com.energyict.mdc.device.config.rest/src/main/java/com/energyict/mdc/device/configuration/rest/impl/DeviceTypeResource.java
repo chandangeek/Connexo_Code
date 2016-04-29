@@ -515,7 +515,7 @@ public class DeviceTypeResource {
     @Path("/{id}/timeofuse/{calendarId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public Response getCaelndar(@PathParam("id") long id, @PathParam("calendarId") long calendarId) {
+    public Response getCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId) {
         CalendarInfo calendarInfo;
         calendarInfo = calendarInfoFactory.detailedWeekFromCalendar(calendarService.findCalendar(calendarId)
                 .get(), LocalDate.now());

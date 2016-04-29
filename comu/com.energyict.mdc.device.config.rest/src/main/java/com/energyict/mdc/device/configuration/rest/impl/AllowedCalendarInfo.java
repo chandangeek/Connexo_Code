@@ -7,7 +7,7 @@ public class AllowedCalendarInfo {
 
     public String name;
     public String status;
-    public CalendarInfo calendarInfo;
+    public CalendarInfo calendar;
 
     public AllowedCalendarInfo (AllowedCalendar allowedCalendar) {
         this.name = allowedCalendar.getName();
@@ -16,7 +16,7 @@ public class AllowedCalendarInfo {
 
     public AllowedCalendarInfo (AllowedCalendar allowedCalendar, CalendarInfo calendarInfo) {
         this(allowedCalendar);
-        this.calendarInfo = calendarInfo;
+        this.calendar = calendarInfo;
     }
 
 }
