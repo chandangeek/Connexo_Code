@@ -785,19 +785,19 @@ public class TableImpl<T> implements Table<T> {
         this.referenceConstraints = builder.build();
     }
 
-    private List<ForeignKeyConstraintImpl> getReverseConstraints() {
-        ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
-        for (TableImpl<?> table : getDataModel().getTables()) {
-            if (!table.equals(this)) {
-                for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
-                    if (each.getReferencedTable().equals(this)) {
-                        builder.add(each);
-                    }
-                }
-            }
-        }
-        return builder.build();
-    }
+	private List<ForeignKeyConstraintImpl> getReverseConstraints() {
+		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
+		for (TableImpl<?> table : getDataModel().getTables()) {
+			//if (!table.equals(this)) {
+				for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
+					if (each.getReferencedTable().equals(this)) {
+						builder.add(each);
+					}
+				}
+			//}
+		}
+		return builder.build();
+	}
 
     @Override
     public boolean maps(Class<?> clazz) {
