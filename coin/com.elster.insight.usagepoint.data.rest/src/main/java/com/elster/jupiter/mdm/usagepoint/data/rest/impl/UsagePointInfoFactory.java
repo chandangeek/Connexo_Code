@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
@@ -13,6 +14,7 @@ import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -121,7 +123,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
         usagePoint.getMetrologyConfiguration()
                 .ifPresent(mc -> {
-                    info.metrologyConfiguration =new MetrologyConfigurationInfo((UsagePointMetrologyConfiguration) mc, usagePoint, this.thesaurus));
+                    info.metrologyConfiguration = new MetrologyConfigurationInfo((UsagePointMetrologyConfiguration) mc, usagePoint, this.thesaurus);
                     info.displayMetrologyConfiguration = mc.getName();
                 });
 
@@ -206,5 +208,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withServicePriority(usagePointInfo.servicePriority)
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
                 .withServiceLocationString(usagePointInfo.location);
+    }
+
+    static class EmptyDomain {
     }
 }
