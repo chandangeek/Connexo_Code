@@ -13,7 +13,9 @@ public enum DefaultMeterRole {
     CONSUMPTION("meter.role.consumption", "Consumption"),
     PRODUCTION("meter.role.production", "Production"),
     MAIN("meter.role.main", "Main"),
-    CHECK("meter.role.check", "Check");
+    CHECK("meter.role.check", "Check"),
+    PEAK_CONSUMPTION("meter.role.peak.consumption", "Peak consumption"),
+    OFF_PEAK_CONSUMPTION("meter.role.off.peak.consumption", "Off peak consumption");
 
     private String key;
     private String defaultFormat;

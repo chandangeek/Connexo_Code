@@ -64,13 +64,6 @@ public class ReadingTypeMridFilterTest {
     }
 
     @Test
-    public void findByAllWildCardsTest() {
-        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
-        List<ReadingType> readingTypes = meteringService.getReadingTypesByMridFilter(new ReadingTypeMridFilter()).find();
-        assertThat(readingTypes).hasSize(18);
-    }
-
-    @Test
     public void findBySpecificReadingTypeTest() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ReadingType readingType = meteringService.getReadingType(DEFAULT_READING_TYPE).get();
