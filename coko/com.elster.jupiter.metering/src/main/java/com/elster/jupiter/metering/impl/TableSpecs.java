@@ -966,7 +966,7 @@ public enum TableSpecs {
             table.map(MultiplierValueImpl.class);
 
             Column meterActivationIdColumn = table.column("METERACTIVATIONID").number().notNull().add();
-            Column typeColumn = table.column("MULITPLIERTYPE").number().notNull().add();
+            Column typeColumn = table.column("MULTIPLIERTYPE").number().notNull().add();
             table.column("VALUE").number().map("value").notNull().add();
 
             table.primaryKey("MTR_PK_MULTIPLIERVALUE").on(meterActivationIdColumn, typeColumn).add();

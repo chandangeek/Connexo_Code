@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointMetrologyConfigurationTestIT {
 
-    private static final String DEFAULT_SEARCH_PROPERTY = "usagePointRequirementSearchableProperty";
+    private static final String DEFAULT_SEARCH_PROPERTY = "SERVICEKIND";
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
 
     @Rule
@@ -68,7 +68,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
         valueBean.propertyName = DEFAULT_SEARCH_PROPERTY;
         valueBean.operator = SearchablePropertyOperator.EQUAL;
-        valueBean.values = Collections.singletonList("value");
+        valueBean.values = Collections.singletonList("GAS");
         return valueBean;
     }
 
@@ -266,7 +266,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         SearchablePropertyValue.ValueBean valueBean = usagePointRequirement.toValueBean();
         assertThat(valueBean.operator).isEqualTo(SearchablePropertyOperator.EQUAL);
         assertThat(valueBean.propertyName).isEqualTo(DEFAULT_SEARCH_PROPERTY);
-        assertThat(valueBean.values).containsExactly("value");
+        assertThat(valueBean.values).containsExactly("GAS");
     }
 
     @Test
@@ -289,7 +289,7 @@ public class UsagePointMetrologyConfigurationTestIT {
                 .create();
         SearchablePropertyValue.ValueBean valueBean = getSearchablePropertyValueBean();
         metrologyConfiguration.addUsagePointRequirement(valueBean);
-        valueBean.values = Collections.singletonList("changed");
+        valueBean.values = Collections.singletonList("ELECTRICITY");
         valueBean.operator = SearchablePropertyOperator.NOT_EQUAL;
         metrologyConfiguration.addUsagePointRequirement(valueBean);
 
@@ -297,7 +297,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(1);
         valueBean = metrologyConfiguration.getUsagePointRequirements().get(0).toValueBean();
         assertThat(valueBean.propertyName).isEqualTo(DEFAULT_SEARCH_PROPERTY);
-        assertThat(valueBean.values).contains("changed");
+        assertThat(valueBean.values).contains("ELECTRICITY");
         assertThat(valueBean.operator).isEqualTo(SearchablePropertyOperator.NOT_EQUAL);
     }
 
@@ -312,7 +312,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         UsagePointRequirement requirement1 = metrologyConfiguration.addUsagePointRequirement(valueBean);
 
         valueBean.propertyName = "requirement2";
-        valueBean.values = Collections.singletonList("some");
+        valueBean.values = Collections.singletonList("ELECTRICITY");
         valueBean.operator = SearchablePropertyOperator.NOT_EQUAL;
         metrologyConfiguration.addUsagePointRequirement(valueBean);
         assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(2);
@@ -325,7 +325,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(1);
         valueBean = metrologyConfiguration.getUsagePointRequirements().get(0).toValueBean();
         assertThat(valueBean.propertyName).isEqualTo("requirement2");
-        assertThat(valueBean.values).containsExactly("some");
+        assertThat(valueBean.values).containsExactly("ELECTRICITY");
         assertThat(valueBean.operator).isEqualTo(SearchablePropertyOperator.NOT_EQUAL);
     }
 

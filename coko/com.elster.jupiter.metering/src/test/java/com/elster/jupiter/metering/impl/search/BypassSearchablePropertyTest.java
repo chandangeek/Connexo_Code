@@ -59,6 +59,7 @@ public class BypassSearchablePropertyTest {
         this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
         when(this.messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
+        when(this.thesaurus.getString(anyString(), anyString())).thenAnswer(invocation -> invocation.getArguments()[1]);
     }
 
     @Test

@@ -27,7 +27,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private String serviceDeliveryRemark;
     private String serviceLocationString;
     private Instant installationTime;
-    private Location upLocation;
+    private long locationId;
     private GeoCoordinates geoCoordinates;
 
     private ServiceCategory serviceCategory;
@@ -60,7 +60,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
 
     @Override
     public UsagePointBuilder withLocation(Location location){
-        this.upLocation = location;
+        this.locationId = location.getId();
         return this;
     }
 
@@ -151,7 +151,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         usagePoint.setServiceDeliveryRemark(serviceDeliveryRemark);
         usagePoint.setServiceLocationString(serviceLocationString);
         usagePoint.setGeoCoordinates(geoCoordinates);
-        usagePoint.setUpLocation(upLocation);
+        usagePoint.setLocation(locationId);
         return usagePoint;
     }
 }

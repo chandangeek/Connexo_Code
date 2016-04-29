@@ -73,8 +73,6 @@ import java.util.stream.Stream;
         "osgi.command.function=advanceStartDate",
         "osgi.command.function=explain",
         "osgi.command.function=locationTemplate",
-        "osgi.command.function=addLocation",
-        "osgi.command.function=addGeoCoordinates",
         "osgi.command.function=addEvents",
         "osgi.command.function=formulas",
         "osgi.command.function=addMetrologyConfig",
@@ -91,7 +89,13 @@ import java.util.stream.Stream;
         "osgi.command.function=getDeliverablesOnContract",
         "osgi.command.function=addDeliverableToContract",
         "osgi.command.function=removeDeliverableFromContract",
-        "osgi.command.function=metrologyConfigs"
+        "osgi.command.function=metrologyConfigs",
+        "osgi.command.function=addDeviceLocation",
+        "osgi.command.function=addDeviceGeoCoordinates",
+        "osgi.command.function=addUsagePointLocation",
+        "osgi.command.function=addUsagePointGeoCoordinates",
+        "osgi.command.function=activateMetrologyConfig"
+
 }, immediate = true)
 public class ConsoleCommands {
 
@@ -284,55 +288,76 @@ public class ConsoleCommands {
                 .forEach(System.out::println);
     }
 
-    public void addLocation(String mRID, String... args) {
+    public void addDeviceLocation(String mRID, String... args) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             EndDevice endDevice = meteringService.findEndDevice(mRID)
                     .orElseThrow(() -> new RuntimeException("No device with mRID " + mRID + "!"));
-            List<String> templateElements = meteringService.getLocationTemplate().getTemplateElementsNames();
-            Map<String, String> location = new HashMap<>();
-            if (templateElements.size() != args.length) {
-                throw new RuntimeException("Location provided does not meet template length !");
-            } else {
-                IntStream.range(0, args.length)
-                        .forEach(i -> location.put(templateElements.get(i), args[i]));
-                LocationBuilder builder = meteringService.newLocationBuilder();
-                Optional<LocationMemberBuilder> memberBuilder = builder.getMember(location.get("locale"));
-                if (memberBuilder.isPresent()) {
-                    setLocationAttributes(memberBuilder.get(), location);
-
-                } else {
-                    setLocationAttributes(builder.member(), location).add();
-                }
-                endDevice.setLocation(builder.create());
-                endDevice.update();
-            }
+            endDevice.setLocation(getLocationBuilder(args).create());
+            endDevice.update();
             context.commit();
         }
     }
 
-    public void addlocation() {
+    public void addDeviceLocation() {
         List<String> templateElements = meteringService.getLocationTemplate().getTemplateElementsNames();
-        System.out.print("Example : addlocation Device_mRID ");
+        System.out.print("Example : addDeviceLocation Device_mRID ");
         templateElements.stream()
                 .forEach(element -> System.out.print(element + " "));
         System.out.println();
 
     }
 
-    public void addGeoCoordinates() {
-        System.out.print("Example : addGeoCoordinates Device_mRID latitude longitude ");
+    public void addUsagePointLocation() {
+        List<String> templateElements = meteringService.getLocationTemplate().getTemplateElementsNames();
+        System.out.print("Example : addUsagePointLocation UsagePoint_mRID ");
+        templateElements.stream()
+                .forEach(element -> System.out.print(element + " "));
+        System.out.println();
+
+    }
+
+    public void addUsagePointLocation(String mRID, String... args) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            UsagePoint usagePoint = meteringService.findUsagePoint(mRID)
+                    .orElseThrow(() -> new RuntimeException("No usage point with mRID " + mRID + "!"));
+            usagePoint.setLocation(getLocationBuilder(args).create().getId());
+            usagePoint.update();
+            context.commit();
+        }
+    }
+
+    public void addDeviceGeoCoordinates() {
+        System.out.print("Example : addDeviceGeoCoordinates Device_mRID latitude longitude elevation");
         System.out.println();
     }
 
-    public void addGeoCoordinates(String mRID, String latitude, String longitude) {
+    public void addDeviceGeoCoordinates(String mRID, String latitude, String longitude, String elevation) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             EndDevice endDevice = meteringService.findEndDevice(mRID)
                     .orElseThrow(() -> new RuntimeException("No device with mRID " + mRID + "!"));
-            GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude);
+            GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude + ":" + elevation);
             endDevice.setGeoCoordintes(geoCoordinates);
             endDevice.update();
+            context.commit();
+        }
+    }
+
+    public void addUsagePointGeoCoordinates() {
+        System.out.print("Example : addUsagePointGeoCoordinates UsagePoint_mRID latitude longitude elevation ");
+        System.out.println();
+    }
+
+    public void addUsagePointGeoCoordinates(String mRID, String latitude, String longitude, String elevation) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            UsagePoint usagePoint = meteringService.findUsagePoint(mRID)
+                    .orElseThrow(() -> new RuntimeException("No usage point with mRID " + mRID + "!"));
+            GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude + ":" + elevation);
+            usagePoint.setGeoCoordinates(geoCoordinates);
+            usagePoint.update();
             context.commit();
         }
     }
@@ -354,6 +379,27 @@ public class ConsoleCommands {
                 .isDaultLocation(true)
                 .setLocale(location.get("locale"));
         return builder;
+    }
+
+    private LocationBuilder getLocationBuilder(String... args) {
+        List<String> templateElements = meteringService.getLocationTemplate().getTemplateElementsNames();
+        Map<String, String> location = new HashMap<>();
+        if (templateElements.size() != args.length) {
+            throw new RuntimeException("Location provided does not meet template length !");
+        } else {
+            IntStream.range(0, args.length)
+                    .forEach(i -> location.put(templateElements.get(i), args[i]));
+            LocationBuilder builder = meteringService.newLocationBuilder();
+            Optional<LocationMemberBuilder> memberBuilder = builder.getMember(location.get("locale"));
+            if (memberBuilder.isPresent()) {
+                setLocationAttributes(memberBuilder.get(), location);
+
+            } else {
+                setLocationAttributes(builder.member(), location).add();
+            }
+
+            return builder;
+        }
     }
 
     public void formulas() {
@@ -710,4 +756,13 @@ public class ConsoleCommands {
         return builder.toString();
     }
 
+    public void activateMetrologyConfig(String name) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            metrologyConfigurationService.findMetrologyConfiguration(name)
+                    .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"))
+                    .activate();
+            context.commit();
+        }
+    }
 }
