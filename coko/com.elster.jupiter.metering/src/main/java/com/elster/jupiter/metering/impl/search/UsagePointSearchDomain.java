@@ -231,7 +231,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                             case HEAT:
                                 properties.add(injector.getInstance(CollarSearchableProperty.class)
                                         .init(this, thermalGroup, this.clock));
-                                properties.add(injector.getInstance(WaterPhysicalCapacitySearchableProperty.class)
+                                properties.add(injector.getInstance(ThermalPhysicalCapacitySearchableProperty.class)
                                         .init(this, thermalGroup, this.clock));
                                 properties.add(injector.getInstance(BypassSearchableProperty.class)
                                         .init(this, thermalGroup, this.clock));
