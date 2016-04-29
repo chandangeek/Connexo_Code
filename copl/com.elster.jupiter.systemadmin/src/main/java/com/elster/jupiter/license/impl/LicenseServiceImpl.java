@@ -88,7 +88,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
     }
 
     public void install() {
-        dataModel.install(true, true);
+        dataModel.install(true, false);
         //createPrivileges();
         createEventTypes();
     }
