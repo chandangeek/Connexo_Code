@@ -41,7 +41,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersions',
         'Imt.processes.controller.MonitorProcesses',
         'Imt.usagepointmanagement.controller.Attributes',
-        'Imt.purpose.controller.Purpose'
+        'Imt.purpose.controller.Purpose',        
+        'Imt.usagepointmanagement.controller.MetrologyConfigurationDetails'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',

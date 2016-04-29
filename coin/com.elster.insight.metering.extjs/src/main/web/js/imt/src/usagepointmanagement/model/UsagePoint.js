@@ -77,7 +77,39 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'servicePriority', type: 'string'},
         {name: 'serviceDeliveryRemark', type: 'string'},
         {name: 'techInfo', type: 'auto', defaultValue: {}},
-        {name: 'metrologyConfiguration', type: 'auto', defaultValue: null}
+        {name: 'metrologyConfiguration', type: 'auto', defaultValue: null},
+        {
+            name: 'metrologyConfiguration_id',
+            persist: false,
+            mapping: 'metrologyConfiguration.id'
+        },
+        {
+            name: 'metrologyConfiguration_activationTime',
+            persist: false,
+            type: 'date',
+            dateFormat: 'time',
+            mapping: 'metrologyConfiguration.activationTime'
+        },
+        {
+            name: 'metrologyConfiguration_name',
+            persist: false,
+            mapping: 'metrologyConfiguration.name'
+        },
+        {
+            name: 'metrologyConfiguration_status',
+            persist: false,
+            mapping: 'metrologyConfiguration.status'
+        },
+        {
+            name: 'metrologyConfiguration_meterRoles',
+            persist: false,
+            mapping: 'metrologyConfiguration.meterRoles'
+        },
+        {
+            name: 'metrologyConfiguration_purposes',
+            persist: false,
+            mapping: 'metrologyConfiguration.purposes'
+        }
     ],
 
     associations: [
