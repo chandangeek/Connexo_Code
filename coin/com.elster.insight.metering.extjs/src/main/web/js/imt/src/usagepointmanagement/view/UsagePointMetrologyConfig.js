@@ -48,6 +48,23 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 }
             },
             {
+                itemId: 'up-metrology-config-empty',
+                fieldLabel: ' ',
+                hidden: true,
+                htmlEncode: false,
+                renderer: function () {
+                    var url = me.router.getRoute('usagepoints/view/definemetrology').buildUrl({},{fromLandingPage: true});
+                    return Uni.I18n.translate('general.label.defineConfiguration', 'IMT', '<a href="{0}">Define configuration</a>',url);
+                },
+                listeners: {
+                    beforerender: function() {
+                        if (!me.getRecord().get('name')) {
+                            this.show();
+                        }
+                    }
+                }
+            },
+            {
                 itemId: 'up-metrology-config-purposes',
                 name: 'purposes',
                 fieldLabel: Uni.I18n.translate('general.label.activePurposes', 'IMT', 'Active purposes'),

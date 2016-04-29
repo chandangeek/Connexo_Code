@@ -1,5 +1,8 @@
 Ext.define('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint', {
     extend: 'Ext.data.Store',
+    requires: [
+        'Uni.util.Common'
+    ],
     model: 'Imt.customattributesonvaluesobjects.model.AttributeSetVersionOnObject',
 
     proxy: {
@@ -11,7 +14,7 @@ Ext.define('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersions
         },
 
         setUrl: function (mRID, customPropertySetId) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId);
+            this.url = this.urlTpl.replace('{mRID}', Uni.util.Common.encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId);
         }
     }
 });

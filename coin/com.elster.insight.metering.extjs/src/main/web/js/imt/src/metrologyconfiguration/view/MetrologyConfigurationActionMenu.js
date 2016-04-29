@@ -13,7 +13,8 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu', {
                 removeItem = {
                     text: Uni.I18n.translate('general.menu.remove', 'IMT', 'Remove'),
                     action: 'removeMetrologyConfiguration',
-                    itemId: 'removeMetrologyConfiguration'
+                    itemId: 'removeMetrologyConfiguration',
+                    hidden: true // out of scope CXO-1209
                 };
 
             Ext.suspendLayouts();
@@ -29,12 +30,14 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu', {
                         {
                             text: Uni.I18n.translate('metrologyConfigPurposes.add', 'IMT', 'Add purpose'),
                             action: 'addPurposeMetrologyConfiguration',
-                            itemId: 'add-metrology-config-purpose'
+                            itemId: 'add-metrology-config-purpose',
+                            disabled: true // out of scope CXO-1209
                         },
                         {
                             text: Uni.I18n.translate('general.menu.editGeneralInformation', 'IMT', 'Edit general information'),
                             action: 'editMetrologyConfiguration',
-                            itemId: 'edit-metrology-config-general-info'
+                            itemId: 'edit-metrology-config-general-info',
+                            disabled: true // out of scope CXO-1209
                         },
                         removeItem
                     ]);
@@ -44,7 +47,8 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu', {
                         {
                             text: Uni.I18n.translate('general.deprecate', 'IMT', 'Deprecate'),
                             action: 'deprecateMetrologyConfiguration',
-                            itemId: 'deprecate-metrology-config'
+                            itemId: 'deprecate-metrology-config',
+                            disabled: true // out of scope CXO-1209
                         }
                     ]);
                     break;

@@ -16,7 +16,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
             serviceCategory,
             connectionState;
 
-        me.title = Ext.htmlEncode(usagePoint ? usagePoint.get('mRID') : me.router.arguments.mRID);
+        me.title = me.usagePoint ? me.usagePoint.get('mRID') : me.router.arguments.mRID;
 
         me.menuItems = [
             {
@@ -48,6 +48,12 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                         itemId: 'usage-point-service-calls-link',
                         privileges: Imt.privileges.UsagePoint.view,
                         href: me.router.getRoute('usagepoints/view/servicecalls').buildUrl()
+                    },
+                    {
+                        text: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
+                        itemId: 'usage-point-metrology-configuration-link',
+                        privileges: Imt.privileges.UsagePoint.view,
+                        href: me.router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl()
                     }
                 ]
             }

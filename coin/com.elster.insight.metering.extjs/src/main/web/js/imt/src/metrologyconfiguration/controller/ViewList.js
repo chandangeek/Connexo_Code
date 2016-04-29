@@ -10,7 +10,9 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
     ],
 
     views: [
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup'
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup',
+        'Imt.metrologyconfiguration.view.Setup',
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu'
     ],
 
     refs: [
@@ -26,7 +28,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             '#metrologyConfigurationList': {
                 select: me.onMetrologyConfigurationListSelect
             },
-            '#metrology-configuration-list-action-menu': {
+            'metrology-configuration-action-menu': {
                 click: this.chooseAction
             },
             '#createMetrologyConfiguration': {
@@ -42,19 +44,23 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
         router.arguments.mcid = menu.record.getId();
 
         switch (item.action) {
+            case 'removeMetrologyConfiguration':
+                me.removeMetrologyConfiguration(menu.record);
+                break;
             case 'editMetrologyConfiguration':
                 route = 'administration/metrologyconfiguration/view/edit';
                 break;
             case 'viewMetrologyConfiguration':
                 route = 'administration/metrologyconfiguration';
                 break;
-            case 'removeMetrologyConfiguration':
-                me.removeMetrologyConfiguration(menu.record);
+            case 'activateMetrologyConfiguration':
+                me.activateMetrologyConfiguration(menu.record);
                 break;
         }
 
-        route && (route = router.getRoute(route));
-        route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+        if(route){
+            router.getRoute(route).forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+        }
     },
 
     createMetrologyConfiguration: function () {
@@ -63,20 +69,24 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             route;
         route = 'administration/metrologyconfiguration/add';
 
-        route && (route = router.getRoute(route));
-        route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+        if(route){
+            router.getRoute(route).forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+        }
     },
 
     showMetrologyConfigurationList: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            viewport = Ext.ComponentQuery.query('viewport')[0],
             widget = Ext.widget('metrologyConfigurationListSetup', {
                 itemId: 'metrologyConfigurationListSetup',
                 router: router
             });
 
+        viewport.setLoading(true);
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getStore('Imt.metrologyconfiguration.store.MetrologyConfiguration').load();
+        viewport.setLoading(false);
     },
 
     onMetrologyConfigurationListSelect: function (selectionModel, record) {
@@ -162,6 +172,44 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
                         icon: Ext.MessageBox.ERROR
                     })
                 }
+            }
+        });
+    },
+
+    activateMetrologyConfiguration: function (record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation',{
+                confirmText: Uni.I18n.translate('general.activate', 'IMT', 'Activate')
+            });
+        confirmationWindow.show({
+            msg: Uni.I18n.translate(
+                'metrologyconfiguration.general.activate.msg',
+                'IMT',
+                'You will be able to link this metrology configuration to usage points, but you will not be able to modify this metrology configuration anymore'
+            ),
+            title: Uni.I18n.translate('metrologyconfiguration.general.activate.title', 'IMT', "Activate '{0}'?", record.get('name')),
+            config: {},
+            fn: function (state) {
+                if (state === 'confirm') {
+                    me.activateOperation(record);
+                } else if (state === 'cancel') {
+                    this.close();
+                }
+            }
+        });
+    },
+
+    activateOperation: function(record){
+        var me =this,
+            router = me.getController('Uni.controller.history.Router');
+        Ext.Ajax.request({
+            url: Ext.String.format('/api/ucr/metrologyconfigurations/{0}/activate', record.get('id')),
+            method: 'PUT',
+            jsonData: record.getData(),
+            isNotEdit: true,
+            success: function () {
+                router.getRoute().forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.general.activated', 'IMT', 'Metrology configuration activated'));
             }
         });
     }

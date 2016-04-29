@@ -143,7 +143,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                 itemId: 'action-menu-custom-attribute' + me.record.get('id'),
                 menuItemClass: 'inlineEditableAttributeSet',
                 editAvailable: true,
-                text: Uni.I18n.translate('general.edit', 'IMT', "Edit '{0}'", [Ext.String.htmlEncode(me.record.get('name'))]),
+                text: Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [Ext.String.htmlEncode(me.record.get('name'))]),
                 handler: function () {
                     if(this.editAvailable){
                         me.toEditMode(true);
@@ -173,7 +173,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
             });
         confirmationWindow.show({
             width: 500,
-            msg: Uni.I18n.translate('general.editGeneralInformation.lostData', 'IMT', 'You will lost unsolved data.'),
+            msg: Uni.I18n.translate('general.editGeneralInformation.lostData', 'IMT', 'Unsaved changes will be lost.'),
             title: Uni.I18n.translate('general.editGeneralInformation.discardChanges', 'IMT', "Discard '{0}' changes?",[Ext.String.htmlEncode(me.record.get('name'))])
         });
     },
