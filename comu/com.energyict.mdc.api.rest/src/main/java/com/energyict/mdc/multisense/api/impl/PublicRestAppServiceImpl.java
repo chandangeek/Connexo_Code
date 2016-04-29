@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.energyict.mdc.multisense.api.security.Privileges;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Arrays;
@@ -33,7 +34,7 @@ public class PublicRestAppServiceImpl implements TranslationKeyProvider, Applica
 
     @Override
     public Layer getLayer() {
-        return Layer.DOMAIN;
+        return Layer.REST;
     }
 
     @Override
