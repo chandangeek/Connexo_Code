@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -110,8 +111,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 info.techInfo = new HeatUsagePointDetailsInfo((HeatDetail) detailHolder.get());
             }
         }
-        usagePoint.getMetrologyConfiguration()
-                .ifPresent(mc -> info.metrologyConfiguration = new IdWithNameInfo(mc.getId(), mc.getName()));
+
+        usagePoint.getMetrologyConfiguration().ifPresent(mc -> info.metrologyConfiguration = new MetrologyConfigurationInfo((UsagePointMetrologyConfiguration) mc, usagePoint, this.thesaurus));
 
         UsagePointCustomPropertySetExtension customPropertySetExtension = usagePoint.forCustomProperties();
 
