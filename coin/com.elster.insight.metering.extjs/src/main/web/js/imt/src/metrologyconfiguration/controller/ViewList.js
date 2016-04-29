@@ -43,19 +43,21 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             route;
         router.arguments.mcid = menu.record.getId();
 
-        switch (item.action) {
-            case 'removeMetrologyConfiguration':
-                me.removeMetrologyConfiguration(menu.record);
-                break;
-            case 'editMetrologyConfiguration':
-                route = 'administration/metrologyconfiguration/view/edit';
-                break;
-            case 'viewMetrologyConfiguration':
-                route = 'administration/metrologyconfiguration';
-                break;
-            case 'activateMetrologyConfiguration':
-                me.activateMetrologyConfiguration(menu.record);
-                break;
+        if(item){
+            switch (item.action) {
+                case 'removeMetrologyConfiguration':
+                    me.removeMetrologyConfiguration(menu.record);
+                    break;
+                case 'editMetrologyConfiguration':
+                    route = 'administration/metrologyconfiguration/view/edit';
+                    break;
+                case 'viewMetrologyConfiguration':
+                    route = 'administration/metrologyconfiguration';
+                    break;
+                case 'activateMetrologyConfiguration':
+                    me.activateMetrologyConfiguration(menu.record);
+                    break;
+            }
         }
 
         if(route){
