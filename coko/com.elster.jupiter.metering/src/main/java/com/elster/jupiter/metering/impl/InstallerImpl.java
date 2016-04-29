@@ -17,11 +17,12 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.SqlDialect;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
@@ -67,9 +68,10 @@ public class InstallerImpl implements FullInstaller {
     private final String[] requiredReadingTypes;
     private final Clock clock;
     private final DataModel dataModel;
+    private final MetrologyConfigurationServiceImpl metrologyConfigurationService;
 
     @Inject
-    public InstallerImpl(DataModel dataModel, MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, Clock clock) {
+    public InstallerImpl(DataModel dataModel, MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, Clock clock, MetrologyConfigurationServiceImpl metrologyConfigurationService) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.idsService = idsService;
@@ -78,6 +80,7 @@ public class InstallerImpl implements FullInstaller {
         this.eventService = eventService;
         this.thesaurus = thesaurus;
         this.messageService = messageService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
         this.createAllReadingTypes = meteringService.isCreateAllReadingTypes();
         this.requiredReadingTypes = meteringService.getRequiredReadingTypes();
         this.clock = clock;
@@ -97,6 +100,8 @@ public class InstallerImpl implements FullInstaller {
         createEventTypes();
         createQueues();
         createSqlAggregationComponents();
+        meteringService.createLocationTemplate();
+        metrologyConfigurationService.install();
     }
 
     private void createEventTypes() {
@@ -290,10 +295,6 @@ public class InstallerImpl implements FullInstaller {
 
     private void createLocationTemplate(){
         meteringService.createLocationTemplate();
-    }
-
-    public void addDefaultData(){
-        createLocationTemplate();
     }
 
 }

@@ -432,7 +432,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
         if (dataModel != null && bundleContext != null) {
             createNewTemplate(bundleContext);
         } else if (bundleContext == null && locationTemplate == null) {
-            createLocationTemplateDefaultData();
+            createDefaultLocationTemplate();
         }
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -467,6 +467,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(LicenseService.class).toInstance(licenseService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(MetrologyConfigurationServiceImpl.class).toInstance(metrologyConfigurationService);
             }
         });
 
