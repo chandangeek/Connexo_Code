@@ -1,8 +1,9 @@
 package com.elster.jupiter.util.conditions;
 
 import com.elster.jupiter.util.time.Interval;
-import java.text.MessageFormat;
+
 import java.time.Instant;
+
 import org.junit.Test;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -132,11 +133,6 @@ public class WhereTest {
     @Test
     public void testLikeSqlMultipleEscapedExclamation() throws Exception {
         assertThat(Where.toOracleSql("!!!")).isEqualTo("!!!");
-    }
-
-    @Test
-    public void testFormat() throws Exception {
-        System.out.println(MessageFormat.format("UPPER({0}) LIKE UPPER(?) ESCAPE ''\\''","name"));
     }
 
 }

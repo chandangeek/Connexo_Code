@@ -10,6 +10,6 @@ public final class Elevation extends Angle {
 
     @Override
     public String toString() {
-        return baseString();
+        return String.valueOf(getValue().intValue());
     }
 }
