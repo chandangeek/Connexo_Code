@@ -88,7 +88,7 @@ public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
         serviceCallInfo.state = toInfo(serviceCall.getState());
         serviceCallInfo.externalReference = serviceCall.getExternalReference()
                 .isPresent() ? serviceCall.getExternalReference().get() : null;
-        serviceCallInfo.type = serviceCall.getType().getName();
+        serviceCallInfo.type = serviceCall.getType().getName() + " (" + serviceCall.getType().getVersionName() + ")";
         serviceCallInfo.typeId = serviceCall.getType().getId();
         serviceCallInfo.canCancel = serviceCall.canTransitionTo(DefaultState.CANCELLED);
         return serviceCallInfo;
