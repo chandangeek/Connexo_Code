@@ -24,7 +24,7 @@ public class Installer {
 
     public void install(boolean executeDdl) {
         try {
-            this.dataModel.install(executeDdl, true);
+            this.dataModel.install(executeDdl, false);
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
