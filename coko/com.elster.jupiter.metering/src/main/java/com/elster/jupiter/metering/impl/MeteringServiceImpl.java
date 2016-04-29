@@ -466,7 +466,6 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                 bind(SearchService.class).toInstance(searchService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(LicenseService.class).toInstance(licenseService);
-                bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class);
                 bind(MessageService.class).toInstance(messageService);
             }
         });

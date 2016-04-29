@@ -48,6 +48,8 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -140,6 +142,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.INSTANCE);
         }
     }
 

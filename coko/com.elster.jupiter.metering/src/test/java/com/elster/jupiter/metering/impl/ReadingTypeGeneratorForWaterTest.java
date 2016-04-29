@@ -22,6 +22,8 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.UtilModule;
@@ -71,6 +73,7 @@ public class ReadingTypeGeneratorForWaterTest {
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.INSTANCE);
         }
     }
 
