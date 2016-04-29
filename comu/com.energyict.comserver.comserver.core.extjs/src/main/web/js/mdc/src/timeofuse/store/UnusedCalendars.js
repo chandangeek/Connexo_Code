@@ -7,10 +7,13 @@ Ext.define('Mdc.timeofuse.store.UnusedCalendars', {
     storeId: 'unusedCalendarStore',
     proxy: {
         type: 'rest',
-        url: "",//TODO,
+        urlTpl: "../../api/dtc/devicetypes/{deviceTypeId}/unusedcalendars",
         reader: {
             type: 'json',
-            root: 'calendars'
+        },
+
+        setUrl: function (deviceTypeId) {
+            this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
         }
     }
 });

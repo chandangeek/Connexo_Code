@@ -2,9 +2,10 @@ Ext.define('Mdc.timeofuse.view.AvailableCalendarsGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.tou-available-cal-grd',
     requires: [
-        //'Apr.store.ActiveService'
+        'Mdc.timeofuse.store.UnusedCalendars'
     ],
-
+    store: 'Mdc.timeofuse.store.UnusedCalendars',
+    deviceTYpeId: null,
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural('timeofuse.nrOfMessageServices.selected', count, 'MDC',
             'No time of use calendars selected', '{0} time of use calendar selected', '{0} time of use calendars selected'

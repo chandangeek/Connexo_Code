@@ -64,18 +64,23 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     goToAddCalendars: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+
             route;
 
         route = router.getRoute('administration/devicetypes/view/timeofuse/add', {deviceTypeId: me.deviceTypeId});
+
         route.forward();
     },
 
     showAddCalendarsView: function (deviceTypeId) {
         var me = this,
+            store = me.getStore('Mdc.timeofuse.store.UnusedCalendars'),
             view = Ext.widget('tou-available-cal-setup', {
                 deviceTypeId: deviceTypeId
             });
 
+        store.getProxy().setUrl(me.deviceTypeId);
+        store.load();
         me.getApplication().fireEvent('changecontentevent', view);
         me.deviceTypeId = deviceTypeId;
         view.setLoading(true);

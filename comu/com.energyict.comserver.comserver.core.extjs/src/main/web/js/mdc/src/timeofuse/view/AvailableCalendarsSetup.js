@@ -2,6 +2,7 @@ Ext.define('Mdc.timeofuse.view.AvailableCalendarsSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.tou-available-cal-setup',
     overflowY: true,
+    deviceTypeId: null,
 
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
@@ -25,7 +26,7 @@ Ext.define('Mdc.timeofuse.view.AvailableCalendarsSetup', {
                     grid: {
                         itemId: 'tou-available-cal-grd',
                         xtype: 'tou-available-cal-grd',
-                        //store: 'Apr.store.UnservedMessageServices',
+                        deviceTypeId: this.deviceTypeId,
                         plugins: {
                             ptype: 'bufferedrenderer'
                         }
