@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
@@ -14,13 +15,11 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.UserService;
@@ -29,6 +28,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -110,7 +111,7 @@ public class CopyAndVirtualizeReferencesTest {
         CopyAndVirtualizeReferences visitor = getTestInstance();
         ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
         FunctionCallNodeImpl node =
-                (FunctionCallNodeImpl) formulaBuilder.minimum().create();
+                (FunctionCallNodeImpl) formulaBuilder.minimum(Collections.emptyList()).create();
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -119,16 +120,16 @@ public class CopyAndVirtualizeReferencesTest {
         assertThat(copied).isNotNull();
         assertThat(copied).isInstanceOf(FunctionCallNode.class);
         FunctionCallNode copiedFunctionCallNode = (FunctionCallNode) copied;
-        assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(Function.MIN);
+        assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(Function.LEAST);
         assertThat(copiedFunctionCallNode.getArguments()).isEmpty();
     }
 
     @Test
-    public void copyFunctionCallNodeWithoutArguments() {
+    public void copyMaximumFunctionCallNodeWithoutArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
         ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
         FunctionCallNodeImpl node =
-                (FunctionCallNodeImpl) formulaBuilder.maximum().create();
+                (FunctionCallNodeImpl) formulaBuilder.maximum(Collections.emptyList()).create();
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -137,15 +138,15 @@ public class CopyAndVirtualizeReferencesTest {
         assertThat(copied).isNotNull();
         assertThat(copied).isInstanceOf(FunctionCallNode.class);
         FunctionCallNode copiedFunctionCallNode = (FunctionCallNode) copied;
-        assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(com.elster.jupiter.metering.impl.aggregation.Function.MAX);
+        assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(Function.GREATEST);
         assertThat(copiedFunctionCallNode.getArguments()).isEmpty();
     }
 
     @Test
-    public void copyFunctionCallNodeWithOneArgument() {
+    public void copyMinimumFunctionCallNodeWithOneArgument() {
         ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
         FunctionCallNodeImpl node =
-                (FunctionCallNodeImpl) formulaBuilder.minimum(formulaBuilder.constant(BigDecimal.TEN)).create();
+                (FunctionCallNodeImpl) formulaBuilder.minimum(Collections.singletonList(formulaBuilder.constant(BigDecimal.TEN))).create();
         CopyAndVirtualizeReferences visitor = getTestInstance();
 
         // Business method
@@ -155,7 +156,7 @@ public class CopyAndVirtualizeReferencesTest {
         assertThat(copied).isNotNull();
         assertThat(copied).isInstanceOf(FunctionCallNode.class);
         FunctionCallNode copiedFunctionCallNode = (FunctionCallNode) copied;
-        assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(com.elster.jupiter.metering.impl.aggregation.Function.MIN);
+        assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(Function.LEAST);
         assertThat(copiedFunctionCallNode.getArguments()).hasSize(1);
         ServerExpressionNode onlyChild = copiedFunctionCallNode.getArguments().get(0);
         assertThat(onlyChild).isInstanceOf(NumericalConstantNode.class);
@@ -163,14 +164,14 @@ public class CopyAndVirtualizeReferencesTest {
     }
 
     @Test
-    public void copyFunctionCallNodeWithTwoArguments() {
+    public void copyMaximumFunctionCallNodeWithTwoArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
         ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
         FunctionCallNodeImpl node =
                 (FunctionCallNodeImpl) formulaBuilder
-                        .maximum(
-                            formulaBuilder.constant(BigDecimal.TEN),
-                                formulaBuilder.constant(BigDecimal.ZERO)).create();
+                        .maximum(Arrays.asList(
+                                formulaBuilder.constant(BigDecimal.TEN),
+                                formulaBuilder.constant(BigDecimal.ZERO))).create();
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -179,7 +180,7 @@ public class CopyAndVirtualizeReferencesTest {
         assertThat(copied).isNotNull();
         assertThat(copied).isInstanceOf(FunctionCallNode.class);
         FunctionCallNode copiedFunctionCallNode = (FunctionCallNode) copied;
-        assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(Function.MAX);
+        assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(Function.GREATEST);
         assertThat(copiedFunctionCallNode.getArguments()).hasSize(2);
         ServerExpressionNode firstArgument = copiedFunctionCallNode.getArguments().get(0);
         assertThat(firstArgument).isInstanceOf(NumericalConstantNode.class);
@@ -195,10 +196,10 @@ public class CopyAndVirtualizeReferencesTest {
         ServerFormulaBuilder formulaBuilder = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
         FunctionCallNodeImpl node =
                 (FunctionCallNodeImpl) formulaBuilder
-                        .maximum(
+                        .maximum(Arrays.asList(
                                 formulaBuilder.constant(BigDecimal.TEN),
                                 formulaBuilder.constant(BigDecimal.valueOf(1000L)),
-                                formulaBuilder.constant(BigDecimal.ONE)).create();
+                                formulaBuilder.constant(BigDecimal.ONE))).create();
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -207,7 +208,7 @@ public class CopyAndVirtualizeReferencesTest {
         assertThat(copied).isNotNull();
         assertThat(copied).isInstanceOf(FunctionCallNode.class);
         com.elster.jupiter.metering.impl.aggregation.FunctionCallNode copiedFunctionCallNode = (com.elster.jupiter.metering.impl.aggregation.FunctionCallNode) copied;
-        assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(com.elster.jupiter.metering.impl.aggregation.Function.MAX);
+        assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(Function.GREATEST);
         assertThat(copiedFunctionCallNode.getArguments()).hasSize(3);
         ServerExpressionNode firstArgument = copiedFunctionCallNode.getArguments().get(0);
         assertThat(firstArgument).isInstanceOf(NumericalConstantNode.class);
@@ -281,9 +282,9 @@ public class CopyAndVirtualizeReferencesTest {
         ExpressionNode formulaPart =
                 formulaBuilder.plus(
                     formulaBuilder.requirement(mock(ReadingTypeRequirement.class)),
-                    formulaBuilder.maximum(
-                        formulaBuilder.deliverable(readingTypeDeliverable),
-                        formulaBuilder.constant(BigDecimal.TEN))).create();
+                    formulaBuilder.maximum(Arrays.asList(
+                            formulaBuilder.deliverable(readingTypeDeliverable),
+                            formulaBuilder.constant(BigDecimal.TEN)))).create();
         com.elster.jupiter.metering.config.OperationNode node = (com.elster.jupiter.metering.config.OperationNode) formulaPart;
         ReadingTypeDeliverableForMeterActivation readingTypeDeliverableForMeterActivation =
                 new ReadingTypeDeliverableForMeterActivation(
@@ -315,15 +316,14 @@ public class CopyAndVirtualizeReferencesTest {
         assertThat(((NumericalConstantNode) maxFunctionArguments.get(1)).getValue()).isEqualTo(BigDecimal.TEN);
     }
 
-
     @Test
     public void copyMinusOperation() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
-
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
         ExpressionNode node =
-                new ExpressionNodeParser(thesaurus, metrologyConfigurationService, metrologyConfiguration)
-                        .parse("minus(constant(10), constant(0))");
+                formulaBuilder.minus(
+                        formulaBuilder.constant(BigDecimal.TEN),
+                        formulaBuilder.constant(BigDecimal.ZERO)).create();
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -341,6 +341,125 @@ public class CopyAndVirtualizeReferencesTest {
         assertThat(((NumericalConstantNode) rightOperand).getValue()).isEqualTo(BigDecimal.ZERO);
     }
 
+    @Test
+    public void copyMinimumAggregation() {
+        CopyAndVirtualizeReferences visitor = getTestInstance();
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
+        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        ExpressionNode node =
+                formulaBuilder.minimum(
+                        AggregationLevel.DAY,
+                        Collections.singletonList(formulaBuilder.requirement(requirement))).create();
+
+        // Business method
+        ServerExpressionNode copied = node.accept(visitor);
+
+        // Asserts
+        assertThat(copied).isNotNull();
+        assertThat(copied).isInstanceOf(TimeBasedAggregationNode.class);
+        TimeBasedAggregationNode copiedAggregationNode = (TimeBasedAggregationNode) copied;
+        assertThat(copiedAggregationNode.getFunction()).isEqualTo(AggregationFunction.MIN);
+        assertThat(copiedAggregationNode.getIntervalLength()).isEqualTo(IntervalLength.DAY1);
+        ServerExpressionNode operand = copiedAggregationNode.getAggregatedExpression();
+        assertThat(operand).isInstanceOf(VirtualRequirementNode.class);
+        assertThat(((VirtualRequirementNode) operand).getRequirement()).isEqualTo(requirement);
+    }
+
+    @Test
+    public void copyMaximumAggregation() {
+        CopyAndVirtualizeReferences visitor = getTestInstance();
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
+        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        ExpressionNode node =
+                formulaBuilder.maximum(
+                        AggregationLevel.WEEK,
+                        Collections.singletonList(formulaBuilder.requirement(requirement))).create();
+
+        // Business method
+        ServerExpressionNode copied = node.accept(visitor);
+
+        // Asserts
+        assertThat(copied).isNotNull();
+        assertThat(copied).isInstanceOf(TimeBasedAggregationNode.class);
+        TimeBasedAggregationNode copiedAggregationNode = (TimeBasedAggregationNode) copied;
+        assertThat(copiedAggregationNode.getFunction()).isEqualTo(AggregationFunction.MAX);
+        assertThat(copiedAggregationNode.getIntervalLength()).isEqualTo(IntervalLength.WEEK1);
+        ServerExpressionNode operand = copiedAggregationNode.getAggregatedExpression();
+        assertThat(operand).isInstanceOf(VirtualRequirementNode.class);
+        assertThat(((VirtualRequirementNode) operand).getRequirement()).isEqualTo(requirement);
+    }
+
+    @Test
+    public void copyAverageAggregation() {
+        CopyAndVirtualizeReferences visitor = getTestInstance();
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
+        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        ExpressionNode node =
+                formulaBuilder.average(
+                        AggregationLevel.MONTH,
+                        Collections.singletonList(formulaBuilder.requirement(requirement))).create();
+
+        // Business method
+        ServerExpressionNode copied = node.accept(visitor);
+
+        // Asserts
+        assertThat(copied).isNotNull();
+        assertThat(copied).isInstanceOf(TimeBasedAggregationNode.class);
+        TimeBasedAggregationNode copiedAggregationNode = (TimeBasedAggregationNode) copied;
+        assertThat(copiedAggregationNode.getFunction()).isEqualTo(AggregationFunction.AVG);
+        assertThat(copiedAggregationNode.getIntervalLength()).isEqualTo(IntervalLength.MONTH1);
+        ServerExpressionNode operand = copiedAggregationNode.getAggregatedExpression();
+        assertThat(operand).isInstanceOf(VirtualRequirementNode.class);
+        assertThat(((VirtualRequirementNode) operand).getRequirement()).isEqualTo(requirement);
+    }
+
+    @Test
+    public void copySumAggregation() {
+        CopyAndVirtualizeReferences visitor = getTestInstance();
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
+        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        ExpressionNode node =
+                formulaBuilder.sum(
+                        AggregationLevel.YEAR,
+                        Collections.singletonList(formulaBuilder.requirement(requirement))).create();
+
+        // Business method
+        ServerExpressionNode copied = node.accept(visitor);
+
+        // Asserts
+        assertThat(copied).isNotNull();
+        assertThat(copied).isInstanceOf(TimeBasedAggregationNode.class);
+        TimeBasedAggregationNode copiedAggregationNode = (TimeBasedAggregationNode) copied;
+        assertThat(copiedAggregationNode.getFunction()).isEqualTo(AggregationFunction.SUM);
+        assertThat(copiedAggregationNode.getIntervalLength()).isEqualTo(IntervalLength.YEAR1);
+        ServerExpressionNode operand = copiedAggregationNode.getAggregatedExpression();
+        assertThat(operand).isInstanceOf(VirtualRequirementNode.class);
+        assertThat(((VirtualRequirementNode) operand).getRequirement()).isEqualTo(requirement);
+    }
+
+    @Test
+    public void copySafeDivide() {
+        CopyAndVirtualizeReferences visitor = getTestInstance();
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
+        ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        ExpressionNode node =
+                formulaBuilder.safeDivide(
+                        formulaBuilder.requirement(requirement1),
+                        formulaBuilder.requirement(requirement2),
+                        formulaBuilder.constant(BigDecimal.ONE)).create();
+
+        // Business method
+        ServerExpressionNode copied = node.accept(visitor);
+
+        // Asserts
+        assertThat(copied).isNotNull();
+        assertThat(copied).isInstanceOf(OperationNode.class);
+        OperationNode copiedNode = (OperationNode) copied;
+        assertThat(copiedNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
+        ServerExpressionNode safeDivisorNode = copiedNode.getSafeDivisor();
+        assertThat(safeDivisorNode).isInstanceOf(NumericalConstantNode.class);
+    }
 
     private CopyAndVirtualizeReferences getTestInstance() {
         return this.getTestInstance(Formula.Mode.AUTO);

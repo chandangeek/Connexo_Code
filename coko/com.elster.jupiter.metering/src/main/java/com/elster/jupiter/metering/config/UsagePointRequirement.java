@@ -1,9 +1,11 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
 public interface UsagePointRequirement {
-    String getSearchablePropertyName();
+
+    SearchableProperty getSearchableProperty();
 
     SearchablePropertyValue.ValueBean toValueBean();
 }

@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
@@ -31,7 +31,7 @@ public class PartiallySpecifiedReadingTypeAttributeValueImpl implements SelfObje
     }
 
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private Reference<PartiallySpecifiedReadingType> readingTypeRequirement = Reference.empty();
+    private Reference<PartiallySpecifiedReadingTypeRequirement> readingTypeRequirement = Reference.empty();
     private ReadingTypeTemplateAttributeName attributeName;
     private int code;
 
@@ -39,8 +39,8 @@ public class PartiallySpecifiedReadingTypeAttributeValueImpl implements SelfObje
     public PartiallySpecifiedReadingTypeAttributeValueImpl() {
     }
 
-    PartiallySpecifiedReadingTypeAttributeValueImpl init(PartiallySpecifiedReadingType partiallySpecifiedReadingType, ReadingTypeTemplateAttributeName attributeName, int code) {
-        this.readingTypeRequirement.set(partiallySpecifiedReadingType);
+    PartiallySpecifiedReadingTypeAttributeValueImpl init(PartiallySpecifiedReadingTypeRequirement partiallySpecified, ReadingTypeTemplateAttributeName attributeName, int code) {
+        this.readingTypeRequirement.set(partiallySpecified);
         this.attributeName = attributeName;
         this.code = code;
         return this;

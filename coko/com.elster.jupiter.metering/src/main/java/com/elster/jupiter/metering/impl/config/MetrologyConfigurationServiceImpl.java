@@ -143,29 +143,9 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(long id) {
-        return this.getDataModel().mapper(UsagePointMetrologyConfiguration.class).getUnique("id", id);
-    }
-
-    @Override
-    public Optional<UsagePointMetrologyConfiguration> findAndLockUsagePointMetrologyConfiguration(long id, long version) {
-        return this.getDataModel().mapper(UsagePointMetrologyConfiguration.class).lockObjectIfVersion(version, id);
-    }
-
-    @Override
-    public Optional<UsagePointMetrologyConfiguration> findUsagePointMetrologyConfiguration(String name) {
-        return this.getDataModel().mapper(UsagePointMetrologyConfiguration.class).getUnique("name", name);
-    }
-
-    @Override
-    public List<UsagePointMetrologyConfiguration> findAllUsagePointMetrologyConfigurations() {
-        return DefaultFinder.of(UsagePointMetrologyConfiguration.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
-    }
-
-    @Override
     public List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint) {
         LinkableMetrologyConfigurationFinder finder = new LinkableMetrologyConfigurationFinder(this.meteringService);
-        List<UsagePointMetrologyConfiguration> activeConfigs = getDataModel().query(UsagePointMetrologyConfiguration.class)
+        List<UsagePointMetrologyConfigurationImpl> activeConfigs = getDataModel().query(UsagePointMetrologyConfigurationImpl.class)
                 .select(where(MetrologyConfigurationImpl.Fields.STATUS.fieldName()).isEqualTo(MetrologyConfigurationStatus.ACTIVE));
         if (!activeConfigs.isEmpty()) {
             activeConfigs.stream()
@@ -244,23 +224,21 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
+    public Optional<? extends ReadingTypeTemplate> findReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate) {
+        return getDataModel().query(ReadingTypeTemplateImpl.class)
+                .select(where(ReadingTypeTemplateImpl.Fields.DEFAULT_TEMPLATE.fieldName()).isEqualTo(defaultTemplate))
+                .stream()
+                .findFirst();
+    }
+
+    @Override
     public List<ReadingTypeTemplate> getReadingTypeTemplates() {
         return getDataModel().mapper(ReadingTypeTemplate.class).find();
     }
 
     @Override
-    public Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id) {
-        return getDataModel().mapper(ReadingTypeTemplate.class).getOptional(id);
-    }
-
-    @Override
     public Optional<ReadingTypeTemplate> findReadingTypeTemplate(String name) {
         return getDataModel().mapper(ReadingTypeTemplate.class).getUnique(ReadingTypeTemplateImpl.Fields.NAME.fieldName(), name);
-    }
-
-    @Override
-    public Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version) {
-        return getDataModel().mapper(ReadingTypeTemplate.class).lockObjectIfVersion(version, id);
     }
 
     @Override

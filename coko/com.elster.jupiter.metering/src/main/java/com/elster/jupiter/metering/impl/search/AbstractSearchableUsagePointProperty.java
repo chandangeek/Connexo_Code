@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.impl.search.SearchableUsagePointProperty;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
@@ -22,7 +21,6 @@ import com.elster.jupiter.util.conditions.Visitor;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

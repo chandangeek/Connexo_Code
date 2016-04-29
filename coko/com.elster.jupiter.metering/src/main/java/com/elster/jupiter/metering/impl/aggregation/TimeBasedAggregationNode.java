@@ -4,19 +4,24 @@ package com.elster.jupiter.metering.impl.aggregation;
  * Models a {@link ServerExpressionNode} that calls the appropriate
  * aggregation function and aggregation level that matches
  * the {@link com.elster.jupiter.metering.ReadingType} of the
- * {@link com.elster.jupiter.metering.config.ReadingTypeDeliverable}.
+ * {@link com.elster.jupiter.metering.config.ReadingTypeDeliverable}
+ * or an {@link IntervalLength} defined by the user.
  */
 class TimeBasedAggregationNode implements ServerExpressionNode {
 
     private final AggregationFunction function;
     private final ServerExpressionNode expression;
-    private final VirtualReadingType targetReadingType;
+    private final IntervalLength intervalLength;
 
     TimeBasedAggregationNode(ServerExpressionNode expression, VirtualReadingType targetReadingType) {
+        this(expression, targetReadingType.aggregationFunction(), targetReadingType.getIntervalLength());
+    }
+
+    TimeBasedAggregationNode(ServerExpressionNode expression, AggregationFunction aggregationFunction, IntervalLength intervalLength) {
         super();
-        this.function = targetReadingType.aggregationFunction();
+        this.function = aggregationFunction;
         this.expression = expression;
-        this.targetReadingType = targetReadingType;
+        this.intervalLength = intervalLength;
     }
 
     AggregationFunction getFunction() {
@@ -27,8 +32,8 @@ class TimeBasedAggregationNode implements ServerExpressionNode {
         return this.expression;
     }
 
-    public VirtualReadingType getTargetReadingType() {
-        return targetReadingType;
+    public IntervalLength getIntervalLength() {
+        return this.intervalLength;
     }
 
     @Override

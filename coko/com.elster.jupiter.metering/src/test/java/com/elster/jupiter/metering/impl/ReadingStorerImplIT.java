@@ -10,6 +10,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -80,6 +81,7 @@ public class ReadingStorerImplIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
     public static final String SECONDARY_DELTA = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
@@ -533,7 +535,7 @@ public class ReadingStorerImplIT {
         assertThat(qualities).hasSize(1);
 
         ReadingQualityRecord readingQualityRecord = qualities.get(0);
-        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("3.4.1");
+        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("2.4.1");
     }
 
     @Test
@@ -579,7 +581,7 @@ public class ReadingStorerImplIT {
         assertThat(qualities).hasSize(1);
 
         ReadingQualityRecord readingQualityRecord = qualities.get(0);
-        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("3.3.4");
+        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("2.3.4");
     }
 
     private Channel createMeterAndChannelWithMultplier(ReadingType measured, ReadingType caluclated, BigDecimal multiplierValue) {

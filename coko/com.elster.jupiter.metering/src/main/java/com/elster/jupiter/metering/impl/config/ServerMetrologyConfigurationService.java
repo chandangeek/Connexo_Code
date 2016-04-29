@@ -3,6 +3,9 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -29,10 +32,18 @@ public interface ServerMetrologyConfigurationService extends MetrologyConfigurat
 
     ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter createReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate);
 
+    Optional<? extends ReadingTypeTemplate> findReadingTypeTemplate(DefaultReadingTypeTemplate defaultTemplate);
+
     Optional<Formula> findFormula(long id);
 
     List<Formula> findFormulas();
 
     ServerFormulaBuilder newFormulaBuilder(Formula.Mode mode);
+
+    List<ReadingTypeDeliverable> findReadingTypeDeliverable(ReadingTypeDeliverableFilter filter);
+
+    Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
+
+    Optional<ReadingTypeRequirement> findReadingTypeRequirement(long id);
 
 }

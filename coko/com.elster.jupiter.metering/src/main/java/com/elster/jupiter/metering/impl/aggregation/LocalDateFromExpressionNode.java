@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Provides an implementation for the {@link com.elster.jupiter.metering.impl.aggregation.ServerExpressionNode.Visitor}
+ * Provides an implementation for the {@link ServerExpressionNode.Visitor}
  * interface and returns a SQL construct (as String) that provides a LOCALDATE for the visited
  * {@link ExpressionNode}
  * or <code>null</code> if the ExpressionNode cannot provide such a LOCALDATE.

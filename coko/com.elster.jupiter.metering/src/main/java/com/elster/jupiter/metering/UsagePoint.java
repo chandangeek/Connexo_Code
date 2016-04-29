@@ -123,7 +123,7 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     Optional<Location> getLocation();
 
-    void setUpLocation(Location location);
+    void setLocation(long locationId);
 
     long getGeoCoordinatesId();
 
@@ -183,6 +183,8 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
     UsagePointCustomPropertySetExtension forCustomProperties();
 
     ConnectionState getConnectionState();
+
+    void setConnectionState(ConnectionState connectionState);
 
     void update();
 

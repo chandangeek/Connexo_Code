@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingType;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.util.units.Dimension;
 import com.elster.jupiter.util.units.Unit;
 
@@ -152,7 +152,7 @@ public class UnitConversionSupport {
         return deliverableIntervalLength.isMultipleOf(formulaIntervalLength);
     }
 
-    public static boolean isValidForAggregation(PartiallySpecifiedReadingType readingType) {
+    public static boolean isValidForAggregation(PartiallySpecifiedReadingTypeRequirement readingType) {
         return isValidForAggregation(readingType.getUnit());
     }
 

@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.config;
 
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.units.Dimension;
 
 import java.util.List;
@@ -23,15 +22,15 @@ import java.util.List;
  * </code></pre>
  * Or the following abstract grammer:
  * <pre><code>
- * ExpressionNode             ::= ConstantNodeImpl | ReadingTypeRequirementNodeImpl | ReadingTypeDeliverableNodeImpl | VariableNode | OperationNodeImpl | FunctionCallNodeImpl
+ * ExpressionNode                 ::= ConstantNodeImpl | ReadingTypeRequirementNodeImpl | ReadingTypeDeliverableNodeImpl | VariableNode | OperationNodeImpl | FunctionCallNodeImpl
  * ConstantNodeImpl               ::= LeafNode(BigDecimal)
  * ReadingTypeRequirementNodeImpl ::= LeafNode(ReadingTypeRequirement)
  * ReadingTypeDeliverableNodeImpl ::= LeafNode(ReadingTypeDeliverable)
- * VariableNode               ::= LeafNode(CustomPropertySet, PropertySpec)
- * IdentifierNode             ::= LeafNode(Function)
+ * VariableNode                   ::= LeafNode(CustomPropertySet, PropertySpec)
+ * IdentifierNode                 ::= LeafNode(Function)
  * OperationNodeImpl              ::= InternalNode(Operator)
- * Operator                   ::= + | - | * | /
- * Function                   ::= AVG | MIN | MAX | SUM
+ * Operator                       ::= + | - | * | /
+ * Function                       ::= AVG | MIN | MAX | SUM
  * FunctionCallNodeImpl           ::= InternalNode(IdentifierNode, ArgumentListNode)
  * </code></pre>
  *
@@ -51,25 +50,10 @@ public interface ExpressionNode {
 
     <T> T accept(Visitor<T> visitor);
 
-    /**
-     * Update this ExpressionNode.
-     */
-    void save(DataModel dataModel);
-    /**
-     * Delete this ExpressionNode.
-     */
-    void delete(DataModel dataModel);
-
-
-
-    void validate();
-
     Dimension getDimension();
 
     ExpressionNode getParent();
 
-    List<ExpressionNode> getChildren();
-
-    long getId();
+    List<? extends ExpressionNode> getChildren();
 
 }

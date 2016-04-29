@@ -1,7 +1,9 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.config.*;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNodeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNodeImpl;
 
@@ -62,7 +64,6 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
     public ServerExpressionNode visitDeliverable(com.elster.jupiter.metering.config.ReadingTypeDeliverableNode node) {
         // Replace this one with a VirtualDeliverableNode
         return new VirtualDeliverableNode(
-                this.virtualFactory,
                 this.deliverableProvider.from(
                         node.getReadingTypeDeliverable(),
                         this.meterActivation));
@@ -70,23 +71,49 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpres
 
     @Override
     public ServerExpressionNode visitOperation(com.elster.jupiter.metering.config.OperationNode operationNode) {
-        return new OperationNode(
-                Operator.from(operationNode.getOperator()),
-                operationNode.getLeftOperand().accept(this),
-                operationNode.getRightOperand().accept(this));
+        Operator operator = Operator.from(operationNode.getOperator());
+        ServerExpressionNode operand1 = operationNode.getLeftOperand().accept(this);
+        ServerExpressionNode operand2 = operationNode.getRightOperand().accept(this);
+        if (com.elster.jupiter.metering.config.Operator.SAFE_DIVIDE.equals(operationNode.getOperator())) {
+            return new OperationNode(
+                    operator,
+                    operand1,
+                    operand2,
+                    operationNode.getZeroReplacement().get().accept(this));
+        } else {
+            return new OperationNode(
+                    operator,
+                    operand1,
+                    operand2);
+        }
     }
 
     @Override
     public ServerExpressionNode visitFunctionCall(com.elster.jupiter.metering.config.FunctionCallNode functionCall) {
         List<ServerExpressionNode> arguments = functionCall.getChildren().stream().map(child -> child.accept(this)).collect(Collectors.toList());
         Function function = Function.from(functionCall.getFunction());
-        if (Function.AGG_TIME.equals(function)) {
-            if (arguments.size() != 1) {
-                throw new IllegalArgumentException("Time based aggregation only supports 1 argument");
+        switch (functionCall.getFunction()) {
+            case AGG_TIME: {
+                if (arguments.size() != 1) {
+                    throw new IllegalArgumentException("Time based aggregation only supports 1 argument");
+                }
+                return new TimeBasedAggregationNode(arguments.get(0), VirtualReadingType.from(this.deliverable.getReadingType()));
             }
-            return new TimeBasedAggregationNode(arguments.get(0), VirtualReadingType.from(this.deliverable.getReadingType()));
-        } else {
-            return new FunctionCallNode(function, arguments);
+            case SUM:// Intentional fall-through
+            case AVG:// Intentional fall-through
+            case MIN_AGG:// Intentional fall-through
+            case MAX_AGG: {
+                if (arguments.size() != 1) {
+                    throw new IllegalArgumentException("Time based aggregation only supports 1 argument");
+                }
+                return new TimeBasedAggregationNode(
+                        arguments.get(0),
+                        AggregationFunction.from(functionCall.getFunction()),
+                        IntervalLength.from(functionCall.getAggregationLevel().get()));
+            }
+            default: {
+                return new FunctionCallNode(function, arguments);
+            }
         }
     }
 

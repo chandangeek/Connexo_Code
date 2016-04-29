@@ -94,6 +94,7 @@ public class UsagePointImpl implements UsagePoint {
     private Instant installationTime;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceDeliveryRemark;
+    private ConnectionState connectionState = ConnectionState.UNDER_CONSTRUCTION;
     private long version;
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -101,7 +102,6 @@ public class UsagePointImpl implements UsagePoint {
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
-    @SuppressWarnings("unused")
     private long location;
 
     private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
@@ -518,7 +518,12 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public ConnectionState getConnectionState() {
-        return ConnectionState.UNDER_CONSTRUCTION;
+        return connectionState;
+    }
+
+    @Override
+    public void setConnectionState(ConnectionState connectionState) {
+        this.connectionState = connectionState;
     }
 
     @Override
@@ -705,8 +710,9 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public long getLocationId() {
-        Optional<Location> location = getLocation();
-        return location.isPresent() ? location.get().getId() : 0L;
+//        Optional<Location> location = getLocation();
+//        return location.isPresent() ? location.get().getId() : 0L;
+        return location;
     }
 
     @Override
@@ -715,8 +721,8 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void setUpLocation(Location location){
-        this.upLocation.set(location);
+    public void setLocation(long locationId){
+        this.location = locationId;
     }
 
     @Override

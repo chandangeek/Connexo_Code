@@ -17,21 +17,21 @@ import java.util.Objects;
 /**
  * Created by igh on 5/02/2016.
  */
-public abstract class AbstractNode implements ExpressionNode {
+public abstract class AbstractNode implements ServerExpressionNode {
 
     // ORM inheritance map
     public static final Map<String, Class<? extends ExpressionNode>> IMPLEMENTERS = getImplementers();
 
     private long id;
     private Reference<AbstractNode> parent = ValueReference.absent();
-    private List<ExpressionNode> children = new ArrayList<>();
+    private List<ServerExpressionNode> children = new ArrayList<>();
     private long argumentIndex;
 
     public AbstractNode() {
         super();
     }
 
-    public AbstractNode(List<? extends ExpressionNode> children) {
+    public AbstractNode(List<? extends ServerExpressionNode> children) {
         this();
         this.children.addAll(children);
         int argumentIndex = 1;
@@ -53,7 +53,7 @@ public abstract class AbstractNode implements ExpressionNode {
     }
 
     @Override
-    public List<ExpressionNode> getChildren() {
+    public List<ServerExpressionNode> getChildren() {
         return children;
     }
 
@@ -95,7 +95,7 @@ public abstract class AbstractNode implements ExpressionNode {
     @Override
     public void save(DataModel dataModel) {
         doSave(dataModel);
-        for (ExpressionNode node : children) {
+        for (ServerExpressionNode node : children) {
             node.save(dataModel);
         }
     }

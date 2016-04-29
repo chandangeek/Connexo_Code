@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -16,7 +17,9 @@ import com.elster.jupiter.orm.Table;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -154,5 +157,32 @@ public class MeteringServiceImplTest {
                 .contains(journalEntry);
     }
 
+    @Test
+    public void testTranslationKeys() {
+        Set<String> uniqueKeys = new HashSet<>();
+        for (TranslationKey entry : meteringService.getKeys()) {
+            String key = entry.getKey();
+            String defaultFormat = entry.getDefaultFormat();
+            String translation = "Translation (" + key + "=" + defaultFormat + ")";
+            assertThat(key).as(translation + " has null key")
+                    .isNotNull()
+                    .as(translation + " has empty key")
+                    .isNotEmpty();
+            assertThat(key.length())
+                    .as(translation + " key should not start or end with a non-printable character")
+                    .isEqualTo(key.trim().length())
+                    .as(translation + " key is longer than max of 256")
+                    .isLessThanOrEqualTo(256);
+            assertThat(uniqueKeys.add(key)).as(translation + " does not have a unique key")
+                    .isEqualTo(true);
+            assertThat(defaultFormat).as(translation + " has null default format")
+                    .isNotNull()
+                    .as(translation + " has empty default format")
+                    .isNotEmpty();
+            assertThat(defaultFormat.length())
+                    .as(translation + " default format should not start or end with a non-printable character")
+                    .isEqualTo(defaultFormat.trim().length());
+        }
+    }
 
 }
