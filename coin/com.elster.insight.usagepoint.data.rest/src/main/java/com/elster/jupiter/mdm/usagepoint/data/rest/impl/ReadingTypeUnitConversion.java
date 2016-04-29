@@ -1,63 +1,53 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+
+import java.util.EnumSet;
+
 public class ReadingTypeUnitConversion {
+    private enum FlowUnit {
+        CUBICMETERPERHOUR("CUBICMETERPERHOUR"),
+        NORMALCUBICMETERPERHOUR("NORMALCUBICMETERPERHOUR"),
+        JOULEPERHOUR("JOULEPERHOUR"),
+        PASCALPERHOUR("PASCALPERHOUR"),
+        VOLTSQUARE("VOLTSQUARE"),
+        QUANTITYPOWER("QUANTITYPOWER"),
+        AMPERESQUARE("AMPERESQUARE"),
+        WATT("WATT"),
+        VOLTAMPERE("VOLTAMPERE"),
+        VOLTAMPEREREACTIVE("VOLTAMPEREREACTIVE"),
+        PERHOUR("PERHOUR"),
+        KILOGRAMPERHOUR("KILOGRAMPERHOUR"),
+        TONPERHOUR("TONPERHOUR"),
+        LITERPERHOUR("LITERPERHOUR"),
+        GALLONPERHOUR("GALLONPERHOUR"),
+        US_GALLONPERHOUR("US_GALLONPERHOUR"),
+        IMP_GALLONPERHOUR("IMP_GALLONPERHOUR"),
+        CUBICINCHPERHOUR("CUBICINCHPERHOUR"),
+        CUBICYARDPERHOUR("CUBICYARDPERHOUR"),
+        ACREFEETPERHOUR("ACREFEETPERHOUR");
+
+        private String name;
+        private FlowUnit(String name) {
+            this.name = name;
+        }
+        public String getName() {
+            return name;
+        }
+    }
+
     public ReadingTypeUnitConversion() {
 
     }
 
-    public static boolean isVolumeUnit(String unitName) {
-        switch (unitName) {
-            case "CUBICMETER":
-            case "NORMALCUBICMETER":
-            case "JOULE":
-            case "PASCAL":
-            case "VOLTSQUAREHOUR":
-            case "QUANTITYPOWERHOUR":
-            case "AMPERESQUAREHOUR":
-            case "WATTHOUR":
-            case "VOLTAMPEREHOUR":
-            case "VOLTAMPEREREACTIVEHOUR":
-            case "COUNT":
-            case "KILOGRAM":
-            case "TON":
-            case "LITER":
-            case "GALLON":
-            case "US_GALLON":
-            case "IMP_GALLON":
-            case "CUBICINCH":
-            case "CUBICYARD":
-            case "ACREFEET":
+    public static boolean isFlowUnit(ReadingTypeUnit readingTypeUnit) {
+        EnumSet<FlowUnit> flowUnits = EnumSet.allOf(FlowUnit.class);
+        for (FlowUnit flowUnit: flowUnits) {
+            if (flowUnit.getName().equals(readingTypeUnit.name())) {
                 return true;
-            default:
-                return false;
+            }
         }
-    }
-    public static boolean isFlowUnit(String unitName) {
-        switch (unitName) {
-            case "CUBICMETERPERHOUR":
-            case "NORMALCUBICMETERPERHOUR":
-            case "JOULEPERHOUR":
-            case "PASCALPERHOUR":
-            case "VOLTSQUARE":
-            case "QUANTITYPOWER":
-            case "AMPERESQUARE":
-            case "WATT":
-            case "VOLTAMPERE":
-            case "VOLTAMPEREREACTIVE":
-            case "PERHOUR":
-            case "KILOGRAMPERHOUR":
-            case "TONPERHOUR":
-            case "LITERPERHOUR":
-            case "GALLONPERHOUR":
-            case "US_GALLONPERHOUR":
-            case "IMP_GALLONPERHOUR":
-            case "CUBICINCHPERHOUR":
-            case "CUBICYARDPERHOUR":
-            case "ACREFEETPERHOUR":
-                return true;
-            default:
-                return false;
-        }
+        return false;
     }
 }
 

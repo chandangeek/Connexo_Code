@@ -39,7 +39,7 @@ public class OutputInfo {
             timeDuration = TimeDuration.weeks(1);
         }
         outputInfo.interval = new TimeDurationInfo(timeDuration);
-        outputInfo.flowUnit = ReadingTypeUnitConversion.isFlowUnit(readingType.getUnit().name()) ? "flow" : "volume";
+        outputInfo.flowUnit = ReadingTypeUnitConversion.isFlowUnit(readingType.getUnit()) ? "flow" : "volume";
         return outputInfo;
     }
 }
