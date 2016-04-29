@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             header: Uni.I18n.translate('deviceevents.eventDate', 'MDC', 'Event date'),
             dataIndex: 'eventDate',
             renderer: function (value) {
-                return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
             },
             flex: 1
         },
@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             header: Uni.I18n.translate('deviceevents.domain', 'MDC', 'Domain'),
             dataIndex: 'domain',
             renderer: function (value) {
-                return value ? Ext.String.htmlEncode(value.name) : '';
+                return value ? Ext.String.htmlEncode(value.name) : '-';
             },
             flex: 1
         },
@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             header: Uni.I18n.translate('deviceevents.subDomain', 'MDC', 'Subdomain'),
             dataIndex: 'subDomain',
             renderer: function (value) {
-                return value ? Ext.String.htmlEncode(value.name) : '';
+                return value ? Ext.String.htmlEncode(value.name) : '-';
             },
             flex: 1
         },
@@ -37,14 +37,17 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             header: Uni.I18n.translate('deviceevents.eventOrAction', 'MDC', 'Event or action'),
             dataIndex: 'eventOrAction',
             renderer: function (value) {
-                return value ? Ext.String.htmlEncode(value.name) : '';
+                return value ? Ext.String.htmlEncode(value.name) : '-';
             },
             flex: 1
         },
         {
             header: Uni.I18n.translate('deviceevents.message', 'MDC', 'Message'),
             dataIndex: 'message',
-            flex: 1
+            flex: 1,
+            renderer: function(value) {
+                return Ext.isEmpty(value) ? '-' : value;
+            }
         }
     ],
     initComponent: function () {
