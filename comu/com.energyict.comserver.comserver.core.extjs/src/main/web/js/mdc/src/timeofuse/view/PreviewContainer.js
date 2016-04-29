@@ -1,6 +1,7 @@
 Ext.define('Mdc.timeofuse.view.PreviewContainer', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.tou-devicetype-preview-container',
+    deviceTypeId: null,
 
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
@@ -37,7 +38,8 @@ Ext.define('Mdc.timeofuse.view.PreviewContainer', {
         var me = this;
         me.grid = {
             xtype: 'tou-calendars-grid',
-            itemId: 'grid-tou-calendars'
+            itemId: 'grid-tou-calendars',
+            deviceTypeId: me.deviceTypeId
         };
 
         me.previewComponent = {

@@ -16,6 +16,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
 
     models: [
         'Mdc.model.DeviceType',
+        'Mdc.timeofuse.model.AllowedCalendar',
         'Uni.model.timeofuse.Calendar'
     ],
 
@@ -48,10 +49,13 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         var me = this,
             view = Ext.widget('device-type-tou-setup', {
                 deviceTypeId: deviceTypeId
-            });
+            }),
+            store = me.getStore('Mdc.timeofuse.store.UsedCalendars');
 
         me.deviceTypeId = deviceTypeId;
         me.getApplication().fireEvent('changecontentevent', view);
+        store.getProxy().setUrl(deviceTypeId);
+        store.load();
         view.setLoading(true);
         view.suspendLayouts();
         me.reconfigureMenu(deviceTypeId, view);

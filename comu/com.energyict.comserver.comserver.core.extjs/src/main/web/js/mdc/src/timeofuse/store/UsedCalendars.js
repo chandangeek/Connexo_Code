@@ -1,16 +1,20 @@
 Ext.define('Mdc.timeofuse.store.UsedCalendars', {
     extend: 'Ext.data.Store',
     requires: [
-        'Uni.model.timeofuse.Calendar'
+        'Mdc.timeofuse.model.AllowedCalendar'
     ],
-    model: 'Uni.model.timeofuse.Calendar',
+    autoLoad: false,
+    model: 'Mdc.timeofuse.model.AllowedCalendar',
     storeId: 'usedCalendarStore',
     proxy: {
         type: 'rest',
-        url: "",//TODO,
+        urlTpl: '../../api/dtc/devicetypes/{deviceTypeId}/timeofuse',
         reader: {
-            type: 'json',
-            root: 'calendars'
+            type: 'json'
+        },
+
+        setUrl: function (deviceTypeId) {
+            this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
         }
     }
 });

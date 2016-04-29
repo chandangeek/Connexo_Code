@@ -1,7 +1,8 @@
 Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.tou-calendars-grid',
-    //store: 'Mdc.store.ServiceCalls',
+    store: 'Mdc.timeofuse.store.UsedCalendars',
+    deviceTypeId: null,
 
     requires: [
         'Uni.grid.column.Action',
@@ -15,14 +16,16 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
             {
                 header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 dataIndex: 'name',
+                flex: 3
             },
             {
                 header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 dataIndex: 'status',
+                flex: 3
             },
             {
                 xtype: 'uni-actioncolumn',
-                privileges: Scs.privileges.ServiceCall.admin,
+               // privileges: Scs.privileges.ServiceCall.admin,
                 menu: {
                     xtype: 'tou-devicetype-action-menu'
                 },
@@ -33,7 +36,7 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                //store: me.store,
+                store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('timeofuse.pagingtoolbartop.displayMsg', 'MDC', '{0} Time of use calendars'),
                 items: [

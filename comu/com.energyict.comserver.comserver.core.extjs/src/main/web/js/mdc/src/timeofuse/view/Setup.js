@@ -54,7 +54,8 @@ Ext.define('Mdc.timeofuse.view.Setup', {
                                 //    itemId: 'serviceCallFilter'
                                 //},
                                 {
-                                    xtype: 'tou-devicetype-preview-container'
+                                    xtype: 'tou-devicetype-preview-container',
+                                    deviceTypeId: me.deviceTypeId
                                 }
 
                             ]
