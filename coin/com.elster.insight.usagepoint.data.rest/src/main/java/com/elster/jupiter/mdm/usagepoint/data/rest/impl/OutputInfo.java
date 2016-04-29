@@ -14,6 +14,7 @@ public class OutputInfo {
     public TimeDurationInfo interval;
     public ReadingTypeInfo readingType;
     public long version;
+    public String flowUnit;
 
     public OutputInfo() {
 
@@ -38,6 +39,7 @@ public class OutputInfo {
             timeDuration = TimeDuration.weeks(1);
         }
         outputInfo.interval = new TimeDurationInfo(timeDuration);
+        outputInfo.flowUnit = ReadingTypeUnitConversion.isFlowUnit(readingType.getUnit().name()) ? "flow" : "volume";
         return outputInfo;
     }
 }

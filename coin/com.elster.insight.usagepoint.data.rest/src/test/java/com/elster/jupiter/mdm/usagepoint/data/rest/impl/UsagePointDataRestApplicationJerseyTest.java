@@ -21,6 +21,7 @@ import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
@@ -82,6 +83,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     ValidationService validationService;
     @Mock
+    DataAggregationService dataAggregationService;
+    @Mock
     static SecurityContext securityContext;
     @Mock
     UsagePointDataService usagePointDataService;
@@ -127,6 +130,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setMeteringGroupService(meteringGroupsService);
         application.setUsagePointConfigurationService(usagePointConfigurationService);
         application.setEstimationService(estimationService);
+        application.setDataAggregationService(dataAggregationService);
         application.setValidationService(validationService);
         application.setUsagePointDataService(usagePointDataService);
         application.setCustomPropertySetService(customPropertySetService);

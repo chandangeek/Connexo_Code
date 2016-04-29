@@ -1,10 +1,8 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-
-import java.util.List;
-
 import com.elster.jupiter.metering.config.MetrologyContract;
+import java.util.List;
 
 public class PurposeInfo {
     public long id;
