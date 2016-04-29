@@ -4,11 +4,13 @@ import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceType;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
+import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.util.Optional;
 
@@ -33,11 +35,19 @@ public class AllowedCalendarImpl implements AllowedCalendar {
     private Reference<DeviceType> deviceType = ValueReference.absent();
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
-    private Reference<Calendar> calendar;
+    @IsPresent
+    private Reference<Calendar> calendar = ValueReference.absent();
+    private DataModel dataModel;
 
-    public AllowedCalendarImpl(Calendar calendar, DeviceType deviceType) {
+    @Inject
+    public AllowedCalendarImpl (DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
+
+    AllowedCalendarImpl initialize (Calendar calendar, DeviceType deviceType) {
         this.calendar.set(calendar);
         this.deviceType.set(deviceType);
+        return this;
     }
 
     @Override

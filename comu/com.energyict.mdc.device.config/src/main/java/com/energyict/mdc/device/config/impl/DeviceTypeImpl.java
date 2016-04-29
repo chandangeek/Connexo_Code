@@ -484,7 +484,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void addCalendar(Calendar calendar) {
-        this.allowedCalendars.add(new AllowedCalendarImpl(calendar, this));
+        AllowedCalendar allowedCalendar = getDataModel().getInstance(AllowedCalendarImpl.class)
+                .initialize(calendar, this);
+        this.allowedCalendars.add(allowedCalendar);
     }
 
     @Override
