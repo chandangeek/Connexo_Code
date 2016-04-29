@@ -178,7 +178,6 @@ Ext.define('Imt.controller.History', {
                             action: 'showWizard',
                             privileges: Imt.privileges.UsagePoint.admin,
                             route: 'metrologyconfiguration/define'
-                           }
                         },
                         purpose: {
                             title: Uni.I18n.translate('general.label.purpose', 'IMT', 'Purpose'),
