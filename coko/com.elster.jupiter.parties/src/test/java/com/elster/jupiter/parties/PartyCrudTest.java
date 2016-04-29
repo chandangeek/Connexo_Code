@@ -105,8 +105,8 @@ public class PartyCrudTest {
         	PartyService partyService = getPartyService();
 			StreetAddress address = new StreetAddress();
 			address.getStreetDetail().setBuildingName("KKS");
-			address.getStreetDetail().setName("Stasegemsesteenweg");
-			address.getStreetDetail().setNumber("114");
+			address.getStreetDetail().setName("Spinnerijstraat");
+			address.getStreetDetail().setNumber("101");
          	Organization organization = partyService.newOrganization("EICT")
 					.setName("Elster")
 					.setAliasName("EnergyICT")
