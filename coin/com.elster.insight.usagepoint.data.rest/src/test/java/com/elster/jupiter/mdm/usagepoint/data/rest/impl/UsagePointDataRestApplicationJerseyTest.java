@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -11,7 +12,6 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
@@ -20,14 +20,14 @@ import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -193,7 +193,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         Formula formula = mock(Formula.class);
         when(formula.getDescription()).thenReturn("testDescription");
         ReadingTypeRequirementNode requirementNode = mock(ReadingTypeRequirementNode.class);
-        FullySpecifiedReadingType requirement = mock(FullySpecifiedReadingType.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement.getMetrologyConfiguration()).thenReturn(mock);
         when(requirement.getReadingType()).thenReturn(readingType);
         when(requirementNode.getReadingTypeRequirement()).thenReturn(requirement);
@@ -203,10 +203,11 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(contract.getMetrologyConfiguration()).thenReturn(mock);
         when(contract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(contract.isMandatory()).thenReturn(true);
-
-
+        MetrologyContract.Status status = mock(MetrologyContract.Status.class);
+        when(contract.getStatus()).thenReturn(status);
+        when(contract.getStatus().getKey()).thenReturn("INCOMPLETE");
+        when(contract.getStatus().getName()).thenReturn("Incomplete");
         when(mock.getContracts()).thenReturn(Collections.singletonList(contract));
         return mock;
     }
-
 }
