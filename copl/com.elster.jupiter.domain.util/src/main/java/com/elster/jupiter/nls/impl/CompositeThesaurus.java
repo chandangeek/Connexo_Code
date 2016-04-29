@@ -1,8 +1,8 @@
 package com.elster.jupiter.nls.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -18,10 +18,10 @@ import java.util.Objects;
 
 public class CompositeThesaurus implements IThesaurus {
 
-    private final List<Thesaurus> components = new ArrayList<>();
+    private final List<IThesaurus> components = new ArrayList<>();
     private final ThreadPrincipalService threadPrincipalService;
 
-    public CompositeThesaurus(ThreadPrincipalService threadPrincipalService, Thesaurus... thesauruses) {
+    public CompositeThesaurus(ThreadPrincipalService threadPrincipalService, IThesaurus... thesauruses) {
         this.threadPrincipalService = threadPrincipalService;
         this.components.addAll(Arrays.asList(thesauruses));
     }
@@ -80,25 +80,20 @@ public class CompositeThesaurus implements IThesaurus {
     private NlsString nlsStringFor(MessageSeed seed) {
         String key = seed.getKey();
         String defaultFormat = seed.getDefaultFormat();
-        return NlsString.from(this, key, defaultFormat);
+        return NlsString.from(this, seed.getModule(), key, defaultFormat);
     }
 
     private NlsString nlsStringFor(TranslationKey translationKey) {
         String key = translationKey.getKey();
         String defaultFormat = translationKey.getDefaultFormat();
-        return NlsString.from(this, key, defaultFormat);
-    }
-
-    @Override
-    public void addTranslations(Iterable<? extends Translation> translations) {
-        components.stream().findFirst().ifPresent(th -> th.addTranslations(translations));
+        return NlsString.from(this, NlsService.COMPONENTNAME, key, defaultFormat);
     }
 
     @Override
     public Map<String, String> getTranslations() {
         return components.stream()
                 .map(Thesaurus::getTranslations)
-                .collect(HashMap::new, (m1, m2) -> m1.putAll(m2), (m1, m2) -> m1.putAll(m2));
+                .collect(HashMap::new, HashMap::putAll, HashMap::putAll);
     }
 
     @Override
@@ -117,12 +112,17 @@ public class CompositeThesaurus implements IThesaurus {
     }
 
     @Override
+    public void invalidate() {
+        components.forEach(IThesaurus::invalidate);
+    }
+
+    @Override
     public Thesaurus join(Thesaurus thesaurus) {
         if (thesaurus instanceof CompositeThesaurus) {
             components.addAll(((CompositeThesaurus) thesaurus).components);
             return this;
         }
-        components.add(thesaurus);
+        components.add((IThesaurus) thesaurus);
         return this;
     }
 

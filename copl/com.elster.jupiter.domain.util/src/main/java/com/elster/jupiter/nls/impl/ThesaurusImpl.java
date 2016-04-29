@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
@@ -60,6 +59,13 @@ class ThesaurusImpl implements IThesaurus {
     private void initTranslations(String component, Layer layer) {
         translations.clear();
         for (NlsKeyImpl nlsKey : getNlsKeys(component, layer)) {
+            translations.put(nlsKey.getKey(), nlsKey);
+        }
+    }
+
+    private void updateTranslations(List<NlsKeyImpl> newKeys) {
+        this.ensureTranslationsLoaded();
+        for (NlsKeyImpl nlsKey : newKeys) {
             translations.put(nlsKey.getKey(), nlsKey);
         }
     }
@@ -124,19 +130,12 @@ class ThesaurusImpl implements IThesaurus {
     }
 
     @Override
-    public void addTranslations(Iterable<? extends Translation> translations) {
-        List<NlsKey> newKeys = new ArrayList<>();
-        initTranslations(this.component, this.layer);
-        translations.forEach(translation -> {
-            if (!this.translations.containsKey(translation.getNlsKey().getKey())) {
-                newKeys.add(newNlsKey(translation.getNlsKey().getKey(), translation.getTranslation()));
-            }
-        });
-        addNewTranslations(newKeys);
+    public void invalidate() {
+        translations.clear();
     }
 
     void createNewTranslationKeys(TranslationKeyProvider provider) {
-        List<NlsKey> newKeys = new ArrayList<>();
+        List<NlsKeyImpl> newKeys = new ArrayList<>();
         initTranslations(this.component, this.layer);
         provider.getKeys().forEach(translation -> {
             if (!this.translations.containsKey(translation.getKey())) {
@@ -146,16 +145,16 @@ class ThesaurusImpl implements IThesaurus {
         addNewTranslations(newKeys);
     }
 
-    private void addNewTranslations(List<NlsKey> nlsKeys) {
+    private void addNewTranslations(List<NlsKeyImpl> nlsKeys) {
         if (!nlsKeys.isEmpty()) {
             Set<String> uniqueIds = new HashSet<>();
             List<NlsKey> uniqueKeys = nlsKeys.stream().filter(key -> uniqueIds.add(key.getKey())).collect(Collectors.toList());
             dataModel.mapper(NlsKey.class).persist(uniqueKeys);
-            initTranslations(component, layer);
+            updateTranslations(nlsKeys);
         }
     }
 
-    private NlsKey newNlsKey(String key, String defaultFormat) {
+    private NlsKeyImpl newNlsKey(String key, String defaultFormat) {
         NlsKeyImpl nlsKey = nlsKeyProvider.get().init(component, layer, key);
         nlsKey.setDefaultMessage(defaultFormat);
         nlsKey.add(Locale.ENGLISH, defaultFormat);
@@ -175,13 +174,13 @@ class ThesaurusImpl implements IThesaurus {
     private NlsString nlsStringFor(MessageSeed seed) {
         String key = seed.getKey();
         String defaultFormat = seed.getDefaultFormat();
-        return NlsString.from(this, key, defaultFormat);
+        return NlsString.from(this, getComponent(), key, defaultFormat);
     }
 
     private NlsString nlsStringFor(TranslationKey translationKey) {
         String key = translationKey.getKey();
         String defaultFormat = translationKey.getDefaultFormat();
-        return NlsString.from(this, key, defaultFormat);
+        return NlsString.from(this, getComponent(), key, defaultFormat);
     }
 
     @Override
@@ -228,7 +227,7 @@ class ThesaurusImpl implements IThesaurus {
         if (thesaurus instanceof CompositeThesaurus) {
             return thesaurus.join(this);
         }
-        return new CompositeThesaurus(threadPrincipalService, this, thesaurus);
+        return new CompositeThesaurus(threadPrincipalService, this, (IThesaurus) thesaurus);
     }
 
     @Override
