@@ -7,6 +7,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup', {
         'Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit'
     ],
     router: null,
+    metrologyConfig: null,
 
     content: [
               {
@@ -33,7 +34,8 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup', {
                     {
                         xtype: 'metrology-configuration-side-menu',
                         itemId: 'metrology-configuration-side-menu',
-                        router: me.router
+                        router: me.router,
+                        metrologyConfig: me.metrologyConfig
                     }
                 ]
             }

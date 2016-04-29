@@ -6,7 +6,8 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.UsagePointMetrologyConfig',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
         'Imt.usagepointmanagement.model.MetrologyConfigOnUsagePoint',
-        'Imt.usagepointmanagement.view.SetupActionMenu'
+        'Imt.usagepointmanagement.view.SetupActionMenu',
+        'Uni.view.widget.WhatsGoingOn'
     ],
 
     router: null,
@@ -59,12 +60,20 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         xtype: 'container',
                         flex: 2,
                         items: [
+                            //{
+                            //    itemId: 'usage-point-going-on',
+                            //    title: 'lllll',//Uni.I18n.translate('general.whatsGoingOn', 'IMT', "What's going on"),
+                            //    ui: 'tile2',
+                            //    flex: 1,
+                            //    minHeight: 185 // todo: remove after implementation of content for this panel
+                            //},
                             {
-                                itemId: 'usage-point-going-on',
-                                title: Uni.I18n.translate('general.whatsGoingOn', 'IMT', "What's going on"),
-                                ui: 'tile2',
-                                flex: 1,
-                                minHeight: 185 // todo: remove after implementation of content for this panel
+                                xtype: 'whatsgoingon',
+                                mrId: me.usagePoint.get('mRID'),
+                                type: 'usagepoint',
+                                router: me.router,
+                                autoBuild: true,
+                                style: 'margin-bottom: 20px'
                             },
                             {
                                 xtype: 'container',

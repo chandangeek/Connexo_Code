@@ -4,7 +4,6 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         'Uni.controller.history.Router',
         'Imt.metrologyconfiguration.model.MetrologyConfiguration',
         'Imt.metrologyconfiguration.model.ValidationRuleSet',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm',
         'Ext.container.Container'
     ],
     models: [
@@ -12,17 +11,18 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
              'Imt.metrologyconfiguration.model.ValidationRuleSet'
     ],
     stores: [
-        'Imt.metrologyconfiguration.store.MetrologyConfiguration',
+        //'Imt.metrologyconfiguration.store.MetrologyConfiguration',
         'Imt.metrologyconfiguration.store.LinkedValidationRulesSet'
     ],
     views: [
         'Imt.metrologyconfiguration.view.Setup',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm',
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm',
         'Imt.metrologyconfiguration.view.CustomAttributeSets',
         'Imt.metrologyconfiguration.view.CustomAttributeSetsAdd'
     ],
     refs: [
-        {ref: 'attributesPanel', selector: '#metrology-configuration-attributes-panel'}
+        {ref: 'attributesPanel', selector: '#metrology-configuration-attributes-panel'},
+        {ref: 'purposePreview', selector: '#metrology-configuration-setup #purpose-preview'}
     ],
 
     init: function () {
@@ -34,48 +34,47 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 click: function(elm) {
                     this.removeCustomAttributeSet(elm.up('cas-detail-form').getRecord());
                 }
+            },
+            '#metrology-configuration-setup #purposes-grid': {
+                select: this.showPurposePreview
             }
         });
     },
 
     showMetrologyConfiguration: function (id) {
-
         var me = this,
+            app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
-            view = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm'),
-            metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
-            linkedStore = Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
-            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            count,
-            actualModel,
-            actualForm;  
-     
-    	linkedStore.getProxy().setUrl(id);
-    	linkedStore.load(function () {
-    		count = this.getCount();
-            if (count === 0) {
-               this.add({id:'0', name:'-'});
-            }
-        });
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
-        pageMainContent.setLoading(true);
-
-        metrologyConfigurationModel.load(id, {
-
+        pageMainContent.setLoading();
+        me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(id, {
             success: function (record) {
-                me.getApplication().fireEvent('metrologyConfigurationLoaded', record);
-                var widget = Ext.widget('metrology-configuration-setup', {router: router});
-                actualModel = Ext.create('Imt.metrologyconfiguration.model.MetrologyConfiguration', record.data);
-                actualForm = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm', {router: router, mcid: id, count: count});
-                
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getAttributesPanel().add(actualForm);
-                actualForm.getForm().loadRecord(actualModel);
-                widget.down('metrology-configuration-side-menu').record=record;
-                pageMainContent.setLoading(false);
+                var widget = Ext.widget('metrology-configuration-setup', {
+                        itemId: 'metrology-configuration-setup',
+                        router: router,
+                        metrologyConfig: record
+                    }),
+                    menu = widget.down('#metrology-configuration-action-menu');
 
+                app.fireEvent('metrologyConfigurationLoaded', record);
+                widget.down('#metrology-config-setup-general-info').loadRecord(record);
+                app.fireEvent('changecontentevent', widget);
+            },
+            callback: function () {
+                pageMainContent.setLoading(false);
             }
         });
+    },
+
+    showPurposePreview: function (selectionModel, record) {
+        var me = this,
+            preview = me.getPurposePreview();
+
+        Ext.suspendLayouts();
+        preview.setTitle(record.get('name'));
+        preview.loadRecord(record);
+        Ext.resumeLayouts(true);
     },
 
     showCustomAttributeSets: function (id) {
@@ -125,7 +124,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         metrologyConfigurationModel.load(id, {
             success: function (record) {
                 me.getApplication().fireEvent('metrologyConfigurationLoaded', record);
-                var widget = Ext.widget('custom-attribute-sets-add', {router: router});
+                var widget = Ext.widget('custom-attribute-sets-add', {router: router, metrologyConfig: record});
                 me.getApplication().fireEvent('changecontentevent', widget);
                 store.getProxy().extraParams.id = id;
                 store.getProxy().extraParams.linked = false;

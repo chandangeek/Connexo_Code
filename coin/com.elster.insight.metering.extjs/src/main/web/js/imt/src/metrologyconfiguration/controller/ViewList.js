@@ -1,26 +1,27 @@
 Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
     extend: 'Ext.app.Controller',
-    requires: [
-        'Imt.metrologyconfiguration.store.MetrologyConfiguration',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationListPreview',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationList',
-    ],
+
     models: [
-        'Imt.metrologyconfiguration.model.MetrologyConfiguration',
+        'Imt.metrologyconfiguration.model.MetrologyConfiguration'
     ],
+
     stores: [
-        'Imt.metrologyconfiguration.store.MetrologyConfiguration',
+        'Imt.metrologyconfiguration.store.MetrologyConfiguration'
     ],
+
     views: [
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationList'
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup',
+        'Imt.metrologyconfiguration.view.Setup',
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu'
     ],
+
     refs: [
         {ref: 'metrologyConfigurationList', selector: '#metrologyConfigurationList'},
         {ref: 'metrologyConfigurationListSetup', selector: '#metrologyConfigurationListSetup'},
-        {ref: 'metrologyConfigurationListPreview', selector: '#metrologyConfigurationListPreview'},
+        {ref: 'metrologyConfigurationListPreview', selector: '#metrology-config-preview'},
         {ref: 'metrologyConfigurationEdit', selector: '#metrologyConfigurationEdit'}
     ],
+
     init: function () {
         var me = this;
         me.control({
@@ -30,97 +31,84 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             'metrology-configuration-action-menu': {
                 click: this.chooseAction
             },
-            'metrologyConfigurationActionMenu': {
-                click: this.chooseAction
-            },
             '#createMetrologyConfiguration': {
                 click: this.createMetrologyConfiguration
             }
         });
     },
-    chooseAction: function(menu, item) {
+
+    chooseAction: function (menu, item) {
         var me = this,
-        router = me.getController('Uni.controller.history.Router'),
-        route;
+            router = me.getController('Uni.controller.history.Router'),
+            route;
         router.arguments.mcid = menu.record.getId();
-        
+
         switch (item.action) {
-        	case 'editMetrologyConfiguration':
-        		route = 'administration/metrologyconfiguration/view/edit';
-        		break;
-        	case 'viewMetrologyConfiguration':
-        		route = 'administration/metrologyconfiguration';
-        		break;
-        	case 'removeMetrologyConfiguration':
+            case 'removeMetrologyConfiguration':
                 me.removeMetrologyConfiguration(menu.record);
-        		break;
+                break;
+            case 'editMetrologyConfiguration':
+                route = 'administration/metrologyconfiguration/view/edit';
+                break;
+            case 'viewMetrologyConfiguration':
+                route = 'administration/metrologyconfiguration';
+                break;
+            case 'activateMetrologyConfiguration':
+                me.activateMetrologyConfiguration(menu.record);
+                break;
         }
 
-        route && (route = router.getRoute(route));
-        route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+        if(route){
+            router.getRoute(route).forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+        }
     },
-    createMetrologyConfiguration: function() {
-        var me = this,
-        router = me.getController('Uni.controller.history.Router'),
-        route;
-   		route = 'administration/metrologyconfiguration/add';
 
-        route && (route = router.getRoute(route));
-        route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+    createMetrologyConfiguration: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            route;
+        route = 'administration/metrologyconfiguration/add';
+
+        if(route){
+            router.getRoute(route).forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+        }
     },
+
     showMetrologyConfigurationList: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            dataStore = me.getStore('Imt.metrologyconfiguration.store.MetrologyConfiguration'),
-            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            widget = Ext.widget('metrologyConfigurationListSetup', {
+                itemId: 'metrologyConfigurationListSetup',
+                router: router
+            });
 
-        pageMainContent.setLoading(true);
-        var widget = Ext.widget('metrologyConfigurationListSetup', {router: router});
+        viewport.setLoading(true);
         me.getApplication().fireEvent('changecontentevent', widget);
-
-        dataStore.load(function() {
-	        if (this.getCount() === 0) {
-	        	pageMainContent.setLoading(false);
-	        	return;
-	        }
-        	me.getMetrologyConfigurationList().getSelectionModel().select(0);
-        	pageMainContent.setLoading(false);
-        })
-
-    },
-    onMetrologyConfigurationListSelect: function (rowmodel, record, index) {
-        var me = this;
-        me.previewMetrologyConfiguration(record);
+        me.getStore('Imt.metrologyconfiguration.store.MetrologyConfiguration').load();
+        viewport.setLoading(false);
     },
 
-    previewMetrologyConfiguration: function (record) {
+    onMetrologyConfigurationListSelect: function (selectionModel, record) {
         var me = this,
-        	router = me.getController('Uni.controller.history.Router'),
-            widget = Ext.widget('metrologyConfigurationListPreview', {record: record}),  
-            linkedStore = Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
-            previewContainer = me.getMetrologyConfigurationListSetup().down('#previewComponentContainer'),
-            count,
-            actualForm;
-        me.mcid = record.get('id');
-        linkedStore.removeAll();
-        linkedStore.getProxy().setUrl(me.mcid);
-    	linkedStore.load(function () {
-    		me.count = this.getCount();
-    	    actualForm = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm', {router: router, mcid: me.mcid, count: me.count});
-    	    actualForm.loadRecord(record);
-    	    widget.add(actualForm);
-    	    widget.setTitle(record.get('name'));
-            previewContainer.removeAll();
-            previewContainer.add(widget);
-        });
+            previewPanel = me.getMetrologyConfigurationListPreview(),
+            menu = previewPanel.down('#metrology-configuration-list-action-menu');
 
+        Ext.suspendLayouts();
+        previewPanel.setTitle(record.get('name'));
+        previewPanel.loadRecord(record);
+        Ext.resumeLayouts(true);
+        if (menu) {
+            menu.record = record;
+        }
     },
+
     removeMetrologyConfiguration: function (record) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('metrologyconfiguration.general.remove.msg', 'IMT', 'This metrology configuration will be removed.'),
-            title: Uni.I18n.translate('general.removex', 'IMT', "Remove '{0}'",[record.data.name]),
+            title: Uni.I18n.translate('general.removex', 'IMT', "Remove '{0}'", [record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
@@ -160,14 +148,14 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
                         itemId: 'remove-error-messagebox',
                         buttons: [
                             {
-                                text: Uni.I18n.translate('general.button.retry','IMT','Retry'),
+                                text: Uni.I18n.translate('general.button.retry', 'IMT', 'Retry'),
                                 ui: 'remove',
                                 handler: function (button, event) {
                                     me.removeOperation(record);
                                 }
                             },
                             {
-                                text: Uni.I18n.translate('general.button.cancel','IMT','Cancel'),
+                                text: Uni.I18n.translate('general.button.cancel', 'IMT', 'Cancel'),
                                 action: 'cancel',
                                 ui: 'link',
                                 href: '#/administration/metrologyconfiguration',
@@ -187,5 +175,43 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             }
         });
     },
+
+    activateMetrologyConfiguration: function (record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation',{
+                confirmText: Uni.I18n.translate('general.activate', 'IMT', 'Activate')
+            });
+        confirmationWindow.show({
+            msg: Uni.I18n.translate(
+                'metrologyconfiguration.general.activate.msg',
+                'IMT',
+                'You will be able to link this metrology configuration to usage points, but you will not be able to modify this metrology configuration anymore'
+            ),
+            title: Uni.I18n.translate('metrologyconfiguration.general.activate.title', 'IMT', "Activate '{0}'?", record.get('name')),
+            config: {},
+            fn: function (state) {
+                if (state === 'confirm') {
+                    me.activateOperation(record);
+                } else if (state === 'cancel') {
+                    this.close();
+                }
+            }
+        });
+    },
+
+    activateOperation: function(record){
+        var me =this,
+            router = me.getController('Uni.controller.history.Router');
+        Ext.Ajax.request({
+            url: Ext.String.format('/api/ucr/metrologyconfigurations/{0}/activate', record.get('id')),
+            method: 'PUT',
+            jsonData: record.getData(),
+            isNotEdit: true,
+            success: function () {
+                router.getRoute().forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.general.activated', 'IMT', 'Metrology configuration activated'));
+            }
+        });
+    }
 });
 

@@ -78,7 +78,7 @@ Ext.define('Imt.controller.Main', {
 	            text: Uni.I18n.translate('general.label.usagepoints', 'IMT', 'Usage points'),
 	            href: 'usagepoints',
 	            portal: 'usagepoints',
-	            glyph: 'devices',
+	            glyph: 'usagepoints',
 	            index: 20
 	        });
 	
@@ -99,24 +99,21 @@ Ext.define('Imt.controller.Main', {
 	        Uni.store.PortalItems.add(
 	            portalItem1
 	        );
-    	}  
-    	
-        var portalItem2 = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-            portal: 'administration',
-            items: [
-                {
-                    text: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-                    href: '#/administration/metrologyconfiguration',
-                    itemId: 'overview-metrologyconfiguration'
-                },
-            ]
-        });
+    	}
 
-
-        Uni.store.PortalItems.add(
-            portalItem2
-        );
+        if (Imt.privileges.MetrologyConfig.canView()) {
+            Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.label.metrologyconfigurationManagement', 'IMT', 'Metrology configurations management'),
+                portal: 'administration',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configurations'),
+                        href: '#/administration/metrologyconfiguration',
+                        itemId: 'overview-metrologyconfiguration'
+                    }
+                ]
+            }));
+        }
 
         if (Imt.privileges.ServiceCategory.canView()) {
             Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {

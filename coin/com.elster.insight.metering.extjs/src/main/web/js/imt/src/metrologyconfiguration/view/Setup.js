@@ -1,47 +1,64 @@
 Ext.define('Imt.metrologyconfiguration.view.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.metrology-configuration-setup',
-    itemId: 'metrology-configuration-setup',
     requires: [
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationPurposes',
         'Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm',
-        'Imt.metrologyconfiguration.view.ActionMenu'
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm',
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu'
     ],
     router: null,
-    content: [
-        {
-            xtype: 'panel',
-            ui: 'large',
-            itemId: 'metrologyConfigurationSetupPanel',
-            layout: {
-                type: 'fit',
-                align: 'stretch'
-            }
-        }
-    ],
+    metrologyConfig: null,
+
     initComponent: function () {
-        var me = this,
-            panel = me.content[0];
-        panel.title = me.router.getRoute().getTitle();
-        panel.tools = [
-           {
-               xtype: 'toolbar',
-               items: [
-                   {
-                       xtype: 'button',
-                       style: {
-                           'background-color': '#71adc7'
-                       },
-                       text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
-                       privileges: Imt.privileges.MetrologyConfig.admin,
-                       iconCls: 'x-uni-action-iconD',
-                       menu: {
-                           xtype: 'metrologyConfigurationActionMenu'
-                       }
-                   }
-               ]
-           }
+        var me = this;
+
+        me.content = [
+            {
+                xtype: 'panel',
+                itemId: 'metrology-config-setup-panel',
+                ui: 'large',
+                title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
+                tools: [
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
+                        itemId: 'actionButton',
+                        iconCls: 'x-uni-action-iconD',
+                        privileges: Imt.privileges.MetrologyConfig.admin,
+                        menu: {
+                            xtype: 'metrology-configuration-action-menu',
+                            itemId: 'metrology-configuration-action-menu',
+                            record: me.metrologyConfig
+                        }
+                    }
+                ],
+                items: [
+                    {
+                        xtype: 'metrology-config-details-form',
+                        itemId: 'metrology-config-setup-general-info',
+                        displayPurposes: false,
+                        ui: 'tile',
+                        title: Uni.I18n.translate('general.generalInformation', 'IMT', 'General information'),
+                        margin: 0
+                    },
+                    {
+                        xtype: 'panel',
+                        itemId: 'metrology-config-purposes-panel',
+                        ui: 'medium',
+                        title: Uni.I18n.translate('general.purposes', 'IMT', 'Purposes'),
+                        padding: 0,
+                        margin: '20 0 0 0',
+                        bbar: {
+                            xtype: 'metrology-config-purposes',
+                            itemId: 'metrology-config-purposes',
+                            metrologyConfig: me.metrologyConfig
+                        }
+                    }
+                ]
+            }
         ];
+
         me.side = [
             {
                 xtype: 'panel',
@@ -51,37 +68,12 @@ Ext.define('Imt.metrologyconfiguration.view.Setup', {
                         xtype: 'metrology-configuration-side-menu',
                         itemId: 'metrology-configuration-side-menu',
                         router: me.router,
-  //                      id: me.id
+                        metrologyConfig: me.metrologyConfig
                     }
                 ]
             }
         ];
-        this.callParent(arguments);
 
-        me.down('#metrologyConfigurationSetupPanel').add(
-            {
-                xtype: 'panel',
-                layout: {
-                    type: 'hbox'
-                },
-                defaults: {
-                    style: {
-                        marginRight: '20px',
-                        padding: '20px'
-                    },
-                    flex: 1
-                },
-                items: [
-                    {
-                        xtype: 'panel',
-                        title: Uni.I18n.translate('metrologyconfiguration.label.attributes', 'IMT', 'Metrology Configuration Attributes'),
-                        ui: 'tile',
-                        itemId: 'metrology-configuration-attributes-panel',
-                        router: me.router,
-//                        id: me.id,
-                    }
-                ]
-            }
-        );
+        me.callParent(arguments);
     }
 });
