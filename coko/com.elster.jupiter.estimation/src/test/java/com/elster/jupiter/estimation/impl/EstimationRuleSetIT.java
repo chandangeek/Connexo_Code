@@ -15,6 +15,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -103,6 +104,7 @@ public class EstimationRuleSetIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
 
@@ -280,7 +282,7 @@ public class EstimationRuleSetIT {
         ));
 
         Optional<? extends EstimationRule> foundEstimationRule = estimationService.findEstimationRuleByQualityType(
-                ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, ruleId.get().intValue()));
+                ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, ruleId.get().intValue()));
         assertThat(foundEstimationRule.isPresent()).isTrue();
         assertThat(foundEstimationRule.get().getId()).isEqualTo(ruleId.get());
     }

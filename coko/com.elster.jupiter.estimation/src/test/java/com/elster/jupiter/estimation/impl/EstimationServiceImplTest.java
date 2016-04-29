@@ -28,16 +28,10 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.UserService;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -48,16 +42,26 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EstimationServiceImplTest {
     private static final Logger LOGGER = Logger.getLogger(EstimationServiceImplTest.class.getName());
 
-    private final ReadingQualityType readingQualityType1 = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 1);
-    private final ReadingQualityType readingQualityType2 = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 2);
+    private final ReadingQualityType readingQualityType1 = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 1);
+    private final ReadingQualityType readingQualityType2 = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2);
     private EstimationServiceImpl estimationService;
 
     @Mock
@@ -116,11 +120,11 @@ public class EstimationServiceImplTest {
         doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
         doReturn(true).when(channel).isRegular();
         List<ReadingQualityRecord> readingQualityRecords = readingQualities();
-        doReturn(readingQualityRecords).when(channel).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.<Instant>all());
+        doReturn(readingQualityRecords).when(channel).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), Range.<Instant>all());
         doReturn(Optional.of(cimChannel1)).when(channel).getCimChannel(readingType1);
         doReturn(Optional.of(cimChannel2)).when(channel).getCimChannel(readingType2);
-        doReturn(readingQualityRecords).when(cimChannel1).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.<Instant>all());
-        doReturn(readingQualityRecords).when(cimChannel2).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.<Instant>all());
+        doReturn(readingQualityRecords).when(cimChannel1).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), Range.<Instant>all());
+        doReturn(readingQualityRecords).when(cimChannel2).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), Range.<Instant>all());
         doAnswer(invocation -> ((Instant) invocation.getArguments()[0]).plus(Duration.ofMinutes(15))).when(channel).getNextDateTime(any());
         doReturn(estimator1).when(rule1).createNewEstimator();
         doReturn(estimator2).when(rule2).createNewEstimator();

@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -45,7 +46,7 @@ class EstimationEngine {
 
     private List<ReadingQualityRecord> findSuspects(Channel channel, Range<Instant> period, ReadingType readingType) {
         return channel.getCimChannel(readingType)
-                .map(cimChannel -> cimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), period))
+                .map(cimChannel -> cimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), period))
                 .orElse(Collections.emptyList());
     }
 

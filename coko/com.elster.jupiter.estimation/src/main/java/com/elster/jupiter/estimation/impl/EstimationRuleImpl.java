@@ -352,7 +352,7 @@ class EstimationRuleImpl implements IEstimationRule {
     }
 
     private ReadingQualityType getReadingQualityType() {
-        return ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) getId());
+        return ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) getId());
     }
 
     private void doPersist() {
