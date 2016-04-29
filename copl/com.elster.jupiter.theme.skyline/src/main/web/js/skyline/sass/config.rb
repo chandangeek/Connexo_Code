@@ -1,5 +1,5 @@
 cur_dir = File.dirname(__FILE__)
-output_style = :compressed
+output_style = :compact
 
 module Sass::Script::Functions
   def get_resource_dir()
