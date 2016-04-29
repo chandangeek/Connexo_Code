@@ -43,6 +43,8 @@ Ext.define('Uni.form.field.SearchCriteriaDisplay', {
             primaryCriteria = [],
             currentGroup;
 
+        value = Ext.clone(value);
+
         // add sort option for each value item
         Ext.Array.each(value, function (criteria, index) {
             if (criteria.visibility === 'sticky') {
