@@ -37,6 +37,7 @@ Ext.define('Uni.view.search.Results', {
                 items: [
                     {
                         xtype: 'button',
+                        itemId: 'btn-search-results-count',
                         text: Uni.I18n.translate('general.count', 'UNI', 'Count'),
                         action: 'count'
                     },
