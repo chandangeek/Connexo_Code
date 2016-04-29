@@ -3,7 +3,6 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
@@ -14,6 +13,7 @@ import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -111,8 +111,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 info.techInfo = new HeatUsagePointDetailsInfo((HeatDetail) detailHolder.get());
             }
         }
-        usagePoint.getMetrologyConfiguration()
-                .ifPresent(mc -> info.metrologyConfiguration = new IdWithNameInfo(mc.getId(), mc.getName()));
+
+        usagePoint.getMetrologyConfiguration().ifPresent(mc -> info.metrologyConfiguration = new MetrologyConfigurationInfo((UsagePointMetrologyConfiguration) mc, usagePoint, this.thesaurus));
 
         UsagePointCustomPropertySetExtension customPropertySetExtension = usagePoint.forCustomProperties();
 
@@ -120,6 +120,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .stream()
                 .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues()))
                 .collect(Collectors.toList());
+        info.customPropertySets.sort((cas1, cas2) -> cas1.name.compareTo(cas2.name));
 
         meteringService.findUsagePointGeoCoordinates(usagePoint.getMRID()).ifPresent(coordinates -> info.geoCoordinates = coordinates.getCoordinates().toString());
 
@@ -129,7 +130,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get()
                     .getId());
             formattedLocationMembers.stream().skip(1).forEach(list ->
-                    list.stream().findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
+                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
             formattedLocation = formattedLocationMembers.stream()
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));

@@ -1,13 +1,16 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -30,7 +33,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -57,9 +59,12 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile EstimationService estimationService;
     private volatile UsagePointDataService usagePointDataService;
     private volatile CustomPropertySetService customPropertySetService;
-    private volatile ServiceCallService serviceCallService;
     private volatile ServiceCallInfoFactory serviceCallInfoFactory;
     private volatile License license;
+    private volatile IssueService issueService;
+    private volatile BpmService bpmService;
+    private volatile ServiceCallService serviceCallService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -173,6 +178,21 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.license = license;
     }
 
+    @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -191,6 +211,9 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(serviceCallService).to(ServiceCallService.class);
             bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
+            bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
+            bind(issueService).to(IssueService.class);
+            bind(bpmService).to(BpmService.class);
 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
@@ -205,6 +228,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
+            bind(GoingOnResource.class).to(GoingOnResource.class);
         }
     }
 }

@@ -1,7 +1,10 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+
+import java.util.List;
+
+import com.elster.jupiter.metering.config.MetrologyContract;
 
 public class PurposeInfo {
     public long id;
@@ -10,6 +13,7 @@ public class PurposeInfo {
     public boolean active;
     public String mRID;
     public IdWithNameInfo status;
+    public List<MeterRoleInfo> meterRoles;
 
     public PurposeInfo() {
     }
