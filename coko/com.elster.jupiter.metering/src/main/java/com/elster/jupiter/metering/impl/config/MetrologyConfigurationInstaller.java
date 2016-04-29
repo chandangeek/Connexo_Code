@@ -47,6 +47,9 @@ public class MetrologyConfigurationInstaller {
     }
 
     private void residentialProsumerWith1Meter() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 1 meter").isPresent()) {
+            return;
+        }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prosumer with 1 meter", serviceCategory)
@@ -102,6 +105,10 @@ public class MetrologyConfigurationInstaller {
     }
 
     private void residentialProsumerWith2Meters() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 2 meters")
+                .isPresent()) {
+            return;
+        }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prosumer with 2 meters", serviceCategory)
@@ -145,6 +152,10 @@ public class MetrologyConfigurationInstaller {
     }
 
     private void residentialNetMeteringProduction() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("Residential net metering (production)")
+                .isPresent()) {
+            return;
+        }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential net metering (production)", serviceCategory)
@@ -181,6 +192,10 @@ public class MetrologyConfigurationInstaller {
     }
 
     private void residentialNetMeteringConsumption() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("Residential net metering (consumption)")
+                .isPresent()) {
+            return;
+        }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential net metering (consumption)", serviceCategory)
@@ -224,6 +239,10 @@ public class MetrologyConfigurationInstaller {
     }
 
     private void threePhasedConsumerWith2ToU() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("C&I 3-phased consumer with smart meter with 2 ToU")
+                .isPresent()) {
+            return;
+        }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("C&I 3-phased consumer with smart meter with 2 ToU", serviceCategory)
@@ -306,6 +325,9 @@ public class MetrologyConfigurationInstaller {
     }
 
     private void residentialConsumerWith4ToU() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("Residential consumer with 4 ToU").isPresent()) {
+            return;
+        }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential consumer with 4 ToU", serviceCategory)
@@ -358,6 +380,9 @@ public class MetrologyConfigurationInstaller {
     }
 
     private void residentialGas() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("Residential gas").isPresent()) {
+            return;
+        }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS)
                 .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.GAS));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential gas", serviceCategory)
@@ -406,6 +431,9 @@ public class MetrologyConfigurationInstaller {
     }
 
     private void waterConfigurationCI() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("C&I water configuration").isPresent()) {
+            return;
+        }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.WATER)
                 .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.WATER));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("C&I water configuration", serviceCategory)
