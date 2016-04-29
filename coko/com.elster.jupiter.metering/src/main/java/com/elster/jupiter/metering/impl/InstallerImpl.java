@@ -15,11 +15,13 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -32,7 +34,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.YearMonth;
@@ -40,9 +41,12 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class InstallerImpl implements FullInstaller {
 
@@ -64,9 +68,10 @@ public class InstallerImpl implements FullInstaller {
     private final String[] requiredReadingTypes;
     private final Clock clock;
     private final DataModel dataModel;
+    private final MetrologyConfigurationServiceImpl metrologyConfigurationService;
 
     @Inject
-    public InstallerImpl(DataModel dataModel, MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, Clock clock) {
+    public InstallerImpl(DataModel dataModel, MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, Clock clock, MetrologyConfigurationServiceImpl metrologyConfigurationService) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.idsService = idsService;
@@ -75,6 +80,7 @@ public class InstallerImpl implements FullInstaller {
         this.eventService = eventService;
         this.thesaurus = thesaurus;
         this.messageService = messageService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
         this.createAllReadingTypes = meteringService.isCreateAllReadingTypes();
         this.requiredReadingTypes = meteringService.getRequiredReadingTypes();
         this.clock = clock;
@@ -86,12 +92,15 @@ public class InstallerImpl implements FullInstaller {
         createVaults();
         createRecordSpecs();
         createServiceCategories();
+        createMultiplierTypes();
         createReadingTypes();
         createPartyRoles();
         createAmrSystems();
         createEndDeviceEventTypes();
         createEventTypes();
         createQueues();
+        createSqlAggregationComponents();
+        metrologyConfigurationService.install();
 
         new CreateLocationMemberTableOperation(dataModel, meteringService.getLocationTemplate()).execute();
         new GeoCoordinatesSpatialMetaDataTableOperation(dataModel).execute();
@@ -126,9 +135,9 @@ public class InstallerImpl implements FullInstaller {
                                         .toCode();
                                 try {
                                     if (meteringService.getEndDeviceEventType(code).isPresent()) {
-                                        LOGGER.finer("Skipping code "+code+": already exists");
+                                        LOGGER.finer("Skipping code " + code + ": already exists");
                                     } else {
-                                        LOGGER.finer("adding code "+code);
+                                        LOGGER.finer("adding code " + code);
                                         meteringService.createEndDeviceEventType(code);
                                     }
                                 } catch (Exception e) {
@@ -190,9 +199,9 @@ public class InstallerImpl implements FullInstaller {
     }
 
     private void createPartitions(Vault vault) {
-    	Instant start = YearMonth.now(clock).atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
-    	vault.activate(start);
-    	vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));
+        Instant start = YearMonth.now(clock).atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        vault.activate(start);
+        vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));
     }
 
     private void createRecordSpecs() {
@@ -208,12 +217,16 @@ public class InstallerImpl implements FullInstaller {
         ServiceCategoryImpl serviceCategory = null;
         for (ServiceKind kind : ServiceKind.values()) {
             try {
-                switch (kind){
+                switch (kind) {
                     case ELECTRICITY:
                     case GAS:
                     case WATER:
-                    case HEAT: serviceCategory = meteringService.createServiceCategory(kind, true); break;
-                    default: serviceCategory = meteringService.createServiceCategory(kind, false); break;
+                    case HEAT:
+                        serviceCategory = meteringService.createServiceCategory(kind, true);
+                        break;
+                    default:
+                        serviceCategory = meteringService.createServiceCategory(kind, false);
+                        break;
                 }
                 list.add(serviceCategory);
             } catch (Exception e) {
@@ -223,12 +236,24 @@ public class InstallerImpl implements FullInstaller {
         return list;
     }
 
+    private List<MultiplierType> createMultiplierTypes() {
+        try {
+            return Stream
+                    .of(MultiplierType.StandardType.values())
+                    .map(meteringService::createMultiplierType)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error creating multiplier types : " + e.getMessage(), e);
+            return Collections.emptyList();
+        }
+    }
+
     private void createReadingTypes() {
         try {
-            if(createAllReadingTypes){
+            if (createAllReadingTypes) {
                 List<Pair<String, String>> readingTypes = ReadingTypeGenerator.generate();
                 this.meteringService.createAllReadingTypes(readingTypes);
-            } else if(requiredReadingTypes.length > 0){
+            } else if (requiredReadingTypes.length > 0) {
                 ReadingTypeGenerator.generateSelectedReadingTypes(meteringService, requiredReadingTypes);
             }
         } catch (Exception e) {
@@ -246,21 +271,6 @@ public class InstallerImpl implements FullInstaller {
         }
     }
 
-
-    private List<String> getPrivileges() {
-        Field[] fields = Privileges.class.getFields();
-        List<String> result = new ArrayList<>(fields.length);
-        for (Field each : fields) {
-            try {
-                result.add((String) each.get(null));
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return result;
-
-    }
-
     private void createQueues() {
         this.createQueue(SwitchStateMachineEvent.DESTINATION, SwitchStateMachineEvent.SUBSCRIBER);
     }
@@ -271,10 +281,20 @@ public class InstallerImpl implements FullInstaller {
             DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(queueDestination, DEFAULT_RETRY_DELAY_IN_SECONDS);
             destinationSpec.activate();
             destinationSpec.subscribe(queueSubscriber);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.log(Level.WARNING, e.getMessage(), e);
         }
     }
 
+    private void createSqlAggregationComponents() {
+        if (!SqlDialect.H2.equals(this.meteringService.getDataModel().getSqlDialect())) {
+            SqlExecuteFromResourceFile
+                    .executeAll(
+                            this.meteringService.getDataModel(),
+                            "type.Flags_Array.sql",
+                            "function.aggFlags.sql");
+        }
+    }
+
 }
+

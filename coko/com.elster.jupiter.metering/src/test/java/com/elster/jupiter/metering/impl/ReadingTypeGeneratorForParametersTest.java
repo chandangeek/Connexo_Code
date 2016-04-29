@@ -9,13 +9,15 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
@@ -43,6 +45,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeGeneratorForParametersTest {
@@ -67,7 +70,10 @@ public class ReadingTypeGeneratorForParametersTest {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.INSTANCE);
         }
     }
 
@@ -95,7 +101,7 @@ public class ReadingTypeGeneratorForParametersTest {
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(MeteringService.class);
+            injector.getInstance(MeteringServiceImpl.class);
             return null;
         });
     }
@@ -124,7 +130,7 @@ public class ReadingTypeGeneratorForParametersTest {
     }
 
     private MeteringServiceImpl getMeteringService() {
-        return (MeteringServiceImpl) injector.getInstance(MeteringService.class);
+        return injector.getInstance(MeteringServiceImpl.class);
     }
 
     private TransactionService getTransactionService() {

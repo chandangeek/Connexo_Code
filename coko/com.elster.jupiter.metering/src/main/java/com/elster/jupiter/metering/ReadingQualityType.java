@@ -3,6 +3,7 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+
 import com.google.common.base.Joiner;
 
 import java.util.Objects;
@@ -10,7 +11,10 @@ import java.util.Optional;
 
 public final class ReadingQualityType {
 
-    public static final String MDM_VALIDATED_OK_CODE = "3.0.1";
+    public static final String MDM_VALIDATED_OK_CODE = "2.0.1";
+
+    public static final String MDM_AGGREGATED_NOT_DERIVED_CODE = "3.11.0";
+    public static final String MDM_AGGREGATED_DERIVED_CODE = "3.11.1";
 
     private final String code;
 
@@ -67,7 +71,11 @@ public final class ReadingQualityType {
     }
 
     public static ReadingQualityType defaultCodeForRuleId(long id) {
-        return ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, (int) (1000 + id));
+        return defaultCodeForRuleId(QualityCodeSystem.MDC, id);
+    }
+
+    public static ReadingQualityType defaultCodeForRuleId(QualityCodeSystem system, long id) {
+        return ReadingQualityType.of(system, QualityCodeCategory.VALIDATION, (int) (1000 + id));
     }
 
     @Override

@@ -1,36 +1,24 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.query.impl.WhereClauseBuilder;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
-import com.elster.jupiter.util.conditions.And;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.FragmentExpression;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.elster.jupiter.util.conditions.Visitor;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import javax.inject.Inject;
-import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.Clock;
-import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 
 public class LocationSearchableProperty extends AbstractSearchableUsagePointProperty {

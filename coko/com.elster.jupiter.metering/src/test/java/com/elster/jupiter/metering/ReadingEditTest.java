@@ -18,6 +18,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -25,7 +26,9 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -56,6 +59,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingEditTest {
@@ -77,7 +81,10 @@ public class ReadingEditTest {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.INSTANCE);
         }
     }
 
@@ -135,32 +142,32 @@ public class ReadingEditTest {
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             ReadingImpl reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), existDate);
-            reading.addQuality("3.5.258");
-            reading.addQuality("3.6.1");
+            reading.addQuality("2.5.258");
+            reading.addQuality("2.6.1");
             meter.store(MeterReadingImpl.of(reading));
             ctx.commit();
         }
         Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate).isPresent()).isTrue();
-        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isTrue();
+        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC,QualityCodeIndex.SUSPECT),existDate).isPresent()).isTrue();
+        assertThat(channel.findReadingQuality(new ReadingQualityType("2.6.1"),existDate).get().isActual()).isTrue();
         // make sure that editing a value adds an editing rq, removes the suspect rq, and updates the validation rq
         // added a value adds an added rq
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
         	ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
             channel.editReadings(ImmutableList.of(reading1,reading2));
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.EDITGENERIC),existDate).isPresent()).isTrue();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.SUSPECT),existDate).isPresent()).isFalse();
-            assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"),existDate).get().isActual()).isFalse();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.ADDED),newDate).isPresent()).isTrue();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC,QualityCodeIndex.EDITGENERIC),existDate).isPresent()).isTrue();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC,QualityCodeIndex.SUSPECT),existDate).isPresent()).isFalse();
+            assertThat(channel.findReadingQuality(new ReadingQualityType("2.6.1"),existDate).get().isActual()).isFalse();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC,QualityCodeIndex.ADDED),newDate).isPresent()).isTrue();
             ctx.commit();
         }
         // make sure if you edit an added reading the reading quality remains added
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(3), newDate);
             channel.editReadings(ImmutableList.of(reading2));
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.EDITGENERIC),newDate).isPresent()).isFalse();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM,QualityCodeIndex.ADDED),newDate).isPresent()).isTrue();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC,QualityCodeIndex.EDITGENERIC),newDate).isPresent()).isFalse();
+            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC,QualityCodeIndex.ADDED),newDate).isPresent()).isTrue();
             ctx.commit();
         }
     }

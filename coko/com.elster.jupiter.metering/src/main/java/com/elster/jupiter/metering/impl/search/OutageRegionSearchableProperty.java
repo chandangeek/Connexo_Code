@@ -66,14 +66,10 @@ public class OutageRegionSearchableProperty implements SearchableUsagePointPrope
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof String) {
+            return (String) value;
         }
-        return String.valueOf(value);
-    }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof String;
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
     @Override
