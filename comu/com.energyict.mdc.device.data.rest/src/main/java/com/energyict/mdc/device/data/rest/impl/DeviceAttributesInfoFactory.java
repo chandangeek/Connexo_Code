@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -17,7 +17,6 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,7 +52,7 @@ public class DeviceAttributesInfoFactory {
             List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get()
                     .getId());
             formattedLocationMembers.stream().skip(1).forEach(list ->
-                    list.stream().findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
+                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
             formattedLocation = formattedLocationMembers.stream()
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
@@ -108,9 +107,10 @@ public class DeviceAttributesInfoFactory {
         });
         fillAvailableAndEditable(info.batch, DeviceAttribute.BATCH, state);
 
-        info.usagePoint = new DeviceAttributeInfo();
+        info.usagePoint = new UsagePointAttributeInfo();
         device.getUsagePoint().ifPresent(usagePoint -> {
             info.usagePoint.displayValue = usagePoint.getMRID();
+            info.usagePoint.mRID = usagePoint.getMRID();
             info.usagePoint.attributeId = usagePoint.getId();
         });
         fillAvailableAndEditable(info.usagePoint, DeviceAttribute.USAGE_POINT, state);
