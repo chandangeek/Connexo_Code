@@ -46,9 +46,14 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                         itemId: 'usage-point-service-calls-link',
                         privileges: Imt.privileges.UsagePoint.view,
                         href: me.router.getRoute('usagepoints/view/servicecalls').buildUrl()
-                    },
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('general.configuration', 'IMT', 'Configuration'),
+                items: [
                     {
-                        text: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
+                        text: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
                         itemId: 'usage-point-metrology-configuration-link',
                         privileges: Imt.privileges.UsagePoint.view,
                         href: me.router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl()

@@ -48,7 +48,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointhistory.controller.CasVersionEdit',
         'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersions',
         'Imt.processes.controller.MonitorProcesses',
-        'Imt.usagepointmanagement.controller.Attributes'
+        'Imt.usagepointmanagement.controller.Attributes',
+        'Imt.usagepointmanagement.controller.MetrologyConfigurationDetails'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
@@ -78,7 +79,7 @@ Ext.define('Imt.controller.Main', {
 	            text: Uni.I18n.translate('general.label.usagepoints', 'IMT', 'Usage points'),
 	            href: 'usagepoints',
 	            portal: 'usagepoints',
-	            glyph: 'devices',
+	            glyph: 'usagepoints',
 	            index: 20
 	        });
 	
