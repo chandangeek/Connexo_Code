@@ -27,7 +27,8 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.field.TimeDuration',
         'Uni.view.search.field.Date',
         'Uni.view.search.field.Clock',
-        'Uni.view.search.field.TimeOfDay'
+        'Uni.view.search.field.TimeOfDay',
+        'Uni.view.search.field.Quantity'
     ],
 
     padding: '16 16 16 16',
