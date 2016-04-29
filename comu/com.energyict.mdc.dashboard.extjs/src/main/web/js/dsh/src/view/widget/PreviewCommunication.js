@@ -33,14 +33,14 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.commTasks', 'DSH', 'Communication task(s)'),
                     name: 'comTasks',
                         renderer: function(value){
-                            if(value!==''){
+                            if(!Ext.isEmpty(value)){
                                 var result = '';
                                 Ext.each(value, function(item){
                                     result = result + '<li>'+ Ext.String.htmlEncode(item.name)+'</li>'
                                 });
                                 return result;
                             } else {
-                                return '';
+                                return '-';
                             }
                     }
                 },
@@ -48,7 +48,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('general.device', 'DSH', 'Device'),
                     name: 'device',
                     renderer: function (val) {
-                        var res = '';
+                        var res = '-';
                         if (val) {
                             Mdc.privileges.Device.canViewOrAdministrateDeviceData()
                                 ? res = '<a href="#/devices/' + val.id + '">' + Ext.String.htmlEncode(val.name) + '</a>' : res = Ext.String.htmlEncode(val.name);
@@ -60,7 +60,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('general.deviceType', 'DSH', 'Device type'),
                     name: 'deviceType',
                     renderer: function (val) {
-                        var res = '';
+                        var res = '-';
                         if (val) {
                             Mdc.privileges.DeviceType.canView()
                                 ? res = '<a href="#/administration/devicetypes/' + val.id + '">' + Ext.String.htmlEncode(val.name) + '</a>' : res = Ext.String.htmlEncode(val.name);
@@ -72,7 +72,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('general.deviceConfig', 'DSH', 'Device configuration'),
                     name: 'devConfig',
                     renderer: function (val) {
-                        var res = '';
+                        var res = '-';
                         val && (res = '<a href="#/administration/devicetypes/' +
                             val.devType.id + '/deviceconfigurations/' +
                             val.config.id +
@@ -89,7 +89,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('general.frequency', 'DSH', 'Frequency'),
                     name: 'comScheduleFrequency',
                     renderer: function (val) {
-                        var res = '';
+                        var res = '-';
                         if (val) {
                             res = Uni.I18n.translate('general.every', 'DSH', 'Every')
                                 + ' '
@@ -102,7 +102,10 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.urgency', 'DSH', 'Urgency'),
-                    name: 'urgency'
+                    name: 'urgency',
+                    renderer: function(value) {
+                        return Ext.isEmpty(value) ? '-' : value;
+                    }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.alwaysExecuteOnInbound', 'DSH', 'Always execute on inbound'),
@@ -111,7 +114,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                         if (!_.isUndefined(val)) {
                             return val ? 'Yes' : 'No'
                         } else {
-                            return ''
+                            return '-'
                         }
                     }
                 }
@@ -128,35 +131,35 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
                     name: 'currentState',
                     renderer: function (val) {
-                        return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
+                        return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'),
                     name: 'latestResult',
                     renderer: function (val) {
-                        return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
+                        return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
                     name: 'startTime',
                     renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished successfully on'),
                     name: 'successfulFinishTime',
                     renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.nextCommunication', 'DSH', 'Next communication'),
                     name: 'nextCommunication',
                     renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                     }
                 }
             ]
