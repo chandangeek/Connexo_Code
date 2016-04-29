@@ -26,17 +26,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -51,10 +43,24 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyVararg;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StandardDataSelectorImplTest {
@@ -341,7 +347,7 @@ public class StandardDataSelectorImplTest {
         when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
-        when(meter1.getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(suspectReadingQuality));
+        when(meter1.getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(suspectReadingQuality));
         when(suspectReadingQuality.getReadingTimestamp()).thenReturn(END.toInstant());
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
@@ -398,7 +404,7 @@ public class StandardDataSelectorImplTest {
         when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
-        when(meter1.getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, EXPORTED_INTERVAL)).thenReturn(Collections.emptyList());
+        when(meter1.getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, EXPORTED_INTERVAL)).thenReturn(Collections.emptyList());
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
         when(validationEvaluator.getLastChecked(meter1, readingType)).thenReturn(Optional.of(END.minusMinutes(5).toInstant()));
@@ -455,7 +461,7 @@ public class StandardDataSelectorImplTest {
         when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
-        when(meter1.getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(suspectReadingQuality));
+        when(meter1.getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(suspectReadingQuality));
         when(suspectReadingQuality.getReadingTimestamp()).thenReturn(END.toInstant());
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));

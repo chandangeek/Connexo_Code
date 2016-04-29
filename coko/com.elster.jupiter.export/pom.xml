@@ -40,10 +40,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>fileimport</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
         </dependency>
         <dependency>
@@ -135,6 +131,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
             <scope>test</scope>
@@ -172,6 +173,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemadmin</artifactId>
             <scope>test</scope>
         </dependency>
         <!--<dependency>-->

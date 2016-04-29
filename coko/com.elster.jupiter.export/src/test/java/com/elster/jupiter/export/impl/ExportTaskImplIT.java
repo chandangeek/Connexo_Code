@@ -23,11 +23,12 @@ import com.elster.jupiter.export.FtpsDestination;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
-import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -66,21 +67,12 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.impl.ValidationModule;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -93,13 +85,31 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
-import static com.elster.jupiter.time.RelativeField.*;
+import static com.elster.jupiter.time.RelativeField.DAY;
+import static com.elster.jupiter.time.RelativeField.HOUR;
+import static com.elster.jupiter.time.RelativeField.MINUTES;
+import static com.elster.jupiter.time.RelativeField.MONTH;
+import static com.elster.jupiter.time.RelativeField.YEAR;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -117,7 +127,7 @@ public class ExportTaskImplIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
 
-            bind(FileImportService.class).toInstance(fileImportService);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
 
@@ -148,8 +158,6 @@ public class ExportTaskImplIT {
     private DataFormatter dataFormatter;
     @Mock
     private PropertySpec propertySpec;
-    @Mock
-    private FileImportService fileImportService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private DataExportServiceImpl dataExportService;
@@ -213,7 +221,8 @@ public class ExportTaskImplIT {
                     new ValidationModule(),
                     new DataVaultModule(),
                     new FtpModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new FileImportModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

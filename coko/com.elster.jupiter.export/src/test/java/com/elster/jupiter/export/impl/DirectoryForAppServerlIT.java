@@ -14,11 +14,12 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
-import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
@@ -59,9 +60,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -85,7 +89,7 @@ public class DirectoryForAppServerlIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
 
-            bind(FileImportService.class).toInstance(fileImportService);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
 
@@ -115,8 +119,6 @@ public class DirectoryForAppServerlIT {
     private DataFormatter dataFormatter;
     @Mock
     private PropertySpec propertySpec;
-    @Mock
-    private FileImportService fileImportService;
     @Mock
     private User user;
 
@@ -156,7 +158,8 @@ public class DirectoryForAppServerlIT {
                     new ValidationModule(),
                     new DataVaultModule(),
                     new FtpModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new FileImportModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
