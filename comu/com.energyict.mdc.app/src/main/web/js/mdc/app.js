@@ -118,10 +118,12 @@ Ext.onReady(function () {
             }
         });
 
-        Ext.application({
-            name: 'MdcApp',
-            extend: 'MdcApp.Application',
-            autoCreateViewport: true
+        Uni.store.Apps.load(function() {
+            Ext.application({
+                name: 'MdcApp',
+                extend: 'MdcApp.Application',
+                autoCreateViewport: true
+            });
         });
     });
 });
