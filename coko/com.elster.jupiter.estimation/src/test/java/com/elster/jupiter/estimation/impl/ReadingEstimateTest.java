@@ -27,6 +27,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -45,6 +46,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -61,13 +63,6 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -82,11 +77,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.assertj.core.api.Assertions;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.MetricMultiplier.quantity;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -173,6 +177,8 @@ public class ReadingEstimateTest {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
 
@@ -245,8 +251,8 @@ public class ReadingEstimateTest {
         }
         try (TransactionContext ctx = transactionService.getContext()) {
             ReadingImpl reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1), existDate);
-            reading.addQuality("3.6.1");
-            reading.addQuality("3.5.258");
+            reading.addQuality("2.6.1");
+            reading.addQuality("2.5.258");
             meter.store(MeterReadingImpl.of(reading));
             ctx.commit();
         }
@@ -254,13 +260,13 @@ public class ReadingEstimateTest {
         try (TransactionContext ctx = transactionService.getContext()) {
             MeterActivation meterActivation = meter.getCurrentMeterActivation().get();
             Channel channel = meterActivation.getChannels().get(0);
-            channel.getCimChannel(readingType).get().createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
-            channel.getCimChannel(readingType).get().createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), newDate);
+            channel.getCimChannel(readingType).get().createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
+            channel.getCimChannel(readingType).get().createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), newDate);
             ctx.commit();
         }
         Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), existDate).isPresent()).isTrue();
-        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"), existDate).get().isActual()).isTrue();
+        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), existDate).isPresent()).isTrue();
+        assertThat(channel.findReadingQuality(new ReadingQualityType("2.6.1"), existDate).get().isActual()).isTrue();
         // make sure that editing a value adds an editing rq, removes the suspect rq, and updates the validation rq
         // added a value adds an added rq
 
@@ -310,10 +316,10 @@ public class ReadingEstimateTest {
 
             ctx.commit();
         }
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) rule.getId()), existDate).isPresent()).isTrue();
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), existDate).isPresent()).isFalse();
-        assertThat(channel.findReadingQuality(new ReadingQualityType("3.6.1"), existDate).get().isActual()).isFalse();
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) rule.getId()), newDate).isPresent()).isTrue();
+        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) rule.getId()), existDate).isPresent()).isTrue();
+        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), existDate).isPresent()).isFalse();
+        assertThat(channel.findReadingQuality(new ReadingQualityType("2.6.1"), existDate).get().isActual()).isFalse();
+        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) rule.getId()), newDate).isPresent()).isTrue();
         Optional<BaseReadingRecord> channelReading = channel.getReading(existDate);
         assertThat(channelReading).isPresent();
         Assertions.assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(1), KILO, WATTHOUR));
