@@ -407,6 +407,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(jsonModel.<Number>get("$.outputs[0].interval.count")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.outputs[0].interval.timeUnit")).isEqualTo("minutes");
         assertThat(jsonModel.<String>get("$.outputs[0].readingType.mRID")).isEqualTo("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        assertThat(jsonModel.<String>get("$.outputs[0].formula.description")).isEqualTo("testDescription");
     }
 
     @Test
