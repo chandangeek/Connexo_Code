@@ -21,7 +21,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -56,7 +55,7 @@ public class IdsCrudTest {
     private ZoneId zoneId = ZoneId.systemDefault();
 
     @BeforeClass
-    public static void setUp() throws SQLException {
+    public static void setUp() {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
@@ -74,7 +73,7 @@ public class IdsCrudTest {
     }
 
     @AfterClass
-    public static void tearDown() throws SQLException {
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
@@ -86,7 +85,7 @@ public class IdsCrudTest {
         assertThat(idsService.getRecordSpec("IDS", 1).get().getFieldSpecs()).isNotEmpty();
         Vault vault = idsService.getVault("IDS", 1).get();
         RecordSpec recordSpec = idsService.getRecordSpec("IDS", 1).get();
-        TimeSeries ts = null;
+        TimeSeries ts;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             ts = vault.createRegularTimeSeries(recordSpec, TimeZone.getDefault(), Duration.ofMinutes(15), 0);
             TimeSeriesDataStorer storer = idsService.createOverrulingStorer();

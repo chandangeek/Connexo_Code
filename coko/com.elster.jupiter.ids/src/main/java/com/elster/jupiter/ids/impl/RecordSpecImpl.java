@@ -4,6 +4,7 @@ import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.orm.DataModel;
+
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 
@@ -29,25 +30,25 @@ public final class RecordSpecImpl implements RecordSpec {
 
 	// associations
 	private List<FieldSpec> fieldSpecs = new ArrayList<>();
-	
+
 	private final DataModel dataModel;
 	private final Provider<FieldSpecImpl> fieldSpecProvider;
-	
+
 	@Inject
 	RecordSpecImpl(DataModel dataModel,Provider<FieldSpecImpl> fieldSpecProvider) {
 		this.dataModel = dataModel;
 		this.fieldSpecProvider = fieldSpecProvider;
 	}
-	
+
 	RecordSpecImpl init(String componentName , long id , String name) {
 		this.componentName = Objects.requireNonNull(componentName);
 		this.id = id;
 		this.name = Objects.requireNonNull(name);
 		return this;
 	}
-	
+
 	@Override
-	public String getComponentName() {		
+	public String getComponentName() {
 		return componentName;
 	}
 
@@ -72,7 +73,7 @@ public final class RecordSpecImpl implements RecordSpec {
 		fieldSpecs.add(fieldSpec);
 		return fieldSpec;
 	}
-	
+
 	void persist() {
 		dataModel.persist(this);
 	}
@@ -96,11 +97,11 @@ public final class RecordSpecImpl implements RecordSpec {
     public int hashCode() {
         return Objects.hash(id, componentName);
     }
-    
+
     List<String> columnNames() {
     	int textSlotCount = 0;
     	int slotCount = 0;
-    	List<String> result = new ArrayList<>(fieldSpecs.size());    	
+    	List<String> result = new ArrayList<>(fieldSpecs.size());
     	for (FieldSpec spec : fieldSpecs) {
     		if (spec.getType().equals(FieldType.TEXT)) {
     			result.add("TEXTSLOT" + textSlotCount++);
@@ -110,5 +111,22 @@ public final class RecordSpecImpl implements RecordSpec {
     	}
     	return result;
     }
-	
+
+	String columnName(FieldSpec fieldSpec) {
+		int textSlotCount = 0;
+		int slotCount = 0;
+		for (FieldSpec spec : fieldSpecs) {
+			String name;
+			if (spec.getType().equals(FieldType.TEXT)) {
+				name = "TEXTSLOT" + textSlotCount++;
+			} else {
+				name = "SLOT" + slotCount++;
+			}
+			if (spec.equals(fieldSpec)) {
+				return name;
+			}
+		}
+		throw new IllegalArgumentException("No such FieldSpec: " + fieldSpec.getName());
+	}
+
 }
