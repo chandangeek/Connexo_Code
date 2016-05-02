@@ -511,6 +511,19 @@ public class DeviceTypeResource {
         return Response.ok(infos).build();
     }
 
+    @DELETE
+    @Transactional
+    @Path("/{id}/timeofuse")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response removeCalendar(@PathParam("id") long id, AllowedCalendarInfo allowedCalendarInfo) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        deviceType.removeCalendar(allowedCalendarInfo.id);
+        return Response.ok().build();
+    }
+
+
     @GET
     @Path("/{id}/timeofuse/{calendarId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -527,7 +540,7 @@ public class DeviceTypeResource {
     @Path("/{id}/unusedcalendars")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public Response getAllCalendars(@PathParam("id") long id) {
+    public Response getUnusedCalendars(@PathParam("id") long id) {
         Set<Calendar> usedCalendars;
         List<CalendarInfo> infos;
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -544,6 +557,20 @@ public class DeviceTypeResource {
                 .collect(Collectors.toList());
 
         return Response.ok(infos).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{id}/unusedcalendars")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response addCalendar(@PathParam("id") long id, List<CalendarInfo> calendarInfos) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        calendarInfos.stream()
+                .forEach(info -> deviceType.addCalendar(calendarService.findCalendar(info.id).get()));
+
+        return Response.ok().build();
     }
 
 

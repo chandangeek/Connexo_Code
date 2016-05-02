@@ -5,13 +5,18 @@ import com.energyict.mdc.device.config.AllowedCalendar;
 
 public class AllowedCalendarInfo {
 
+    public long id;
     public String name;
-    public String status;
+    public boolean ghost;
     public CalendarInfo calendar;
+
+    public AllowedCalendarInfo () {
+    }
 
     public AllowedCalendarInfo (AllowedCalendar allowedCalendar) {
         this.name = allowedCalendar.getName();
-        this.status = "Active";
+        this.ghost = allowedCalendar.isGhost();
+        this.id = allowedCalendar.getId();
     }
 
     public AllowedCalendarInfo (AllowedCalendar allowedCalendar, CalendarInfo calendarInfo) {

@@ -1629,7 +1629,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<String>get("[0].name")).isEqualTo("CALENDAR_NAME");
-        assertThat(jsonModel.<String>get("[0].status")).isEqualTo("Active");
+        assertThat(jsonModel.<Boolean>get("[0].ghost")).isEqualTo(false);
         assertThat(jsonModel.<String>get("[0].calendar.name")).isEqualTo("CALENDAR_NAME");
     }
 
