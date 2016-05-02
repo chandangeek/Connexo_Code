@@ -513,11 +513,11 @@ public class DeviceTypeResource {
 
     @DELETE
     @Transactional
-    @Path("/{id}/timeofuse")
+    @Path("/{id}/timeofuse/{calendarId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public Response removeCalendar(@PathParam("id") long id, AllowedCalendarInfo allowedCalendarInfo) {
+    public Response removeCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, AllowedCalendarInfo allowedCalendarInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         deviceType.removeCalendar(allowedCalendarInfo.id);
         return Response.ok().build();
