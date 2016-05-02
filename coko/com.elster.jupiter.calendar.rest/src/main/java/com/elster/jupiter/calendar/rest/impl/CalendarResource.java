@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -46,6 +47,7 @@ public class CalendarResource {
        return calendarService.findAllCalendars()
                .stream()
                .map(calendarInfoFactory::fromCalendar)
+               .sorted((cal1, cal2) -> cal1.name.compareTo(cal2.name))
                .collect(Collectors.toList());
     }
 
