@@ -127,11 +127,12 @@ public enum TableSpecs {
 
             Column campaign = table.column("CAMPAIGN").number().notNull().add();
             Column device = table.column("DEVICE").number().notNull().add();
-            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName()).add();
+            Column status = table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName()).add();
             table.column("MESSAGE_ID").number().conversion(ColumnConversion.NUMBER2LONGNULLZERO).map(DeviceInFirmwareCampaignImpl.Fields.MESSAGE_ID.fieldName()).add();
             table.column("STARTED_ON").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceInFirmwareCampaignImpl.Fields.STARTED_ON.fieldName()).add();
-            table.column("FINISHED_ON").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceInFirmwareCampaignImpl.Fields.FINISHED_ON.fieldName()).add();
+            Column finishedOn = table.column("FINISHED_ON").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceInFirmwareCampaignImpl.Fields.FINISHED_ON.fieldName()).add();
 
+            table.unique("UQ_FWC_DEV_IN_CAMP").on(device, status, finishedOn).add();
             table.foreignKey("FK_FWC_DEVICE_TO_CAMPAIGN")
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())

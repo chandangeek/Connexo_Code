@@ -357,4 +357,9 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         }
         this.comWindow = window;
     }
+
+    @Override
+    public void decreaseCount() {
+        this.numberOfDevices--;
+    }
 }

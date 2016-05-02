@@ -92,6 +92,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     DeviceInFirmwareCampaign init(FirmwareCampaign campaign, Device device) {
         this.campaign.set(campaign);
         this.device.set(device);
+        this.status = FirmwareManagementDeviceStatus.UPLOAD_PENDING;    //Initial state
         return this;
     }
 
@@ -134,15 +135,14 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                 || !firmwareMessageId.isPresent()
                 || noOverlappingConnectionWindow()) {
             setStatus(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
-            save();
-            return;
-        }
-        if (deviceAlreadyHasTheSameVersion()) {
-            setStatus(FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS);
         } else {
-            createFirmwareMessage(firmwareMessageId);
-            setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
-            scheduleFirmwareTask();
+            if (deviceAlreadyHasTheSameVersion()) {
+                setStatus(FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS);
+            } else {
+                createFirmwareMessage(firmwareMessageId);
+                setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
+                scheduleFirmwareTask();
+            }
         }
         save();
     }
@@ -196,11 +196,13 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     @Override
     public void cancel() {
         setStatus(FirmwareManagementDeviceStatus.CANCELLED);
+
         save();
     }
 
     public void retry() {
         setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
+        this.finishedOn = null;
         save();
     }
 

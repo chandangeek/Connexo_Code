@@ -58,4 +58,6 @@ public interface FirmwareCampaign extends HasId, HasName{
     ComWindow getComWindow();
 
     void setComWindow(ComWindow window);
+
+    void decreaseCount();
 }
