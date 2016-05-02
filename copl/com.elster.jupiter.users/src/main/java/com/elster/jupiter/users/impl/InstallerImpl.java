@@ -44,7 +44,6 @@ public class InstallerImpl implements FullInstaller {
     public void install(DataModelUpgrader dataModelUpgrader) {
         try {
             createUSRQueue(messageService);
-            dataModel.install(true, true);
             dataModelUpgrader.upgrade(dataModel, Version.latest());
         } catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
