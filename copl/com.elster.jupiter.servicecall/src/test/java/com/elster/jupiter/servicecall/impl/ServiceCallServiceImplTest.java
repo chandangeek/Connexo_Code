@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 
@@ -56,6 +57,8 @@ public class ServiceCallServiceImplTest {
     private DataModel dataModel;
     @Mock
     private ServiceCall serviceCall1, serviceCall2;
+    @Mock
+    private UpgradeService upgradeService;
 
     @Before
     public void setUp() {
@@ -83,7 +86,8 @@ public class ServiceCallServiceImplTest {
                 userService,
                 customPropertyService,
                 messageService,
-                jsonService
+                jsonService,
+                upgradeService
         );
 
         serviceCallService.cancelServiceCallsFor(device);

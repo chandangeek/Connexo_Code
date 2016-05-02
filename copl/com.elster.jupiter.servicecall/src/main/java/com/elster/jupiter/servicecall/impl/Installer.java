@@ -7,7 +7,10 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.upgrade.FullInstaller;
 
 import javax.inject.Inject;
 import java.util.Map;
@@ -21,7 +24,7 @@ import java.util.stream.Stream;
 /**
  * Created by bvn on 3/7/16.
  */
-public class Installer {
+public class Installer implements FullInstaller {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
 
@@ -38,9 +41,10 @@ public class Installer {
         this.dataModel = dataModel;
     }
 
-    public void install() {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         try {
-            this.dataModel.install(true, true);
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
