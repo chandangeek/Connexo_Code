@@ -35,7 +35,7 @@ Ext.define('Mdc.timeofuse.view.PreviewForm', {
                 },
                 {
                     xtype: 'uni-form-empty-message',
-                    text: Uni.I18n.translate('timeofuse.calendarIsGhostMessage', 'MDC', "No information available due to status as 'ghost'"),
+                    text: Uni.I18n.translate('timeofuse.calendarIsGhostMessage', 'MDC', "No information available due to status as 'ghost'."),
                     itemId: 'ghostStatusMessage',
                     hidden: true
 

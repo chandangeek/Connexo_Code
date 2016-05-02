@@ -26,6 +26,10 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             selector: 'tou-available-cal-grd'
         },
         {
+            ref: 'calendarGrid',
+            selector: 'tou-calendars-grid'
+        },
+        {
             ref: 'preview',
             selector: 'device-type-tou-setup tou-preview-panel'
         }
@@ -74,7 +78,15 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 me.deviceTypeId = deviceTypeId;
                 me.getApplication().fireEvent('changecontentevent', view);
                 store.getProxy().setUrl(deviceTypeId);
-                store.load();
+                store.load({
+                    callback: function (records, operation, success) {
+                        if(success === true) {
+                            me.getCalendarGrid().down('pagingtoolbartop #displayItem').setText(
+                                Uni.I18n.translatePlural('general.calendarCount', store.getCount(), 'MDC', 'No time of use calendars', '{0} time of use calendar', '{0} time of use calendars')
+                            );
+                        }
+                    }
+                });
                 view.setLoading(true);
                 view.suspendLayouts();
                 me.reconfigureMenu(deviceType, view);
@@ -278,11 +290,11 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         if (record.get('ghost') !== true) {
             previewForm.fillFieldContainers(record.getCalendar());
-            preview.down('tou-devicetype-action-menu').record = record;
         } else {
             previewForm.showEmptyMessage();
         }
-    },
+        preview.down('tou-devicetype-action-menu').record = record;
+    }
 
 
 });

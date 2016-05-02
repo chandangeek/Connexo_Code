@@ -25,7 +25,7 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-               // privileges: Scs.privileges.ServiceCall.admin,
+                privileges: Mdc.privileges.DeviceType.admin,
                 menu: {
                     xtype: 'tou-devicetype-action-menu'
                 },
@@ -38,14 +38,16 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('timeofuse.pagingtoolbartop.displayMsg', 'MDC', '{0} Time of use calendars'),
+                displayMsg: Uni.I18n.translate('timeofuse.pagingtoolbartop.displayMsg', 'MDC', 'No time of use calendars'),
                 items: [
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('tou.addTouCalendars', 'MDC', 'Add time of use calendars'),
                         itemId: 'add-tou-calendars-btn'
                     }
-                ]
+                ],
+                usesExactCount: true,
+                noBottomPaging: true
 
             }
         ];
