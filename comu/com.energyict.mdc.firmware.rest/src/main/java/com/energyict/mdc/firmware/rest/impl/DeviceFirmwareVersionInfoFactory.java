@@ -166,7 +166,13 @@ public class DeviceFirmwareVersionInfoFactory {
                 properties.put(FIRMWARE_VERSION, firmwareVersion.get().getFirmwareVersion());
                 properties.put(FIRMWARE_VERSION_ID, firmwareVersion.get().getId());
             }
-            properties.put(FIRMWARE_PLANNED_DATE, message.getReleaseDate());
+            Optional<ComTaskExecution> firmwareComTaskExecution = helper.getFirmwareComTaskExecution();
+            if(firmwareComTaskExecution.isPresent()){
+                Instant nextExecutionTimestamp = firmwareComTaskExecution.get().getNextExecutionTimestamp();
+                if (nextExecutionTimestamp != null) {
+                    properties.put(FIRMWARE_PLANNED_DATE, nextExecutionTimestamp);
+                }
+            }
             return properties;
         }
     }
