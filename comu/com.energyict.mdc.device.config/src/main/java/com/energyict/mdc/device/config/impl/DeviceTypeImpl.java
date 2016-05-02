@@ -105,7 +105,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
     private List<AllowedCalendar> allowedCalendars = new ArrayList<>();
-    private boolean timeOfUseAllowed = false;
+    private boolean timeOfUseAllowed = true;
     @Valid
     private List<DeviceConfigConflictMappingImpl> deviceConfigConflictMappings = new ArrayList<>();
     @Valid
