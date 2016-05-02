@@ -285,9 +285,9 @@ public class DeviceDataInfoFactory {
         registerInfo.id = registerSpec.getId();
         registerInfo.registerType = registerSpec.getRegisterType().getId();
         registerInfo.readingType = new ReadingTypeInfo(register.getReadingType());
-        registerInfo.obisCode = registerSpec.getObisCode();
-        registerInfo.overruledObisCode = registerSpec.getDeviceObisCode();
-        registerInfo.obisCodeDescription = registerSpec.getObisCode().getDescription();
+        registerInfo.obisCode = registerSpec.getDeviceObisCode();
+        registerInfo.overruledObisCode = register.getDeviceObisCode();
+        registerInfo.obisCodeDescription = register.getDeviceObisCode().getDescription();
         registerInfo.isCumulative = register.getReadingType().isCumulative();
         registerInfo.mRID = device.getmRID();
         registerInfo.version = device.getVersion();

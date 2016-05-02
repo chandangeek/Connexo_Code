@@ -12,6 +12,7 @@ import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.impl.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -86,6 +87,24 @@ public class RegisterResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE})
     public Response updateRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, RegisterInfo registerInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Register<?, ?> register = doGetRegister(mRID, registerId);
+        Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = device.getReadingTypeObisCodeUsage(register.getReadingType());
+        boolean removeCurrentOverruleRecord = (
+            ( registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // no obiscode overruling wanted
+              readingTypeObisCodeUsageOptional.isPresent() )// however, currently present
+            ||
+            ( !registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // obiscode overruling wanted
+              !readingTypeObisCodeUsageOptional.get().getObisCode().equals(registerInfo.overruledObisCode) ) // but the currently present one is different
+        );
+
+        if (removeCurrentOverruleRecord) {
+            device.removeReadingTypeObisCodeUsage(register.getReadingType());
+        }
+        if (!registerInfo.overruledObisCode.equals(registerInfo.obisCode)) { // obiscode overruling wanted
+            device.addReadingTypeObisCodeUsage(register.getReadingType(), registerInfo.overruledObisCode);
+        }
+        device.save();
         return Response.ok().build();
     }
 

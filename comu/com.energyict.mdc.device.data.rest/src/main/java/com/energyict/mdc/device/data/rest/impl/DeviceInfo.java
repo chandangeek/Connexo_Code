@@ -7,6 +7,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
@@ -56,6 +57,7 @@ public class DeviceInfo extends DeviceVersionInfo {
     public String location;
     public LocationInfo locationInfo;
     public String geoCoordinates;
+    public List<ObisCode> overruledObisCodes;
 
     public DeviceInfo() {
     }
@@ -109,6 +111,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         if(location!=null){
             deviceInfo.location = location;
         }
+        deviceInfo.overruledObisCodes = device.getOverruledObisCodes();
 
         return deviceInfo;
     }
