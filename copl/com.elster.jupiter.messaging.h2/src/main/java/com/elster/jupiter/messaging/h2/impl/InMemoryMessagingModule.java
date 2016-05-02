@@ -8,7 +8,8 @@ public class InMemoryMessagingModule extends AbstractModule {
     @Override
     protected void configure() {
         TransientMessageService instance = new TransientMessageService();
-        instance.install();
+        instance.createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
+        instance.createQueueTableSpec("MSG_RAWTOPICTABLE", "RAW", true);
         bind(MessageService.class).toInstance(instance);
     }
     

@@ -7,23 +7,43 @@ import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.upgrade.UpgradeService;
+
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.Arrays;
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component(name = "com.elster.jupiter.messaging.h2", service = {MessageService.class, InstallService.class}, property = {"name=MSG"})
-public class TransientMessageService implements MessageService, InstallService {
+@Component(name = "com.elster.jupiter.messaging.h2", service = {MessageService.class}, property = {"name=MSG"})
+public class TransientMessageService implements MessageService {
 
     private final Map<String, TransientQueueTableSpec> queueTableSpecs = new HashMap<>();
 
     private volatile Thesaurus thesaurus;
+    private volatile UpgradeService upgradeService;
+
+    public TransientMessageService() {
+    }
+
+    @Inject
+    public TransientMessageService(NlsService nlsService, UpgradeService upgradeService) {
+        setNlsService(nlsService);
+        setUpgradeService(upgradeService);
+        activate();
+    }
+
+    @Activate
+    public void activate() {
+        createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
+        createQueueTableSpec("MSG_RAWTOPICTABLE", "RAW", true);
+    }
 
     @Override
     public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
@@ -45,6 +65,11 @@ public class TransientMessageService implements MessageService, InstallService {
         this.thesaurus = nlsService.getThesaurus(MessageService.COMPONENTNAME, Layer.SERVICE);
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @Override
     public Optional<QueueTableSpec> getQueueTableSpec(String name) {
         return Optional.ofNullable(queueTableSpecs.get(name));
@@ -52,13 +77,10 @@ public class TransientMessageService implements MessageService, InstallService {
 
     @Override
     public Optional<DestinationSpec> getDestinationSpec(String name) {
-        for (TransientQueueTableSpec queueTableSpec : queueTableSpecs.values()) {
-            TransientDestinationSpec destination = queueTableSpec.getDestination(name);
-            if (destination != null) {
-                return Optional.<DestinationSpec>of(destination);
-            }
-        }
-        return Optional.empty();
+        return queueTableSpecs.values().stream()
+                .map(spec -> (DestinationSpec) spec.getDestination(name))
+                .filter(Objects::nonNull)
+                .findAny();
     }
 
     @Override
@@ -81,12 +103,6 @@ public class TransientMessageService implements MessageService, InstallService {
     }
 
     @Override
-    public void install() {
-        createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
-        createQueueTableSpec("MSG_RAWTOPICTABLE", "RAW", true);
-    }
-
-    @Override
     public List<SubscriberSpec> getSubscribers() {
         return queueTableSpecs.values().stream()
                 .flatMap(q -> q.getDestinations().stream())
@@ -97,11 +113,6 @@ public class TransientMessageService implements MessageService, InstallService {
     @Override
     public List<SubscriberSpec> getNonSystemManagedSubscribers() {
         return getSubscribers();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM");
     }
 
     @Override
