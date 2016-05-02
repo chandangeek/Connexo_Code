@@ -1,43 +1,44 @@
 package com.elster.jupiter.time.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.EventType;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
-import java.util.ArrayList;
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Installer {
+class Installer implements FullInstaller {
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;
     private final TimeService timeService;
 
-    public Installer(DataModel dataModel, TimeService timeService, EventService eventService) {
+    @Inject
+    Installer(DataModel dataModel, TimeService timeService, EventService eventService) {
         super();
         this.timeService = timeService;
         this.dataModel = dataModel;
         this.eventService = eventService;
     }
 
-    public void install(boolean executeDdl) {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         ExceptionCatcher.executing(
-                () -> this.dataModel.install(executeDdl, true),
+                () -> dataModelUpgrader.upgrade(dataModel, Version.latest()),
                 this::createEventTypes,
                 this::createDefaultRelativePeriods
         ).andHandleExceptionsWith(e -> logger.log(Level.SEVERE, e.getMessage(), e))

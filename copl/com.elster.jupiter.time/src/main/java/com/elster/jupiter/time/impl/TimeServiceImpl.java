@@ -11,7 +11,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
@@ -21,13 +20,14 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.parser.CronExpressionDescriptorImpl;
 import com.elster.jupiter.time.impl.parser.TranslationKeys;
 import com.elster.jupiter.time.security.Privileges;
-import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.google.common.collect.ImmutableList;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -38,6 +38,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -47,32 +48,31 @@ import java.util.stream.Stream;
 
 @Component(
         name = "com.elster.jupiter.time",
-        service = {TimeService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {TimeService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + TimeService.COMPONENT_NAME,
         immediate = true)
-public class TimeServiceImpl implements TimeService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
+public class TimeServiceImpl implements TimeService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
     private volatile OrmService ormService;
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile EventService eventService;
+    private volatile UpgradeService upgradeService;
 
     public TimeServiceImpl() {
     }
 
     @Inject
-    public TimeServiceImpl(QueryService queryService, OrmService ormService, NlsService nlsService, UserService userService, EventService eventService) {
+    public TimeServiceImpl(QueryService queryService, OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, UpgradeService upgradeService) {
         this();
         this.setQueryService(queryService);
         this.setOrmService(ormService);
         this.setThesaurus(nlsService);
         this.setUserService(userService);
         this.setEventService(eventService);
+        this.setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     @Override
@@ -168,23 +168,15 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(EventService.class).toInstance(eventService);
+                bind(TimeService.class).toInstance(TimeServiceImpl.this);
             }
         };
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS", "USR", "EVT");
     }
 
     @Activate
     public void activate() {
         dataModel.register(getModule());
-    }
-
-    @Override
-    public void install() {
-        new Installer(dataModel, this, eventService).install(true);
+        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
@@ -242,6 +234,11 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     DataModel getDataModel() {
