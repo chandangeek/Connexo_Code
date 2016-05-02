@@ -2177,14 +2177,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-//    @Override
-//    public List<ObisCode> getOverrulesObisCodes() {
-//        return this.readingTypeObisCodeUsages
-//                .stream()
-//                .map(ReadingTypeObisCodeUsage::getObisCode)
-//                .collect(Collectors.toList());
-//    }
-
     @Override
     public List<ObisCode> getOverruledObisCodes() {
         return this.readingTypeObisCodeUsages
@@ -2197,7 +2189,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (readingType==null) return Optional.empty();
         for (ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage : readingTypeObisCodeUsages) {
             if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
-                return Optional.of((ReadingTypeObisCodeUsage)readingTypeObisCodeUsage);
+                return Optional.of(readingTypeObisCodeUsage);
             }
         }
         return Optional.empty();

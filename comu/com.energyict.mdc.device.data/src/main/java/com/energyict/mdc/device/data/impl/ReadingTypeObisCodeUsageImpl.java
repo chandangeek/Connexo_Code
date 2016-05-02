@@ -7,18 +7,19 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Objects;
 
-public class ReadingTypeObisCodeUsageImpl {
+public class ReadingTypeObisCodeUsageImpl implements ReadingTypeObisCodeUsage {
 
     @IsPresent
     private Reference<ReadingType> readingType = ValueReference.absent();
     @IsPresent
     private Reference<Device> device = ValueReference.absent();
-    private ObisCode obisCode;
+    private String obisCodeString;
     private DataModel dataModel;
     private String userName;
     private long version;
@@ -33,7 +34,7 @@ public class ReadingTypeObisCodeUsageImpl {
     public ReadingTypeObisCodeUsageImpl initialize(Device device, ReadingType readingType, ObisCode obisCode) {
         this.device.set(device);
         this.readingType.set(readingType);
-        this.obisCode = obisCode;
+        this.obisCodeString = obisCode.toString();
         return this;
     }
 
@@ -50,7 +51,7 @@ public class ReadingTypeObisCodeUsageImpl {
     }
 
     public ObisCode getObisCode() {
-        return this.obisCode;
+        return this.obisCodeString!=null ? ObisCode.fromString(obisCodeString) : null;
     }
 
     @Override
