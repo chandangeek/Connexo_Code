@@ -91,11 +91,12 @@ public class RegisterResource {
         Register<?, ?> register = doGetRegister(mRID, registerId);
         Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = device.getReadingTypeObisCodeUsage(register.getReadingType());
         boolean removeCurrentOverruleRecord = (
-            ( registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // no obiscode overruling wanted
-              readingTypeObisCodeUsageOptional.isPresent() )// however, currently present
+            ( registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // no obiscode overruling wanted...
+              readingTypeObisCodeUsageOptional.isPresent() )// ...however, currently present
             ||
-            ( !registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // obiscode overruling wanted
-              !readingTypeObisCodeUsageOptional.get().getObisCode().equals(registerInfo.overruledObisCode) ) // but the currently present one is different
+            ( !registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // obiscode overruling wanted...
+              readingTypeObisCodeUsageOptional.isPresent() && // ...but the currently present one...
+              !readingTypeObisCodeUsageOptional.get().getObisCode().equals(registerInfo.overruledObisCode) ) // ...is different
         );
 
         if (removeCurrentOverruleRecord) {
