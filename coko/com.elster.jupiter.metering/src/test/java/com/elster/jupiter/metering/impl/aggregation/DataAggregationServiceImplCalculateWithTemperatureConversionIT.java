@@ -142,7 +142,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.INSTANCE);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 

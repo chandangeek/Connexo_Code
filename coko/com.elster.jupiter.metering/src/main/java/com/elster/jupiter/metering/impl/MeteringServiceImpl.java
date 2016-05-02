@@ -50,8 +50,8 @@ import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFacto
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
-import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
+import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -106,6 +106,8 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -477,6 +479,9 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                 locationTemplateMembers = ImmutableList.copyOf((template.getTemplateMembers()));
             });
         }
+        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+                version(10, 2), UpgraderV10_2.class
+        ));
     }
 
     private void registerMetrologyConfigurationService(BundleContext bundleContext) {
@@ -487,16 +492,11 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                     new String[]{
                             MetrologyConfigurationService.class.getName(),
                             ServerMetrologyConfigurationService.class.getName(),
-                            InstallService.class.getName(),
                             PrivilegesProvider.class.getName(),
                             TranslationKeyProvider.class.getName()},
                     this.metrologyConfigurationService,
                     properties));
         }
-
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                version(10, 2), UpgraderV10_2.class
-        ));
 
     }
 
@@ -645,16 +645,17 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
     public void createAllReadingTypes(List<Pair<String, String>> readingTypes) {
         List<ReadingType> availableReadingTypes = getAvailableReadingTypes();
         List<String> availableReadingTypeCodes =
-            availableReadingTypes.parallelStream()
-                .map(ReadingType::getMRID)
-                .collect(Collectors.toList());
+                availableReadingTypes.parallelStream()
+                        .map(ReadingType::getMRID)
+                        .collect(Collectors.toList());
         List<Pair<String, String>> filteredReadingTypes =
-            readingTypes.parallelStream()
-                .filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getFirst()))
-                .collect(Collectors.toList());
+                readingTypes.parallelStream()
+                        .filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getFirst()))
+                        .collect(Collectors.toList());
 
         DecoratedStream.decorate(filteredReadingTypes.stream())
-                .map(filteredReadingType -> dataModel.getInstance(ReadingTypeImpl.class).init(filteredReadingType.getFirst(), filteredReadingType.getLast()))
+                .map(filteredReadingType -> dataModel.getInstance(ReadingTypeImpl.class)
+                        .init(filteredReadingType.getFirst(), filteredReadingType.getLast()))
                 .map(readingType -> ((ReadingType) readingType))
                 .partitionPer(1000)
                 .forEach(listPer1000 -> dataModel.mapper(ReadingType.class).persist(listPer1000));
@@ -793,7 +794,8 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
     public MultiplierType createMultiplierType(NlsKey name) {
         String localKey = "MultiplierType.custom." + name.getKey();
         this.copyKeyIfMissing(name, localKey);
-        MultiplierTypeImpl multiplierType = this.dataModel.getInstance(MultiplierTypeImpl.class).initWithNlsNameKey(localKey);
+        MultiplierTypeImpl multiplierType = this.dataModel.getInstance(MultiplierTypeImpl.class)
+                .initWithNlsNameKey(localKey);
         multiplierType.save();
         return multiplierType;
     }
@@ -806,14 +808,17 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
     }
 
     MultiplierType createMultiplierType(MultiplierType.StandardType standardType) {
-        MultiplierTypeImpl multiplierType = this.dataModel.getInstance(MultiplierTypeImpl.class).initWithNlsNameKey(standardType.translationKey());
+        MultiplierTypeImpl multiplierType = this.dataModel.getInstance(MultiplierTypeImpl.class)
+                .initWithNlsNameKey(standardType.translationKey());
         multiplierType.save();
         return multiplierType;
     }
 
     @Override
     public MultiplierType getMultiplierType(MultiplierType.StandardType standardType) {
-        return this.dataModel.mapper(MultiplierType.class).getUnique("name", standardType.translationKey(), "nameIsKey", true).get();
+        return this.dataModel.mapper(MultiplierType.class)
+                .getUnique("name", standardType.translationKey(), "nameIsKey", true)
+                .get();
     }
 
     @Override
@@ -846,10 +851,10 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
     }
 
     @Override
-    public List<List<String>>  getFormattedLocationMembers(long id) {
+    public List<List<String>> getFormattedLocationMembers(long id) {
         List<LocationMember> members = dataModel.query(LocationMember.class)
                 .select(Operator.EQUAL.compare("locationId", id));
-        List<List<String>>  formattedLocation = new LinkedList<>();
+        List<List<String>> formattedLocation = new LinkedList<>();
         if (!members.isEmpty()) {
             LocationMember member = members.get(0);
             Map<String, String> memberValues = new LinkedHashMap<>();
@@ -867,9 +872,10 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
             memberValues.put("addressDetail", member.getAddressDetail());
             memberValues.put("zipCode", member.getZipCode());
 
-           formattedLocation = locationTemplate.getTemplateMembers()
+            formattedLocation = locationTemplate.getTemplateMembers()
                     .stream()
-                    .sorted((m1,m2)->Integer.compare(m1.getRanking(),m2.getRanking())).filter(m -> !m.getName().equalsIgnoreCase("locale"))
+                    .sorted((m1, m2) -> Integer.compare(m1.getRanking(), m2.getRanking()))
+                    .filter(m -> !m.getName().equalsIgnoreCase("locale"))
                     .collect(() -> {
                                 List<List<String>> list = new ArrayList<>();
                                 list.add(new ArrayList<>());
@@ -877,7 +883,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                             },
                             (list, s) -> {
                                 if (locationTemplate.getSplitLineElements().contains(s.getAbbreviation())) {
-                                    list.add(new ArrayList<String>(){{
+                                    list.add(new ArrayList<String>() {{
                                         add(memberValues.get(s.getName()));
                                     }});
 
@@ -891,7 +897,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                             });
         }
 
-      return formattedLocation;
+        return formattedLocation;
     }
 
     @Override
@@ -958,7 +964,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                                 t.getElementAbbreviation(),
                                 t.toString(),
                                 index.incrementAndGet(),
-                                index .intValue() % 2 == 0 ? true : false)));
+                                index.intValue() % 2 == 0 ? true : false)));
         locationTemplateMembers = ImmutableList.copyOf(templateElements);
     }
 
