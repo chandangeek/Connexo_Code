@@ -8,16 +8,16 @@ Ext.define('Mdc.timeofuse.view.ActionMenu', {
         {
             itemId: 'view-preview-tou',
             text: Uni.I18n.translate('timeofuse.viewPreview', 'MDC', 'View preview'),
-            //privileges: Scs.privileges.ServiceCall.admin,
-            action: 'viewpreview'
-            //visible: function() {
-            //    return this.record.get('canCancel');
-            //}
+            privileges: Mdc.privileges.DeviceType.admin,
+            action: 'viewpreview',
+            visible: function() {
+                return !this.record.get('ghost');
+            }
         },
         {
             itemId: 'remove-tou',
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            //privileges: Scs.privileges.ServiceCall.admin,
+            privileges: Mdc.privileges.DeviceType.admin,
             action: 'remove',
             //visible: function() {
             //    return this.record.get('canCancel');

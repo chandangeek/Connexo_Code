@@ -198,18 +198,11 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     showPreviewCalendarView: function (deviceTypeId, calendarId) {
         var me = this,
             view;
-        view = Ext.widget('tou-devicetype-view-calendar-setup', {
-            url: '/api/cal/calendars/timeofusecalendars',
-            calendarId: calendarId,
-            deviceTypeId: deviceTypeId
-        });
-
-
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 view = Ext.widget('tou-devicetype-view-calendar-setup', {
-                    url: '/api/cal/calendars/timeofusecalendars',
+                    url: '/api/dtc/devicetypes/' + deviceTypeId + '/timeofuse',
                     calendarId: calendarId,
                     deviceTypeId: deviceTypeId,
                     timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
