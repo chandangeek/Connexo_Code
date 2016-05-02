@@ -206,7 +206,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
-    private List<ReadingTypeObisCodeUsage> readingTypeObisCodeUsages = new ArrayList<>();
+    private List<ReadingTypeObisCodeUsageImpl> readingTypeObisCodeUsages = new ArrayList<>();
     private static final String MULTIPLIER_TYPE = "Default";
     private final BigDecimal MULTIPLIER_ONE = BigDecimal.ONE;
 
@@ -2189,15 +2189,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public List<ObisCode> getOverruledObisCodes() {
         return this.readingTypeObisCodeUsages
                 .stream()
-                .map(ReadingTypeObisCodeUsage::getObisCode)
+                .map(ReadingTypeObisCodeUsageImpl::getObisCode)
                 .collect(Collectors.toList());
     }
 
     public Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType) {
         if (readingType==null) return Optional.empty();
-        for (ReadingTypeObisCodeUsage readingTypeObisCodeUsage : readingTypeObisCodeUsages) {
+        for (ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage : readingTypeObisCodeUsages) {
             if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
-                return Optional.of(readingTypeObisCodeUsage);
+                return Optional.of((ReadingTypeObisCodeUsage)readingTypeObisCodeUsage);
             }
         }
         return Optional.empty();
@@ -2205,15 +2205,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void addReadingTypeObisCodeUsage(ReadingType readingType, ObisCode obisCode) {
-        ReadingTypeObisCodeUsage readingTypeObisCodeUsage = dataModel.getInstance(ReadingTypeObisCodeUsage.class);
+        ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = dataModel.getInstance(ReadingTypeObisCodeUsageImpl.class);
         readingTypeObisCodeUsage.initialize(this, readingType, obisCode);
         readingTypeObisCodeUsages.add(readingTypeObisCodeUsage);
     }
 
     @Override
     public void removeReadingTypeObisCodeUsage(ReadingType readingType) {
-        for (java.util.Iterator<ReadingTypeObisCodeUsage> iterator = readingTypeObisCodeUsages.iterator(); iterator.hasNext();) {
-            ReadingTypeObisCodeUsage readingTypeObisCodeUsage = iterator.next();
+        for (java.util.Iterator<ReadingTypeObisCodeUsageImpl> iterator = readingTypeObisCodeUsages.iterator(); iterator.hasNext();) {
+            ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = iterator.next();
             if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
                 iterator.remove();
                 break;

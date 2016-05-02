@@ -765,8 +765,8 @@ public enum TableSpecs {
     DDC_OVERRULEDOBISCODE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<ReadingTypeObisCodeUsage> table = dataModel.addTable(name(), ReadingTypeObisCodeUsage.class);
-            table.map(ReadingTypeObisCodeUsage.class);
+            Table<ReadingTypeObisCodeUsageImpl> table = dataModel.addTable(name(), ReadingTypeObisCodeUsageImpl.class);
+            table.map(ReadingTypeObisCodeUsageImpl.class);
             Column readingType = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
             Column device = table.column("DEVICEID").number().notNull().add();
             table.column("OBISCODE").varChar(NAME_LENGTH).notNull().map("obisCode").add();
