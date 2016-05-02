@@ -1194,7 +1194,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             route.setTitle(record.get('mRID'));
                             return true;
                         }, {single: true});
-
                         return this;
                     },
                     items: {
@@ -1481,7 +1480,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'loadRegisterConfigurationCustomAttributes',
                                             callback: function (route) {
                                                 this.getApplication().on('loadRegisterConfigurationCustomAttributes', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('deviceregisterconfiguration.editCustomAttributes', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
                                                     return true;
                                                 }, {single: true});
 
@@ -1589,6 +1588,22 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 }
 
+                            }
+                        },
+                        dataloggerslaves: {
+                            title: Uni.I18n.translate('general.dataLoggerSlaves', 'MDC', 'Data logger slaves'),
+                            route: 'dataloggerslaves',
+                            privileges: Mdc.privileges.Device.viewOrAdministrateDeviceData,
+                            controller: 'Mdc.controller.setup.DataLoggerSlaves',
+                            action: 'showDataLoggerSlaves',
+                            items: {
+                                link: {
+                                    title: Uni.I18n.translate('general.linkDataLoggerSlace', 'MDC', 'Link data logger slave'),
+                                    route: 'link',
+                                    controller: 'Mdc.controller.setup.DataLoggerSlaves',
+                                    // privileges: ????,
+                                    action: 'showLinkWizard'
+                                }
                             }
                         },
                         datavalidation: {
@@ -1815,7 +1830,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showEditChannelOfLoadProfileCustomAttributes',
                                             callback: function (route) {
                                                 this.getApplication().on('channelOfLoadProfileCustomAttributes', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('deviceChannelOfLoadProfile.editCustomAttributes', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
                                                     return true;
                                                 }, {single: true});
 
@@ -2048,6 +2063,16 @@ Ext.define('Mdc.controller.history.Setup', {
                         }
                     }
                 }
+            },
+            callback: function (route) {
+                this.getApplication().on('loadDevice', function (record) {
+                    if ( !Ext.isEmpty(record.get('isDataLogger')) && record.get('isDataLogger') ) {
+                        route.setTitle(Uni.I18n.translate('general.dataLoggers', 'MDC', 'Data loggers'));
+                    } else {
+                        route.setTitle(Uni.I18n.translate('general.devices', 'MDC', 'Devices'));
+                    }
+                });
+                return this;
             }
         },
         search: {

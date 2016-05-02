@@ -168,6 +168,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     deviceLifeCycleLink = widget.down('#details-device-life-cycle-link'),
                     actionMenu = widget.down('device-type-action-menu');
 
+                if (!widget.rendered) return;
+
                 Ext.suspendLayouts();
 
                 widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));

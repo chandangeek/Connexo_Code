@@ -24,6 +24,8 @@ Ext.define('Mdc.model.Device', {
         {name: 'creationTime', dateFormat: 'time', type: 'date', useNull: true},
         {name: 'isDirectlyAddressed', type: 'boolean'},
         {name: 'isGateway', type: 'boolean'},
+        {name: 'isDataLogger', type: 'boolean'},
+        {name: 'isDataLoggerSlave', type: 'boolean'},
         {name: 'hasLoadProfiles', type: 'boolean'},
         {name: 'hasLogBooks', type: 'boolean'},
         {name: 'hasRegisters', type: 'boolean'},
