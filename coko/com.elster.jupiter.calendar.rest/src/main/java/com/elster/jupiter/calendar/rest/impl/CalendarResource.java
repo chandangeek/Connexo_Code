@@ -47,7 +47,6 @@ public class CalendarResource {
        return calendarService.findAllCalendars()
                .stream()
                .map(calendarInfoFactory::fromCalendar)
-               .sorted((cal1, cal2) -> cal1.name.compareTo(cal2.name))
                .collect(Collectors.toList());
     }
 
