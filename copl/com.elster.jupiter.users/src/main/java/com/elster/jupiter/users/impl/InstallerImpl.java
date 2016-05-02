@@ -33,10 +33,11 @@ public class InstallerImpl implements FullInstaller {
     private final MessageService messageService;
 
     @Inject
-    public InstallerImpl(DataModel dataModel, UserService userService, BundleContext bundleContext) {
+    public InstallerImpl(DataModel dataModel, UserService userService, BundleContext bundleContext, MessageService messageService) {
         this.dataModel = dataModel;
         this.userService = (UserServiceImpl) userService;
         this.bundleContext = bundleContext;
+        this.messageService = messageService;
     }
 
     @Override

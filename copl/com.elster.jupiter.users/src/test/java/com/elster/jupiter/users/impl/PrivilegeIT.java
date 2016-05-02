@@ -4,6 +4,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -73,6 +74,7 @@ public class PrivilegeIT extends EqualsContractTest {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
+                new InMemoryMessagingModule(),
                 new DomainUtilModule(),
                 new OrmModule(),
                 new UtilModule(),

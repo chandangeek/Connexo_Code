@@ -47,13 +47,11 @@ public class UserPreferencesServiceTest {
 
     @Rule
     public TestRule expectedErrorRule = new ExpectedConstraintViolationRule();
+
     private Injector injector;
     private UserPreferencesService userPrefsService;
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-    @Rule
-    public TestRule expectedErrorRule = new ExpectedConstraintViolationRule();
-    
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
