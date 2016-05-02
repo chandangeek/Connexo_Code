@@ -23,12 +23,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -41,6 +39,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,7 +94,7 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
     @Mock
     private LoadProfile.LoadProfileUpdater loadProfileUpdater;
 
-    private ReadingQualityType readingQualityType = new ReadingQualityType("3.0.1");
+    private ReadingQualityType readingQualityType = new ReadingQualityType("2.0.1");
 
     public LoadProfileTypeResourceTest() {
     }
@@ -159,7 +161,7 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         when(estimationRuleSet.getId()).thenReturn(15L);
         when(estimationRule.getName()).thenReturn("EstimationRule");
-        ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int)estimationRule.getId());
+        ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int)estimationRule.getId());
         when(quality2.getType()).thenReturn(readingQualityType);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
 
