@@ -5,6 +5,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.security.Privileges;
+import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -18,6 +19,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -32,7 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
-import java.util.logging.Level;
 
 /**
  * Created by igh on 18/04/2016.
@@ -159,7 +160,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     public List<Calendar> findAllCalendars() {
-        return this.getDataModel().mapper(Calendar.class).find();
+        return DefaultFinder.of(Calendar.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
     }
 
     @Override
