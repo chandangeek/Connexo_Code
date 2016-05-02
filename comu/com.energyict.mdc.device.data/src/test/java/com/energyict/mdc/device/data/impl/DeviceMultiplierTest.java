@@ -1,21 +1,23 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
@@ -30,14 +32,8 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.common.collect.Range;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
 import java.math.BigDecimal;
@@ -49,10 +45,23 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests regarding the DeviceMultiplier
@@ -153,7 +162,7 @@ public class DeviceMultiplierTest {
         when(clock.instant()).thenReturn(now);
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         when(amrSystem.findMeter(String.valueOf(ID))).thenReturn(Optional.of(meter));
-        when(meteringService.getMultiplierType(any())).thenReturn(Optional.of(multiplierType));
+        when(meteringService.getMultiplierType(anyString())).thenReturn(Optional.of(multiplierType));
         when(meterActivation.getMultiplier(multiplierType)).thenReturn(Optional.empty());
         when(meterActivation.getRange()).thenReturn(Range.atLeast(startOfMeterActivation));
         when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
