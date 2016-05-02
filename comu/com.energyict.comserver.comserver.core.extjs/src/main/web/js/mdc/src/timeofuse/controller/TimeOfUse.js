@@ -20,7 +20,12 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         'Uni.model.timeofuse.Calendar'
     ],
 
-    refs: [],
+    refs: [
+        {
+            ref: 'unusedCalendarGrid',
+            selector: 'tou-available-cal-grd'
+        }
+    ],
 
     deviceTypeId: null,
     init: function () {
@@ -89,11 +94,57 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     },
 
     addAvailableCalendar: function () {
-        //todo: switch from stores
+        var me = this,
+            grid = this.getUnusedCalendarGrid(),
+            store = me.getStore('Mdc.timeofuse.store.CalendarsToAdd'),
+            array = [];
+        store.removeAll(true);
+        Ext.each(grid.getSelectionModel().getSelection(),function(calendarToAdd){
+            grid.getStore().remove(calendarToAdd);
+            store.add(calendarToAdd);
+            calendarToAdd.phantom = true;
+            array.push(calendarToAdd.raw);
+        });
+        store.getProxy().setUrl(me.deviceTypeId);
+       // store.save();
+        me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();
+
+        Ext.Ajax.request({
+            url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/unusedcalendars',
+            method: 'PUT',
+            jsonData: Ext.encode(array),
+            success: function () {
+                //var messageText = suspended
+                //    ? Uni.I18n.translate('appServers.deactivateSuccessMsg', 'APR', 'Application server deactivated')
+                //    : Uni.I18n.translate('appServers.activateSuccessMsg', 'APR', 'Application server activated');
+                //me.getApplication().fireEvent('acknowledge', messageText);
+                //router.getState().forward(); // navigate to the previously stored url
+            },
+            failure: function (response, request) {
+                //if (response.status == 400) {
+                //    var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                //    if (!Ext.isEmpty(response.statusText)) {
+                //        errorText = response.statusText;
+                //    }
+                //    if (!Ext.isEmpty(response.responseText)) {
+                //        var json = Ext.decode(response.responseText, true);
+                //        if (json && json.error) {
+                //            errorText = json.error;
+                //        }
+                //    }
+                //    var titleText = suspended
+                //        ? Uni.I18n.translate('appServers.deactivate.operation.failed', 'APR', 'Deactivate operation failed')
+                //        : Uni.I18n.translate('appServers.activate.operation.failed', 'APR', 'Activate operation failed');
+                //
+                //    me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
+                //}
+            }
+        });
     },
 
     cancelAddCalendar: function () {
-        this.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();
+        var me = this;
+        me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();
     },
 
     chooseSpecificationsAction: function (menu, item) {
@@ -165,14 +216,13 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 me.forwardToCalendarView(1);
                 break;
             case 'remove':
-                me.showRemovalPopup();
+                me.showRemovalPopup(menu.record);
                 break;
         }
     },
 
-    showRemovalPopup: function () {
+    showRemovalPopup: function (calendarRecord) {
         var me = this;
-
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             cancelText: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
@@ -181,7 +231,8 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", 'timeOfUseCalendar'),
             fn: function (btn) {
                 if (btn === 'confirm') {
-                    //remove calendar
+                    calendarRecord.getProxy().setUrl(me.deviceTypeId);
+                    calendarRecord.destroy();
                 }
             }
         });
