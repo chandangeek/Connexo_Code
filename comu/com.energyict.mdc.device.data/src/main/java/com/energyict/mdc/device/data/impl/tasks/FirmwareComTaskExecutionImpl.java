@@ -188,6 +188,11 @@ public class FirmwareComTaskExecutionImpl extends ComTaskExecutionImpl implement
         postEvent(EventType.FIRMWARE_COMTASKEXECUTION_FAILED);
     }
 
+    public void putOnHold() {
+        super.putOnHold();
+        postEvent(EventType.FIRMWARE_COMTASKEXECUTION_COMPLETED);
+    }
+
     public static class FirmwareComTaskExecutionBuilderImpl extends AbstractComTaskExecutionBuilder<FirmwareComTaskExecution, FirmwareComTaskExecutionImpl> implements ComTaskExecutionBuilder<FirmwareComTaskExecution> {
 
         protected FirmwareComTaskExecutionBuilderImpl(FirmwareComTaskExecutionImpl instance) {
