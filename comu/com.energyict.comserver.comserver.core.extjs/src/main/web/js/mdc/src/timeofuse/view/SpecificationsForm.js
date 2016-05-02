@@ -22,7 +22,7 @@ Ext.define('Mdc.timeofuse.view.SpecificationsForm', {
                     {
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseAllowed', 'MDC', 'Time of use allowed'),
-                        name: 'touAllowed',
+                        name: 'timeOfUseAllowed',
                         renderer: function (value) {
                             if (value) {
                                 return Uni.I18n.translate('general.yes', 'MDC', 'Yes')
@@ -45,6 +45,6 @@ Ext.define('Mdc.timeofuse.view.SpecificationsForm', {
     },
 
     fillOptions: function (record) {
-        //TODO: code to fill optionsfield
+
     }
 });

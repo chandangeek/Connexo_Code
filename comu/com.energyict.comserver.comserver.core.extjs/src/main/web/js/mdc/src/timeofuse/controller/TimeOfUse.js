@@ -39,6 +39,9 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             'device-type-tou-setup #add-tou-calendars-btn': {
                 click: me.goToAddCalendars
             },
+            'device-type-tou-setup #tou-no-cal-add-btn': {
+                click: me.goToAddCalendars
+            },
             'tou-available-cal-setup #btn-add-tou-calendars': {
                 click: me.addAvailableCalendar
             },
@@ -59,18 +62,28 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
 
     showTimeOfUseOverview: function (deviceTypeId) {
         var me = this,
-            view = Ext.widget('device-type-tou-setup', {
-                deviceTypeId: deviceTypeId
-            }),
+            view,
             store = me.getStore('Mdc.timeofuse.store.UsedCalendars');
 
-        me.deviceTypeId = deviceTypeId;
-        me.getApplication().fireEvent('changecontentevent', view);
-        store.getProxy().setUrl(deviceTypeId);
-        store.load();
-        view.setLoading(true);
-        view.suspendLayouts();
-        me.reconfigureMenu(deviceTypeId, view);
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+            success: function (deviceType) {
+                view = Ext.widget('device-type-tou-setup', {
+                    deviceTypeId: deviceTypeId,
+                    timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
+                });
+                me.deviceTypeId = deviceTypeId;
+                me.getApplication().fireEvent('changecontentevent', view);
+                store.getProxy().setUrl(deviceTypeId);
+                store.load();
+                view.setLoading(true);
+                view.suspendLayouts();
+                me.reconfigureMenu(deviceType, view);
+            },
+            failure: function () {
+                view.setLoading(false);
+                view.resumeLayouts();
+            }
+        });
     },
 
     goToAddCalendars: function () {
@@ -87,65 +100,42 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     showAddCalendarsView: function (deviceTypeId) {
         var me = this,
             store = me.getStore('Mdc.timeofuse.store.UnusedCalendars'),
-            view = Ext.widget('tou-available-cal-setup', {
-                deviceTypeId: deviceTypeId
-            });
+            view;
 
-        store.getProxy().setUrl(me.deviceTypeId);
-        store.load();
-        me.getApplication().fireEvent('changecontentevent', view);
-        me.deviceTypeId = deviceTypeId;
-        view.setLoading(true);
-        view.suspendLayouts();
-        me.reconfigureMenu(deviceTypeId, view);
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+            success: function (deviceType) {
+                view = Ext.widget('tou-available-cal-setup', {
+                    deviceTypeId: deviceTypeId,
+                    timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
+                });
+                store.getProxy().setUrl(me.deviceTypeId);
+                store.load();
+                me.getApplication().fireEvent('changecontentevent', view);
+                me.deviceTypeId = deviceTypeId;
+                view.setLoading(true);
+                view.suspendLayouts();
+                me.reconfigureMenu(deviceType, view);
+            },
+            failure: function () {
+                view.setLoading(false);
+                view.resumeLayouts();
+            }
+        });
     },
 
     addAvailableCalendar: function () {
         var me = this,
             grid = this.getUnusedCalendarGrid(),
-            store = me.getStore('Mdc.timeofuse.store.CalendarsToAdd'),
             array = [];
-        store.removeAll(true);
-        Ext.each(grid.getSelectionModel().getSelection(),function(calendarToAdd){
-            grid.getStore().remove(calendarToAdd);
-            store.add(calendarToAdd);
-            calendarToAdd.phantom = true;
+        Ext.each(grid.getSelectionModel().getSelection(), function (calendarToAdd) {
             array.push(calendarToAdd.raw);
         });
-        store.getProxy().setUrl(me.deviceTypeId);
-       // store.save();
         me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();
 
         Ext.Ajax.request({
             url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/unusedcalendars',
             method: 'PUT',
-            jsonData: Ext.encode(array),
-            success: function () {
-                //var messageText = suspended
-                //    ? Uni.I18n.translate('appServers.deactivateSuccessMsg', 'APR', 'Application server deactivated')
-                //    : Uni.I18n.translate('appServers.activateSuccessMsg', 'APR', 'Application server activated');
-                //me.getApplication().fireEvent('acknowledge', messageText);
-                //router.getState().forward(); // navigate to the previously stored url
-            },
-            failure: function (response, request) {
-                //if (response.status == 400) {
-                //    var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                //    if (!Ext.isEmpty(response.statusText)) {
-                //        errorText = response.statusText;
-                //    }
-                //    if (!Ext.isEmpty(response.responseText)) {
-                //        var json = Ext.decode(response.responseText, true);
-                //        if (json && json.error) {
-                //            errorText = json.error;
-                //        }
-                //    }
-                //    var titleText = suspended
-                //        ? Uni.I18n.translate('appServers.deactivate.operation.failed', 'APR', 'Deactivate operation failed')
-                //        : Uni.I18n.translate('appServers.activate.operation.failed', 'APR', 'Activate operation failed');
-                //
-                //    me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
-                //}
-            }
+            jsonData: Ext.encode(array)
         });
     },
 
@@ -174,14 +164,25 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
 
     showEditSpecificationsScreen: function (deviceTypeId) {
         var me = this,
-            view = Ext.widget('tou-devicetype-edit-specs-setup', {
-                deviceTypeId: deviceTypeId
-            });
-        me.getApplication().fireEvent('changecontentevent', view);
-        me.deviceTypeId = deviceTypeId;
-        view.setLoading(true);
-        view.suspendLayouts();
-        me.reconfigureMenu(deviceTypeId, view);
+            view;
+
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+            success: function (deviceType) {
+                view = Ext.widget('tou-devicetype-edit-specs-setup', {
+                    deviceTypeId: deviceTypeId,
+                    timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
+                });
+                me.getApplication().fireEvent('changecontentevent', view);
+                me.deviceTypeId = deviceTypeId;
+                view.setLoading(true);
+                view.suspendLayouts();
+                me.reconfigureMenu(deviceType, view);
+            },
+            failure: function () {
+                view.setLoading(false);
+                view.resumeLayouts();
+            }
+        });
 
     },
 
@@ -203,15 +204,31 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             deviceTypeId: deviceTypeId
         });
 
-        view.on('timeofusecalendarloaded', function (newRecord) {
-            me.getApplication().fireEvent('timeofusecalendarloaded', newRecord.get('name'))
-            return true;
-        }, {single: true});
-        me.deviceTypeId = deviceTypeId;
-        me.getApplication().fireEvent('changecontentevent', view);
-        view.setLoading(true);
-        view.suspendLayouts();
-        me.reconfigureMenu(deviceTypeId, view);
+
+
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+            success: function (deviceType) {
+                view = Ext.widget('tou-devicetype-view-calendar-setup', {
+                    url: '/api/cal/calendars/timeofusecalendars',
+                    calendarId: calendarId,
+                    deviceTypeId: deviceTypeId,
+                    timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
+                });
+                view.on('timeofusecalendarloaded', function (newRecord) {
+                    me.getApplication().fireEvent('timeofusecalendarloaded', newRecord.get('name'))
+                    return true;
+                }, {single: true});
+                me.deviceTypeId = deviceTypeId;
+                me.getApplication().fireEvent('changecontentevent', view);
+                view.setLoading(true);
+                view.suspendLayouts();
+                me.reconfigureMenu(deviceType, view);
+            },
+            failure: function () {
+                view.setLoading(false);
+                view.resumeLayouts();
+            }
+        });
 
     },
 
@@ -246,26 +263,19 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
 
     },
 
-    reconfigureMenu: function (deviceTypeId, view) {
+    reconfigureMenu: function (deviceType, view) {
         var me = this;
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-            success: function (deviceType) {
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-                if (view.down('deviceTypeSideMenu')) {
-                    view.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
-                    view.down('deviceTypeSideMenu #conflictingMappingLink').setText(
-                        Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
-                    );
-                }
+        me.getApplication().fireEvent('loadDeviceType', deviceType);
+        if (view.down('deviceTypeSideMenu')) {
+            view.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
+            view.down('deviceTypeSideMenu #conflictingMappingLink').setText(
+                Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
+            );
+        }
 
-                view.setLoading(false);
-                view.resumeLayouts();
-            },
-            failure: function () {
-                view.setLoading(false);
-                view.resumeLayouts();
-            }
-        });
+        view.setLoading(false);
+        view.resumeLayouts();
+
     },
 
     showPreview: function (selectionModel, record) {
@@ -273,7 +283,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             preview = me.getPreview(),
             previewForm = preview.down('devicetype-tou-preview-form');
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
-        if(record.get('ghost') !== true) {
+        if (record.get('ghost') !== true) {
             previewForm.fillFieldContainers(record.getCalendar());
             preview.down('tou-devicetype-action-menu').record = record;
         } else {
