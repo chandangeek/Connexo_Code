@@ -24,6 +24,10 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         {
             ref: 'unusedCalendarGrid',
             selector: 'tou-available-cal-grd'
+        },
+        {
+            ref: 'preview',
+            selector: 'device-type-tou-setup tou-preview-panel'
         }
     ],
 
@@ -46,6 +50,9 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             },
             'tou-devicetype-action-menu': {
                 click: me.chooseAction
+            },
+            'device-type-tou-setup tou-calendars-grid': {
+                select: this.showPreview
             }
         })
     },
@@ -228,7 +235,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             cancelText: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
         }).show({
             msg: Uni.I18n.translate('timeofuse.removeMsg', 'MDC', 'You will no longer be able to send this time of use calendar to devices of this device type..'),
-            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", 'timeOfUseCalendar'),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", calendarRecord.get('name')),
             fn: function (btn) {
                 if (btn === 'confirm') {
                     calendarRecord.getProxy().setUrl(me.deviceTypeId);
@@ -259,7 +266,20 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 view.resumeLayouts();
             }
         });
-    }
+    },
+
+    showPreview: function (selectionModel, record) {
+        var me = this,
+            preview = me.getPreview(),
+            previewForm = preview.down('devicetype-tou-preview-form');
+        preview.setTitle(Ext.String.htmlEncode(record.get('name')));
+        if(record.get('ghost') !== true) {
+            previewForm.fillFieldContainers(record.getCalendar());
+            preview.down('tou-devicetype-action-menu').record = record;
+        } else {
+            previewForm.showEmptyMessage();
+        }
+    },
 
 
 });

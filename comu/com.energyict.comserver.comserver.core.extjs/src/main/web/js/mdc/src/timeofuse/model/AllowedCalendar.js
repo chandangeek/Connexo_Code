@@ -26,6 +26,7 @@ Ext.define('Mdc.timeofuse.model.AllowedCalendar', {
             name: 'calendar',
             type: 'hasOne',
             model: 'Uni.model.timeofuse.Calendar',
+            getterName: 'getCalendar',
             associationKey: 'calendar',
             foreignKey: 'calendar',
             getTypeDiscriminator: function (node) {
