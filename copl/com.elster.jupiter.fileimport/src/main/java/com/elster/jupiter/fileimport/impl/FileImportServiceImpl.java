@@ -23,11 +23,12 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -39,6 +40,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -71,10 +73,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.fileimport",
-        service = {InstallService.class, FileImportService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {FileImportService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = {"name=" + FileImportService.COMPONENT_NAME},
         immediate = true)
-public class FileImportServiceImpl implements InstallService, FileImportService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
+public class FileImportServiceImpl implements FileImportService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(FileImportServiceImpl.class.getName());
     private static final String COMPONENTNAME = "FIS";
@@ -91,6 +93,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     private volatile UserService userService;
     private volatile QueryService queryService;
     private volatile FileSystem fileSystem;
+    private volatile UpgradeService upgradeService;
 
     private List<FileImporterFactory> importerFactories = new CopyOnWriteArrayList<>();
 
@@ -105,7 +108,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     }
 
     @Inject
-    public FileImportServiceImpl(OrmService ormService, MessageService messageService, EventService eventService, NlsService nlsService, QueryService queryService, Clock clock, UserService userService, JsonService jsonService, TransactionService transactionService, CronExpressionParser cronExpressionParser, FileSystem fileSystem) {
+    public FileImportServiceImpl(OrmService ormService, MessageService messageService, EventService eventService, NlsService nlsService, QueryService queryService, Clock clock, UserService userService, JsonService jsonService, TransactionService transactionService, CronExpressionParser cronExpressionParser, FileSystem fileSystem, UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setMessageService(messageService);
@@ -118,34 +121,19 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
         setTransactionService(transactionService);
         setScheduleExpressionParser(cronExpressionParser);
         setFileSystem(fileSystem);
+        setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
-
-    @Override
-    public void install() {
-        new InstallerImpl(dataModel, eventService).install();
-        createScheduler();
-    }
 
     private void createScheduler() {
-        if (dataModel.isInstalled()) {
-            try {
-                List<ImportSchedule> importSchedules = importScheduleFactory().find();
-                int poolSize = Math.max(1, (int) Math.log(importSchedules.size()));
-                cronExpressionScheduler = new CronExpressionScheduler(clock, poolSize);
-            } catch (RuntimeException e) {
-                MessageSeeds.FAILED_TO_START_IMPORT_SCHEDULES.log(LOGGER, thesaurus);
-            }
+        try {
+            List<ImportSchedule> importSchedules = importScheduleFactory().find();
+            int poolSize = Math.max(1, (int) Math.log(importSchedules.size()));
+            cronExpressionScheduler = new CronExpressionScheduler(clock, poolSize);
+        } catch (RuntimeException e) {
+            MessageSeeds.FAILED_TO_START_IMPORT_SCHEDULES.log(LOGGER, thesaurus);
         }
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS", "USR", "EVT");
     }
 
     @Reference
@@ -226,6 +214,11 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
         }
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     public void removeFileImporter(FileImporterFactory fileImporterFactory) {
         importerFactories.remove(fileImporterFactory);
     }
@@ -251,6 +244,9 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
                 bind(FileImportService.class).toInstance(FileImportServiceImpl.this);
             }
         });
+
+        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+
         createScheduler();
     }
 
@@ -354,7 +350,8 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     public FileImportOccurrenceFinderBuilder getFileImportOccurrenceFinderBuilder(String applicationName, Long importScheduleId) {
         Condition condition = Condition.TRUE;
         if (!"SYS".equalsIgnoreCase(applicationName)) {
-            condition = condition.and(Where.where("importSchedule.applicationName").isEqualToIgnoreCase(applicationName));
+            condition = condition.and(Where.where("importSchedule.applicationName")
+                    .isEqualToIgnoreCase(applicationName));
         }
         if (importScheduleId != null) {
             condition = condition.and(Where.where("importScheduleId").isEqualTo(importScheduleId));
@@ -364,7 +361,8 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
 
     @Override
     public Optional<FileImportOccurrence> getFileImportOccurrence(Long id) {
-        Optional<FileImportOccurrence> fileImportOccurence = dataModel.mapper(FileImportOccurrence.class).getOptional(id);
+        Optional<FileImportOccurrence> fileImportOccurence = dataModel.mapper(FileImportOccurrence.class)
+                .getOptional(id);
         fileImportOccurence.map(FileImportOccurrenceImpl.class::cast).ifPresent(fio -> fio.setClock(clock));
         return fileImportOccurence;
     }
