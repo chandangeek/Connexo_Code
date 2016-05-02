@@ -11,8 +11,8 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.impl.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
