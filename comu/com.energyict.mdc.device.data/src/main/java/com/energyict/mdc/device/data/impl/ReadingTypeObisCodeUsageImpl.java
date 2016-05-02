@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Objects;
 
-public class ReadingTypeObisCodeUsage {
+public class ReadingTypeObisCodeUsageImpl {
 
     @IsPresent
     private Reference<ReadingType> readingType = ValueReference.absent();
@@ -26,11 +26,11 @@ public class ReadingTypeObisCodeUsage {
     private Instant modTime;
 
     @Inject
-    ReadingTypeObisCodeUsage(DataModel dataModel) {
+    ReadingTypeObisCodeUsageImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    public ReadingTypeObisCodeUsage initialize(Device device, ReadingType readingType, ObisCode obisCode) {
+    public ReadingTypeObisCodeUsageImpl initialize(Device device, ReadingType readingType, ObisCode obisCode) {
         this.device.set(device);
         this.readingType.set(readingType);
         this.obisCode = obisCode;
@@ -61,7 +61,7 @@ public class ReadingTypeObisCodeUsage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ReadingTypeObisCodeUsage that = (ReadingTypeObisCodeUsage) o;
+        ReadingTypeObisCodeUsageImpl that = (ReadingTypeObisCodeUsageImpl) o;
         return this.getDevice().getId() == that.getDevice().getId() &&
                 this.getReadingType().getMRID().equalsIgnoreCase(that.getReadingType().getMRID());
     }
