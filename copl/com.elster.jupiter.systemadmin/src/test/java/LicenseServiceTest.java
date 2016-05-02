@@ -16,23 +16,17 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-
-import java.util.Optional;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -45,8 +39,15 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,7 +81,12 @@ public class LicenseServiceTest {
         injector = Guice.createInjector(inMemoryBootstrapModule, licenseModule,
                 new OrmModule(), new DataVaultModule(), new TransactionModule(), new PubSubModule(), new ThreadSecurityModule(),
                 new UtilModule(), new DomainUtilModule(), new UserModule(), new EventsModule(),
-                new InMemoryMessagingModule(), new NlsModule());
+                new InMemoryMessagingModule(), new NlsModule(), new AbstractModule() {
+                    @Override
+                    protected void configure() {
+                        bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+                    }
+                });
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             getLicenseService();
             getUserService();

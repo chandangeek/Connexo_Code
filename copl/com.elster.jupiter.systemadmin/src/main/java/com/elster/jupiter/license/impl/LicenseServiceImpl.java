@@ -12,11 +12,12 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -36,6 +37,7 @@ import java.security.SignedObject;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -49,23 +51,22 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/03/2014
- * Time: 16:28
- */
+import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
+
 @Component(
         name = "com.elster.jupiter.license",
-        service = {InstallService.class, LicenseService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {LicenseService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = {"name=" + LicenseService.COMPONENTNAME},
         immediate = true)
-public class LicenseServiceImpl implements LicenseService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
+public class LicenseServiceImpl implements LicenseService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile OrmService ormService;
     private volatile UserService userService;
     private volatile EventService eventService;
+    private volatile UpgradeService upgradeService;
 
     private BundleContext context;
     private Timer dailyCheck = new Timer("License check");
@@ -75,37 +76,14 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
     }
 
     @Inject
-    public LicenseServiceImpl(OrmService ormService, UserService userService, EventService eventService, NlsService nlsService) {
+    public LicenseServiceImpl(OrmService ormService, UserService userService, EventService eventService, NlsService nlsService, UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
         setUserService(userService);
         setEventService(eventService);
+        setUpgradeService(upgradeService);
         activate(null);
-        if (!dataModel.isInstalled()) {
-            install();
-        }
-    }
-
-    public void install() {
-        dataModel.install(true, false);
-        //createPrivileges();
-        createEventTypes();
-    }
-
-    private void createEventTypes() {
-        List<com.elster.jupiter.events.EventType> eventTypesForComponent = eventService.getEventTypesForComponent(LicenseService.COMPONENTNAME);
-        for (EventType eventType : EventType.values()) {
-            if (!eventTypesForComponent.stream().anyMatch(et -> et.getName().equals(eventType.name()))) {
-                eventType.install(eventService);
-            }
-        }
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "EVT", "NLS" +
-                "");
     }
 
     @Override
@@ -146,12 +124,19 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
         this.eventService = eventService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @Activate
     public void activate(BundleContext context) {
         dataModel.register(getModule());
 
         this.context = context;
         dailyCheck.scheduleAtFixedRate(new LicenseCheckTask(), 0, 24 * 60 * 60 * 1000);
+
+        upgradeService.register(identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Deactivate
@@ -162,7 +147,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
     }
 
     private void registerApps() {
-        if (dataModel.isInstalled()) {
+        if (upgradeService.isInstalled(identifier(COMPONENTNAME), version(1, 0))) {
             List<License> licenses = dataModel.mapper(License.class).find();
             for (License license : licenses) {
                 Dictionary<String, String> props = new Hashtable<>();
@@ -199,6 +184,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(EventService.class).toInstance(eventService);
                 bind(LicenseService.class).toInstance(LicenseServiceImpl.this);
             }
         };
