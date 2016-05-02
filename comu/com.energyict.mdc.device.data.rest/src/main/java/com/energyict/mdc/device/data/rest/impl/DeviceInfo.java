@@ -53,6 +53,8 @@ public class DeviceInfo extends DeviceVersionInfo {
     public Boolean hasLoadProfiles;
     public Boolean isDirectlyAddressed;
     public Boolean isGateway;
+    public Boolean isDataLogger;
+    public Boolean isDataLoggerSlave;
     public String serviceCategory;
     public String usagePoint;
     public DeviceEstimationStatusInfo estimationStatus;
@@ -71,7 +73,8 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.deviceTypeName = device.getDeviceType().getName();
         deviceInfo.deviceConfigurationId = deviceConfiguration.getId();
         deviceInfo.deviceConfigurationName = deviceConfiguration.getName();
-        deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId();
+        deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass()!=null
+            ? device.getDeviceType().getDeviceProtocolPluggableClass().getId() : 0;
         deviceInfo.yearOfCertification = device.getYearOfCertification();
         deviceInfo.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
 
@@ -90,6 +93,8 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
         deviceInfo.isDirectlyAddressed = deviceConfiguration.isDirectlyAddressable();
         deviceInfo.isGateway = deviceConfiguration.canActAsGateway();
+        deviceInfo.isDataLogger = deviceConfiguration.isDataloggerEnabled();
+        deviceInfo.isDataLoggerSlave = device.getDeviceType().isDataloggerSlave();
         Optional<? extends MeterActivation> meterActivation = device.getCurrentMeterActivation();
         if (meterActivation.isPresent()) {
             meterActivation.map(MeterActivation::getUsagePoint)

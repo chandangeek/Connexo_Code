@@ -33,6 +33,7 @@ public class ChannelInfo {
     public String flowUnit;
     public Integer nbrOfFractionDigits;
     public long loadProfileId;
+    public String loadProfileName;
     public long version;
     public VersionInfo<String> parent;
     public Boolean useMultiplier;
@@ -55,6 +56,7 @@ public class ChannelInfo {
         info.obisCode = channel.getObisCode();
         info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
         info.loadProfileId = channel.getLoadProfile().getId();
+        info.loadProfileName = channel.getLoadProfile().getLoadProfileSpec().getLoadProfileType().getName();
         info.version = channel.getLoadProfile().getVersion();
         Device device = channel.getDevice();
         info.useMultiplier = channel.getChannelSpec().isUseMultiplier();
