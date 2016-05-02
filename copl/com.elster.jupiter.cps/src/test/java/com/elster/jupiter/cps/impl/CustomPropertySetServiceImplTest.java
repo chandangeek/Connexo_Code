@@ -26,18 +26,15 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -53,6 +50,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -62,7 +65,11 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.startsWith;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link CustomPropertySetServiceImpl} component.
@@ -136,6 +143,8 @@ public class CustomPropertySetServiceImplTest {
     private RegisteredCustomPropertySet registeredCustomPropertySet;
     @Mock
     private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private UpgradeService upgradeService;
 
     @Before
     public void initializeMocks() {
@@ -217,12 +226,6 @@ public class CustomPropertySetServiceImplTest {
     }
 
     @Test
-    public void getPrerequisiteModulesDoesNotReturnNull() {
-        // Business method @ assert
-        assertThat(this.testInstance().getPrerequisiteModules()).isNotNull();
-    }
-
-    @Test
     public void getKeysDoesNotReturnNull() {
         // Business method @ assert
         assertThat(this.testInstance().getKeys()).isNotNull();
@@ -294,6 +297,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setNlsService(this.nlsService);
         testInstance.setTransactionService(this.transactionService);
         testInstance.addCustomPropertySet(this.customPropertySet);
+        testInstance.setUpgradeService(upgradeService);
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, testInstance));
         when(this.customPropertySet.getId()).thenReturn("addNonVersionedCustomPropertySetBeforeActivation");
@@ -368,6 +372,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setNlsService(this.nlsService);
         testInstance.setTransactionService(this.transactionService);
         testInstance.addCustomPropertySet(this.versionedCustomPropertySet);
+        testInstance.setUpgradeService(upgradeService);
         when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, testInstance));
 
         // Busines method
@@ -419,6 +424,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setOrmService(this.ormService, false);
         testInstance.setNlsService(this.nlsService);
         testInstance.setTransactionService(this.transactionService);
+        testInstance.setUpgradeService(upgradeService);
         when(this.customPropertySet.getId()).thenReturn("addCustomPropertySetsWhileActivating-nonversioned");
         when(this.versionedCustomPropertySet.getId()).thenReturn("addCustomPropertySetsWhileActivating-versioned");
         when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, testInstance));
@@ -1011,6 +1017,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setNlsService(this.nlsService);
         testInstance.setUserService(this.userService);
         testInstance.setTransactionService(this.transactionService);
+        testInstance.setUpgradeService(upgradeService);
         testInstance.activate();
         return testInstance;
     }

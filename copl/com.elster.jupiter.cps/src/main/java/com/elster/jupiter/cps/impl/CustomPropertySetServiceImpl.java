@@ -27,6 +27,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -49,6 +51,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -66,7 +69,7 @@ import java.util.stream.Stream;
  * @since 2015-08-10 (13:35)
  */
 @Component(name = "com.elster.jupiter.cps", service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + CustomPropertySetService.COMPONENT_NAME)
-public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, InstallService, TranslationKeyProvider, PrivilegesProvider {
+public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, TranslationKeyProvider, PrivilegesProvider {
 
     private static final Logger LOGGER = Logger.getLogger(CustomPropertySetServiceImpl.class.getName());
 
@@ -76,6 +79,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private volatile boolean installed = false;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
+    private volatile UpgradeService upgradeService;
+
     /**
      * Holds the {@link CustomPropertySet}s that were published on the whiteboard
      * and if they were published by the system or not.
@@ -95,14 +100,14 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     // For testing purposes
     @Inject
-    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, UserService userService) {
+    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, UserService userService, UpgradeService upgradeService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setTransactionService(transactionService);
         this.setUserService(userService);
+        this.setUpgradeService(upgradeService);
         this.activate();
-        this.install();
     }
 
     @SuppressWarnings("unused")
@@ -158,6 +163,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.userService = userService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -175,7 +185,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        this.installed = this.dataModel.isInstalled();
+        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        this.installed = true;
         this.registerAllCustomPropertySets();
     }
 
@@ -216,19 +227,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         else {
             LOGGER.fine("No custom property sets have registered yet, makes no sense to attempt to register them all right ;-)");
         }
-    }
-
-    @Override
-    public void install() {
-        if (!dataModel.isInstalled()) {
-            new Installer(this.dataModel).install(true);
-            this.installed = this.dataModel.isInstalled();
-        }
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "EVT", "NLS");
     }
 
     @Override

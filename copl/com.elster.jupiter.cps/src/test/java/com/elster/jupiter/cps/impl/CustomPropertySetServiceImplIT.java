@@ -25,6 +25,8 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -32,14 +34,11 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+
 import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -57,6 +56,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -141,6 +145,7 @@ public class CustomPropertySetServiceImplIT {
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -337,6 +342,7 @@ public class CustomPropertySetServiceImplIT {
         service.setOrmService(ormService, true);
         service.setNlsService(this.injector.getInstance(NlsService.class));
         service.setTransactionService(this.transactionService);
+        service.setUpgradeService(UpgradeModule.FakeUpgradeService.getInstance());
 
         /* Create 3 threads that will wait on CountdownLatch to start simultaneously
          *    1. activate the service

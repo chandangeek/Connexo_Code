@@ -70,7 +70,7 @@ public class TestDomain {
             .on(id)
             .add();
         dataModel.register();
-        dataModel.install(true, true);
+        dataModel.install(true, false);
         return dataModel;
     }
 
