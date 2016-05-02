@@ -490,6 +490,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
+    public void removeCalendar(long allowedCalendarId) {
+        Optional<AllowedCalendar> allowedCalendar = allowedCalendars.stream()
+                .filter(cal -> cal.getCalendar().get().getId() == allowedCalendarId)
+                .findFirst();
+        allowedCalendar.ifPresent(calendar -> allowedCalendars.remove(calendar));
+    }
+
+    @Override
     public boolean isTimeOfUseAllowed() {
         return timeOfUseAllowed;
     }

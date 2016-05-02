@@ -16,6 +16,7 @@ import java.util.Optional;
 
 public class AllowedCalendarImpl implements AllowedCalendar {
     public enum Fields {
+        ID("id"),
         DEVICETYPE("deviceType"),
         CALENDAR("calendar"),
         NAME("name");
@@ -31,6 +32,7 @@ public class AllowedCalendarImpl implements AllowedCalendar {
         }
     }
 
+    private long id;
     @IsPresent
     private Reference<DeviceType> deviceType = ValueReference.absent();
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -52,7 +54,7 @@ public class AllowedCalendarImpl implements AllowedCalendar {
 
     @Override
     public boolean isGhost() {
-        return false;
+        return !calendar.isPresent();
     }
 
     @Override
@@ -64,6 +66,11 @@ public class AllowedCalendarImpl implements AllowedCalendar {
                     .get()
                     .getName();
         }
+    }
+
+    @Override
+    public long getId() {
+        return id;
     }
 
     @Override

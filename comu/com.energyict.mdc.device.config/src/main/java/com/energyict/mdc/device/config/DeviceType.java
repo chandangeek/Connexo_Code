@@ -131,6 +131,8 @@ public interface DeviceType extends HasId, HasName {
 
     void addCalendar(Calendar calendar);
 
+    void removeCalendar(long allowedCalendarId);
+
     public boolean isTimeOfUseAllowed();
 
     public void setTimeOfUseAllowed(boolean timeOfUseAllowed);

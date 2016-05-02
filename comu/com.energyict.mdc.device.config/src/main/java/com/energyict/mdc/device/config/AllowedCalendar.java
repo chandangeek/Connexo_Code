@@ -21,6 +21,8 @@ public interface AllowedCalendar {
      */
     String getName();
 
+    long getId();
+
     Optional<Calendar> getCalendar();
 
 }

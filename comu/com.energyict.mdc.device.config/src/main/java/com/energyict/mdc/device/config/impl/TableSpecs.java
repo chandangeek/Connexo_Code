@@ -1028,10 +1028,11 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<AllowedCalendar> table = dataModel.addTable(name(), AllowedCalendar.class);
             table.map(AllowedCalendarImpl.class);
+            Column id = table.addAutoIdColumn();
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
-            Column calendar = table.column("CALENDAR").number().notNull().add();
+            Column calendar = table.column("CALENDAR").number().add();
             table.column("NAME").varChar().map(AllowedCalendarImpl.Fields.NAME.fieldName()).add();
-            table.primaryKey("PK_DTC_CALUSAGE").on(deviceType,calendar).add();
+            table.primaryKey("PK_DTC_CALUSAGE").on(id).add();
             table.foreignKey("FK_DTC_CALDEVICETYPE")
                     .references(DTC_DEVICETYPE.name())
                     .on(deviceType)
