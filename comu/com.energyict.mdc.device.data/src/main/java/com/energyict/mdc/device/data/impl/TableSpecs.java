@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.kpi.Kpi;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -93,6 +94,7 @@ public enum TableSpecs {
             table.column("CERTIF_YEAR").number().map("yearOfCertification").conversion(ColumnConversion.NUMBER2INT).add();
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
+            Column meterId = table.column("METERID").number().add();
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                     on(configuration).
                     references(DeviceConfiguration.class).
@@ -103,6 +105,12 @@ public enum TableSpecs {
                     references(DeviceType.class).
                     map(DeviceFields.DEVICETYPE.fieldName()).
                     add();
+            table.foreignKey("FK_DDC_DEVICE_ENDDEVICE")
+                    .on(meterId)
+                    .references(EndDevice.class)
+                    .map(DeviceFields.METER.fieldName())
+                    .add();
+
             table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
         }

@@ -262,7 +262,7 @@ public class DeviceValidationImpl implements DeviceValidation {
 
     private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(ReadingType readingType, Instant when) {
         return fetchKoreMeter().getMeterActivations().stream()
-                .filter(m -> m.getRange().contains(when)) // TODO verify with Karel
+                .filter(m -> m.getRange().contains(when))
                 .flatMap(m -> m.getChannels().stream())
                 .filter(c -> c.getReadingTypes().contains(readingType))
                 .findFirst();
@@ -314,7 +314,11 @@ public class DeviceValidationImpl implements DeviceValidation {
 
     private Meter fetchKoreMeter() {
         if (meter == null) {
-            meter = device.findOrCreateKoreMeter(amrSystem);
+            if (device.getMeter().isPresent()){
+                meter = device.getMeter().get();
+            }else{
+                throw new UnsupportedOperationException("No Kore Meter for device " + device.getId());
+            }
         }
         return meter;
     }

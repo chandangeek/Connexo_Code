@@ -8,6 +8,8 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+
+import java.time.Instant;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,7 +32,7 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     private Device createSimpleDeviceWithName(String name) {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, ""+name.hashCode());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, ""+name.hashCode(), Instant.now());
         device.save();
         return device;
     }

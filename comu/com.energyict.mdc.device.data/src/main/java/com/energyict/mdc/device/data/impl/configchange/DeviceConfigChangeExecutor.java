@@ -35,7 +35,6 @@ public final class DeviceConfigChangeExecutor {
                 ComTaskExecutionConfigChangeItem.getInstance(),
                 ProtocolDialectPropertyChangeItem.getInstance())
                 .forEach(performDataSourceChanges(device, destinationDeviceConfiguration, originDeviceConfiguration));
-        device.updateMeterConfiguration(configChangeTimeStamp);
         device.save();
         return device;
     }
@@ -59,7 +58,6 @@ public final class DeviceConfigChangeExecutor {
     private void prepareForChangeDeviceConfig(ServerDeviceForConfigChange device, DeviceConfiguration destinationDeviceConfiguration, Instant configChangeTimeStamp) {
         this.deviceService.findAndLockDeviceByIdAndVersion(device.getId(), device.getVersion());
         device.validateDeviceCanChangeConfig(destinationDeviceConfiguration);
-        device.createNewMeterActivation(configChangeTimeStamp);
     }
 
 }

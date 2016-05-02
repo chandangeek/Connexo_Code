@@ -102,6 +102,8 @@ public class DeviceImplSecurityPropertiesTest {
     private Meter meter;
     @Mock
     private LifecycleDates lifeCycleDates;
+    @Mock
+    private MultiplierType multiplierType;
 
 
     @Before
@@ -114,6 +116,8 @@ public class DeviceImplSecurityPropertiesTest {
         when(meter.getLifecycleDates()).thenReturn(lifeCycleDates);
         mockDataModelWithNoValidationIssues();
         when(meteringService.findAmrSystem(anyLong())).thenReturn(Optional.of(amrSystem));
+        when(meteringService.getMultiplierType("Default")).thenReturn(Optional.of(multiplierType));
+        when(multiplierType.getName()).thenReturn("Default");
         when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
     }
 
@@ -215,7 +219,7 @@ public class DeviceImplSecurityPropertiesTest {
                 this.scheduledConnectionTaskProvider, this.inboundConnectionTaskProvider, this.connectionInitiationTaskProvider,
                 this.scheduledComTaskExecutionProvider, this.manuallyScheduledComTaskExecutionProvider,
                 this.firmwareComTaskExecutionProvider, this.meteringGroupsService, customPropertySetService, readingTypeUtilService);
-        device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services");
+        device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services", null);
         return device;
     }
 
