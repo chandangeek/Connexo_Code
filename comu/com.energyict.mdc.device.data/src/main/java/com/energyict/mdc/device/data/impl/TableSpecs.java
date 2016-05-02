@@ -26,6 +26,7 @@ import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
@@ -764,8 +765,8 @@ public enum TableSpecs {
     DDC_OVERRULEDOBISCODE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<ReadingTypeObisCodeUsageImpl> table = dataModel.addTable(name(), ReadingTypeObisCodeUsageImpl.class);
-            table.map(ReadingTypeObisCodeUsageImpl.class);
+            Table<ReadingTypeObisCodeUsage> table = dataModel.addTable(name(), ReadingTypeObisCodeUsage.class);
+            table.map(ReadingTypeObisCodeUsage.class);
             Column readingType = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
             Column device = table.column("DEVICEID").number().notNull().add();
             table.column("OBISCODE").varChar(NAME_LENGTH).notNull().map("obisCode").add();
