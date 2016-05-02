@@ -30,6 +30,13 @@ public class ReadingTypeObisCodeUsage {
         this.dataModel = dataModel;
     }
 
+    public ReadingTypeObisCodeUsage initialize(Device device, ReadingType readingType, ObisCode obisCode) {
+        this.device.set(device);
+        this.readingType.set(readingType);
+        this.obisCode = obisCode;
+        return this;
+    }
+
     public ReadingType getReadingType() {
         return readingType.get();
     }
@@ -40,11 +47,6 @@ public class ReadingTypeObisCodeUsage {
 
     public void update() {
         dataModel.update(this);
-    }
-
-    public void setObisCode(ObisCode obisCode) {
-        this.obisCode = obisCode;
-        update();
     }
 
     public ObisCode getObisCode() {

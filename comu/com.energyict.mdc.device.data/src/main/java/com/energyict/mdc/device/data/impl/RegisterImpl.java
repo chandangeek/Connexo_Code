@@ -156,6 +156,10 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
 
     @Override
     public ObisCode getDeviceObisCode() {
+        Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = getDevice().getReadingTypeObisCodeUsage(getReadingType());
+        if (readingTypeObisCodeUsageOptional.isPresent()) {
+            return readingTypeObisCodeUsageOptional.get().getObisCode();
+        }
         return getRegisterSpec().getDeviceObisCode();
     }
 

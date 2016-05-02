@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -15,6 +16,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -26,6 +28,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.impl.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -440,6 +443,14 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @since 2.0
      */
     CIMLifecycleDates getLifecycleDates();
+
+    List<ObisCode> getOverruledObisCodes();
+
+    Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType);
+
+    void addReadingTypeObisCodeUsage(ReadingType readingType, ObisCode obisCode);
+
+    void removeReadingTypeObisCodeUsage(ReadingType readingType);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
