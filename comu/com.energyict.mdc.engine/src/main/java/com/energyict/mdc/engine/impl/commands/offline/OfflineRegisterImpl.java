@@ -98,7 +98,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
      */
     private void goOffline() {
         this.registerId = (int) this.register.getRegisterSpec().getId();
-        this.deviceRegisterObisCode = this.register.getRegisterSpec().getDeviceObisCode();
+        this.deviceRegisterObisCode = this.register.getDeviceObisCode();
         this.amrRegisterObisCode = this.register.getRegisterSpec().getObisCode();
         this.registerUnit = this.register.getRegisterSpec().getRegisterType().getUnit();
 
