@@ -542,7 +542,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
     editRegister: function(deviceMRID, registerIdAsString) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
         me.mRID = deviceMRID;
