@@ -186,7 +186,7 @@ class ReadingTypeDeliverableForMeterActivation {
                     "Statement for deliverable " + this.deliverable.getName() + " in meter activation " + this.meterActivation.getRange() +
                     " requires time based aggregation because raw data interval length is " + this.expressionReadingType.getIntervalLength() +
                     " and target interval length is " + this.targetReadingType.getIntervalLength());
-            sqlBuilder.append(this.defaultValueAggregationFunctionFor(this.targetReadingType).sqlName());
+            sqlBuilder.append(this.targetReadingType.aggregationFunction().sqlName());
             sqlBuilder.append("(");
             sqlBuilder.append(
                     this.expressionReadingType.buildSqlUnitConversion(
@@ -205,10 +205,6 @@ class ReadingTypeDeliverableForMeterActivation {
                 this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
             }
         }
-    }
-
-    private AggregationFunction defaultValueAggregationFunctionFor(VirtualReadingType readingType) {
-        return readingType.aggregationFunction();
     }
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
@@ -281,7 +277,19 @@ class ReadingTypeDeliverableForMeterActivation {
     private boolean resultValueNeedsTimeBasedAggregation() {
         return !this.expressionReadingType.isDontCare()
             && Formula.Mode.AUTO.equals(this.mode)
-            && this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength();
+            && (   this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength()
+                || this.unitConversionNodeRequiresTimeBasedAggregation());
+    }
+
+    private boolean unitConversionNodeRequiresTimeBasedAggregation() {
+        Flatten flatteningVisitor = new Flatten();
+        this.expressionNode.accept(flatteningVisitor);
+        return flatteningVisitor
+                .getFlattened()
+                .stream()
+                .filter(node -> node instanceof UnitConversionNode)
+                .map(UnitConversionNode.class::cast)
+                .anyMatch(node -> !node.getSourceReadingType().getIntervalLength().equals(node.getTargetReadingType().getIntervalLength()));
     }
 
     private boolean expertModeAppliesAggregation() {

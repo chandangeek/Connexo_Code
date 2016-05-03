@@ -523,8 +523,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT -1, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp,.*");
             // Assert that the min temperature requirements' value is not converted
-            assertThat(this.deliverableWithClauseBuilder.getText())
-                    .matches("SELECT.*\\(rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.value\\s*\\+\\s*\\(.*");
+            assertThat(this.deliverableWithClauseBuilder.getText().replace(" ", ""))    // avoid having to add \\s* to ignore all spaces
+                    .matches("SELECT.*\\(\\(rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.value\\+rid" + temperature2RequirementId + "_" + deliverableId + "_1\\.value\\)/\\?\\).*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the max temperature requirements' value is coverted to Celcius
             assertThat(this.deliverableWithClauseBuilder.getText())

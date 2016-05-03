@@ -152,14 +152,14 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      * @param period The requested period in time
      */
     private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
-        ServerExpressionNode virtualizedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation, virtualFactory, deliverablesPerMeterActivation, deliverable.getFormula().getMode());
+        ServerExpressionNode copied = this.copy(deliverable, meterActivation, virtualFactory, deliverablesPerMeterActivation, deliverable.getFormula().getMode());
         VirtualReadingType readingType;
         if (Formula.Mode.AUTO.equals(deliverable.getFormula().getMode())) {
-            readingType = this.inferReadingType(deliverable, virtualizedExpression);
+            readingType = this.inferReadingType(deliverable, copied);
         } else {
             readingType = VirtualReadingType.from(deliverable.getReadingType());
         }
-        ServerExpressionNode withMultipliers = virtualizedExpression.accept(new ApplyCurrentAndOrVoltageTransformer(this.meteringService, meterActivation));
+        ServerExpressionNode withMultipliers = copied.accept(new ApplyCurrentAndOrVoltageTransformer(this.meteringService, meterActivation));
         deliverablesPerMeterActivation
                 .get(meterActivation)
                 .add(this.readingTypeDeliverableForMeterActivationFactory
@@ -174,16 +174,14 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     }
 
     /**
-     * Copies the formula of the {@link ReadingTypeDeliverable} and replaces
-     * references to requirements and deliverables with virtual references
-     * as described by {@link Copy}.
+     * Copies the formula of the {@link ReadingTypeDeliverable} as described by {@link Copy}.
      *
      * @param deliverable The ReadingTypeDeliverable
      * @param meterActivation The MeterActivation
      * @param deliverablesPerMeterActivation The Map that provides a {@link ReadingTypeDeliverableForMeterActivation} for each {@link MeterActivation}
      *@param mode The mode  @return The copied formula with virtual requirements and deliverables
      */
-    private ServerExpressionNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation, Formula.Mode mode) {
+    private ServerExpressionNode copy(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation, Formula.Mode mode) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
         Copy visitor =
                 new Copy(

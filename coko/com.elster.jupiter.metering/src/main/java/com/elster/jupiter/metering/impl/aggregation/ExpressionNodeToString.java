@@ -46,9 +46,10 @@ public class ExpressionNodeToString implements ServerExpressionNode.Visitor<Stri
 
     @Override
     public String visitUnitConversion(UnitConversionNode unitConversionNode) {
+        VirtualReadingType sourceReadingType = unitConversionNode.getSourceReadingType();
         this.unitConversionActive = true;
-        VirtualReadingType sourceReadingType = unitConversionNode.getExpressionNode().accept(new GetTargetReadingType(unitConversionNode.getTargetReadingType()));
         String expression = unitConversionNode.getExpressionNode().accept(this);
+        this.unitConversionActive = false;
         return sourceReadingType.buildSqlUnitConversion(this.mode, expression, unitConversionNode.getTargetReadingType());
     }
 

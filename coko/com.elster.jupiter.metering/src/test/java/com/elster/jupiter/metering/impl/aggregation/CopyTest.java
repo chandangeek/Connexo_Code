@@ -5,12 +5,14 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -29,11 +31,13 @@ import com.elster.jupiter.util.units.Dimension;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -90,6 +94,7 @@ public class CopyTest {
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService);
+        when(this.meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
     }
 
     @Test
@@ -294,9 +299,13 @@ public class CopyTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
         ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
-        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
         Dimension dimension = readingType.getUnit().getUnit().getDimension();
         when(requirement.getDimension()).thenReturn(dimension);
+        when(requirement.getReadingType()).thenReturn(readingType);
+        Channel channel = mock(Channel.class);
+        when(channel.getMainReadingType()).thenReturn(readingType);
+        when(requirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(channel));
         ExpressionNode formulaPart =
                 formulaBuilder.plus(
                     formulaBuilder.requirement(requirement),
@@ -320,13 +329,12 @@ public class CopyTest {
 
         // Asserts
         assertThat(copied).isNotNull();
-        assertThat(copied).isInstanceOf(UnitConversionNode.class);
-        UnitConversionNode unitConversionNode = (UnitConversionNode) copied;
-        OperationNode copiedOperationNode = (OperationNode) unitConversionNode.getExpressionNode();
-        assertThat(copiedOperationNode.getOperator()).isEqualTo(Operator.PLUS);
-        ServerExpressionNode leftOperand = copiedOperationNode.getLeftOperand();
+        assertThat(copied).isInstanceOf(OperationNode.class);
+        OperationNode operationNode = (OperationNode) copied;
+        assertThat(operationNode.getOperator()).isEqualTo(Operator.PLUS);
+        ServerExpressionNode leftOperand = operationNode.getLeftOperand();
         assertThat(leftOperand).isInstanceOf(VirtualRequirementNode.class);
-        ServerExpressionNode rightOperand = copiedOperationNode.getRightOperand();
+        ServerExpressionNode rightOperand = operationNode.getRightOperand();
         assertThat(rightOperand).isInstanceOf(com.elster.jupiter.metering.impl.aggregation.FunctionCallNode.class);
         com.elster.jupiter.metering.impl.aggregation.FunctionCallNode functionCallNode = (com.elster.jupiter.metering.impl.aggregation.FunctionCallNode) rightOperand;
         List<ServerExpressionNode> maxFunctionArguments = functionCallNode.getArguments();
@@ -462,7 +470,9 @@ public class CopyTest {
         Copy visitor = getTestInstance();
         ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        when(requirement1.getDimension()).thenReturn(Dimension.ENERGY);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        when(requirement2.getDimension()).thenReturn(Dimension.ENERGY);
         ExpressionNode node =
                 formulaBuilder.safeDivide(
                         formulaBuilder.requirement(requirement1),
@@ -485,10 +495,29 @@ public class CopyTest {
     public void copyCurrentTimesVolt() {
         Copy visitor = getTestInstance();
         ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
-        ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        ReadingType ampereReadingType = mock(ReadingType.class);
+        when(ampereReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(ampereReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(ampereReadingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
+        when(ampereReadingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        FullySpecifiedReadingTypeRequirement requirement1 = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement1.getDimension()).thenReturn(ReadingTypeUnit.AMPERE.getUnit().getDimension());
-        ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        when(requirement1.getReadingType()).thenReturn(ampereReadingType);
+        Channel chn1 = mock(Channel.class);
+        when(chn1.getMainReadingType()).thenReturn(ampereReadingType);
+        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn1));
+
+        ReadingType voltReadingType = mock(ReadingType.class);
+        when(voltReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(voltReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(voltReadingType.getUnit()).thenReturn(ReadingTypeUnit.VOLT);
+        when(voltReadingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        FullySpecifiedReadingTypeRequirement requirement2 = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement2.getDimension()).thenReturn(ReadingTypeUnit.VOLT.getUnit().getDimension());
+        when(requirement2.getReadingType()).thenReturn(voltReadingType);
+        Channel chn2 = mock(Channel.class);
+        when(chn2.getMainReadingType()).thenReturn(voltReadingType);
+        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn2));
         ExpressionNode node =
                 formulaBuilder.multiply(
                         formulaBuilder.requirement(requirement1),
@@ -509,10 +538,29 @@ public class CopyTest {
     public void copyCurrentTimesVoltPlusCurrentTimesVolt() {
         Copy visitor = getTestInstance();
         ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
-        ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        ReadingType ampereReadingType = mock(ReadingType.class);
+        when(ampereReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(ampereReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(ampereReadingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
+        when(ampereReadingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        FullySpecifiedReadingTypeRequirement requirement1 = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement1.getDimension()).thenReturn(ReadingTypeUnit.AMPERE.getUnit().getDimension());
-        ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        when(requirement1.getReadingType()).thenReturn(ampereReadingType);
+        Channel chn1 = mock(Channel.class);
+        when(chn1.getMainReadingType()).thenReturn(ampereReadingType);
+        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn1));
+
+        ReadingType voltReadingType = mock(ReadingType.class);
+        when(voltReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(voltReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(voltReadingType.getUnit()).thenReturn(ReadingTypeUnit.VOLT);
+        when(voltReadingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        Channel chn2 = mock(Channel.class);
+        when(chn2.getMainReadingType()).thenReturn(voltReadingType);
+        FullySpecifiedReadingTypeRequirement requirement2 = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement2.getDimension()).thenReturn(ReadingTypeUnit.VOLT.getUnit().getDimension());
+        when(requirement2.getReadingType()).thenReturn(voltReadingType);
+        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn2));
         ExpressionNode node =
                 formulaBuilder.plus(
                     formulaBuilder.multiply(
@@ -528,18 +576,45 @@ public class CopyTest {
         // Asserts
         assertThat(copied).isNotNull();
         assertThat(copied).isInstanceOf(OperationNode.class);
-        OperationNode copiedNode = (OperationNode) copied;
-        assertThat(copiedNode.getOperator()).isEqualTo(Operator.PLUS);
+        OperationNode plus = (OperationNode) copied;
+        assertThat(plus.getOperator()).isEqualTo(Operator.PLUS);
+        assertThat(plus.getLeftOperand()).isInstanceOf(UnitConversionNode.class);
+        UnitConversionNode leftUnitConversionNode = (UnitConversionNode) plus.getLeftOperand();
+        assertThat(leftUnitConversionNode.getExpressionNode()).isInstanceOf(OperationNode.class);
+        OperationNode leftOperationNode = (OperationNode) leftUnitConversionNode.getExpressionNode();
+        assertThat(leftOperationNode.getOperator()).isEqualTo(Operator.MULTIPLY);
+        assertThat(plus.getRightOperand()).isInstanceOf(UnitConversionNode.class);
+        UnitConversionNode rightUnitConversionNode = (UnitConversionNode) plus.getRightOperand();
+        assertThat(rightUnitConversionNode.getExpressionNode()).isInstanceOf(OperationNode.class);
+        OperationNode rightOperationNode = (OperationNode) rightUnitConversionNode.getExpressionNode();
+        assertThat(rightOperationNode.getOperator()).isEqualTo(Operator.MULTIPLY);
     }
 
     @Test
     public void copyCurrentTimesVoltPlusAConstant() {
         Copy visitor = getTestInstance();
         ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
-        ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        ReadingType ampereReadingType = mock(ReadingType.class);
+        when(ampereReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(ampereReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(ampereReadingType.getUnit()).thenReturn(ReadingTypeUnit.VOLT);
+        when(ampereReadingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        FullySpecifiedReadingTypeRequirement requirement1 = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement1.getDimension()).thenReturn(ReadingTypeUnit.AMPERE.getUnit().getDimension());
-        ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        Channel chn1 = mock(Channel.class);
+        when(chn1.getMainReadingType()).thenReturn(ampereReadingType);
+        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn1));
+
+        ReadingType voltReadingType = mock(ReadingType.class);
+        when(voltReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(voltReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(voltReadingType.getUnit()).thenReturn(ReadingTypeUnit.VOLT);
+        when(voltReadingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        FullySpecifiedReadingTypeRequirement requirement2 = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement2.getDimension()).thenReturn(ReadingTypeUnit.VOLT.getUnit().getDimension());
+        Channel chn2 = mock(Channel.class);
+        when(chn2.getMainReadingType()).thenReturn(voltReadingType);
+        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn2));
         ExpressionNode node =
                 formulaBuilder.plus(
                     formulaBuilder.multiply(
@@ -553,8 +628,64 @@ public class CopyTest {
         // Asserts
         assertThat(copied).isNotNull();
         assertThat(copied).isInstanceOf(OperationNode.class);
-        OperationNode copiedNode = (OperationNode) copied;
-        assertThat(copiedNode.getOperator()).isEqualTo(Operator.PLUS);
+        OperationNode plus = (OperationNode) copied;
+        assertThat(plus.getOperator()).isEqualTo(Operator.PLUS);
+        assertThat(plus.getLeftOperand()).isInstanceOf(UnitConversionNode.class);
+        UnitConversionNode leftUnitConversionNode = (UnitConversionNode) plus.getLeftOperand();
+        assertThat(leftUnitConversionNode.getExpressionNode()).isInstanceOf(OperationNode.class);
+        OperationNode leftOperationNode = (OperationNode) leftUnitConversionNode.getExpressionNode();
+        assertThat(leftOperationNode.getOperator()).isEqualTo(Operator.MULTIPLY);
+        assertThat(plus.getRightOperand()).isInstanceOf(NumericalConstantNode.class);
+        NumericalConstantNode constantNode = (NumericalConstantNode) plus.getRightOperand();
+        assertThat(constantNode.getValue()).isEqualTo(BigDecimal.TEN);
+    }
+
+    @Ignore
+    @Test
+    public void copyPressureTimesVolumeDividedByTemperature() {
+        Copy visitor = getTestInstance();
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
+        ReadingType pressureReadingType = mock(ReadingType.class);
+        when(pressureReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(pressureReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(pressureReadingType.getUnit()).thenReturn(ReadingTypeUnit.PASCAL);
+        when(pressureReadingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        Channel pressureChannel = mock(Channel.class);
+        when(pressureChannel.getMainReadingType()).thenReturn(pressureReadingType);
+        FullySpecifiedReadingTypeRequirement pressure = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(pressure.getDimension()).thenReturn(Dimension.PRESSURE);
+        when(pressure.getReadingType()).thenReturn(pressureReadingType);
+        when(pressure.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(pressureChannel));
+
+        ReadingType volumeReadingType = mock(ReadingType.class);
+        when(volumeReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(volumeReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(volumeReadingType.getUnit()).thenReturn(ReadingTypeUnit.CUBICMETER);
+        when(volumeReadingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        Channel volumeChannel = mock(Channel.class);
+        when(volumeChannel.getMainReadingType()).thenReturn(volumeReadingType);
+        FullySpecifiedReadingTypeRequirement volume = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(volume.getDimension()).thenReturn(Dimension.VOLUME);
+        when(volume.getReadingType()).thenReturn(volumeReadingType);
+        when(volume.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(volumeChannel));
+
+        FullySpecifiedReadingTypeRequirement temperature = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(temperature.getDimension()).thenReturn(Dimension.TEMPERATURE);
+        ExpressionNode node =
+                formulaBuilder.divide(
+                    formulaBuilder.multiply(
+                            formulaBuilder.requirement(pressure),
+                            formulaBuilder.requirement(volume)),
+                    formulaBuilder.requirement(temperature)).create();
+
+        // Business method
+        ServerExpressionNode copied = node.accept(visitor);
+
+        // Asserts
+        assertThat(copied).isNotNull();
+        assertThat(copied).isInstanceOf(OperationNode.class);
+        OperationNode operationNode = (OperationNode) copied;
+        assertThat(operationNode.getOperator()).isEqualTo(Operator.DIVIDE);
     }
 
     private Copy getTestInstance() {

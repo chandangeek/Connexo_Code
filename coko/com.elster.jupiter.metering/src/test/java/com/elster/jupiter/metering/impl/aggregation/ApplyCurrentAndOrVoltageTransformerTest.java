@@ -92,9 +92,9 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     }
 
     @Test
-    public void noReplacementOfVariableReferences() {
+    public void noReplacementOfSqlFragement() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
-        SqlFragmentNode node = new SqlFragmentNode("noReplacementOfVariableReferences");
+        SqlFragmentNode node = new SqlFragmentNode("noReplacementOfSqlFragement");
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitSqlFragment(node);

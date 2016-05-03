@@ -57,9 +57,9 @@ public class JoinClausesForExpressionNodeTest {
     }
 
     @Test
-    public void variableReferenceNodesDoNotProvideJoinClauseInformation() {
+    public void sqlFragementNodesDoNotProvideJoinClauseInformation() {
         JoinClausesForExpressionNode testInstance = this.testInstance();
-        ServerExpressionNode node = new SqlFragmentNode("varName");
+        ServerExpressionNode node = new SqlFragmentNode("sequence.nextval");
 
         // Business method
         node.accept(testInstance);

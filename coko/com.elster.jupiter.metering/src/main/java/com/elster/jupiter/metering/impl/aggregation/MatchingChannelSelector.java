@@ -90,7 +90,29 @@ class MatchingChannelSelector {
          * return first.getIntervalLength().isMultipleOf(second.getIntervalLength()) || first.getIntervalLength().multipliesTo(second.getIntervalLength());
          */
         return first.getIntervalLength().multipliesTo(second.getIntervalLength())
-            && UnitConversionSupport.areCompatibleForAutomaticUnitConversion(first.getUnit(), second.getUnit());
+                && UnitConversionSupport.areCompatibleForAutomaticUnitConversion(first.getUnit(), second.getUnit());
+    }
+
+    /**
+     * Tests if the specified {@link VirtualReadingType} is supported
+     * in a {@link UnitConversionNode} to extract data
+     * for the {@link ReadingTypeRequirement} from the {@link MeterActivation}.
+     *
+     * @param readingType The VirtualReadingType
+     * @return A flag that indicates if the VirtualReadingType is supported
+     */
+    boolean isReadingTypeSupportedInUnitConversion(VirtualReadingType readingType) {
+        return this.matchingChannels
+                .stream()
+                .map(Channel::getMainReadingType)
+                .map(VirtualReadingType::from)
+                .anyMatch(each -> this.areCompatibleInUnitConversion(each, readingType));
+    }
+
+    private boolean areCompatibleInUnitConversion(VirtualReadingType first, VirtualReadingType second) {
+        return this.areCompatible(first,  second)
+            || (first.isFlowRelated() && second.isFlowRelated())
+            || (first.isVolumeRelated() && second.isVolumeRelated());
     }
 
     private boolean areCompatible(Channel channel, VirtualReadingType intervalLength) {

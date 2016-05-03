@@ -565,10 +565,7 @@ public class DataAggregationServiceImplCalculateIT {
             assertThat(productionWithSelectClause).matches(".*[trunc|TRUNC]\\(localdate, 'MONTH'\\).*");
             assertThat(productionWithSelectClause).matches(".*[group by trunc|GROUP BY TRUNC]\\(localdate, 'MONTH'\\).*");
             // Assert that the with clause for the the consumption requirement is aggregated to monthly values
-            String consumptionWithSelectClause = this.consumptionWithClauseBuilder1.getText();
-            assertThat(consumptionWithSelectClause).matches(".*[sum|SUM]\\(value\\).*");
-            assertThat(consumptionWithSelectClause).matches(".*[trunc|TRUNC]\\(localdate, 'MONTH'\\).*");
-            assertThat(consumptionWithSelectClause).matches(".*[group by trunc|GROUP BY TRUNC]\\(localdate, 'MONTH'\\).*");
+            assertThat(consumptionWithClauseBuilder1.getText()).isNotEmpty();
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
                     .matches("SELECT -1, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp,.*");
@@ -583,7 +580,8 @@ public class DataAggregationServiceImplCalculateIT {
             String overallSelectWithoutNewlines = this.selectClauseBuilder1.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(MONTHLY_NET_CONSUMPTION_MRID) + "'.*");
             // Assert that the overall select statement selects the value and the timestamp from the with clause for the deliverable
-            assertThat(overallSelectWithoutNewlines).matches(".*rod" + netConsumptionDeliverableId + "_1\\.value, rod" + netConsumptionDeliverableId + "_1\\.localdate, rod" + netConsumptionDeliverableId + "_1\\.timestamp.*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[sum|SUM]\\(rod" + netConsumptionDeliverableId + "_1\\.value\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod" + netConsumptionDeliverableId + "_1\\.localdate, 'MONTH'\\).*");
         }
     }
 

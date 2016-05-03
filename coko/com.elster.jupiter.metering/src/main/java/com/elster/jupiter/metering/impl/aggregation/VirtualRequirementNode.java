@@ -129,6 +129,19 @@ class VirtualRequirementNode implements ServerExpressionNode {
         return new MatchingChannelSelector(this.requirement, this.meterActivation).isReadingTypeSupported(readingType);
     }
 
+    /**
+     * Tests if the specified {@link VirtualReadingType}
+     * can be supported in a {@link UnitConversionNode}
+     * by looking at the backing channels of
+     * the actual {@link ReadingTypeRequirement}.
+     *
+     * @param readingType The readingType
+     * @return A flag that indicates if the readingType is backed by one of the channels
+     */
+    boolean supportsInUnitConversion(VirtualReadingType readingType) {
+        return new MatchingChannelSelector(this.requirement, this.meterActivation).isReadingTypeSupportedInUnitConversion(readingType);
+    }
+
     VirtualReadingType getTargetReadingType() {
         return this.targetReadingType;
     }

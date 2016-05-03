@@ -51,10 +51,12 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
 
     @Override
     public SqlFragment visitUnitConversion(UnitConversionNode unitConversionNode) {
+        VirtualReadingType sourceReadingType = unitConversionNode.getSourceReadingType();
+        VirtualReadingType targetReadingType = unitConversionNode.getTargetReadingType();
         this.unitConversionActive = true;
-        VirtualReadingType sourceReadingType = unitConversionNode.getExpressionNode().accept(new GetTargetReadingType(unitConversionNode.getTargetReadingType()));
         SqlFragment expressionBuilder = unitConversionNode.getExpressionNode().accept(this);
-        return sourceReadingType.buildSqlUnitConversion(this.mode, expressionBuilder, unitConversionNode.getTargetReadingType());
+        this.unitConversionActive = false;
+        return sourceReadingType.buildSqlUnitConversion(this.mode, expressionBuilder, targetReadingType);
     }
 
     @Override

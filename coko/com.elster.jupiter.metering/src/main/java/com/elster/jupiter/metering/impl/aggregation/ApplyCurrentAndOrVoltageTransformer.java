@@ -77,7 +77,10 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
 
     @Override
     public ServerExpressionNode visitUnitConversion(UnitConversionNode unitConversionNode) {
-        return new UnitConversionNode(unitConversionNode.getExpressionNode().accept(this), unitConversionNode.getTargetReadingType());
+        return new UnitConversionNode(
+                unitConversionNode.getExpressionNode().accept(this),
+                unitConversionNode.getSourceReadingType(),
+                unitConversionNode.getTargetReadingType());
     }
 
     @Override

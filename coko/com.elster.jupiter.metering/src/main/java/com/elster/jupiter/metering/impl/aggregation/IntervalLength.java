@@ -17,8 +17,10 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.time.temporal.TemporalAmount;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Models the length of an interval as specified by the
@@ -717,6 +719,22 @@ public enum IntervalLength {
 
     public static IntervalLength from(ReadingType readingType) {
         return from(readingType.getMacroPeriod(), readingType.getMeasuringPeriod());
+    }
+
+    public static Set<IntervalLength> multiples(IntervalLength from, IntervalLength to) {
+        if (from.equals(to)) {
+            return Collections.singleton(from);
+        } else if (from.compareTo(to) < 0) {
+            // from < to
+            return from
+                    .multiples()
+                    .stream()
+                    .filter(multiple -> multiple.compareTo(to) <= 0)
+                    .collect(Collectors.toSet());
+        } else {
+            // to < from: be leniant and reverse the operands
+            return multiples(to, from);
+        }
     }
 
     private static IntervalLength fromMeasurementPeriod(TimeAttribute measurementPeriod) {

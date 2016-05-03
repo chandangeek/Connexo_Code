@@ -13,6 +13,7 @@ import com.google.common.base.MoreObjects;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static java.math.BigDecimal.ONE;
 
@@ -46,6 +47,33 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
 
     static VirtualReadingType from(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Commodity commodity) {
         return new VirtualReadingType(intervalLength, unitMultiplier, unit, commodity, null);
+    }
+
+    static VirtualReadingType from(IntervalLength intervalLength, Dimension dimension, Commodity commodity) {
+        return from(intervalLength, MetricMultiplier.ZERO, readingTypeUnitFrom(dimension, commodity), commodity);
+    }
+
+    private static ReadingTypeUnit readingTypeUnitFrom(Dimension dimension, Commodity commodity) {
+        if (isElectricalEnergy(dimension, commodity)) {
+            return ReadingTypeUnit.WATTHOUR;
+        } else {
+            return Stream
+                    .of(ReadingTypeUnit.values())
+                    .filter(readingTypeUnit -> readingTypeUnit.getUnit().getDimension().equals(dimension))
+                    .findAny()
+                    .orElse(ReadingTypeUnit.NOTAPPLICABLE);
+        }
+    }
+
+    private static boolean isElectricalEnergy(Dimension dimension, Commodity commodity) {
+        return Dimension.ENERGY.equals(dimension)
+            && isElectricity(commodity);
+    }
+
+    private static boolean isElectricity(Commodity commodity) {
+        return Commodity.ELECTRICITY_PRIMARY_METERED.equals(commodity)
+            || Commodity.ELECTRICITY_SECONDARY_METERED.equals(commodity);
+
     }
 
     static VirtualReadingType notSupported() {
@@ -152,6 +180,10 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
 
     VirtualReadingType withCommondity(Commodity commondity) {
         return new VirtualReadingType(this.intervalLength, this.unitMultiplier, this.unit, commondity, this.marker);
+    }
+
+    VirtualReadingType withDimension(Dimension dimension) {
+        return this.withUnit(readingTypeUnitFrom(dimension, this.commodity));
     }
 
     /**
