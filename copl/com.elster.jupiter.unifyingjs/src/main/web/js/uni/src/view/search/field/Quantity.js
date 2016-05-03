@@ -19,7 +19,7 @@ Ext.define('Uni.view.search.field.Quantity', {
             xtype: 'uni-search-internal-criterialine',
             itemsDefaultConfig: Ext.apply(me.itemsDefaultConfig, {unitsStore: store}),
             width: '455',
-            operator: '==',
+            operator: 'BETWEEN',
             removable: false,
             operatorMap: {
                 '==': 'uni-search-internal-quantityfield',
@@ -34,8 +34,41 @@ Ext.define('Uni.view.search.field.Quantity', {
                 change: {
                     fn: me.onValueChange,
                     scope: me
+                },
+                reset: {
+                    fn: me.onReset,
+                    scope: me
                 }
             }
         }, config)
+    },
+
+    onValueChange: function () {
+        var me = this,
+            value = me.getValue(),
+            clearBtn = me.down('#clearall');
+
+        me.callParent(arguments);
+
+        if (clearBtn) {
+            if (!Ext.isEmpty(value)) {
+                clearBtn.setDisabled(false);
+            } else {
+                clearBtn.setDisabled(me.isUnitChanged());
+            }
+        }
+    },
+
+    isUnitChanged: function () {
+        var me = this,
+            result = false;
+
+        Ext.Array.each(me.query('#unit-combo'), function (unitCombo) {
+            if (unitCombo.value === unitCombo.originalValue) {
+                result = true;
+            }
+        });
+
+        return result;
     }
 });
