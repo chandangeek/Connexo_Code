@@ -97,6 +97,7 @@ public class UpgradeServiceImpl implements UpgradeService {
         this.transactionService = transactionService;
     }
 
+    @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModelUpgrader = ormService.getDataModelUpgrader();
     }
