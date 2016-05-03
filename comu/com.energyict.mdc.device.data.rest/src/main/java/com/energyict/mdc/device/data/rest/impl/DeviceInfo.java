@@ -4,10 +4,13 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
@@ -19,6 +22,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -57,7 +61,6 @@ public class DeviceInfo extends DeviceVersionInfo {
     public String location;
     public LocationInfo locationInfo;
     public String geoCoordinates;
-    public List<ObisCode> overruledObisCodes;
 
     public DeviceInfo() {
     }
@@ -111,8 +114,6 @@ public class DeviceInfo extends DeviceVersionInfo {
         if(location!=null){
             deviceInfo.location = location;
         }
-        deviceInfo.overruledObisCodes = device.getOverruledObisCodes();
-
         return deviceInfo;
     }
 
