@@ -3,22 +3,19 @@ Ext.define('Uni.grid.column.ValidationFlag', {
     xtype: 'validation-flag-column',
     header: Uni.I18n.translate('device.registerData.value', 'UNI', 'Value'),
     renderer: function (value, metaData, record) {
-        if (record.get('validationResult')) {
-            var result = record.get('validationResult'),
-                status = result.split('.')[1],
-                cls = 'icon-validation-cell ';
-            if (status === 'suspect') {
-                cls += 'icon-validation-red'
+        if (!Ext.isEmpty(value) && record.get('validationResult')) {
+            var status = record.get('validationResult').split('.')[1],
+                icon = '';
+
+            if (record.get('isConfirmed')) {
+                icon = '<span class="icon-checkmark3" style="margin-left:10px; position:absolute"></span>'
+            } else if (status === 'suspect') {
+                icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red"></span>';
+            } else if (status === 'notValidated') {
+                icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
             }
-            if (status === 'notValidated') {
-                cls += 'icon-validation-black'
-            }
-            metaData.tdCls = cls;
-            if (!Ext.isEmpty(value)) {
-                return record.get('isConfirmed') ? Ext.String.htmlEncode(value) + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>' : Ext.String.htmlEncode(value);
-            } else {
-                return '';
-            }
+            return Ext.String.htmlEncode(value) + icon;
         }
+        return '-';
     }
 });
