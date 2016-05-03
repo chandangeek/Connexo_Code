@@ -443,8 +443,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     CIMLifecycleDates getLifecycleDates();
 
-    List<ObisCode> getOverruledObisCodes();
-
     Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType);
 
     void addReadingTypeObisCodeUsage(ReadingType readingType, ObisCode obisCode);

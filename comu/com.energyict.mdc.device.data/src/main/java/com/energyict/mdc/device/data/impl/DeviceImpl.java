@@ -2177,14 +2177,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    @Override
-    public List<ObisCode> getOverruledObisCodes() {
-        return this.readingTypeObisCodeUsages
-                .stream()
-                .map(ReadingTypeObisCodeUsageImpl::getObisCode)
-                .collect(Collectors.toList());
-    }
-
     public Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType) {
         if (readingType==null) return Optional.empty();
         for (ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage : readingTypeObisCodeUsages) {
