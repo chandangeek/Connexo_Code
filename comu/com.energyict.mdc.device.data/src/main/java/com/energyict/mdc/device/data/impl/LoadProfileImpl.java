@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.ChannelDataUpdater;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.ServerLoadProfileForConfigChange;
 import com.google.common.collect.Range;
 
@@ -258,6 +259,10 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
         @Override
         public ObisCode getObisCode() {
+            Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = getDevice().getReadingTypeObisCodeUsage(getReadingType());
+            if (readingTypeObisCodeUsageOptional.isPresent()) {
+                return readingTypeObisCodeUsageOptional.get().getObisCode();
+            }
             return channelSpec.getDeviceObisCode();
         }
 
