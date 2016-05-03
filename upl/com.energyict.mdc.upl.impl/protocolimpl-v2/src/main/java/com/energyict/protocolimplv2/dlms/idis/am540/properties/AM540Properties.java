@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+
 import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
@@ -111,6 +112,11 @@ public class AM540Properties extends IDISProperties {
         return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 
+    public boolean useSerialDialect() {
+        String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
+        return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.SERIAL_DLMS_PROTOCOL_DIALECT_NAME.getName());
+    }
+
     public int getAARQRetries() {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2)).intValue();
     }
@@ -123,9 +129,10 @@ public class AM540Properties extends IDISProperties {
      * A timeout (lack of response from the AM540) should be handled differently according to the context:
      * - in case of G3 gateway mode, you can still read out the next physical slave devices if one slave device does not reply.
      * - in case of Beacon DC mode (reading out 'mirror' logical devices), a timeout is fatal, the next physical slaves cannot be read out.
+     * - in case of a serial connection we should fail on a timeout
      */
     @Override
     public boolean timeoutMeansBrokenConnection() {
-        return !useBeaconGatewayDeviceDialect();
+        return useBeaconMirrorDeviceDialect() || useSerialDialect();
     }
 }
