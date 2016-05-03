@@ -18,7 +18,6 @@ import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -71,9 +70,6 @@ class ThesaurusImpl implements IThesaurus {
     }
 
     private List<NlsKeyImpl> getNlsKeys(String componentName, Layer layer) {
-        if (!dataModel.isInstalled()) {
-            return Collections.emptyList();
-        }
         Condition condition = Operator.EQUAL.compare("layer", layer).and(Operator.EQUAL.compare("componentName", componentName));
         return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition);
     }
