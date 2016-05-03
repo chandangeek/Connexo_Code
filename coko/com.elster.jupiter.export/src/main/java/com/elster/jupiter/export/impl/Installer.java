@@ -3,14 +3,16 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
+import javax.inject.Inject;
 import java.util.EnumSet;
 
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.LAST_7_DAYS;
@@ -18,11 +20,11 @@ import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_M
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_WEEK;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_MONTH;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_WEEK;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_YEAR;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.TODAY;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.YESTERDAY;
-import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_YEAR;
 
-class Installer {
+class Installer implements FullInstaller {
 
     public static final String DESTINATION_NAME = DataExportServiceImpl.DESTINATION_NAME;
     public static final String SUBSCRIBER_NAME = DataExportServiceImpl.SUBSCRIBER_NAME;
@@ -36,6 +38,7 @@ class Installer {
 
     private DestinationSpec destinationSpec;
 
+    @Inject
     Installer(DataModel dataModel, MessageService messageService, TimeService timeService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
@@ -46,14 +49,16 @@ class Installer {
         return destinationSpec;
     }
 
-    void install() {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         ExceptionCatcher.executing(
-                this::installDataModel,
+                () -> dataModelUpgrader.upgrade(dataModel, Version.latest()),
                 this::createDestinationAndSubscriber,
                 this::createRelativePeriodCategory,
                 this::createRelativePeriods
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
+
     }
 
     private void createRelativePeriodCategory() {
@@ -68,10 +73,6 @@ class Installer {
         destinationSpec.save();
         destinationSpec.activate();
         destinationSpec.subscribe(SUBSCRIBER_NAME);
-    }
-
-    private void installDataModel() {
-        dataModel.install(true, true);
     }
 
     private RelativePeriodCategory getCategory(String name) {

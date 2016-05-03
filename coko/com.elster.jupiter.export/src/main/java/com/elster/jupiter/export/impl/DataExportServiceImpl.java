@@ -28,7 +28,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -37,6 +36,8 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -44,6 +45,7 @@ import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -53,7 +55,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -79,10 +80,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.export",
-        service = {DataExportService.class, IDataExportService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {DataExportService.class, IDataExportService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + DataExportService.COMPONENTNAME,
         immediate = true)
-public class DataExportServiceImpl implements IDataExportService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
+public class DataExportServiceImpl implements IDataExportService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
 
     public static final String DESTINATION_NAME = "DataExport";
     public static final String SUBSCRIBER_NAME = "DataExport";
@@ -106,6 +107,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile Path tempDirectory;
     private volatile ValidationService validationService;
     private volatile DataVaultService dataVaultService;
+    private volatile UpgradeService upgradeService;
 
     private volatile FtpClientService ftpClientService;
 
@@ -118,7 +120,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService, BundleContext context, FileSystem fileSystem, ValidationService validationService, DataVaultService dataVaultService, FtpClientService ftpClientService) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService, BundleContext context, FileSystem fileSystem, ValidationService validationService, DataVaultService dataVaultService, FtpClientService ftpClientService, UpgradeService upgradeService) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -137,10 +139,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setValidationService(validationService);
         setDataVaultService(dataVaultService);
         setFtpClientService(ftpClientService);
+        setUpgradeService(upgradeService);
         activate(context);
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     @Override
@@ -212,17 +212,6 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
             destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME);
         }
         return destinationSpec.orElse(null);
-    }
-
-    @Override
-    public void install() {
-        Installer installer = new Installer(dataModel, messageService, timeService);
-        installer.install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, TimeService.COMPONENT_NAME, MeteringService.COMPONENTNAME, TaskService.COMPONENTNAME, MeteringGroupsService.COMPONENTNAME, MessageService.COMPONENTNAME, NlsService.COMPONENTNAME, AppService.COMPONENT_NAME, DataVaultService.COMPONENT_NAME);
     }
 
     @Override
@@ -326,6 +315,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                     bind(ValidationService.class).toInstance(validationService);
                     bind(DataVaultService.class).toInstance(dataVaultService);
                     bind(FtpClientService.class).toInstance(ftpClientService);
+                    bind(TimeService.class).toInstance(timeService);
+                    bind(MessageService.class).toInstance(messageService);
                 }
             });
             addSelector(new StandardDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_READING_DATA_TYPE));
@@ -336,6 +327,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
             } else {
                 tempDirectory = fileSystem.getPath(tempDirectoryPath);
             }
+            upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -404,6 +396,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
