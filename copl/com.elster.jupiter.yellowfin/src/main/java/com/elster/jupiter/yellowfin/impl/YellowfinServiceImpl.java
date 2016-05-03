@@ -4,8 +4,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -14,7 +13,21 @@ import com.elster.jupiter.yellowfin.YellowfinFilterListItemInfo;
 import com.elster.jupiter.yellowfin.YellowfinReportInfo;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.elster.jupiter.yellowfin.security.Privileges;
-import com.hof.mi.web.service.*;
+
+import com.hof.mi.web.service.AdministrationPerson;
+import com.hof.mi.web.service.AdministrationReport;
+import com.hof.mi.web.service.AdministrationServiceRequest;
+import com.hof.mi.web.service.AdministrationServiceResponse;
+import com.hof.mi.web.service.AdministrationServiceService;
+import com.hof.mi.web.service.AdministrationServiceServiceLocator;
+import com.hof.mi.web.service.AdministrationServiceSoapBindingStub;
+import com.hof.mi.web.service.ReportRow;
+import com.hof.mi.web.service.ReportSchema;
+import com.hof.mi.web.service.ReportServiceRequest;
+import com.hof.mi.web.service.ReportServiceResponse;
+import com.hof.mi.web.service.ReportServiceService;
+import com.hof.mi.web.service.ReportServiceServiceLocator;
+import com.hof.mi.web.service.ReportServiceSoapBindingStub;
 import com.hof.util.Base64;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -31,13 +44,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
-public class YellowfinServiceImpl implements YellowfinService, InstallService, TranslationKeyProvider, PrivilegesProvider {
+@Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
+public class YellowfinServiceImpl implements YellowfinService, TranslationKeyProvider, PrivilegesProvider {
     private static final String YELLOWFIN_URL = "com.elster.jupiter.yellowfin.url";
     private static final String YELLOWFIN_EXTERNAL_URL = "com.elster.jupiter.yellowfin.externalurl";
     private static final String YELLOWFIN_WEBSERVICES_USER = "com.elster.jupiter.yellowfin.user";
@@ -63,6 +74,7 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService, T
     private boolean useSecureConnection = false;
 
     private volatile UserService userService;
+    private volatile UpgradeService upgradeService;
 
     public YellowfinServiceImpl(){
     }
@@ -109,6 +121,11 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService, T
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
@@ -571,21 +588,6 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService, T
         return Optional.of(listItems);
     }
 
-
-
-    @Override
-    public void install() {
-        try {
-        } catch (Exception e) {
-            Logger logger = Logger.getLogger(YellowfinServiceImpl.class.getName());
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "USR");
-    }
 
 
     @Override
