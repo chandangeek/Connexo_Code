@@ -47,6 +47,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -191,8 +192,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
                             licenseServices.add(context.registerService(License.class, license, props));
                         });
             } catch (Exception ex) {
-                Logger.getLogger(getClass().getName()).warning("Could not load licenses because " + ex.getMessage());
-                ex.printStackTrace();
+                Logger.getLogger(getClass().getName()).log(Level.WARNING, "Could not load licenses because " + ex.getMessage(), ex);
             }
         }
     }
