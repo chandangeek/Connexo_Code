@@ -35,7 +35,7 @@ import java.util.NoSuchElementException;
         "osgi.command.function=linkMetrologyConfig",
         "osgi.command.function=setMultiplierValue",
         "osgi.command.function=matchingChannels",
-        "osgi.command.function=showData",
+        "osgi.command.function=showData"
 }, immediate = true)
 public class DataAggregationCommands {
 
