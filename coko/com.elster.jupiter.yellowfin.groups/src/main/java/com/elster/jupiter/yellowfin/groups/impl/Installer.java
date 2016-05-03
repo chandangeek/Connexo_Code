@@ -4,10 +4,15 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 
-class Installer {
+import javax.inject.Inject;
+
+class Installer implements FullInstaller {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final String CRON_STRING = "0 0 0 1/1 * ?";
 
@@ -15,13 +20,16 @@ class Installer {
     private MessageService messageService;
     private TaskService taskService;
 
+    @Inject
     Installer(DataModel dataModel, MessageService messageService, TaskService taskService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.taskService = taskService;
     }
 
-    void install() {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
         createTask();
     }
 

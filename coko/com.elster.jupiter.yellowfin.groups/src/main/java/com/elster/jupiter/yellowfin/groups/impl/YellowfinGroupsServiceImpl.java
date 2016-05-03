@@ -12,10 +12,12 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
+
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -26,15 +28,16 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @Component(
         name = "com.elster.jupiter.yellowfin.groups",
-        service = {YellowfinGroupsService.class, InstallService.class, TranslationKeyProvider.class},
+        service = {YellowfinGroupsService.class, TranslationKeyProvider.class},
         property = "name=" + YellowfinGroupsService.COMPONENTNAME,
         immediate = true)
-public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, InstallService, TranslationKeyProvider {
+public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, TranslationKeyProvider {
 
     private static final String YELLOWFIN_LAST_DAYS = "com.elster.jupiter.yellowfin.groups.last";
     private static final int DEFAULT_LAST = 2;
@@ -45,6 +48,7 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
     private volatile MessageService messageService;
     private volatile TaskService taskService;
     private volatile Thesaurus thesaurus;
+    private volatile UpgradeService upgradeService;
 
     private int lastDays;
 
@@ -53,27 +57,16 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
     }
 
     @Inject
-    public YellowfinGroupsServiceImpl(OrmService ormService, MeteringGroupsService meteringGroupsService, MessageService messageService, TaskService taskService, NlsService nlsService) {
+    public YellowfinGroupsServiceImpl(OrmService ormService, MeteringGroupsService meteringGroupsService, MessageService messageService, TaskService taskService, NlsService nlsService, UpgradeService upgradeService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setMeteringGroupsService(meteringGroupsService);
         setMessageService(messageService);
         setTaskService(taskService);
+        setUpgradeService(upgradeService);
         activate(null);
-        if (!dataModel.isInstalled()) {
-            install();
-        }
-    }
 
-    @Override
-    public void install() {
-        dataModel.install(true, true);
-        new Installer(dataModel, messageService, taskService).install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, MeteringGroupsService.COMPONENTNAME, MessageService.COMPONENTNAME, TaskService.COMPONENTNAME);
+        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Reference
@@ -95,6 +88,8 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
                     bind(YellowfinGroupsService.class).toInstance(YellowfinGroupsServiceImpl.this);
                     bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                     bind(DataModel.class).toInstance(dataModel);
+                    bind(MessageService.class).toInstance(messageService);
+                    bind(TaskService.class).toInstance(taskService);
                 }
             });
 
@@ -142,6 +137,11 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
     @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
