@@ -30,6 +30,9 @@
             <modules>
                 <module>../com.elster.jupiter.appserver.rest</module>
                 <module>../com.elster.jupiter.bpmissueaction</module>
+                <module>../com.elster.jupiter.calendar</module>
+                <module>../com.elster.jupiter.calendar.extjs</module>
+                <module>../com.elster.jupiter.calendar.rest</module>
                 <module>../com.elster.jupiter.cbo</module>
                 <module>../com.elster.jupiter.config.extjs</module>
                 <module>../com.elster.jupiter.data.lifecycle</module>
