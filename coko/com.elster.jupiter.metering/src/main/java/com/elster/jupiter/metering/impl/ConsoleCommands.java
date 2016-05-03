@@ -413,8 +413,11 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                     .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
-            MetrologyConfiguration config = metrologyConfigurationService.newMetrologyConfiguration(name, serviceCategory)
+            UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(name, serviceCategory)
                     .create();
+            MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
+                    .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+            config.addMeterRole(meterRole);
             System.out.println(config.getId() + ": " + config.getName());
             context.commit();
         }
