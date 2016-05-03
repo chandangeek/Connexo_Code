@@ -42,6 +42,9 @@ public class UpgradeServiceImpl implements UpgradeService {
         activate(bundleContext);
     }
 
+    public UpgradeServiceImpl() {
+    }
+
     @Activate
     public void activate(BundleContext bundleContext) {
         String upgradeProperty = bundleContext.getProperty("upgrade");
