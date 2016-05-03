@@ -37,6 +37,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -194,6 +195,11 @@ public class DataAggregationServiceImplCalculateIT {
             getDataAggregationService();
             ctx.commit();
         }
+    }
+
+    @After
+    public void clearCache() {
+        injector.getInstance(OrmService.class).invalidateCache("NLS", "NLS_KEY");
     }
 
     private static MeteringService getMeteringService() {

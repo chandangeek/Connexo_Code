@@ -435,6 +435,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
             createNewTemplate(bundleContext);
         } else if (bundleContext == null && locationTemplate == null) {
             createDefaultLocationTemplate();
+            createLocationTemplateDefaultData();
         }
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -964,7 +965,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                                 t.getElementAbbreviation(),
                                 t.toString(),
                                 index.incrementAndGet(),
-                                index.intValue() % 2 == 0 ? true : false)));
+                                index.intValue() % 2 == 0)));
         locationTemplateMembers = ImmutableList.copyOf(templateElements);
     }
 
