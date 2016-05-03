@@ -25,9 +25,8 @@ Ext.define('Scs.view.SetupOverview', {
                     xtype: 'tabpanel',
                     ui: 'large',
                     itemId: 'service-call-overview-tab',
-                    activeTab: me.tab === 'grid' ? 1 : 0,
+                    activeTab: 0,
                     breadcrumbs: me.breadcrumbs,
-                    servicecallParam: me.servicecallParam,
                     items: [
                         {
                             title: Uni.I18n.translate('general.specifications', 'SCS', 'Specifications'),
