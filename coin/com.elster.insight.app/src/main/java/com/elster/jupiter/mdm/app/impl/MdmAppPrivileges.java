@@ -39,7 +39,10 @@ class MdmAppPrivileges {
 
                 //com.elster.jupiter.servicecall
                 com.elster.jupiter.servicecall.security.Privileges.Constants.VIEW_SERVICE_CALLS,
-                com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE
+                com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE,
+
+                //Relative periods
+                com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD
         );
     }
 }

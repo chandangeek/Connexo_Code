@@ -71,7 +71,10 @@ public class MdmAppInstaller implements InstallService {
                 //service category
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
 
-                com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE
+                com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE,
+
+                //Relative periods
+                com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD
         };
     }
 }
