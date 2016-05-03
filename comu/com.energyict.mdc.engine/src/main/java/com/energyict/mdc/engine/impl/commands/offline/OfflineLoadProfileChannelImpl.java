@@ -70,7 +70,7 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
      * Note that this may cause recursive calls to other objects that can go offline.
      */
     protected void goOffline() {
-        setChannelObisCode(this.channel.getChannelSpec().getDeviceObisCode());
+        setChannelObisCode(this.channel.getObisCode());
         setUnit(this.channel.getUnit());
         setRtuId((int) this.channel.getDevice().getId());
         setLoadProfileId((int) this.channel.getLoadProfile().getId());
