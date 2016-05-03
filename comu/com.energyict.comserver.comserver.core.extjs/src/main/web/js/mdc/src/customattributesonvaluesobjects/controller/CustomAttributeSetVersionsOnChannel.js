@@ -189,10 +189,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         var me = this,
             channelModel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice');
 
-        channelModel.getProxy().setUrl({
-            mRID: mRID
-        });
-
+        channelModel.getProxy().setUrl(mRID);
         channelModel.load(channelId, {
             success: function (channel) {
                 me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);

@@ -1,11 +1,11 @@
-Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
+Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
     extend: 'Ext.form.Panel',
     requires: [
         'Uni.util.FormErrorMessage',
         'Uni.form.field.Obis',
         'Uni.property.view.DefaultButton'
     ],
-    alias: 'widget.device-register-edit-form',
+    alias: 'widget.device-channel-edit-form',
     returnLink: null,
 
     initComponent: function () {
@@ -60,11 +60,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
                 width: 450,
                 layout: 'hbox',
                 margin: '10 0 0 0',
-                fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
+                fieldLabel: Uni.I18n.translate('channelConfig.overflowValue', 'MDC', 'Overflow value'),
                 items: [
                     {
                         xtype: 'numberfield',
-                        name: 'overflow',
+                        name: 'overflowValue',
                         msgTarget: 'under',
                         itemId: 'mdc-editOverflowValueField',
                         width: 150,
@@ -91,11 +91,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
                 width: 450,
                 layout: 'hbox',
                 margin: '10 0 0 0',
-                fieldLabel: Uni.I18n.translate('registerConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
+                fieldLabel: Uni.I18n.translate('channelConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
                 items: [
                     {
                         xtype: 'numberfield',
-                        name: 'numberOfFractionDigits',
+                        name: 'nbrOfFractionDigits',
                         required: true,
                         msgTarget: 'under',
                         itemId: 'mdc-editNumberOfFractionDigitsField',
@@ -122,17 +122,17 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
                 items: [
                     {
                         xtype: 'button',
-                        itemId: 'btn-save-register',
+                        itemId: 'btn-save-channel',
                         text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                         ui: 'action',
-                        action: 'saveRegister'
+                        action: 'saveChannel'
                     },
                     {
                         xtype: 'button',
-                        itemId: 'btn-cancel-editRegister',
+                        itemId: 'btn-cancel-editChannel',
                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                         ui: 'link',
-                        action: 'cancelEditRegister',
+                        action: 'cancelEditChannel',
                         href: me.returnLink
                     }
                 ]
@@ -141,12 +141,12 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
         me.callParent(arguments);
     },
 
-    setRegister: function(registerRecord) {
+    setChannel: function(channelRecord) {
         var me = this,
-            newTitle = registerRecord.get('readingType').fullAliasName;
+            newTitle = channelRecord.get('readingType').fullAliasName;
 
         me.setTitle(newTitle);
-        me.loadRecord(registerRecord);
+        me.loadRecord(channelRecord);
     }
 
 });
