@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
                                             },
                                             {
                                                 xtype: 'obis-displayfield',
-                                                name: 'obisCode'
+                                                name: 'overruledObisCode'
                                             },
                                             {
                                                 fieldLabel: Uni.I18n.translate('general.timestampLastValue', 'MDC', 'Timestamp last value'),

@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Detail', {
                                             },
                                             {
                                                 xtype: 'obis-displayfield',
-                                                name: 'obisCode'
+                                                name: 'overruledObisCode'
                                             },
                                             {
                                                 xtype: 'displayfield',

@@ -56,7 +56,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     ],
 
     fromSpecification: false,
-    originalOverruledObisCode: null, // The overruled OBIS code of the edited register
+    originalObisCodeOfConfig: null, // The OBIS code of the configuration
     originalOverflow: null, // The overflow value of the edited register
     originalNumberOfFractionDigits: null, // The NumberOfFractionDigits value of the edited register
 
@@ -265,6 +265,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice');
+        me.fromSpecification = true;
         contentPanel.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
@@ -493,7 +494,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     },
 
     toPreviousPage: function () {
-        if (this.fromSpecification == true) {
+        if (this.fromSpecification) {
             this.getController('Uni.controller.history.Router').getRoute('devices/device/registers/register').forward();
         } else {
             this.getController('Uni.controller.history.Router').getRoute('devices/device/registers').forward();
@@ -501,7 +502,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     },
 
     getPreviousPageUrl: function () {
-        if (this.fromSpecification == true) {
+        if (this.fromSpecification) {
             return this.getController('Uni.controller.history.Router').getRoute('devices/device/registers/register').buildUrl();
         } else {
             return this.getController('Uni.controller.history.Router').getRoute('devices/device/registers').buildUrl();
@@ -551,7 +552,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 var widget = Ext.widget('device-register-edit', {
                     itemId: 'mdc-device-register-edit',
                     device: device,
-                    returnLink: router.getRoute('devices/device/registers').buildUrl({mRID: device.get('mRID')})
+                    returnLink: me.getPreviousPageUrl()
                 });
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceRegister');
@@ -561,10 +562,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         widget.setRegister(register);
                         me.updateEditRegisterFields(register);
-                        me.originalOverruledObisCode = register.get('overruledObisCode');
+                        me.originalObisCodeOfConfig = register.get('obisCode');
                         me.originalOverflow = register.get('overflow');
                         me.originalNumberOfFractionDigits = register.get('numberOfFractionDigits');
-                        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.originalOverruledObisCode);
+                        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), register.get('overruledObisCode'));
                         me.onOverflowChange(me.getOverflowField(), me.originalOverflow);
                         me.onNumberOfFractionDigitsChange(me.getNumberOfFractionDigitsField(), me.originalNumberOfFractionDigits);
                         viewport.setLoading(false);
@@ -609,19 +610,19 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
     onOverruledObisCodeChange: function(overruledObisCodeField, newValue) {
         var me = this;
-        me.getRestoreObisCodeBtn().setDisabled(newValue === me.originalOverruledObisCode);
+        me.getRestoreObisCodeBtn().setDisabled(newValue === me.originalObisCodeOfConfig);
         me.getRestoreObisCodeBtn().setTooltip(
-            newValue === me.originalOverruledObisCode
+            newValue === me.originalObisCodeOfConfig
                 ? null
-                : Uni.I18n.translate('general.obisCode.reset.tooltip4', 'MDC', 'Reset to {0}, the OBIS code of the device configuration', me.originalOverruledObisCode)
+                : Uni.I18n.translate('general.obisCode.reset.tooltip4', 'MDC', 'Reset to {0}, the OBIS code of the device configuration', me.originalObisCodeOfConfig)
         );
     },
 
     onRestoreObisCodeBtnClicked: function() {
         var me = this;
-        me.getRegisterEditForm().down('#mdc-editOverruledObisCodeField').setValue(me.originalOverruledObisCode);
-        me.getOverruledObisCodeField().setValue(me.originalOverruledObisCode);
-        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.originalOverruledObisCode);
+        me.getRegisterEditForm().down('#mdc-editOverruledObisCodeField').setValue(me.originalObisCodeOfConfig);
+        me.getOverruledObisCodeField().setValue(me.originalObisCodeOfConfig);
+        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.originalObisCodeOfConfig);
     },
 
     onOverflowChange: function(overflowField, newValue) {
@@ -683,7 +684,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         record.save({
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('register.acknowledgment.saved', 'MDC', 'Register saved'));
-                me.getController('Uni.controller.history.Router').getRoute('devices/device/registers').forward();
+                me.toPreviousPage();
             },
             failure: function (record, operation) {
                 Ext.suspendLayouts();
