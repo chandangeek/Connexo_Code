@@ -39,6 +39,9 @@ public class UpgradeServiceImpl implements UpgradeService {
     private Map<InstallIdentifier, UpgradeClasses> registered = new HashMap<>();
     private Set<String> installed = new HashSet<>();
 
+    public UpgradeServiceImpl() {
+    }
+
     @Inject
     public UpgradeServiceImpl(BootstrapService bootstrapService, TransactionService transactionService, OrmService ormService, BundleContext bundleContext) {
         setBootstrapService(bootstrapService);
@@ -115,6 +118,7 @@ public class UpgradeServiceImpl implements UpgradeService {
         this.transactionService = transactionService;
     }
 
+    @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModelUpgrader = ormService.getDataModelUpgrader();
     }
