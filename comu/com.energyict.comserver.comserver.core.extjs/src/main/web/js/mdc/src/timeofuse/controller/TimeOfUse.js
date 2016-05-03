@@ -75,6 +75,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                     deviceTypeId: deviceTypeId,
                     timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
                 });
+                view.down('tou-devicetype-specifications-form').loadRecord(deviceType);
                 me.deviceTypeId = deviceTypeId;
                 me.getApplication().fireEvent('changecontentevent', view);
                 store.getProxy().setUrl(deviceTypeId);
@@ -184,6 +185,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                     deviceTypeId: deviceTypeId,
                     timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
                 });
+                view.down('tou-devicetype-edit-specs-form').loadRecord(deviceType);
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.deviceTypeId = deviceTypeId;
                 view.setLoading(true);

@@ -10,6 +10,7 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
     defaults: {
         labelWidth: 250
     },
+    deviceTypeId: null,
     initComponent: function () {
         var me = this;
         me.items = [
@@ -22,17 +23,17 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseAllowed', 'MDC', 'Time of use allowed'),
-                        name: 'touAllowed',
+                        name: 'timeOfUseAllowed',
                         defaultType: 'radiofield',
                         layout: 'vbox',
                         items: [
                             {
                                 boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
-                                name: 'touAllowed',
+                                name: 'timeOfUseAllowed',
                                 inputValue: true
                             }, {
                                 boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'),
-                                name: 'touAllowed',
+                                name: 'timeOfUseAllowed',
                                 inputValue: false
                             }
                         ]
@@ -41,6 +42,27 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                         xtype: 'property-form',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseOptions', 'MDC', 'Time of use options'),
                         itemId: 'tou-specs-options-form'
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        ui: 'actions',
+                        fieldLabel: '&nbsp',
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'button',
+                                itemId: 'tou-edit-button',
+                                text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                                ui: 'action'
+                            },
+                            {
+                                xtype: 'button',
+                                itemId: 'tou-edit-cancel-link',
+                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                ui: 'link',
+                                href: '#/administration/devicetypes/' + me.deviceTypeId + '/timeofuse'
+                            }
+                        ]
                     }
                 ]
             }
