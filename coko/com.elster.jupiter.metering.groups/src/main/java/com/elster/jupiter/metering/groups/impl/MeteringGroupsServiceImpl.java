@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroupBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
-import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
@@ -23,9 +22,10 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.concurrent.CopyOnWriteServiceContainer;
 import com.elster.jupiter.util.concurrent.OptionalServiceContainer;
 import com.elster.jupiter.util.conditions.Condition;
@@ -45,10 +45,10 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -56,10 +56,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.metering",
-        service = {MeteringGroupsService.class, InstallService.class, TranslationKeyProvider.class},
+        service = {MeteringGroupsService.class, TranslationKeyProvider.class},
         property = "name=" + MeteringGroupsService.COMPONENTNAME,
         immediate = true)
-public class MeteringGroupsServiceImpl implements MeteringGroupsService, InstallService, TranslationKeyProvider {
+public class MeteringGroupsServiceImpl implements MeteringGroupsService, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(MeteringGroupsServiceImpl.class.getSimpleName());
 
@@ -71,6 +71,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile ExecutionTimerService executionTimerService;
+    private volatile UpgradeService upgradeService;
     private ExecutionTimer endDeviceGroupMemberCountTimer;
     private final OptionalServiceContainer<EndDeviceQueryProvider> endDeviceQueryProviders = new CopyOnWriteServiceContainer<>();
 
@@ -78,7 +79,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     }
 
     @Inject
-    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService, EventService eventService, SearchService searchService, NlsService nlsService, ExecutionTimerService executionTimerService) {
+    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService, EventService eventService, SearchService searchService, NlsService nlsService, ExecutionTimerService executionTimerService, UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setMeteringService(meteringService);
@@ -87,31 +88,8 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
         setSearchService(searchService);
         setNlsService(nlsService);
         setExecutionTimerService(executionTimerService);
+        setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
-    }
-
-    @Override
-    public void install() {
-        dataModel.install(true, true);
-        createEventTypes();
-    }
-
-    private void createEventTypes() {
-        for (EventType eventType : EventType.values()) {
-            try {
-                eventType.install(eventService);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Could not create event type : " + eventType.name(), e);
-            }
-        }
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "MTR");
     }
 
     @Activate
@@ -133,6 +111,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
                     bind(ExecutionTimer.class).toInstance(endDeviceGroupMemberCountTimer);
                 }
             });
+            upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -308,6 +287,11 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     @Reference
     public void setExecutionTimerService(ExecutionTimerService executionTimerService) {
         this.executionTimerService = executionTimerService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
