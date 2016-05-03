@@ -29,6 +29,8 @@ public class ChannelInfo {
     public ReadingTypeInfo calculatedReadingType;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
+    @XmlJavaTypeAdapter(ObisCodeAdapter.class)
+    public ObisCode overruledObisCode;
     public BigDecimal overflowValue;
     public String flowUnit;
     public Integer nbrOfFractionDigits;
@@ -52,7 +54,8 @@ public class ChannelInfo {
         channel.getCalculatedReadingType(clock.instant()).ifPresent(readingType1 -> info.calculatedReadingType = new ReadingTypeInfo(readingType1));
         channel.getOverflow().ifPresent(overflow -> info.overflowValue = overflow);
         info.flowUnit = channel.getUnit().isFlowUnit() ? "flow" : "volume";
-        info.obisCode = channel.getObisCode();
+        info.obisCode = channel.getChannelSpec().getDeviceObisCode();
+        info.overruledObisCode = channel.getObisCode();
         info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
         info.loadProfileId = channel.getLoadProfile().getId();
         info.version = channel.getLoadProfile().getVersion();

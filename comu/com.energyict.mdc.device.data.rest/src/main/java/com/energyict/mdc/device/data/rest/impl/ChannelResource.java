@@ -79,6 +79,34 @@ public class ChannelResource {
         return channelHelper.get().getChannel(() -> channel);
     }
 
+    @PUT @Transactional
+    @Path("/{channelid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE})
+    public Response updateRegister(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, ChannelInfo channelInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = device.getReadingTypeObisCodeUsage(channel.getReadingType());
+        boolean removeCurrentOverruleRecord = (
+                ( channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // no obiscode overruling wanted...
+                  readingTypeObisCodeUsageOptional.isPresent() )// ...however, currently present
+                  ||
+                ( !channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // obiscode overruling wanted...
+                  readingTypeObisCodeUsageOptional.isPresent() && // ...but the currently present one...
+                  !readingTypeObisCodeUsageOptional.get().getObisCode().equals(channelInfo.overruledObisCode) ) // ...is different
+        );
+
+        if (removeCurrentOverruleRecord) {
+            device.removeReadingTypeObisCodeUsage(channel.getReadingType());
+        }
+        if (!channelInfo.overruledObisCode.equals(channelInfo.obisCode)) { // obiscode overruling wanted
+            device.addReadingTypeObisCodeUsage(channel.getReadingType(), channelInfo.overruledObisCode);
+        }
+        device.save();
+        return Response.ok().build();
+    }
+
     @GET @Transactional
     @Path("/{channelId}/customproperties")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
