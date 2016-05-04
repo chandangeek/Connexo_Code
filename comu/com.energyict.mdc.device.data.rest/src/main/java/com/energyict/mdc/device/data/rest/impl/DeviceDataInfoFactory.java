@@ -324,7 +324,9 @@ public class DeviceDataInfoFactory {
         addCommonRegisterInfo(numericalRegister, numericalRegisterInfo);
         NumericalRegisterSpec registerSpec = numericalRegister.getRegisterSpec();
         numericalRegisterInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
+        numericalRegisterInfo.overruledNumberOfFractionDigits = registerSpec.getNumberOfFractionDigits(); // Todo: provide the real overruled value
         registerSpec.getOverflowValue().ifPresent(overflow -> numericalRegisterInfo.overflow = overflow);
+        registerSpec.getOverflowValue().ifPresent(overflow -> numericalRegisterInfo.overruledOverflow = overflow); // Todo: provide the real overruled value
         Instant timeStamp = numericalRegister.getLastReadingDate().orElse(clock.instant());
         numericalRegister.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
         numericalRegisterInfo.multiplier = numericalRegister.getMultiplier(timeStamp).orElseGet(() -> null);
