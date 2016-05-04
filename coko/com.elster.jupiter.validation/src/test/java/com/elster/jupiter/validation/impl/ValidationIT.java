@@ -33,6 +33,8 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
@@ -118,6 +120,7 @@ public class ValidationIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 

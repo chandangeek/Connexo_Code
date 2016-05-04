@@ -8,17 +8,21 @@ import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
+import javax.inject.Inject;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class InstallerImpl {
+public class InstallerImpl implements FullInstaller {
     public static final String DESTINATION_NAME = ValidationServiceImpl.DESTINATION_NAME;
     public static final String SUBSCRIBER_NAME = ValidationServiceImpl.SUBSCRIBER_NAME;
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
@@ -29,6 +33,7 @@ public class InstallerImpl {
     private DestinationSpec destinationSpec;
     private final UserService userService;
 
+    @Inject
     public InstallerImpl(DataModel dataModel, EventService eventService, MessageService messageService, UserService userService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
@@ -40,9 +45,10 @@ public class InstallerImpl {
         return destinationSpec;
     }
 
-    public void install(boolean executeDdl, boolean updateOrm) {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         try {
-            dataModel.install(executeDdl, updateOrm);
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Could not install datamodel : " + ex.getMessage(), ex);
         }
@@ -52,6 +58,7 @@ public class InstallerImpl {
                 this::createValidationUser
         ).andHandleExceptionsWith(exception -> LOGGER.log(Level.SEVERE, exception.getMessage(), exception))
                 .execute();
+
     }
 
     private void createValidationUser() {
