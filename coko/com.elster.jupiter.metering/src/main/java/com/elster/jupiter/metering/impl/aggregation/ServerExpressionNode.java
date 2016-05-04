@@ -26,4 +26,6 @@ public interface ServerExpressionNode {
 
     <T> T accept(Visitor<T> visitor);
 
+    public IntermediateDimension getIntermediateDimension();
+
 }

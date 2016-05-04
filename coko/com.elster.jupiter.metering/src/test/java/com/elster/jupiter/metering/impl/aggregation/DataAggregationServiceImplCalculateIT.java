@@ -518,9 +518,9 @@ public class DataAggregationServiceImplCalculateIT {
         ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(builder.plus(
-                        builder.requirement(production),
+                        builder.requirement(consumption),
                         builder.multiply(
-                                builder.requirement(consumption),
+                                builder.requirement(production),
                                 builder.constant(BigDecimal.valueOf(2L)))));
 
 
@@ -565,23 +565,25 @@ public class DataAggregationServiceImplCalculateIT {
             assertThat(productionWithSelectClause).matches(".*[trunc|TRUNC]\\(localdate, 'MONTH'\\).*");
             assertThat(productionWithSelectClause).matches(".*[group by trunc|GROUP BY TRUNC]\\(localdate, 'MONTH'\\).*");
             // Assert that the with clause for the the consumption requirement is aggregated to monthly values
-            assertThat(consumptionWithClauseBuilder1.getText()).isNotEmpty();
+            String consumptionWithSelectClause = this.consumptionWithClauseBuilder1.getText();
+            assertThat(consumptionWithSelectClause).matches(".*[sum|SUM]\\(value\\).*");
+            assertThat(consumptionWithSelectClause).matches(".*[trunc|TRUNC]\\(localdate, 'MONTH'\\).*");
+            assertThat(consumptionWithSelectClause).matches(".*[group by trunc|GROUP BY TRUNC]\\(localdate, 'MONTH'\\).*");
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
-                    .matches("SELECT -1, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp,.*");
+                    .matches("SELECT -1, rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp,.*");
             // Assert that one of both requirements' values are added up in the select clause
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
-                    .matches("SELECT.*\\(rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.value \\+ \\(rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.value\\s\\*\\s*\\?\\s*\\)\\).*");
+                    .matches("SELECT.*\\(rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.value \\+ \\(rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.value\\s\\*\\s*\\?\\s*\\)\\).*");
             // Assert that the with clauses for both requirements are joined on the utc timestamp
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
-                    .matches("SELECT.*JOIN rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1 ON rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp = rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp.*");
+                    .matches("SELECT.*JOIN rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1 ON rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp = rid" + consumptionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp.*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder1.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(MONTHLY_NET_CONSUMPTION_MRID) + "'.*");
             // Assert that the overall select statement selects the value and the timestamp from the with clause for the deliverable
-            assertThat(overallSelectWithoutNewlines).matches(".*[sum|SUM]\\(rod" + netConsumptionDeliverableId + "_1\\.value\\).*");
-            assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod" + netConsumptionDeliverableId + "_1\\.localdate, 'MONTH'\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*rod" + netConsumptionDeliverableId + "_1\\.value, rod" + netConsumptionDeliverableId + "_1\\.localdate, rod" + netConsumptionDeliverableId + "_1\\.timestamp.*");
         }
     }
 

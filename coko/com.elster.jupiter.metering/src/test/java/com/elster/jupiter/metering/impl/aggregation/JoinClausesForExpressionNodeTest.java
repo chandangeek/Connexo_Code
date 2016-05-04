@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -109,8 +110,7 @@ public class JoinClausesForExpressionNodeTest {
         when(readingTypeDeliverableForMeterActivation.sqlName()).thenReturn(expectedJoinTableName);
         when(readingTypeDeliverableForMeterActivation.getReadingType()).thenReturn(readingType);
         ServerExpressionNode node =
-                new OperationNode(
-                        Operator.PLUS,
+                Operator.PLUS.node(
                         new VirtualDeliverableNode(readingTypeDeliverableForMeterActivation),
                         new VirtualDeliverableNode(readingTypeDeliverableForMeterActivation));
 
@@ -133,7 +133,7 @@ public class JoinClausesForExpressionNodeTest {
         ServerExpressionNode node =
                 new FunctionCallNode(
                         Function.SUM,
-                        new VirtualDeliverableNode(readingTypeDeliverableForMeterActivation),
+                        IntermediateDimension.of(Dimension.DIMENSIONLESS), new VirtualDeliverableNode(readingTypeDeliverableForMeterActivation),
                         new VirtualDeliverableNode(readingTypeDeliverableForMeterActivation));
 
         // Business method
@@ -201,8 +201,7 @@ public class JoinClausesForExpressionNodeTest {
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(requirement), eq(deliverable), any(VirtualReadingType.class))).thenReturn(virtualReadingTypeRequirement);
 
         ServerExpressionNode node =
-                new OperationNode(
-                        Operator.PLUS,
+                Operator.PLUS.node(
                         new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, mock(MeterActivation.class)),
                         new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, mock(MeterActivation.class)));
 
@@ -230,7 +229,7 @@ public class JoinClausesForExpressionNodeTest {
         ServerExpressionNode node =
                 new FunctionCallNode(
                         Function.SUM,
-                        new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, mock(MeterActivation.class)),
+                        IntermediateDimension.of(Dimension.DIMENSIONLESS), new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, mock(MeterActivation.class)),
                         new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, mock(MeterActivation.class)));
 
         // Business method

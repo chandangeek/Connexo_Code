@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.util.units.Dimension;
+
 import java.math.BigDecimal;
 
 /**
@@ -24,6 +26,11 @@ class NumericalConstantNode implements ServerExpressionNode {
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visitConstant(this);
+    }
+
+    @Override
+    public IntermediateDimension getIntermediateDimension() {
+        return IntermediateDimension.of(Dimension.DIMENSIONLESS);
     }
 
 }

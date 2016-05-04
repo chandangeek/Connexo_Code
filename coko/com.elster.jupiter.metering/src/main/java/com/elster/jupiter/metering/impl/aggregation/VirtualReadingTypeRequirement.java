@@ -167,7 +167,7 @@ public class VirtualReadingTypeRequirement {
                     this.targetReadingType));
     }
 
-    private VirtualReadingType getSourceReadingType() {
+    VirtualReadingType getSourceReadingType() {
         return VirtualReadingType.from(this.getPreferredChannel().getMainReadingType());
     }
 

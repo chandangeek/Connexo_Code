@@ -26,19 +26,27 @@ class UnitConversionNode implements ServerExpressionNode {
 
     private final ServerExpressionNode expressionNode;
     private final VirtualReadingType sourceReadingType;
+    private final IntermediateDimension intermediateDimension;
     private VirtualReadingType targetReadingType;
 
     UnitConversionNode(ServerExpressionNode expressionNode, Dimension dimension, VirtualReadingType targetReadingType) {
         this.expressionNode = expressionNode;
+        this.intermediateDimension = IntermediateDimension.of(dimension);
         VirtualReadingType candidate = expressionNode.accept(new GetSourceReadingType(targetReadingType, dimension));
         this.sourceReadingType = VirtualReadingType.from(candidate.getIntervalLength(), dimension, candidate.getCommodity()).withMetricMultiplier(candidate.getUnitMultiplier());
         this.targetReadingType = targetReadingType;
     }
 
     UnitConversionNode(ServerExpressionNode expressionNode, VirtualReadingType sourceReadingType, VirtualReadingType targetReadingType) {
+        this.intermediateDimension = expressionNode.getIntermediateDimension();
         this.expressionNode = expressionNode;
         this.sourceReadingType = sourceReadingType;
         this.targetReadingType = targetReadingType;
+    }
+
+    @Override
+    public IntermediateDimension getIntermediateDimension() {
+        return intermediateDimension;
     }
 
     ServerExpressionNode getExpressionNode() {

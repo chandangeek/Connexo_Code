@@ -69,6 +69,10 @@ class ReadingTypeDeliverableForMeterActivation {
         return this.deliverable.getReadingType();
     }
 
+    VirtualReadingType getTargetReadingType() {
+        return targetReadingType;
+    }
+
     /**
      * Returns the String that should be used in SQL statements to refer
      * to the data produced by this VirtualReadingTypeRequirement.
@@ -96,7 +100,7 @@ class ReadingTypeDeliverableForMeterActivation {
         this.expressionNode.accept(new FinishRequirementAndDeliverableNodes());
     }
 
-    void appendSimpleReferenceTo(SqlBuilder sqlBuilder, VirtualReadingType targetReadingType) {
+    void appendSimpleReferenceTo(SqlBuilder sqlBuilder) {
         sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
     }
 

@@ -98,6 +98,9 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
         if (this.unitConversionActive) {
             requirement.appendTo(fragment);
         } else {
+            /* May sound silly but we are actually requesting the node
+             * to append itself to the SqlFragment and apply unit conversion
+             * because unit conversion is currently not active. */
             requirement.appendToWithUnitConversion(fragment);
         }
         return fragment;

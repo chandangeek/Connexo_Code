@@ -1,13 +1,17 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.util.units.Dimension;
+
 import java.math.BigDecimal;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the optimizations that occur when nodes
@@ -21,6 +25,11 @@ public class OperatorNodeOptimizationsTest {
 
     @Mock
     private ServerExpressionNode node;
+
+    @Before
+    public void initializeMocks() {
+        when(this.node.getIntermediateDimension()).thenReturn(IntermediateDimension.of(Dimension.DIMENSIONLESS));
+    }
 
     @Test
     public void nodePlusZeroIsNode() {

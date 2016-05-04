@@ -45,6 +45,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
     private final MeterActivation meterActivation;
     private VirtualReadingType targetReadingType;
     private VirtualReadingTypeRequirement virtualRequirement;
+    private boolean finished;
 
     VirtualRequirementNode(Formula.Mode mode, VirtualFactory virtualFactory, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
         super();
@@ -54,10 +55,16 @@ class VirtualRequirementNode implements ServerExpressionNode {
         this.deliverable = deliverable;
         this.meterActivation = meterActivation;
         this.targetReadingType = VirtualReadingType.from(this.deliverable.getReadingType());
+        this.finished = false;
     }
 
     ReadingTypeRequirement getRequirement() {
         return requirement;
+    }
+
+    @Override
+    public IntermediateDimension getIntermediateDimension() {
+        return IntermediateDimension.of(this.getSourceReadingType().getDimension());
     }
 
     /**
@@ -142,6 +149,14 @@ class VirtualRequirementNode implements ServerExpressionNode {
         return new MatchingChannelSelector(this.requirement, this.meterActivation).isReadingTypeSupportedInUnitConversion(readingType);
     }
 
+    VirtualReadingType getSourceReadingType() {
+        if (this.finished) {
+            return this.virtualRequirement.getSourceReadingType();
+        } else {
+            return this.getTargetReadingType();
+        }
+    }
+
     VirtualReadingType getTargetReadingType() {
         return this.targetReadingType;
     }
@@ -169,6 +184,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
 
     void finish() {
         this.ensureVirtualized();
+        this.finished = true;
     }
 
     /**

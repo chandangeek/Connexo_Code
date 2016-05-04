@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 
+import com.elster.jupiter.util.units.Dimension;
+
 /**
  * Models a {@link ServerExpressionNode} that represents the <code>null</code> literal.
  *
@@ -12,6 +14,11 @@ class NullNode implements ServerExpressionNode {
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visitNull(this);
+    }
+
+    @Override
+    public IntermediateDimension getIntermediateDimension() {
+        return IntermediateDimension.of(Dimension.DIMENSIONLESS);
     }
 
 }

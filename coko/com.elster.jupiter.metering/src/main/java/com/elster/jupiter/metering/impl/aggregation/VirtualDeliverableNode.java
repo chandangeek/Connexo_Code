@@ -33,6 +33,15 @@ class VirtualDeliverableNode implements ServerExpressionNode {
         this.targetReadingType = VirtualReadingType.from(this.deliverable.getReadingType());
     }
 
+    @Override
+    public IntermediateDimension getIntermediateDimension() {
+        return IntermediateDimension.of(this.getTargetReadingType().getDimension());
+    }
+
+    VirtualReadingType getSourceReadingType() {
+        return this.deliverable.getTargetReadingType();
+    }
+
     VirtualReadingType getPreferredReadingType() {
         return this.targetReadingType;
     }
@@ -69,7 +78,7 @@ class VirtualDeliverableNode implements ServerExpressionNode {
      * @param sqlBuilder The SqlBuilder
      */
     void appendTo(SqlBuilder sqlBuilder) {
-        this.deliverable.appendSimpleReferenceTo(sqlBuilder, this.targetReadingType);
+        this.deliverable.appendSimpleReferenceTo(sqlBuilder);
     }
 
     /**

@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -92,12 +93,14 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
         if (Operator.SAFE_DIVIDE.equals(operator)) {
             return new OperationNode(
                     operator,
+                    operationNode.getIntermediateDimension(),
                     operand1,
                     operand2,
                     operationNode.getSafeDivisor().accept(this));
         } else {
             return new OperationNode(
                     operator,
+                    operationNode.getIntermediateDimension(),
                     operand1,
                     operand2);
         }
@@ -107,7 +110,7 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     public ServerExpressionNode visitFunctionCall(FunctionCallNode functionCall) {
         // Copy as child nodes may be replaced
         List<ServerExpressionNode> arguments = functionCall.getArguments().stream().map(child -> child.accept(this)).collect(Collectors.toList());
-        return new FunctionCallNode(functionCall.getFunction(), arguments);
+        return new FunctionCallNode(functionCall.getFunction(), IntermediateDimension.of(Dimension.DIMENSIONLESS), arguments);
     }
 
     @Override
@@ -134,10 +137,7 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
         }
 
         ServerExpressionNode multiply(BigDecimal multiplier) {
-            return new OperationNode(
-                    Operator.MULTIPLY,
-                    new NumericalConstantNode(multiplier),
-                    this.node);
+            return Operator.MULTIPLY.node(multiplier, this.node);
         }
 
     }
@@ -206,13 +206,9 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
                 Optional<BigDecimal> ctMultiplier = context.getMultiplier(MultiplierType.StandardType.CT);
                 Optional<BigDecimal> vtMultiplier = context.getMultiplier(MultiplierType.StandardType.VT);
                 if (ctMultiplier.isPresent() && vtMultiplier.isPresent()) {
-                    return new OperationNode(
-                            Operator.MULTIPLY,
-                            new OperationNode(
-                                    Operator.DIVIDE,
-                                    new NumericalConstantNode(ctMultiplier.get()),
-                                    new NumericalConstantNode(vtMultiplier.get())),
-                            context.node);
+                    return Operator.MULTIPLY.node(
+                                Operator.DIVIDE.node(ctMultiplier.get(), vtMultiplier.get()),
+                                context.node);
                 } else {
                     return context.node;
                 }

@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.units.Dimension;
 
 /**
  * Models a {@link ServerExpressionNode} as a wrapper for a {@link SqlFragment}.
@@ -28,6 +29,11 @@ class SqlFragmentNode implements ServerExpressionNode {
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visitSqlFragment(this);
+    }
+
+    @Override
+    public IntermediateDimension getIntermediateDimension() {
+        return IntermediateDimension.of(Dimension.DIMENSIONLESS);
     }
 
 }

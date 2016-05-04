@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
+import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -62,6 +63,8 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         VirtualReadingTypeRequirement virtualReadingTypeRequirement = mock(VirtualReadingTypeRequirement.class);
         when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(this.requirement), any(ReadingTypeDeliverable.class), any(VirtualReadingType.class))).thenReturn(virtualReadingTypeRequirement);
         when(virtualReadingTypeRequirement.getPreferredChannel()).thenReturn(this.preferredChannel);
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        when(virtualReadingTypeRequirement.getSourceReadingType()).thenReturn(readingType);
         when(this.meteringService.getMultiplierType(MultiplierType.StandardType.CT)).thenReturn(this.ctMultiplierType);
         when(this.meteringService.getMultiplierType(MultiplierType.StandardType.VT)).thenReturn(this.vtMultiplierType);
         when(this.meteringService.getMultiplierType(MultiplierType.StandardType.Transformer)).thenReturn(this.transformerMultiplierType);
@@ -107,8 +110,10 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     public void recursiveVisitsOnOperationNode() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
         ServerExpressionNode leftOperand = mock(ServerExpressionNode.class);
+        when(leftOperand.getIntermediateDimension()).thenReturn(IntermediateDimension.of(Dimension.DIMENSIONLESS));
         ServerExpressionNode rightOperand = mock(ServerExpressionNode.class);
-        OperationNode node = new OperationNode(Operator.PLUS, leftOperand, rightOperand);
+        when(rightOperand.getIntermediateDimension()).thenReturn(IntermediateDimension.of(Dimension.DIMENSIONLESS));
+        OperationNode node = Operator.PLUS.node(leftOperand, rightOperand);
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitOperation(node);
@@ -125,9 +130,11 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     public void recursiveVisitsOnSafeDivideOperationNode() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
         ServerExpressionNode leftOperand = mock(ServerExpressionNode.class);
+        when(leftOperand.getIntermediateDimension()).thenReturn(IntermediateDimension.of(Dimension.DIMENSIONLESS));
         ServerExpressionNode rightOperand = mock(ServerExpressionNode.class);
+        when(rightOperand.getIntermediateDimension()).thenReturn(IntermediateDimension.of(Dimension.DIMENSIONLESS));
         ServerExpressionNode safeDivisor = mock(ServerExpressionNode.class);
-        OperationNode node = new OperationNode(Operator.SAFE_DIVIDE, leftOperand, rightOperand, safeDivisor);
+        OperationNode node = Operator.SAFE_DIVIDE.safeNode(leftOperand, rightOperand, safeDivisor);
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitOperation(node);
@@ -146,7 +153,7 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
         ServerExpressionNode firstArgument = mock(ServerExpressionNode.class);
         ServerExpressionNode secondArgument = mock(ServerExpressionNode.class);
-        FunctionCallNode node = new FunctionCallNode(Function.MAX, firstArgument, secondArgument);
+        FunctionCallNode node = new FunctionCallNode(Function.MAX, IntermediateDimension.of(Dimension.DIMENSIONLESS), firstArgument, secondArgument);
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitFunctionCall(node);

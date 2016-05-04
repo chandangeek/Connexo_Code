@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
 
@@ -30,6 +31,12 @@ public enum Operator {
         }
 
         @Override
+        public OperationNode node(ServerExpressionNode leftOperand, ServerExpressionNode rightOperand) {
+            IntermediateDimension intermediateDimension = leftOperand.getIntermediateDimension().add(rightOperand.getIntermediateDimension());
+            return new OperationNode(this, intermediateDimension, leftOperand, rightOperand);
+        }
+
+        @Override
         public ServerExpressionNode node(BigDecimal leftOperand, ServerExpressionNode rightOperand) {
             if (BigDecimal.ZERO.compareTo(leftOperand) == 0) {
                 return rightOperand;
@@ -47,6 +54,12 @@ public enum Operator {
         @Override
         public void appendSqlOperatorTo(StringBuilder sqlBuilder) {
             sqlBuilder.append(" - ");
+        }
+
+        @Override
+        public OperationNode node(ServerExpressionNode leftOperand, ServerExpressionNode rightOperand) {
+            IntermediateDimension intermediateDimension = leftOperand.getIntermediateDimension().substract(rightOperand.getIntermediateDimension());
+            return new OperationNode(this, intermediateDimension, leftOperand, rightOperand);
         }
 
         @Override
@@ -76,6 +89,14 @@ public enum Operator {
         }
 
         @Override
+        public OperationNode node(ServerExpressionNode leftOperand, ServerExpressionNode rightOperand) {
+            IntermediateDimension intermediateDimension =
+                    leftOperand.getIntermediateDimension()
+                            .multiply(rightOperand.getIntermediateDimension().getDimension().orElse(Dimension.DIMENSIONLESS));
+            return new OperationNode(this, intermediateDimension, leftOperand, rightOperand);
+        }
+
+        @Override
         public ServerExpressionNode node(BigDecimal leftOperand, ServerExpressionNode rightOperand) {
             if (BigDecimal.ONE.compareTo(leftOperand) == 0) {
                 return rightOperand;
@@ -95,6 +116,14 @@ public enum Operator {
         @Override
         public void appendSqlOperatorTo(StringBuilder sqlBuilder) {
             sqlBuilder.append(" / ");
+        }
+
+        @Override
+        public OperationNode node(ServerExpressionNode leftOperand, ServerExpressionNode rightOperand) {
+            IntermediateDimension intermediateDimension =
+                    leftOperand.getIntermediateDimension()
+                            .divide(rightOperand.getIntermediateDimension().getDimension().orElse(Dimension.DIMENSIONLESS));
+            return new OperationNode(this, intermediateDimension, leftOperand, rightOperand);
         }
 
         @Override
@@ -157,6 +186,19 @@ public enum Operator {
         }
 
         @Override
+        public OperationNode safeNode(ServerExpressionNode leftOperand, ServerExpressionNode rightOperand, ServerExpressionNode safeOperand) {
+            IntermediateDimension intermediateDimension =
+                    leftOperand.getIntermediateDimension()
+                            .divide(rightOperand.getIntermediateDimension().getDimension().orElse(Dimension.DIMENSIONLESS));
+            return new OperationNode(this, intermediateDimension, leftOperand, rightOperand, safeOperand);
+        }
+
+        @Override
+        public OperationNode node(ServerExpressionNode leftOperand, ServerExpressionNode rightOperand) {
+            throw new UnsupportedOperationException("Must specify safe operand, use com.elster.jupiter.metering.impl.aggregation.Operator.safeNode instead");
+        }
+
+        @Override
         public ServerExpressionNode node(ServerExpressionNode leftOperand, BigDecimal rightOperand) {
             if (BigDecimal.ZERO.compareTo(rightOperand) == 0) {
                 // Protect against division by zero on database level
@@ -204,8 +246,20 @@ public enum Operator {
      * @param rightOperand The right operand
      * @return The OperationNodeImpl
      */
-    public OperationNode node(ServerExpressionNode leftOperand, ServerExpressionNode rightOperand) {
-        return new OperationNode(this, leftOperand, rightOperand);
+    public abstract OperationNode node(ServerExpressionNode leftOperand, ServerExpressionNode rightOperand);
+
+    /**
+     * Returns a {@link OperationNode safe division node} for
+     * the specified left and right operands.
+     * Note that this will throw an UnsupportedOperationException
+     * on all operators except {@link #SAFE_DIVIDE}.
+     *
+     * @param leftOperand The left operand
+     * @param rightOperand The right operand
+     * @return The OperationNodeImpl
+     */
+    public OperationNode safeNode(ServerExpressionNode leftOperand, ServerExpressionNode rightOperand, ServerExpressionNode safeOperand) {
+        throw new UnsupportedOperationException("Reserved for SAFE_DIVIDE");
     }
 
     /**
@@ -234,6 +288,10 @@ public enum Operator {
      */
     public ServerExpressionNode node(BigDecimal leftOperand, ServerExpressionNode rightOperand) {
         return this.node(new NumericalConstantNode(leftOperand), rightOperand);
+    }
+
+    public ServerExpressionNode node(BigDecimal leftOperand, BigDecimal rightOperand) {
+        return this.node(leftOperand, new NumericalConstantNode(rightOperand));
     }
 
     public static Operator from(com.elster.jupiter.metering.config.Operator operator) {

@@ -159,7 +159,13 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         } else {
             readingType = VirtualReadingType.from(deliverable.getReadingType());
         }
-        ServerExpressionNode withMultipliers = copied.accept(new ApplyCurrentAndOrVoltageTransformer(this.meteringService, meterActivation));
+        deliverablesPerMeterActivation
+                .values()
+                .stream()
+                .flatMap(Collection::stream)
+                .forEach(this::finish);
+        ServerExpressionNode withUnitConversion = copied.accept(new ApplyUnitConversion(deliverable.getFormula().getMode(), VirtualReadingType.from(deliverable.getReadingType())));
+        ServerExpressionNode withMultipliers = withUnitConversion.accept(new ApplyCurrentAndOrVoltageTransformer(this.meteringService, meterActivation));
         deliverablesPerMeterActivation
                 .get(meterActivation)
                 .add(this.readingTypeDeliverableForMeterActivationFactory
@@ -221,13 +227,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     private void appendAllToSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
         /* Oracle requires that all WITH clauses are generated in the correct order,
          * i.e. one WITH clause can only refer to an already defined with clause.
-         * It suffices to append the definition for all requirements and deliverables
-         * first but therefore we need to virtualize them all first. */
-        deliverablesPerMeterActivation
-                .values()
-                .stream()
-                .flatMap(Collection::stream)
-                .forEach(this::finish);
+         * It suffices to append the definition for all requirements and deliverables. */
         virtualFactory.allRequirements().stream().forEach(requirement -> requirement.appendDefinitionTo(sqlBuilder));
         deliverablesPerMeterActivation
                 .values()

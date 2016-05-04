@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
+import com.elster.jupiter.util.units.Dimension;
 
 import com.google.common.collect.Range;
 
@@ -83,12 +84,11 @@ public class InferReadingTypeTest {
     public void inferConstantsOnly() {
         InferReadingType infer = this.testInstance();
         OperationNode node =
-                new OperationNode(
-                        Operator.PLUS,
+                Operator.PLUS.node(
                         new NumericalConstantNode(BigDecimal.valueOf(123L)),
                         new FunctionCallNode(
                                 Function.MAX,
-                                new NumericalConstantNode(BigDecimal.ZERO),
+                                IntermediateDimension.of(Dimension.DIMENSIONLESS), new NumericalConstantNode(BigDecimal.ZERO),
                                 new NumericalConstantNode(BigDecimal.TEN)));
 
         // Business method
@@ -156,8 +156,9 @@ public class InferReadingTypeTest {
                         requirement2,
                         this.deliverable,
                         this.meterActivation);
-        OperationNode sum = new OperationNode(Operator.PLUS, requirementNode1, requirementNode2);
-        OperationNode multiply = new OperationNode(Operator.MULTIPLY, sum, new NumericalConstantNode(BigDecimal.TEN));
+        this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+        OperationNode sum = Operator.PLUS.node(requirementNode1, requirementNode2);
+        OperationNode multiply = Operator.MULTIPLY.node(sum, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         multiply.accept(infer);
@@ -198,7 +199,7 @@ public class InferReadingTypeTest {
         FunctionCallNode maximum =
                 new FunctionCallNode(
                         Function.MAX,
-                        requirementNode1,
+                        IntermediateDimension.of(Dimension.DIMENSIONLESS), requirementNode1,
                         requirementNode2,
                         new NumericalConstantNode(BigDecimal.TEN));
 
@@ -250,9 +251,9 @@ public class InferReadingTypeTest {
                         requirement2,
                         this.deliverable,
                         this.meterActivation);
-        OperationNode sum = new OperationNode(Operator.PLUS, requirementNode1, requirementNode2);
-        OperationNode multiply = new OperationNode(Operator.MULTIPLY, sum, new NumericalConstantNode(BigDecimal.TEN));
         this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+        OperationNode sum = Operator.PLUS.node(requirementNode1, requirementNode2);
+        OperationNode multiply = Operator.MULTIPLY.node(sum, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         VirtualReadingType preferredReadingType = multiply.accept(infer);
@@ -302,7 +303,7 @@ public class InferReadingTypeTest {
         FunctionCallNode maximum =
                 new FunctionCallNode(
                         Function.MAX,
-                        requirementNode1,
+                        IntermediateDimension.of(Dimension.DIMENSIONLESS), requirementNode1,
                         requirementNode2,
                         new NumericalConstantNode(BigDecimal.TEN));
         this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
@@ -356,8 +357,8 @@ public class InferReadingTypeTest {
                         z,
                         this.deliverable,
                         this.meterActivation);
-        OperationNode sum = new OperationNode(Operator.PLUS, nodeY, nodeZ);
         this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+        OperationNode sum = Operator.PLUS.node(nodeY, nodeZ);
 
         // Business method
         VirtualReadingType preferredReadingType = sum.accept(infer);
@@ -407,7 +408,7 @@ public class InferReadingTypeTest {
         FunctionCallNode maximum =
                 new FunctionCallNode(
                         Function.MAX,
-                        nodeY,
+                        IntermediateDimension.of(Dimension.DIMENSIONLESS), nodeY,
                         nodeZ,
                         new NumericalConstantNode(BigDecimal.TEN));
         this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
@@ -465,19 +466,23 @@ public class InferReadingTypeTest {
                         requirement2,
                         this.deliverable,
                         this.meterActivation);
-        OperationNode sum = new OperationNode(Operator.PLUS, requirementNode1, requirementNode2);
-        OperationNode multiply = new OperationNode(Operator.MULTIPLY, sum, new NumericalConstantNode(BigDecimal.TEN));
         this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+        OperationNode sum = Operator.PLUS.node(requirementNode1, requirementNode2);
+        OperationNode multiply = Operator.MULTIPLY.node(sum, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         VirtualReadingType preferredReadingType = multiply.accept(infer);
 
         // Asserts
         assertThat(preferredReadingType).isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED));
-        assertThat(requirementNode1.getTargetReadingType()).isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED));
-        assertThat(VirtualReadingType.from(requirementNode1.getPreferredChannel().getMainReadingType())).isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATT, Commodity.ELECTRICITY_PRIMARY_METERED));
-        assertThat(requirementNode2.getTargetReadingType()).isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED));
-        assertThat(VirtualReadingType.from(requirementNode2.getPreferredChannel().getMainReadingType())).isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED));
+        assertThat(requirementNode1.getTargetReadingType())
+                .isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED));
+        assertThat(VirtualReadingType.from(requirementNode1.getPreferredChannel().getMainReadingType()))
+                .isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATT, Commodity.ELECTRICITY_PRIMARY_METERED));
+        assertThat(requirementNode2.getTargetReadingType())
+                .isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED));
+        assertThat(VirtualReadingType.from(requirementNode2.getPreferredChannel().getMainReadingType()))
+                .isEqualTo(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED));
     }
 
     /**
@@ -522,7 +527,7 @@ public class InferReadingTypeTest {
         FunctionCallNode maximum =
                 new FunctionCallNode(
                         Function.MAX,
-                        requirementNode1,
+                        IntermediateDimension.of(Dimension.DIMENSIONLESS), requirementNode1,
                         requirementNode2,
                         new NumericalConstantNode(BigDecimal.TEN));
         this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());

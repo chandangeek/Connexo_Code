@@ -93,7 +93,7 @@ public class ExpressionNodeToSqlTest {
     public void testSqlPlusConstant() throws SQLException {
         String sqlText = "sequence.nextval";
         SqlFragmentNode sql = new SqlFragmentNode(sqlText);
-        OperationNode operation = new OperationNode(Operator.PLUS, sql, new NumericalConstantNode(BigDecimal.TEN));
+        OperationNode operation = Operator.PLUS.node(sql, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         SqlFragment sqlFragment = testInstance().visitOperation(operation);
@@ -110,7 +110,7 @@ public class ExpressionNodeToSqlTest {
     public void testSqlMinusConstant() throws SQLException {
         String sqlText = "sequence.nextval";
         SqlFragmentNode sql = new SqlFragmentNode(sqlText);
-        OperationNode operation = new OperationNode(Operator.MINUS, sql, new NumericalConstantNode(BigDecimal.TEN));
+        OperationNode operation = Operator.MINUS.node(sql, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         SqlFragment sqlFragment = testInstance().visitOperation(operation);
@@ -127,7 +127,7 @@ public class ExpressionNodeToSqlTest {
     public void testSqlTimesConstant() throws SQLException {
         String sqlText = "sequence.nextval";
         SqlFragmentNode sql = new SqlFragmentNode(sqlText);
-        OperationNode operation = new OperationNode(Operator.MULTIPLY, sql, new NumericalConstantNode(BigDecimal.TEN));
+        OperationNode operation = Operator.MULTIPLY.node(sql, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         SqlFragment sqlFragment = testInstance().visitOperation(operation);
@@ -144,7 +144,7 @@ public class ExpressionNodeToSqlTest {
     public void testSqlDividedByConstant() throws SQLException {
         String sqlText = "var";
         SqlFragmentNode sql = new SqlFragmentNode(sqlText);
-        OperationNode operation = new OperationNode(Operator.DIVIDE, sql, new NumericalConstantNode(BigDecimal.TEN));
+        OperationNode operation = Operator.DIVIDE.node(sql, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         SqlFragment sqlFragment = testInstance().visitOperation(operation);
@@ -161,7 +161,7 @@ public class ExpressionNodeToSqlTest {
     public void testSafeDivision() throws SQLException {
         SqlFragmentNode sql1 = new SqlFragmentNode("var1");
         SqlFragmentNode sql2 = new SqlFragmentNode("var2");
-        OperationNode operation = new OperationNode(Operator.SAFE_DIVIDE, sql1, sql2, new NumericalConstantNode(BigDecimal.TEN));
+        OperationNode operation = Operator.SAFE_DIVIDE.safeNode(sql1, sql2, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         SqlFragment sqlFragment = testInstance().visitOperation(operation);
@@ -178,7 +178,7 @@ public class ExpressionNodeToSqlTest {
     public void testFunctionCall() throws SQLException {
         SqlFragmentNode sql1 = new SqlFragmentNode("var1");
         SqlFragmentNode sql2 = new SqlFragmentNode("var2");
-        FunctionCallNode node = new FunctionCallNode(Function.SUM, sql1, sql2, new NumericalConstantNode(BigDecimal.TEN));
+        FunctionCallNode node = new FunctionCallNode(Function.SUM, IntermediateDimension.of(Dimension.DIMENSIONLESS), sql1, sql2, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         SqlFragment sqlFragment = testInstance().visitFunctionCall(node);
@@ -373,10 +373,7 @@ public class ExpressionNodeToSqlTest {
         voltage.setTargetReadingType(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.VOLT, Commodity.ELECTRICITY_PRIMARY_METERED));
 
         UnitConversionNode node = new UnitConversionNode(
-                new OperationNode(
-                        Operator.MULTIPLY,
-                        current,
-                        voltage),
+                Operator.MULTIPLY.node(current, voltage),
                 Dimension.POWER,
                 VirtualReadingType.from(
                         IntervalLength.HOUR1,
