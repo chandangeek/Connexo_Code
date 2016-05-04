@@ -32,8 +32,10 @@ public class ChannelInfo {
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode overruledObisCode;
     public BigDecimal overflowValue;
+    public BigDecimal overruledOverflowValue;
     public String flowUnit;
     public Integer nbrOfFractionDigits;
+    public Integer overruledNbrOfFractionDigits;
     public long loadProfileId;
     public long version;
     public VersionInfo<String> parent;
@@ -53,10 +55,12 @@ public class ChannelInfo {
         info.readingType = new ReadingTypeInfo(channel.getReadingType());
         channel.getCalculatedReadingType(clock.instant()).ifPresent(readingType1 -> info.calculatedReadingType = new ReadingTypeInfo(readingType1));
         channel.getOverflow().ifPresent(overflow -> info.overflowValue = overflow);
+        channel.getOverflow().ifPresent(overflow -> info.overruledOverflowValue = overflow); // Todo: change this to the real overruled value
         info.flowUnit = channel.getUnit().isFlowUnit() ? "flow" : "volume";
         info.obisCode = channel.getChannelSpec().getDeviceObisCode();
         info.overruledObisCode = channel.getObisCode();
         info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
+        info.overruledNbrOfFractionDigits = info.nbrOfFractionDigits; // Todo: change this to the real overruled value
         info.loadProfileId = channel.getLoadProfile().getId();
         info.version = channel.getLoadProfile().getVersion();
         Device device = channel.getDevice();
