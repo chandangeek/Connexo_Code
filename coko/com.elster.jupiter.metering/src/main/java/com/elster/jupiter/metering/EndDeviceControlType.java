@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.ami;
+package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;

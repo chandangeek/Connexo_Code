@@ -1,10 +1,11 @@
-package com.elster.jupiter.metering.ami;
+package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.IllegalEnumValueException;
+import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.IllegalMRIDFormatException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -17,7 +18,7 @@ import java.util.Objects;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
 
-public class EndDeviceControlTypeImpl implements EndDeviceControlType, PersistenceAware {
+public final class EndDeviceControlTypeImpl implements EndDeviceControlType, PersistenceAware {
     private static final int MRID_FIELD_COUNT = 4;
     private static final int TYPE_INDEX = 0;
     private static final int DOMAIN_INDEX = 1;
