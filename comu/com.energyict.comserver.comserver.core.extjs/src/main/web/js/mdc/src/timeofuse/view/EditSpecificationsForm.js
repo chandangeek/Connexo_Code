@@ -23,23 +23,23 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseAllowed', 'MDC', 'Time of use allowed'),
-                        name: 'timeOfUseAllowed',
                         defaultType: 'radiofield',
                         layout: 'vbox',
                         items: [
                             {
                                 boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
                                 name: 'timeOfUseAllowed',
-                                inputValue: true
+                                inputValue: 'true'
                             }, {
                                 boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'),
                                 name: 'timeOfUseAllowed',
-                                inputValue: false
+                                inputValue: 'false',
+                                checked: true
                             }
                         ]
                     },
                     {
-                        xtype: 'property-form',
+                        xtype: '',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseOptions', 'MDC', 'Time of use options'),
                         itemId: 'tou-specs-options-form'
                     },
@@ -51,7 +51,7 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                         items: [
                             {
                                 xtype: 'button',
-                                itemId: 'tou-edit-button',
+                                itemId: 'tou-save-specs-button',
                                 text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                                 ui: 'action'
                             },
@@ -72,6 +72,6 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
     },
 
     fillOptions: function (record) {
-        //TODO: code to fill optionsfield
+
     }
 });

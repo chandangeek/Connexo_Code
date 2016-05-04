@@ -32,6 +32,14 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         {
             ref: 'preview',
             selector: 'device-type-tou-setup tou-preview-panel'
+        },
+        {
+            ref: 'editTOUSpecsView',
+            selector: 'tou-devicetype-edit-specs-setup'
+        },
+        {
+            ref: 'editForm',
+            selector: 'tou-devicetype-edit-specs-form'
         }
     ],
 
@@ -40,28 +48,35 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         var me = this;
 
         me.control({
-            'device-type-tou-setup #add-tou-calendars-btn': {
-                click: me.goToAddCalendars
-            },
-            'device-type-tou-setup #tou-no-cal-add-btn': {
-                click: me.goToAddCalendars
-            },
-            'tou-available-cal-setup #btn-add-tou-calendars': {
-                click: me.addAvailableCalendar
-            },
-            'tou-available-cal-setup #btn-cancel-add-tou-calendars': {
-                click: me.cancelAddCalendar
-            },
-            'tou-spec-action-menu': {
-                click: me.chooseSpecificationsAction
-            },
-            'tou-devicetype-action-menu': {
-                click: me.chooseAction
-            },
-            'device-type-tou-setup tou-calendars-grid': {
-                select: this.showPreview
+                'device-type-tou-setup #add-tou-calendars-btn': {
+                    click: me.goToAddCalendars
+                },
+                'device-type-tou-setup #tou-no-cal-add-btn': {
+                    click: me.goToAddCalendars
+                },
+                'tou-available-cal-setup #btn-add-tou-calendars': {
+                    click: me.addAvailableCalendar
+                },
+                'tou-available-cal-setup #btn-cancel-add-tou-calendars': {
+                    click: me.goBackToCalendars
+                },
+                'tou-spec-action-menu': {
+                    click: me.chooseSpecificationsAction
+                },
+                'tou-devicetype-action-menu': {
+                    click: me.chooseAction
+                },
+                'device-type-tou-setup tou-calendars-grid': {
+                    select: this.showPreview
+                },
+                'tou-devicetype-edit-specs-form #tou-save-specs-button': {
+                    click: this.saveTOUSettings
+                },
+                'tou-devicetype-edit-specs-form #tou-edit-cancel-link': {
+                    click: this.goBackToCalendars
+                }
             }
-        })
+        )
     },
 
     showTimeOfUseOverview: function (deviceTypeId) {
@@ -152,11 +167,6 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         });
     },
 
-    cancelAddCalendar: function () {
-        var me = this;
-        me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();
-    },
-
     chooseSpecificationsAction: function (menu, item) {
         var me = this;
         switch (item.action) {
@@ -185,6 +195,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                     deviceTypeId: deviceTypeId,
                     timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
                 });
+                debugger;
                 view.down('tou-devicetype-edit-specs-form').loadRecord(deviceType);
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.deviceTypeId = deviceTypeId;
@@ -296,7 +307,32 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             previewForm.showEmptyMessage();
         }
         preview.down('tou-devicetype-action-menu').record = record;
+    },
+
+    saveTOUSettings: function () {
+        var me = this,
+            form = me.getEditForm(),
+            formErrorsPanel = form.down('#form-errors'),
+            record;
+
+        form.updateRecord();
+        record = form.getRecord();
+        record.save({
+            success: function () {
+                me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();
+            },
+            failure: function (record, operation) {
+                formErrorsPanel.show();
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    form.getForm().markInvalid(json.errors);
+                }
+            }
+        });
+    },
+
+    goBackToCalendars: function () {
+        var me = this;
+        me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();
     }
-
-
 });
