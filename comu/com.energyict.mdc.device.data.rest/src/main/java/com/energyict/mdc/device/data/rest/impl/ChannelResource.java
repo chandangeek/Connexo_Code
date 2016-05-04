@@ -88,20 +88,21 @@ public class ChannelResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = device.getReadingTypeObisCodeUsage(channel.getReadingType());
-        boolean currentOverruledObisCodeIsNotTheCorrectOne =
-            !channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // obiscode overruling wanted...
-            readingTypeObisCodeUsageOptional.isPresent() && // ...but the currently present one...
-            !readingTypeObisCodeUsageOptional.get().getObisCode().equals(channelInfo.overruledObisCode); // ...is different
-        boolean removeCurrentOverruleRecord =
-            ( channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // no obiscode overruling wanted...
-              readingTypeObisCodeUsageOptional.isPresent() )// ...however, currently present
-            ||
-            currentOverruledObisCodeIsNotTheCorrectOne;
+        boolean currentlyNoOverruledObisCodeAlthoughRequested =
+            !channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // obiscode overruling requested...
+            !readingTypeObisCodeUsageOptional.isPresent(), // ...while currently there is none
+        currentOverruledObisCodeIsNotTheCorrectOne =
+            !channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // obiscode overruling requested and...
+            readingTypeObisCodeUsageOptional.isPresent() && // ...the currently present one...
+            !readingTypeObisCodeUsageOptional.get().getObisCode().equals(channelInfo.overruledObisCode), // ...is different
+        currentOverruledObisCodeIsNotNeeded =
+            channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // no obiscode overruling requested...
+            readingTypeObisCodeUsageOptional.isPresent(); // ...however, currently present
 
-        if (removeCurrentOverruleRecord) {
+        if (currentOverruledObisCodeIsNotTheCorrectOne || currentOverruledObisCodeIsNotNeeded) {
             device.removeReadingTypeObisCodeUsage(channel.getReadingType());
         }
-        if (currentOverruledObisCodeIsNotTheCorrectOne) {
+        if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
             device.addReadingTypeObisCodeUsage(channel.getReadingType(), channelInfo.overruledObisCode);
         }
         device.save();
