@@ -71,7 +71,8 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                         activeProcessesParams: {
                             type: 'usagePoint',
                             metrologyConfigurations: record.raw.metrologyConfiguration ? record.raw.metrologyConfiguration.id : null,
-                            privileges: Ext.encode(me.getPrivileges())
+                            privileges: Ext.encode(me.getPrivileges()),
+                            connectionStates: record.get('connectionState').id
                         },
                         startProcessParams: [
                             {
