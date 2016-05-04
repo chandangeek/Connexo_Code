@@ -29,7 +29,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 dataIndex: 'device',
                 flex: 1,
                 renderer: function (val) {
-                    return val.name ? Ext.String.htmlEncode(val.name) : '';
+                    return val.name ? Ext.String.htmlEncode(val.name) : '-';
                 }
             },
             {
@@ -38,7 +38,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 dataIndex: 'currentState',
                 flex: 1,
                 renderer: function (val) {
-                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
+                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
                 }
             },
             {
@@ -47,7 +47,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 dataIndex: 'latestResult',
                 flex: 1,
                 renderer: function (val) {
-                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
+                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
                 }
             },
             {
@@ -55,7 +55,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 text: Uni.I18n.translate('general.nextCommunication', 'DSH', 'Next communication'),
                 dataIndex: 'nextCommunication',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 },
                 flex: 2
             },
@@ -64,7 +64,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 text: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
                 dataIndex: 'startTime',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 },
                 flex: 2
             },
@@ -73,7 +73,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 text: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished successfully on'),
                 dataIndex: 'successfulFinishTime',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 },
                 flex: 2
             },
