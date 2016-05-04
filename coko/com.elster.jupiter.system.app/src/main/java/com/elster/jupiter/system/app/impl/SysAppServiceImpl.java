@@ -16,14 +16,19 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.system.SubsystemService;
 import com.elster.jupiter.system.app.SysAppService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+
+import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -33,16 +38,16 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component(
         name = "com.elster.jupiter.system.app",
-        service = {SysAppService.class, InstallService.class, TranslationKeyProvider.class, ApplicationPrivilegesProvider.class},
+        service = {SysAppService.class, TranslationKeyProvider.class, ApplicationPrivilegesProvider.class},
         property = "name=" + SysAppService.COMPONENTNAME,
         immediate = true
 )
-public class SysAppServiceImpl implements SysAppService, InstallService, TranslationKeyProvider, ApplicationPrivilegesProvider {
+public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider, ApplicationPrivilegesProvider {
 
     public static final String HTTP_RESOURCE_ALIAS = "/admin";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/system";
@@ -51,13 +56,53 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
 
     private volatile ServiceRegistration<App> registration;
     private volatile UserService userService;
+    private volatile AppService appService;
+    private volatile LicenseService licenseService;
+    private volatile TimeService timeService;
+    private volatile BpmService bpmService;
+    private volatile AppServerApplication appServerApplication;
+    private volatile LifeCycleService lifeCycleService;
+    private volatile FileImportService fileImportService;
+    private volatile CustomPropertySetService customPropertySetService;
+    private volatile MeteringService meteringService;
+    private volatile SubsystemService subsystemService;
+    private volatile ServiceCallService serviceCallService;
+    private volatile OrmService ormService;
+    private volatile UpgradeService upgradeService;
 
     public SysAppServiceImpl() {
     }
 
     @Inject
-    public SysAppServiceImpl(UserService userService, BundleContext context) {
+    public SysAppServiceImpl(UserService userService,
+                             AppService appService,
+                             LicenseService licenseService,
+                             TimeService timeService,
+                             BpmService bpmService,
+                             AppServerApplication appServerApplication,
+                             LifeCycleService lifeCycleService,
+                             FileImportService fileImportService,
+                             CustomPropertySetService customPropertySetService,
+                             MeteringService meteringService,
+                             SubsystemService subsystemService,
+                             ServiceCallService serviceCallService,
+                             OrmService ormService,
+                             UpgradeService upgradeService,
+                             BundleContext context) {
         setUserService(userService);
+        setAppService(appService);
+        setLicenseService(licenseService);
+        setTimeService(timeService);
+        setBpmService(bpmService);
+        setAppServerApplication(appServerApplication);
+        setLifeCycleService(lifeCycleService);
+        setFileImportService(fileImportService);
+        setCustomPropertySetService(customPropertySetService);
+        setMeteringService(meteringService);
+        setSubsystemService(subsystemService);
+        setServiceCallService(serviceCallService);
+        setOrmService(ormService);
+        setUpgradeService(upgradeService);
         activate(context);
     }
 
@@ -67,6 +112,15 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
         App app = new App(APPLICATION_KEY, APPLICATION_NAME, APPLICATION_ICON, HTTP_RESOURCE_ALIAS, resource, user -> isAllowed(user));
 
         registration = context.registerService(App.class, app, null);
+
+        DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "");
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(UserService.class).toInstance(userService);
+            }
+        });
+        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Deactivate
@@ -74,46 +128,80 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
         registration.unregister();
     }
 
-    @Override
-    public void install() {
-        assignPrivilegesToDefaultRoles();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME,
-                AppService.COMPONENT_NAME,
-                LicenseService.COMPONENTNAME,
-                TimeService.COMPONENT_NAME,
-                BpmService.COMPONENTNAME,
-                AppServerApplication.COMPONENT_NAME,
-                LifeCycleService.COMPONENTNAME,
-                FileImportService.COMPONENT_NAME,
-                CustomPropertySetService.COMPONENT_NAME,
-                MeteringService.COMPONENTNAME,
-                SubsystemService.COMPONENTNAME,
-                ServiceCallService.COMPONENT_NAME);
-    }
 
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
-    private void assignPrivilegesToDefaultRoles() {
-        String[] adminPrivileges = getAdminPrivileges();
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, APPLICATION_KEY, adminPrivileges);
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, APPLICATION_KEY, adminPrivileges);
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
+    }
+
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
+    }
+
+    @Reference
+    public void setAppServerApplication(AppServerApplication appServerApplication) {
+        this.appServerApplication = appServerApplication;
+    }
+
+    @Reference
+    public void setLifeCycleService(LifeCycleService lifeCycleService) {
+        this.lifeCycleService = lifeCycleService;
+    }
+
+    @Reference
+    public void setFileImportService(FileImportService fileImportService) {
+        this.fileImportService = fileImportService;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setSubsystemService(SubsystemService subsystemService) {
+        this.subsystemService = subsystemService;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     private boolean isAllowed(User user) {
         return !user.getPrivileges(APPLICATION_KEY).isEmpty();
     }
-
-    private String[] getAdminPrivileges() {
-        return SysAppPrivileges.getApplicationPrivileges().stream().toArray(String[]::new);
-    }
-
 
     @Override
     public List<String> getApplicationPrivileges() {
