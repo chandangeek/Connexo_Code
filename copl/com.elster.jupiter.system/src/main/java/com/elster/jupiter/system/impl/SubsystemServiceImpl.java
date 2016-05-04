@@ -3,7 +3,6 @@ package com.elster.jupiter.system.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.system.RuntimeComponent;
 import com.elster.jupiter.system.Subsystem;
 import com.elster.jupiter.system.SubsystemService;
@@ -11,6 +10,7 @@ import com.elster.jupiter.system.security.Privileges;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -18,7 +18,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,9 +28,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @org.osgi.service.component.annotations.Component(name = "com.elster.jupiter.system.impl",
-        service = {SubsystemService.class, PrivilegesProvider.class, TranslationKeyProvider.class, InstallService.class},
+        service = {SubsystemService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
         property = "name=" + SubsystemService.COMPONENTNAME, immediate = true)
-public class SubsystemServiceImpl implements SubsystemService, PrivilegesProvider, TranslationKeyProvider, InstallService {
+public class SubsystemServiceImpl implements SubsystemService, PrivilegesProvider, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(SubsystemServiceImpl.class.getName());
 
@@ -121,13 +120,4 @@ public class SubsystemServiceImpl implements SubsystemService, PrivilegesProvide
         this.bundleContext = context;
     }
 
-    @Override
-    public void install() {
-        // NO-OP
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Collections.emptyList();
-    }
 }
