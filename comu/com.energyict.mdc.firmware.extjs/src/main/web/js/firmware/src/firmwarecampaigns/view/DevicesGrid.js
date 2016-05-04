@@ -11,6 +11,9 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
     overflowY: 'auto',
     maxHeight: 430,
     campaignIsOngoing: null,
+    viewConfig: {
+        markDirty:false
+    },
 
     initComponent: function () {
         var me = this;
