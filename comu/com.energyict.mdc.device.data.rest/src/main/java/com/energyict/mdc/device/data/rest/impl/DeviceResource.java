@@ -674,10 +674,7 @@ public class DeviceResource {
     private List<DeviceTopologyInfo> getDataLoggerSlavesForDevice(Device device) {
         List<DeviceTopologyInfo> dataLoggerSlaves = new ArrayList<>();
         if (device.getDeviceConfiguration().isDataloggerEnabled()) {
-            // TODO: get the data logger slaves from this device
-//            Device slaveDevice = resourceHelper.findDeviceByMrIdOrThrowException("GDE_simple_slave2");
-//            DeviceTopologyInfo info = DeviceTopologyInfo.from(slaveDevice, Optional.of(slaveDevice.getCreateTime()));
-//            dataLoggerSlaves.add(info);
+            resourceHelper.getDataLoggerSlaves(device);
         }
         return dataLoggerSlaves;
     }

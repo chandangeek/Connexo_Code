@@ -33,6 +33,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -78,10 +79,11 @@ public class ResourceHelper {
     private final MasterDataService masterDataService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final CustomPropertySetService customPropertySetService;
+    private final TopologyService topologyService;
     private final Clock clock;
 
     @Inject
-    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService) {
+    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService, TopologyService topologyService) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -98,6 +100,7 @@ public class ResourceHelper {
         this.masterDataService = masterDataService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.customPropertySetService = customPropertySetService;
+        this.topologyService = topologyService;
         this.clock = clock;
     }
 
@@ -1020,4 +1023,10 @@ public class ResourceHelper {
         }
         return info -> list.build().stream().allMatch(p -> p.test(info));
     }
+
+    public List<DeviceTopologyInfo> getDataLoggerSlaves(Device device){
+        List<Device> slaves = topologyService.findDataLoggerSlaves(device);
+        return slaves.stream().map((slave) -> DeviceTopologyInfo.from(slave, Optional.of(slave.getCreateTime()))).collect(Collectors.toList());
+    }
+
 }
