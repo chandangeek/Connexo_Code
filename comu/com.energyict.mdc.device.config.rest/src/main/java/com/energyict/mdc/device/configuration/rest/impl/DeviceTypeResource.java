@@ -25,6 +25,7 @@ import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -35,11 +36,13 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.swing.text.html.Option;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -60,6 +63,7 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -162,6 +166,7 @@ public class DeviceTypeResource {
         deviceType.setName(deviceTypeInfo.name);
         deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
         deviceType.setDeviceTypePurpose(getDeviceTypePurpose(deviceTypeInfo));
+        deviceType.setTimeOfUseAllowed(deviceTypeInfo.timeOfUseAllowed);
         if (deviceTypeInfo.registerTypes != null) {
             updateRegisterTypeAssociations(deviceType, deviceTypeInfo.registerTypes);
         }
@@ -576,6 +581,37 @@ public class DeviceTypeResource {
                 .forEach(info -> deviceType.addCalendar(calendarService.findCalendar(info.id).get()));
 
         return Response.ok().build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/{id}/timeofuseoptions")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response getTimeOfUseManagementOptions(@PathParam("id") long id) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        TimeOfUseOptionsInfo timeOfUseOptionsInfo = getTimeOfUseOptions(deviceType);
+
+        return Response.ok(timeOfUseOptionsInfo).build();
+    }
+
+    private TimeOfUseOptionsInfo getTimeOfUseOptions(DeviceType deviceType) {
+        TimeOfUseOptionsInfo timeOfUseOptionsInfo = new TimeOfUseOptionsInfo();
+        Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(deviceType);
+        Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(deviceType);
+        Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions).orElse(Collections.emptySet());
+
+        supportedCalendarOptions.stream()
+                .forEach(op -> timeOfUseOptionsInfo.supportedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+        allowedOptions.stream()
+                .forEach(op ->
+                timeOfUseOptionsInfo.allowedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+
+        timeOfUseOptionsInfo.isAllowed = !allowedOptions.isEmpty();
+        timeOfUseOptionsInfo.version = timeOfUseOptions.map(TimeOfUseOptions::getVersion).orElse(0L);
+
+        return timeOfUseOptionsInfo;
+
     }
 
     private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
