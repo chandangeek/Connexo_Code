@@ -90,20 +90,21 @@ public class RegisterResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?, ?> register = doGetRegister(mRID, registerId);
         Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = device.getReadingTypeObisCodeUsage(register.getReadingType());
-        boolean currentOverruledObisCodeIsNotTheCorrectOne =
-            !registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // obiscode overruling wanted...
-            readingTypeObisCodeUsageOptional.isPresent() && // ...but the currently present one...
-            !readingTypeObisCodeUsageOptional.get().getObisCode().equals(registerInfo.overruledObisCode); // ...is different
-        boolean removeCurrentOverruleRecord =
-            ( registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // no obiscode overruling wanted...
-              readingTypeObisCodeUsageOptional.isPresent() )// ...however, currently present
-            ||
-            currentOverruledObisCodeIsNotTheCorrectOne;
+        boolean currentlyNoOverruledObisCodeAlthoughRequested =
+            !registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // obiscode overruling requested...
+            !readingTypeObisCodeUsageOptional.isPresent(), // ...while currently there is none
+        currentOverruledObisCodeIsNotTheCorrectOne =
+            !registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // obiscode overruling requested and...
+            readingTypeObisCodeUsageOptional.isPresent() && // ...the currently present one...
+            !readingTypeObisCodeUsageOptional.get().getObisCode().equals(registerInfo.overruledObisCode), // ...is different
+        currentOverruledObisCodeIsNotNeeded =
+            registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // no obiscode overruling requested...
+            readingTypeObisCodeUsageOptional.isPresent(); // ...however, currently present
 
-        if (removeCurrentOverruleRecord) {
+        if (currentOverruledObisCodeIsNotTheCorrectOne || currentOverruledObisCodeIsNotNeeded) {
             device.removeReadingTypeObisCodeUsage(register.getReadingType());
         }
-        if (currentOverruledObisCodeIsNotTheCorrectOne) {
+        if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
             device.addReadingTypeObisCodeUsage(register.getReadingType(), registerInfo.overruledObisCode);
         }
         device.save();
