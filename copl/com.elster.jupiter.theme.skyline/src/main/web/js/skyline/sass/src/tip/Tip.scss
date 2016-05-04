@@ -13,7 +13,8 @@
   border-color: $tip-border-color;
   background-color: $tip-background-color;
   border-radius: $tip-border-radius;
-  overflow-wrap: break-word
+  overflow-wrap: break-word;
+  padding-left: 8px;
 }
 
 .#{$prefix}tip-anchor {
