@@ -4,7 +4,7 @@
 Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
     extend: 'Ext.form.field.Display',
     xtype: 'displayfield-with-info-icon',
-    emptyText: '',
+    emptyText: '-',
 
     /**
      * @cfg {String} infoTooltip

@@ -13,7 +13,9 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         'Uni.view.search.field.internal.DateRange',
         'Uni.view.search.field.internal.NumberRange',
         'Uni.view.search.field.internal.Operator',
-        'Uni.model.search.Value'
+        'Uni.model.search.Value',
+        'Uni.view.search.field.internal.QuantityField',
+        'Uni.view.search.field.internal.QuantityRange'
     ],
 
     defaults: {
@@ -76,8 +78,14 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
     },
 
     setValue: function (value) {
-        this.down('#filter-operator').setValue(value.get('operator'));
-        this.getField().setValue(value.get('criteria'));
+        Ext.suspendLayouts();
+        if (!Ext.isEmpty(value)) {
+            this.down('#filter-operator').setValue(value.get('operator'));
+            this.getField().setValue(value.get('criteria'));
+        } else {
+            this.reset();
+        }
+        Ext.resumeLayouts(true);
     },
 
     reset: function() {

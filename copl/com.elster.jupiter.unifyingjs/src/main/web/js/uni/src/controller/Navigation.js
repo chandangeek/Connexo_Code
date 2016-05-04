@@ -63,7 +63,7 @@ Ext.define('Uni.controller.Navigation', {
             },
             'navigationHeader #globalSearch': {
                 afterrender: me.initSearch
-            },
+            }
         });
 
         me.getApplication().on('changemaincontentevent', me.showContent, me);

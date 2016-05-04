@@ -37,7 +37,7 @@ Ext.define('Uni.view.search.field.Numeric', {
     addCriteria: function () {
         var me = this;
 
-        me.down('menu').add(me.createCriteriaLine({
+        me.add(me.createCriteriaLine({
             removable: true
         }));
     },
