@@ -7,14 +7,18 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.upgrade.FullInstaller;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-class Installer {
+class Installer implements FullInstaller {
 
     public static final String DATA_LIFE_CYCLE_DESTINATION_NAME = "DataLifeCycle";
     public static final String DATA_LIFE_CYCLE_DISPLAY_NAME = "Handle purge data";
@@ -24,6 +28,7 @@ class Installer {
     private TaskService taskService;
     private MeteringService meteringService;
 
+    @Inject
     Installer (DataModel dataModel, MessageService messageService, TaskService taskService, MeteringService meteringService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
@@ -31,7 +36,9 @@ class Installer {
         this.meteringService = meteringService;
     }
 
-    void install() {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
         List<LifeCycleCategory> categories = new ArrayList<>();
         for (LifeCycleCategoryKind category : LifeCycleCategoryKind.values()) {
             LifeCycleCategory newCategory = new LifeCycleCategoryImpl(dataModel, meteringService).init(category);
@@ -43,6 +50,7 @@ class Installer {
             categories.add(newCategory);
         }
         createTask();
+
     }
 
     private DestinationSpec getDestination() {

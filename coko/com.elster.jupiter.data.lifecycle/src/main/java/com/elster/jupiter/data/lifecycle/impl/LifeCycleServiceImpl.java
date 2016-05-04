@@ -17,13 +17,14 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -36,20 +37,22 @@ import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.streams.Functions.asStream;
 
 @Component(
 		name="com.elster.jupiter.data.lifecycle",
 		property = "name=" + LifeCycleService.COMPONENTNAME,
-		service = {LifeCycleService.class, TranslationKeyProvider.class, InstallService.class, PrivilegesProvider.class},
+		service = {LifeCycleService.class, TranslationKeyProvider.class, PrivilegesProvider.class},
 		immediate = true)
-public class LifeCycleServiceImpl implements LifeCycleService, InstallService, TranslationKeyProvider, PrivilegesProvider{
+public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyProvider, PrivilegesProvider{
 
 	private volatile OrmService ormService;
 	private volatile DataModel dataModel;
@@ -60,12 +63,13 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
     private volatile MeteringService meteringService;
     private volatile UserService userService;
 	private volatile Clock clock;
+	private volatile UpgradeService upgradeService;
 
 	public LifeCycleServiceImpl() {
 	}
 
 	@Inject
-	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService, IdsService idsService, MeteringService meteringService, UserService userService, Clock clock) {
+	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService, IdsService idsService, MeteringService meteringService, UserService userService, Clock clock, UpgradeService upgradeService) {
 		this();
 		setOrmService(ormService);
 		setNlsService(nlsService);
@@ -75,21 +79,8 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 		setMeteringService(meteringService);
         setUserService(userService);
 		setClock(clock);
+        setUpgradeService(upgradeService);
 		activate();
-		if (!dataModel.isInstalled()) {
-			install();
-		}
-	}
-
-	@Override
-	public void install() {
-		dataModel.install(true, true);
-		new Installer(dataModel, messageService, taskService, meteringService).install();
-	}
-
-	@Override
-	public List<String> getPrerequisiteModules() {
-		return Arrays.asList(OrmService.COMPONENTNAME, MessageService.COMPONENTNAME, TaskService.COMPONENTNAME, NlsService.COMPONENTNAME, UserService.COMPONENTNAME);
 	}
 
 	@Reference
@@ -109,8 +100,11 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 				bind(DataModel.class).toInstance(dataModel);
 				bind(Thesaurus.class).toInstance(thesaurus);
 				bind(MeteringService.class).toInstance(meteringService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(TaskService.class).toInstance(taskService);
 			}
 		});
+        upgradeService.register(identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 	}
 	@Reference
 	public void setNlsService(NlsService nlsService) {
@@ -147,7 +141,12 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 		this.clock = clock;
 	}
 
-	@Override
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
+    @Override
 	public List<LifeCycleCategory> getCategories() {
 		return dataModel.stream(LifeCycleCategory.class)
 			.sorted(Comparator.comparing(LifeCycleCategory::getKind))
