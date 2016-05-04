@@ -27,6 +27,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingConnectionMethodSolutionImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingSecuritySetSolutionImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
@@ -1048,7 +1049,28 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .add();
         }
-    };
+    },
+
+    DTC_TIMEOFUSEMANAGEMENTOPTIONS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<TimeOfUseOptions> table = dataModel.addTable(name(), TimeOfUseOptions.class);
+            table.map(TimeOfUseOptionsImpl.class);
+            Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
+            table.column("INSTALL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.INSTALL.fieldName()).add();
+            table.column("ACTIVATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.ACTIVATE.fieldName()).add();
+            table.column("ACTIVATEONDATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.ACTIVATEONDATE.fieldName()).add();
+            table.addAuditColumns();
+            table.primaryKey("DTC_PK_TIMEOFUSEOPTIONS").on(deviceTypeColumn).add();
+            table.foreignKey("DTC_TOUOPTIONS_FK_DEVICETYPE")
+                    .references(DTC_DEVICETYPE.name())
+                    .on(deviceTypeColumn)
+                    .onDelete(CASCADE)
+                    .map(TimeOfUseOptionsImpl.Fields.DEVICETYPE.fieldName())
+                    .add();
+        }
+    }
+    ;
 
     abstract void addTo(DataModel component);
 }

@@ -68,6 +68,8 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -137,6 +139,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile EstimationService estimationService;
     private volatile QueryService queryService;
     private volatile CalendarService calendarService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -164,6 +167,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setFiniteStateMachineService(finiteStateMachineService);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.setCalendarService(calendarService);
+        this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.activate();
         this.install();
     }
@@ -640,6 +644,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
     @SuppressWarnings("unused")
     public void setPluggableService(PluggableService pluggableService) {
         // Not actively used but required for foreign keys in TableSpecs
@@ -840,5 +849,20 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id) {
         return this.getDataModel().mapper(DeviceConfigConflictMapping.class).getUnique("id", id);
+    }
+
+    @Override
+    public Set<ProtocolSupportedCalendarOptions> getSupportedTimeOfUseOptionsFor(DeviceType deviceType) {
+        return deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages().stream()
+                .map(this.deviceMessageSpecificationService::getProtocolSupportedCalendarOptionsFor)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(Collectors.toCollection(HashSet::new));
+    }
+
+    @Override
+    public Set<ProtocolSupportedCalendarOptions> findTimeOfUseOptions(DeviceType deviceType) {
+
+        return null;
     }
 }
