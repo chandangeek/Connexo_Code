@@ -129,44 +129,27 @@ public class ApplyUnitConversion implements ServerExpressionNode.Visitor<ServerE
             // Only constants or nodes that do not require unit conversion
             return false;
         }
-        Set<IntervalLength> intervalLengths =
+        Set<MetricMultiplier> unitMultipliers =
                 sourceReadingTypes
                         .stream()
-                        .map(VirtualReadingType::getIntervalLength)
+                        .map(VirtualReadingType::getUnitMultiplier)
                         .collect(Collectors.toSet());
-        if (intervalLengths.size() > 1) {
-            /* At least two different source interval lengths
-             * so cannot combine them into a single UnitConversionNode
-             * because we would not know what time based aggregation to apply. */
-            return false;
+        if (unitMultipliers.size() > 1) {
+            /* At least two different source unit multipliers so at least
+             * one node will need unit multiplier rescaling in combination
+             * with a dangerous numerical operation and that is a recipe for disaster. */
+            return true;
         } else {
-            if (intervalLengths.iterator().next().equals(this.targetReadingType.getIntervalLength())) {
-                // Won't be needing time based aggregation so we don't care about any unit multiplier rescaling
+            // Number of unit multipliers must be 1 since number of source reading types > 0
+            if (unitMultipliers.iterator().next().equals(this.targetReadingType.getUnitMultiplier())) {
                 return false;
-            }
-            // IntervalLength is different from target interval length so we need time based aggregation
-            Set<MetricMultiplier> unitMultipliers =
-                    sourceReadingTypes
-                            .stream()
-                            .map(VirtualReadingType::getUnitMultiplier)
-                            .collect(Collectors.toSet());
-            if (unitMultipliers.size() > 1) {
-                /* At least two different source unit multipliers so at least
-                 * one node will need unit multiplier rescaling in combination
-                 * with time based aggregation and that is a recipe for disaster. */
-                return true;
             } else {
-                // Number of unit multipliers must be 1 since number of source reading types > 0
-                if (unitMultipliers.iterator().next().equals(this.targetReadingType.getUnitMultiplier())) {
-                    return false;
-                } else {
-                    return sourceReadingTypes
-                            .stream()
-                            .map(VirtualReadingType::getUnit)
-                            .map(ReadingTypeUnit::getUnit)
-                            .map(Unit::getDimension)
-                            .allMatch(this::supportsRescaling);
-                }
+                return sourceReadingTypes
+                        .stream()
+                        .map(VirtualReadingType::getUnit)
+                        .map(ReadingTypeUnit::getUnit)
+                        .map(Unit::getDimension)
+                        .allMatch(this::supportsRescaling);
             }
         }
     }

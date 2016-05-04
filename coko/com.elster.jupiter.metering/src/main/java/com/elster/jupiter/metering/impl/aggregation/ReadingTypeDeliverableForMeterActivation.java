@@ -96,10 +96,6 @@ class ReadingTypeDeliverableForMeterActivation {
         return this.getRange().toString();
     }
 
-    void finish() {
-        this.expressionNode.accept(new FinishRequirementAndDeliverableNodes());
-    }
-
     void appendSimpleReferenceTo(SqlBuilder sqlBuilder) {
         sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
     }
@@ -314,68 +310,6 @@ class ReadingTypeDeliverableForMeterActivation {
         } else {
             return Optional.empty();
         }
-    }
-
-    private class FinishRequirementAndDeliverableNodes implements ServerExpressionNode.Visitor<Void> {
-        @Override
-        public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
-            requirement.finish();
-            return null;
-        }
-
-        @Override
-        public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-            return null;
-        }
-
-        @Override
-        public Void visitConstant(NumericalConstantNode constant) {
-            // Nothing to finish here
-            return null;
-        }
-
-        @Override
-        public Void visitConstant(StringConstantNode constant) {
-            // Nothing to finish here
-            return null;
-        }
-
-        @Override
-        public Void visitSqlFragment(SqlFragmentNode variable) {
-            // Nothing to finish here
-            return null;
-        }
-
-        @Override
-        public Void visitNull(NullNode nullNode) {
-            // Nothing to finish here
-            return null;
-        }
-
-        @Override
-        public Void visitUnitConversion(UnitConversionNode unitConversionNode) {
-            // Nothing to finish here
-            return null;
-        }
-
-        @Override
-        public Void visitOperation(OperationNode operation) {
-            operation.getLeftOperand().accept(this);
-            operation.getRightOperand().accept(this);
-            return null;
-        }
-
-        @Override
-        public Void visitFunctionCall(FunctionCallNode functionCall) {
-            functionCall.getArguments().forEach(child -> child.accept(this));
-            return null;
-        }
-
-        @Override
-        public Void visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
-            return aggregationNode.getAggregatedExpression().accept(this);
-        }
-
     }
 
 }

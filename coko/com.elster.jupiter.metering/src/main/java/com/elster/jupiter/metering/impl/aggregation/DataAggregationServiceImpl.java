@@ -159,11 +159,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         } else {
             readingType = VirtualReadingType.from(deliverable.getReadingType());
         }
-        deliverablesPerMeterActivation
-                .values()
-                .stream()
-                .flatMap(Collection::stream)
-                .forEach(this::finish);
+        copied.accept(new FinishRequirementAndDeliverableNodes());
         ServerExpressionNode withUnitConversion = copied.accept(new ApplyUnitConversion(deliverable.getFormula().getMode(), VirtualReadingType.from(deliverable.getReadingType())));
         ServerExpressionNode withMultipliers = withUnitConversion.accept(new ApplyCurrentAndOrVoltageTransformer(this.meteringService, meterActivation));
         deliverablesPerMeterActivation
@@ -234,10 +230,6 @@ public class DataAggregationServiceImpl implements DataAggregationService {
                 .stream()
                 .flatMap(Collection::stream)
                 .forEach(each -> each.appendDefinitionTo(sqlBuilder));
-    }
-
-    private void finish(ReadingTypeDeliverableForMeterActivation readingTypeDeliverableForMeterActivation) {
-        readingTypeDeliverableForMeterActivation.finish();
     }
 
     private Map<ReadingType, List<CalculatedReadingRecord>> execute(SqlBuilder sqlBuilder) throws SQLException {
