@@ -11,12 +11,16 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.upgrade.FullInstaller;
 
+import javax.inject.Inject;
 import java.util.logging.Logger;
 
-public class Installer {
+public class Installer implements FullInstaller {
     private static final Logger LOG = Logger.getLogger("IssueInstaller");
 
     private static final String ISSUE_OVERDUE_TASK_NAME = "IssueOverdueTask";
@@ -29,6 +33,7 @@ public class Installer {
     private final MessageService messageService;
     private final TaskService taskService;
 
+    @Inject
     public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, TaskService taskService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
@@ -37,8 +42,9 @@ public class Installer {
         this.taskService = taskService;
     }
 
-    public void install(boolean executeDDL) {
-        run(() -> dataModel.install(executeDDL, true), "database schema. Execute command 'ddl " + IssueService.COMPONENT_NAME + "' and apply the sql script manually");
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
+        run(() -> dataModelUpgrader.upgrade(dataModel, Version.latest()), "database schema. Execute command 'ddl " + IssueService.COMPONENT_NAME + "' and apply the sql script manually");
         run(this::createViews, "view for all issues");
         run(this::createStatuses, "default statuses");
         run(this::createIssueOverdueTask, "overdue task");
