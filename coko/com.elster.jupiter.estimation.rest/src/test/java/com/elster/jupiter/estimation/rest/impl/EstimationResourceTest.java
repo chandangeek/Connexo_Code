@@ -59,7 +59,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.*;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
@@ -369,7 +369,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         info.description="desc";
 
         EstimationRuleSet ruleSet = mockDefaultRuleSet();
-        when(estimationService.createEstimationRuleSet(info.name, info.description)).thenReturn(ruleSet);
+        when(estimationService.createEstimationRuleSet(info.name, info.description, null)).thenReturn(ruleSet);
         Response response = target("/estimation").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
