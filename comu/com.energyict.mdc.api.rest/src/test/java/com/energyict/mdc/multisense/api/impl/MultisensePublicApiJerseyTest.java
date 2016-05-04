@@ -11,6 +11,9 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.devtools.tests.Matcher;
 import com.elster.jupiter.domain.util.Finder;
@@ -18,7 +21,20 @@ import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.GasDetail;
+import com.elster.jupiter.metering.HeatDetail;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointPropertySet;
+import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -51,6 +67,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPortPool;
@@ -81,6 +98,8 @@ import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
@@ -95,6 +114,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.longThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -134,6 +154,12 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     DeviceMessageService deviceMessageService;
     @Mock
     CommunicationTaskService communicationTaskService;
+    @Mock
+    MeteringService meteringService;
+    @Mock
+    CustomPropertySetService customPropertySetService;
+    @Mock
+    MetrologyConfigurationService metrologyConfigurationService;
 
     @Override
     protected Application getApplication() {
@@ -156,6 +182,9 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setSchedulingService(schedulingService);
         application.setDeviceMessageService(deviceMessageService);
         application.setCommunicationTaskService(communicationTaskService);
+        application.setMeteringService(meteringService);
+        application.setCustomPropertySetService(customPropertySetService);
+        application.setMetrologyConfigurationService(metrologyConfigurationService);
         return application;
     }
 
@@ -609,5 +638,98 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(eq(id), longThat(Matcher.matches(v->v!=version)))).thenReturn(Optional.empty());
         when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(id, version)).thenReturn(Optional.of(mock));
         return mock;
+    }
+
+    protected UsagePoint mockUsagePoint(long id, String name, long version, ServiceKind serviceKind) {
+        UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
+        when(extension.getAllPropertySets()).thenReturn(Collections.emptyList());
+        UsagePointDetail detail;
+        switch (serviceKind) {
+            case ELECTRICITY:
+                detail = mock(ElectricityDetail.class);
+                break;
+            case GAS:
+                detail = mock(GasDetail.class);
+                break;
+            case WATER:
+                detail = mock(WaterDetail.class);
+                break;
+            case HEAT:
+                detail = mock(HeatDetail.class);
+                break;
+            default:
+                detail = null;
+                break;
+        }
+        return mockUsagePoint(id, name, version, extension, serviceKind, detail);
+    }
+
+    protected UsagePoint mockUsagePoint(long id, String name, long version, ServiceKind serviceKind, UsagePointDetail detail) {
+        UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
+        when(extension.getAllPropertySets()).thenReturn(Collections.emptyList());
+        return mockUsagePoint(id, name, version, extension, serviceKind, detail);
+    }
+
+    private UsagePoint mockUsagePoint(long id, String name, long version, UsagePointCustomPropertySetExtension extension, ServiceKind serviceKind, UsagePointDetail detail) {
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        when(usagePoint.getId()).thenReturn(id);
+        when(usagePoint.getVersion()).thenReturn(version);
+        when(usagePoint.getName()).thenReturn(name);
+        when(usagePoint.getAliasName()).thenReturn("alias " + name);
+        when(usagePoint.getDescription()).thenReturn("usage point desc");
+        when(usagePoint.getOutageRegion()).thenReturn("outage region");
+        when(usagePoint.getReadRoute()).thenReturn("read route");
+        when(usagePoint.getServiceLocationString()).thenReturn("location");
+        ServiceCategory serviceCategory = mock(ServiceCategory.class);
+        when(serviceCategory.getKind()).thenReturn(serviceKind);
+        when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
+        doReturn(Optional.ofNullable(detail)).when(usagePoint).getDetail(any(Instant.class));
+        when(usagePoint.getMRID()).thenReturn("MRID");
+        when(usagePoint.getInstallationTime()).thenReturn(LocalDateTime.of(2016, 3, 20, 11, 0)
+                .toInstant(ZoneOffset.UTC));
+        when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");
+        when(usagePoint.getServicePriority()).thenReturn("service priority");
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+
+        when(usagePoint.forCustomProperties()).thenReturn(extension);
+        when(meteringService.findUsagePoint(id)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional
+                .empty());
+        when(meteringService.findAndLockUsagePointByIdAndVersion(id, version)).thenReturn(Optional.of(usagePoint));
+        return usagePoint;
+    }
+
+    protected UsagePointPropertySet mockUsagePointPropertySet(long id, CustomPropertySet cps, UsagePoint usagePoint, UsagePointCustomPropertySetExtension extension) {
+        UsagePointPropertySet mock = mock(UsagePointPropertySet.class);
+        when(mock.getUsagePoint()).thenReturn(usagePoint);
+        when(mock.getCustomPropertySet()).thenReturn(cps);
+        when(mock.getId()).thenReturn(id);
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty("name", "Valerie");
+        values.setProperty("age", BigDecimal.valueOf(21));
+        when(mock.getValues()).thenReturn(values);
+        when(extension.getPropertySet(id)).thenReturn(mock);
+        return mock;
+    }
+
+
+    protected PropertySpec mockDateTimePropertySpec(Date date) {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.isRequired()).thenReturn(true);
+        when(propertySpec.getName()).thenReturn("datetime.property");
+        when(propertySpec.getValueFactory()).thenReturn(new DateAndTimeFactory());
+        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
+        when(possibleValues.getDefault()).thenReturn(date);
+        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
+        return propertySpec;
+    }
+
+    protected MetrologyConfiguration mockMetrologyConfiguration(long id, String name, long version) {
+        MetrologyConfiguration metrologyConfiguration = mock(MetrologyConfiguration.class);
+        when(metrologyConfiguration.getId()).thenReturn(id);
+        when(metrologyConfiguration.getName()).thenReturn(name);
+        when(metrologyConfiguration.getVersion()).thenReturn(version);
+        when(metrologyConfigurationService.findMetrologyConfiguration(id)).thenReturn(Optional.of(metrologyConfiguration));
+        return metrologyConfiguration;
     }
 }

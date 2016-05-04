@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by bvn on 7/15/15.
  */
-public class PartialConnectionTaskInfo extends LinkInfo {
+public class PartialConnectionTaskInfo extends LinkInfo<Long> {
     public String name;
     public ConnectionTaskType direction;
     public String connectionType;

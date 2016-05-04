@@ -5,7 +5,7 @@ import com.energyict.mdc.common.rest.IntervalInfo;
 
 import java.util.List;
 
-public class DeviceSecurityPropertySetInfo extends LinkInfo {
+public class DeviceSecurityPropertySetInfo extends LinkInfo<Long> {
 
     public LinkInfo configuredSecurityPropertySet;
     public IntervalInfo effectivePeriod;

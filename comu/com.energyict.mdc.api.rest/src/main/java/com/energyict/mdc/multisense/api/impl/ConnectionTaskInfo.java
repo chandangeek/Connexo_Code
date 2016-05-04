@@ -14,15 +14,15 @@ import java.util.List;
 /**
  * Created by bvn on 7/13/15.
  */
-public class ConnectionTaskInfo extends LinkInfo {
+public class ConnectionTaskInfo extends LinkInfo<Long> {
     @NotNull(groups = {POST.class, PUT.class})
     public ConnectionTaskType direction;
-    public LinkInfo connectionMethod;
+    public LinkInfo<Long> connectionMethod;
     @XmlJavaTypeAdapter(ConnectionTaskLifecycleStateAdapter.class)
     public ConnectionTask.ConnectionTaskLifecycleStatus status;
     public String connectionType;
-    public LinkInfo comPortPool;
-    public LinkInfo device;
+    public LinkInfo<Long> comPortPool;
+    public LinkInfo<Long> device;
     public Boolean isDefault;
 
     // Scheduled

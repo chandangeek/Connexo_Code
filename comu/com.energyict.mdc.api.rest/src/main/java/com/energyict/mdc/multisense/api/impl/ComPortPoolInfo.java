@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * Created by bvn on 7/14/15.
  */
-public class ComPortPoolInfo extends LinkInfo{
+public class ComPortPoolInfo extends LinkInfo<Long> {
     public String name;
     public Boolean active;
     public String description;

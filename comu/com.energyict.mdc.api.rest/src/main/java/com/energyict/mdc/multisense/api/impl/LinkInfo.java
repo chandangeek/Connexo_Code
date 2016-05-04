@@ -6,11 +6,11 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * Created by bvn on 4/30/15.
  */
-public class LinkInfo {
+public class LinkInfo<T> {
     /**
      * This entity's unique identifier
      */
-    public Long id;
+    public T id;
     /**
      * Links to related entities. The link will contain a reference to:
      * <ul>
