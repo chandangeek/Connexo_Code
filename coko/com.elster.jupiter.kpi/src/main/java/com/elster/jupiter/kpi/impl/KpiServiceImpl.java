@@ -1,7 +1,6 @@
 package com.elster.jupiter.kpi.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
@@ -10,7 +9,8 @@ import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.upgrade.UpgradeService;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -18,40 +18,34 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.time.Instant;
-import java.time.YearMonth;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.kpi", service = {KpiService.class, InstallService.class}, property = "name=" + KpiService.COMPONENT_NAME)
-public class KpiServiceImpl implements IKpiService, InstallService {
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
-    private static final Logger LOGGER = Logger.getLogger(KpiServiceImpl.class.getName());
+@Component(name = "com.elster.jupiter.kpi", service = {KpiService.class}, property = "name=" + KpiService.COMPONENT_NAME)
+public class KpiServiceImpl implements IKpiService {
 
-    private static final long VAULT_ID = 1L;
-    private static final long RECORD_SPEC_ID = 1L;
+    static final long VAULT_ID = 1L;
+    static final long RECORD_SPEC_ID = 1L;
 
     private volatile IdsService idsService;
     private volatile EventService eventService;
     private volatile DataModel dataModel;
     private volatile Vault vault;
     private volatile RecordSpec recordSpec;
+    private volatile UpgradeService upgradeService;
 
     public KpiServiceImpl() {
     }
 
     @Inject
-    KpiServiceImpl(IdsService idsService, EventService eventService, OrmService ormService) {
+    KpiServiceImpl(IdsService idsService, EventService eventService, OrmService ormService, UpgradeService upgradeService) {
         setIdsService(idsService);
         setEventService(eventService);
         setOrmService(ormService);
+        setUpgradeService(upgradeService);
         activate();
-        install();
     }
 
     @Activate
@@ -64,6 +58,7 @@ public class KpiServiceImpl implements IKpiService, InstallService {
                 bind(IKpiService.class).toInstance(KpiServiceImpl.this);
             }
         });
+        upgradeService.register(identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
         initVaultAndRecordSpec();
     }
 
@@ -85,56 +80,6 @@ public class KpiServiceImpl implements IKpiService, InstallService {
         return dataModel.mapper(Kpi.class).getOptional(id);
     }
 
-    @Override
-    public final void install() {
-        try {
-            dataModel.install(true, true);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
-        }
-        try {
-            Vault newVault = idsService.createVault(COMPONENT_NAME, VAULT_ID, COMPONENT_NAME, 2, 0, true);
-            createPartitions(newVault);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
-        }
-        try {
-            RecordSpec newRecordSpec = idsService.createRecordSpec(COMPONENT_NAME, RECORD_SPEC_ID, "kpi")
-                    .addFieldSpec("value", FieldType.NUMBER)
-                    .addFieldSpec("target", FieldType.NUMBER)
-                    .create();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
-        }
-        try {
-            createEventTypes();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
-        }
-        initVaultAndRecordSpec();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "IDS", "EVT");
-    }
-
-    private void createEventTypes() {
-        for (EventType eventType : EventType.values()) {
-            try {
-                eventType.install(eventService);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Could not create event type : " + eventType.name(), e);
-            }
-        }
-    }
-
-    private void createPartitions(Vault vault) {
-    	Instant start = YearMonth.now().atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
-        vault.activate(start);
-        vault.extendTo(start.plus(360, ChronoUnit.DAYS),Logger.getLogger(getClass().getPackage().getName()));        
-    }
-
     @Reference
     public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENT_NAME, "Key Performance Indicators");
@@ -148,15 +93,14 @@ public class KpiServiceImpl implements IKpiService, InstallService {
         this.idsService = idsService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     private void initVaultAndRecordSpec() {
-        Optional<Vault> foundVault = idsService.getVault(COMPONENT_NAME, VAULT_ID);
-        if (foundVault.isPresent()) {
-            vault = foundVault.get();
-        }
-        Optional<RecordSpec> foundSpec = idsService.getRecordSpec(COMPONENT_NAME, RECORD_SPEC_ID);
-        if (foundSpec.isPresent()) {
-            recordSpec = foundSpec.get();
-        }
+        vault = idsService.getVault(COMPONENT_NAME, VAULT_ID).orElse(null);
+        recordSpec = idsService.getRecordSpec(COMPONENT_NAME, RECORD_SPEC_ID).orElse(null);
     }
 
     public EventService getEventService() {

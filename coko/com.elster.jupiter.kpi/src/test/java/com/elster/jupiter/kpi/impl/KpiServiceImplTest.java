@@ -2,6 +2,7 @@ package com.elster.jupiter.kpi.impl;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.RecordSpecBuilder;
@@ -10,15 +11,7 @@ import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -27,8 +20,19 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -59,18 +63,16 @@ public class KpiServiceImplTest {
         when(idsService.getVault(anyString(), anyLong())).thenReturn(Optional.of(vault));
         when(idsService.createVault(anyString(), anyLong(), anyString(), anyInt(), anyInt(), anyBoolean())).thenReturn(vault);
         when(idsService.getRecordSpec(anyString(), anyLong())).thenReturn(Optional.of(recordSpec));
-        when(dataModel.getInstance(KpiImpl.class)).thenAnswer(new Answer<KpiImpl>() {
-            @Override
-            public KpiImpl answer(InvocationOnMock invocation) throws Throwable {
-                return new KpiImpl(dataModel, idsService, kpiService, eventService);
-            }
-        });
+        when(dataModel.getInstance(KpiImpl.class)).thenAnswer(invocation -> new KpiImpl(dataModel, idsService, kpiService, eventService));
+        when(dataModel.getInstance(Installer.class)).thenAnswer(invocation -> new Installer(dataModel, eventService, idsService));
         when(idsService.createRecordSpec(anyString(), anyLong(), anyString())).thenReturn(FakeBuilder.initBuilderStub(recordSpec, RecordSpecBuilder.class));
+        when(eventService.buildEventTypeWithTopic(anyString())).thenReturn(FakeBuilder.initBuilderStub(null, EventTypeBuilder.class));
         doReturn(dataModel).when(ormService).newDataModel(anyString(), anyString());
         kpiService.setIdsService(idsService);
         kpiService.setOrmService(ormService);
         kpiService.setEventService(eventService);
-        kpiService.install();
+        kpiService.setUpgradeService(UpgradeModule.FakeUpgradeService.getInstance());
+        kpiService.activate();
     }
 
     @After
