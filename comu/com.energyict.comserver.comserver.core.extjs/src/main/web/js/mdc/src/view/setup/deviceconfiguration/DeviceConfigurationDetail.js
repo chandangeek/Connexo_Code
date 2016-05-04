@@ -73,7 +73,10 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                     xtype: 'displayfield',
                                     name: 'description',
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.description', 'MDC', 'Description'),
-                                    itemId: 'deviceConfigurationDescription'
+                                    itemId: 'deviceConfigurationDescription',
+                                    renderer: function(value) {
+                                        return value ? value : '-'
+                                    }
                                 },
                                 {
                                     xtype: 'displayfield',

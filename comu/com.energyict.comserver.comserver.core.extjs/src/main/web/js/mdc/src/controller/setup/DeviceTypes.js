@@ -46,7 +46,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeLogbookPanel', selector: '#deviceTypeLogbookPanel'},
         {ref: 'addLogbookPanel', selector: '#addLogbookPanel'},
         {ref: 'deviceLifeCycleLink', selector: '#device-life-cycle-link'},
-        {ref: 'deviceLifeCycleCombo', selector: '#no-device-life-cycles'}
+        {ref: 'deviceLifeCycleCombo', selector: '#no-device-life-cycles'},
+        {ref: 'deviceTypeDetailLifeCycleLink', selector: 'deviceTypeDetail #details-device-life-cycle-link'},
+        {ref: 'deviceTypeDetailOverviewLink', selector: 'deviceTypeDetail deviceTypeSideMenu #overviewLink'},
+        {ref: 'deviceTypeDetailConflictingMappingLink', selector: 'deviceTypeDetail deviceTypeSideMenu #conflictingMappingLink'},
+        {ref: 'deviceTypeDetailForm', selector: 'deviceTypeDetail form'},
+        {ref: 'deviceTypeDetailActionMenu', selector: 'deviceTypeDetail device-type-action-menu'}
     ],
 
     init: function () {
@@ -150,74 +155,72 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showDeviceTypeDetailsView: function (deviceType) {
         var me = this,
             deviceTypePurposesStore = me.getStore('Mdc.store.DeviceTypePurposes'),
-            widget = Ext.widget('deviceTypeDetail', {
-                deviceTypeId: deviceType,
-                purposeStore: deviceTypePurposesStore
-            }),
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType');
 
-        me.getApplication().fireEvent('changecontentevent', widget);
-        deviceTypePurposesStore.load();
-        model.load(deviceType, {
-            success: function (deviceType) {
-                var deviceTypeId = deviceType.get('id'),
-                    registersLink = me.getDeviceTypeDetailRegistersLink(),
-                    logBookLink = me.getDeviceTypeDetailLogBookLink(),
-                    loadProfilesLink = me.getDeviceTypeDetailLoadProfilesLink(),
-                    deviceConfigurationsLink = me.getDeviceConfigurationsDetailLink(),
-                    deviceLifeCycleLink = widget.down('#details-device-life-cycle-link'),
-                    actionMenu = widget.down('device-type-action-menu');
+        deviceTypePurposesStore.load(function() {
+            var widget = Ext.widget('deviceTypeDetail', {
+                    deviceTypeId: deviceType,
+                    purposeStore: deviceTypePurposesStore
+            });
 
-                Ext.suspendLayouts();
+            me.getApplication().fireEvent('changecontentevent', widget);
+            model.load(deviceType, {
+                success: function (deviceType) {
+                    var deviceTypeId = deviceType.get('id'),
+                        registersLink = me.getDeviceTypeDetailRegistersLink(),
+                        logBookLink = me.getDeviceTypeDetailLogBookLink(),
+                        loadProfilesLink = me.getDeviceTypeDetailLoadProfilesLink(),
+                        deviceConfigurationsLink = me.getDeviceConfigurationsDetailLink(),
+                        deviceLifeCycleLink = me.getDeviceTypeDetailLifeCycleLink();
 
-                widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
-                    Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
-                );
+                    Ext.suspendLayouts();
 
-                deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + encodeURIComponent(deviceType.get('deviceLifeCycleId')));
-                deviceLifeCycleLink.setText(Ext.String.htmlEncode(deviceType.get('deviceLifeCycleName')));
-
-                registersLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
-                registersLink.setText(
-                    Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC',
-                        'No register types', '{0} register type', '{0} register types')
-                );
-
-                if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
-                    logBookLink.hide();
-                } else {
-                    logBookLink.show();
-                    logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
-                    logBookLink.setText(
-                        Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC',
-                            'No logbook types', '{0} logbook type', '{0} logbook types')
+                    me.getDeviceTypeDetailOverviewLink().setText(deviceType.get('name'));
+                    me.getDeviceTypeDetailConflictingMappingLink().setText(
+                        Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
                     );
+
+                    deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + encodeURIComponent(deviceType.get('deviceLifeCycleId')));
+                    deviceLifeCycleLink.setText(Ext.String.htmlEncode(deviceType.get('deviceLifeCycleName')));
+
+                    registersLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
+                    registersLink.setText(
+                        Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC',
+                            'No register types', '{0} register type', '{0} register types')
+                    );
+
+                    if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                        logBookLink.hide();
+                    } else {
+                        logBookLink.show();
+                        logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
+                        logBookLink.setText(
+                            Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC',
+                                'No logbook types', '{0} logbook type', '{0} logbook types')
+                        );
+                    }
+
+                    loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
+                    loadProfilesLink.setText(
+                        Uni.I18n.translatePlural('devicetype.loadprofiles', deviceType.get('loadProfileCount'), 'MDC',
+                            'No load profile types', '{0} load profile type', '{0} load profile types')
+                    );
+
+                    deviceConfigurationsLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/deviceconfigurations');
+                    deviceConfigurationsLink.setText(
+                        Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC',
+                            'No device configurations', '{0} device configuration', '{0} device configurations')
+                    );
+
+                    me.getDeviceTypeDetailForm().loadRecord(deviceType);
+                    me.getDeviceTypeDetailActionMenu().record = deviceType;
+
+                    Ext.resumeLayouts(true);
+
+                    me.getApplication().fireEvent('loadDeviceType', deviceType);
                 }
-
-                loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
-                loadProfilesLink.setText(
-                    Uni.I18n.translatePlural('devicetype.loadprofiles', deviceType.get('loadProfileCount'), 'MDC',
-                        'No load profile types', '{0} load profile type', '{0} load profile types')
-                );
-
-                deviceConfigurationsLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/deviceconfigurations');
-                deviceConfigurationsLink.setText(
-                    Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC',
-                        'No device configurations', '{0} device configuration', '{0} device configurations')
-                );
-
-                widget.down('form').loadRecord(deviceType);
-                if (actionMenu) {
-                    actionMenu.record = deviceType;
-                }
-
-                Ext.resumeLayouts(true);
-
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-            }
+            });
         });
-
     },
 
     createDeviceTypeHistory: function () {
@@ -332,13 +335,13 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 typeField.disable();
                 commProtocolField.disable();
                 infoPanel.show();
-                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg1', 'MDC', "Since this device type has one or more device configurations only the fields 'Name' and 'Device life cycle' are editable"))
+                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg1', 'MDC', 'This device type has one or more device configurations. Only fields name and device life cycle are editable'))
             } else {
                 typeField.disable();
                 commProtocolField.disable();
                 lifeCycleField.disable();
                 infoPanel.show();
-                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg2', 'MDC', 'Since this device type has one or more active device configurations only the name field is editable'))
+                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg2', 'MDC', 'This device type has one or more active device configurations. Only the name field is editable'))
             }
         } else {
             typeField.enable();
