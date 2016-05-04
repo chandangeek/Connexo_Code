@@ -1,6 +1,10 @@
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
 import com.energyict.mdc.firmware.security.Privileges;
@@ -8,7 +12,15 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.*;
@@ -72,7 +84,17 @@ public class FirmwareCampaignResource {
         if(info.status.id.equals(FirmwareCampaignStatus.CANCELLED.name())){
             this.firmwareService.cancelFirmwareCampaign(firmwareCampaign);
         } else {
-            info.writeTo(firmwareCampaign, mdcPropertyUtils);
+            // Since only the name/comWindow is editable
+            // info.writeTo(firmwareCampaign, mdcPropertyUtils);
+            if (firmwareCampaign.getName().compareTo(info.name) != 0) {
+                firmwareCampaign.setName(info.name);
+            }
+            if (info.timeBoundaryStart != null && info.timeBoundaryEnd != null) {
+                ComWindow newWindow = new ComWindow(info.timeBoundaryStart, info.timeBoundaryEnd);
+                if (!firmwareCampaign.getComWindow().equals(newWindow)) {
+                    firmwareCampaign.setComWindow(newWindow);
+                }
+            }
             firmwareCampaign.save();
         }
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
@@ -87,7 +109,7 @@ public class FirmwareCampaignResource {
         info.id = firmwareCampaignId;
         FirmwareCampaign firmwareCampaign = resourceHelper.lockFirmwareCampaign(info);
         firmwareCampaign.delete();
-        return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
+        return Response.noContent().build();
     }
 
     @GET @Transactional
@@ -101,7 +123,7 @@ public class FirmwareCampaignResource {
     }
 
     private DevicesInFirmwareCampaignFilter buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter){
-        DevicesInFirmwareCampaignFilter filter = new DevicesInFirmwareCampaignFilter();
+        DevicesInFirmwareCampaignFilter filter = firmwareService.filterForDevicesInFirmwareCampaign();
         if (jsonQueryFilter.hasProperty(FilterOption.status.name())) {
             filter.withStatus(jsonQueryFilter.getStringList(FilterOption.status.name()));
         }

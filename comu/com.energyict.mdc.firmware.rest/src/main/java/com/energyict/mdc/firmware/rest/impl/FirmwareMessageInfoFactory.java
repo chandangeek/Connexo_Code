@@ -34,7 +34,7 @@ public class FirmwareMessageInfoFactory {
     public FirmwareMessageInfo from(DeviceMessageSpec deviceMessageSpec, DeviceType deviceType, String uploadOption, String firmwareType) {
         PropertyDefaultValuesProvider provider = (propertySpec, propertyType) -> {
             if (BaseFirmwareVersion.class.equals(propertySpec.getValueFactory().getValueType())){
-                FirmwareVersionFilter filter = new FirmwareVersionFilter(deviceType);
+                FirmwareVersionFilter filter = firmwareService.filterForFirmwareVersion(deviceType);
                 if (firmwareType != null) {
                     filter.addFirmwareTypes(Collections.singletonList(FirmwareTypeFieldAdapter.INSTANCE.unmarshal(firmwareType)));
                 }

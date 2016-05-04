@@ -2,6 +2,7 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
@@ -22,6 +23,8 @@ public class FirmwareCampaignInfo {
     public FirmwareVersionInfo firmwareVersion;
     public Instant startedOn;
     public Instant finishedOn;
+    public Integer timeBoundaryStart;
+    public Integer timeBoundaryEnd;
     public List<PropertyInfo> properties;
     public List<DeviceInFirmwareCampaignStatusInfo> devicesStatus;
     public long version;
@@ -37,6 +40,10 @@ public class FirmwareCampaignInfo {
         }
         if (this.firmwareType != null) {
             campaign.setFirmwareType(this.firmwareType.id);
+        }
+
+        if (this.timeBoundaryStart != null && this.timeBoundaryEnd != null) {
+            campaign.setComWindow(new ComWindow(this.timeBoundaryStart, this.timeBoundaryEnd));
         }
 
         if (campaign.getFirmwareMessageSpec().isPresent()) {

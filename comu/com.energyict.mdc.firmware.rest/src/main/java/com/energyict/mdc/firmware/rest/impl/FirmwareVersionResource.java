@@ -193,7 +193,7 @@ public class FirmwareVersionResource {
     }
 
     private FirmwareVersionFilter getFirmwareFilter(JsonQueryFilter filter, DeviceType deviceType) {
-        FirmwareVersionFilter firmwareVersionFilter = new FirmwareVersionFilter(deviceType);
+        FirmwareVersionFilter firmwareVersionFilter = firmwareService.filterForFirmwareVersion(deviceType);
 
         if (filter.hasFilters()) {
             if (filter.hasProperty(FILTER_STATUS_PARAMETER)) {

@@ -61,6 +61,10 @@ public class FirmwareCampaignInfoFactory {
         info.firmwareType = new FirmwareTypeInfo(campaign.getFirmwareType(), thesaurus);
         info.startedOn = campaign.getStartedOn();
         info.finishedOn = campaign.getFinishedOn();
+        if (campaign.getComWindow() != null) {
+            info.timeBoundaryStart = campaign.getComWindow().getStart().getMillis() / 1000;
+            info.timeBoundaryEnd = campaign.getComWindow().getEnd().getMillis() / 1000;
+        }
         Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
             TypedProperties typedProperties = TypedProperties.empty();
@@ -70,7 +74,7 @@ public class FirmwareCampaignInfoFactory {
             }
             PropertyDefaultValuesProvider provider = (propertySpec, propertyType) -> {
                 if (FirmwareVersion.class.equals(propertySpec.getValueFactory().getValueType())){
-                    FirmwareVersionFilter filter = new FirmwareVersionFilter(campaign.getDeviceType());
+                    FirmwareVersionFilter filter = firmwareService.filterForFirmwareVersion(campaign.getDeviceType());
                     filter.addFirmwareTypes(Arrays.asList(campaign.getFirmwareType()));
                     filter.addFirmwareStatuses(Arrays.asList(FirmwareStatus.FINAL, FirmwareStatus.TEST));
                     return firmwareService.findAllFirmwareVersions(filter).find();

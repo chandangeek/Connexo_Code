@@ -9,14 +9,11 @@ import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
+import com.energyict.mdc.firmware.impl.FirmwareVersionFilterImpl;
+
 import com.jayway.jsonpath.JsonModel;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -27,11 +24,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class FirmwareVersionResourceTest extends BaseFirmwareTest {
     @Mock
@@ -65,6 +70,12 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
             }
         }).when(firmwareVersionBuilder).validate();
         when(firmwareService.newFirmwareVersion(any(DeviceType.class), anyString(), any(), any())).thenReturn(firmwareVersionBuilder);
+        when(firmwareService.filterForFirmwareVersion(any(DeviceType.class))).thenAnswer(new Answer<FirmwareVersionFilter>() {
+            @Override
+            public FirmwareVersionFilter answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new FirmwareVersionFilterImpl(((DeviceType) invocationOnMock.getArguments()[0]));
+            }
+        });
     }
 
     @Test

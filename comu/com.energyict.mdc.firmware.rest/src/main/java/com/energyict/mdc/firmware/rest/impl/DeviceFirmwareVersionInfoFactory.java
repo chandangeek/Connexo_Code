@@ -2,12 +2,14 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.Functions;
-
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
@@ -15,13 +17,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class DeviceFirmwareVersionInfoFactory {
     private final Thesaurus thesaurus;
@@ -166,7 +162,17 @@ public class DeviceFirmwareVersionInfoFactory {
                 properties.put(FIRMWARE_VERSION, firmwareVersion.get().getFirmwareVersion());
                 properties.put(FIRMWARE_VERSION_ID, firmwareVersion.get().getId());
             }
-            properties.put(FIRMWARE_PLANNED_DATE, message.getReleaseDate());
+            Optional<ComTaskExecution> firmwareComTaskExecution = helper.getFirmwareComTaskExecution();
+            if(firmwareComTaskExecution.isPresent()){
+                Instant nextExecutionTimestamp = firmwareComTaskExecution.get().getNextExecutionTimestamp();
+                if (nextExecutionTimestamp != null) {
+                    properties.put(FIRMWARE_PLANNED_DATE, nextExecutionTimestamp);
+
+                    //Also add the next execution timestamp of the FW task as activation date.
+                    //Subclasses can override this value if they have an actual activation date.
+                    properties.put(FIRMWARE_PLANNED_ACTIVATION_DATE, nextExecutionTimestamp);
+                }
+            }
             return properties;
         }
     }
@@ -224,8 +230,8 @@ public class DeviceFirmwareVersionInfoFactory {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
             helper
                 .getFirmwareComTaskExecution()
-                .map(ComTaskExecution::getExecutionStartedTimestamp)
-                .ifPresent(startedTimestamp -> properties.put(UPLOAD_START_DATE, startedTimestamp.toEpochMilli()));
+                    .map(ComTaskExecution::getExecutionStartedTimestamp)
+                    .ifPresent(startedTimestamp -> properties.put(UPLOAD_START_DATE, startedTimestamp.toEpochMilli()));
             return properties;
         }
     }

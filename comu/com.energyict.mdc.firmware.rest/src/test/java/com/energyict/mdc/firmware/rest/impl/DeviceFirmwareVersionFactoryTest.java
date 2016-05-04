@@ -94,6 +94,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareExecution.getComTasks()).thenReturn(Collections.singletonList(firmwareComTask));
         when(firmwareExecution.executesComTask(firmwareComTask)).thenReturn(true);
         when(firmwareExecution.getLastSession()).thenReturn(Optional.of(session));
+        when(firmwareExecution.getNextExecutionTimestamp()).thenReturn(TIME);
         when(deviceService.findByUniqueMrid("upgrade")).thenReturn(Optional.of(device));
         ComTaskEnablement firmwareCheckEnablement = mock(ComTaskEnablement.class);
         when(firmwareCheckEnablement.getComTask()).thenReturn(firmwareCheckComTask);
@@ -207,6 +208,9 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareManagementOption.localizedValue")).isNotEmpty();
         assertThat(model.<String>get("$.firmwares[0].pendingVersion.firmwareVersion")).isEqualTo("MTR-001-UPGR");
         assertThat(model.<Number>get("$.firmwares[0].pendingVersion.plannedDate")).isEqualTo(TIME.toEpochMilli());
+
+        //If there's no activation date (so, immediate activation), this field is set to the the plannedDate.
+        assertThat(model.<Number>get("$.firmwares[0].pendingVersion.plannedActivationDate")).isEqualTo(TIME.toEpochMilli());
     }
 
     @Test
