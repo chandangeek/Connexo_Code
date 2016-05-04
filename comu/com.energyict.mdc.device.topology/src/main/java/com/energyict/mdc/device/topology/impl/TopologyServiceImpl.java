@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
@@ -198,8 +199,8 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     private List<ServerTopologyTimeslice> findPhysicallyReferencingDevicesFor(Device device, Range<Instant> period) {
         Condition condition = this.getDevicesInTopologyInIntervalCondition(device, period);
-        List<PhysicalGatewayReference> gatewayReferences = this.dataModel.mapper(PhysicalGatewayReference.class).select(condition);
-        return this.toTopologyTimeslices(gatewayReferences);
+        List<PhysicalGatewayReferenceImpl> gatewayReferences = this.dataModel.mapper(PhysicalGatewayReferenceImpl.class).select(condition);
+        return this.toTopologyTimeslices(new ArrayList<>(gatewayReferences));
     }
 
     private Condition getDevicesInTopologyInIntervalCondition(Device device, Range<Instant> period) {
@@ -279,12 +280,8 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     @Override
     public List<Device> findPhysicalConnectedDevices(Device gateway) {
         Condition condition = this.getDevicesInTopologyCondition(gateway);
-        List<PhysicalGatewayReference> physicalGatewayReferences = this.dataModel.mapper(PhysicalGatewayReference.class).select(condition);
-        return this.findUniqueReferencingDevices(physicalGatewayReferences);
-    }
-
-    private Condition getDevicesInTopologyCondition(Device device) {
-        return where(PhysicalGatewayReferenceImpl.Field.GATEWAY.fieldName()).isEqualTo(device).and(where("interval").isEffective());
+        List<PhysicalGatewayReferenceImpl> physicalGatewayReferences = this.dataModel.mapper(PhysicalGatewayReferenceImpl.class).select(condition);
+        return this.findUniqueReferencingDevices(new ArrayList<>(physicalGatewayReferences));
     }
 
     private List<Device> findUniqueReferencingDevices (List<PhysicalGatewayReference> gatewayReferences) {
@@ -338,6 +335,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         return physicalGatewayReference;
     }
 
+    @Override
     public void setDataLogger(Device slave, Device dataLogger, Map<Channel, Channel> slaveDataLoggerChannelMap){
         Instant now = this.clock.instant();
         this.getPhysicalGatewayReference(slave, now).ifPresent(r -> terminateTemporal(r, now));
@@ -346,6 +344,35 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         slaveDataLoggerChannelMap.forEach((k,v) -> this.addChannelDataLoggerUsage(dataLoggerReference, k, v));
         Save.CREATE.validate(this.dataModel, dataLoggerReference);
         this.dataModel.persist(dataLoggerReference);
+    }
+
+    @Override
+    public List<Device> findDataLoggerSlaves(Device dataLogger) {
+        Condition condition = this.getDevicesInTopologyCondition(dataLogger);
+        List<DataLoggerReferenceImpl> dataLoggerReferences = this.dataModel.mapper(DataLoggerReferenceImpl.class).select(condition);
+        return this.findUniqueReferencingDevices(new ArrayList<>(dataLoggerReferences));
+    }
+
+    @Override
+    public boolean isReferenced(Channel dataLoggerChannel) {
+        return this.isReferenced(getMeteringChannel(dataLoggerChannel).get());
+    }
+
+    boolean isReferenced(com.elster.jupiter.metering.Channel dataLoggerChannel) {
+        return !findDataLoggerChannelUsage(dataLoggerChannel).isEmpty();
+    }
+
+    private List<DataLoggerChannelUsage> findDataLoggerChannelUsage(com.elster.jupiter.metering.Channel dataLoggerChannel){
+        Condition effective = where("dataloggerReference").isEffective();
+        Condition gateway =  where(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.fieldName()).isEqualTo(dataLoggerChannel);
+        return this.dataModel.mapper(DataLoggerChannelUsage.class).select(gateway.and(effective));
+//        List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.dataModel.query(DataLoggerChannelUsage.class, DataLoggerReferenceImpl.class)
+//                .select(effective);
+//        return dataLoggerChannelUsages;
+    }
+
+    private Condition getDevicesInTopologyCondition(Device device) {
+        return where(PhysicalGatewayReferenceImpl.Field.GATEWAY.fieldName()).isEqualTo(device).and(where("interval").isEffective());
     }
 
     private DataLoggerReferenceImpl newDataLoggerReference(Device slave, Device gateway, Instant start ){
@@ -362,7 +389,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         gatewayReference.getDataLoggerChannelUsages().add(this.dataModel.getInstance(DataLoggerChannelUsageImpl.class).createFor(gatewayReference,channelForSlave.get(),channelForDataLogger.get()));
     }
 
-    private Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final com.energyict.mdc.device.data.Channel channel){
+    Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final com.energyict.mdc.device.data.Channel channel){
         return channel.getDevice().getCurrentMeterActivation().get().getChannels().stream().filter((x)-> x.getMainReadingType() == channel.getReadingType()).findFirst();
     }
 

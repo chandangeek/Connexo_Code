@@ -1,0 +1,404 @@
+package com.energyict.mdc.device.topology.impl;
+
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.RegisterType;
+
+import javax.validation.ConstraintViolationException;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
+/**
+ * Copyrights EnergyICT
+ * Date: 2/05/2016
+ * Time: 16:11
+ */
+@RunWith(MockitoJUnitRunner.class)
+public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
+
+    private final static Unit kiloWattHours = Unit.get("kWh");
+
+    private DeviceConfiguration dataLoggerConfiguration, slave1DeviceConfiguration, slave2DeviceConfiguration;
+    private DeviceType dataLoggerDeviceType, slave1DeviceType, slave2DeviceType;
+    private ReadingType readingTypeForChannel1, readingTypeForChannel2, readingTypeForChannel3, readingTypeForChannel4, readingTypeForChannel5, readingTypeForChannel6;
+
+
+    @Before
+    @Transactional
+    public void initializeMocks() {
+        super.initializeMocks();
+    }
+
+    @After
+    @Transactional
+    public void removeSetup() {
+//        if (dataLoggerConfiguration != null) {
+//            dataLoggerConfiguration.deactivate();
+//        }
+//        if (slave1DeviceConfiguration != null) {
+//            slave1DeviceConfiguration.deactivate();
+//        }
+//        if (slave2DeviceConfiguration != null) {
+//            slave2DeviceConfiguration.deactivate();
+//        }
+//        if (slave1DeviceType != null) {
+//            slave1DeviceType.delete();
+//        }
+//        if (slave2DeviceType != null) {
+//            slave2DeviceType.delete();
+//        }
+//        if (dataLoggerDeviceType != null) {
+//            dataLoggerDeviceType.delete();
+//        }
+//        inMemoryPersistence.getMasterDataService().findAllLoadProfileTypes().stream().forEach(LoadProfileType::delete);
+//        inMemoryPersistence.getMasterDataService().findAllRegisterTypes().stream().forEach(RegisterType::delete);
+
+    }
+
+    private void setUpForDataLoggerEnabledDevice() {
+        // set up for first loadProfile
+        readingTypeForChannel1 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.0.255"), kiloWattHours);
+        readingTypeForChannel2 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.2.8.0.255"), kiloWattHours);
+        // set up for second loadProfile
+        readingTypeForChannel3 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.1.255"), kiloWattHours);
+        readingTypeForChannel4 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.2.255"), kiloWattHours);
+        readingTypeForChannel5 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.2.8.1.255"), kiloWattHours);
+        readingTypeForChannel6 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.2.8.2.255"), kiloWattHours);
+
+        RegisterType registerTypeForChannel1 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingTypeForChannel1)
+                .orElse(inMemoryPersistence.getMasterDataService().newRegisterType(readingTypeForChannel1, ObisCode.fromString("1.0.1.8.0.255")));
+        RegisterType registerTypeForChannel2 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingTypeForChannel2)
+                .orElse(inMemoryPersistence.getMasterDataService().newRegisterType(readingTypeForChannel2, ObisCode.fromString("1.0.2.8.0.255")));
+        RegisterType registerTypeForChannel3 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingTypeForChannel3)
+                .orElse(inMemoryPersistence.getMasterDataService().newRegisterType(readingTypeForChannel3, ObisCode.fromString("1.0.1.8.1.255")));
+        registerTypeForChannel3.save();
+        RegisterType registerTypeForChannel4 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingTypeForChannel4)
+                .orElse(inMemoryPersistence.getMasterDataService().newRegisterType(readingTypeForChannel4, ObisCode.fromString("1.0.1.8.2.255")));
+        registerTypeForChannel4.save();
+        RegisterType registerTypeForChannel5 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingTypeForChannel5)
+                .orElse(inMemoryPersistence.getMasterDataService().newRegisterType(readingTypeForChannel5, ObisCode.fromString("1.0.2.8.1.255")));
+        registerTypeForChannel5.save();
+        RegisterType registerTypeForChannel6 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingTypeForChannel6)
+                .orElse(inMemoryPersistence.getMasterDataService().newRegisterType(readingTypeForChannel6, ObisCode.fromString("1.0.2.8.2.255")));
+        registerTypeForChannel6.save();
+
+        LoadProfileType lpt1 = inMemoryPersistence.getMasterDataService()
+                .newLoadProfileType("15min Electricity Total", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Arrays.asList(registerTypeForChannel1, registerTypeForChannel2));
+        LoadProfileType lpt2 = inMemoryPersistence.getMasterDataService()
+                .newLoadProfileType("15min Electricity tariff", ObisCode.fromString("1.0.99.2.0.255"), TimeDuration.minutes(15), Arrays.asList(registerTypeForChannel3, registerTypeForChannel4, registerTypeForChannel5, registerTypeForChannel6));
+
+        lpt1.save();
+        lpt2.save();
+
+        dataLoggerDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("dataLoggerDeviceType", deviceProtocolPluggableClass);
+        dataLoggerDeviceType.addRegisterType(registerTypeForChannel1);
+        dataLoggerDeviceType.addRegisterType(registerTypeForChannel2);
+        dataLoggerDeviceType.addRegisterType(registerTypeForChannel3);
+        dataLoggerDeviceType.addRegisterType(registerTypeForChannel4);
+        dataLoggerDeviceType.addRegisterType(registerTypeForChannel5);
+        dataLoggerDeviceType.addRegisterType(registerTypeForChannel6);
+        dataLoggerDeviceType.addLoadProfileType(lpt1);
+        dataLoggerDeviceType.addLoadProfileType(lpt2);
+        dataLoggerDeviceType.update();
+
+        DeviceType.DeviceConfigurationBuilder dataLoggerEnabledDeviceConfigurationBuilder = dataLoggerDeviceType.newConfiguration("Default");
+        dataLoggerEnabledDeviceConfigurationBuilder.isDirectlyAddressable(true);
+        dataLoggerEnabledDeviceConfigurationBuilder.dataloggerEnabled(true);
+        dataLoggerConfiguration = dataLoggerEnabledDeviceConfigurationBuilder.add();
+
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder1 = dataLoggerConfiguration.createLoadProfileSpec(lpt1);
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder2 = dataLoggerConfiguration.createLoadProfileSpec(lpt2);
+        LoadProfileSpec loadProfileSpec1 = loadProfileSpecBuilder1.add();
+        LoadProfileSpec loadProfileSpec2 = loadProfileSpecBuilder2.add();
+
+        dataLoggerConfiguration.createChannelSpec(lpt1.findChannelType(registerTypeForChannel1).get(), loadProfileSpec1).overflow(new BigDecimal(1000000L)).add();
+        dataLoggerConfiguration.createChannelSpec(lpt1.findChannelType(registerTypeForChannel2).get(), loadProfileSpec1).overflow(new BigDecimal(1000000L)).add();
+        dataLoggerConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel3).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
+        dataLoggerConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel4).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
+        dataLoggerConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel5).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
+        dataLoggerConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel6).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
+
+        deviceMessageIds.stream().forEach(dataLoggerConfiguration::createDeviceMessageEnablement);
+        dataLoggerConfiguration.activate();
+    }
+
+    private void setUpForSlave1Device() {
+        ReadingType readingTypeForChannel1 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.0.255"), kiloWattHours);
+        ReadingType readingTypeForChannel2 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.1.255"), kiloWattHours);
+        ReadingType readingTypeForChannel3 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.2.255"), kiloWattHours);
+
+        RegisterType registerTypeForChannel1 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingTypeForChannel1)
+                .orElse(inMemoryPersistence.getMasterDataService().newRegisterType(readingTypeForChannel1, ObisCode.fromString("1.0.1.8.0.255")));
+        registerTypeForChannel1.save();
+        RegisterType registerTypeForChannel2 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingTypeForChannel2)
+                .orElse(inMemoryPersistence.getMasterDataService().newRegisterType(readingTypeForChannel2, ObisCode.fromString("1.0.1.8.1.255")));
+        registerTypeForChannel2.save();
+        RegisterType registerTypeForChannel3 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingTypeForChannel3)
+                .orElse(inMemoryPersistence.getMasterDataService().newRegisterType(readingTypeForChannel3, ObisCode.fromString("1.0.1.8.2.255")));
+        registerTypeForChannel3.save();
+
+        LoadProfileType lpt = inMemoryPersistence.getMasterDataService()
+                .newLoadProfileType("15min Electricity Slave1", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Arrays.asList(registerTypeForChannel1, registerTypeForChannel2, registerTypeForChannel3));
+        lpt.save();
+
+        slave1DeviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .newDataloggerSlaveDeviceTypeBuilder("slave1DeviceType", inMemoryPersistence.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get())
+                .create();
+        slave1DeviceType.addRegisterType(registerTypeForChannel1);
+        slave1DeviceType.addRegisterType(registerTypeForChannel2);
+        slave1DeviceType.addRegisterType(registerTypeForChannel3);
+        slave1DeviceType.addLoadProfileType(lpt);
+        slave1DeviceType.update();
+
+        slave1DeviceConfiguration = slave1DeviceType.newConfiguration("Default").add();
+        LoadProfileSpec lpSpec = slave1DeviceConfiguration.createLoadProfileSpec(lpt).add();
+
+        slave1DeviceConfiguration.createChannelSpec(lpt.findChannelType(registerTypeForChannel1).get(), lpSpec).overflow(new BigDecimal(1000000L)).add();
+        slave1DeviceConfiguration.createChannelSpec(lpt.findChannelType(registerTypeForChannel2).get(), lpSpec).overflow(new BigDecimal(1000000L)).add();
+        slave1DeviceConfiguration.createChannelSpec(lpt.findChannelType(registerTypeForChannel3).get(), lpSpec).overflow(new BigDecimal(1000000L)).add();
+
+        deviceMessageIds.stream().forEach(slave1DeviceConfiguration::createDeviceMessageEnablement);
+        slave1DeviceConfiguration.activate();
+
+    }
+
+    private void setUpForSlave2Device() {
+        ReadingType readingTypeForChannel1 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.2.8.0.255"), kiloWattHours);
+
+        RegisterType registerTypeForChannel1 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingTypeForChannel1)
+                .orElse(inMemoryPersistence.getMasterDataService().newRegisterType(readingTypeForChannel1, ObisCode.fromString("1.0.1.8.0.255")));
+        registerTypeForChannel1.save();
+
+        LoadProfileType lpt = inMemoryPersistence.getMasterDataService()
+                .newLoadProfileType("15min Electricity Slave2", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Arrays.asList(registerTypeForChannel1));
+        lpt.save();
+
+        slave2DeviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .newDataloggerSlaveDeviceTypeBuilder("slave2DeviceType", inMemoryPersistence.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get())
+                .create();
+        slave2DeviceType.addRegisterType(registerTypeForChannel1);
+        slave2DeviceType.addLoadProfileType(lpt);
+        slave2DeviceType.update();
+
+        DeviceType.DeviceConfigurationBuilder slave2DeviceConfigurationBuilder = slave2DeviceType.newConfiguration("Default");
+        slave2DeviceConfiguration = slave2DeviceConfigurationBuilder.add();
+
+        LoadProfileSpec.LoadProfileSpecBuilder lpSpecBuilder = slave2DeviceConfiguration.createLoadProfileSpec(lpt);
+        LoadProfileSpec lpSpec = lpSpecBuilder.add();
+
+        slave2DeviceConfiguration.createChannelSpec(lpt.findChannelType(registerTypeForChannel1).get(), lpSpec).overflow(new BigDecimal(1000000L)).add();
+
+        deviceMessageIds.stream().forEach(slave2DeviceConfiguration::createDeviceMessageEnablement);
+        slave2DeviceConfiguration.activate();
+    }
+
+    @Override
+    protected Device createDataLoggerDevice(String name) {
+        return inMemoryPersistence.getDeviceService().newDevice(dataLoggerConfiguration, name, name + "MrId", Instant.now());
+    }
+
+    private Device createFirstSlave(String name) {
+        return inMemoryPersistence.getDeviceService().newDevice(slave1DeviceConfiguration, name, name + "MrId", Instant.now());
+    }
+
+    private Device createSecondSlave(String name) {
+        return inMemoryPersistence.getDeviceService().newDevice(slave2DeviceConfiguration, name, name + "MrId", Instant.now());
+    }
+
+
+    @Test
+    @Transactional
+    public void testDataLoggerConfiguration() {
+        setUpForDataLoggerEnabledDevice();
+
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+        assertThat(dataLogger.getLoadProfiles()).hasSize(2);
+        assertThat(dataLogger.getChannels()).hasSize(6);
+
+        ReadingType readingType1 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(readingTypeForChannel1, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.1.8.0.255"))
+                .get();
+        ReadingType readingType2 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(readingTypeForChannel2, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.2.8.0.255"))
+                .get();
+        ReadingType readingType3 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(readingTypeForChannel3, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.1.8.1.255"))
+                .get();
+        ReadingType readingType4 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(readingTypeForChannel4, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.1.8.2.255"))
+                .get();
+        ReadingType readingType5 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(readingTypeForChannel5, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.2.8.1.255"))
+                .get();
+        ReadingType readingType6 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(readingTypeForChannel6, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.2.8.2.255"))
+                .get();
+
+        assertThat(dataLogger.getChannels()
+                .stream()
+                .map(Channel::getReadingType)
+                .collect(Collectors.toList())).containsExactly(readingType1, readingType2, readingType3, readingType4, readingType5, readingType6);
+
+        dataLogger.delete();
+    }
+
+    @Test
+    @Transactional
+    public void testSlave1Configuration() {
+        setUpForSlave1Device();
+
+        Device slave1 = inMemoryPersistence.getDeviceService().newDevice(slave1DeviceConfiguration, "slave1", "slave1_MrId", Instant.now());
+        assertThat(slave1.getLoadProfiles()).hasSize(1);
+        assertThat(slave1.getChannels()).hasSize(3);
+
+        ReadingType readingType1 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(readingTypeForChannel1, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.1.8.0.255"))
+                .get();
+        ReadingType readingType2 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(readingTypeForChannel3, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.1.8.1.255"))
+                .get();
+        ReadingType readingType3 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(readingTypeForChannel4, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.1.8.2.255"))
+                .get();
+
+        assertThat(slave1.getChannels().stream().map(Channel::getReadingType).collect(Collectors.toList())).containsExactly(readingType1, readingType2, readingType3);
+
+        slave1.delete();
+    }
+
+    @Test
+    @Transactional
+    public void testSlave2Configuration(){
+        setUpForSlave2Device();
+
+        Device slave2 = inMemoryPersistence.getDeviceService().newDevice(slave2DeviceConfiguration, "slave2", "slave1_MrId", Instant.now());
+        assertThat(slave2.getLoadProfiles()).hasSize(1);
+        assertThat(slave2.getChannels()).hasSize(1);
+
+        ReadingType readingType1 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(readingTypeForChannel2, Optional.of(TimeDuration.minutes(15)),ObisCode.fromString("1.0.2.8.0.255" )).get();
+
+       assertThat(slave2.getChannels().stream().map(Channel::getReadingType).collect(Collectors.toList())).containsExactly(readingType1);
+
+       slave2.delete();
+    }
+
+    @Test(expected = ConstraintViolationException.class) @Transactional
+    public void noSlaveChannelsLinkedTest(){
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave1Device();
+
+        Device slave1 = inMemoryPersistence.getDeviceService().newDevice(slave1DeviceConfiguration, "slave1", "slave1_MrId", Instant.now());
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+
+        HashMap<Channel, Channel> channelMapping = new HashMap<>();
+
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, channelMapping);
+
+        slave1.delete();
+        dataLogger.delete();
+    }
+
+
+    @Test(expected = ConstraintViolationException.class) @Transactional
+    public void notAllSlaveChannelsLinkedTest(){
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave1Device();
+
+        Device slave1 = inMemoryPersistence.getDeviceService().newDevice(slave1DeviceConfiguration, "slave1", "slave1_MrId", Instant.now());
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+
+        HashMap<Channel, Channel> channelMapping = new HashMap<>();
+        channelMapping.put(slave1.getChannels().get(0), dataLogger.getChannels().get(0));
+
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, channelMapping);
+
+        slave1.delete();
+        dataLogger.delete();
+    }
+
+    @Test @Transactional
+    public void succesfulLinkTest() {
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave2Device();
+
+        Device slave2 = inMemoryPersistence.getDeviceService().newDevice(slave2DeviceConfiguration, "slave2", "slave2_MrId", Instant.now());
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+
+        HashMap<Channel, Channel> channelMapping = new HashMap<>();
+
+        channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
+
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping);
+
+        slave2.delete();
+        dataLogger.delete();
+    }
+
+    @Test @Transactional
+    public void findDataLoggerSlavesTest() {
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave2Device();
+
+        Device slave2 = inMemoryPersistence.getDeviceService().newDevice(slave2DeviceConfiguration, "slave2", "slave2_MrId", Instant.now());
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+
+        HashMap<Channel, Channel> channelMapping = new HashMap<>();
+
+        channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
+
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping);
+        List<Device> slaves = inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger);
+
+        assertThat(slaves.contains(slave2));
+
+        slave2.delete();
+        dataLogger.delete();
+    }
+
+    @Test @Transactional
+    public void isDataLoggerReferencedTest() {
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave2Device();
+
+        Device slave2 = inMemoryPersistence.getDeviceService().newDevice(slave2DeviceConfiguration, "slave2", "slave2_MrId", Instant.now());
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+
+        HashMap<Channel, Channel> channelMapping = new HashMap<>();
+
+        channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
+
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping);
+        assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
+
+        slave2.delete();
+        dataLogger.delete();
+    }
+
+
+
+
+
+}

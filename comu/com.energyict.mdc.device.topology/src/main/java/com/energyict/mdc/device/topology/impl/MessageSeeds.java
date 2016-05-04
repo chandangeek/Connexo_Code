@@ -23,9 +23,12 @@ public enum MessageSeeds implements MessageSeed {
     @SuppressWarnings("unused")
     COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(103, Keys.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently executing on comserver {2}"),
     INVALID_IPV6_ADDRESS(104, Keys.INVALID_IPV6_ADDRESS, "Invalid IPv6 address"),
+
     DATA_LOGGER_LINK_EXCEPTION_NO_FREE_DATALOGGER_CHANNEL(1001, DataLoggerLinkException.NO_FREE_DATA_LOGGER_CHANNEL, "All channels of the data Logger {0} are used"),
     DATA_LOGGER_LINK_EXCEPTION_NO_DATA_LOGGER_CHANNEL_FOR_READING_TYPE_X(1002, DataLoggerLinkException.NO_DATA_LOGGER_CHANNEL_FOR_READING_TYPE_X, "No channel with reading type {0} found for Data logger {1}"),
-    DATA_LOGGER_LINK_EXCEPTION_DEVICE_NOT_LINKED(1003, DataLoggerLinkException.DEVICE_NOT_LINKED, "Device {0} was not linked")
+    DATA_LOGGER_LINK_EXCEPTION_DEVICE_NOT_LINKED(1003, DataLoggerLinkException.DEVICE_NOT_LINKED, "Device {0} was not linked"),
+    DATA_LOGGER_LINK_EXCEPTION_NO_MAPPING_FOR_ALL_SLAVE_CHANNELS(1004, DataLoggerLinkException.NO_MAPPING_FOR_ALL_SLAVE_CHANNELS, "All slave channels should be included in the mapping")
+
     ;
 
     private final int number;
@@ -85,6 +88,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_CANNOT_BE_DATA_LOGGER_FOR_ITSELF = "datalogger.not.datalogger.slave";
         public static final String NOT_A_DATALOGGER_SLAVE_DEVICE = "dataLogger.no.dataLoggerSlaveDevice";
         public static final String GATEWAY_NOT_DATALOGGER_ENABLED = "gateway.not.datalogger.enabled";
+        public static final String NOT_ALL_SLAVE_CHANNELS_INCLUDED = "datalogger.not.all.slave.channels.included";
     }
 
 }

@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 /**
  * Provides services that relate to the topology of {@link Device}s.
  *
@@ -51,7 +53,6 @@ public interface TopologyService {
 
     /**
      * Finds the {@link Device}s that are physically connected to the specified Device.
-     * When the Device is a DataLogger device this will result in a list of slave devices.
      *
      * @param device the 'master' device
      * @return The List of physically connected devices
@@ -235,6 +236,22 @@ public interface TopologyService {
      * @param slave to remove from its logger device;
      */
     void clearDataLogger(Device slave);
+
+    /**
+     * Finds the {@link Device}s that are data logger slave devices using to the specified data logger Device.
+     *
+     * @param device the 'data logger' device
+     * @return The List of data logger slaves using the data logger device
+     */
+    List<Device> findDataLoggerSlaves(Device dataLogger);
+
+    /**
+     * Checks wether a (datalogger Channel) is referenced
+     * @param dataLoggerChannel channel to inspect
+     * @return true if the channel is already present as gateway channel in one or more DataLoggerChannelUsages
+     *         false if not DataloggerChannelUsages were found having the given channel as gateway channel;
+     */
+    boolean isReferenced(Channel dataLoggerChannel);
 
     public interface G3CommunicationPathSegmentBuilder {
 

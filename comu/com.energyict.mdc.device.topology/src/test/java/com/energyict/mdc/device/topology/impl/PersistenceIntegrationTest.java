@@ -78,7 +78,7 @@ public abstract class PersistenceIntegrationTest {
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
-    private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    protected DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     private DeviceProtocol deviceProtocol;
 
@@ -132,6 +132,7 @@ public abstract class PersistenceIntegrationTest {
 
         dataLoggerSlaveDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DATA_LOGGER_DEVICE_TYPE, deviceProtocolPluggableClass);
         dataLoggerSlaveDeviceType.setDeviceTypePurpose(DeviceTypePurpose.DATALOGGER_SLAVE);
+        dataLoggerSlaveDeviceType.update();
 
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfigurationBuilder.isDirectlyAddressable(true);
@@ -171,7 +172,8 @@ public abstract class PersistenceIntegrationTest {
         this.securityPropertySet = securityPropertySetBuilder.build();
         this.resetClock();
         IssueStatus wontFix = mock(IssueStatus.class);
-        when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));   }
+        when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
+    }
 
     @After
     public void resetClock () {
@@ -195,11 +197,11 @@ public abstract class PersistenceIntegrationTest {
         return createSimpleDeviceWithName(name, "SimpleMrId");
     }
 
-    protected Device createDataLoggerDevice(String name){
+    protected Device createSlaveDevice(String name){
         return inMemoryPersistence.getDeviceService().newDevice(dataLoggerSlaveDeviceConfiguration, name, name+"MrId", Instant.now());
     }
 
-    protected Device createDataLoggerEnabledDevice(String name){
+    protected Device createDataLoggerDevice(String name){
         return inMemoryPersistence.getDeviceService().newDevice(dataLoggerEnabledDeviceConfiguration, name, name+"MrId", Instant.now());
     }
 

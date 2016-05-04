@@ -1216,7 +1216,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(strict=false, messageId = "{" + MessageSeeds.Keys.DEVICE_CANNOT_BE_DATA_LOGGER_FOR_ITSELF + "}")
     public void setDataLoggerGatewaySameAsOriginDeviceTest() {
-        Device slave = createDataLoggerDevice("Data Logger");
+        Device slave = createSlaveDevice("Data Logger");
 
         // Business method
         this.getTopologyService().setDataLogger(slave, slave, Collections.emptyMap());
@@ -1227,7 +1227,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     @ExpectedConstraintViolation(strict=false, messageId = "{" + MessageSeeds.Keys.NOT_A_DATALOGGER_SLAVE_DEVICE + "}")
     public void originNotADataLoggerTest() {
         Device slave = createSimpleDeviceWithName("Not a datalogger slave");
-        Device datalogger = createDataLoggerEnabledDevice("Data logger enabled");
+        Device datalogger = createDataLoggerDevice("Data logger enabled");
         // Business method
         this.getTopologyService().setDataLogger(slave, datalogger, Collections.emptyMap());
     }
@@ -1236,7 +1236,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(strict=false, messageId = "{" + MessageSeeds.Keys.GATEWAY_NOT_DATALOGGER_ENABLED + "}")
     public void setNotDataLoggerEnabledGatewayTest() {
-        Device slave = createDataLoggerDevice("Slave");
+        Device slave = createSlaveDevice("Slave");
         Device datalogger = createSimpleDeviceWithName("Data logger");
         // Business method
         this.getTopologyService().setDataLogger(slave, datalogger, Collections.emptyMap());
@@ -1248,12 +1248,12 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(now);
 
-        Device slave = createDataLoggerDevice("Slave2");
-        Device dataLogger = createDataLoggerEnabledDevice("Data logger enabled");
+        Device slave = createSlaveDevice("Slave2");
+        Device dataLogger = createDataLoggerDevice("Data logger enabled");
         // Business method
         this.getTopologyService().setDataLogger(slave, dataLogger, Collections.emptyMap());
 
-        List<PhysicalGatewayReference> gatewayReferences = ((ServerTopologyService) this.getTopologyService()).dataModel().query(PhysicalGatewayReference.class).select(com.elster.jupiter.util.conditions.Condition.TRUE);
+        List<DataLoggerReferenceImpl> gatewayReferences = ((ServerTopologyService) this.getTopologyService()).dataModel().query(DataLoggerReferenceImpl.class).select(com.elster.jupiter.util.conditions.Condition.TRUE);
         assertThat(gatewayReferences).hasSize(1);
         assertThat(gatewayReferences.get(0)).isInstanceOf(DataLoggerReferenceImpl.class);
         DataLoggerReferenceImpl dataLoggerReference = (DataLoggerReferenceImpl) gatewayReferences.get(0);
@@ -1261,6 +1261,57 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(dataLoggerReference.getGateway().getId()).isEqualTo(dataLogger.getId());
         assertThat(dataLoggerReference.getRange().lowerEndpoint()).isEqualTo(now);
         assertThat(dataLoggerReference.getDataLoggerChannelUsages()).hasSize(0);
+    }
+
+    @Test
+    @Transactional
+    public void findPhysicalConnectedDevicesOnDataLoggerTest() {
+        Device dataLogger = createDataLoggerDevice("DataLogger");
+        Device slave1 = createSlaveDevice("Slave1");
+        Device slave2 = createSlaveDevice("Slave2");
+
+        Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(now);
+
+        // Business method
+        this.getTopologyService().setDataLogger(slave1, dataLogger, Collections.emptyMap());
+        this.getTopologyService().setDataLogger(slave2, dataLogger, Collections.emptyMap());
+
+        // Business method
+        List<Device> downstreamDevices = this.getTopologyService().findPhysicalConnectedDevices(dataLogger);
+
+        // Asserts
+        assertThat(downstreamDevices).hasSize(0);
+    }
+
+    @Transactional
+    public void findDataLoggerSlavesTest() {
+        Device dataLogger = createDataLoggerDevice("DataLogger");
+        Device slave1 = createSlaveDevice("Slave1");
+        Device slave2 = createSlaveDevice("Slave2");
+
+        Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(now);
+
+        // Business method
+        this.getTopologyService().setDataLogger(slave1, dataLogger, Collections.emptyMap());
+        this.getTopologyService().setDataLogger(slave2, dataLogger, Collections.emptyMap());
+
+        // Business method
+        List<Device> downstreamDevices = this.getTopologyService().findDataLoggerSlaves(dataLogger);
+
+        // Asserts
+        assertThat(downstreamDevices).hasSize(2);
+        assertThat(downstreamDevices).has(new Condition<List<? extends Device>>() {
+            @Override
+            public boolean matches(List<? extends Device> value) {
+                boolean bothMatch = true;
+                for (BaseDevice baseDevice : value) {
+                    bothMatch &= ((baseDevice.getId() == slave1.getId()) || (baseDevice.getId() == slave2.getId()));
+                }
+                return bothMatch;
+            }
+        });
     }
 
 

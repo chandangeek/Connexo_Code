@@ -54,6 +54,7 @@ import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -142,6 +143,7 @@ public class InMemoryIntegrationPersistence {
     private DataVaultService dataVaultService;
     private IssueService issueService;
     private Thesaurus thesaurus;
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
@@ -175,13 +177,37 @@ public class InMemoryIntegrationPersistence {
                 new UserModule(),
                 new IdsModule(),
                 new MeteringModule(
-//                        ,"0.0.0.0.0.41.92.0.0.0.0.0.0.0.0.0.114.0"
-                        "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"
+                         "0.0.0.0.0.41.92.0.0.0.0.0.0.0.0.0.114.0"
+                        ,"0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"
+                        ,"0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
+                        ,"0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0"
+                        ,"0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0"
+                        ,"0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0"
+                        ,"0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0"
                         ,"0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"
+                        ,"0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0"
+                        ,"0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0"
+                        ,"0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0"
+                        ,"0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"
+                        ,"0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0"
+                        ,"0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0"
+                        ,"0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.3.72.0"
+                        ,"0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.3.72.0"
+                        ,"0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.3.72.0"
+                        ,"0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"
+                        ,"0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"
+                        ,"0.0.2.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0"
+                        ,"0.0.2.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0"
+                        ,"0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0"
+                        ,"0.0.0.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0"
+                        ,"0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"
+                        ,"0.0.2.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0"
+                        ,"0.0.2.1.19.2.12.0.0.0.0.2.0.0.0.3.72.0"
+                        ,"0.0.2.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0"
+                        ,"0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.111.0"
+                        ,"0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.111.0"
                         ,"0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.167.0"
                         ,"0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0"
-                        ,"0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
-                        ,"0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"
                         ,"0.0.0.1.1.9.58.0.0.0.0.0.0.0.0.0.42.0"
                         ,"0.0.0.12.0.3.109.0.0.0.0.0.0.0.0.0.109.0"
                         ,"0.0.0.12.0.41.109.0.0.0.0.0.0.0.0.0.109.0"
@@ -190,14 +216,6 @@ public class InMemoryIntegrationPersistence {
                         ,"0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.23.0"
                         ,"0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.279.0"
                         ,"0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.6.0"
-                        ,"0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0"
-                        ,"0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.3.72.0"
-                        ,"0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0"
-                        ,"0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.3.72.0"
-                        ,"0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0"
-                        ,"0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.3.72.0"
-                        ,"0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0"
-                        ,"0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.3.72.0"
                         ,"0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.107.0"
                         ,"0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.125.0"
                         ,"0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.126.0"
@@ -260,6 +278,7 @@ public class InMemoryIntegrationPersistence {
             this.userService = injector.getInstance(UserService.class);
             this.threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
             this.issueService = injector.getInstance(IssueService.class);
+            this.deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
             ctx.commit();
         }
@@ -362,6 +381,10 @@ public class InMemoryIntegrationPersistence {
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService() {
+        return deviceLifeCycleConfigurationService;
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {

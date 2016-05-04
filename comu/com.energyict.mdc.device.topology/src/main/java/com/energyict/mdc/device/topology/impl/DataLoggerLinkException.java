@@ -12,7 +12,7 @@ import com.energyict.mdc.device.data.Device;
  */
 public class DataLoggerLinkException extends LocalizedException {
 
-
+    final static String NO_MAPPING_FOR_ALL_SLAVE_CHANNELS = "DataLoggerLinkException.allSlaveChannelsShouldBeIncludedInTheMapping";
     final static String NO_FREE_DATA_LOGGER_CHANNEL = "DataLoggerLinkException.noFreeDataLoggerChannel";
     final static String NO_DATA_LOGGER_CHANNEL_FOR_READING_TYPE_X = "DataLoggerLinkException.noDataLoggerChannelForReadingTypeX";
     final static String DEVICE_NOT_LINKED = "DataLoggerLinkException.DeviceNotLinked";
@@ -21,6 +21,9 @@ public class DataLoggerLinkException extends LocalizedException {
         super(thesaurus, messageSeed, args);
     }
 
+    public static DataLoggerLinkException allSlaveChannelsShouldBeIncludedInTheMapping(Thesaurus thesaurus){
+        return new DataLoggerLinkException(thesaurus, MessageSeeds.forKey(NO_MAPPING_FOR_ALL_SLAVE_CHANNELS));
+    }
 
     public static DataLoggerLinkException allDataLoggerChannelsInUse(Thesaurus thesaurus, Device dataLogger) {
         return new DataLoggerLinkException(thesaurus, MessageSeeds.forKey(NO_FREE_DATA_LOGGER_CHANNEL), dataLogger.getName());

@@ -6,6 +6,7 @@ import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
 import com.energyict.mdc.device.topology.PLCNeighbor;
 
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -146,27 +147,30 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<DataLoggerChannelUsage> table = dataModel.addTable(name(), DataLoggerChannelUsage.class);
             table.map(DataLoggerChannelUsageImpl.class);
-            Column origin = table.column(DataLoggerChannelUsageImpl.Field.ORIGIN.name()).notNull().number().conversion(NUMBER2LONG).add();
-            Column startTime = table.column(DataLoggerChannelUsageImpl.Field.STARTTIME.name())
+            Column origin = table.column(DataLoggerChannelUsageImpl.Field.ORIGIN.name())
                     .notNull()
                     .number()
                     .conversion(NUMBER2LONG)
+                    .map("dataloggerReference")
                     .add();
             Column originChannel = table.column(DataLoggerChannelUsageImpl.Field.ORIGIN_CHANNEL.name())
                     .notNull()
                     .number()
                     .conversion(NUMBER2LONG)
-                    .map(DataLoggerChannelUsageImpl.Field.ORIGIN_CHANNEL.fieldName())
+                    .add();
+            Column startTime = table.column(DataLoggerChannelUsageImpl.Field.STARTTIME.name())
+                    .notNull()
+                    .number()
+                    .conversion(NUMBER2LONG)
+                    .map("startTime")
                     .add();
             Column gatewayChannel = table.column(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.name())
                     .notNull()
                     .number()
                     .conversion(NUMBER2LONG)
-                    .map(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.fieldName())
                     .add();
-
-            table.primaryKey("PK_DTL_DATALOGGERCHANNELUSAGE").on(origin, startTime, originChannel).add();
-            table.index("IX_DTL_DATALOGGERCHANNELUSAGE_SLAVE").on(gatewayChannel).add();
+            table.primaryKey("PK_DTL_CHANNELUSAGE").on(origin, originChannel).add();
+            table.index("IX_DTL_DATALOGGERCHANNELUSAGE_GATEWAY").on(gatewayChannel).add();
             table.foreignKey("FK_DTL_CU_GATEWAYREFERENCE")
                     .references(DTL_PHYSICALGATEWAYREFERENCE.name())
                     .on(origin, startTime)
@@ -175,6 +179,19 @@ public enum TableSpecs {
                     .reverseMap("dataLoggerChannelUsages")
                     .composition()
                     .add();
+            table.foreignKey("FK_DTL_CHANNELUSAGE_ORIGIN").
+                    on(originChannel).
+                    references(Channel.class).
+                    onDelete(CASCADE).
+                    map(DataLoggerChannelUsageImpl.Field.ORIGIN_CHANNEL.fieldName()).
+                    add();
+            table.foreignKey("FK_DTL_CHANNELUSAGE_GATEWAY").
+                    on(gatewayChannel).
+                    references(Channel.class).
+                    onDelete(CASCADE).
+                    map(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.fieldName()).
+                    add();
+
         }
     }
     ;

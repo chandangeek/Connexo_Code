@@ -17,6 +17,7 @@ import java.util.List;
 @PhysicalGatewayNotSameAsOrigin(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.DEVICE_CANNOT_BE_DATA_LOGGER_FOR_ITSELF +"}")
 @OriginDeviceTypeIsDataLogger(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.NOT_A_DATALOGGER_SLAVE_DEVICE +"}")
 @GatewayDeviceTypeIsDataLoggerEnabled(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.GATEWAY_NOT_DATALOGGER_ENABLED +"}")
+@AllSlaveChannelsIncluded(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.NOT_ALL_SLAVE_CHANNELS_INCLUDED +"}")
 public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImpl {
 
     private List<DataLoggerChannelUsage> dataLoggerChannelUsages = new ArrayList<>();
