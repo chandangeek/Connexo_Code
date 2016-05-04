@@ -47,13 +47,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
                 ]
             },
             {
-                xtype: 'obis-field',
-                name: 'obisCode',
-                itemId: 'mdc-editObisCodeField',
-                width: 450,
-                hidden: true
-            },
-            {
                 xtype: 'fieldcontainer',
                 itemId: 'overflowValue-container',
                 required: true,
@@ -64,7 +57,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
                 items: [
                     {
                         xtype: 'numberfield',
-                        name: 'overflow',
+                        name: 'overruledOverflow',
                         msgTarget: 'under',
                         itemId: 'mdc-editOverflowValueField',
                         width: 150,
@@ -95,7 +88,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
                 items: [
                     {
                         xtype: 'numberfield',
-                        name: 'numberOfFractionDigits',
+                        name: 'overruledNumberOfFractionDigits',
                         required: true,
                         msgTarget: 'under',
                         itemId: 'mdc-editNumberOfFractionDigitsField',
