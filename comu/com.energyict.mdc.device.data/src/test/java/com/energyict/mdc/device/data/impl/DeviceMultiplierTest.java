@@ -189,7 +189,7 @@ public class DeviceMultiplierTest {
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         when(finiteStateMachine.getId()).thenReturn(633L);
 
-        when(meteringService.getMultiplierType(any())).thenReturn(Optional.of(multiplierType));
+        when(meteringService.getMultiplierType(anyString())).thenReturn(Optional.of(multiplierType));
         when(meterActivation.getMultiplier(multiplierType)).thenReturn(Optional.empty());
         when(meterActivation.getRange()).thenReturn(Range.atLeast(startOfMeterActivation));
         when(meterActivation.getUsagePoint()).thenReturn(Optional.empty());
