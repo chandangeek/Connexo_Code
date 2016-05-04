@@ -45,6 +45,8 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
 
     fromSpecification: false,
     originalObisCodeOfConfig: null, // The OBIS code of the configuration
+    originalOverflowValueOfConfig: null, // The overflow value of the configuration
+    originalNumberOfFractionDigitsOfConfig: null, // The number of fraction digits of the configuration
 
     init: function () {
         this.control({
@@ -360,9 +362,11 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                         widget.setChannel(channel);
                         me.updateEditChannelFields(channel);
                         me.originalObisCodeOfConfig = channel.get('obisCode');
+                        me.originalOverflowValueOfConfig = channel.get('overflowValue');
+                        me.originalNumberOfFractionDigitsOfConfig = channel.get('nbrOfFractionDigits');
                         me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), channel.get('overruledObisCode'));
-                        me.onOverflowChange(me.getOverflowField(), me.originalOverflow);
-                        me.onNumberOfFractionDigitsChange(me.getNumberOfFractionDigitsField(), me.originalNumberOfFractionDigits);
+                        me.onOverflowChange(me.getOverflowField(), channel.get('overruledOverflowValue'));
+                        me.onNumberOfFractionDigitsChange(me.getNumberOfFractionDigitsField(), channel.get('overruledNbrOfFractionDigits'));
                         viewport.setLoading(false);
                     }
                 });
@@ -417,49 +421,61 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         me.getRestoreObisCodeBtn().setTooltip(
             newValue === me.originalObisCodeOfConfig
                 ? null
-                : Uni.I18n.translate('general.obisCode.reset.tooltip4', 'MDC', 'Reset to {0}, the OBIS code of the device configuration', me.originalObisCodeOfConfig)
+                : Uni.I18n.translate(
+                    'general.obisCode.reset.tooltip4',
+                    'MDC',
+                    'Reset to {0}, the OBIS code of the device configuration',
+                    me.originalObisCodeOfConfig
+                  )
         );
     },
 
     onRestoreObisCodeBtnClicked: function() {
         var me = this;
-        me.getChannelEditForm().down('#mdc-editOverruledObisCodeField').setValue(me.originalObisCodeOfConfig);
         me.getOverruledObisCodeField().setValue(me.originalObisCodeOfConfig);
         me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.originalObisCodeOfConfig);
     },
 
     onOverflowChange: function(overflowField, newValue) {
         var me = this;
-        me.getRestoreOverflowBtn().setDisabled(newValue === me.originalOverflow);
+        me.getRestoreOverflowBtn().setDisabled(newValue === me.originalOverflowValueOfConfig);
         me.getRestoreOverflowBtn().setTooltip(
-            newValue === me.originalOverflow
+            newValue === me.originalOverflowValueOfConfig
                 ? null
-                : Uni.I18n.translate('general.overflow.reset.tooltip', 'MDC', 'Reset to {0}, the overflow value of the device configuration', me.originalOverflow)
+                : Uni.I18n.translate(
+                    'general.overflow.reset.tooltip',
+                    'MDC',
+                    'Reset to {0}, the overflow value of the device configuration',
+                    me.originalOverflowValueOfConfig
+                  )
         );
     },
 
     onRestoreOverflowBtnClicked: function() {
         var me = this;
-        //me.getChannelEditForm().down('#mdc-editOverruledObisCodeField').setValue(me.originalOverruledObisCode);
-        me.getOverflowField().setValue(me.originalOverflow);
-        me.onOverflowChange(me.getOverflowField(), me.originalOverflow);
+        me.getOverflowField().setValue(me.originalOverflowValueOfConfig);
+        me.onOverflowChange(me.getOverflowField(), me.originalOverflowValueOfConfig);
     },
 
     onNumberOfFractionDigitsChange: function(fractionField, newValue) {
         var me = this;
-        me.getRestoreNumberOfFractionDigitsBtn().setDisabled(newValue === me.originalNumberOfFractionDigits);
+        me.getRestoreNumberOfFractionDigitsBtn().setDisabled(newValue === me.originalNumberOfFractionDigitsOfConfig);
         me.getRestoreNumberOfFractionDigitsBtn().setTooltip(
-            newValue === me.originalNumberOfFractionDigits
+            newValue === me.originalNumberOfFractionDigitsOfConfig
                 ? null
-                : Uni.I18n.translate('general.numberOfFractionDigits.reset.tooltip', 'MDC', 'Reset to {0}, the number of fraction digits of the device configuration', me.originalNumberOfFractionDigits)
+                : Uni.I18n.translate(
+                    'general.numberOfFractionDigits.reset.tooltip',
+                    'MDC',
+                    'Reset to {0}, the number of fraction digits of the device configuration',
+                    me.originalNumberOfFractionDigitsOfConfig
+                  )
         );
     },
 
     onRestoreNumberOfFractionDigitsBtnClicked: function() {
         var me = this;
-        //me.getChannelEditForm().down('#mdc-editOverruledObisCodeField').setValue(me.originalOverruledObisCode);
-        me.getNumberOfFractionDigitsField().setValue(me.originalNumberOfFractionDigits);
-        me.onNumberOfFractionDigitsChange(me.getNumberOfFractionDigitsField(), me.originalNumberOfFractionDigits);
+        me.getNumberOfFractionDigitsField().setValue(me.originalNumberOfFractionDigitsOfConfig);
+        me.onNumberOfFractionDigitsChange(me.getNumberOfFractionDigitsField(), me.originalNumberOfFractionDigitsOfConfig);
     },
 
     saveChannel: function () {

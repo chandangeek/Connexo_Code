@@ -47,13 +47,6 @@ Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
                 ]
             },
             {
-                xtype: 'obis-field',
-                name: 'obisCode',
-                itemId: 'mdc-editObisCodeField',
-                width: 450,
-                hidden: true
-            },
-            {
                 xtype: 'fieldcontainer',
                 itemId: 'overflowValue-container',
                 required: true,
@@ -64,7 +57,7 @@ Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
                 items: [
                     {
                         xtype: 'numberfield',
-                        name: 'overflowValue',
+                        name: 'overruledOverflowValue',
                         msgTarget: 'under',
                         itemId: 'mdc-editOverflowValueField',
                         width: 150,
@@ -95,7 +88,7 @@ Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
                 items: [
                     {
                         xtype: 'numberfield',
-                        name: 'nbrOfFractionDigits',
+                        name: 'overruledNbrOfFractionDigits',
                         required: true,
                         msgTarget: 'under',
                         itemId: 'mdc-editNumberOfFractionDigitsField',
