@@ -9,15 +9,13 @@ Ext.define('Uni.view.search.field.Quantity', {
     createCriteriaLine: function(config) {
         var me = this,
             store = Ext.create('Ext.data.Store', {
-                fields: ['id', 'displayValue']
-            }),
-            defaultUnit;
-
-        store.loadData(me.property.get('values'));
+                fields: ['id', 'displayValue'],
+                data: me.property.get('values')
+            });
 
         return Ext.apply({
             xtype: 'uni-search-internal-criterialine',
-            itemsDefaultConfig: Ext.apply(me.itemsDefaultConfig, {unitsStore: store}),
+            itemsDefaultConfig: Ext.apply({unitsStore: store}, me.itemsDefaultConfig),
             width: '455',
             operator: 'BETWEEN',
             removable: false,
