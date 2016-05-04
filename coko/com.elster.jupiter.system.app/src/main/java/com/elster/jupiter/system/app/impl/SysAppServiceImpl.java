@@ -67,7 +67,6 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
     private volatile MeteringService meteringService;
     private volatile SubsystemService subsystemService;
     private volatile ServiceCallService serviceCallService;
-    private volatile OrmService ormService;
     private volatile UpgradeService upgradeService;
 
     public SysAppServiceImpl() {
@@ -101,7 +100,6 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
         setMeteringService(meteringService);
         setSubsystemService(subsystemService);
         setServiceCallService(serviceCallService);
-        setOrmService(ormService);
         setUpgradeService(upgradeService);
         activate(context);
     }
@@ -113,7 +111,7 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
 
         registration = context.registerService(App.class, app, null);
 
-        DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "");
+        DataModel dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -187,11 +185,6 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
-    }
-
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        this.ormService = ormService;
     }
 
     @Reference
