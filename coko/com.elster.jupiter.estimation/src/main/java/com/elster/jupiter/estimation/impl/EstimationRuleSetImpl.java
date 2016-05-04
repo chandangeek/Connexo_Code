@@ -50,6 +50,8 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     private Instant obsoleteTime;
+    @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    private String application;
 
     private long version;
     private Instant createTime;
@@ -80,6 +82,13 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     EstimationRuleSetImpl init(String name, String description) {
         this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
         this.description = description;
+        return this;
+    }
+
+    EstimationRuleSetImpl init(String name, String description, String application) {
+        this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
+        this.description = description;
+        this.application = application;
         return this;
     }
 

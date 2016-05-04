@@ -47,6 +47,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -340,6 +341,13 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Override
     public EstimationRuleSet createEstimationRuleSet(String name, String description) {
         EstimationRuleSet set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name, description);
+        set.save();
+        return set;
+    }
+
+    @Override
+    public EstimationRuleSet createEstimationRuleSet(String name, String description, String application) {
+        EstimationRuleSet set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name, description, application);
         set.save();
         return set;
     }

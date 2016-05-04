@@ -1,10 +1,11 @@
 package com.elster.jupiter.estimation;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -36,6 +37,8 @@ public interface EstimationService {
     EstimationRuleSet createEstimationRuleSet(String name);
 
     EstimationRuleSet createEstimationRuleSet(String name, String description);
+
+    EstimationRuleSet createEstimationRuleSet(String name, String description, String application);
 
     List<? extends EstimationRuleSet> getEstimationRuleSets();
 
