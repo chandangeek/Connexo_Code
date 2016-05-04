@@ -39,7 +39,7 @@ public class MasterDataSync {
 
     private final Beacon3100Messaging beacon3100Messaging;
 
-    private StringBuilder info = new StringBuilder();
+    protected StringBuilder info = new StringBuilder();
 
     public MasterDataSync(Beacon3100Messaging beacon3100Messaging) {
         this.beacon3100Messaging = beacon3100Messaging;
@@ -61,11 +61,11 @@ public class MasterDataSync {
             return collectedMessage;
         }
 
-        syncDeviceTypes(allMasterData);
         syncSchedules(allMasterData);
         syncClientTypes(allMasterData);
+        syncDeviceTypes(allMasterData);
 
-        collectedMessage.setDeviceProtocolInformation(info.toString());
+        collectedMessage.setDeviceProtocolInformation(getInfoMessage());
 
         //Now see if there were any warning while parsing the EIServer model, and add them as proper issues.
         List<Issue> issues = new ArrayList<>();
@@ -79,6 +79,12 @@ public class MasterDataSync {
         }
 
         return collectedMessage;
+    }
+
+    // truncate to max 4000 - as supported by varchar field in oracle
+    protected String getInfoMessage() {
+        String message = info.toString();
+        return message.substring(0, Math.min(4000, message.length()));
     }
 
     /**
@@ -173,20 +179,20 @@ public class MasterDataSync {
             if (existingBeaconDeviceTypes.containsKey(deviceType.getId())) {
                 if (deviceType.equals( existingBeaconDeviceTypes.get(deviceType.getId()))){
                     // do nothing, the same
-                    info.append("-DeviceType SKIPPED: [" + deviceType.getId() + "] " + deviceType.getName() + "\n");
+                    info.append("-DeviceType SKIPPED: [").append(deviceType.getId()).append("] ").append(deviceType.getName()).append("\n");
                 } else {
-                    info.append("-DeviceType UPDATED: [" + deviceType.getId() + "] " + deviceType.getName() + "\n");
+                    info.append("-DeviceType UPDATED: [").append(deviceType.getId()).append("] ").append(deviceType.getName()).append("\n");
                     deviceTypeManager.updateDeviceType(deviceType.toStructure());
                 }
             } else {
-                info.append("-Device type ADDED: [" + deviceType.getId() + "] " + deviceType.getName() + "\n");
+                info.append("-Device type ADDED: [").append(deviceType.getId()).append("] ").append(deviceType.getName()).append("\n");
                 deviceTypeManager.addDeviceType(deviceType.toStructure());
             }
         }
 
         // delete the remaining inactive items
         for (Long beaconDeviceTypeId : active.keySet()){
-            if (active.get(beaconDeviceTypeId).equals(Boolean.FALSE)){
+            if (!active.get(beaconDeviceTypeId)){
                 try {
                     deviceTypeManager.removeDeviceType(beaconDeviceTypeId);
                     info.append("-DeviceType DELETED: [" + beaconDeviceTypeId + "]\n");
@@ -219,20 +225,20 @@ public class MasterDataSync {
             if (existingClientTypes.containsKey(beacon3100ClientType.getId())) {
                 if (beacon3100ClientType.equals( existingClientTypes.get(beacon3100ClientType.getId()))){
                     // do nothing, the same
-                    info.append("-ClientType SKIPPED: [" + beacon3100ClientType.getId() + "] ClientMacAddress:"+beacon3100ClientType.getClientMacAddress()+"\n");
+                    info.append("-ClientType SKIPPED: [").append(beacon3100ClientType.getId()).append("] ClientMacAddress:").append(beacon3100ClientType.getClientMacAddress()).append("\n");
                 } else {
-                    info.append("-ClientType UPDATED: [" + beacon3100ClientType.getId() + "] ClientMacAddress:"+beacon3100ClientType.getClientMacAddress()+"\n");
+                    info.append("-ClientType UPDATED: [").append(beacon3100ClientType.getId()).append("] ClientMacAddress:").append(beacon3100ClientType.getClientMacAddress()).append("\n");
                     clientTypeManager.updateClientType(beacon3100ClientType.toStructure());
                 }
             } else {
-                info.append("-ClientType ADDED: [" + beacon3100ClientType.getId() + "]\n");
+                info.append("-ClientType ADDED: [").append(beacon3100ClientType.getId()).append("]\n");
                 clientTypeManager.addClientType(beacon3100ClientType.toStructure());
             }
         }
 
         // delete the remaining inactive items
         for (Long clientTypeId : active.keySet()){
-            if (active.get(clientTypeId).equals(Boolean.FALSE)){
+            if (!active.get(clientTypeId)){
                 try {
                     clientTypeManager.removeClientType(clientTypeId);
                     info.append("-ClientType DELETED: [" + clientTypeId + "]\n");
@@ -264,20 +270,20 @@ public class MasterDataSync {
             if (existingSchedules.containsKey(beacon3100Schedule.getId())) {
                 if (beacon3100Schedule.equals( existingSchedules.get(beacon3100Schedule.getId()))){
                     // do nothing, the same
-                    info.append("-Schedule SKIPPED: [" + beacon3100Schedule.getId() + "] " + beacon3100Schedule.getName() + "\n");
+                    info.append("-Schedule SKIPPED: [").append(beacon3100Schedule.getId()).append("] ").append(beacon3100Schedule.getName()).append("\n");
                 } else {
-                    info.append("-Schedule UPDATED: [" + beacon3100Schedule.getId() + "] "+beacon3100Schedule.getName()+"\n");
+                    info.append("-Schedule UPDATED: [").append(beacon3100Schedule.getId()).append("] ").append(beacon3100Schedule.getName()).append("\n");
                     scheduleManager.updateSchedule(beacon3100Schedule.toStructure());
                 }
             } else {
-                info.append("-Schedule ADDED: [" + beacon3100Schedule.getId() + "] "+beacon3100Schedule.getName()+"\n");
+                info.append("-Schedule ADDED: [").append(beacon3100Schedule.getId()).append("] ").append(beacon3100Schedule.getName()).append("\n");
                 scheduleManager.addSchedule(beacon3100Schedule.toStructure());
             }
         }
 
         // delete the remaining inactive items
         for (Long scheduleId : active.keySet()){
-            if (active.get(scheduleId).equals(Boolean.FALSE)){
+            if (!active.get(scheduleId)){
                 try{
                     scheduleManager.removeSchedule(scheduleId);
                     info.append("-Schedule DELETED: [" + scheduleId + "]\n");

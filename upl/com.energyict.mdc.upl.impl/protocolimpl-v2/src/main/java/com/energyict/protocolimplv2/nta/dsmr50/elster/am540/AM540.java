@@ -176,6 +176,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         while (true) {
             ProtocolRuntimeException exception;
             try {
+                getDlmsSession().getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
                 if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     getDlmsSession().getDlmsV2Connection().connectMAC();
                     getDlmsSession().createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
@@ -190,6 +191,8 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
                     throw e;
                 }
                 exception = e;
+            } finally {
+                getDlmsSession().getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception
@@ -365,7 +368,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-04-26 15:13:47 +0200 (Tue, 26 Apr 2016)$";
+        return "$Date: 2016-05-03 14:54:30 +0200 (Tue, 03 May 2016)$";
     }
 
     @Override
