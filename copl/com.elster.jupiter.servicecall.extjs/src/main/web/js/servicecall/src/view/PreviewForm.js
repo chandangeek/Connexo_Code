@@ -79,7 +79,7 @@ Ext.define('Scs.view.PreviewForm', {
                     },
                     {
                         xtype: 'displayfield',
-                        fieldLabel: Uni.I18n.translate('general.serviceCallID', 'SCS', 'Service call ID'),
+                        fieldLabel: Uni.I18n.translate('general.serviceCall', 'SCS', 'Service call'),
                         name: 'name',
                         hidden: !me.detailed
                     },
