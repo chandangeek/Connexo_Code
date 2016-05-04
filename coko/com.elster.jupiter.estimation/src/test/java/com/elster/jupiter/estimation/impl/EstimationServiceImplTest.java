@@ -27,6 +27,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableList;
@@ -102,11 +103,14 @@ public class EstimationServiceImplTest {
     private CimChannel cimChannel1, cimChannel2;
     @Mock
     private Meter meter;
+    @Mock
+    private UpgradeService upgradeService;
+
     private LogRecorder logRecorder;
 
     @Before
     public void setUp() {
-        this.estimationService = new EstimationServiceImpl(meteringService, ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService, userService);
+        this.estimationService = new EstimationServiceImpl(meteringService, ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService, userService, upgradeService);
 
         estimationService.addEstimationResolver(resolver);
 

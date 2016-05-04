@@ -5,14 +5,18 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
+import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -20,7 +24,7 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.*;
 
-class InstallerImpl {
+class InstallerImpl implements FullInstaller {
 
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
@@ -36,6 +40,7 @@ class InstallerImpl {
 
     private DestinationSpec destinationSpec;
 
+    @Inject
     InstallerImpl(DataModel dataModel, MessageService messageService, TimeService timeService, EventService eventService, UserService userService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
@@ -48,9 +53,10 @@ class InstallerImpl {
         return destinationSpec;
     }
 
-    void install() {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         ExceptionCatcher.executing(
-                this::installDataModel,
+                () -> dataModelUpgrader.upgrade(dataModel, Version.latest()),
                 this::createDestinationAndSubscriber,
                 this::createRelativePeriodCategory,
                 this::createRelativePeriods,
@@ -58,6 +64,7 @@ class InstallerImpl {
                 this::createTaskExecutorUser
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
+
     }
 
     private void createRelativePeriodCategory() {
