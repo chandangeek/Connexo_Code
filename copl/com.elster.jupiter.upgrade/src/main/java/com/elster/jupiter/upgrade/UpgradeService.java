@@ -11,4 +11,5 @@ public interface UpgradeService {
 
     boolean isInstalled(InstallIdentifier installIdentifier, Version version);
 
+    DataModel newNonOrmDataModel();
 }

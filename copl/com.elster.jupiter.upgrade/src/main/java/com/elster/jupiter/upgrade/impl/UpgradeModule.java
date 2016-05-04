@@ -40,5 +40,10 @@ public class UpgradeModule extends AbstractModule {
         public boolean isInstalled(InstallIdentifier installIdentifier, Version version) {
             return installed.contains(installIdentifier);
         }
+
+        @Override
+        public DataModel newNonOrmDataModel() {
+            return new InjectOnly();
+        }
     }
 }

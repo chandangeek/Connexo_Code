@@ -35,6 +35,7 @@ public class UpgradeServiceImpl implements UpgradeService {
     private volatile BootstrapService bootstrapService;
     private volatile TransactionService transactionService;
     private volatile DataModelUpgrader dataModelUpgrader;
+    private volatile OrmService ormService;
     private boolean doUpgrade;
     private Map<InstallIdentifier, UpgradeClasses> registered = new HashMap<>();
     private Set<String> installed = new HashSet<>();
@@ -121,6 +122,7 @@ public class UpgradeServiceImpl implements UpgradeService {
     @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModelUpgrader = ormService.getDataModelUpgrader();
+        this.ormService = ormService;
     }
 
     private static final class UpgradeClasses {
@@ -146,4 +148,10 @@ public class UpgradeServiceImpl implements UpgradeService {
                     '}';
         }
     }
+
+    @Override
+    public DataModel newNonOrmDataModel() {
+        return new InjectOnly();
+    }
+
 }
