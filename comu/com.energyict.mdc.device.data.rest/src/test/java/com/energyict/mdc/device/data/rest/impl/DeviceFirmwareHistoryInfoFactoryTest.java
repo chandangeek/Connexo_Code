@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
 import com.energyict.mdc.firmware.DeviceFirmwareVersionHistoryRecord;
@@ -36,6 +37,8 @@ public class DeviceFirmwareHistoryInfoFactoryTest {
     private DeviceFirmwareVersionHistoryRecord record1, record2, record3, record4, record5;
     @Mock
     private FirmwareVersion version1, version2, version3, version4, version5;
+    @Mock
+    private Thesaurus thesaurus;
 
     private Instant twoMonthsAgo, oneMonthAgo, oneWeekAgo, nextMonth;
 
@@ -72,16 +75,19 @@ public class DeviceFirmwareHistoryInfoFactoryTest {
         when(record5.getInterval()).thenReturn(Interval.startAt(nextMonth));
 
         when(deviceFirmwareHistory.history()).thenReturn(Arrays.asList(record1, record2, record3, record4, record5));
+
+        when(thesaurus.getString(FirmwareType.METER.getType(), FirmwareType.METER.getDescription())).thenReturn(FirmwareType.METER.getDescription());
+        when(thesaurus.getString(FirmwareType.COMMUNICATION.getType(), FirmwareType.COMMUNICATION.getDescription())).thenReturn(FirmwareType.COMMUNICATION.getDescription());
     }
     @Test
     public void testTotal(){
-        DeviceFirmwareHistoryInfoFactory.DeviceFirmwareHistoryInfos infos = new DeviceFirmwareHistoryInfoFactory.DeviceFirmwareHistoryInfos(deviceFirmwareHistory);
+        DeviceFirmwareHistoryInfoFactory.DeviceFirmwareHistoryInfos infos = new DeviceFirmwareHistoryInfoFactory.DeviceFirmwareHistoryInfos(deviceFirmwareHistory, thesaurus);
         assertThat(infos.total).isEqualTo(5);
         assertThat(infos.deviceFirmwareHistoryInfos).hasSize(5);
     }
     @Test
     public void testDeviceFirmwareHistoryInfos(){
-        DeviceFirmwareHistoryInfoFactory.DeviceFirmwareHistoryInfos infos = new DeviceFirmwareHistoryInfoFactory.DeviceFirmwareHistoryInfos(deviceFirmwareHistory);
+        DeviceFirmwareHistoryInfoFactory.DeviceFirmwareHistoryInfos infos = new DeviceFirmwareHistoryInfoFactory.DeviceFirmwareHistoryInfos(deviceFirmwareHistory, thesaurus);
         List<DeviceFirmwareHistoryInfoFactory.DeviceFirmwareHistoryInfo> info = infos.deviceFirmwareHistoryInfos;
 
         assertThat(info.get(0).activationDate).isEqualTo(twoMonthsAgo);
@@ -96,11 +102,11 @@ public class DeviceFirmwareHistoryInfoFactoryTest {
         assertThat(info.get(3).firmwareVersion).isEqualTo("firmware version 4");
         assertThat(info.get(4).firmwareVersion).isEqualTo("firmware version 5");
 
-        assertThat(info.get(0).firmwareType).isEqualTo(FirmwareType.METER.getType());
-        assertThat(info.get(1).firmwareType).isEqualTo(FirmwareType.COMMUNICATION.getType());
-        assertThat(info.get(2).firmwareType).isEqualTo(FirmwareType.METER.getType());
-        assertThat(info.get(3).firmwareType).isEqualTo(FirmwareType.COMMUNICATION.getType());
-        assertThat(info.get(4).firmwareType).isEqualTo(FirmwareType.METER.getType());
+        assertThat(info.get(0).firmwareType).isEqualTo(FirmwareType.METER.getDescription());
+        assertThat(info.get(1).firmwareType).isEqualTo(FirmwareType.COMMUNICATION.getDescription());
+        assertThat(info.get(2).firmwareType).isEqualTo(FirmwareType.METER.getDescription());
+        assertThat(info.get(3).firmwareType).isEqualTo(FirmwareType.COMMUNICATION.getDescription());
+        assertThat(info.get(4).firmwareType).isEqualTo(FirmwareType.METER.getDescription());
     }
 
 
