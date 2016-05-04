@@ -1,8 +1,10 @@
 package com.elster.jupiter.validation;
 
-import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;
@@ -58,4 +60,6 @@ public interface ValidationRule {
     List<PropertySpec> getPropertySpecs();
 
     boolean isObsolete();
+
+    QualityCodeSystem getSystem();
 }

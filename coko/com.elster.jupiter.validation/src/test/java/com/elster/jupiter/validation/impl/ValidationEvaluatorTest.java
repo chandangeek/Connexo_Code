@@ -2,15 +2,23 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+
 import com.google.common.collect.Range;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -25,7 +33,7 @@ public class ValidationEvaluatorTest {
     @Mock
     Channel channel1, channel2, channel3;
 
-    private final static ReadingQualityType suspect = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT);
+    private final static ReadingQualityType suspect = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT);
 
     @Before
     public void setUp() {
@@ -96,7 +104,7 @@ public class ValidationEvaluatorTest {
         List<ReadingQualityRecord> records= new ArrayList<>();
         for (int i=0; i < numberOfSusptects; i++){
             ReadingQualityRecord mocked = mock(ReadingQualityRecord.class);
-            when(mocked.getTypeCode()).thenReturn(QualityCodeSystem.MDM.name());
+            when(mocked.getTypeCode()).thenReturn(QualityCodeSystem.MDC.name());
             when(mocked.getType()).thenReturn(suspect);
             records.add(mocked);
         }

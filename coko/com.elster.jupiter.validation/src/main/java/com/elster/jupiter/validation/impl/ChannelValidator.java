@@ -14,6 +14,7 @@ import com.elster.jupiter.util.streams.Accumulator;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.Validator;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
@@ -126,7 +127,7 @@ class ChannelValidator {
                 .filter(readingQualityRecord -> readingQualityRecord.getReadingType().equals(target.getReadingType()))
                 .findFirst();
         ReadingQualityRecord suspectQualityRecord = suspectQuality.orElseGet(() -> {
-            ReadingQualityRecord record = saveNewReadingQuality(channel, target, ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT));
+            ReadingQualityRecord record = saveNewReadingQuality(channel, target, ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT));
             existingReadingQualities.put(target.getTimestamp(), record);
             return record;
         });

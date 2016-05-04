@@ -164,7 +164,7 @@ public class ValidationAddRemoveIT {
         when(validatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX));
         when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
         when(validatorFactory.create(eq(MIN_MAX), any(Map.class))).thenReturn(minMax);
-        when(minMax.getReadingQualityTypeCode()).thenReturn(Optional.empty());
+        when(minMax.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
         when(min.getName()).thenReturn(MIN);
         when(min.getValueFactory()).thenReturn(valueFactory);

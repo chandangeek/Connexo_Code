@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -42,7 +43,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.streams.Currying.*;
+import static com.elster.jupiter.util.streams.Currying.test;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_RULE + "}")
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
@@ -300,6 +301,11 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     @Override
+    public QualityCodeSystem getSystem(){
+        return QualityCodeSystem.MDC;
+    }
+
+    @Override
     public List<PropertySpec> getPropertySpecs() {
         return getValidator().getPropertySpecs();
     }
@@ -424,7 +430,8 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @Override
     public ReadingQualityType getReadingQualityType() {
-        return getValidator().getReadingQualityTypeCode().orElse(ReadingQualityType.defaultCodeForRuleId(getId()));
+        return getValidator().getReadingQualityCodeIndex().map(index -> ReadingQualityType.of(getSystem(), index))
+                .orElse(ReadingQualityType.defaultCodeForRuleId(getSystem(), getId()));
     }
 
     @Override
