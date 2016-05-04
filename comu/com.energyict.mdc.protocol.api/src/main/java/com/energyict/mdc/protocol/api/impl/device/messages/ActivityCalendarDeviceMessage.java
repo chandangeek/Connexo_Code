@@ -5,12 +5,14 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides a summary of all <i>ActivityCalendar</i> related messages.
@@ -21,7 +23,12 @@ import java.util.List;
  */
 public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
-    ACTIVITY_CALENDAR_READ(DeviceMessageId.ACTIVITY_CALENDAR_READ, "Read activity calendar"),
+    ACTIVITY_CALENDAR_READ(DeviceMessageId.ACTIVITY_CALENDAR_READ, "Read activity calendar") {
+        @Override
+        public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
+            return Optional.empty();
+        }
+    },
     WRITE_CONTRACTS_FROM_XML_USERFILE(DeviceMessageId.ACTIVITY_CALENDAR_WRITE_CONTRACTS_FROM_XML_USERFILE, "Write contract from XML user file") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -33,6 +40,11 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
+        }
+
+        @Override
+        public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
+            return Optional.empty();
         }
     },
     ACTIVITY_CALENDER_SEND(DeviceMessageId.ACTIVITY_CALENDER_SEND, "Send activity calendar") {
@@ -54,6 +66,8 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
                             .markRequired()
                             .finish());
         }
+
+
     },
     ACTIVITY_CALENDER_SEND_WITH_DATETIME(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, "Send activity calendar with activation date") {
         @Override
@@ -294,5 +308,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
     protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
     };
+
+    public abstract Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption();
 
 }
