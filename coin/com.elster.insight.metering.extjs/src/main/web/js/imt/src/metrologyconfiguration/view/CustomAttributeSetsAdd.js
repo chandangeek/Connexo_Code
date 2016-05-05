@@ -9,6 +9,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
         'Uni.view.container.EmptyGridContainer'
     ],
     router: null,
+    metrologyConfig: null,
 
     initComponent: function () {
         var me = this,
@@ -35,10 +36,10 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
                     itemId: 'cas-no-items-found-panel',
-                    title: Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.title', 'MDC', 'No custom attribute sets found'),
+                    title: Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.title', 'IMT', 'No custom attribute sets found'),
                     reasons: [
-                        Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.list.item1', 'MDC', 'All cutom attribute sets already added'),
-                        Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.list.item2', 'MDC', 'No custom attribute sets defined yet')
+                        Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.list.item1', 'IMT', 'All cutom attribute sets already added'),
+                        Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.list.item2', 'IMT', 'No custom attribute sets defined yet')
                     ]
                 }
             },
@@ -68,7 +69,8 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
                     {
                         xtype: 'metrology-configuration-side-menu',
                         itemId: 'metrology-configuration-side-menu',
-                        router: router
+                        router: router,
+                        metrologyConfig: me.metrologyConfig
                     }
                 ]
             }

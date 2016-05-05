@@ -38,14 +38,14 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                         itemId: 'cas-grid',
                         store: 'Imt.metrologyconfiguration.store.CustomAttributeSets',
                         actionColumnConfig: {
-                            header: Uni.I18n.translate('general.actions', 'UNI', 'Actions'),
+                            header: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
                             privileges: Imt.privileges.MetrologyConfig.admin,
                             xtype: 'actioncolumn',
                             align: 'right',
                             width: 80,
                             items: [
                                 {
-                                    tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                                    tooltip: Uni.I18n.translate('general.remove', 'IMT', 'Remove'),
                                     iconCls: ' uni-icon-delete',
                                     disabled: isActive,
                                     handler: function (grid, rowIndex, colIndex, item, e, record, row) {
@@ -111,7 +111,8 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                     {
                         xtype: 'metrology-configuration-side-menu',
                         itemId: 'metrology-configuration-side-menu',
-                        router: router
+                        router: router,
+                        metrologyConfig: me.metrologyConfiguration
                     }
                 ]
             }
