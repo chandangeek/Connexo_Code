@@ -23,6 +23,7 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -324,6 +325,16 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     @Override
     public Finder<?> finderFor(List<SearchablePropertyCondition> conditions) {
+        List<String> searchableGroups = new ArrayList<>();
+        conditions.stream().forEach(condition -> {
+            String[] conditionNameParts = condition.getProperty().getName().split("\\.");
+            if (conditionNameParts.length == 4) {
+                searchableGroups.add(conditionNameParts[3]);
+            }
+        });
+        if (searchableGroups.size() > 1) {
+            return new UsagePointFinder(this.meteringService, Collections.emptyList());
+        }
         return new UsagePointFinder(this.meteringService, conditions);
     }
 

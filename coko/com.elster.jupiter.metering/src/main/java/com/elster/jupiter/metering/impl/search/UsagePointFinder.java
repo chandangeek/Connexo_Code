@@ -26,10 +26,14 @@ public class UsagePointFinder implements Finder<UsagePoint> {
 
     UsagePointFinder(ServerMeteringService meteringService, List<SearchablePropertyCondition> conditions) {
         this.meteringService = meteringService;
-        this.finder = DefaultFinder
-                .of(UsagePoint.class, toCondition(conditions), meteringService.getDataModel(),
-                        EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, UsagePointDetail.class)
-                .defaultSortColumn("mRID");
+        if (!conditions.isEmpty()) {
+            this.finder = DefaultFinder
+                    .of(UsagePoint.class, toCondition(conditions), meteringService.getDataModel(),
+                            EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, UsagePointDetail.class)
+                    .defaultSortColumn("mRID");
+        } else {
+            this.finder = DefaultFinder.of(UsagePoint.class, Condition.FALSE, meteringService.getDataModel());
+        }
     }
 
     private Condition toCondition(List<SearchablePropertyCondition> conditions) {
