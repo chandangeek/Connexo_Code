@@ -24,8 +24,11 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_TECHNICAL_INFO(15, Keys.NO_SUCH_TECHNICAL_INFO, "Technical information for {0} should be provided"),
     NO_USAGE_POINT_FOR_ID(16, Keys.NO_USAGE_POINT_FOR_ID, "No usage point with ID {0}"),
     BAD_REQUEST(17, Keys.BAD_REQUEST, "Bad request"),
-    INVALID_COORDINATES(18, "invalidCoordinates", "Invalid value"),
-    THIS_FIELD_IS_REQUIRED(19, "ThisFieldIsRequired", "This field is required");
+    NO_METROLOGYCONFIG_FOR_ID(18, Keys.NO_METROLOGYCONFIG_FOR_ID, "No metrology configuration with id {0}"),
+    USAGE_POINT_LINKED_EXCEPTION(19, Keys.USAGE_POINT_LINKED_EXCEPTION, " Failed to link metrology configuration to '{0}'."),
+    USAGE_POINT_LINKED_EXCEPTION_MSG(20, Keys.USAGE_POINT_LINKED_EXCEPTION_MSG, "{0} is already linked to a metrology configuration."),
+    INVALID_COORDINATES(21, "invalidCoordinates", "Invalid value"),
+    THIS_FIELD_IS_REQUIRED(22, "ThisFieldIsRequired", "This field is required");
     private final int number;
     private final String key;
     private final String format;
@@ -79,6 +82,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String NO_SUCH_SERVICE_CATEGORY = "NoSuchServiceCtegory";
         public static final String NO_SUCH_TECHNICAL_INFO = "NoSuchTechInfo";
         public static final String BAD_REQUEST = "BadRequest";
+        public static final String NO_METROLOGYCONFIG_FOR_ID = "NoMetrologyConfigWithId";
+        public static final String USAGE_POINT_LINKED_EXCEPTION = "UsagePointLinkedException";
+        public static final String USAGE_POINT_LINKED_EXCEPTION_MSG = "UsagePointLinkedExceptionMsg";
 
     }
 
