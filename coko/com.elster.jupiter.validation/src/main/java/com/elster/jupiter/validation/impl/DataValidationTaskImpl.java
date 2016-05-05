@@ -4,6 +4,8 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -60,6 +62,10 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
     private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
+
+    private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
+
+    private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
 
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
 
@@ -181,6 +187,11 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
+    public String getApplication() {
+        return application;
+    }
+
+    @Override
     public void setName(String name) {
         this.name = (name != null ? name.trim() : "");
         recurrentTaskDirty = true;
@@ -197,6 +208,16 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
+    public Optional<MetrologyConfiguration> getMetrologyConfiguration() {
+        return metrologyConfiguration.getOptional();
+    }
+
+    @Override
+    public Optional<MetrologyContract> getMetrologyContract() {
+        return metrologyContract.getOptional();
+    }
+
+    @Override
     public void setEndDeviceGroup(EndDeviceGroup endDeviceGroup) {
         this.endDeviceGroup.set(endDeviceGroup);
     }
@@ -204,6 +225,16 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     @Override
     public void setUsagePointGroup(UsagePointGroup usagePointGroup) {
         this.usagePointGroup.set(usagePointGroup);
+    }
+
+    @Override
+    public void setMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration) {
+        this.metrologyConfiguration.set(metrologyConfiguration);
+    }
+
+    @Override
+    public void setMetrologyContract(MetrologyContract metrologyContract) {
+        this.metrologyContract.set(metrologyContract);
     }
 
     @Override

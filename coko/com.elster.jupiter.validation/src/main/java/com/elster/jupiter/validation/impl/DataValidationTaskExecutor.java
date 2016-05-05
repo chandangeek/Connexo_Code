@@ -114,7 +114,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                 }
             }
         } else if (task.getUsagePointGroup().isPresent()) {
-            List<UsagePoint> usagePoints = task.getUsagePointGroup().get().getMembers(Instant.now());
+            List<UsagePoint> usagePoints = task.getUsagePointGroup().get().getMembers(Instant.now()); // add contract filter
             for (UsagePoint usagePoint : usagePoints) {
                 List<? extends MeterActivation> activations = usagePoint.getMeterActivations();
                 for (MeterActivation activation : activations) {

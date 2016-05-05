@@ -170,8 +170,11 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column usagePointGroupId = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column metrologyConfigurationId = table.column("METROLOGY_CONFIGURATION").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column metrologyContractId = table.column("METROLOGY_CONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add(); //Add contract
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
+            table.column("APPLICATION").varChar(NAME_LENGTH).map("application").add();
             table.addAuditColumns();
             table.foreignKey("VAL_FK_VALTASK2DEVICEGROUP")
                     .on(endDeviceGroupId)
@@ -182,6 +185,18 @@ public enum TableSpecs {
                     .on(usagePointGroupId)
                     .references(MeteringGroupsService.COMPONENTNAME, "MTG_UP_GROUP")
                     .map("usagePointGroup")
+                    .add();
+
+            table.foreignKey("VAL_FK_VALTASK2METROLOGY_CONFIGURATION")
+                    .on(metrologyConfigurationId)
+                    .references(MeteringService.COMPONENTNAME, "MTR_METROLOGYCONFIG")
+                    .map("metrologyConfiguration")
+                    .add();
+
+            table.foreignKey("VAL_FK_VALTASK2METROLOGY_CONTRACT")
+                    .on(metrologyContractId)
+                    .references(MeteringService.COMPONENTNAME, "MTR_METROLOGY_CONTRACT")
+                    .map("metrologyContract")
                     .add();
 
             table.primaryKey("VAL_PK_DATAVALIDATIONTASK")
