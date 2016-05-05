@@ -477,12 +477,18 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public PagedInfoList getUsagePointPurposes(@PathParam("mrid") String mRid, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
+        List<PurposeInfo> purposeInfoList;
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        List<MetrologyContract> metrologyContractList = usagePoint.getMetrologyConfiguration().get().getContracts();
-        List<PurposeInfo> purposeInfoList = metrologyContractList
-                .stream()
-                .map(PurposeInfo::asInfo)
-                .collect(Collectors.toList());
+        if (usagePoint.getMetrologyConfiguration().isPresent()) {
+            List<MetrologyContract> metrologyContractList = usagePoint.getMetrologyConfiguration().get().getContracts();
+            purposeInfoList = metrologyContractList
+                    .stream()
+                    .map(PurposeInfo::asInfo)
+                    .collect(Collectors.toList());
+
+        } else {
+            purposeInfoList = Collections.emptyList();
+        }
         return PagedInfoList.fromCompleteList("purposes", purposeInfoList, queryParameters);
     }
 
