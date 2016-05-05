@@ -306,17 +306,11 @@ public class UsagePointResource {
     @Transactional
     @SuppressWarnings("unchecked")
     public Response createUsagePoint(UsagePointInfo info, @QueryParam("validate") boolean validate, @QueryParam("step") long step, @QueryParam("customPropertySetId") long customPropertySetId) {
-<<<<<<< HEAD
-
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
         validateGeoCoordinates(validationBuilder, "geoCoordinates", info.geoCoordinates);
         validateLocation(validationBuilder, "location", info.location);
 
         validationBuilder.notEmpty(info.mRID, "mRID")
-=======
-        new RestValidationBuilder()
-                .notEmpty(info.mRID, "mRID")
->>>>>>> 3d14c945f251bd278bbfc830a7c2a3c4afe6e6f7
                 .notEmpty(info.serviceCategory, "serviceCategory")
                 .notEmpty(info.isSdp, "typeOfUsagePoint")
                 .notEmpty(info.isVirtual, "typeOfUsagePoint")

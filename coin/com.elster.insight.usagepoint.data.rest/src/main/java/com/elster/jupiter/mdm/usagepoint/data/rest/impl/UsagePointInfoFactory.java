@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
@@ -52,21 +53,13 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Inject
-<<<<<<< HEAD
-    public UsagePointInfoFactory(Clock clock, Thesaurus thesaurus, MeteringService meteringService, CustomPropertySetInfoFactory customPropertySetInfoFactory, ThreadPrincipalService threadPrincipalService) {
-        this.clock = clock;
-        this.thesaurus = thesaurus;
-        this.meteringService = meteringService;
-        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
-        this.threadPrincipalService = threadPrincipalService;
-=======
     public UsagePointInfoFactory(Clock clock, NlsService nlsService, MeteringService meteringService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
         this.setCustomPropertySetInfoFactory(customPropertySetInfoFactory);
->>>>>>> 3d14c945f251bd278bbfc830a7c2a3c4afe6e6f7
+        this.setThreadPrincipalService(threadPrincipalService);
     }
 
     @Activate
@@ -105,7 +98,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
         info.serviceLocationId = usagePoint.getServiceLocation().map(ServiceLocation::getId).orElse(0L);
-        info.location = usagePoint.getServiceLocationString();
         info.name = usagePoint.getName();
         info.isSdp = usagePoint.isSdp();
         info.isVirtual = usagePoint.isVirtual();

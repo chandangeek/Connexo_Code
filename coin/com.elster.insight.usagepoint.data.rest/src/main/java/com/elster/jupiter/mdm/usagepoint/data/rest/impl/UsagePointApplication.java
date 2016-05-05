@@ -219,14 +219,10 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(serviceCallService).to(ServiceCallService.class);
             bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
-<<<<<<< HEAD
             bind(threadPrincipalService).to(ThreadPrincipalService.class);
-=======
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(issueService).to(IssueService.class);
             bind(bpmService).to(BpmService.class);
->>>>>>> 3d14c945f251bd278bbfc830a7c2a3c4afe6e6f7
-
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ChannelResourceHelper.class).to(ChannelResourceHelper.class);
@@ -240,11 +236,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
-<<<<<<< HEAD
             bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
-=======
             bind(GoingOnResource.class).to(GoingOnResource.class);
->>>>>>> 3d14c945f251bd278bbfc830a7c2a3c4afe6e6f7
         }
     }
 }
