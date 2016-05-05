@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     renderer: function (val, metaData, record) {
                         var me = this;
                         metaData.tdAttr = 'data-qtip="' + Ext.htmlEncode(me.connectionTpl.apply(record.getData())) + '"';
-                        return val ? Ext.String.htmlEncode(val.name) : ''
+                        return val ? Ext.String.htmlEncode(val.name) : '-'
                     }
                 },
                 {
@@ -82,7 +82,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     dataIndex: 'currentState',
                     flex: 10,
                     renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.displayValue) : ''
+                        return val ? Ext.String.htmlEncode(val.displayValue) : '-'
                     }
                 },
                 {
@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     dataIndex: 'latestStatus',
                     flex: 10,
                     renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.displayValue) : ''
+                        return val ? Ext.String.htmlEncode(val.displayValue) : '-'
                     }
                 },
                 {
@@ -101,7 +101,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     name: 'latestResult',
                     flex: 10,
                     renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.displayValue) : ''
+                        return val ? Ext.String.htmlEncode(val.displayValue) : '-'
 
                     }
                 },
@@ -124,7 +124,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     text: Uni.I18n.translate('device.connections.nextExecution', 'MDC', 'Next connection'),
                     dataIndex: 'nextExecution',
                     renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                        return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                     },
                     flex: 10
                 },
@@ -133,7 +133,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                     text: Uni.I18n.translate('device.connections.startDateTime', 'MDC', 'Started on'),
                     dataIndex: 'startDateTime',
                     renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                        return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                     },
                     flex: 10
                 },

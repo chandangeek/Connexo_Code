@@ -62,25 +62,27 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 minWidth: 150,
                 flex: 1,
                 renderer: function (data, metaData, record) {
-                    var validationData = record.get('channelValidationData');
+                    var validationData = record.get('channelValidationData'),
+                        icon = '';
+
                     if (validationData && validationData[channel.id]) {
-                        var result = validationData[channel.id].mainValidationInfo.validationResult,
-                            status = result.split('.')[1],
-                            cls = 'icon-validation-cell';
+                        var status = validationData[channel.id].mainValidationInfo && validationData[channel.id].mainValidationInfo.validationResult
+                                ? validationData[channel.id].mainValidationInfo.validationResult.split('.')[1]
+                                : 'unknown';
                         if (status === 'suspect') {
-                            cls +=  ' icon-validation-red'
+                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
                         }
                         if (status === 'notValidated') {
-                            cls +=  ' icon-validation-black'
+                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
                         }
-                        metaData.tdCls = cls;
                         if (validationData[channel.id].mainValidationInfo.estimatedByRule) {
-                            return !Ext.isEmpty(data[channel.id]) ? Uni.Number.formatNumber(data[channel.id], -1) + ' ' +
-                                '<span style="margin: 0 0 0 10px; font-size: 16px; color: #33CC33; position: absolute" class="icon-play4"</span>' : '';
+                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
                         }
                     }
 
-                    return !Ext.isEmpty(data[channel.id]) ? Uni.Number.formatNumber(data[channel.id], -1) : '';
+                    return !Ext.isEmpty(data[channel.id])
+                        ? Uni.Number.formatNumber(data[channel.id], -1) + icon
+                        : '';
                 }
             });
         });
