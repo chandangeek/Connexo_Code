@@ -9,22 +9,18 @@ Ext.define('Uni.override.RestOverride', {
     buildUrl: function (request) {
         var me = this,
             operation = request.operation,
-            records = operation.records || [],
-            record = records[0],
+            records = operation.records,
+            record = Ext.isArray(records) ? records[0] : null,
             id = record ? record.getId() : operation.id;
 
         // Encodes HTML characters such as '/' and '@'.
-        if (typeof id !== 'undefined') {
-            id = encodeURIComponent(id);
-
-            if (record) {
-                record.setId(id);
-            } else {
-                operation.id = id;
-            }
+        if (!Ext.isEmpty(id)) {
+            operation.id = encodeURIComponent(id);
         }
 
+        operation.records = [];
         var url = me.callParent(arguments);
+        operation.records = records;
 
         var urlTemplate = new Ext.Template(url),
             params = request.proxy.extraParams,
@@ -34,9 +30,9 @@ Ext.define('Uni.override.RestOverride', {
         //Remove variables embedded into URL
         Ext.Object.each(params, function (key, value) {
             var regex = new RegExp('{' + key + '.*?}');
-       /*     if (regex.test(url)) {
-                delete params[key];
-            }*/
+            /*     if (regex.test(url)) {
+             delete params[key];
+             }*/
         });
 
         request.url = url;

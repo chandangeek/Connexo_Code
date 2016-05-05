@@ -125,15 +125,16 @@ Ext.define('Uni.view.menu.SideMenu', {
             if (typeof condition === 'undefined'
                 || (Ext.isFunction(condition) && condition() || condition)) {
 
-                item.text = Ext.String.htmlEncode(item.text);
+                item.htmlEncode = !Ext.isDefined(item.htmlEncode);
+                item.text = item.htmlEncode ? Ext.String.htmlEncode(item.text) : item.text;
 
                 if (me.router && item.route) {
                     var route = me.router.getRoute(item.route);
                     item.href = route.buildUrl();
-                    item.text = Ext.String.htmlEncode(item.text || route.getTitle());
+                    item.text = item.htmlEncode ? Ext.String.htmlEncode(item.text || route.getTitle()) : item.text || Ext.String.htmlEncode(route.getTitle());
                 }
 
-                item.tooltip = item.text;
+                item.tooltip = item.htmlEncode ? item.text : Ext.util.Format.stripTags(item.text);
 
                 if (Ext.isDefined(item.items) && Ext.isArray(item.items)) {
                     var items = item.items;
