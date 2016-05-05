@@ -23,7 +23,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_SERVICE_CATEGORY(14, Keys.NO_SUCH_SERVICE_CATEGORY, "Service category not found"),
     NO_SUCH_TECHNICAL_INFO(15, Keys.NO_SUCH_TECHNICAL_INFO, "Technical information for {0} should be provided"),
     NO_USAGE_POINT_FOR_ID(16, Keys.NO_USAGE_POINT_FOR_ID, "No usage point with ID {0}"),
-    BAD_REQUEST(17, Keys.BAD_REQUEST, "Bad request");
+    BAD_REQUEST(17, Keys.BAD_REQUEST, "Bad request"),
+    INVALID_COORDINATES(18, "invalidCoordinates", "Invalid value"),
+    THIS_FIELD_IS_REQUIRED(19, "ThisFieldIsRequired", "This field is required");
     private final int number;
     private final String key;
     private final String format;

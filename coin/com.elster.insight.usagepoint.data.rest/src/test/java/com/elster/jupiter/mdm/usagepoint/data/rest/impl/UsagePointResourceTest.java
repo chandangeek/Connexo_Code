@@ -240,7 +240,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.id = 1L;
         info.mRID = "upd";
         info.name = "upd";
-        info.location = "upd";
+        info.location.locationValue = "upd";
         info.installationTime = Instant.EPOCH.toEpochMilli();
         info.isSdp = true;
         info.isVirtual = true;
