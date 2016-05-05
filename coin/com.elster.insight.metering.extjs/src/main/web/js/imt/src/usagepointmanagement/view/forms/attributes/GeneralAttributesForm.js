@@ -3,7 +3,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
     alias: 'widget.general-attributes-form',
     requires: [
         'Uni.form.field.Duration',
-        'Imt.usagepointmanagement.view.forms.fields.DisplayFieldWithIcon'
+        'Imt.usagepointmanagement.view.forms.fields.DisplayFieldWithIcon',
+        'Uni.form.field.Coordinates',
+        'Uni.form.field.Location'
     ],
 
     initComponent: function () {
@@ -42,11 +44,23 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                 }
             },
             {
+                name: 'geoCoordinates',
+                itemId: 'fld-up-geoCoordinates',
+                fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates'),
+                renderer: function (value) {
+                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.coordinatesDisplay)) {
+                        return Ext.String.htmlEncode(value.coordinatesDisplay);
+                    } else {
+                        return '-'
+                    }
+                }
+            },
+            {
                 name: 'location',
                 itemId: 'fld-up-location',
                 fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location'),
                 renderer: function (value) {
-                    return value ? Ext.String.htmlEncode(value).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>') : '-';
+                    return value && value.formattedLocationValue ? Ext.String.htmlEncode(value.formattedLocationValue).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>') : '-';
                 }
             },
             {
@@ -116,10 +130,17 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                 }
             },
             {
-                xtype: 'textfield',
+                xtype: 'coordinates',
+                name: 'geoCoordinates',
+                itemId: 'fld-up-geoCoordinates',
+                fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates')
+            },
+            {
+                xtype: 'location',
                 name: 'location',
-                itemId: 'fld-up-location',
-                fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location')
+                itemId: 'fld-location',
+                findLocationsUrl: '/api/jsr/search/com.elster.jupiter.metering.UsagePoint/locationsearchcriteria/location',
+                locationDetailsUrl: '/api/udr/usagepoints/locations'
             },
             {
                 xtype: 'displayfield',

@@ -6,7 +6,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
         'Uni.util.FormEmptyMessage',
         'Uni.form.field.DateTime',
         'Imt.usagepointmanagement.view.forms.fields.MeasureField',
-        'Imt.usagepointmanagement.view.forms.fields.InstallationTimeField'
+        'Imt.usagepointmanagement.view.forms.fields.InstallationTimeField',
+        'Uni.form.field.Coordinates',
+        'Uni.form.field.Location'
     ],
     isPossibleAdd: true,
     defaults: {
@@ -88,10 +90,23 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 width: 600
             },
             {
-                xtype: 'textfield',
+                xtype: 'coordinates',
+                name: 'geoCoordinates',
+                itemId: 'up-summary-geoCoordinates',
+                fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates'),
+                width: 600
+            },
+            {
+                xtype: 'location',
+                itemId: 'up-summary-location',
                 name: 'location',
-                itemId: 'up-location-combo',
-                fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location')
+                fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location'),
+                findLocationsUrl: '/api/jsr/search/com.elster.jupiter.metering.UsagePoint/locationsearchcriteria/location',
+                locationDetailsUrl: '/api/udr/usagepoints/locations',
+                defaults: {
+                    labelWidth: 260,
+                    width: 600
+                }
             },
             {
                 xtype: 'combobox',
