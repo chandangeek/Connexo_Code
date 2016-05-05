@@ -27,7 +27,7 @@ public class InterruptibleSearchableProperty implements SearchableUsagePointProp
 
     private SearchDomain domain;
     private Clock clock;
-    private SearchablePropertyGroup group;
+    private ServiceKindAwareSearchablePropertyGroup group;
     private static final String FIELD_NAME = "detail.interruptible";
     private String uniqueName;
 
@@ -37,7 +37,7 @@ public class InterruptibleSearchableProperty implements SearchableUsagePointProp
         this.thesaurus = thesaurus;
     }
 
-    InterruptibleSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, Clock clock) {
+    InterruptibleSearchableProperty init(SearchDomain domain, ServiceKindAwareSearchablePropertyGroup group, Clock clock) {
         this.domain = domain;
         this.group = group;
         this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
@@ -107,7 +107,12 @@ public class InterruptibleSearchableProperty implements SearchableUsagePointProp
 
     @Override
     public Condition toCondition(Condition specification) {
-        List<Object> values = new ArrayList<>(((Contains) specification).getCollection());
-        return Where.where(FIELD_NAME).in(values).and(Where.where("detail.interval").isEffective(this.clock.instant()));
+        Contains condition = (Contains) specification;
+        List<Object> values = new ArrayList<>(condition.getCollection());
+        return condition.getOperator()
+                .contains(FIELD_NAME, values)
+                .and(Where.where("detail.interval").isEffective(this.clock.instant()))
+                .and(Where.where("serviceCategory.kind")
+                        .isEqualTo(this.group.getServiceKind()));
     }
 }

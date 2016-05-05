@@ -23,7 +23,7 @@ public class LoadLimiterTypeSearchableProperty implements SearchableUsagePointPr
     private final Thesaurus thesaurus;
 
     private SearchDomain domain;
-    private SearchablePropertyGroup group;
+    private ServiceKindAwareSearchablePropertyGroup group;
     private Clock clock;
     static final String FIELD_NAME = "detail.loadLimiterType";
     private String uniqueName;
@@ -34,7 +34,7 @@ public class LoadLimiterTypeSearchableProperty implements SearchableUsagePointPr
         this.thesaurus = thesaurus;
     }
 
-    LoadLimiterTypeSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, Clock cLock) {
+    LoadLimiterTypeSearchableProperty init(SearchDomain domain, ServiceKindAwareSearchablePropertyGroup group, Clock cLock) {
         this.domain = domain;
         this.group = group;
         this.clock = cLock;
@@ -101,8 +101,10 @@ public class LoadLimiterTypeSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public Condition toCondition(Condition specification) {
-        return Where.where(FIELD_NAME)
-                .isEqualTo((((Comparison) specification).getValues())[0])
-                .and(Where.where("detail.interval").isEffective(this.clock.instant()));
+        Comparison condition = (Comparison) specification;
+        return condition.getOperator().compare(FIELD_NAME, condition.getValues())
+                .and(Where.where("detail.interval").isEffective(this.clock.instant()))
+                .and(Where.where("serviceCategory.kind")
+                        .isEqualTo(this.group.getServiceKind()));
     }
 }
