@@ -7,7 +7,9 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.KorePagedInfoList;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -37,6 +39,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -51,6 +54,8 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/validationtasks")
 public class DataValidationTaskResource {
@@ -84,12 +89,12 @@ public class DataValidationTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public Response createDataValidationTask(DataValidationTaskInfo info) {
+    public Response createDataValidationTask(DataValidationTaskInfo info, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
 
         try (TransactionContext context = transactionService.getContext()) {
             DataValidationTaskBuilder builder = validationService.newTaskBuilder()
                     .setName(info.name)
-                    .setApplication(info.application)
+                    .setApplication(applicationName)
                     .setScheduleExpression(getScheduleExpression(info))
                     .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
             if (info.deviceGroup != null) {
@@ -108,11 +113,21 @@ public class DataValidationTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public KorePagedInfoList getDataValidationTasks(@Context UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<DataValidationTask> list = getValidationTaskRestQuery().select(queryParameters, Order.descending("lastRun").nullsLast());
-        return KorePagedInfoList.asJson("dataValidationTasks",
-                list.stream().map(dataValidationTask -> new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).collect(Collectors.toList()), queryParameters);
+    public PagedInfoList getDataValidationTasks(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
+//        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+//        List<DataValidationTask> list = getValidationTaskRestQuery().select(queryParameters, Order.descending("lastRun").nullsLast());
+//        List<DataValidationTask> list = getValidationTaskRestQuery(queryParameters, applicationName);
+//        DataValidationTaskInfos dataValidationTaskInfos = new DataValidationTaskInfos();
+//        dataValidationTaskInfos.addAll(validationService.findValidationTasks(), thesaurus, timeService);
+        List<DataValidationTaskInfo> infos = validationService.findValidationTasks()
+                .stream()
+                .filter(task -> task.getApplication().equals(applicationName))
+                .map(dataValidationTask -> new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService))
+                .collect(Collectors.toList());
+//        return PagedInfoList.asJson("dataValidationTasks",
+//                list.stream().map(dataValidationTask -> new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).collect(Collectors.toList()), queryParameters);
+
+        return PagedInfoList.fromPagedList("dataValidationTasks", infos, queryParameters);
     }
 
     @DELETE
@@ -257,10 +272,15 @@ public class DataValidationTaskResource {
         return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
     }
 
-    private RestQuery<DataValidationTask> getValidationTaskRestQuery() {
+    private List<DataValidationTask> getValidationTaskRestQuery(QueryParameters queryParameters, String applicationName) {
         Query<DataValidationTask> query = validationService.findValidationTasksQuery();
-        return queryService.wrap(query);
+        query.setRestriction(where("application").isEqualTo(applicationName));
+        RestQuery<DataValidationTask> restQuery = queryService.wrap(query);
+        return restQuery.select(queryParameters, Order.descending("lastRun").nullsLast());
     }
+
+
+
 
     private DataValidationTask findAndLockDataValidationTask(DataValidationTaskInfo info) {
         return validationService.findAndLockValidationTaskByIdAndVersion(info.id, info.version)

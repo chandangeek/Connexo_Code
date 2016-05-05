@@ -20,8 +20,8 @@ public class DataValidationTaskInfos {
         addAll(sets, thesaurus, timeService);
     }
 
-    public DataValidationTaskInfo add(DataValidationTask ruleSet, Thesaurus thesaurus, TimeService timeService) {
-        DataValidationTaskInfo result = new DataValidationTaskInfo(ruleSet, thesaurus, timeService);
+    public DataValidationTaskInfo add(DataValidationTask dataValidationTask, Thesaurus thesaurus, TimeService timeService) {
+        DataValidationTaskInfo result = new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService);
         dataValidationTasks.add(result);
         total++;
         return result;
