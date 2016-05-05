@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -127,9 +127,10 @@ public class DeviceAttributesInfoFactory {
         });
         fillAvailableAndEditable(info.batch, DeviceAttribute.BATCH, state);
 
-        info.usagePoint = new DeviceAttributeInfo();
+        info.usagePoint = new UsagePointAttributeInfo();
         device.getUsagePoint().ifPresent(usagePoint -> {
             info.usagePoint.displayValue = usagePoint.getMRID();
+            info.usagePoint.mRID = usagePoint.getMRID();
             info.usagePoint.attributeId = usagePoint.getId();
         });
         fillAvailableAndEditable(info.usagePoint, DeviceAttribute.USAGE_POINT, state);

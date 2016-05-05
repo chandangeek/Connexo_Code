@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -22,7 +23,7 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<Integer> yearOfCertification;
     public DeviceAttributeInfo<String> lifeCycleState;
     public DeviceAttributeInfo<String> batch;
-    public DeviceAttributeInfo<String> usagePoint;
+    public UsagePointAttributeInfo<String> usagePoint;
     public DeviceAttributeInfo<Instant> shipmentDate;
     public DeviceAttributeInfo<Instant> installationDate;
     public DeviceAttributeInfo<Instant> deactivationDate;
