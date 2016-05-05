@@ -11,17 +11,21 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceFields;
@@ -46,6 +50,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
@@ -317,4 +322,17 @@ public class DeviceServiceImpl implements ServerDeviceService {
         return deviceDataModelService.dataModel().mapper(DeviceConfigChangeInAction.class).getUnique("id", id);
     }
 
+    @Override
+    public Optional<ActivatedBreakerStatus> getActiveBreakerStatus(Device device) {
+        QueryExecutor<ActivatedBreakerStatus> activeBreakerStatusQuery = deviceDataModelService.dataModel().query(ActivatedBreakerStatus.class);
+        return activeBreakerStatusQuery
+                .select(where("device").isEqualTo(device).and(Where.where("interval").isEffective()))
+                .stream()
+                .findFirst();
+    }
+
+    @Override
+    public ActivatedBreakerStatus newActivatedBreakerStatusFrom(Device device, BreakerStatus collectedBreakerStatus, Interval interval) {
+        return ActivatedBreakerStatusImpl.from(deviceDataModelService.dataModel(), device, collectedBreakerStatus, interval);
+    }
 }

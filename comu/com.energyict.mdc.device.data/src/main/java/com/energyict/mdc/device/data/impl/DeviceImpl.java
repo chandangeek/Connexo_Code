@@ -1371,7 +1371,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                 //code below is the processing of removed readings
                                 Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities()
                                         .stream()
-                                        .filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED)))
+                                        .filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED)))
                                         .findAny();
                                 if (readingQuality.isPresent()) {
                                     loadProfileReading.setReadingTime(((ReadingQualityRecord) readingQuality.get()).getTimestamp());
@@ -2188,6 +2188,23 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return createTime;
     }
 
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        DeviceImpl device = (DeviceImpl) o;
+        return id == device.id;
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(id);
+    }
+
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder {
 
         private final DeviceMessageImpl deviceMessage;
@@ -2618,22 +2635,5 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         public void save() {
             // Since there were no dates to start with, there is nothing to save
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        DeviceImpl device = (DeviceImpl) o;
-        return id == device.id;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }
