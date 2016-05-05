@@ -32,6 +32,10 @@ public class UsagePointInfo {
     public String servicePriority;
     public Long installationTime;
     public IdWithNameInfo connectionState;
+    public String displayConnectionState;
+    public String displayMetrologyConfiguration;
+    public String displayServiceCategory;
+    public String displayType;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "serviceCategory")
     @JsonTypeIdResolver(BaseUsagePointDetailsInfo.UsagePointDetailsTypeResolver.class)

@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
@@ -24,11 +25,12 @@ import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,17 +43,18 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
     private volatile CustomPropertySetInfoFactory customPropertySetInfoFactory;
+    private volatile License license;
 
     public UsagePointInfoFactory() {
     }
 
     @Inject
-    public UsagePointInfoFactory(Clock clock, NlsService nlsService, MeteringService meteringService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+    public UsagePointInfoFactory(Clock clock, NlsService nlsService, MeteringService meteringService) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
-        this.setCustomPropertySetInfoFactory(customPropertySetInfoFactory);
+        activate();
     }
 
     @Activate
@@ -74,9 +77,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.thesaurus = nlsService.getThesaurus(UsagePointApplication.COMPONENT_NAME, Layer.REST);
     }
 
-    @Reference
-    public void setCustomPropertySetInfoFactory(CustomPropertySetInfoFactory customPropertySetInfoFactory) {
-        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+    @Reference(
+            target = "(com.elster.jupiter.license.application.key=INS)",
+            cardinality = ReferenceCardinality.OPTIONAL)
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override
@@ -99,6 +104,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.modTime = usagePoint.getModificationDate().toEpochMilli();
         info.connectionState = new IdWithNameInfo(usagePoint.getConnectionState(), thesaurus.getFormat(ConnectionStateTranslationKeys
                 .getTranslatedKeys(usagePoint.getConnectionState())).format());
+        info.displayConnectionState = usagePoint.getConnectionState().getName();
+        info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
+        info.displayType = this.getUsagePointDisplayType(usagePoint);
+
         Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(clock.instant());
         if (detailHolder.isPresent()) {
             if (detailHolder.get() instanceof ElectricityDetail) {
@@ -112,7 +121,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             }
         }
 
-        usagePoint.getMetrologyConfiguration().ifPresent(mc -> info.metrologyConfiguration = new MetrologyConfigurationInfo((UsagePointMetrologyConfiguration) mc, usagePoint, this.thesaurus));
+        usagePoint.getMetrologyConfiguration()
+                .ifPresent(mc -> {
+                    info.metrologyConfiguration = new MetrologyConfigurationInfo((UsagePointMetrologyConfiguration) mc, usagePoint, this.thesaurus);
+                    info.displayMetrologyConfiguration = mc.getName();
+                });
 
         UsagePointCustomPropertySetExtension customPropertySetExtension = usagePoint.forCustomProperties();
 
@@ -122,7 +135,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .collect(Collectors.toList());
         info.customPropertySets.sort((cas1, cas2) -> cas1.name.compareTo(cas2.name));
 
-        meteringService.findUsagePointGeoCoordinates(usagePoint.getMRID()).ifPresent(coordinates -> info.geoCoordinates = coordinates.getCoordinates().toString());
+        meteringService.findUsagePointGeoCoordinates(usagePoint.getMRID())
+                .ifPresent(coordinates -> info.geoCoordinates = coordinates.getCoordinates().toString());
 
         Optional<Location> location = meteringService.findUsagePointLocation(usagePoint.getMRID());
         String formattedLocation = "";
@@ -141,12 +155,44 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     @Override
     public List<PropertyDescriptionInfo> modelStructure() {
-        return Collections.emptyList();
+        List<PropertyDescriptionInfo> propertyDescriptionInfoList = new ArrayList<>();
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.MRID_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.SERVICE_CATEGORY_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.METROLOGY_CONFIGURATION_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.TYPE_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.CONNECTION_STATE_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.LOCATION_MODEL, String.class));
+        return propertyDescriptionInfoList;
+    }
+
+    private PropertyDescriptionInfo createDescription(UsagePointModelTranslationKeys propertyName, Class<?> aClass) {
+        return new PropertyDescriptionInfo(propertyName.getKey(), aClass, thesaurus.getString(propertyName.getKey(), propertyName
+                .getDefaultFormat()));
     }
 
     @Override
-    public Class<UsagePoint> getDomainClass() {
+    public Class getDomainClass() {
+        if (!Optional.ofNullable(this.license).isPresent()) {
+            return EmptyDomain.class;
+        }
         return UsagePoint.class;
+    }
+
+    private String getUsagePointDisplayType(UsagePoint usagePoint) {
+        if (usagePoint.isSdp() && usagePoint.isVirtual()) {
+            return "Unmeasured SDP";
+        }
+        if (!usagePoint.isSdp() && usagePoint.isVirtual()) {
+            return "Unmeasured non-SDP";
+        }
+        if (usagePoint.isSdp() && !usagePoint.isVirtual()) {
+            return "Measured SDP";
+        }
+        if (!usagePoint.isSdp() && !usagePoint.isVirtual()) {
+            return "Measured non-SDP";
+        }
+
+        return null;
     }
 
     public UsagePointBuilder newUsagePointBuilder(UsagePointInfo usagePointInfo) {
@@ -162,5 +208,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withServicePriority(usagePointInfo.servicePriority)
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
                 .withServiceLocationString(usagePointInfo.location);
+    }
+
+    static class EmptyDomain {
     }
 }
