@@ -51,24 +51,19 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                         href: me.router.getRoute('usagepoints/view/servicecalls').buildUrl()
                     }
                 ]
+            },
+            {
+                title: Uni.I18n.translate('general.configuration', 'IMT', 'Configuration'),
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
+                        itemId: 'usage-point-metrology-configuration-link',
+                        privileges: Imt.privileges.UsagePoint.view,
+                        href: me.router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl()
+                    }
+                ]
             }
         ];
-
-        if (metrologyConfiguration) {
-            me.menuItems.push(
-                {
-                    title: Uni.I18n.translate('general.configuration', 'IMT', 'Configuration'),
-                    items: [
-                        {
-                            text: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-                            itemId: 'usage-point-metrology-configuration-link',
-                            privileges: Imt.privileges.UsagePoint.view,
-                            href: me.router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl()
-                        }
-                    ]
-                }
-            );
-        }
 
         if (purposes && purposes.length) {
             var items = [];

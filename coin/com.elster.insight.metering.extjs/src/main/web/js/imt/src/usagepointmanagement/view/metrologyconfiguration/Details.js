@@ -58,11 +58,12 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                                 itemId: 'define-metrology-configuration'
                             }
                         ],
-                        hidden: true
+                        hidden: me.usagePoint.get('metrologyConfiguration')
                     },
                     {
                         xtype: 'form',
                         itemId: 'metrology-configuration-details-form',
+                        hidden: !me.usagePoint.get('metrologyConfiguration'),
                         defaults: {
                             xtype: 'displayfield',
                             labelWidth: 200
