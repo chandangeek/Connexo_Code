@@ -102,7 +102,7 @@ public class PressureSearchablePropertyTest {
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
 
         // Asserts
-        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.MULTI);
+        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.SINGLE);
     }
 
     @Test

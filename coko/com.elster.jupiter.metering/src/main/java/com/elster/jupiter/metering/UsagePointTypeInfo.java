@@ -18,12 +18,11 @@ public class UsagePointTypeInfo {
     public UsagePointTypeInfo() {
     }
 
-    public enum UsagePointType {
-        MEASURED_SDP("Measured SDP", true, true),
-        UNMEASURED_SDP("Unmeasured SDP", false, true),
-        MEASURED_NON_SDP("Measured non-SDP", true, false),
-        UNMEASURED_NON_SDP("Unmeasured non-SDP", false, false);
-
+    public static enum UsagePointType {
+        MEASURED_SDP("Measured SDP", true, false),
+        UNMEASURED_SDP("Unmeasured SDP", true, true),
+        MEASURED_NON_SDP("Measured non-SDP", false, false),
+        UNMEASURED_NON_SDP("Unmeasured non-SDP", false, true);
 
         public final String displayName;
         public final boolean isSdp;

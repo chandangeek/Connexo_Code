@@ -99,16 +99,16 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
         return (((Contains) specification).getCollection()).stream()
                 .map(UsagePointTypeInfo.UsagePointType.class::cast).map(result -> {
                     switch (result) {
-                        case MEASURED_SDP:
+                        case UNMEASURED_SDP:
                             return Where.where("isVirtual").isEqualTo(true)
                                     .and(Where.where("isSdp").isEqualTo(true));
-                        case UNMEASURED_SDP:
+                        case UNMEASURED_NON_SDP:
+                            return Where.where("isVirtual").isEqualTo(true)
+                                    .and(Where.where("isSdp").isEqualTo(false));
+                        case MEASURED_SDP:
                             return Where.where("isVirtual").isEqualTo(false)
                                     .and(Where.where("isSdp").isEqualTo(true));
                         case MEASURED_NON_SDP:
-                            return Where.where("isVirtual").isEqualTo(true)
-                                    .and(Where.where("isSdp").isEqualTo(false));
-                        case UNMEASURED_NON_SDP:
                             return Where.where("isVirtual").isEqualTo(false)
                                     .and(Where.where("isSdp").isEqualTo(false));
                         default:
