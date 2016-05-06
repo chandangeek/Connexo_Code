@@ -113,6 +113,7 @@ public class UsagePointApplication extends Application implements TranslationKey
         Collections.addAll(keys, DefaultTranslationKey.values());
         Collections.addAll(keys, ConnectionStateTranslationKeys.values());
         Collections.addAll(keys, LocationTranslationKeys.values());
+        Collections.addAll(keys, UsagePointModelTranslationKeys.values());
         return keys;
     }
 
