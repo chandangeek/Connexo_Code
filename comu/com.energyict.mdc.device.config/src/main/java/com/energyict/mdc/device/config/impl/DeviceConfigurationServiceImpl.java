@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.CalendarImpl;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
@@ -53,6 +54,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -861,8 +863,17 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public Set<ProtocolSupportedCalendarOptions> findTimeOfUseOptions(DeviceType deviceType) {
+    public Optional<TimeOfUseOptions> findTimeOfUseOptions(DeviceType deviceType) {
+        return dataModel.mapper(TimeOfUseOptions.class).getUnique(TimeOfUseOptionsImpl.Fields.DEVICETYPE.fieldName(), deviceType);
+    }
 
-        return null;
+    @Override
+    public Optional<TimeOfUseOptions> findAndLockTimeOfUseOptionsByIdAndVersion(DeviceType deviceType, long version) {
+        return dataModel.mapper(TimeOfUseOptions.class).lockObjectIfVersion(version, deviceType.getId());
+    }
+
+    @Override
+    public TimeOfUseOptions newTimeOfUseOptions(DeviceType deviceType) {
+        return dataModel.getInstance(TimeOfUseOptionsImpl.class).init(deviceType);
     }
 }

@@ -327,5 +327,9 @@ public interface DeviceConfigurationService {
 
     Set<ProtocolSupportedCalendarOptions> getSupportedTimeOfUseOptionsFor(DeviceType deviceType);
 
-    Set<ProtocolSupportedCalendarOptions> findTimeOfUseOptions(DeviceType deviceType);
+    Optional<TimeOfUseOptions> findTimeOfUseOptions(DeviceType deviceType);
+
+    Optional<TimeOfUseOptions> findAndLockTimeOfUseOptionsByIdAndVersion(DeviceType deviceType, long version);
+
+    TimeOfUseOptions newTimeOfUseOptions(DeviceType deviceType);
 }
