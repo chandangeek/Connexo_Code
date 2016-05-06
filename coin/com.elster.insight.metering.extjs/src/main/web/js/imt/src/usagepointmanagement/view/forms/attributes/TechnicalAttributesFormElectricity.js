@@ -30,7 +30,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFo
                 itemId: 'fld-up-phase',
                 fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code'),
                 renderer: function (value) {
-                    return value ? value : '-';
+                    return !Ext.isEmpty(value) ? Ext.getStore('Imt.usagepointmanagement.store.PhaseCodes').getById(value).get('displayValue') : '-';
                 }
             },
             {

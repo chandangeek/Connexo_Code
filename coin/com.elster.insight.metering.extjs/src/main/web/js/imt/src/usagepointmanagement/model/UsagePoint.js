@@ -28,16 +28,16 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
             persist: false,
             mapping: function(data){
                 if (data.isSdp && data.isVirtual) {
-                    return 'MEASURED_SDP';
+                    return 'UNMEASURED_SDP';
                 }
                 if (data.isSdp && !data.isVirtual) {
-                    return 'MEASURED_NON_SDP';
+                    return 'MEASURED_SDP';
                 }
                 if (!data.isSdp && !data.isVirtual) {
-                    return 'UNMEASURED_NON_SDP';
+                    return 'MEASURED_NON_SDP';
                 }
                 if (!data.isSdp && data.isVirtual) {
-                    return 'UNMEASURED_SDP';
+                    return 'UNMEASURED_NON_SDP';
                 }
             },
             // workaround for broken functionality of 'Ext.data.Field.serialize' in 'Uni.override.JsonWriterOverride.getRecordData'
@@ -45,19 +45,19 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
                 record.beginEdit();
                 if (value) {
                     switch (value) {
-                        case 'MEASURED_SDP':
+                        case 'UNMEASURED_SDP':
                             record.set('isSdp', true);
                             record.set('isVirtual', true);
                             break;
-                        case 'MEASURED_NON_SDP':
+                        case 'MEASURED_SDP':
                             record.set('isSdp', true);
                             record.set('isVirtual', false);
                             break;
-                        case 'UNMEASURED_NON_SDP':
+                        case 'MEASURED_NON_SDP':
                             record.set('isSdp', false);
                             record.set('isVirtual', false);
                             break;
-                        case 'UNMEASURED_SDP':
+                        case 'UNMEASURED_NON_SDP':
                             record.set('isSdp', false);
                             record.set('isVirtual', true);
                             break;
