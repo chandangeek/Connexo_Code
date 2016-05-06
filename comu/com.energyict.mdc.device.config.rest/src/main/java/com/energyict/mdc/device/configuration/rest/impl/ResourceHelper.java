@@ -23,6 +23,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -565,5 +566,9 @@ public class ResourceHelper {
 
     public Optional<ReadingType> findReadingType(String mRID) {
         return meteringService.getReadingType(mRID);
+    }
+
+    public Optional<TimeOfUseOptions> findAndLockTimeOfUseOptionsByIdAndVersion(DeviceType deviceType, long version) {
+        return deviceConfigurationService.findAndLockTimeOfUseOptionsByIdAndVersion(deviceType, version);
     }
 }

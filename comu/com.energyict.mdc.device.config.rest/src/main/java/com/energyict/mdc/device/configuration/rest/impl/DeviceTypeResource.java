@@ -595,6 +595,33 @@ public class DeviceTypeResource {
         return Response.ok(timeOfUseOptionsInfo).build();
     }
 
+    @PUT
+    @Transactional
+    @Path("/{id}/timeofuseoptions")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response changeTimeOfUseOptions(@PathParam("id") long id, TimeOfUseOptionsInfo info) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        Optional<TimeOfUseOptions> timeOfUseOptions = resourceHelper.findAndLockTimeOfUseOptionsByIdAndVersion(deviceType, info.version);
+        if (info.isAllowed && info.allowedOptions != null){
+            Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(deviceType);
+            Set<ProtocolSupportedCalendarOptions> newAllowedOptions = info.allowedOptions.stream()
+                    .map(allowedOption -> ProtocolSupportedCalendarOptions.from((String) allowedOption.id))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .filter(supportedCalendarOptions::contains)
+                    .collect(Collectors.toSet());
+            TimeOfUseOptions options = timeOfUseOptions.orElseGet(() -> deviceConfigurationService.newTimeOfUseOptions(deviceType));
+            options.setOptions(newAllowedOptions);
+            options.save();
+        } else {
+            timeOfUseOptions.ifPresent(TimeOfUseOptions::delete);
+        }
+        return Response.ok(getTimeOfUseOptions(deviceType)).build();
+    }
+
+
     private TimeOfUseOptionsInfo getTimeOfUseOptions(DeviceType deviceType) {
         TimeOfUseOptionsInfo timeOfUseOptionsInfo = new TimeOfUseOptionsInfo();
         Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(deviceType);
@@ -607,7 +634,7 @@ public class DeviceTypeResource {
                 .forEach(op ->
                 timeOfUseOptionsInfo.allowedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
 
-        timeOfUseOptionsInfo.isAllowed = !allowedOptions.isEmpty();
+        timeOfUseOptionsInfo.isAllowed = deviceType.isTimeOfUseAllowed();
         timeOfUseOptionsInfo.version = timeOfUseOptions.map(TimeOfUseOptions::getVersion).orElse(0L);
 
         return timeOfUseOptionsInfo;

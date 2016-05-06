@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 
 import java.util.logging.Level;
 
@@ -125,6 +126,9 @@ public enum MessageSeeds implements MessageSeed {
     CONCURRENT_FAIL_DEACTIVATE_TITLE(211, "ConcurrentFailDeActivateTitle", "Failed to deactivate ''{0}''"),
     CONCURRENT_FAIL_ACTIVATE_BODY(212, "ConcurrentFailActivateBody", "{0} has changed since the page was last updated."),
     CONCURRENT_FAIL_DEACTIVATE_BODY(213, "ConcurrentFailDeActivateBody", "{0} has changed since the page was last updated."),
+    CALENDAR_OPTION_INSTALL(214, Keys.CALENDAR_OPTION_INSTALL, "Send time of use calendar and activate later"),
+    CALENDAR_OPTION_ACTIVATE(215, Keys.CALENDAR_OPTION_ACTIVATE, "Send time of use calendar and activate immediately"),
+    CALENDAR_OPTION_ACTIVATE_ON_DATE(216, Keys.CALENDAR_OPTION_ACTIVATE_ON_DATE, "Send time of use calendar with activation date"),
     ;
 
     private final int number;
@@ -254,5 +258,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0 = "WavenisSecuritySupport.encryptionlevel.0";
         public static final String SOLVED = "Solved";
         public static final String UNSOLVED = "Unsolved";
+        public static final String CALENDAR_OPTION_INSTALL = ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_LATER.getId();
+        public static final String CALENDAR_OPTION_ACTIVATE = ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_IMMEDIATE.getId();
+        public static final String CALENDAR_OPTION_ACTIVATE_ON_DATE = ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_WITH_DATE.getId();
     }
 }
