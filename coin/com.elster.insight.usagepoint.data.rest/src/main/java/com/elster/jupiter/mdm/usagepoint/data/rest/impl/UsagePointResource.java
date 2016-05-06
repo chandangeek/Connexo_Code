@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -555,7 +556,7 @@ public class UsagePointResource {
                 CalculatedMetrologyContractData calculatedMetrologyContractData = dataAggregationService.calculate(usagePoint, metrologyContract, range);
                 List<? extends BaseReadingRecord> channelData = calculatedMetrologyContractData.getCalculatedDataFor(readingTypeDeliverable);
                 outputChannelDataInfoList = channelData.stream().map(OutputChannelDataInfo::asInfo).collect(Collectors.toList());
-            } catch (MetrologyContractDoesNotApplyToUsagePointException ex) {
+            } catch (MetrologyContractDoesNotApplyToUsagePointException|UnderlyingSQLFailedException ex) {
                 outputChannelDataInfoList = Collections.emptyList();
             }
         }
