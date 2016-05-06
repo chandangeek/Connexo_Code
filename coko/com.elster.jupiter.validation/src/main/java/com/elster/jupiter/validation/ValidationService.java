@@ -64,7 +64,6 @@ public interface ValidationService {
     void enableValidationOnStorage(Meter meter);
     void disableValidationOnStorage(Meter meter);
 
-
     void activate(MeterActivation meterActivation, ValidationRuleSet ruleSet);
     void deactivate(MeterActivation meterActivation, ValidationRuleSet ruleSet);
 
@@ -83,9 +82,9 @@ public interface ValidationService {
     void updateLastChecked(Channel channel, Instant date);
 
     void validate(MeterActivation meterActivation);
-    
+
     void validate(MeterActivation meterActivation, ReadingType readingType);
-    
+
     ValidationEvaluator getEvaluator();
 
     ValidationEvaluator getEvaluator(Meter meter, Range<Instant> interval);
@@ -93,9 +92,9 @@ public interface ValidationService {
     /*
      * Following methods for adding resources in a non OSGI environment
      */
-    
-	void addValidatorFactory(ValidatorFactory validatorfactory);
-	void addValidationRuleSetResolver(ValidationRuleSetResolver resolver);
+
+    void addValidatorFactory(ValidatorFactory validatorfactory);
+    void addValidationRuleSetResolver(ValidationRuleSetResolver resolver);
 
     DataValidationTaskBuilder newTaskBuilder();
 
@@ -125,5 +124,5 @@ public interface ValidationService {
 
     Optional<? extends ValidationRule> findAndLockValidationRuleByIdAndVersion(long id, long version);
 
-    List<DataValidationTask> findByDeviceGroup (EndDeviceGroup endDevice, int skip, int limit);
+    List<DataValidationTask> findByDeviceGroup(EndDeviceGroup endDevice, int skip, int limit);
 }

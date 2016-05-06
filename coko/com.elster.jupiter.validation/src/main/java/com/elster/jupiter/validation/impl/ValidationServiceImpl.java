@@ -422,7 +422,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         returnList.stream().forEach(m-> m.getChannels().stream().filter(c -> !m.getRuleSet()
                 .getRules(c.getReadingTypes()).isEmpty())
                 .filter(c -> !m.getChannelValidation(c).isPresent())
-                .forEach(c -> m.addChannelValidation(c)));
+                .forEach(m::addChannelValidation));
         existingMeterActivationValidations.stream()
                 .filter(m -> !ruleSets.contains(m.getRuleSet()))
                 .forEach(IMeterActivationValidation::makeObsolete);
