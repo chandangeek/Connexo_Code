@@ -535,7 +535,7 @@ public class ReadingStorerImplIT {
         assertThat(qualities).hasSize(1);
 
         ReadingQualityRecord readingQualityRecord = qualities.get(0);
-        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("3.4.1");
+        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("2.4.1");
     }
 
     @Test
@@ -581,7 +581,7 @@ public class ReadingStorerImplIT {
         assertThat(qualities).hasSize(1);
 
         ReadingQualityRecord readingQualityRecord = qualities.get(0);
-        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("3.3.4");
+        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("2.3.4");
     }
 
     private Channel createMeterAndChannelWithMultplier(ReadingType measured, ReadingType caluclated, BigDecimal multiplierValue) {
