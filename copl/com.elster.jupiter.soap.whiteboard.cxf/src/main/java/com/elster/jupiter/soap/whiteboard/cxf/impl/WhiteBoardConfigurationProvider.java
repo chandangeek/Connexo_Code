@@ -1,6 +1,6 @@
-package com.elster.jupiter.soap.whiteboard.impl;
+package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
-import java.util.Map;
+import com.elster.jupiter.util.osgi.BundleWaiter;
 
 import org.apache.cxf.transport.http.HTTPConduitConfigurer;
 import org.osgi.framework.BundleContext;
@@ -10,7 +10,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-import com.elster.jupiter.util.osgi.BundleWaiter;
+import java.util.Map;
 
 
 /*

@@ -1,4 +1,4 @@
 -classpath: target/classes 
 -dsannotations: *
-Private-Package: com.elster.jupiter.soap.whiteboard.impl
+Private-Package: com.elster.jupiter.soap.whiteboard.cxf.impl
 Export-Package: com.elster.jupiter.soap.whiteboard.cxf

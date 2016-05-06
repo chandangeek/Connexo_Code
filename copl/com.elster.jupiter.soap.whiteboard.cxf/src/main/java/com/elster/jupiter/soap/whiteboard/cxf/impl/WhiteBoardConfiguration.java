@@ -1,4 +1,4 @@
-package com.elster.jupiter.soap.whiteboard.impl;
+package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import java.util.Map;
 
