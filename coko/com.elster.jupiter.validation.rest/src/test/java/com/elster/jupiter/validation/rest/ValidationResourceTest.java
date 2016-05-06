@@ -79,12 +79,13 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     public static final long V_RULE_SET_ID = 14L;
     public static final long V_RULE_VERSION_ID = 18L;
     public static final long V_RULE_ID = 3L;
+    private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
     private final Instant startDate = Instant.ofEpochMilli(1412341200000L);
 
     @Test
     public void testGetValidationRuleSetsNoRuleSets() {
         mockValidationRuleSets();
-        ValidationRuleSetInfos response = target("/validation").request().get(ValidationRuleSetInfos.class);
+        ValidationRuleSetInfos response = target("/validation").request().header(APPLICATION_HEADER_PARAM, "APP").get(ValidationRuleSetInfos.class);
 
         assertThat(response.total).isEqualTo(0);
         assertThat(response.ruleSets).hasSize(0);
@@ -93,7 +94,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     @Test
     public void testGetValidationRuleSets() {
         mockValidationRuleSets(mockValidationRuleSet(V_RULE_SET_ID));
-        ValidationRuleSetInfos response = target("/validation").request().get(ValidationRuleSetInfos.class);
+        ValidationRuleSetInfos response = target("/validation").request().header(APPLICATION_HEADER_PARAM, "APP").get(ValidationRuleSetInfos.class);
         assertThat(response.total).isEqualTo(1);
 
         List<ValidationRuleSetInfo> ruleSetInfos = response.ruleSets;
@@ -205,9 +206,9 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
     @Test
     public void testGetValidatorsNoValidators() {
-        when(validationService.getAvailableValidators("")).thenReturn(Collections.emptyList());
+        when(validationService.getAvailableValidators("APP")).thenReturn(Collections.emptyList());
 
-        ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
+        ValidatorInfos validatorInfos = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "APP").get(ValidatorInfos.class);
 
         assertThat(validatorInfos.total).isEqualTo(0);
         assertThat(validatorInfos.validators).hasSize(0);
@@ -216,9 +217,9 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     @Test
     public void testGetValidators() {
         List<Validator> mockValidator = Arrays.asList(mockValidator("B Validator"), mockValidator("A Validator"));
-        when(validationService.getAvailableValidators(any(String.class))).thenReturn(mockValidator);
+        when(validationService.getAvailableValidators("APP")).thenReturn(mockValidator);
 
-        ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
+        ValidatorInfos validatorInfos = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "APP").get(ValidatorInfos.class);
 
         assertThat(validatorInfos.total).isEqualTo(2);
         List<ValidatorInfo> validators = validatorInfos.validators;
@@ -436,8 +437,8 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         info.description = "desc";
 
         ValidationRuleSet ruleSet = mockValidationRuleSet(V_RULE_SET_ID);
-        when(validationService.createValidationRuleSet(info.name, info.description, null)).thenReturn(ruleSet);
-        Response response = target("/validation").request().post(Entity.json(info));
+        when(validationService.createValidationRuleSet(info.name, info.description, "APP")).thenReturn(ruleSet);
+        Response response = target("/validation").request().header(APPLICATION_HEADER_PARAM, "APP").post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 

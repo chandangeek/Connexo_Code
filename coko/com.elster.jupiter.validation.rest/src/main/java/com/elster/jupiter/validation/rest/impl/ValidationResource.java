@@ -156,7 +156,6 @@ public class ValidationResource {
 
     private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters, String applicationName) {
         Query<ValidationRuleSet> query = validationService.getRuleSetQuery();
-        query.setRestriction(where("obsoleteTime").isNull());
         query.setRestriction(where("application").isEqualTo(applicationName));
         RestQuery<ValidationRuleSet> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
