@@ -585,7 +585,7 @@ public class DeviceTypeResource {
 
     @GET
     @Transactional
-    @Path("/{id}/timeofuseoptions")
+    @Path("/{id}/timeofuseoptions/{dummyid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response getTimeOfUseManagementOptions(@PathParam("id") long id) {
@@ -597,11 +597,11 @@ public class DeviceTypeResource {
 
     @PUT
     @Transactional
-    @Path("/{id}/timeofuseoptions")
+    @Path("/{id}/timeofuseoptions/{dummyid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public Response changeTimeOfUseOptions(@PathParam("id") long id, TimeOfUseOptionsInfo info) {
+    public Response changeTimeOfUseOptions(@PathParam("id") long id, @PathParam("dummyid") long dummyID, TimeOfUseOptionsInfo info) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         Optional<TimeOfUseOptions> timeOfUseOptions = resourceHelper.findAndLockTimeOfUseOptionsByIdAndVersion(deviceType, info.version);
         if (info.isAllowed && info.allowedOptions != null){
@@ -634,7 +634,7 @@ public class DeviceTypeResource {
                 .forEach(op ->
                 timeOfUseOptionsInfo.allowedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
 
-        timeOfUseOptionsInfo.isAllowed = deviceType.isTimeOfUseAllowed();
+        timeOfUseOptionsInfo.isAllowed = !allowedOptions.isEmpty();
         timeOfUseOptionsInfo.version = timeOfUseOptions.map(TimeOfUseOptions::getVersion).orElse(0L);
 
         return timeOfUseOptionsInfo;
