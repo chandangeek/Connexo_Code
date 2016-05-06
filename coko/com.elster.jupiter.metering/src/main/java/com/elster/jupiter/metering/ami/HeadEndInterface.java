@@ -14,10 +14,12 @@ public interface HeadEndInterface {
 
     Optional<URL> getURLForEndDevice(EndDevice endDevice);
     EndDeviceCapabilities getCapabilities(EndDevice endDevice);
+    CommandFactory getCommandFactory();
     CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant);
     CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall serviceCall);
     CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes);
     CompletionOptions readMeter(Meter meter, List<ReadingType> redingTypes, ServiceCall serviceCall);
     CompletionOptions sendCommand(Meter meter, EndDeviceCommand meterCmd, Instant instant);
-    CompletionOptions sendCommand(Meter meter, EndDeviceCommand meterCmd, Instant instant, ServiceCall serviceCall);
+    CompletionOptions sendCommand(Meter meter, EndDeviceCommand meterCmd, Instant instant, ServiceCall serviceCall) throws
+            UnsupportedCommandException;
 }
