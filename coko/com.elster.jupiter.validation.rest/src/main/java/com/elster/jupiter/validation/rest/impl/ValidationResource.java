@@ -173,7 +173,6 @@ public class ValidationResource {
         ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
                 () -> new WebApplicationException(Response.Status.NOT_FOUND));
 
-
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
 
         List<? extends ValidationRuleSetVersion> versions;
@@ -299,7 +298,6 @@ public class ValidationResource {
         ValidationRuleInfos infos = validationRuleInfoFactory.createValidationRuleInfos(rules.stream().map(validationRuleInfoFactory::createValidationRuleInfo).collect(Collectors.toList()));
         return Response.ok(infos).build();
     }
-
 
     @POST
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules")
@@ -472,15 +470,11 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public ValidatorInfos getAvailableValidators(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName, @Context UriInfo uriInfo) {
-
-        List<Validator> toAdd = validationService.getAvailableValidators(applicationName);
-        Collections.sort(toAdd, Compare.BY_DISPLAY_NAME);
-
         ValidatorInfos infos = new ValidatorInfos();
-        for (Validator validator : toAdd) {
-            infos.add(validator.getClass().getName(), validator.getDisplayName(), propertyUtils.convertPropertySpecsToPropertyInfos(validator.getPropertySpecs()));
-        }
-
+        validationService.getAvailableValidators(applicationName).stream()
+                .sorted(Compare.BY_DISPLAY_NAME)
+                .forEach(validator -> infos.add(validator.getClass().getName(), validator.getDisplayName(),
+                        propertyUtils.convertPropertySpecsToPropertyInfos(validator.getPropertySpecs())));
         return infos;
     }
 
@@ -494,9 +488,7 @@ public class ValidationResource {
     }
 
     private Instant makeInstant(Long startDate) {
-        if (startDate != null)
-            return Instant.ofEpochMilli(startDate);
-        return null;
+        return startDate == null ? null : Instant.ofEpochMilli(startDate);
     }
 
     private Long getCurrentRuleSetVersion(long id) {
