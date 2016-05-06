@@ -300,7 +300,8 @@ public class DeviceAttributesInfoFactory {
         }
 
         if (DeviceAttribute.LOCATION.isEditableForState(state) && info.location != null) {
-            if ((info.location.displayValue.locationId == -1) && (info.location.displayValue.properties.length >0)){
+            if ((info.location.displayValue.locationId != null) && (info.location.displayValue.locationId == -1)
+                    && (info.location.displayValue.properties != null) && (info.location.displayValue.properties.length > 0)) {
                 List<PropertyInfo> propertyInfoList = Arrays.asList(info.location.displayValue.properties);
                 List<String> locationData = propertyInfoList.stream()
                         .map(d -> d.propertyValueInfo.value.toString())
@@ -320,8 +321,7 @@ public class DeviceAttributesInfoFactory {
                 }
                 device.setLocation(builder.create());
 
-            }
-            else if (info.location.displayValue.locationId > 0){
+            } else if ((info.location.displayValue.locationId != null) && (info.location.displayValue.locationId > 0)) {
                 meteringService.findLocation(info.location.displayValue.locationId).ifPresent(loc ->  device.setLocation(loc));
             }
 
