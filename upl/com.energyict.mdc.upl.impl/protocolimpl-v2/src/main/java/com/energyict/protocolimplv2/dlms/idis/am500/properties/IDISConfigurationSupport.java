@@ -19,6 +19,7 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
 
     public static final String SWAP_SERVER_AND_CLIENT_ADDRESS_PROPERTY = "SwapServerAndClientAddress";
     public static final String IGNORE_CALLING_AP_TITLE = "IgnoreCallingAPTitle";
+    public static final String USE_LOGICAL_DEVICE_NAME_AS_SERIAL = "UseLogicalDeviceNameAsSerialNumber";
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
@@ -26,6 +27,7 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
         result.addAll(super.getOptionalProperties());
         result.add(this.swapServerAndClientAddress());
         result.add(this.ignoreCallingAPTitle());
+        result.add(this.useEquipmentIdentifierAsSerialNumber());
 
         // Not supported in IDIS P1
         result.remove(super.useGeneralBlockTransferPropertySpec());
@@ -40,5 +42,9 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
 
     protected PropertySpec ignoreCallingAPTitle() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(IGNORE_CALLING_AP_TITLE, false);
+    }
+
+    private PropertySpec useEquipmentIdentifierAsSerialNumber() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(USE_LOGICAL_DEVICE_NAME_AS_SERIAL, false);
     }
 }
