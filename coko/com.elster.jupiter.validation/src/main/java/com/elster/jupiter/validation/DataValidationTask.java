@@ -30,6 +30,8 @@ public interface DataValidationTask extends HasAuditInfo {
 
     void setName(String name);
 
+    String getApplication();
+
     Optional<EndDeviceGroup> getEndDeviceGroup();
 
     Optional<UsagePointGroup> getUsagePointGroup();

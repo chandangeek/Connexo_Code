@@ -187,6 +187,11 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
+    public String getApplication() {
+        return application;
+    }
+
+    @Override
     public Optional<EndDeviceGroup> getEndDeviceGroup() {
         return endDeviceGroup.getOptional();
     }
