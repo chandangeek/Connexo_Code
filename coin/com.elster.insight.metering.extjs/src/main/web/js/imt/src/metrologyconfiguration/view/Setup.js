@@ -19,21 +19,20 @@ Ext.define('Imt.metrologyconfiguration.view.Setup', {
                 itemId: 'metrology-config-setup-panel',
                 ui: 'large',
                 title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
-                // out of scope CXO-633
-                //tools: [
-                //    {
-                //        xtype: 'button',
-                //        text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
-                //        itemId: 'actionButton',
-                //        iconCls: 'x-uni-action-iconD',
-                //        privileges: Imt.privileges.MetrologyConfig.admin,
-                //        menu: {
-                //            xtype: 'metrology-configuration-action-menu',
-                //            itemId: 'metrology-configuration-action-menu',
-                //            record: me.metrologyConfig
-                //        }
-                //    }
-                //],
+                tools: [
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
+                        itemId: 'actionButton',
+                        iconCls: 'x-uni-action-iconD',
+                        privileges: Imt.privileges.MetrologyConfig.admin,
+                        menu: {
+                            xtype: 'metrology-configuration-action-menu',
+                            itemId: 'metrology-configuration-action-menu',
+                            record: me.metrologyConfig
+                        }
+                    }
+                ],
                 items: [
                     {
                         xtype: 'metrology-config-details-form',
