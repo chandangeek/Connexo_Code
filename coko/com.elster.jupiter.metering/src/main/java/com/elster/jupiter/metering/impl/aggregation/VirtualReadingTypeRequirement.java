@@ -37,7 +37,7 @@ public class VirtualReadingTypeRequirement {
     private final ReadingTypeRequirement requirement;
     private final ReadingTypeDeliverable deliverable;
     private final List<Channel> matchingChannels;
-    private final VirtualReadingType targetReadingType;
+    private VirtualReadingType targetReadingType;
     private final Range<Instant> rawDataPeriod;
     private final int meterActivationSequenceNumber;
     private ChannelContract preferredChannel;   // Lazy from the list of matching channels and the targetIntervalLength
@@ -169,6 +169,15 @@ public class VirtualReadingTypeRequirement {
 
     VirtualReadingType getSourceReadingType() {
         return VirtualReadingType.from(this.getPreferredChannel().getMainReadingType());
+    }
+
+    VirtualReadingType getTargetReadingType() {
+        return targetReadingType;
+    }
+
+    void setTargetReadingType(VirtualReadingType targetReadingType) {
+        this.targetReadingType = targetReadingType;
+        this.preferredChannel = null;
     }
 
 }

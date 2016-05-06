@@ -110,7 +110,7 @@ public class ApplyUnitConversionTest {
                         Formula.Mode.AUTO,
                         ampereRequirement,
                         this.deliverable,
-                        VirtualReadingType.from(this.deliverableReadingType)))
+                        ampereVirtualReadingType))
                 .thenReturn(ampereVirtualRequirement);
         when(ampereVirtualRequirement.getSourceReadingType()).thenReturn(ampereVirtualReadingType);
 
@@ -132,7 +132,7 @@ public class ApplyUnitConversionTest {
                         Formula.Mode.AUTO,
                         voltRequirement,
                         this.deliverable,
-                        VirtualReadingType.from(this.deliverableReadingType)))
+                        voltVirtualReadingType))
                 .thenReturn(voltVirtualRequirement);
         when(voltVirtualRequirement.getSourceReadingType()).thenReturn(voltVirtualReadingType);
 
@@ -173,7 +173,7 @@ public class ApplyUnitConversionTest {
                         Formula.Mode.AUTO,
                         ampereRequirement,
                         this.deliverable,
-                        VirtualReadingType.from(this.deliverableReadingType)))
+                        ampereVirtualReadingType))
                 .thenReturn(ampereVirtualRequirement);
         when(ampereVirtualRequirement.getSourceReadingType()).thenReturn(ampereVirtualReadingType);
 
@@ -195,7 +195,7 @@ public class ApplyUnitConversionTest {
                         Formula.Mode.AUTO,
                         voltRequirement,
                         this.deliverable,
-                        VirtualReadingType.from(this.deliverableReadingType)))
+                        voltVirtualReadingType))
                 .thenReturn(voltVirtualRequirement);
         when(voltVirtualRequirement.getSourceReadingType()).thenReturn(voltVirtualReadingType);
 
@@ -236,7 +236,7 @@ public class ApplyUnitConversionTest {
                         Formula.Mode.AUTO,
                         ampereRequirement,
                         this.deliverable,
-                        VirtualReadingType.from(this.deliverableReadingType)))
+                        ampereVirtualReadingType))
                 .thenReturn(ampereVirtualRequirement);
         when(ampereVirtualRequirement.getSourceReadingType()).thenReturn(ampereVirtualReadingType);
 
@@ -259,7 +259,7 @@ public class ApplyUnitConversionTest {
                         Formula.Mode.AUTO,
                         voltRequirement,
                         this.deliverable,
-                        VirtualReadingType.from(this.deliverableReadingType)))
+                        voltVirtualReadingType))
                 .thenReturn(voltVirtualRequirement);
         when(voltVirtualRequirement.getSourceReadingType()).thenReturn(voltVirtualReadingType);
 
@@ -311,7 +311,7 @@ public class ApplyUnitConversionTest {
                         Formula.Mode.AUTO,
                         ampereRequirement,
                         this.deliverable,
-                        VirtualReadingType.from(this.deliverableReadingType)))
+                        ampereVirtualReadingType))
                 .thenReturn(ampereVirtualRequirement);
         when(ampereVirtualRequirement.getSourceReadingType()).thenReturn(ampereVirtualReadingType);
 
@@ -334,7 +334,7 @@ public class ApplyUnitConversionTest {
                         Formula.Mode.AUTO,
                         voltRequirement,
                         this.deliverable,
-                        VirtualReadingType.from(this.deliverableReadingType)))
+                        voltVirtualReadingType))
                 .thenReturn(voltVirtualRequirement);
         when(voltVirtualRequirement.getSourceReadingType()).thenReturn(voltVirtualReadingType);
 
@@ -393,7 +393,7 @@ public class ApplyUnitConversionTest {
                         Formula.Mode.AUTO,
                         ampereRequirement,
                         this.deliverable,
-                        VirtualReadingType.from(this.deliverableReadingType)))
+                        ampereVirtualReadingType))
                 .thenReturn(ampereVirtualRequirement);
         when(ampereVirtualRequirement.getSourceReadingType()).thenReturn(ampereVirtualReadingType);
 
@@ -415,7 +415,7 @@ public class ApplyUnitConversionTest {
                         Formula.Mode.AUTO,
                         voltRequirement,
                         this.deliverable,
-                        VirtualReadingType.from(this.deliverableReadingType)))
+                        voltVirtualReadingType))
                 .thenReturn(voltVirtualRequirement);
         when(voltVirtualRequirement.getSourceReadingType()).thenReturn(voltVirtualReadingType);
 
@@ -468,7 +468,7 @@ public class ApplyUnitConversionTest {
                         Formula.Mode.AUTO,
                         ampereRequirement,
                         this.deliverable,
-                        VirtualReadingType.from(this.deliverableReadingType)))
+                        ampereVirtualReadingType))
                 .thenReturn(ampereVirtualRequirement);
         when(ampereVirtualRequirement.getSourceReadingType()).thenReturn(ampereVirtualReadingType);
 
@@ -490,7 +490,7 @@ public class ApplyUnitConversionTest {
                         Formula.Mode.AUTO,
                         voltRequirement,
                         this.deliverable,
-                        VirtualReadingType.from(this.deliverableReadingType)))
+                        voltVirtualReadingType))
                 .thenReturn(voltVirtualRequirement);
         when(voltVirtualRequirement.getSourceReadingType()).thenReturn(voltVirtualReadingType);
 

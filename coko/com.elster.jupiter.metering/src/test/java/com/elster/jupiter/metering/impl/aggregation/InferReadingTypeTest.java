@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class InferReadingTypeTest {
 
     @Mock
-    private ReadingTypeRequirement requirement;
+    private FullySpecifiedReadingTypeRequirement requirement;
     @Mock
     private ReadingTypeDeliverable deliverable;
     @Mock
@@ -101,13 +101,6 @@ public class InferReadingTypeTest {
     @Test
     public void inferRequirementOnly() {
         InferReadingType infer = this.testInstance();
-        VirtualRequirementNode node =
-                new VirtualRequirementNode(
-                        Formula.Mode.AUTO,
-                        this.virtualFactory,
-                        this.requirement,
-                        this.deliverable,
-                        this.meterActivation);
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);    // Different from the target set in test instance
@@ -118,6 +111,13 @@ public class InferReadingTypeTest {
         when(channel.getMainReadingType()).thenReturn(readingType);
         when(this.requirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(channel));
         when(this.requirement.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(readingType));
+        VirtualRequirementNode node =
+                new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
+                        this.virtualFactory,
+                        this.requirement,
+                        this.deliverable,
+                        this.meterActivation);
 
         // Business method
         VirtualReadingType preferredReadingType = node.accept(infer);
@@ -545,26 +545,29 @@ public class InferReadingTypeTest {
 
     private ReadingType mock15minkWhReadingType() {
         ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("InferReadingType-15m-kWh");
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
         return readingType;
     }
 
     private ReadingType mock15minkWReadingType() {
         ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("InferReadingType-15m-kW");
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATT);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATT);
         when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
         return readingType;
     }
 
     private ReadingType mock15minAmpereReadingType() {
         ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("InferReadingType-15m-A");
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
@@ -575,6 +578,7 @@ public class InferReadingTypeTest {
 
     private ReadingType mock15minVoltReadingType() {
         ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("InferReadingType-15m-V");
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.VOLT);
@@ -585,20 +589,22 @@ public class InferReadingTypeTest {
 
     private ReadingType mockHourlykWhReadingType() {
         ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("InferReadingType-60m-kWh");
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
         return readingType;
     }
 
     private ReadingType mockHourlykWReadingType() {
         ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("InferReadingType-60m-kW");
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATT);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATT);
         when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
         return readingType;
     }

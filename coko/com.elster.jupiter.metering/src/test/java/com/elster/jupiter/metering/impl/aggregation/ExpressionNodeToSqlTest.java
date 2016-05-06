@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.units.Dimension;
@@ -281,7 +280,10 @@ public class ExpressionNodeToSqlTest {
 
     @Test
     public void testRequirement() {
-        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("ExpressionNodeToSqlTest");
+        when(requirement.getReadingType()).thenReturn(readingType);
         VirtualFactory virtualFactory = mock(VirtualFactory.class);
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         ReadingType hourlyWattHours = this.mockHourlyWattHoursReadingType();
@@ -289,13 +291,15 @@ public class ExpressionNodeToSqlTest {
         VirtualReadingTypeRequirement virtualRequirement = mock(VirtualReadingTypeRequirement.class);
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(requirement), eq(deliverable), any(VirtualReadingType.class)))
             .thenReturn(virtualRequirement);
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         VirtualRequirementNode node =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         virtualFactory,
                         requirement,
                         deliverable,
-                        mock(MeterActivation.class));
+                        meterActivation);
 
         // Business method
         testInstance().visitVirtualRequirement(node);
@@ -324,13 +328,13 @@ public class ExpressionNodeToSqlTest {
     }
 
     @Test
-    public void testUnitConversion() {
+    public void testWattToKiloWattHourUnitConversion() {
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         VirtualFactory virtualFactory = mock(VirtualFactory.class);
-        ReadingType hourWattHours = this.mockHourlyWattHoursReadingType();
+        ReadingType hourlyWattHours = this.mockHourlyWattHoursReadingType();
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
-        when(deliverable.getReadingType()).thenReturn(hourWattHours);
+        when(deliverable.getReadingType()).thenReturn(hourlyWattHours);
 
         ReadingType ampereReadingType = this.mock15MinutesAmpereReadingType();
         FullySpecifiedReadingTypeRequirement currentRequirement = mock(FullySpecifiedReadingTypeRequirement.class);
@@ -388,7 +392,7 @@ public class ExpressionNodeToSqlTest {
         verify(virtualCurrentRequirement).appendSimpleReferenceTo(any(SqlBuilder.class));
         verify(virtualVoltageRequirement).appendSimpleReferenceTo(any(SqlBuilder.class));
         String expression = sqlFragment.getText().replace(" ", "");
-        assertThat(expression).isEqualTo("((*)/0.004)"); // because the requirements are mocked, their appendSimpleReferenceTo method does not actually append anything to the SqlBuilder
+        assertThat(expression).isEqualTo("(((*)/4)*0.001)"); // because the requirements are mocked, their appendSimpleReferenceTo method does not actually append anything to the SqlBuilder
     }
 
     private ReadingType mockHourlyWattHoursReadingType() {

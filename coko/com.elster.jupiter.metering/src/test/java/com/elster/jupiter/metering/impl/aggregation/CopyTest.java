@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
@@ -77,6 +76,8 @@ public class CopyTest {
     private Thesaurus thesaurus;
     @Mock
     private MetrologyConfiguration metrologyConfiguration;
+    @Mock
+    private ReadingType readingType;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
 
@@ -94,6 +95,7 @@ public class CopyTest {
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService);
         when(this.meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+        when(this.readingType.getMRID()).thenReturn("CopyTest");
     }
 
     @Test
@@ -372,7 +374,8 @@ public class CopyTest {
     public void copyMinimumAggregation() {
         Copy visitor = getTestInstance();
         ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
-        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(requirement.getReadingType()).thenReturn(this.readingType);
         ExpressionNode node =
                 formulaBuilder.minimum(
                         AggregationLevel.DAY,
@@ -396,7 +399,8 @@ public class CopyTest {
     public void copyMaximumAggregation() {
         Copy visitor = getTestInstance();
         ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
-        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(requirement.getReadingType()).thenReturn(this.readingType);
         ExpressionNode node =
                 formulaBuilder.maximum(
                         AggregationLevel.WEEK,
@@ -420,7 +424,8 @@ public class CopyTest {
     public void copyAverageAggregation() {
         Copy visitor = getTestInstance();
         ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
-        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(requirement.getReadingType()).thenReturn(this.readingType);
         ExpressionNode node =
                 formulaBuilder.average(
                         AggregationLevel.MONTH,
@@ -444,7 +449,8 @@ public class CopyTest {
     public void copySumAggregation() {
         Copy visitor = getTestInstance();
         ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
-        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(requirement.getReadingType()).thenReturn(this.readingType);
         ExpressionNode node =
                 formulaBuilder.sum(
                         AggregationLevel.YEAR,
@@ -468,10 +474,12 @@ public class CopyTest {
     public void copySafeDivide() {
         Copy visitor = getTestInstance();
         ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
-        ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement1 = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement1.getDimension()).thenReturn(Dimension.ENERGY);
-        ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        when(requirement1.getReadingType()).thenReturn(this.readingType);
+        FullySpecifiedReadingTypeRequirement requirement2 = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirement2.getDimension()).thenReturn(Dimension.ENERGY);
+        when(requirement2.getReadingType()).thenReturn(this.readingType);
         ExpressionNode node =
                 formulaBuilder.safeDivide(
                         formulaBuilder.requirement(requirement1),

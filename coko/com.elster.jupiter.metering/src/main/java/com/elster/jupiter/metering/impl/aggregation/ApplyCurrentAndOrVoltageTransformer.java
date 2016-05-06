@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,11 +40,27 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
         ReadingType readingType = requirement.getPreferredChannel().getMainReadingType();
         return RequirementNodeReplacer
                 .from(readingType)
-                .to(requirement.getTargetReadingType())
+                .to(this.getTargetReadingType(requirement, requirement.getDeliverableReadingType()))
                 .apply(new Context(
                         requirement,
                         this.meteringService,
                         this.meterActivation));
+    }
+
+    private VirtualReadingType getTargetReadingType(VirtualRequirementNode requirementNode, ReadingType deliverableReadingType) {
+        VirtualReadingType targetReadingType = requirementNode.getTargetReadingType();
+        if (this.readingTypeIsElectricity(deliverableReadingType)) {
+            targetReadingType = targetReadingType.withCommondity(deliverableReadingType.getCommodity());
+        }
+        return targetReadingType;
+    }
+
+    private boolean readingTypeIsElectricity(ReadingType readingType) {
+        Commodity commodity = VirtualReadingType.from(readingType).getCommodity();
+        return EnumSet.of(
+                Commodity.ELECTRICITY_PRIMARY_METERED,
+                Commodity.ELECTRICITY_SECONDARY_METERED)
+                .contains(commodity);
     }
 
     @Override

@@ -41,9 +41,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
 
     @Override
     public VirtualReadingType visitVirtualRequirement(VirtualRequirementNode node) {
-        VirtualReadingType preferredReadingType = node.getPreferredReadingType();
-        node.setTargetReadingType(preferredReadingType);
-        return preferredReadingType;
+        return node.getPreferredReadingType();
     }
 
     @Override
@@ -109,10 +107,10 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
                     .distinct()
                     .collect(Collectors.toList());
         if (preferredReadingTypes.isEmpty()) {
-                /* All child nodes have indicated not to care about the reading type
-                 * so we should be able to enforce the target onto each. */
-                return this.enforceReadingType(children, this.requestedReadingType);
-            } else {
+            /* All child nodes have indicated not to care about the reading type
+             * so we should be able to enforce the target onto each. */
+            return this.enforceReadingType(children, this.requestedReadingType);
+        } else {
             if (preferredReadingTypes.stream().anyMatch(VirtualReadingType::isUnsupported)) {
                 throw unsupportedOperationExceptionSupplier.get();
             }

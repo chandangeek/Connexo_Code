@@ -103,10 +103,7 @@ class UnitConversionNode implements ServerExpressionNode {
 
         @Override
         public VirtualReadingType visitVirtualRequirement(VirtualRequirementNode node) {
-            VirtualReadingType preferredReadingType = node.getPreferredReadingType();
-            // Make sure that the preferred reading type is set as the target for the node
-            node.setTargetReadingType(preferredReadingType);
-            return preferredReadingType;
+            return node.getPreferredReadingType();
         }
 
         @Override

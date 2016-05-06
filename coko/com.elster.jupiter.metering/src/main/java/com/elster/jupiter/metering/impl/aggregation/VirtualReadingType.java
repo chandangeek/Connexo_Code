@@ -240,10 +240,10 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
 
     private void applyUnitConversion(Formula.Mode mode, SqlFragment expression, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
         if (this.isFlowRelated() && targetReadingType.isVolumeRelated()) {
-            this.applyVolumeFlowConversion(expression, " / ", targetReadingType, sqlBuilder);
+            this.applyFlowToVolumeConversion(expression, targetReadingType, sqlBuilder);
         }
         else if (this.isVolumeRelated() && targetReadingType.isFlowRelated()) {
-            this.applyVolumeFlowConversion(expression, " * ", targetReadingType, sqlBuilder);
+            this.applyVolumeToFlowConversion(expression, targetReadingType, sqlBuilder);
         }
         else {
             ServerExpressionNode conversionExpression =
@@ -259,11 +259,11 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         }
     }
 
-    private void applyVolumeFlowConversion(SqlFragment expression, String operator, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
-        Loggers.SQL.debug(() -> "Applying volume to flow conversion to " + expression + " using operator " + operator + " to convert from " + this.toString() + " to " + targetReadingType.toString());
+    private void applyVolumeToFlowConversion(SqlFragment expression, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+        Loggers.SQL.debug(() -> "Applying volume to flow conversion to " + expression + " to convert from " + this.toString() + " to " + targetReadingType.toString());
         sqlBuilder.append("(");
         sqlBuilder.add(expression);
-        sqlBuilder.append(operator);
+        sqlBuilder.append(" * ");
         BigDecimal intervalConversionFactor = this.getIntervalLength().getVolumeFlowConversionFactor();
         if (!this.getUnitMultiplier().equals(targetReadingType.getUnitMultiplier())) {
             BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(this.getUnitMultiplier().getMultiplier() - targetReadingType.getUnitMultiplier().getMultiplier());
@@ -271,6 +271,26 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         }
         else {
             sqlBuilder.append(intervalConversionFactor.toString());
+        }
+        sqlBuilder.append(")");
+    }
+
+    private void applyFlowToVolumeConversion(SqlFragment expression, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+        Loggers.SQL.debug(() -> "Applying flow to volume conversion to " + expression + " to convert from " + this.toString() + " to " + targetReadingType.toString());
+        boolean withRescaling = !this.getUnitMultiplier().equals(targetReadingType.getUnitMultiplier());
+        if (withRescaling) {
+            sqlBuilder.append("((");
+        } else {
+            sqlBuilder.append("(");
+        }
+        sqlBuilder.add(expression);
+        sqlBuilder.append(" / ");
+        BigDecimal intervalConversionFactor = this.getIntervalLength().getVolumeFlowConversionFactor();
+        sqlBuilder.append(intervalConversionFactor.toString());
+        if (withRescaling) {
+            sqlBuilder.append(") * ");
+            BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(this.getUnitMultiplier().getMultiplier() - targetReadingType.getUnitMultiplier().getMultiplier());
+            sqlBuilder.append(multiplierConversionFactor.toString());
         }
         sqlBuilder.append(")");
     }

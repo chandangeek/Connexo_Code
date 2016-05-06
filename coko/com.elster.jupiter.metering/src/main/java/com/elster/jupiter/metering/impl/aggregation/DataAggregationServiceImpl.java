@@ -153,14 +153,16 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      */
     private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
         ServerExpressionNode copied = this.copy(deliverable, meterActivation, virtualFactory, deliverablesPerMeterActivation, deliverable.getFormula().getMode());
+        copied.accept(new FinishRequirementAndDeliverableNodes());
+        ServerExpressionNode withUnitConversion;
         VirtualReadingType readingType;
         if (Formula.Mode.AUTO.equals(deliverable.getFormula().getMode())) {
-            readingType = this.inferReadingType(deliverable, copied);
+            withUnitConversion = copied.accept(new ApplyUnitConversion(deliverable.getFormula().getMode(), VirtualReadingType.from(deliverable.getReadingType())));
+            readingType = this.inferReadingType(deliverable, withUnitConversion);
         } else {
+            withUnitConversion = copied;
             readingType = VirtualReadingType.from(deliverable.getReadingType());
         }
-        copied.accept(new FinishRequirementAndDeliverableNodes());
-        ServerExpressionNode withUnitConversion = copied.accept(new ApplyUnitConversion(deliverable.getFormula().getMode(), VirtualReadingType.from(deliverable.getReadingType())));
         ServerExpressionNode withMultipliers = withUnitConversion.accept(new ApplyCurrentAndOrVoltageTransformer(this.meteringService, meterActivation));
         deliverablesPerMeterActivation
                 .get(meterActivation)
