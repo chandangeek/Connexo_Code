@@ -166,17 +166,17 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         return propertyDescriptionInfoList;
     }
 
-    private PropertyDescriptionInfo createDescription(UsagePointModelTranslationKeys propertyName, Class<?> aClass) {
-        return new PropertyDescriptionInfo(propertyName.getKey(), aClass, thesaurus.getString(propertyName.getKey(), propertyName
-                .getDefaultFormat()));
-    }
-
     @Override
     public Class getDomainClass() {
         if (!Optional.ofNullable(this.license).isPresent()) {
             return EmptyDomain.class;
         }
         return UsagePoint.class;
+    }
+
+    private PropertyDescriptionInfo createDescription(UsagePointModelTranslationKeys propertyName, Class<?> aClass) {
+        return new PropertyDescriptionInfo(propertyName.getKey(), aClass, thesaurus.getString(propertyName.getKey(), propertyName
+                .getDefaultFormat()));
     }
 
     private String getUsagePointDisplayType(UsagePoint usagePoint) {
@@ -223,14 +223,15 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     public GeoCoordinates getGeoCoordinates(UsagePointInfo usagePointInfo) {
-        if ((usagePointInfo.geoCoordinates != null) && (usagePointInfo.geoCoordinates.spatialCoordinates.split(":").length>0)){
+        if ((usagePointInfo.geoCoordinates != null) && (usagePointInfo.geoCoordinates.spatialCoordinates != null)) {
             return meteringService.createGeoCoordinates(usagePointInfo.geoCoordinates.spatialCoordinates);
         }
         return null;
     }
 
     public Location getLocation(UsagePointInfo usagePointInfo) {
-        if ((usagePointInfo.location.locationId == -1) && (usagePointInfo.location.properties.length > 0)) {
+        if ((usagePointInfo.location.locationId != null) && (usagePointInfo.location.locationId == -1)
+                && (usagePointInfo.location.properties != null) && (usagePointInfo.location.properties.length > 0)) {
             List<PropertyInfo> propertyInfoList = Arrays.asList(usagePointInfo.location.properties);
             List<String> locationData = propertyInfoList.stream()
                     .map(d -> d.propertyValueInfo.value.toString())
@@ -249,8 +250,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 setLocationAttributes(builder.member(), locationData, ranking).add();
             }
             return builder.create();
-        }
-        else if (usagePointInfo.location.locationId > 0){
+        } else if ((usagePointInfo.location.locationId != null) && (usagePointInfo.location.locationId > 0)) {
             return meteringService.findLocation(usagePointInfo.location.locationId).get();
         }
         return null;
