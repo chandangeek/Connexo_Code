@@ -11,6 +11,6 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 @ProviderType
 public interface FirmwareComTaskExecutionUpdater extends ComTaskExecutionUpdater<FirmwareComTaskExecutionUpdater, FirmwareComTaskExecution>{
 
-    public FirmwareComTaskExecutionUpdater protocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
+    FirmwareComTaskExecutionUpdater protocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
 
 }
