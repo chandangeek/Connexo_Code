@@ -268,5 +268,34 @@ Ext.define('Uni.form.field.DateTime', {
 
     onItemChange: function () {
         this.fireEvent('change', this, this.getValue());
+    },
+
+    setMinOrMaxValue: function (value, action) {
+        var me = this,
+            dateField = me.down('#date-time-field-date'),
+            hoursField = me.down('#date-time-field-hours'),
+            minutesField = me.down('#date-time-field-minutes');
+
+        if (value != null && Ext.isDate(new Date(value))) {
+            dateField[action](moment(value).startOf('day').toDate());
+            hoursField[action](moment(value).hours());
+            minutesField[action](moment(value).minutes());
+        } else {
+            dateField[action](null);
+            hoursField[action](null);
+            minutesField[action](null);
+        }
+    },
+
+    setMinValue: function (value) {
+        var me = this;
+
+        me.setMinOrMaxValue(value, 'setMinValue');
+    },
+
+    setMaxValue: function (value) {
+        var me = this;
+
+        me.setMinOrMaxValue(value, 'setMaxValue');
     }
 });
