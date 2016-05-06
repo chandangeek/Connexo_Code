@@ -2,10 +2,12 @@ package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -29,6 +31,7 @@ public class MetrologyConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     public PagedInfoList getMetrologyConfigurations(@BeanParam JsonQueryParameters queryParameters) {
         List<UsagePointMetrologyConfiguration> allMetrologyConfigurations =
                 metrologyConfigurationService
