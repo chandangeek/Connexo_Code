@@ -45,6 +45,7 @@ Ext.define('Mdc.timeofuse.view.SpecificationsForm', {
     },
 
     fillOptions: function (record) {
-
+        var me = this;
+        me.loadRecord(record);
     }
 });

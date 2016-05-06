@@ -17,7 +17,9 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     models: [
         'Mdc.model.DeviceType',
         'Mdc.timeofuse.model.AllowedCalendar',
-        'Uni.model.timeofuse.Calendar'
+        'Uni.model.timeofuse.Calendar',
+        'Mdc.timeofuse.model.TimeOfUseOptions',
+        'Mdc.timeofuse.model.TimeOfUseOption'
     ],
 
     refs: [
@@ -82,36 +84,39 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     showTimeOfUseOverview: function (deviceTypeId) {
         var me = this,
             view,
-            store = me.getStore('Mdc.timeofuse.store.UsedCalendars');
+            store = me.getStore('Mdc.timeofuse.store.UsedCalendars'),
+            optionsModel = Ext.ModelManager.getModel('Mdc.timeofuse.model.TimeOfUseOptions');
 
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+        optionsModel.getProxy().setUrl(deviceTypeId);
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(1, {
             success: function (deviceType) {
-                view = Ext.widget('device-type-tou-setup', {
-                    deviceTypeId: deviceTypeId,
-                    timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
-                });
-                view.down('tou-devicetype-specifications-form').loadRecord(deviceType);
-                me.deviceTypeId = deviceTypeId;
-                me.getApplication().fireEvent('changecontentevent', view);
-                store.getProxy().setUrl(deviceTypeId);
-                store.load({
-                    callback: function (records, operation, success) {
-                        if(success === true) {
-                            me.getCalendarGrid().down('pagingtoolbartop #displayItem').setText(
-                                Uni.I18n.translatePlural('general.calendarCount', store.getCount(), 'MDC', 'No time of use calendars', '{0} time of use calendar', '{0} time of use calendars')
-                            );
-                        }
+                optionsModel.load(1, {
+                    success: function (options) {
+                        view = Ext.widget('device-type-tou-setup', {
+                            deviceTypeId: deviceTypeId,
+                            timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
+                        });
+                        view.down('tou-devicetype-specifications-form').fillOptions(options);
+                        me.deviceTypeId = deviceTypeId;
+                        me.getApplication().fireEvent('changecontentevent', view);
+                        store.getProxy().setUrl(deviceTypeId);
+                        store.load({
+                            callback: function (records, operation, success) {
+                                if (success === true) {
+                                    me.getCalendarGrid().down('pagingtoolbartop #displayItem').setText(
+                                        Uni.I18n.translatePlural('general.calendarCount', store.getCount(), 'MDC', 'No time of use calendars', '{0} time of use calendar', '{0} time of use calendars')
+                                    );
+                                }
+                            }
+                        });
+                        view.setLoading(true);
+                        view.suspendLayouts();
+                        me.reconfigureMenu(deviceType, view);
                     }
+
                 });
-                view.setLoading(true);
-                view.suspendLayouts();
-                me.reconfigureMenu(deviceType, view);
-            },
-            failure: function () {
-                view.setLoading(false);
-                view.resumeLayouts();
             }
-        });
+        })
     },
 
     goToAddCalendars: function () {
@@ -143,10 +148,6 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 view.setLoading(true);
                 view.suspendLayouts();
                 me.reconfigureMenu(deviceType, view);
-            },
-            failure: function () {
-                view.setLoading(false);
-                view.resumeLayouts();
             }
         });
     },
@@ -187,25 +188,26 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
 
     showEditSpecificationsScreen: function (deviceTypeId) {
         var me = this,
-            view;
+            view,
+            optionsModel = Ext.ModelManager.getModel('Mdc.timeofuse.model.TimeOfUseOptions');
 
+        optionsModel.getProxy().setUrl(deviceTypeId);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
-                view = Ext.widget('tou-devicetype-edit-specs-setup', {
-                    deviceTypeId: deviceTypeId,
-                    timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
+                optionsModel.load(deviceTypeId, {
+                    success: function (options) {
+                        view = Ext.widget('tou-devicetype-edit-specs-setup', {
+                            deviceTypeId: deviceTypeId,
+                            timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
+                        });
+                        view.down('tou-devicetype-edit-specs-form').fillOptions(options);
+                        me.getApplication().fireEvent('changecontentevent', view);
+                        me.deviceTypeId = deviceTypeId;
+                        view.setLoading(true);
+                        view.suspendLayouts();
+                        me.reconfigureMenu(deviceType, view);
+                    }
                 });
-                debugger;
-                view.down('tou-devicetype-edit-specs-form').loadRecord(deviceType);
-                me.getApplication().fireEvent('changecontentevent', view);
-                me.deviceTypeId = deviceTypeId;
-                view.setLoading(true);
-                view.suspendLayouts();
-                me.reconfigureMenu(deviceType, view);
-            },
-            failure: function () {
-                view.setLoading(false);
-                view.resumeLayouts();
             }
         });
 
@@ -241,10 +243,6 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 view.setLoading(true);
                 view.suspendLayouts();
                 me.reconfigureMenu(deviceType, view);
-            },
-            failure: function () {
-                view.setLoading(false);
-                view.resumeLayouts();
             }
         });
 
@@ -313,10 +311,22 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         var me = this,
             form = me.getEditForm(),
             formErrorsPanel = form.down('#form-errors'),
-            record;
+            record,
+            id;
 
         form.updateRecord();
         record = form.getRecord();
+        record.allowedOptions().removeAll();
+
+        Ext.each(form.down('#tou-specs-options-form').getChecked(), function(checkedBox) {
+            var me = this,
+                record = me.getEditForm().getRecord(),
+                option;
+            id = checkedBox.inputValue;
+            option = record.supportedOptions().findRecord('id', id);
+            record.allowedOptions().add(option);
+        }, me);
+
         record.save({
             success: function () {
                 me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();

@@ -28,18 +28,19 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                         items: [
                             {
                                 boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
-                                name: 'timeOfUseAllowed',
+                                name: 'isAllowed',
                                 inputValue: 'true'
                             }, {
                                 boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'),
-                                name: 'timeOfUseAllowed',
+                                name: 'isAllowed',
                                 inputValue: 'false',
                                 checked: true
                             }
                         ]
                     },
                     {
-                        xtype: '',
+                        xtype: 'checkboxgroup',
+                        layout: 'vbox',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseOptions', 'MDC', 'Time of use options'),
                         itemId: 'tou-specs-options-form'
                     },
@@ -72,6 +73,24 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
     },
 
     fillOptions: function (record) {
+        var me = this;
+        me.loadRecord(record);
 
+        Ext.suspendLayouts();
+
+        me.down('#tou-specs-options-form').removeAll();
+        record.supportedOptions().each(function (option) {
+            me.down('#tou-specs-options-form').add(
+                {
+                    boxLabel: option.get('name'),
+                    inputValue: option.get('id'),
+                    checked: record.allowedOptions().findRecord('id', option.get('id')) ? true : false
+                }
+            );
+        });
+        me.doComponentLayout();
+        Ext.resumeLayouts(true);
+        me.updateLayout();
+        me.doLayout();
     }
 });
