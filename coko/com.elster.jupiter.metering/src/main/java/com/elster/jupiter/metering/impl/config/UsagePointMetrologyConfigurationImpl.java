@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -143,5 +144,10 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
                 .collect(Collectors.toMap(req -> req.propertyName, Function.identity()));
         return this.searchDomain
                 .getPropertiesValues(property -> new SearchablePropertyValue(property, searchableProperties.get(property.getName())));
+    }
+
+    @Override
+    public List<MeterActivation> getMetersForRole(MeterRole meterRole) {
+        return Collections.emptyList();
     }
 }
