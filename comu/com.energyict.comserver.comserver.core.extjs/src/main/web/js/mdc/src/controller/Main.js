@@ -103,7 +103,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
         'Mdc.controller.setup.MonitorProcesses',
         'Mdc.controller.Search',
-        'Mdc.controller.setup.ServiceCalls'
+        'Mdc.controller.setup.ServiceCalls',
+        'Mdc.metrologyconfiguration.controller.ListView'
     ],
 
     stores: [
