@@ -133,10 +133,6 @@ public interface DeviceType extends HasId, HasName {
 
     void removeCalendar(long allowedCalendarId);
 
-    public boolean isTimeOfUseAllowed();
-
-    public void setTimeOfUseAllowed(boolean timeOfUseAllowed);
-
     List<LoadProfileType> getLoadProfileTypes();
 
     void addLoadProfileType(LoadProfileType loadProfileType);

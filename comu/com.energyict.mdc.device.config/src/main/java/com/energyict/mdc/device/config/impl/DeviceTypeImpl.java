@@ -76,8 +76,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         CUSTOMPROPERTYSETUSAGE("deviceTypeCustomPropertySetUsages"),
         ALLOWEDCALENDARS("allowedCalendars"),
         DEVICETYPEPURPOSE("deviceTypePurpose"),
-        DEVICE_LIFE_CYCLE("deviceLifeCycle"),
-        TIME_OF_USE_ALLOWED("timeOfUseAllowed");
+        DEVICE_LIFE_CYCLE("deviceLifeCycle");
 
         private final String javaFieldName;
 
@@ -105,7 +104,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
     private List<AllowedCalendar> allowedCalendars = new ArrayList<>();
-    private boolean timeOfUseAllowed = true;
     @Valid
     private List<DeviceConfigConflictMappingImpl> deviceConfigConflictMappings = new ArrayList<>();
     @Valid
@@ -495,16 +493,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 .filter(cal -> cal.getId() == allowedCalendarId)
                 .findFirst();
         allowedCalendar.ifPresent(calendar -> allowedCalendars.remove(calendar));
-    }
-
-    @Override
-    public boolean isTimeOfUseAllowed() {
-        return timeOfUseAllowed;
-    }
-
-    @Override
-    public void setTimeOfUseAllowed(boolean timeOfUseAllowed) {
-        this.timeOfUseAllowed = timeOfUseAllowed;
     }
 
     @Override

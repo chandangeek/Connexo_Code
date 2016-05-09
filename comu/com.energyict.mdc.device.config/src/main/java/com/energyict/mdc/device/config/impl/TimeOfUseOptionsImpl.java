@@ -19,9 +19,16 @@ public class TimeOfUseOptionsImpl implements TimeOfUseOptions {
 
     enum Fields {
         DEVICETYPE("deviceType"),
-        INSTALL("install"),
-        ACTIVATE("activate"),
-        ACTIVATEONDATE("activateOnDate");
+        SEND_ACTIVITY_CALENDAR("send"),
+        SEND_ACTIVITY_CALENDAR_WITH_DATE("sendWithDate"),
+        SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE("sendWithDateAndType"),
+        SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT("sendWithDateAndContract"),
+        SEND_ACTIVITY_CALENDAR_WITH_DATETIME("sendWithDateTime"),
+        SEND_SPECIAL_DAYS_CALENDAR("sendSpecialDays"),
+        SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE("sendSpecialDaysWithType"),
+        SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE("sendSpecialDaysWithContractAndDate"),
+        CLEAR_AND_DISABLE_PASSIVE_TARIFF("clearAndDisablePassiveTariff"),
+        ACTIVATE_PASSIVE_CALENDAR("activatePassive");
 
         private final String javaFieldName;
 
@@ -36,9 +43,16 @@ public class TimeOfUseOptionsImpl implements TimeOfUseOptions {
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceType> deviceType = ValueReference.absent();
-    private boolean install;
-    private boolean activate;
-    private boolean activateOnDate;
+    private boolean send;
+    private boolean sendWithDate;
+    private boolean sendWithDateAndType;
+    private boolean sendWithDateAndContract;
+    private boolean sendWithDateTime;
+    private boolean sendSpecialDays;
+    private boolean sendSpecialDaysWithType;
+    private boolean sendSpecialDaysWithContractAndDate;
+    private boolean clearAndDisablePassiveTariff;
+    private boolean activatePassive;
 
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -67,14 +81,37 @@ public class TimeOfUseOptionsImpl implements TimeOfUseOptions {
         clearOptions();
         allowedOptions.stream().forEach(op -> {
             switch (op) {
-                case UPLOAD_CALENDAR_AND_ACTIVATE_LATER:
-                    this.install = true;
+                case SEND_ACTIVITY_CALENDAR:
+                    this.send = true;
                     break;
-                case UPLOAD_CALENDAR_AND_ACTIVATE_IMMEDIATE:
-                    this.activate = true;
+                case SEND_ACTIVITY_CALENDAR_WITH_DATE:
+                    this.sendWithDate = true;
                     break;
-                case UPLOAD_CALENDAR_AND_ACTIVATE_WITH_DATE:
-                    this.activateOnDate = true;
+                case SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE:
+                    this.sendWithDateAndType = true;
+                    break;
+                case SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT:
+                    this.sendWithDateAndContract = true;
+                    break;
+                case SEND_ACTIVITY_CALENDAR_WITH_DATETIME:
+                    this.sendWithDateTime = true;
+                    break;
+                case SEND_SPECIAL_DAYS_CALENDAR:
+                    this.sendSpecialDays = true;
+                    break;
+                case SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE:
+                    this.sendSpecialDaysWithType = true;
+                    break;
+                case SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE:
+                    this.sendSpecialDaysWithContractAndDate = true;
+                    break;
+                case CLEAR_AND_DISABLE_PASSIVE_TARIFF:
+                    this.clearAndDisablePassiveTariff = true;
+                    break;
+                case ACTIVATE_PASSIVE_CALENDAR:
+                    this.activatePassive = true;
+                    break;
+
             }
         });
     }
@@ -82,15 +119,37 @@ public class TimeOfUseOptionsImpl implements TimeOfUseOptions {
     @Override
     public Set<ProtocolSupportedCalendarOptions> getOptions() {
         Set<ProtocolSupportedCalendarOptions> allowedOptions = new LinkedHashSet<>();
-        if (install) {
-            allowedOptions.add(ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_LATER);
+        if (send) {
+            allowedOptions.add(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR);
         }
-        if (activate) {
-            allowedOptions.add(ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_IMMEDIATE);
+        if (sendWithDate) {
+            allowedOptions.add(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE);
         }
-        if (activateOnDate) {
-            allowedOptions.add(ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_WITH_DATE);
+        if (sendWithDateAndType) {
+            allowedOptions.add(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE);
         }
+        if (sendWithDateAndContract) {
+            allowedOptions.add(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT);
+        }
+        if (sendWithDateTime) {
+            allowedOptions.add(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
+        }
+        if (sendSpecialDays) {
+            allowedOptions.add(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR);
+        }
+        if (sendSpecialDaysWithType) {
+            allowedOptions.add(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE);
+        }
+        if (sendSpecialDaysWithContractAndDate) {
+            allowedOptions.add(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE);
+        }
+        if (clearAndDisablePassiveTariff) {
+            allowedOptions.add(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF);
+        }
+        if (activatePassive) {
+            allowedOptions.add(ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR);
+        }
+
         return allowedOptions;
     }
 
@@ -122,9 +181,16 @@ public class TimeOfUseOptionsImpl implements TimeOfUseOptions {
     }
 
     private void clearOptions() {
-        this.install = false;
-        this.activate = false;
-        this.activateOnDate = false;
+        send = false;
+        sendWithDate = false;
+        sendWithDateAndType = false;
+        sendWithDateAndContract = false;
+        sendWithDateTime = false;
+        sendSpecialDays = false;
+        sendSpecialDaysWithType = false;
+        sendSpecialDaysWithContractAndDate = false;
+        clearAndDisablePassiveTariff = false;
+        activatePassive = false;
     }
 
     DeviceType getDeviceType(){

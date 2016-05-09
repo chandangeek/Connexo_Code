@@ -83,10 +83,6 @@ public enum TableSpecs {
                     .conversion(NUMBER2ENUM)
                     .map(DeviceTypeImpl.Fields.DEVICETYPEPURPOSE.fieldName())
                     .add();
-            table.column("TIMEOFUSEALLOWED")
-                    .bool()
-                    .map(DeviceTypeImpl.Fields.TIME_OF_USE_ALLOWED.fieldName())
-                    .add();
             table.unique("UK_DTC_DEVICETYPE").on(name).add();
             table.primaryKey("PK_DTC_DEVICETYPE").on(id).add();
         }
@@ -1057,9 +1053,16 @@ public enum TableSpecs {
             Table<TimeOfUseOptions> table = dataModel.addTable(name(), TimeOfUseOptions.class);
             table.map(TimeOfUseOptionsImpl.class);
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
-            table.column("INSTALL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.INSTALL.fieldName()).add();
-            table.column("ACTIVATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.ACTIVATE.fieldName()).add();
-            table.column("ACTIVATEONDATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.ACTIVATEONDATE.fieldName()).add();
+            table.column("SEND").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR.fieldName()).add();
+            table.column("SEND_DATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR_WITH_DATE.fieldName()).add();
+            table.column("SEND_DATE_TYPE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE.fieldName()).add();
+            table.column("SEND_DATE_CONTRACT").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT.fieldName()).add();
+            table.column("SEND_DATE_TIME").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR_WITH_DATETIME.fieldName()).add();
+            table.column("SEND_SPECIAL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_SPECIAL_DAYS_CALENDAR.fieldName()).add();
+            table.column("SEND_SPECIAL_TYPE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE.fieldName()).add();
+            table.column("SEND_SPECIAL_CONTRACT_DATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE.fieldName()).add();
+            table.column("CLEAR_DISABLE_TARIFF").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.CLEAR_AND_DISABLE_PASSIVE_TARIFF.fieldName()).add();
+            table.column("ACTIVATE_PASSIVE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.ACTIVATE_PASSIVE_CALENDAR.fieldName()).add();
             table.addAuditColumns();
             table.primaryKey("DTC_PK_TIMEOFUSEOPTIONS").on(deviceTypeColumn).add();
             table.foreignKey("DTC_TOUOPTIONS_FK_DEVICETYPE")
