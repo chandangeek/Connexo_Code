@@ -37,6 +37,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -154,6 +156,7 @@ public class SecurityPropertySetImplCrudIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
 
     }
@@ -236,7 +239,8 @@ public class SecurityPropertySetImplCrudIT {
                     injector.getInstance(EstimationService.class),
                     injector.getInstance(MasterDataService.class),
                     finiteStateMachineService,
-                    injector.getInstance(DeviceLifeCycleConfigurationService.class));
+                    injector.getInstance(DeviceLifeCycleConfigurationService.class),
+                    UpgradeModule.FakeUpgradeService.getInstance());
             ctx.commit();
         }
         enhanceEventServiceForConflictCalculation();
