@@ -103,6 +103,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
         'Mdc.controller.setup.MonitorProcesses',
         'Mdc.controller.Search',
+        'Mdc.timeofuse.controller.TimeOfUse',
         'Mdc.controller.setup.ServiceCalls'
     ],
 
