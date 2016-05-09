@@ -46,6 +46,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Models the database tables that hold the data of the
@@ -67,7 +68,7 @@ public enum TableSpecs {
             table.column("DESCRIPTION").varChar().map("description").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map(DeviceTypeImpl.Fields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName()).add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
-            table.column("DEVICETYPEPURPOSE").number().conversion(NUMBER2ENUM).map(DeviceTypeImpl.Fields.DEVICETYPEPURPOSE.fieldName()).add();
+            table.column("DEVICETYPEPURPOSE").number().conversion(NUMBER2ENUM).map(DeviceTypeImpl.Fields.DEVICETYPEPURPOSE.fieldName()).since(version(10, 2)).add();
             table.unique("UK_DTC_DEVICETYPE").on(name).add();
             table.primaryKey("PK_DTC_DEVICETYPE").on(id).add();
         }
@@ -201,7 +202,7 @@ public enum TableSpecs {
             table.column("SUPPORTALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).notNull().map("supportsAllProtocolMessages").add();
             table.column("USERACTIONS").number().conversion(NUMBER2LONG).notNull().map("supportsAllProtocolMessagesUserActionsBitVector").add();
             table.column("GATEWAY_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceConfigurationImpl.Fields.GATEWAY_TYPE.fieldName()).notNull().add();
-            table.column("DATALOGGERENABLED").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map(DeviceConfigurationImpl.Fields.DATALOGGER_ENABLED.fieldName()).add();
+            table.column("DATALOGGERENABLED").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map(DeviceConfigurationImpl.Fields.DATALOGGER_ENABLED.fieldName()).since(version(10, 2)).add();
             table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();
             table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE").
                     on(deviceType).
