@@ -1,5 +1,25 @@
 package com.energyict.mdc.dashboard.rest;
 
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusInfoFactory;
@@ -51,24 +71,10 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.AbstractModule;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -116,8 +122,22 @@ public class DashboardApplication extends Application implements MessageSeedProv
     private volatile JsonService jsonService;
     private volatile AppService appService;
     private volatile FirmwareService firmwareService;
+    private volatile UpgradeService upgradeService;
+    private volatile UserService userService;
 
     private Clock clock = Clock.systemDefaultZone();
+
+    @Activate
+    public void activate() {
+        DataModel dataModel = upgradeService.newNonOrmDataModel();
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(UserService.class).toInstance(userService);
+            }
+        });
+        upgradeService.register(InstallIdentifier.identifier("DSI"), dataModel, DashboardApplicationInstaller.class, Collections.emptyMap());
+    }
 
     @Reference
     public void setStatusService(StatusService statusService) {
@@ -133,6 +153,11 @@ public class DashboardApplication extends Application implements MessageSeedProv
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
@@ -260,6 +285,11 @@ public class DashboardApplication extends Application implements MessageSeedProv
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     // Only for testing purposes
