@@ -7,7 +7,6 @@ import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.upgrade.UpgradeService;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,15 +26,13 @@ public class TransientMessageService implements MessageService {
     private final Map<String, TransientQueueTableSpec> queueTableSpecs = new HashMap<>();
 
     private volatile Thesaurus thesaurus;
-    private volatile UpgradeService upgradeService;
 
     public TransientMessageService() {
     }
 
     @Inject
-    public TransientMessageService(NlsService nlsService, UpgradeService upgradeService) {
+    public TransientMessageService(NlsService nlsService) {
         setNlsService(nlsService);
-        setUpgradeService(upgradeService);
         activate();
     }
 
@@ -63,11 +60,6 @@ public class TransientMessageService implements MessageService {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(MessageService.COMPONENTNAME, Layer.SERVICE);
-    }
-
-    @Reference
-    public void setUpgradeService(UpgradeService upgradeService) {
-        this.upgradeService = upgradeService;
     }
 
     @Override
