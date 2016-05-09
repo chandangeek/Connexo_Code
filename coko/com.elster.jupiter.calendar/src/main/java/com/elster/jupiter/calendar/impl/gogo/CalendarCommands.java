@@ -39,12 +39,16 @@ public class CalendarCommands {
     }
 
     public void createCalendar() {
+        System.out.println("Usage: createCalendar <name>");
+    }
+
+    public void createCalendar(String name) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            calendarService.newCalendar("Test", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
+            calendarService.newCalendar(name, TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
                     .endYear(Year.of(2020))
                     .description("Description remains to be completed :-)")
-                    .mRID("Sample-TOU-rates")
+                    .mRID(name)
                     .addEvent("On peak", 3)
                     .addEvent("Off peak", 5)
                     .addEvent("Demand response", 97)
