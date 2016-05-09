@@ -1,45 +1,33 @@
 package com.elster.jupiter.yellowfin.app.impl;
 
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.yellowfin.YellowfinService;
 
-import com.elster.jupiter.yellowfin.app.YfnAppService;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import java.util.Arrays;
-import java.util.List;
+import javax.inject.Inject;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 27/01/2015
- * Time: 14:35
- */
-@Component(name = "com.elster.jupiter.yellowfin.app.install", service = {InstallService.class}, property = "name=" + YfnAppService.COMPONENTNAME , immediate = true)
-public class YfnAppInstaller implements InstallService {
+class YfnAppInstaller implements FullInstaller {
 
     String REPORT_DESIGNER_ROLE = "Report designer";
     String REPORT_DESIGNER_ROLE_DESCRIPTION = "Reports designer privilege";
 
     private final Logger logger = Logger.getLogger(YfnAppInstaller.class.getName());
-    private volatile UserService userService;
+    private final UserService userService;
+    private final YellowfinService yellowfinService;
 
-
-    @Override
-    public void install() {
-        createDefaultRoles();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, "YFN");
-    }
-
-    @Reference
-    public void setUserService(UserService userService) {
+    @Inject
+    YfnAppInstaller(UserService userService, YellowfinService yellowfinService) {
         this.userService = userService;
+        this.yellowfinService = yellowfinService;
+    }
+
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
+        createDefaultRoles();
+
     }
 
     private void createDefaultRoles() {
