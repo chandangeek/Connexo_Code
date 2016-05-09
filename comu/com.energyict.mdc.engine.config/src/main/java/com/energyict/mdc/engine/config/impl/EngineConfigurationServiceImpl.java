@@ -1,6 +1,29 @@
 package com.energyict.mdc.engine.config.impl;
 
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.proxy.LazyLoader;
+import com.elster.jupiter.util.streams.DecoratedStream;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -25,22 +48,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.proxy.LazyLoader;
-import com.elster.jupiter.util.streams.DecoratedStream;
-import com.elster.jupiter.util.streams.Predicates;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.json.JSONException;
@@ -54,10 +61,11 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -66,13 +74,14 @@ import static com.energyict.mdc.engine.config.impl.ComServerImpl.ONLINE_COMSERVE
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
 
 @Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
-public class EngineConfigurationServiceImpl implements EngineConfigurationService, InstallService, MessageSeedProvider, TranslationKeyProvider, OrmClient, PrivilegesProvider {
+public class EngineConfigurationServiceImpl implements EngineConfigurationService, MessageSeedProvider, TranslationKeyProvider, OrmClient, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile NlsService nlsService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile UserService userService;
+    private volatile UpgradeService upgradeService;
     private Thesaurus thesaurus;
 
     public EngineConfigurationServiceImpl() {
@@ -80,25 +89,15 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Inject
-    public EngineConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, ProtocolPluggableService protocolPluggableService, UserService userService) {
+    public EngineConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, ProtocolPluggableService protocolPluggableService, UserService userService, UpgradeService upgradeService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setUserService(userService);
+        this.setUpgradeService(upgradeService);
         this.activate();
-        this.install();
-    }
-
-    @Override
-    public void install() {
-        new Installer(this.dataModel, this.eventService, this.userService).install(true);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "EVT", "USR");
     }
 
     @Override
@@ -153,6 +152,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         this.userService = userService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     Module getModule() {
         return new AbstractModule() {
             @Override
@@ -178,6 +182,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Activate
     public void activate() {
         dataModel.register(getModule());
+
+        upgradeService.register(InstallIdentifier.identifier(EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
 
