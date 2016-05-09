@@ -6,6 +6,10 @@ public class DaysPerTypeInfo {
     public long dayTypeId;
     public List<String> days;
 
+    public DaysPerTypeInfo () {
+
+    }
+
     public DaysPerTypeInfo(long dayTypeId, List<String> days) {
         this.dayTypeId = dayTypeId;
         this.days = days;

@@ -5,6 +5,10 @@ public class EventInfo {
     public String name;
     public long code;
 
+    public EventInfo () {
+
+    }
+
     public EventInfo(long id, String name, long code) {
         this.id = id;
         this.name = name;

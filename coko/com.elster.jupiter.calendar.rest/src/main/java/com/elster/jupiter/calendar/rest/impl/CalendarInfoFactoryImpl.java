@@ -8,36 +8,44 @@ import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
+import com.elster.jupiter.calendar.rest.CalendarInfo;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class CalendarInfoFactory {
+@Component(name = "com.elster.jupiter.calendar.rest.CalendarInfoFactory",
+        immediate = true,
+        service = CalendarInfoFactory.class)
+public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
 
     private Thesaurus thesaurus;
 
+    //osgi
+    public CalendarInfoFactoryImpl() {
+
+    }
+
     @Inject
-    public CalendarInfoFactory(Thesaurus thesaurus) {
+    public CalendarInfoFactoryImpl(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
@@ -46,7 +54,7 @@ public class CalendarInfoFactory {
         this.thesaurus = nlsService.getThesaurus(CalendarApplication.COMPONENT_NAME, Layer.REST);
     }
 
-    public CalendarInfo fromCalendar(Calendar calendar) {
+    public CalendarInfo detailedFromCalendar(Calendar calendar) {
         CalendarInfo calendarInfo = new CalendarInfo();
 
         addBasicInformation(calendar, calendarInfo);
@@ -59,7 +67,15 @@ public class CalendarInfoFactory {
     }
 
 
-    public CalendarInfo fromCalendar(Calendar calendar, LocalDate localDate) {
+    @Override
+    public CalendarInfo summaryFromCalendar(Calendar calendar) {
+        CalendarInfo calendarInfo = new CalendarInfo();
+        addBasicInformation(calendar, calendarInfo);
+        return calendarInfo;
+    }
+
+    @Override
+    public CalendarInfo detailedWeekFromCalendar(Calendar calendar, LocalDate localDate) {
         CalendarInfo calendarInfo = new CalendarInfo();
         addBasicInformation(calendar, calendarInfo);
         Map<Long, PeriodTransition> periodTransistions = new HashMap<>();
