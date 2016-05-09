@@ -38,7 +38,6 @@ public class DeviceTypeInfo {
     public String deviceLifeCycleName;
     public long version;
     public String deviceTypePurpose;
-    public boolean timeOfUseAllowed;
 
     public DeviceTypeInfo() {
     }
@@ -73,7 +72,6 @@ public class DeviceTypeInfo {
             deviceTypeInfo.deviceLifeCycleId = deviceLifeCycle.getId();
             deviceTypeInfo.deviceLifeCycleName = deviceLifeCycle.getName();
         }
-        deviceTypeInfo.timeOfUseAllowed = deviceType.isTimeOfUseAllowed();
         deviceTypeInfo.version = deviceType.getVersion();
         deviceTypeInfo.deviceTypePurpose = deviceType.isDataloggerSlave() ? DeviceTypePurpose.DATALOGGER_SLAVE.name() : DeviceTypePurpose.REGULAR
                 .name();

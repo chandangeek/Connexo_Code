@@ -166,7 +166,6 @@ public class DeviceTypeResource {
         deviceType.setName(deviceTypeInfo.name);
         deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
         deviceType.setDeviceTypePurpose(getDeviceTypePurpose(deviceTypeInfo));
-        deviceType.setTimeOfUseAllowed(deviceTypeInfo.timeOfUseAllowed);
         if (deviceTypeInfo.registerTypes != null) {
             updateRegisterTypeAssociations(deviceType, deviceTypeInfo.registerTypes);
         }
