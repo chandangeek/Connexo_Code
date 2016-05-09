@@ -107,7 +107,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                         me.deviceTypeId = deviceTypeId;
                         me.getApplication().fireEvent('changecontentevent', view);
                         store.getProxy().setUrl(deviceTypeId);
-                        view.down('#add-tou-calendars-btn').setDisabled(!options.get('timeOfUseAllowed'));
+                        view.down('#add-tou-calendars-btn').setDisabled(!options.get('isAllowed'));
                         store.load({
                             callback: function (records, operation, success) {
                                 if (success === true) {
@@ -347,7 +347,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
 
         if (record.allowedOptions().count() <= 0) {
             formErrorsPanel.show();
-            form.down('#no-checkboxes-time-of-use-selected').update(Uni.I18n.translate('general.fieldRequired', 'EST', 'This field is required'));
+            form.down('#no-checkboxes-time-of-use-selected').update(Uni.I18n.translate('general.fieldRequired', 'MDC', 'This field is required'));
             form.down('#no-checkboxes-time-of-use-selected').show();
         } else {
             record.save({
