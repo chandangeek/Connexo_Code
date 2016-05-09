@@ -19,6 +19,7 @@ Ext.define('Isu.model.Issue', {
         {name: 'assignee', type: 'auto'},
         {name: 'reason', type: 'auto'},
         {name: 'device', type: 'auto'},
+        {name: 'issueId', type: 'string'},
         {
             name: 'title',
             persist: false,

@@ -9,6 +9,11 @@ Ext.define('Isu.view.issues.IssueFilter', {
 
         me.filters = [
             {
+                type: 'text',
+                itemId: 'issue-id',
+                dataIndex: 'id',
+            },
+            {
                 type: 'combobox',
                 itemId: 'issue-type-filter',
                 dataIndex: 'issueType',
