@@ -38,6 +38,7 @@ Ext.define('Fwc.controller.Main', {
                 items: [
                     {
                         text: Uni.I18n.translate('firmware.campaigns.firmwareCampaigns', 'FWC', 'Firmware campaigns'),
+                        itemId:'firmware-campaigns-link-mnu',
                         href: '#/workspace/firmwarecampaigns',
                         route: 'workspace',
                         privileges: Fwc.privileges.FirmwareCampaign.view
