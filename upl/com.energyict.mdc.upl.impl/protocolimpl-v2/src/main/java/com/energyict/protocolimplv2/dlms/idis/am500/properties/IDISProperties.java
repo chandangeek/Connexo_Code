@@ -76,4 +76,8 @@ public class IDISProperties extends DlmsProperties {
     public boolean useLogicalDeviceNameAsSerialNumber(){
         return getProperties().<Boolean>getTypedProperty(IDISConfigurationSupport.USE_LOGICAL_DEVICE_NAME_AS_SERIAL, false);
     }
+
+    public boolean useUndefinedAsTimeDeviation(){
+        return getProperties().<Boolean>getTypedProperty(IDISConfigurationSupport.USE_UNDEFINED_AS_TIME_DEVIATION, false);
+    }
 }

@@ -6,11 +6,11 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
@@ -45,10 +45,8 @@ import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.logging.Level;
 
 /**
  * This V2 protocol is a port from the old V1 IDIS protocol.
@@ -323,6 +321,18 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     }
 
     @Override
+    public void setTime(Date newMeterTime) {
+        try {
+            AXDRDateTime dateTime = new AXDRDateTime(newMeterTime, getTimeZone());
+            dateTime.useUnspecifiedAsDeviation(getDlmsSessionProperties().useUndefinedAsTimeDeviation());
+            getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(dateTime);
+        } catch (IOException e) {
+            getLogger().log(Level.FINEST, e.getMessage());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
+        }
+    }
+
+    @Override
     public AbstractMeterTopology getMeterTopology() {
         if (meterTopology == null) {
             meterTopology = new IDISMeterTopology(this);
@@ -333,6 +343,6 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-05-06 09:13:12 +0300 (Fri, 06 May 2016)$";
+        return "$Date: 2016-05-09 15:56:50 +0300 (Mon, 09 May 2016)$";
     }
 }
