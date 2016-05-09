@@ -44,10 +44,10 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
             chart: {
                 type: 'column',
                 height: 600,
-                renderTo: me.down('#graphContainer').el.dom
+                renderTo: me.down('#graphContainer').el.dom,
             },
             title: {
-                text: ''
+                text: null
             },
             credits: {
                 enabled: false
@@ -61,7 +61,7 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
                         color: '#686868',
                         fontWeight: 'normal',
                         fontSize: '13px',
-                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif',
                     }
                 },
                 lineWidth: 0,
@@ -177,10 +177,14 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
     },
 
     getCategories: function (record) {
-        var categories = [];
+        var categories = [],
+            date = new Date(),
+            midnightTime;
         if (record !== null) {
             Ext.Array.each(record.get('weekTemplate'), function (weekDay) {
-                categories.push(weekDay.name);
+                midnightTime = weekDay.date * 86400 * 1000 + date.getTimezoneOffset() * 60 * 1000;
+                date.setTime(midnightTime);
+                categories.push(weekDay.name + '<br/>' + Uni.DateTime.formatDateShort(date));
             });
         }
 
