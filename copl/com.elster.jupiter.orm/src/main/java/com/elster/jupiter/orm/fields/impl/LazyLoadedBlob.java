@@ -2,7 +2,6 @@ package com.elster.jupiter.orm.fields.impl;
 
 import com.elster.jupiter.orm.Blob;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.SimpleBlob;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.KeyValue;
@@ -20,16 +19,17 @@ import java.sql.SQLException;
 import java.util.Arrays;
 
 /**
- * Provides an implementation for the {@link Blob} and java.sqlBlob interfaces
+ * Provides an implementation for the {@link Blob} interface
  * to read and write SQL BLOB values from and to the database.
- * It will replace the {@link com.elster.jupiter.orm.SimpleBlob}s
- * found in fields of objects that are being created for the first time.
- * It will be injected into fields of type when objects are queried from the database.
+ * It will replace the {@link Blob}s found in fields of objects
+ * that are being created for the first time.
+ * It will be injected into fields of that type
+ * when objects are queried from the database.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-05-06 (15:07)
  */
-public final class LazyLoadedBlob implements Blob, java.sql.Blob {
+public final class LazyLoadedBlob implements Blob {
 
     private final DataModel dataModel;
     private final ColumnImpl column;
@@ -42,10 +42,10 @@ public final class LazyLoadedBlob implements Blob, java.sql.Blob {
         return blob;
     }
 
-    public static LazyLoadedBlob from(SimpleBlob simpleBlob, ColumnImpl column) {
-        LazyLoadedBlob blob = new LazyLoadedBlob(column.getTable().getDataModel(), column);
-        blob.initFromSimpleBlob(simpleBlob);
-        return blob;
+    public static LazyLoadedBlob from(Blob simpleBlob, ColumnImpl column) {
+        LazyLoadedBlob lazyLoadedBlob = new LazyLoadedBlob(column.getTable().getDataModel(), column);
+        lazyLoadedBlob.initFromBlob(simpleBlob);
+        return lazyLoadedBlob;
     }
 
     private LazyLoadedBlob(DataModel dataModel, ColumnImpl column) {
@@ -57,7 +57,7 @@ public final class LazyLoadedBlob implements Blob, java.sql.Blob {
         this.actualBlob = new PersistentBlob();
     }
 
-    private void initFromSimpleBlob(SimpleBlob blob) {
+    private void initFromBlob(Blob blob) {
         this.actualBlob = new TransientBlob(blob);
     }
 
@@ -75,6 +75,11 @@ public final class LazyLoadedBlob implements Blob, java.sql.Blob {
 
     public void bindTo(PreparedStatement statement, int index) throws SQLException {
         this.actualBlob.bindTo(statement, index);
+    }
+
+    @Override
+    public void writeTo(OutputStream stream) {
+        throw new UnsupportedOperationException("Copying to OutputStream is intended for the public classes such as SimpleBlob or FileBlob");
     }
 
     @Override
@@ -105,52 +110,12 @@ public final class LazyLoadedBlob implements Blob, java.sql.Blob {
     }
 
     @Override
-    public byte[] getBytes(long pos, int length) throws SQLException {
-        return this.actualBlob.getBytes(pos, length);
-    }
-
-    @Override
     public InputStream getBinaryStream() {
         try {
             return this.actualBlob.getBinaryStream();
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
-    }
-
-    @Override
-    public long position(byte[] pattern, long start) throws SQLException {
-        return this.actualBlob.position(pattern, start);
-    }
-
-    @Override
-    public long position(java.sql.Blob pattern, long start) throws SQLException {
-        return this.actualBlob.position(pattern, start);
-    }
-
-    @Override
-    public int setBytes(long pos, byte[] bytes) throws SQLException {
-        return this.actualBlob.setBytes(pos, bytes);
-    }
-
-    @Override
-    public int setBytes(long pos, byte[] bytes, int offset, int len) throws SQLException {
-        return this.actualBlob.setBytes(pos, bytes, offset, len);
-    }
-
-    @Override
-    public OutputStream setBinaryStream(long pos) throws SQLException {
-        return this.actualBlob.setBinaryStream(pos);
-    }
-
-    @Override
-    public void truncate(long len) throws SQLException {
-        this.actualBlob.truncate(len);
-    }
-
-    @Override
-    public void free() throws SQLException {
-        this.actualBlob.free();
     }
 
     @Override
@@ -167,9 +132,9 @@ public final class LazyLoadedBlob implements Blob, java.sql.Blob {
     }
 
     private static class TransientBlob implements EnhancedSqlBlob {
-        private final SimpleBlob simpleBlob;
+        private final Blob simpleBlob;
 
-        private TransientBlob(SimpleBlob simpleBlob) {
+        private TransientBlob(Blob simpleBlob) {
             this.simpleBlob = simpleBlob;
         }
 

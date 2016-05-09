@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 /**
- * Provides a simple implementation of the java.sql.Blob interface
+ * Provides a simple implementation of the Blob interface
  * that can be used to initialize persistent fields of type Blob.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -36,6 +36,7 @@ public final class SimpleBlob implements Blob {
         super();
     }
 
+    @Override
     public void writeTo(OutputStream stream) throws IOException {
         stream.write(this.bytes);
     }

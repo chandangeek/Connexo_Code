@@ -1,6 +1,6 @@
 package com.elster.jupiter.orm;
 
-import com.elster.jupiter.bootstrap.oracle.impl.OracleBootstrapModule;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -25,6 +25,7 @@ import java.time.Instant;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -39,8 +40,8 @@ public class LobTest {
     private static final int LOB_LENGTH = 100000;
 
     private Injector injector;
-//    private InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
-    private OracleBootstrapModule bootstrapModule = new OracleBootstrapModule();
+    private InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+//    private OracleBootstrapModule bootstrapModule = new OracleBootstrapModule();
 
     @Mock
     private Principal principal;
@@ -49,14 +50,14 @@ public class LobTest {
 
     @Before
     public void setUp() {
-// Uncomment to work with InMemoryBootstrapModule
-//        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@localhost:1521:orcl");
-//        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("kore");
-//        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcpassword")).thenReturn("kore");
+        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@localhost:1521:orcl");
+        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("kore");
+        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcpassword")).thenReturn("kore");
 
-    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@doraps003.eict.vpdc:7137:DEVRD");
-    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("RVK_DATA_AGGREGATION");
-    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcpassword")).thenReturn("zorro");
+// Uncomment to work with OracleBootstrapModule
+//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@doraps003.eict.vpdc:7137:DEVRD");
+//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("RVK_DATA_AGGREGATION");
+//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcpassword")).thenReturn("zorro");
     	Module module = new AbstractModule() {
     		@Override
     		public void configure() {
@@ -110,6 +111,7 @@ public class LobTest {
     }
 
 // Ignore when working with InMemoryBootstrapModule because H2 does not have support for updating BLOB columns
+    @Ignore
     @Test
     public void testUpdate() throws IOException {
     	OrmService service = injector.getInstance(OrmService.class);

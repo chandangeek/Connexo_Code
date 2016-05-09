@@ -16,7 +16,8 @@ enum MessageSeeds implements MessageSeed {
     MAPPING_MISMATCH_FOR_FIELD(1009, "No mapping found for field {1} on class {0}"),
     NO_MAPPING_FOR_SQL_TYPE(1010, "No mapping found for SQL type {0}"),
     MAPPING_NO_DISCRIMINATOR_COLUMN(1011, "No discriminator column found."),
-    UNEXPECTED_NUMBER_OF_UPDATES(1012, "Expected {0} rows to be updated, yet {1} rows were updated for operation {2}.");
+    UNEXPECTED_NUMBER_OF_UPDATES(1012, "Expected {0} rows to be updated, yet {1} rows were updated for operation {2}."),
+    UNDERLYING_IO_EXCEPTION(1013, "Underlying IO Exception");
 
     private final int number;
     private final String defaultFormat;
@@ -50,6 +51,5 @@ enum MessageSeeds implements MessageSeed {
     public Level getLevel() {
         return Level.SEVERE;
     }
-
 
 }
