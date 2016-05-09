@@ -56,12 +56,55 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
     onActionMenuClicked: function (menu, item) {
         switch (item.action) {
             case 'cancelDevice':
-                console.log('To do: cancel the device');
+                this.doCancelDeviceInFirmwareCampaign(menu.record);
                 break;
             case 'retryDevice':
-                console.log('To do: retry the device');
+                this.doRetryDeviceInFirmwareCampaign(menu.record);
                 break;
         }
+    },
+
+    doCancelDeviceInFirmwareCampaign: function (record) {
+        var me = this,
+            url = record.cancelUrl();
+
+        Ext.Ajax.request({
+            url: url,
+            method: 'PUT',
+            success: function (response) {
+                me.doUpdateRecord(record, response.responseText);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.canceled', 'FWC', 'Firmware upload for device canceled'));
+            }
+        });
+    },
+    doRetryDeviceInFirmwareCampaign: function (record) {
+        var me = this,
+            url = record.retryUrl();
+
+        Ext.Ajax.request({
+            url: url,
+            method: 'PUT',
+            success: function (response) {
+                me.doUpdateRecord(record, response.responseText);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.retry', 'FWC', 'Firmware upload for device rescheduled'));
+            }
+        });
+    },
+    doUpdateRecord: function(record, responseText) {
+        var result = Ext.JSON.decode(responseText);
+        if (result) {
+            var status = result['status'],
+                startedOn = result['startedOn'],
+                finishedOn = result['finishedOn'];
+            record.beginEdit();
+            record.set('status', status);
+            record.set('startedOn', startedOn);
+            record.set('finishedOn', finishedOn);
+            record.endEdit();
+        }
+
     }
+
+
 
 });

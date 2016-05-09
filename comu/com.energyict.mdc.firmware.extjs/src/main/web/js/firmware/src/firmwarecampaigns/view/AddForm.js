@@ -3,6 +3,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
+        'Uni.form.field.TimeInHoursAndMinutes',
         'Fwc.firmwarecampaigns.view.DynamicRadioGroup',
         'Fwc.model.FirmwareManagementOptions',
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
@@ -10,6 +11,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
     ],
     alias: 'widget.firmware-campaigns-add-form',
     returnLink: null,
+    action: null,
+    skipLoadingIndication: false,
+    campaignRecordBeingEdited: null,
 
     defaults: {
         labelWidth: 260,
@@ -74,15 +78,30 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         xtype: 'displayfield',
                         margin: '0 0 0 10',
                         htmlEncode: false,
-                        value: '<div class="uni-icon-info-small" style="width: 16px; height: 16px;" data-qtip="'
-                        + Ext.htmlEncode(Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.title', 'FWC', 'Only devices that meet the following criteria will be included in firmware campaign')
-                            + ':<br>-'
-                            + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason1', 'FWC', 'Devices of a selected device type')
-                            + '<br>-'
-                            + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason2', 'FWC', 'Devices that are in a selected device group at that moment'))
-                        + '"></div>'
+                        value: '<span class="uni-icon-info-small" style="width: 16px; height: 16px; display: inline-block;float: none;vertical-align: top" data-qwidth="400" data-qtitle="'+
+                        Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.header', 'FWC', 'Help - About device group')+'" data-qtip="'
+                        + Ext.htmlEncode(Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.title', 'FWC', 'Only devices that meet the following criteria will be included in the firmware campaign')
+                            + ':<ul class="ul#uni-panel-no-items-found"><li>'
+                            + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason1', 'FWC', 'Devices with as device type the selected device type')
+                            + '</li><li>'
+                            + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason2', 'FWC', 'Devices that are member of the selected device group at the moment the firmware campaign is added'))
+                        + '</li></ul>"></span>'
                     }
                 ]
+            },
+            {
+                xtype: 'timeInHoursAndMinutes',
+                fieldLabel: Uni.I18n.translate('general.timeBoundaryStart', 'FWC', 'Time boundary start'),
+                name: 'timeBoundaryStart',
+                itemId: 'timeBoundaryStart',
+                required: true
+            },
+            {
+                xtype: 'timeInHoursAndMinutes',
+                fieldLabel: Uni.I18n.translate('general.timeBoundaryEnd', 'FWC', 'Time boundary end'),
+                name: 'timeBoundaryEnd',
+                itemId: 'timeBoundaryEnd',
+                required: true
             },
             {
                 xtype: 'dynamic-radiogroup',
@@ -133,14 +152,14 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         itemId: 'btn-add-firmware-campaign',
                         text: Uni.I18n.translate('general.add', 'FWC', 'Add'),
                         ui: 'action',
-                        action: 'addFirmwareCampaign'
+                        action: me.action
                     },
                     {
                         xtype: 'button',
                         itemId: 'btn-cancel-add-firmware-campaign',
                         text: Uni.I18n.translate('general.cancel', 'FWC', 'Cancel'),
                         ui: 'link',
-                        action: 'cancelEditRule',
+                        action: 'cancel',
                         href: me.returnLink
                     }
                 ]
@@ -156,16 +175,22 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             onFieldsUpdate = function () {
                 counter--;
                 if (!counter) {
-                    me.setLoading(false);
+                    if (!me.skipLoadingIndication) {
+                        me.setLoading(false);
+                    } else {
+                        me.fireEvent('fwc-deviceTypeChanged');
+                    }
                 }
             };
 
         if (combo.findRecordByValue(newValue)) {
             me.down('#property-form').loadRecord(Ext.create('Fwc.firmwarecampaigns.model.FirmwareManagementOption'));
-            me.setLoading();
+            if (!me.skipLoadingIndication) {
+                me.setLoading();
+            }
             Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption').getProxy().setUrl(newValue);
             me.updateFirmwareType(newValue, onFieldsUpdate);
-            me.updateManagementOptions(newValue, onFieldsUpdate);
+            me.updateManagementOptions(newValue, onFieldsUpdate, combo.isDisabled());
         }
     },
 
@@ -187,7 +212,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         })
     },
 
-    updateManagementOptions: function (deviceTypeId, callback) {
+    updateManagementOptions: function (deviceTypeId, callback, deviceTypeComboDisabled) {
         var me = this,
             firmwareManagementOptions = Ext.ModelManager.getModel('Fwc.model.FirmwareManagementOptions');
 
@@ -196,7 +221,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         firmwareManagementOptions.load(1, {
             success: function (record) {
                 me.down('#firmware-management-option').showOptions(record.get('allowedOptions'), {
-                    showDescription: true
+                    showDescription: true,
+                    showOnlyLabelForSingleItem: true,
+                    disabled: deviceTypeComboDisabled
                 });
             },
             callback: callback
@@ -208,13 +235,19 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             firmwareManagementOption = Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption');
 
         if (newValue && newValue.managementOption) {
-            me.setLoading();
+            if (!me.skipLoadingIndication) {
+                me.setLoading();
+            }
             firmwareManagementOption.load(newValue.managementOption, {
                 success: function (record) {
                     me.down('#property-form').loadRecord(record);
                 },
                 callback: function () {
-                    me.setLoading(false);
+                    if (!me.skipLoadingIndication) {
+                        me.setLoading(false);
+                    } else {
+                        me.fireEvent('fwc-propertiesInitialized');
+                    }
                 }
             });
         }
@@ -246,5 +279,51 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             propertyForm.updateRecord();
             me.getRecord().propertiesStore = propertyForm.getRecord().properties();
         }
+    },
+
+    loadRecordForEdit: function(campaignRecord) {
+        var me = this,
+            taskRunner = new Ext.util.TaskRunner(),
+            deviceTypeCombo = me.down('#firmware-campaign-device-type'),
+            firmwareTypeRadioGroup = me.down('#firmware-type'),
+            deviceGroupComboContainer = me.down('#firmware-campaign-device-group-field-container'),
+            managementOptionRadioGroup = me.down('#firmware-management-option'),
+            deviceTypeId = campaignRecord.get('deviceType').id,
+            hideDeviceGroupComboAndSetDeviceType = function() {
+                deviceGroupComboContainer.hide();
+                deviceTypeCombo.setDisabled(true);
+                deviceTypeCombo.setValue(deviceTypeId);
+            },
+            setOptions = function() {
+                firmwareTypeRadioGroup.setValue({
+                    firmwareType : campaignRecord.get('firmwareType').id
+                });
+                firmwareTypeRadioGroup.setDisabled(true);
+                managementOptionRadioGroup.setValue({
+                    managementOption : campaignRecord.get('managementOption').id
+                });
+                managementOptionRadioGroup.setDisabled(true);
+            },
+            setProperties = function() {
+                me.down('#property-form').setPropertiesAndDisable(campaignRecord.propertiesStore.getRange());
+                me.setLoading(false);
+                me.skipLoadingIndication = false;
+            },
+            setPropertiesTask = taskRunner.newTask({
+                run: setProperties,
+                scope: me,
+                fireOnStart: false,
+                interval: 20,
+                repeat: 1
+            });
+
+        me.campaignRecordBeingEdited = campaignRecord;
+        me.skipLoadingIndication = true;
+        me.on('fwc-deviceTypeChanged', setOptions);
+        me.on('fwc-propertiesInitialized', function() {
+            setPropertiesTask.start();
+        });
+        me.loadRecord(campaignRecord);
+        hideDeviceGroupComboAndSetDeviceType();
     }
 });
