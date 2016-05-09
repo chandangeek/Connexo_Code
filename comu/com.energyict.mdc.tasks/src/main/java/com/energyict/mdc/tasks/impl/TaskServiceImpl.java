@@ -9,7 +9,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -38,14 +39,14 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class, InstallService.class, MessageSeedProvider.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
-public class TaskServiceImpl implements ServerTaskService, InstallService, MessageSeedProvider {
+@Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class, MessageSeedProvider.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
+public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
 
     private final Logger logger = Logger.getLogger(TaskServiceImpl.class.getName());
 
@@ -55,36 +56,22 @@ public class TaskServiceImpl implements ServerTaskService, InstallService, Messa
     private volatile Thesaurus thesaurus;
     private volatile MasterDataService masterDataService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private volatile UpgradeService upgradeService;
 
     public TaskServiceImpl() {
         super();
     }
 
     @Inject
-    public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService, DeviceMessageSpecificationService deviceMessageSpecificationService, MasterDataService masterDataService) {
+    public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService, DeviceMessageSpecificationService deviceMessageSpecificationService, MasterDataService masterDataService, UpgradeService upgradeService) {
         this();
-        this.setOrmService(ormService);
-        this.setNlsService(nlsService);
-        this.setEventService(eventService);
-        this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
-        this.setMasterDataService(masterDataService);
-        this.activate();
-        this.install();
-    }
-
-    @Override
-    public void install() {
-        if (!dataModel.isInstalled()) {
-            dataModel.install(true, true);
-        }
-        this.createEventTypes();
-        this.createFirmwareComTaskIfNotPresentYet();
-        this.createStatusInformationComTaskIfNotPresentYet();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "MDS");
+        setOrmService(ormService);
+        setNlsService(nlsService);
+        setEventService(eventService);
+        setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        setMasterDataService(masterDataService);
+        setUpgradeService(upgradeService);
+        activate();
     }
 
     @Reference
@@ -122,42 +109,10 @@ public class TaskServiceImpl implements ServerTaskService, InstallService, Messa
         this.masterDataService = masterDataService;
     }
 
-    private void createEventTypes() {
-        for (EventType eventType : EventType.values()) {
-            try {
-                eventType.createIfNotExists(this.eventService);
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, e.getMessage(), e);
-            }
-        }
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
-
-    private void createFirmwareComTaskIfNotPresentYet() {
-        if (!this.findFirmwareComTask().isPresent()) {
-            createFirmwareComTask();
-        }
-    }
-
-    private void createStatusInformationComTaskIfNotPresentYet() {
-        if (!this.findStatusInformationComTask().isPresent()) {
-            createStatusInformationComTask();
-        }
-    }
-
-    private void createFirmwareComTask() {
-        SystemComTask systemComTask = dataModel.getInstance(SystemComTask.class);
-        systemComTask.setName(FIRMWARE_COMTASK_NAME);
-        systemComTask.createFirmwareUpgradeTask();
-        systemComTask.save();
-    }
-
-    private void createStatusInformationComTask() {
-        ComTask comTask = dataModel.getInstance(ComTask.class);
-        comTask.setName(STATUS_INFORMATION_COMTASK_NAME);
-        comTask.createStatusInformationTask();
-        comTask.save();
-    }
-
 
     Module getModule() {
         return new AbstractModule() {
@@ -188,6 +143,8 @@ public class TaskServiceImpl implements ServerTaskService, InstallService, Messa
     @Activate
     public void activate() {
         dataModel.register(getModule());
+
+        upgradeService.register(InstallIdentifier.identifier(TaskService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
@@ -235,11 +192,6 @@ public class TaskServiceImpl implements ServerTaskService, InstallService, Messa
     @Override
     public Optional<ComTask> findFirmwareComTask() {
         List<ComTask> comTasks = dataModel.mapper(ComTask.class).find("name", FIRMWARE_COMTASK_NAME);
-        return comTasks.size() == 1 ? Optional.of(comTasks.get(0)) : Optional.empty();
-    }
-
-    private Optional<ComTask> findStatusInformationComTask() {
-        List<ComTask> comTasks = dataModel.mapper(ComTask.class).find("name", STATUS_INFORMATION_COMTASK_NAME);
         return comTasks.size() == 1 ? Optional.of(comTasks.get(0)) : Optional.empty();
     }
 

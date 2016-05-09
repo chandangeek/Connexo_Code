@@ -3,6 +3,8 @@ package com.energyict.mdc.tasks;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -30,6 +32,7 @@ public class MockModule extends AbstractModule {
         bind(TimeService.class).toInstance(this.timeService);
         bind(SearchService.class).toInstance(mock(SearchService.class));
         bind(LicenseService.class).toInstance(mock(LicenseService.class));
+        bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
     }
 
 }
