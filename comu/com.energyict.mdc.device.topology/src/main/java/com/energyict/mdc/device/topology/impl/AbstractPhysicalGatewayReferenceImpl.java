@@ -45,6 +45,7 @@ public abstract class AbstractPhysicalGatewayReferenceImpl implements PhysicalGa
                     "" + PhysicalGatewayReferenceDiscriminator.DEFAULT.ordinal(), PhysicalGatewayReferenceImpl.class,
                     "" + PhysicalGatewayReferenceDiscriminator.DATA_LOGGER_REFERENCE.ordinal(), DataLoggerReferenceImpl.class);
 
+    private long id;
     private Reference<Device> origin = ValueReference.absent();
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Reference<Device> gateway = ValueReference.absent();

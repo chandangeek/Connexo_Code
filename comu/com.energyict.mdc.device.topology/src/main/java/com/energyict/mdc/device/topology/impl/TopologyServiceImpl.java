@@ -363,12 +363,9 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     }
 
     private List<DataLoggerChannelUsage> findDataLoggerChannelUsage(com.elster.jupiter.metering.Channel dataLoggerChannel){
-        Condition effective = where("dataloggerReference").isEffective();
         Condition gateway =  where(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.fieldName()).isEqualTo(dataLoggerChannel);
-        return this.dataModel.mapper(DataLoggerChannelUsage.class).select(gateway.and(effective));
-//        List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.dataModel.query(DataLoggerChannelUsage.class, DataLoggerReferenceImpl.class)
-//                .select(effective);
-//        return dataLoggerChannelUsages;
+        Condition effective = where(DataLoggerChannelUsageImpl.Field.PHYSICALGATEWAYREF.fieldName() + "." + AbstractPhysicalGatewayReferenceImpl.Field.INTERVAL.fieldName()).isEffective();
+        return dataModel.query(DataLoggerChannelUsage.class, PhysicalGatewayReference.class).select(gateway.and(effective));
     }
 
     private Condition getDevicesInTopologyCondition(Device device) {
@@ -383,10 +380,10 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         this.clearPhysicalGateway(slave);
     }
 
-    private void addChannelDataLoggerUsage(DataLoggerReferenceImpl gatewayReference, Channel slave, Channel dataLogger){
+    private void addChannelDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Channel slave, Channel dataLogger){
         Optional<com.elster.jupiter.metering.Channel> channelForSlave = getMeteringChannel(slave);
         Optional<com.elster.jupiter.metering.Channel> channelForDataLogger = getMeteringChannel(dataLogger);
-        gatewayReference.getDataLoggerChannelUsages().add(this.dataModel.getInstance(DataLoggerChannelUsageImpl.class).createFor(gatewayReference,channelForSlave.get(),channelForDataLogger.get()));
+        dataLoggerReference.addDataLoggerChannelUsage(channelForSlave.get(),channelForDataLogger.get());
     }
 
     Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final com.energyict.mdc.device.data.Channel channel){

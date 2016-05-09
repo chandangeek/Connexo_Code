@@ -4,13 +4,9 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.ImplField;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
-
-import java.time.Instant;
 
 /**
  * Copyrights EnergyICT
@@ -20,8 +16,7 @@ import java.time.Instant;
 public class DataLoggerChannelUsageImpl implements DataLoggerChannelUsage {
 
     public enum Field implements ImplField {
-        ORIGIN("dataloggerReference"),       // holding the primary key of its parent's DataLoggerReferenceImpl
-        STARTTIME("startTime"),             // holding the primary key of its parent's DataLoggerReferenceImpl
+        PHYSICALGATEWAYREF("dataloggerReference"),
         ORIGIN_CHANNEL("slaveChannel"),
         GATEWAY_CHANNEL("dataLoggerChannel")
         ;
@@ -38,18 +33,15 @@ public class DataLoggerChannelUsageImpl implements DataLoggerChannelUsage {
         }
     }
 
-
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
-    private TemporalReference<DataLoggerReferenceImpl> dataloggerReference = Temporals.absent();
+    private Reference<DataLoggerReferenceImpl> dataloggerReference = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Reference<Channel> dataLoggerChannel = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Reference<Channel> slaveChannel = ValueReference.absent();
 
-    private long startTime;
-
     public DataLoggerChannelUsageImpl createFor(DataLoggerReferenceImpl dataLoggerReference, Channel slaveChannel, Channel dataLoggerChannel ) {
-        this.dataloggerReference.add(dataLoggerReference);
+        this.dataloggerReference.set(dataLoggerReference);
         this.slaveChannel.set(slaveChannel);
         this.dataLoggerChannel.set(dataLoggerChannel);
         return this;
@@ -57,8 +49,7 @@ public class DataLoggerChannelUsageImpl implements DataLoggerChannelUsage {
 
     @Override
     public DataLoggerReferenceImpl getDataLoggerReference() {
-        //TODO cleanup
-        return this.dataloggerReference.effective(Instant.now()).get();
+        return this.dataloggerReference.get();
     }
 
     @Override

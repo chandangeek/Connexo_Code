@@ -32,12 +32,14 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<PhysicalGatewayReference> table = dataModel.addTable(name(), PhysicalGatewayReference.class);
             table.map(AbstractPhysicalGatewayReferenceImpl.IMPLEMENTERS);
+            Column idColumn = table.addAutoIdColumn();
             Column originId = table.column("ORIGINID").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column physicalGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
             table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            table.primaryKey("PK_DTL_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).add();
+            table.primaryKey("PK_DTL_PHYSICALGATEWAYREF").on(idColumn).add();
+            table.unique("DTL_U_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).add();
             table.foreignKey("FK_DTL_PHYSGATEWAYREF_ORIGIN").
                     on(originId).
                     references(Device.class).
@@ -147,35 +149,28 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<DataLoggerChannelUsage> table = dataModel.addTable(name(), DataLoggerChannelUsage.class);
             table.map(DataLoggerChannelUsageImpl.class);
-            Column origin = table.column(DataLoggerChannelUsageImpl.Field.ORIGIN.name())
+            Column physicalGateWayReference = table.column(DataLoggerChannelUsageImpl.Field.PHYSICALGATEWAYREF.name())
                     .notNull()
                     .number()
                     .conversion(NUMBER2LONG)
-                    .map("dataloggerReference")
                     .add();
             Column originChannel = table.column(DataLoggerChannelUsageImpl.Field.ORIGIN_CHANNEL.name())
                     .notNull()
                     .number()
                     .conversion(NUMBER2LONG)
                     .add();
-            Column startTime = table.column(DataLoggerChannelUsageImpl.Field.STARTTIME.name())
-                    .notNull()
-                    .number()
-                    .conversion(NUMBER2LONG)
-                    .map("startTime")
-                    .add();
             Column gatewayChannel = table.column(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.name())
                     .notNull()
                     .number()
                     .conversion(NUMBER2LONG)
                     .add();
-            table.primaryKey("PK_DTL_CHANNELUSAGE").on(origin, originChannel).add();
+            table.primaryKey("PK_DTL_CHANNELUSAGE").on(physicalGateWayReference, originChannel).add();
             table.index("IX_DTL_DATALOGGERCHANNELUSAGE_GATEWAY").on(gatewayChannel).add();
             table.foreignKey("FK_DTL_CU_GATEWAYREFERENCE")
                     .references(DTL_PHYSICALGATEWAYREFERENCE.name())
-                    .on(origin, startTime)
+                    .on(physicalGateWayReference)
                     .onDelete(CASCADE)
-                    .map(DataLoggerChannelUsageImpl.Field.ORIGIN.fieldName())
+                    .map(DataLoggerChannelUsageImpl.Field.PHYSICALGATEWAYREF.fieldName())
                     .reverseMap("dataLoggerChannelUsages")
                     .composition()
                     .add();

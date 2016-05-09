@@ -27,8 +27,8 @@ public enum MessageSeeds implements MessageSeed {
     DATA_LOGGER_LINK_EXCEPTION_NO_FREE_DATALOGGER_CHANNEL(1001, DataLoggerLinkException.NO_FREE_DATA_LOGGER_CHANNEL, "All channels of the data Logger {0} are used"),
     DATA_LOGGER_LINK_EXCEPTION_NO_DATA_LOGGER_CHANNEL_FOR_READING_TYPE_X(1002, DataLoggerLinkException.NO_DATA_LOGGER_CHANNEL_FOR_READING_TYPE_X, "No channel with reading type {0} found for Data logger {1}"),
     DATA_LOGGER_LINK_EXCEPTION_DEVICE_NOT_LINKED(1003, DataLoggerLinkException.DEVICE_NOT_LINKED, "Device {0} was not linked"),
-    DATA_LOGGER_LINK_EXCEPTION_NO_MAPPING_FOR_ALL_SLAVE_CHANNELS(1004, DataLoggerLinkException.NO_MAPPING_FOR_ALL_SLAVE_CHANNELS, "All slave channels should be included in the mapping")
-
+    DATA_LOGGER_LINK_EXCEPTION_NO_MAPPING_FOR_ALL_SLAVE_CHANNELS(1004, DataLoggerLinkException.NO_MAPPING_FOR_ALL_SLAVE_CHANNELS, "All slave channels should be included in the mapping"),
+    DATA_LOGGER_LINK_EXCEPTION_DATALOGGER_CHANNEL_ALREADY_REFERENCED(1005, Keys.DATA_LOGGER_CHANNEL_ALREADY_REFERENCED, "The channel {0} is referenced by another slave channel");
     ;
 
     private final int number;
@@ -89,6 +89,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NOT_A_DATALOGGER_SLAVE_DEVICE = "dataLogger.no.dataLoggerSlaveDevice";
         public static final String GATEWAY_NOT_DATALOGGER_ENABLED = "gateway.not.datalogger.enabled";
         public static final String NOT_ALL_SLAVE_CHANNELS_INCLUDED = "datalogger.not.all.slave.channels.included";
+        public static final String DATA_LOGGER_CHANNEL_ALREADY_REFERENCED = "datalogger.channel.already.referenced";
     }
 
 }

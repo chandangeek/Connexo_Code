@@ -17,6 +17,7 @@ import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
     private final static Unit kiloWattHours = Unit.get("kWh");
 
     private DeviceConfiguration dataLoggerConfiguration, slave1DeviceConfiguration, slave2DeviceConfiguration;
-    private DeviceType dataLoggerDeviceType, slave1DeviceType, slave2DeviceType;
+
     private ReadingType readingTypeForChannel1, readingTypeForChannel2, readingTypeForChannel3, readingTypeForChannel4, readingTypeForChannel5, readingTypeForChannel6;
 
 
@@ -113,7 +114,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         lpt1.save();
         lpt2.save();
 
-        dataLoggerDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("dataLoggerDeviceType", deviceProtocolPluggableClass);
+        DeviceType dataLoggerDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("dataLoggerDeviceType", deviceProtocolPluggableClass);
         dataLoggerDeviceType.addRegisterType(registerTypeForChannel1);
         dataLoggerDeviceType.addRegisterType(registerTypeForChannel2);
         dataLoggerDeviceType.addRegisterType(registerTypeForChannel3);
@@ -164,7 +165,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
                 .newLoadProfileType("15min Electricity Slave1", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Arrays.asList(registerTypeForChannel1, registerTypeForChannel2, registerTypeForChannel3));
         lpt.save();
 
-        slave1DeviceType = inMemoryPersistence.getDeviceConfigurationService()
+        DeviceType slave1DeviceType = inMemoryPersistence.getDeviceConfigurationService()
                 .newDataloggerSlaveDeviceTypeBuilder("slave1DeviceType", inMemoryPersistence.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get())
                 .create();
         slave1DeviceType.addRegisterType(registerTypeForChannel1);
@@ -193,10 +194,10 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         registerTypeForChannel1.save();
 
         LoadProfileType lpt = inMemoryPersistence.getMasterDataService()
-                .newLoadProfileType("15min Electricity Slave2", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Arrays.asList(registerTypeForChannel1));
+                .newLoadProfileType("15min Electricity Slave2", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Collections.singletonList(registerTypeForChannel1));
         lpt.save();
 
-        slave2DeviceType = inMemoryPersistence.getDeviceConfigurationService()
+        DeviceType slave2DeviceType = inMemoryPersistence.getDeviceConfigurationService()
                 .newDataloggerSlaveDeviceTypeBuilder("slave2DeviceType", inMemoryPersistence.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get())
                 .create();
         slave2DeviceType.addRegisterType(registerTypeForChannel1);
@@ -268,6 +269,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testSlave1Configuration() {
+        setUpForDataLoggerEnabledDevice();
         setUpForSlave1Device();
 
         Device slave1 = inMemoryPersistence.getDeviceService().newDevice(slave1DeviceConfiguration, "slave1", "slave1_MrId", Instant.now());
@@ -292,6 +294,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testSlave2Configuration(){
+        setUpForDataLoggerEnabledDevice();
         setUpForSlave2Device();
 
         Device slave2 = inMemoryPersistence.getDeviceService().newDevice(slave2DeviceConfiguration, "slave2", "slave1_MrId", Instant.now());
@@ -310,7 +313,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave1Device();
 
-        Device slave1 = inMemoryPersistence.getDeviceService().newDevice(slave1DeviceConfiguration, "slave1", "slave1_MrId", Instant.now());
+        Device slave1 = createFirstSlave("slave1");
         Device dataLogger = createDataLoggerDevice("dataLogger");
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
@@ -327,7 +330,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave1Device();
 
-        Device slave1 = inMemoryPersistence.getDeviceService().newDevice(slave1DeviceConfiguration, "slave1", "slave1_MrId", Instant.now());
+        Device slave1 = createFirstSlave("slave1");
         Device dataLogger = createDataLoggerDevice("dataLogger");
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
@@ -344,7 +347,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave2Device();
 
-        Device slave2 = inMemoryPersistence.getDeviceService().newDevice(slave2DeviceConfiguration, "slave2", "slave2_MrId", Instant.now());
+        Device slave2 = createSecondSlave("slave2");
         Device dataLogger = createDataLoggerDevice("dataLogger");
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
@@ -362,7 +365,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave2Device();
 
-        Device slave2 = inMemoryPersistence.getDeviceService().newDevice(slave2DeviceConfiguration, "slave2", "slave2_MrId", Instant.now());
+        Device slave2 = createSecondSlave("slave2");
         Device dataLogger = createDataLoggerDevice("dataLogger");
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
@@ -383,22 +386,61 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave2Device();
 
-        Device slave2 = inMemoryPersistence.getDeviceService().newDevice(slave2DeviceConfiguration, "slave2", "slave2_MrId", Instant.now());
+        Device slave2 = createSecondSlave("slave2");
         Device dataLogger = createDataLoggerDevice("dataLogger");
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
-
         channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
-
         inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping);
+
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
 
         slave2.delete();
         dataLogger.delete();
     }
 
+    @Test(expected = ConstraintViolationException.class) @Transactional
+    public void dataLoggerChannelUsedTwiceTest() {
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave1Device();
 
+        Device slave1 = createFirstSlave("slave1");
+        Device dataLogger = createDataLoggerDevice("dataLogger");
 
+        HashMap<Channel, Channel> channelMapping1 = new HashMap<>();
+        channelMapping1.put(slave1.getChannels().get(0), dataLogger.getChannels().get(0));
+        channelMapping1.put(slave1.getChannels().get(1), dataLogger.getChannels().get(1));
+        channelMapping1.put(slave1.getChannels().get(2), dataLogger.getChannels().get(0));
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, channelMapping1);
 
+        slave1.delete();
+        dataLogger.delete();
+    }
 
+    @Test(expected = ConstraintViolationException.class) @Transactional
+    public void dataLoggerChannelAlreadyReferencedTest() {
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave1Device();
+        setUpForSlave2Device();
+
+        Device slave1 = createFirstSlave("slave1");
+        Device slave2 = createSecondSlave("slave2");
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+
+        HashMap<Channel, Channel> channelMapping1 = new HashMap<>();
+        channelMapping1.put(slave1.getChannels().get(0), dataLogger.getChannels().get(0));
+        channelMapping1.put(slave1.getChannels().get(1), dataLogger.getChannels().get(1));
+        channelMapping1.put(slave1.getChannels().get(2), dataLogger.getChannels().get(2));
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, channelMapping1);
+
+        assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
+
+        HashMap<Channel, Channel> channelMapping2 = new HashMap<>();
+        channelMapping2.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping2);
+
+        slave1.delete();
+        slave2.delete();
+        dataLogger.delete();
+    }
 }
