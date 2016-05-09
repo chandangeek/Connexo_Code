@@ -3,6 +3,7 @@ package com.energyict.mdc.device.topology.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -293,7 +294,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void testSlave2Configuration(){
+    public void testSlave2Configuration() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave2Device();
 
@@ -301,15 +302,18 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         assertThat(slave2.getLoadProfiles()).hasSize(1);
         assertThat(slave2.getChannels()).hasSize(1);
 
-        ReadingType readingType1 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(readingTypeForChannel2, Optional.of(TimeDuration.minutes(15)),ObisCode.fromString("1.0.2.8.0.255" )).get();
+        ReadingType readingType1 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(readingTypeForChannel2, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.2.8.0.255"))
+                .get();
 
-       assertThat(slave2.getChannels().stream().map(Channel::getReadingType).collect(Collectors.toList())).containsExactly(readingType1);
+        assertThat(slave2.getChannels().stream().map(Channel::getReadingType).collect(Collectors.toList())).containsExactly(readingType1);
 
-       slave2.delete();
+        slave2.delete();
     }
 
-    @Test(expected = ConstraintViolationException.class) @Transactional
-    public void noSlaveChannelsLinkedTest(){
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void noSlaveChannelsLinkedTest() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave1Device();
 
@@ -325,8 +329,9 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
     }
 
 
-    @Test(expected = ConstraintViolationException.class) @Transactional
-    public void notAllSlaveChannelsLinkedTest(){
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    public void notAllSlaveChannelsLinkedTest() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave1Device();
 
@@ -342,7 +347,8 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         dataLogger.delete();
     }
 
-    @Test @Transactional
+    @Test
+    @Transactional
     public void succesfulLinkTest() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave2Device();
@@ -360,7 +366,86 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         dataLogger.delete();
     }
 
-    @Test @Transactional
+    @Test
+    @Transactional
+    public void deletingSlavesRemovesLinksTest() {
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave2Device();
+
+        Device slave2 = createSecondSlave("slave2");
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+
+        HashMap<Channel, Channel> channelMapping = new HashMap<>();
+
+        channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
+
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping);
+
+        slave2.delete();
+
+        assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerChannelUsageImpl.class).select(Condition.TRUE).isEmpty());
+        assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE).isEmpty());
+
+        dataLogger.delete();
+    }
+
+    @Test
+    @Transactional
+    public void deletingDataLoggerRemovesLinksTest() {
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave2Device();
+
+        Device slave2 = createSecondSlave("slave2");
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+
+        HashMap<Channel, Channel> channelMapping = new HashMap<>();
+
+        channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
+
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping);
+
+        dataLogger.delete();
+
+        assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerChannelUsageImpl.class).select(Condition.TRUE).isEmpty());
+        assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE).isEmpty());
+
+        slave2.delete();
+    }
+
+    @Test
+    @Transactional
+    public void multipleSuccesfulLinkTest() {
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave1Device();
+        setUpForSlave2Device();
+
+        Device slave1 = createFirstSlave("slave1");
+        Device slave2 = createSecondSlave("slave2");
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+
+        HashMap<Channel, Channel> channelMapping1 = new HashMap<>();
+        channelMapping1.put(slave1.getChannels().get(0), dataLogger.getChannels().get(0));
+        channelMapping1.put(slave1.getChannels().get(1), dataLogger.getChannels().get(1));
+        channelMapping1.put(slave1.getChannels().get(2), dataLogger.getChannels().get(2));
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, channelMapping1);
+
+        assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
+
+        HashMap<Channel, Channel> channelMapping2 = new HashMap<>();
+        channelMapping2.put(slave2.getChannels().get(0), dataLogger.getChannels().get(4));
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping2);
+
+        slave1.delete();
+        slave2.delete();
+
+        assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerChannelUsageImpl.class).select(Condition.TRUE).isEmpty());
+        assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE).isEmpty());
+
+        dataLogger.delete();
+    }
+
+    @Test
+    @Transactional
     public void findDataLoggerSlavesTest() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave2Device();
@@ -381,7 +466,8 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         dataLogger.delete();
     }
 
-    @Test @Transactional
+    @Test
+    @Transactional
     public void isDataLoggerReferencedTest() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave2Device();
@@ -399,7 +485,8 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         dataLogger.delete();
     }
 
-    @Test(expected = ConstraintViolationException.class) @Transactional
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
     public void dataLoggerChannelUsedTwiceTest() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave1Device();
@@ -417,7 +504,8 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         dataLogger.delete();
     }
 
-    @Test(expected = ConstraintViolationException.class) @Transactional
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
     public void dataLoggerChannelAlreadyReferencedTest() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlave1Device();
@@ -442,5 +530,41 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         slave1.delete();
         slave2.delete();
         dataLogger.delete();
+    }
+
+    @Test
+    @Transactional
+    public void clearDataLoggerTest(){
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave1Device();
+        setUpForSlave2Device();
+
+        Device slave1 = createFirstSlave("slave1");
+        Device slave2 = createSecondSlave("slave2");
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+
+        HashMap<Channel, Channel> channelMapping1 = new HashMap<>();
+        channelMapping1.put(slave1.getChannels().get(0), dataLogger.getChannels().get(0));
+        channelMapping1.put(slave1.getChannels().get(1), dataLogger.getChannels().get(1));
+        channelMapping1.put(slave1.getChannels().get(2), dataLogger.getChannels().get(2));
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, channelMapping1);
+
+        HashMap<Channel, Channel> channelMapping2 = new HashMap<>();
+        channelMapping2.put(slave2.getChannels().get(0), dataLogger.getChannels().get(4));
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping2);
+
+        assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
+        assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(4))).isTrue();
+
+        inMemoryPersistence.getTopologyService().clearDataLogger(slave1);
+
+        assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isFalse();
+        assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(4))).isTrue();
+
+        assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerChannelUsageImpl.class).select(Condition.TRUE)).hasSize(4);
+        assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE)).hasSize(2);
+
+        inMemoryPersistence.getTopologyService().clearDataLogger(slave2);
+        assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(4))).isFalse();
     }
 }
