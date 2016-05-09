@@ -22,7 +22,7 @@ Ext.define('Mdc.timeofuse.view.SpecificationsForm', {
                     {
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseAllowed', 'MDC', 'Time of use allowed'),
-                        name: 'timeOfUseAllowed',
+                        name: 'isAllowed',
                         renderer: function (value) {
                             if (value) {
                                 return Uni.I18n.translate('general.yes', 'MDC', 'Yes')
@@ -33,7 +33,7 @@ Ext.define('Mdc.timeofuse.view.SpecificationsForm', {
 
                     },
                     {
-                        xtype: 'displayfield',
+                        xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseOptions', 'MDC', 'Time of use options'),
                         itemId: 'optionsField'
                     }
@@ -44,8 +44,26 @@ Ext.define('Mdc.timeofuse.view.SpecificationsForm', {
         me.callParent(arguments);
     },
 
-    fillOptions: function (record) {
+    fillOptions: function (optionsRecord) {
         var me = this;
-        me.loadRecord(record);
+        me.loadRecord(optionsRecord);
+        me.down('#optionsField').removeAll();
+        if (optionsRecord.get('isAllowed')) {
+            optionsRecord.allowedOptions().each(function (record) {
+                me.down('#optionsField').show();
+                me.down('#optionsField').add(
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: undefined,
+                        value: record.get('name'),
+                        margin: '0 0 -10 0'
+                    }
+                );
+            });
+        } else {
+            me.down('#optionsField').hide()
+        }
+
+
     }
 });

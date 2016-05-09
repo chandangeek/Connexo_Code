@@ -56,6 +56,9 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 'device-type-tou-setup #tou-no-cal-add-btn': {
                     click: me.goToAddCalendars
                 },
+                'device-type-tou-setup #tou-no-cal-activate-btn': {
+                    click: me.goToEditPage
+                },
                 'tou-available-cal-setup #btn-add-tou-calendars': {
                     click: me.addAvailableCalendar
                 },
@@ -76,6 +79,9 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 },
                 'tou-devicetype-edit-specs-form #tou-edit-cancel-link': {
                     click: this.goBackToCalendars
+                },
+                '#tou-allowed-radio-field': {
+                    change: this.disableEnableCheckboxes
                 }
             }
         )
@@ -94,7 +100,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                     success: function (options) {
                         view = Ext.widget('device-type-tou-setup', {
                             deviceTypeId: deviceTypeId,
-                            timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
+                            timeOfUseAllowed: options.get('isAllowed')
                         });
                         view.down('tou-devicetype-specifications-form').fillOptions(options);
                         me.deviceTypeId = deviceTypeId;
@@ -139,7 +145,6 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             success: function (deviceType) {
                 view = Ext.widget('tou-available-cal-setup', {
                     deviceTypeId: deviceTypeId,
-                    timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
                 });
                 store.getProxy().setUrl(me.deviceTypeId);
                 store.load();
@@ -198,7 +203,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                     success: function (options) {
                         view = Ext.widget('tou-devicetype-edit-specs-setup', {
                             deviceTypeId: deviceTypeId,
-                            timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
+                            timeOfUseAllowed: options.get('isAllowed')
                         });
                         view.down('tou-devicetype-edit-specs-form').fillOptions(options);
                         me.getApplication().fireEvent('changecontentevent', view);
@@ -232,7 +237,6 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                     url: '/api/dtc/devicetypes/' + deviceTypeId + '/timeofuse',
                     calendarId: calendarId,
                     deviceTypeId: deviceTypeId,
-                    timeOfUseAllowed: deviceType.get('timeOfUseAllowed')
                 });
                 view.on('timeofusecalendarloaded', function (newRecord) {
                     me.getApplication().fireEvent('timeofusecalendarloaded', newRecord.get('name'))
@@ -314,6 +318,8 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             record,
             id;
 
+        //TODO: errorPanel
+
         form.updateRecord();
         record = form.getRecord();
         record.allowedOptions().removeAll();
@@ -344,5 +350,12 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     goBackToCalendars: function () {
         var me = this;
         me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();
+    },
+
+    disableEnableCheckboxes: function (radioField, newValue) {
+        var me = this,
+            form = me.getEditForm();
+
+        form.down('#tou-specs-options-form').setDisabled(!newValue);
     }
 });

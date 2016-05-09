@@ -24,12 +24,14 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseAllowed', 'MDC', 'Time of use allowed'),
                         defaultType: 'radiofield',
+
                         layout: 'vbox',
                         items: [
                             {
                                 boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
                                 name: 'isAllowed',
-                                inputValue: 'true'
+                                inputValue: 'true',
+                                itemId: 'tou-allowed-radio-field',
                             }, {
                                 boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'),
                                 name: 'isAllowed',
@@ -88,6 +90,8 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                 }
             );
         });
+
+        me.down('#tou-specs-options-form').setDisabled(!record.get('isAllowed'));
         me.doComponentLayout();
         Ext.resumeLayouts(true);
         me.updateLayout();
