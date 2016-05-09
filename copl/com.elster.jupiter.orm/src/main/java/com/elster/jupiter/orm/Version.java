@@ -3,6 +3,7 @@ package com.elster.jupiter.orm;
 import org.flywaydb.core.api.MigrationVersion;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -27,10 +28,7 @@ public final class Version implements Comparable<Version> {
 
     @Override
     public int compareTo(Version version) {
-        if (version instanceof Version) {
-            return migrationVersion.compareTo(((Version) version).migrationVersion);
-        }
-        return migrationVersion.compareTo(MigrationVersion.fromVersion(version.toString()));
+        return migrationVersion.compareTo(version.migrationVersion);
     }
 
     @Override
@@ -44,6 +42,23 @@ public final class Version implements Comparable<Version> {
 
     public static Version earliest() {
         return EARLIEST;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Version version = (Version) o;
+        return Objects.equals(migrationVersion, version.migrationVersion);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(migrationVersion);
     }
 }
     
