@@ -2,10 +2,14 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
+import javax.inject.Inject;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,7 +20,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-05-14 (14:08)
  */
-public class Installer {
+class Installer implements FullInstaller {
 
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
@@ -24,16 +28,18 @@ public class Installer {
     private final EventService eventService;
     private final UserService userService;
 
-    public Installer(DataModel dataModel, EventService eventService, UserService userService) {
+    @Inject
+    Installer(DataModel dataModel, EventService eventService, UserService userService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.userService = userService;
     }
 
-    public void install(boolean executeDdl) {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         try {
-            dataModel.install(executeDdl, true);
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
