@@ -13,7 +13,7 @@ Ext.define('SystemApp.Application', {
         'Mtr.privileges.ReadingTypes',
         'Sct.privileges.ServiceCallType',
         'Bpm.privileges.BpmManagement',
-        //'Cal.privileges.Calendar'
+        'Cal.privileges.Calendar'
     ],
 
     controllers: [

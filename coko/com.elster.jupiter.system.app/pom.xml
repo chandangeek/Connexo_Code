@@ -115,10 +115,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>calendar.extjs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>yellowfin.extjs</artifactId>
         </dependency>
         <dependency>
@@ -132,6 +128,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>calendar</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
