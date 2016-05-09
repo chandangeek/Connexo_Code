@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
+import com.elster.jupiter.orm.fields.impl.LazyLoadedBlob;
 
 import javax.validation.constraints.Size;
 import java.lang.reflect.Field;
@@ -466,8 +467,9 @@ public class ColumnImpl implements Column {
 
     void setObject(PreparedStatement statement, int index, Object target) throws SQLException {
         Object dbValue = this.getDatabaseValue(target);
-        if (dbValue instanceof java.sql.Blob) {
-            statement.setBlob(index, (java.sql.Blob) dbValue);
+        if (dbValue instanceof LazyLoadedBlob) {
+            LazyLoadedBlob lazyLoadedBlob = (LazyLoadedBlob) dbValue;
+            lazyLoadedBlob.bindTo(statement, index);
         } else {
             statement.setObject(index, dbValue);
         }
@@ -575,7 +577,7 @@ public class ColumnImpl implements Column {
 
         @Override
         public Builder blob() {
-            return this.type("BLOB").conversion(ColumnConversion.BLOB2SQLBLOB);
+            return this.type("BLOB").conversion(ColumnConversion.BLOB2SQLBLOB).skipOnUpdate();
         }
 
         @Override

@@ -33,7 +33,7 @@ public final class LazyLoadedBlob implements Blob, java.sql.Blob {
 
     private final DataModel dataModel;
     private final ColumnImpl column;
-    private java.sql.Blob actualBlob;
+    private EnhancedSqlBlob actualBlob;
     private KeyValue keyValue;
 
     public static LazyLoadedBlob lazyLoadedFrom(ColumnImpl column) {
@@ -73,10 +73,14 @@ public final class LazyLoadedBlob implements Blob, java.sql.Blob {
         this.keyValue = this.column.getTable().getPrimaryKey(target);
     }
 
+    public void bindTo(PreparedStatement statement, int index) throws SQLException {
+        this.actualBlob.bindTo(statement, index);
+    }
+
     @Override
     public void clear() {
         try {
-            this.actualBlob.truncate(1);
+            this.actualBlob.truncate(0);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
@@ -158,11 +162,26 @@ public final class LazyLoadedBlob implements Blob, java.sql.Blob {
         }
     }
 
-    private static class TransientBlob implements java.sql.Blob {
+    private interface EnhancedSqlBlob extends java.sql.Blob {
+        void bindTo(PreparedStatement statement, int index) throws SQLException;
+    }
+
+    private static class TransientBlob implements EnhancedSqlBlob {
         private final SimpleBlob simpleBlob;
 
         private TransientBlob(SimpleBlob simpleBlob) {
             this.simpleBlob = simpleBlob;
+        }
+
+        @Override
+        public void bindTo(PreparedStatement statement, int index) throws SQLException {
+            java.sql.Blob newBlob = statement.getConnection().createBlob();
+            try {
+                this.simpleBlob.writeTo(newBlob.setBinaryStream(1));
+            } catch (IOException e) {
+                throw new SQLException(e);
+            };
+            statement.setBlob(index, newBlob);
         }
 
         @Override
@@ -233,7 +252,7 @@ public final class LazyLoadedBlob implements Blob, java.sql.Blob {
         }
     }
 
-    private class PersistentBlob implements java.sql.Blob {
+    private class PersistentBlob implements EnhancedSqlBlob {
         private java.sql.Blob databaseBlob;
 
         private void ensureLoaded() {
@@ -285,6 +304,18 @@ public final class LazyLoadedBlob implements Blob, java.sql.Blob {
                     }
                 }
             }
+        }
+
+        @Override
+        public void bindTo(PreparedStatement statement, int index) throws SQLException {
+            /* Binding is only called if field was really updated
+             * because all blob fields (i.e. the ones created with com.elster.jupiter.orm.Column.Builder.blob())
+             * are skipped on update so the owning business object is forced
+             * to use com.elster.jupiter.orm.DataModel#update(Object, String...) with the
+             * name of the blob field that should be updated.
+             * Therefore, the client call will also have already called
+             * one of the methods that modify the actual blob. */
+            statement.setBlob(index, this.databaseBlob);
         }
 
         @Override
