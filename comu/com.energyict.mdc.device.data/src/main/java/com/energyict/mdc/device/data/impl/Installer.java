@@ -5,6 +5,9 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
@@ -18,6 +21,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -31,7 +35,7 @@ import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:42)
  */
-public class Installer {
+class Installer implements FullInstaller {
 
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
 
@@ -45,16 +49,18 @@ public class Installer {
     private final EventService eventService;
     private final MessageService messageService;
 
-    public Installer(DataModel dataModel, EventService eventService, MessageService messageService) {
+    @Inject
+    Installer(DataModel dataModel, EventService eventService, MessageService messageService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.messageService = messageService;
     }
 
-    public void install(boolean executeDdl) {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         try {
-            this.dataModel.install(executeDdl, true);
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -62,6 +68,7 @@ public class Installer {
         this.createMessageHandlers();
         this.addJupiterEventSubscribers();
         this.createMasterData();
+
     }
 
     private void addJupiterEventSubscribers() {

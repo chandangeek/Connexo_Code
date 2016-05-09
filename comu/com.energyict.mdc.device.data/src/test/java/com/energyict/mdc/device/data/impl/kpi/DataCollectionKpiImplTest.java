@@ -39,6 +39,8 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.beans.BeanService;
@@ -173,6 +175,7 @@ public class DataCollectionKpiImplTest {
             bind(JsonService.class).to(JsonServiceImpl.class).in(Scopes.SINGLETON);
             bind(BeanService.class).to(BeanServiceImpl.class).in(Scopes.SINGLETON);
             bind(ExecutionTimerService.class).to(ExecutionTimerServiceImpl.class).in(Scopes.SINGLETON);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 

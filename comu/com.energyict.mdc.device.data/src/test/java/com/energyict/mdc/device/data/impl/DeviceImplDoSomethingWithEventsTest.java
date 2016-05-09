@@ -48,6 +48,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -356,7 +358,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 transactionService,
                                 injector.getInstance(JsonService.class),
                                 mdcIssueService,
-                                injector.getInstance(MdcReadingTypeUtilService.class));
+                                injector.getInstance(MdcReadingTypeUtilService.class),
+                                UpgradeModule.FakeUpgradeService.getInstance());
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }
@@ -429,6 +432,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(IdentificationServiceImpl.class).toProvider(() -> identificationService);
                 bind(DataModel.class).toProvider(() -> dataModel);
                 bind(IdentificationService.class).to(IdentificationServiceImpl.class).in(Scopes.SINGLETON);
+                bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             }
 
         }
