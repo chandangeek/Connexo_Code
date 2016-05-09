@@ -17,12 +17,14 @@ Ext.define('Mdc.timeofuse.view.PreviewContainer', {
         me.grid = {
             xtype: 'tou-calendars-grid',
             itemId: 'grid-tou-calendars',
-            deviceTypeId: me.deviceTypeId
+            deviceTypeId: me.deviceTypeId,
+            timeOfUseAllowed: me.timeOfUseAllowed
         };
 
         me.previewComponent = {
             xtype: 'tou-preview-panel',
             itemId: 'pnl-tou-preview-devicetype',
+            timeOfUseAllowed: me.timeOfUseAllowed
         };
 
         me.emptyComponent =  {

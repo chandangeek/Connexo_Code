@@ -50,10 +50,6 @@ Ext.define('Mdc.timeofuse.view.Setup', {
                             title: Uni.I18n.translate('general.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
                             itemId: 'grid-tab',
                             items: [
-                                //{
-                                //    xtype: 'service-call-filter',
-                                //    itemId: 'serviceCallFilter'
-                                //},
                                 {
                                     xtype: 'tou-devicetype-preview-container',
                                     deviceTypeId: me.deviceTypeId,

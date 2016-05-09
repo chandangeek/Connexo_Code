@@ -3,7 +3,7 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
     alias: 'widget.tou-calendars-grid',
     store: 'Mdc.timeofuse.store.UsedCalendars',
     deviceTypeId: null,
-
+    timeOfUseAllowed: null,
     requires: [
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
@@ -26,6 +26,8 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.DeviceType.admin,
+                isDisabled: me.fnIsDisabled,
+                timeOfUseAllowed: me.timeOfUseAllowed,
                 menu: {
                     xtype: 'tou-devicetype-action-menu'
                 },
@@ -53,5 +55,9 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
         ];
 
         me.callParent(arguments);
+    },
+
+    fnIsDisabled: function() {
+        return !this.timeOfUseAllowed;
     }
 });

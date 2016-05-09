@@ -6,7 +6,8 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         'Mdc.timeofuse.view.AvailableCalendarsSetup',
         'Mdc.timeofuse.view.SpecificationsForm',
         'Mdc.timeofuse.view.EditSpecificationsSetup',
-        'Mdc.timeofuse.view.ViewCalendarSetup'
+        'Mdc.timeofuse.view.ViewCalendarSetup',
+        'Uni.view.error.NotFound'
     ],
 
     stores: [
@@ -106,6 +107,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                         me.deviceTypeId = deviceTypeId;
                         me.getApplication().fireEvent('changecontentevent', view);
                         store.getProxy().setUrl(deviceTypeId);
+                        view.down('#add-tou-calendars-btn').setDisabled(!options.get('timeOfUseAllowed'));
                         store.load({
                             callback: function (records, operation, success) {
                                 if (success === true) {
@@ -136,23 +138,33 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         route.forward();
     },
 
+
     showAddCalendarsView: function (deviceTypeId) {
         var me = this,
             store = me.getStore('Mdc.timeofuse.store.UnusedCalendars'),
-            view;
+            view,
+            optionsModel = Ext.ModelManager.getModel('Mdc.timeofuse.model.TimeOfUseOptions');
 
+        optionsModel.getProxy().setUrl(deviceTypeId);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
-                view = Ext.widget('tou-available-cal-setup', {
-                    deviceTypeId: deviceTypeId,
+                optionsModel.load(1, {
+                    success: function (options) {
+                        if (options.get('isAllowed')) {
+                            view = Ext.widget('tou-available-cal-setup', {
+                                deviceTypeId: deviceTypeId
+                            });
+                            store.getProxy().setUrl(me.deviceTypeId);
+                            store.load();
+
+                            me.deviceTypeId = deviceTypeId;
+                            me.reconfigureMenu(deviceType, view);
+                        } else {
+                            view = Ext.widget('errorNotFound');
+                        }
+                        me.getApplication().fireEvent('changecontentevent', view);
+                    }
                 });
-                store.getProxy().setUrl(me.deviceTypeId);
-                store.load();
-                me.getApplication().fireEvent('changecontentevent', view);
-                me.deviceTypeId = deviceTypeId;
-                view.setLoading(true);
-                view.suspendLayouts();
-                me.reconfigureMenu(deviceType, view);
             }
         });
     },
@@ -318,33 +330,39 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             record,
             id;
 
-        //TODO: errorPanel
-
         form.updateRecord();
         record = form.getRecord();
         record.allowedOptions().removeAll();
+        formErrorsPanel.hide();
+        form.down('#no-checkboxes-time-of-use-selected').hide();
 
-        Ext.each(form.down('#tou-specs-options-form').getChecked(), function(checkedBox) {
+        Ext.each(form.down('#tou-specs-options-form').getChecked(), function (checkedBox) {
             var me = this,
                 record = me.getEditForm().getRecord(),
                 option;
             id = checkedBox.inputValue;
-            option = record.supportedOptions().findRecord('id', id);
+            option = record.supportedOptions().findRecord('id', id, 0, false, true, true);
             record.allowedOptions().add(option);
         }, me);
 
-        record.save({
-            success: function () {
-                me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();
-            },
-            failure: function (record, operation) {
-                formErrorsPanel.show();
-                var json = Ext.decode(operation.response.responseText);
-                if (json && json.errors) {
-                    form.getForm().markInvalid(json.errors);
+        if (record.allowedOptions().count() <= 0) {
+            formErrorsPanel.show();
+            form.down('#no-checkboxes-time-of-use-selected').update(Uni.I18n.translate('general.fieldRequired', 'EST', 'This field is required'));
+            form.down('#no-checkboxes-time-of-use-selected').show();
+        } else {
+            record.save({
+                success: function () {
+                    me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();
+                },
+                failure: function (record, operation) {
+                    formErrorsPanel.show();
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        form.getForm().markInvalid(json.errors);
+                    }
                 }
-            }
-        });
+            });
+        }
     },
 
     goBackToCalendars: function () {

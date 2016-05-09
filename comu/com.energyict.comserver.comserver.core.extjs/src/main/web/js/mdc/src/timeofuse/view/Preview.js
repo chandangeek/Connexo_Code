@@ -2,6 +2,8 @@ Ext.define('Mdc.timeofuse.view.Preview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.tou-preview-panel',
     frame: true,
+    timeOfUseAllowed: null,
+
     requires: [
         'Mdc.timeofuse.view.PreviewForm',
         'Mdc.timeofuse.view.ActionMenu'
@@ -13,9 +15,10 @@ Ext.define('Mdc.timeofuse.view.Preview', {
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                //privileges: Scs.privileges.ServiceCall.admin,
+                privileges: Mdc.privileges.DeviceType.admin,
                 iconCls: 'x-uni-action-iconD',
                 itemId: 'touPreviewMenuButton',
+                hidden: !me.timeOfUseAllowed,
                 menu: {
                     xtype: 'tou-devicetype-action-menu'
                 }
@@ -24,7 +27,7 @@ Ext.define('Mdc.timeofuse.view.Preview', {
 
         me.items = {
             xtype: 'devicetype-tou-preview-form',
-            itemId: 'devicetype-tou-preview-form',
+            itemId: 'devicetype-tou-preview-form'
         };
         me.callParent(arguments);
     }

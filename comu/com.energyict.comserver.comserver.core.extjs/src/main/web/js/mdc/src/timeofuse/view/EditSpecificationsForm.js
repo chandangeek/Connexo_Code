@@ -2,7 +2,8 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.tou-devicetype-edit-specs-form',
     requires: [
-        'Uni.property.form.Property'
+        'Uni.property.form.Property',
+        'Uni.util.FormErrorMessage'
     ],
     layout: {
         type: 'form'
@@ -21,10 +22,18 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                 },
                 items: [
                     {
+                        itemId: 'form-errors',
+                        xtype: 'uni-form-error-message',
+                        name: 'form-errors',
+                        margin: '0 0 10 0',
+                        hidden: true,
+                        width: 750
+                    },
+                    {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseAllowed', 'MDC', 'Time of use allowed'),
                         defaultType: 'radiofield',
-
+                        required: true,
                         layout: 'vbox',
                         items: [
                             {
@@ -44,7 +53,15 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                         xtype: 'checkboxgroup',
                         layout: 'vbox',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseOptions', 'MDC', 'Time of use options'),
-                        itemId: 'tou-specs-options-form'
+                        itemId: 'tou-specs-options-form',
+                        required: true
+                    },
+                    {
+                        xtype: 'label',
+                        cls: 'x-form-invalid-under',
+                        itemId: 'no-checkboxes-time-of-use-selected',
+                        margin: '0 0 0 275',
+                        hidden: true
                     },
                     {
                         xtype: 'fieldcontainer',
