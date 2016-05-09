@@ -308,7 +308,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), isCumulativeChannel(registerUnit.getObisCode()));
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
@@ -502,5 +502,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
 
     protected Map<CapturedRegisterObject, DLMSAttribute> getRegisterUnitMap() {
         return registerUnitMap;
+    }
+
+    protected boolean isCumulativeChannel(ObisCode obisCode){
+        return ParseUtils.isObisCodeCumulative(obisCode);
     }
 }
