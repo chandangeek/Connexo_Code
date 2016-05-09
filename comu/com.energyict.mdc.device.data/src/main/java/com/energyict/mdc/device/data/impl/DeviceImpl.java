@@ -1372,7 +1372,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                 //code below is the processing of removed readings
                                 Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities()
                                         .stream()
-                                        .filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED)))
+                                        .filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED)))
                                         .findAny();
                                 if (readingQuality.isPresent()) {
                                     loadProfileReading.setReadingTime(((ReadingQualityRecord) readingQuality.get()).getTimestamp());
