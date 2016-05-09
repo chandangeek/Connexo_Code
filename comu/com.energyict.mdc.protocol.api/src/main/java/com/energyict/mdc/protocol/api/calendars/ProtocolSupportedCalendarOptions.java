@@ -4,9 +4,17 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum ProtocolSupportedCalendarOptions {
-    UPLOAD_CALENDAR_AND_ACTIVATE_LATER("install"),
-    UPLOAD_CALENDAR_AND_ACTIVATE_IMMEDIATE("active"),
-    UPLOAD_CALENDAR_AND_ACTIVATE_WITH_DATE("activateOnDate");
+    SEND_ACTIVITY_CALENDAR("send"),
+    SEND_ACTIVITY_CALENDAR_WITH_DATE("sendWithDate"),
+    SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE("sendWithDateAndType"),
+    SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT("sendWithDateAndContract"),
+    SEND_ACTIVITY_CALENDAR_WITH_DATETIME("sendWithDateTime"),
+    SEND_SPECIAL_DAYS_CALENDAR("sendSpecialDays"),
+    SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE("sendSpecialDaysWithType"),
+    SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE("sendSpecialDaysWithContractAndDate"),
+    CLEAR_AND_DISABLE_PASSIVE_TARIFF("clearAndDisablePassiveTariff"),
+    ACTIVATE_PASSIVE_CALENDAR("activatePassive");
+
 
     private String id;
 

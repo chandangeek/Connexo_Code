@@ -71,7 +71,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.of(ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_LATER);
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR);
         }
     },
     ACTIVITY_CALENDER_SEND_WITH_DATETIME(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, "Send activity calendar with activation date") {
@@ -106,7 +106,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.of(ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_WITH_DATE);
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
         }
 
     },
@@ -148,7 +148,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.of(ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_WITH_DATE);
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE);
         }
     },
     ACTIVITY_CALENDER_SEND_WITH_DATE(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATE, "Send activity calendar with activation date") {
@@ -180,7 +180,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.of(ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_WITH_DATE);
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE);
         }
     },
     SPECIAL_DAY_CALENDAR_SEND(DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND, "Send special days calendar") {
@@ -198,7 +198,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.of(ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_LATER);
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR);
         }
     },
     SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE(DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE, "Send special days calendar with type") {
@@ -225,7 +225,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.of(ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_LATER);
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE);
         }
     },
     CLEAR_AND_DISABLE_PASSIVE_TARIFF(DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF, "Clear and disable passive tariff") {
@@ -249,7 +249,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.of(ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_IMMEDIATE);
+            return Optional.of(ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR);
         }
 
     }, ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT, "Send activity calendar with date and contract"){
@@ -291,7 +291,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.of(ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_LATER);
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT);
         }
     },
     SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME(DeviceMessageId.ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME, "Send special day calendar with date and contract"){
@@ -326,7 +326,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.of(ProtocolSupportedCalendarOptions.UPLOAD_CALENDAR_AND_ACTIVATE_WITH_DATE);
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE);
         }
     };
 
