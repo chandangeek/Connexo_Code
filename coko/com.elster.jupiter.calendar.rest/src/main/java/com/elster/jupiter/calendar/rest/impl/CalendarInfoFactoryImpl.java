@@ -58,7 +58,6 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         CalendarInfo calendarInfo = new CalendarInfo();
 
         addBasicInformation(calendar, calendarInfo);
-        //calendarInfo.startYear = calendar.getStartYear();
         addPeriods(calendarInfo, calendar.getTransitions());
         addEvents(calendarInfo, calendar.getEvents());
         addDayTypes(calendarInfo, calendar.getDayTypes());
@@ -83,20 +82,20 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         calendarInfo.weekTemplate = new ArrayList<>();
         Map<Long, DayType> dayTypes = new HashMap<>();
         Map<Long, Event> events = new HashMap<>();
+        int counter = 0;
         for (DayOfWeek day : dayTypesPerDay.keySet()) {
             DayType dayType = dayTypesPerDay.get(day);
-            //Add to week template
             DayInfo dayInfo = new DayInfo();
             dayInfo.name = thesaurus.getTranslations().get(day.name());
             dayInfo.type = dayType.getId();
+            dayInfo.date = localDate.plusDays(counter).toEpochDay();
             calendarInfo.weekTemplate.add(dayInfo);
-            //if dagtype nog niet in dagtypes: voeg toe
             dayTypes.put(dayType.getId(), dayType);
-            //ook event toevoegen waar het dagtype aan gelinked is
             dayType.getEventOccurrences()
                     .stream()
                     .forEach(eventOccurrence -> events.put(eventOccurrence.getEvent()
                             .getId(), eventOccurrence.getEvent()));
+            counter ++;
         }
         ArrayList<DayType> dayTypesList = new ArrayList<>();
         dayTypesList.addAll(dayTypes.values());
