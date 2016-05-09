@@ -170,28 +170,33 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
     formatColumn: function (v, metaData, record, validationInfo) {
         var me = this,
-            cls = 'icon-validation-cell',
-            status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '';
+            icon = '';
 
-        if (status == 'notValidated') {
-            cls += ' icon-validation-black';
-        } else if (validationInfo.confirmedNotSaved) {
-            cls += ' x-grid-dirty-cell';
-        } else if (status == 'suspect') {
-            cls += ' icon-validation-red';
-        }
-
-        metaData.tdCls = cls;
         if (!Ext.isEmpty(v)) {
-            var value = Uni.Number.formatNumber(v.toString(),
-                me.channelRecord && !Ext.isEmpty(me.channelRecord.get('nbrOfFractionDigits')) ? me.channelRecord.get('nbrOfFractionDigits') : -1);
-            if (validationInfo.estimatedByRule && !record.isModified('value')) {
-                return !Ext.isEmpty(value) ? value + '<span style="margin: 0 0 0 10px; font-size: 16px; color: #33CC33; position: absolute" class="icon-play4"</span>' : '';
-            } else if (validationInfo.isConfirmed && !record.isModified('value')) {
-                return !Ext.isEmpty(value) ? value + '<span style="margin: 0 0 0 10px; position: absolute" class="icon-checkmark3"</span>' : '';
-            } else {
-                return !Ext.isEmpty(value) ? value : '';
+            var status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '',
+                value = Uni.Number.formatNumber(
+                    v.toString(),
+                    me.channelRecord && !Ext.isEmpty(me.channelRecord.get('nbrOfFractionDigits')) ? me.channelRecord.get('nbrOfFractionDigits') : -1
+                );
+
+            if (Ext.isEmpty(value)) {
+                return '-';
             }
+            if (status === 'notValidated') {
+                icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+            } else if (validationInfo.confirmedNotSaved) {
+                metaData.tdCls = 'x-grid-dirty-cell';
+            } else if (status === 'suspect') {
+                icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
+            }
+
+            if (validationInfo.estimatedByRule && !record.isModified('value')) {
+                icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
+            } else if (validationInfo.isConfirmed && !record.isModified('value')) {
+                icon = '<span class="icon-checkmark3" style="margin-left:10px; position:absolute;"></span>';
+            }
+            return value + icon;
         }
+        return '-';
     }
 });

@@ -203,8 +203,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             success: function (deviceType) {
                 widget.deviceType = deviceType;
                 scope.getApplication().fireEvent('loadDeviceType', deviceType);
-                if (setSideMenu) {
-                    widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+                if (widget.down('deviceTypeSideMenu') && setSideMenu) {
+                    widget.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
                     widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
                 }
             }
