@@ -8,13 +8,13 @@ import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+
 import com.google.common.collect.ImmutableList;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 
 public enum AssociationKind {
 	UNMANAGEDVALUE {
@@ -33,13 +33,13 @@ public enum AssociationKind {
 				return new ReversePersistentReference(constraint,constraint.reverseMapper(field),owner);
 			}
 		}
-		
+
 		@SuppressWarnings("rawtypes")
 		@Override
 		public List<?> added(ForeignKeyConstraintImpl constraint, Field field, Object owner, boolean refresh) throws ReflectiveOperationException {
 			Reference reference = (Reference) field.get(owner);
-			if (refresh) {	
-				field.set(owner,create(constraint, field, owner,Optional.empty()));				
+			if (refresh) {
+				field.set(owner,create(constraint, field, owner,Optional.empty()));
 			} else {
 				field.set(owner,create(constraint, field, owner, reference.getOptional()));
 			}
@@ -72,7 +72,7 @@ public enum AssociationKind {
 				return new ManagedPersistentList(constraint, constraint.reverseMapper(field), owner);
 			}
 		}
-		
+
 		@Override
 		public List<?> added(ForeignKeyConstraintImpl constraint, Field field, Object owner,boolean refresh) throws ReflectiveOperationException {
 			List<?> parts = (List<?>) field.get(owner);
@@ -81,22 +81,22 @@ public enum AssociationKind {
 					DomainMapper.FIELDSTRICT.set(parts.get(i), "position" , i+1);
 				}
 			}
-			if (refresh) {						
+			if (refresh) {
 				field.set(owner, create(constraint, field, owner,Optional.empty()));
 			} else {
-				field.set(owner, create(constraint, field, owner, Optional.of(parts)));				
+				field.set(owner, create(constraint, field, owner, Optional.of(parts)));
 			}
 			return parts;
 		}
 	},
-	
+
 	TEMPORALREFERENCE {
 		@SuppressWarnings("unchecked")
 		@Override
 		public Object create(ForeignKeyConstraintImpl constraint, Field field, Object owner, Optional<?> initialValue) {
 			return new PersistentTemporalReference<>(constraint,(DataMapperImpl<? extends Effectivity>) constraint.reverseMapper(field),owner);
 		}
-		
+
 		public List<?> added(ForeignKeyConstraintImpl constraint, Field field, Object owner,boolean refresh) throws ReflectiveOperationException {
 			List<?>  result = ((AbstractTemporalAspect<?>) field.get(owner)).all();
 			field.set(owner,create(constraint,field,owner,Optional.empty()));
@@ -109,26 +109,26 @@ public enum AssociationKind {
 		public Object create(ForeignKeyConstraintImpl constraint, Field field, Object owner, Optional<?> initialValue) {
 			return new PersistentTemporalList<>(constraint, (DataMapperImpl<? extends Effectivity>) constraint.reverseMapper(field), owner);
 		}
-		
+
 		public List<?> added(ForeignKeyConstraintImpl constraint, Field field, Object owner,boolean refresh) throws ReflectiveOperationException {
 			List<?>  result = ((AbstractTemporalAspect<?>) field.get(owner)).all();
 			field.set(owner,create(constraint,field,owner,Optional.empty()));
 			return result;
 		}
 	};
-	
-	abstract public Object create(ForeignKeyConstraintImpl constraint, Field field, Object owner, Optional<?> initialValue);
-	
+
+	public abstract Object create(ForeignKeyConstraintImpl constraint, Field field, Object owner, Optional<?> initialValue);
+
 	public List<?> added(ForeignKeyConstraintImpl constraint, Field field, Object owner, boolean refresh) throws ReflectiveOperationException {
 		return Collections.emptyList();
 	}
-		
+
 	public static AssociationKind from (ForeignKeyConstraintImpl constraint) {
 		Field field = constraint.getReferencedTable().getField(constraint.getReverseFieldName());
 		if (constraint.isOneToOne()) {
 			return Reference.class.isAssignableFrom(field.getType()) ? REFERENCE : UNMANAGEDVALUE;
 		} else if (List.class.isAssignableFrom(field.getType())) {
-			return constraint.isComposition() ? MANAGEDLIST : UNMANAGEDLIST; 
+			return constraint.isComposition() ? MANAGEDLIST : UNMANAGEDLIST;
 		} else if (TemporalReference.class.isAssignableFrom(field.getType())) {
 			return TEMPORALREFERENCE;
 		} else if (TemporalList.class.isAssignableFrom(field.getType())) {

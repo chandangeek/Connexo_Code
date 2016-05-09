@@ -1,12 +1,12 @@
 package com.elster.jupiter.orm;
- 
+
 /*
  * Defines conversions between a database column and a Java field
  */
 public enum ColumnConversion {
 	NOCONVERSION,
-	NUMBER2INT, 
-	NUMBER2INTNULLZERO, 
+	NUMBER2INT,
+	NUMBER2INTNULLZERO,
 	NUMBER2LONG,
 	NUMBER2LONGNULLZERO,
 	CHAR2BOOLEAN,
@@ -29,7 +29,9 @@ public enum ColumnConversion {
     NUMBERINUTCSECONDS2INSTANT,
     NUMBER2INSTANT,
 	CHAR2PATH,
-	SDOGEOMETRY2SPATIALGEOOBJ;
-    
+	SDOGEOMETRY2SPATIALGEOOBJ,
+	BLOB2SQLBLOB;
+
 	public static final int CATALOGNAMELIMIT = 30;
+
 }

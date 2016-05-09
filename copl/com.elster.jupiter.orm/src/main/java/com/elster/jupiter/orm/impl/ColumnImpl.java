@@ -173,6 +173,7 @@ public class ColumnImpl implements Column {
         LOGGER.severe(message);
         throw new IllegalTableMappingException(message);
     }
+
     private ColumnImpl init(TableImpl<?> table, String name) {
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
             this.logAndThrowIllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
@@ -464,7 +465,12 @@ public class ColumnImpl implements Column {
     }
 
     void setObject(PreparedStatement statement, int index, Object target) throws SQLException {
-        statement.setObject(index, this.getDatabaseValue(target));
+        Object dbValue = this.getDatabaseValue(target);
+        if (dbValue instanceof java.sql.Blob) {
+            statement.setBlob(index, (java.sql.Blob) dbValue);
+        } else {
+            statement.setObject(index, dbValue);
+        }
     }
 
     String getFormula() {
@@ -481,7 +487,6 @@ public class ColumnImpl implements Column {
                 (isVirtual() == column.isVirtual()) &&
                 (!isVirtual() || getFormula().equalsIgnoreCase(column.getFormula()));
     }
-
 
     static class BuilderImpl implements Column.Builder {
         private final ColumnImpl column;
@@ -569,6 +574,11 @@ public class ColumnImpl implements Column {
         }
 
         @Override
+        public Builder blob() {
+            return this.type("BLOB").conversion(ColumnConversion.BLOB2SQLBLOB);
+        }
+
+        @Override
         public Builder number() {
             return this.type("NUMBER");
         }
@@ -643,5 +653,5 @@ public class ColumnImpl implements Column {
             return base.add();
         }
     }
-}
 
+}

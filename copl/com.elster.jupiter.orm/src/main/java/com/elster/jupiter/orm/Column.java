@@ -46,6 +46,7 @@ public interface Column {
 		Builder version();
 		Builder skipOnUpdate();
 		Builder bool();
+		Builder blob();
 		Builder number();
 		Builder varChar(int length);
 		Builder varChar();
