@@ -23,7 +23,7 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                     name: 'deviceGroup'
                 };
                 break;
-            case 'Insight':
+            case 'MdmApp':
                 groupFieldConfig = {
                     fieldLabel: Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', 'Usage point group'),
                     name: 'usagePointGroup'

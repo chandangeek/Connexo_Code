@@ -21,7 +21,9 @@ Ext.define('Cfg.controller.Tasks', {
         'Cfg.store.UsagePointGroups',
         'Cfg.store.DaysWeeksMonths',
         'Cfg.store.ValidationTasks',
-        'Cfg.store.ValidationTasksHistory'
+        'Cfg.store.ValidationTasksHistory',
+        'Cfg.store.MetrologyContracts',
+        'Cfg.store.MetrologyConfigurations'
     ],
 
     models: [
@@ -196,9 +198,10 @@ Ext.define('Cfg.controller.Tasks', {
             onGroupsLoad = function (records) {
                 if (!records.length && view.rendered) {
                     Ext.suspendLayouts();
-                    view.down('#cbo-validation-task-group').hide();
-                    view.down('#no-group-defined').show();
-                    view.down('#field-validation-task-group').combineErrors = true;
+                    //view.down('#cbo-validation-task-group').hide();
+                    //view.down('#no-group-defined').show();
+                    //view.down('#field-validation-task-group').combineErrors = true;
+                    view.down('#field-validation-task-group').showNoItemsField();
                     Ext.resumeLayouts(true);
                 }
             };
@@ -207,8 +210,8 @@ Ext.define('Cfg.controller.Tasks', {
             case 'MultiSense':
                 me.getStore('Cfg.store.DeviceGroups').load(onGroupsLoad);
                 break;
-            case 'Insight':
-                me.getStore('Cfg.store.UsagePointGroups').load(onGroupsLoad);
+            case 'MdmApp':
+                me.getStore('Cfg.store.MetrologyConfigurations').load(onGroupsLoad);
                 break;
         }
     },
@@ -517,7 +520,8 @@ Ext.define('Cfg.controller.Tasks', {
             form = page.down('#frm-add-validation-task'),
             formErrorsPanel = form.down('#form-errors'),
             lastDayOfMonth = false,
-            groupCombo = me.getAddPage().down('#cbo-validation-task-group'),
+            //groupCombo = me.getAddPage().down('#cbo-validation-task-group'),
+            dataSourcesContainer = me.getAddPage().down('#field-validation-task-group'),
             startOnDate,
             timeUnitValue,
             dayOfMonth,
@@ -535,12 +539,17 @@ Ext.define('Cfg.controller.Tasks', {
         }
 
         record.set('name', form.down('#txt-task-name').getValue());
-        if (groupCombo) {
-            record.set(groupCombo.name, {
-                id: groupCombo.getValue(),
-                name: groupCombo.getDisplayValue()
-            });
+        //if (groupCombo) {
+        //    record.set(groupCombo.name, {
+        //        id: groupCombo.getValue(),
+        //        name: groupCombo.getDisplayValue()
+        //    });
+        //}
+
+        if(dataSourcesContainer){
+            dataSourcesContainer.setDataSourcesToRecord(record);
         }
+
         if (form.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
             startOnDate = moment(form.down('#start-on').getValue()).valueOf();
             timeUnitValue = form.down('#cbo-recurrence-type').getValue();
@@ -636,7 +645,7 @@ Ext.define('Cfg.controller.Tasks', {
             record.set('schedule', null);
         }
 
-        record.set('application', Uni.util.Application.getAppName());
+        record.set('application', Uni.util.Application.getAppName()); //Clear
 
         record.endEdit();
         record.save({
