@@ -3,18 +3,15 @@ Ext.define('Cal.view.TimeOfUsePreviewContainer', {
     alias: 'widget.tou-preview-container',
 
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
         'Cal.view.Grid',
         'Cal.view.Preview'
     ],
 
     emptyComponent: {
-        xtype: 'no-items-found-panel',
+        xtype: 'uni-form-empty-message',
         itemId: 'no-tou-cals',
-        title: Uni.I18n.translate('calendars.tou.empty.title', 'CAL', 'No time of use calendars found'),
-        reasons: [
-            Uni.I18n.translate('calendars.tou.empty.list.item1', 'CAL', 'No time of use calendars have been defined yet.'),
-        ]
+        text: Uni.I18n.translate('calendars.tou.empty', 'CAL', 'No time of use calendars have been defined yet.')
     },
 
     initComponent: function () {
