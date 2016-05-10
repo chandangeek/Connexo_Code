@@ -386,7 +386,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     foundMeter.setLocation(location);
                 }
                 if (this.geoCoordinates.isPresent()) {
-                    foundMeter.setGeoCoordintes(geoCoordinates.get());
+                    foundMeter.setGeoCoordinates(geoCoordinates.get());
                 }
                 foundMeter.update();
             });
@@ -401,7 +401,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 meter.setLocation(location);
             }
             if (this.geoCoordinates.isPresent()) {
-                meter.setGeoCoordintes(geoCoordinates.get());
+                meter.setGeoCoordinates(geoCoordinates.get());
             }
             this.createMeterConfiguration(meter, this.clock.instant(), false);
             this.saveNewDialectProperties();
