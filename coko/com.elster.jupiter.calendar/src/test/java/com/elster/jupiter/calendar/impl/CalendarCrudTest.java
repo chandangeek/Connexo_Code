@@ -21,10 +21,19 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintViolationException;
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -450,4 +459,36 @@ public class CalendarCrudTest {
         }
     }
 
+
+    @Test
+    @Transactional
+    public void testFromXml() {
+        InputStream in = null;
+        try {
+            JAXBContext jc = JAXBContext.newInstance(com.elster.jupiter.calendar.impl.xmlbinding.Calendar.class);
+            Unmarshaller u = jc.createUnmarshaller();
+            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+
+            Schema schema =
+                    sf.newSchema(new File(getClass().getClassLoader().getResource("com.elster.jupiter.calendar.impl/calendar-import-format.xsd").toURI()));
+            u.setSchema(schema);
+            in = new FileInputStream(new File(getClass().getClassLoader().getResource("calendar-import-format.xml").toURI()));
+            Object result = u.unmarshal(in);
+            System.out.println("ok");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+        finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        fail(e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            }
+    }
 }

@@ -43,7 +43,7 @@ public class CalendarImporterFactory implements FileImporterFactory {
 
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
-        return new TimeOfUseCalendarImporter();
+        return new TimeOfUseCalendarImporter(context);
 
     }
 
