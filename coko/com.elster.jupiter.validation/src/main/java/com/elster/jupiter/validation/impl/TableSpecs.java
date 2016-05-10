@@ -3,6 +3,8 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -170,6 +172,8 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column usagePointGroupId = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
+//            Column metrologyConfigurationId = table.column("METROLOGYCONFIGURATION").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column metrologyContractId = table.column("METROLOGYCONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.column("APPLICATION").varChar(NAME_LENGTH).map("application").add();
@@ -183,6 +187,18 @@ public enum TableSpecs {
                     .on(usagePointGroupId)
                     .references(MeteringGroupsService.COMPONENTNAME, "MTG_UP_GROUP")
                     .map("usagePointGroup")
+                    .add();
+
+//            table.foreignKey("VAL_FK_METROLOGYCONFIGURATION")
+//                    .on(metrologyConfigurationId)
+//                    .references(MetrologyConfiguration.class)
+//                    .map("metrologyConfiguration")
+//                    .add();
+
+            table.foreignKey("VAL_FK_METROLOGYCONTRACT")
+                    .on(metrologyContractId)
+                    .references(MetrologyContract.class)
+                    .map("metrologyContract")
                     .add();
 
             table.primaryKey("VAL_PK_DATAVALIDATIONTASK")
