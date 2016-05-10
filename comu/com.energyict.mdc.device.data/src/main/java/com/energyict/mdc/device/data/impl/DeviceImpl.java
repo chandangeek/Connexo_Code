@@ -1214,7 +1214,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         location = location == null ? loc : location;
                     });
                     usagePoint.getGeoCoordinates().ifPresent(geo -> {
-                        geoCoordinates.set(geoCoordinates.isPresent() ? geoCoordinates.get() : geo);
+                        geoCoordinates.set(geoCoordinates.orElse(geo));
                     });
                 }
             });
