@@ -1,6 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.soap.whiteboard.EndPointProvider;
+import com.elster.jupiter.soap.whiteboard.InboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.WebServicesService;
 
@@ -40,7 +41,7 @@ public class Whiteboard {
 	}
 	
     @Reference(name="ZEndPointProvider",cardinality=ReferenceCardinality.MULTIPLE,policy=ReferencePolicy.DYNAMIC)
-    public void addEndPoint(EndPointProvider provider,Map<String,Object> props) {
+	public void addEndPoint(InboundEndPointProvider provider, Map<String, Object> props) {
 		String alias = getName(props);
 		if (alias == null) {
     		return;

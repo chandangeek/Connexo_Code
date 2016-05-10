@@ -1,7 +1,8 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.EndPointProvider;
+import com.elster.jupiter.soap.whiteboard.InboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.WebServicesService;
 
@@ -66,8 +67,13 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     // called by whiteboard
-    public void register(String name, EndPointProvider endPointProvider) {
+    public void register(String name, InboundEndPointProvider endPointProvider) {
         webServices.put(name, new InboundEndPoint(endPointProvider, soapProviderSupportFactory));
+    }
+
+    // called by whiteboard
+    public void register(String name, OutboundEndPointProvider endPointProvider) {
+        webServices.put(name, new OutboundEndPoint(endPointProvider, soapProviderSupportFactory));
     }
 
     // called by whiteboard
