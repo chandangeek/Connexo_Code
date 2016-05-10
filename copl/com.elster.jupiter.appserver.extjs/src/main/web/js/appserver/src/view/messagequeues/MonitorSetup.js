@@ -5,7 +5,7 @@ Ext.define('Apr.view.messagequeues.MonitorSetup', {
     appServerName: null,
 
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
         'Apr.view.messagequeues.Menu'
     ],
     initComponent: function () {
@@ -17,7 +17,6 @@ Ext.define('Apr.view.messagequeues.MonitorSetup', {
             items: [
                 {
                     xtype: 'message-queues-menu',
-                //    itemId: 'message-queues-menu',
                     router: me.router
                 }
             ]
@@ -36,12 +35,9 @@ Ext.define('Apr.view.messagequeues.MonitorSetup', {
                         router: me.router
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
+                        xtype: 'uni-form-empty-message',
                         itemId: 'ctr-no-app-server',
-                        title: Uni.I18n.translate('messageQueues.empty.title', 'APR', 'No message queues found'),
-                        reasons: [
-                            Uni.I18n.translate('messageQueues.empty.list.item1', 'APR', 'There are no message queues in the system')
-                        ]
+                        text: Uni.I18n.translate('messageQueues.empty', 'APR', 'There are no message queues in the system')
                     },
                     previewComponent: {
                         xtype: 'monitor-preview',

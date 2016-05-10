@@ -4,7 +4,7 @@ Ext.define('Apr.view.taskoverview.Setup', {
     router: null,
 
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
     content: [
         {
@@ -21,13 +21,9 @@ Ext.define('Apr.view.taskoverview.Setup', {
                         itemId: 'task-overview-grid'
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
+                        xtype: 'uni-form-empty-message',
                         itemId: 'no-tasks-found',
-                        title: Uni.I18n.translate('taskOverview.empty.title', 'APR', 'No tasks found'),
-                        reasons: [
-                            Uni.I18n.translate('taskOverview.empty.list.item1', 'APR', 'There are no tasks in the system')
-                        ],
-                        stepItems: []
+                        text: Uni.I18n.translate('taskOverview.empty', 'APR', 'There are no tasks in the system')
                     },
                     previewComponent: {
                         xtype: 'task-preview',
