@@ -19,7 +19,7 @@ public enum LocationTranslationKeys implements TranslationKey {
     ESTABLISHMENT_TYPE("establishmentType", "Establishment type"),
     ESTABLISHMENT_NAME("establishmentName", "Establishment name"),
     ESTABLISHMENT_NUMBER("establishmentNumber", "Establishment number"),
-    ADDRESS_DETAIL("addressDetail", "Address detail");
+    ADDRESS_DETAIL("addressDetail", "Address details");
 
 
     private final String key;
