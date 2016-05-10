@@ -158,6 +158,8 @@
                 <module>../com.elster.jupiter.devtools.rest</module>
                 <module>../com.elster.jupiter.bootstrap.h2</module>
                 <module>../com.elster.jupiter.messaging.h2</module>
+                <module>../com.elster.jupiter.soap.currency.convertor</module>
+                <module>../com.elster.jupiter.soap.currency.convertor.client</module>
             </modules>
         </profile>
     </profiles>
