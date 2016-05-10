@@ -9,6 +9,9 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
@@ -20,6 +23,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
 
+import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +40,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:56)
  */
-public class Installer {
+class Installer implements FullInstaller {
 
     public static final String PRIVILEGES_COMPONENT = "MDC";
 
@@ -48,7 +52,8 @@ public class Installer {
     private final FiniteStateMachineService stateMachineService;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
-    public Installer(DataModel dataModel, EventService eventService, UserService userService, FiniteStateMachineService stateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    @Inject
+    Installer(DataModel dataModel, EventService eventService, UserService userService, FiniteStateMachineService stateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -57,9 +62,10 @@ public class Installer {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
-    public void install(boolean executeDdl) {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         try {
-            this.dataModel.install(executeDdl, true);
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
         }
         catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
@@ -67,6 +73,7 @@ public class Installer {
 
         this.createEventTypes();
         this.installDefaultLifeCycle();
+
     }
 
     private void createEventTypes() {

@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.Privileges;
-
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -13,14 +10,19 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.Privileges;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.junit.*;
-import org.junit.rules.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -74,17 +76,6 @@ public class DeviceLifeCycleConfigurationServiceIT {
 
         // Asserts
         assertThat(layer).isNotNull();
-    }
-
-    @Test
-    public void prerequisiteModulesNotNull() {
-        DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
-
-        // Business method
-        List<String> prerequisiteModules = service.getPrerequisiteModules();
-
-        // Asserts
-        assertThat(prerequisiteModules).isNotNull();
     }
 
     @Test

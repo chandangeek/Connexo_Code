@@ -21,8 +21,9 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
@@ -51,6 +52,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -70,17 +72,18 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:44)
  */
-@Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class, InstallService.class,
+@Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class,
         TranslationKeyProvider.class, MessageSeedProvider.class, IssueCreationValidator.class, PrivilegesProvider.class},
         property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, InstallService, TranslationKeyProvider, MessageSeedProvider, IssueCreationValidator, PrivilegesProvider {
+public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, TranslationKeyProvider, MessageSeedProvider, IssueCreationValidator, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
     private volatile UserService userService;
     private volatile FiniteStateMachineService stateMachineService;
     private volatile EventService eventService;
+    private volatile UpgradeService upgradeService;
     private Thesaurus thesaurus;
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -91,16 +94,16 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, FiniteStateMachineService stateMachineService, EventService eventService) {
+    public DeviceLifeCycleConfigurationServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, FiniteStateMachineService stateMachineService, EventService eventService, UpgradeService upgradeService) {
         this();
-        this.setOrmService(ormService);
-        this.setUserService(userService);
-        this.setNlsService(nlsService);
-        this.setStateMachineService(stateMachineService);
-        this.setEventService(eventService);
-        this.activate();
-        this.install();
-        this.initializeTestPrivileges();
+        setOrmService(ormService);
+        setUserService(userService);
+        setNlsService(nlsService);
+        setStateMachineService(stateMachineService);
+        setEventService(eventService);
+        setUpgradeService(upgradeService);
+        activate();
+        initializeTestPrivileges();
     }
 
     private void initializeTestPrivileges() {
@@ -109,15 +112,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                 .forEach(resource -> this.userService.saveResourceWithPrivileges(resource.getComponentName(), resource.getName(), resource.getDescription(), resource.getPrivilegeNames()
                         .toArray(new String[resource.getPrivilegeNames().size()])));
         this.initializePrivileges();
-    }
-
-    @Override
-    public void install() {
-        this.getInstaller().install(true);
-    }
-
-    private Installer getInstaller() {
-        return new Installer(this.dataModel, eventService, this.userService, this.stateMachineService, this);
     }
 
     @Override
@@ -140,17 +134,10 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         return Layer.DOMAIN;
     }
 
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(
-                OrmService.COMPONENTNAME,
-                FiniteStateMachineService.COMPONENT_NAME,
-                UserService.COMPONENTNAME);
-    }
-
     @Activate
     public void activate() {
         dataModel.register(this.getModule());
+        upgradeService.register(InstallIdentifier.identifier(DeviceLifeCycleConfigurationService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     // For integration testing components only
@@ -167,6 +154,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(EventService.class).toInstance(eventService);
+                bind(FiniteStateMachineService.class).toInstance(stateMachineService);
+                bind(UserService.class).toInstance(userService);
 
                 bind(DeviceLifeCycleConfigurationService.class).toInstance(DeviceLifeCycleConfigurationServiceImpl.this);
             }
@@ -190,6 +179,11 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     private void initializePrivileges() {
@@ -220,7 +214,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public DeviceLifeCycle newDefaultDeviceLifeCycle(String name) {
-        return this.getInstaller().createDefaultLifeCycle(name);
+        return dataModel.getInstance(Installer.class).createDefaultLifeCycle(name);
     }
 
     @Override
