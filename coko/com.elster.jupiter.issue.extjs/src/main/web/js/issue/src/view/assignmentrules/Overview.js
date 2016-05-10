@@ -4,7 +4,7 @@ Ext.define('Isu.view.assignmentrules.Overview', {
         'Uni.view.navigation.SubMenu',
         'Isu.view.assignmentrules.List',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
     alias: 'widget.issue-assignment-rules-overview',
 
@@ -20,11 +20,8 @@ Ext.define('Isu.view.assignmentrules.Overview', {
                 xtype: 'issues-assignment-rules-list'
             },
             emptyComponent: {
-                xtype: 'no-items-found-panel',
-                title: Uni.I18n.translate('issueAssignment.empty.title', 'ISU', 'No issue assignment rules found'),
-                reasons: [
-                    Uni.I18n.translate('issueAssignment.empty.list.item', 'ISU', 'No issue assignment rules have been defined yet.')
-                ]
+                xtype: 'uni-form-empty-message',
+                text: Uni.I18n.translate('issueAssignment.empty', 'ISU', 'No issue assignment rules have been defined yet.')
             },
             previewComponent: null
         }
