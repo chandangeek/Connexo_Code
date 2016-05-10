@@ -367,7 +367,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public void setGeoCoordintes(GeoCoordinates geoCoordinates) {
+    public void setGeoCoordinates(GeoCoordinates geoCoordinates) {
         this.geoCoordinates.set(geoCoordinates);
     }
 
@@ -389,7 +389,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     foundMeter.setGeoCoordinates(geoCoordinates.get());
                 }
                 else{
-                    foundMeter.setGeoCoordintes(null);
+                    foundMeter.setGeoCoordinates(null);
                 }
                 foundMeter.update();
             });

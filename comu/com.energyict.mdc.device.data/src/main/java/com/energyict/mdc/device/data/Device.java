@@ -77,7 +77,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     Optional<GeoCoordinates> getGeoCoordinates();
 
-    void setGeoCoordintes(GeoCoordinates geoCoordinates);
+    void setGeoCoordinates(GeoCoordinates geoCoordinates);
 
     /**
      * Gets the name of the Device.
