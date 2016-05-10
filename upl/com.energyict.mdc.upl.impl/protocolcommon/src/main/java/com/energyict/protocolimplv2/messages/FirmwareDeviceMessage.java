@@ -92,6 +92,10 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.notNullableBooleanPropertySpec(UseTransferredBlockStatus, true)
     ),
     ReadMulticastProgress(19),
+    FirmwareUpgradeWithUrlJarJadFileSize(20,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.URL_PATH),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.JAR_FILE_SIZE),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.JAD_FILE_SIZE)),
     ;
 
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;

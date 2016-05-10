@@ -34,9 +34,8 @@ public class Beacon3100Schedule {
 
     public boolean equals(AbstractDataType anotherScheduleStructure){
         try {
-            Structure structure = anotherScheduleStructure.getStructure();
-            byte[] otherByteArray = structure.getContentByteArray();
-            byte[] thisByteArray = toStructure().getContentByteArray();
+            byte[] otherByteArray = anotherScheduleStructure.getBEREncodedByteArray();
+            byte[] thisByteArray = toStructure().getBEREncodedByteArray();
 
             return Arrays.equals(thisByteArray, otherByteArray);
         }catch (Exception ex){

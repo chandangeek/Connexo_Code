@@ -3,12 +3,7 @@ package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
@@ -151,7 +146,7 @@ public class LoadProfileBuilder {
 
                 if (scalerUnit != null) {
                     if (scalerUnit.getUnitCode() != 0) {
-                        ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), registerObisCode.toString(), scalerUnit.getEisUnit(), meterProtocol.getMeterSerialNumber(), true);
+                        ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), registerObisCode.toString(), scalerUnit.getEisUnit(), meterProtocol.getMeterSerialNumber(), ParseUtils.isObisCodeCumulative(registerObisCode));
                         channelInfos.add(channelInfo);
                     } else {
                         ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), registerObisCode.toString(), Unit.getUndefined(), meterProtocol.getMeterSerialNumber(), true);

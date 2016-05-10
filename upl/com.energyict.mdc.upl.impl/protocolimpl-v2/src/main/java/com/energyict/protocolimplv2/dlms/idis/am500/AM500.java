@@ -1,30 +1,29 @@
 package com.energyict.protocolimplv2.dlms.idis.am500;
 
+import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
-
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CommunicationException;
@@ -32,7 +31,6 @@ import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocol.support.SerialNumberSupport;
-import com.energyict.protocolimpl.dlms.g3.G3DeviceInfo;
 import com.energyict.protocolimpl.dlms.idis.IDISObjectList;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -47,9 +45,8 @@ import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.logging.Level;
 
 /**
  * This V2 protocol is a port from the old V1 IDIS protocol.
@@ -66,6 +63,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     protected IDISStoredValues storedValues = null;
     private IDISRegisterFactory registerFactory = null;
     private String serialNumber = null;
+    private static final ObisCode LOGICAL_DEVICE_NAME_OBIS = ObisCode.fromString("0.0.42.0.0.255");
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -302,12 +300,34 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
         return storedValues;
     }
 
+    /**
+     *
+     * @return this method returns either serial number or logical device name depending on the value of "UseLogicalDeviceNameAsSerialNumber" property
+     */
     @Override
     public String getSerialNumber() {
-        final G3DeviceInfo g3DeviceInfo = new G3DeviceInfo(getDlmsSession().getCosemObjectFactory());
+
+        if(!getDlmsSessionProperties().useLogicalDeviceNameAsSerialNumber()){
+            return getMeterInfo().getSerialNr();
+        } else {
+            try {
+                final Data data = getDlmsSession().getCosemObjectFactory().getData(LOGICAL_DEVICE_NAME_OBIS);
+                final OctetString logicalDeviceName = data.getValueAttr(OctetString.class);
+                return logicalDeviceName.stringValue();
+            } catch (IOException e) {
+                throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
+            }
+        }
+    }
+
+    @Override
+    public void setTime(Date newMeterTime) {
         try {
-            return g3DeviceInfo.getSerialNumber();
+            AXDRDateTime dateTime = new AXDRDateTime(newMeterTime, getTimeZone());
+            dateTime.useUnspecifiedAsDeviation(getDlmsSessionProperties().useUndefinedAsTimeDeviation());
+            getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(dateTime);
         } catch (IOException e) {
+            getLogger().log(Level.FINEST, e.getMessage());
             throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
         }
     }
@@ -323,6 +343,6 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-29 09:35:10 +0200 (Tue, 29 Mar 2016)$";
+        return "$Date: 2016-05-09 15:56:50 +0300 (Mon, 09 May 2016)$";
     }
 }

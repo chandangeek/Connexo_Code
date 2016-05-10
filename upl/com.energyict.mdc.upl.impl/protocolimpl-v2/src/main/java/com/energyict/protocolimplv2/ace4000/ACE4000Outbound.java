@@ -22,10 +22,8 @@ import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.messages.ACE4000Messaging;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
@@ -34,7 +32,6 @@ import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -44,28 +41,19 @@ import java.util.logging.Logger;
  * Time: 16:46
  * Author: khe
  */
-public class ACE4000Outbound extends ACE4000 implements DeviceProtocol,MessageProtocol {
+public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     private OfflineDevice offlineDevice;
     private DeviceProtocolCache deviceCache;
     private Logger logger;
     private Long cachedMeterTimeDifference = null;
-    private ACE4000MessageExecutor messageExecutor = null;
     private DeviceProtocolSecurityPropertySet securityProperties;
     private ACE4000Messaging messageProtocol;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        messageExecutor = new ACE4000MessageExecutor(this);
         setAce4000Connection(new ACE4000Connection(comChannel, this, false));
-    }
-
-    public ACE4000MessageExecutor getMessageExecutor() {
-        if (messageExecutor == null) {
-            messageExecutor = new ACE4000MessageExecutor(this);
-        }
-        return messageExecutor;
     }
 
     @Override
@@ -74,7 +62,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol,MessagePr
     }
 
     public String getVersion() {
-        return "$Date: 2015-12-18 15:10:03 +0200 (Fri, 18 Dec 2015)$";
+        return "$Date: 2016-05-06 09:43:54 +0300 (Fri, 06 May 2016)$";
     }
 
     @Override
@@ -153,22 +141,22 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol,MessagePr
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;    //TODO return message results
+        return getMessageProtocol().executePendingMessages(pendingMessages);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;
+        return getMessageProtocol().updateSentMessages(sentMessages);
     }
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        return "";  //Todo change body of implemented methods use File | Settings | File Templates.
+        return getMessageProtocol().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
     public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-        return "";
+        return getMessageProtocol().prepareMessageContext(offlineDevice, deviceMessage);
     }
 
     @Override
@@ -326,38 +314,8 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol,MessagePr
 
     public ACE4000Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new ACE4000Messaging(new ACE4000MessageExecutor(this));
+            this.messageProtocol = new ACE4000Messaging(this);
         }
         return messageProtocol;
-    }
-
-    public List getMessageCategories() {
-        return getMessageProtocol().getMessageCategories();
-    }
-
-    @Override
-    public String writeMessage(Message msg) {
-        return getMessageProtocol().writeMessage(msg);
-    }
-
-    @Override
-    public String writeTag(MessageTag tag) {
-        return getMessageProtocol().writeTag(tag);
-    }
-
-    @Override
-    public String writeValue(MessageValue value) {
-        return getMessageProtocol().writeValue(value);
-    }
-
-
-    @Override
-    public void applyMessages(List messageEntries) throws IOException {
-        getMessageProtocol().applyMessages(messageEntries);
-    }
-
-    @Override
-    public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-        return getMessageProtocol().queryMessage(messageEntry);
     }
 }

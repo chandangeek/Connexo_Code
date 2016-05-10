@@ -38,9 +38,8 @@ public class Beacon3100DeviceType {
     public boolean equals(AbstractDataType anotherClientTypeStructure){
 
         try {
-            Structure structure = anotherClientTypeStructure.getStructure();
-            byte[] otherByteArray = structure.getContentByteArray();
-            byte[] thisByteArray = toStructure().getContentByteArray();
+            byte[] otherByteArray = anotherClientTypeStructure.getBEREncodedByteArray();
+            byte[] thisByteArray = toStructure().getBEREncodedByteArray();
 
             return Arrays.equals(thisByteArray, otherByteArray);
 
