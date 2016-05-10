@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -226,7 +227,8 @@ public class DataCollectionKpiImplTest {
                 new MeteringGroupsModule(),
                 new SearchModule(),
                 new DeviceDataModule(),
-                new MockModule()
+                new MockModule(),
+                new CalendarModule()
         );
         transactionService = injector.getInstance(TransactionService.class);
         endDeviceGroup = transactionService.execute(() -> {

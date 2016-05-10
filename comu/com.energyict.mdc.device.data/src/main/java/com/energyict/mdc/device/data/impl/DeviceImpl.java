@@ -88,6 +88,7 @@ import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.EffectiveCalendar;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
@@ -248,6 +249,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private List<ProtocolDialectPropertiesImpl> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> newDialectProperties = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> dirtyDialectProperties = new ArrayList<>();
+    private List<EffectiveCalendar> effectiveCalendars = new ArrayList<>();
 
     private Map<SecurityPropertySet, TypedProperties> dirtySecurityProperties = new HashMap<>();
 
@@ -2128,6 +2130,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             return new NoCimLifecycleDates();
         }
+    }
+
+    @Override
+    public List<EffectiveCalendar> getEffectiveCalendars() {
+        return this.effectiveCalendars;
+    }
+
+    @Override
+    public void setEffectiveCalendars(List<EffectiveCalendar> effectiveCalendars) {
+        this.effectiveCalendars = effectiveCalendars;
     }
 
     @Override

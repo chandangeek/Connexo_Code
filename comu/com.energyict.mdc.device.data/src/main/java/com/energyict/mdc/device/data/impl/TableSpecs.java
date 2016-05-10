@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -22,6 +23,7 @@ import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.EffectiveCalendar;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
@@ -58,6 +60,8 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import java.util.Calendar;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -756,6 +760,37 @@ public enum TableSpecs {
                     .map(ActivatedBreakerStatusImpl.Fields.DEVICE.fieldName())
                     .references(DDC_DEVICE.name())
                     .onDelete(DeleteRule.CASCADE)
+                    .add();
+        }
+    },
+
+    DDC_EFFECTIVE_CALENDAR {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EffectiveCalendar> table = dataModel.addTable(name(), EffectiveCalendar.class);
+            table.map(EffectiveCalendarImpl.IMPLEMENTERS);
+            Column idColumn = table.addAutoIdColumn();
+
+            table.addDiscriminatorColumn("EFF_CAL_TYPE", "char(3)");
+
+            Column calendarColumn = table.column("ALLOWED_CALENDAR").number().notNull().add();
+            Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("ACTIVATION_DATE").type("number").conversion(NUMBER2INSTANT).map(EffectiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
+            table.addIntervalColumns(EffectiveCalendarImpl.Fields.INTERVAL.fieldName());
+
+            table.primaryKey("DDC_PK_EFF_CAL").on(idColumn).add();
+            table.foreignKey("DDC_EFF_CAL_TO_ALL_CAL")
+                    .references(AllowedCalendar.class)
+                    .on(calendarColumn)
+                    .onDelete(CASCADE)
+                    .map(EffectiveCalendarImpl.Fields.CALENDAR.fieldName())
+                    .add();
+            table.foreignKey("DDC_EFF_CAL_TO_DEVICE")
+                    .on(device)
+                    .references(DDC_DEVICE.name())
+                    .map(DeviceEstimationImpl.Fields.DEVICE.fieldName())
+                    .reverseMap("effectiveCalendars")
+                    .onDelete(CASCADE)
                     .add();
         }
     };

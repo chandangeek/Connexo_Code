@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -188,7 +189,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new DeviceConfigurationModule(),
                 new MdcIOModule(),
                 new SchedulingModule(),
-                new DeviceDataModule());
+                new DeviceDataModule(),
+                new CalendarModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(PluggableService.class);

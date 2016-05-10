@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.ViewPrivilege;
@@ -174,6 +177,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceSearchDomain deviceSearchDomain;
     private DataCollectionKpiService dataCollectionKpiService;
     private FiniteStateMachineService finiteStateMachineService;
+    private CalendarService calendarService;
     private Injector injector;
 
     public InMemoryIntegrationPersistence() {
@@ -255,7 +259,8 @@ public class InMemoryIntegrationPersistence {
                 new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
-                new SchedulingModule());
+                new SchedulingModule(),
+                new CalendarModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
@@ -297,6 +302,7 @@ public class InMemoryIntegrationPersistence {
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
+            this.calendarService = injector.getInstance(CalendarService.class);
             injector.getInstance(CustomPropertySetService.class);
             initializePrivileges();
             ctx.commit();
@@ -397,6 +403,10 @@ public class InMemoryIntegrationPersistence {
         return this.deviceDataModelService.communicationTaskReportService();
     }
 
+    public CalendarService getCalendarService() {
+        return this.calendarService;
+    }
+
     public DeviceDataModelService getDeviceDataModelService() {
         return deviceDataModelService;
     }
@@ -467,6 +477,10 @@ public class InMemoryIntegrationPersistence {
 
     public EstimationService getEstimationService() {
         return estimationService;
+    }
+
+    public CalendarService calendarService() {
+        return calendarService;
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {
