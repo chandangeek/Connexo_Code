@@ -1213,6 +1213,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     usagePoint.getLocation().ifPresent(loc -> {
                         location = location == null ? loc : location;
                     });
+                    usagePoint.getGeoCoordinates().ifPresent(geo -> {
+                        geoCoordinates.set(geoCoordinates.isPresent() ? geoCoordinates.get() : geo);
+                    });
                 }
             });
         });
