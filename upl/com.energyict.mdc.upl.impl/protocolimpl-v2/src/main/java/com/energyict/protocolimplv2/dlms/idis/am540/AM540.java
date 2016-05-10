@@ -49,7 +49,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-04-26 15:13:47 +0200 (Tue, 26 Apr 2016)$";
+        return "$Date: 2016-05-10 12:20:42 +0200 (Tue, 10 May 2016)$";
     }
 
     /**
@@ -246,6 +246,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
     public AbstractMeterTopology getMeterTopology() {
         if (meterTopology == null) {
             meterTopology = new IDISMeterTopology(this);
+            meterTopology.searchForSlaveDevices();
         }
         return meterTopology;
     }

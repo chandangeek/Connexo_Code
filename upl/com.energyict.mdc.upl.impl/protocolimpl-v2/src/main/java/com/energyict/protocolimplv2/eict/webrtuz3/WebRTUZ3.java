@@ -158,6 +158,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     public AbstractMeterTopology getMeterTopology() {
         if (meterTopology == null) {
             meterTopology = new WebRTUZ3MeterTopology(this);
+            meterTopology.searchForSlaveDevices();
         }
         return meterTopology;
     }
@@ -184,7 +185,7 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-06 14:27:09 +0100 (Fri, 06 Nov 2015) $";
+        return "$Date: 2016-05-10 12:20:42 +0200 (Tue, 10 May 2016)$";
     }
 
     @Override
