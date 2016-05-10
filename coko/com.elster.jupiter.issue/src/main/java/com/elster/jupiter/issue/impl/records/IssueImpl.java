@@ -23,21 +23,18 @@ import java.util.Optional;
 import static com.elster.jupiter.util.Checks.is;
 
 public class IssueImpl extends EntityImpl implements Issue {
+    private static final String DEFAULT_ISSUE_PREFIX = "ISS";
     private Instant dueDate;
     private Reference<IssueReason> reason = ValueReference.absent();
     private Reference<IssueStatus> status = ValueReference.absent();
-
     private IssueAssigneeImpl assignee;
     private boolean overdue;
-
     //work around
     private AssigneeType assigneeType;
     private Reference<User> user = ValueReference.absent();
-
     private Reference<EndDevice> device = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<CreationRule> rule = ValueReference.absent();
-
     private volatile IssueService issueService;
     private volatile IssueAssignmentService issueAssignmentService;
 
@@ -50,7 +47,11 @@ public class IssueImpl extends EntityImpl implements Issue {
 
     @Override
     public String getIssueId() {
-        return "ISS-" + this.getId();
+        String prefix = DEFAULT_ISSUE_PREFIX;
+        if (this.reason.isPresent()) {
+            prefix = this.reason.get().getIssueType().getPrefix();
+        }
+        return prefix + "-" + this.getId();
     }
 
     @Override
@@ -130,6 +131,11 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
+    public void setOverdue(boolean overdue) {
+        this.overdue = overdue;
+    }
+
+    @Override
     public CreationRule getRule() {
         return rule.orNull();
     }
@@ -140,8 +146,8 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public Optional<IssueComment> addComment(String body, User author){
-        if (!is(body).emptyOrOnlyWhiteSpace() && author != null){
+    public Optional<IssueComment> addComment(String body, User author) {
+        if (!is(body).emptyOrOnlyWhiteSpace() && author != null) {
             IssueCommentImpl comment = getDataModel().getInstance(IssueCommentImpl.class);
             comment.init(getId(), body, author).save();
             return Optional.of(IssueComment.class.cast(comment));
@@ -167,14 +173,9 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public void autoAssign(){
+    public void autoAssign() {
         IssueForAssign wrapper = new IssueForAssignImpl(this);
         issueAssignmentService.assignIssue(Collections.singletonList(wrapper));
-    }
-
-    @Override
-    public void setOverdue(boolean overdue) {
-        this.overdue = overdue;
     }
 
     public User getUser() {
