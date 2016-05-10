@@ -3,10 +3,10 @@
  */
 Ext.define('Uni.form.field.Location', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.location',
     mixins: {
         field: 'Ext.form.field.Field'
     },
+    alias: 'widget.location',
     requires: [
         'Uni.store.FindLocations',
         'Uni.property.form.Property',
@@ -24,6 +24,9 @@ Ext.define('Uni.form.field.Location', {
     editLocation: Uni.I18n.translate('location.editLocation', 'UNI', 'Input location'),
     findLocationsUrl: null,
     locationDetailsUrl: null,
+    isValid: function () {
+        return true;
+    },
     initComponent: function () {
         var me = this, comboLocation, editLocation, propertyFormLocation, store;
 
@@ -41,6 +44,7 @@ Ext.define('Uni.form.field.Location', {
             forceSelection: false,
             typeAhead: true,
             mode: 'remote',
+            selectOnFocus: true,
             triggerAction: 'all',
             queryParam: 'filter',
             listeners: {
@@ -114,9 +118,11 @@ Ext.define('Uni.form.field.Location', {
 
                 if (recordProperties && recordProperties.properties() && recordProperties.properties().count()) {
                     propertyForm.loadRecord(recordProperties);
+                    propertyForm.show();
                 }
                 field.locationId = newValue[0].get('id');
                 comboLocation.setRawValue(recordProperties.get('unformattedLocationValue'));
+                propertyForm.hide();
             }
         })
     },
@@ -126,9 +132,32 @@ Ext.define('Uni.form.field.Location', {
             comboLocation = me.down('#combo-location'),
             propertyForm = me.down('#property-form-location');
 
-        propertyForm.setVisible(newValue);
-        comboLocation.setReadOnly(newValue);
-        comboLocation.reset();
+        if ((newValue == true) && (comboLocation.getValue() == null)) {
+            var url = Ext.String.format('{0}/{1}', me.locationDetailsUrl, 0);
+            Ext.Ajax.request({
+                url: url,
+                method: 'GET',
+                success: function (response) {
+                    var model = new Uni.model.LocationInfo();
+                    var reader = model.getProxy().getReader();
+                    var resultSet = reader.readRecords(Ext.decode(response.responseText));
+                    var recordProperties = resultSet.records[0];
+
+                    if (recordProperties && recordProperties.properties() && recordProperties.properties().count()) {
+                        propertyForm.loadRecord(recordProperties);
+                        propertyForm.show();
+                    }
+
+                    propertyForm.setVisible(newValue);
+                    comboLocation.setReadOnly(newValue);
+                    comboLocation.reset();
+                }
+            })
+        }
+        else {
+            propertyForm.setVisible(newValue);
+            comboLocation.setReadOnly(newValue);
+        }
     },
 
     setValue: function (value) {
@@ -184,9 +213,5 @@ Ext.define('Uni.form.field.Location', {
             value.locationId = comboLocation.locationId;
         }
         return value;
-    },
-
-    markInvalid: function (fields) {
-        alert(fields);
     }
 });

@@ -1,8 +1,10 @@
 Ext.define('Uni.property.view.property.Text', {
     extend: 'Uni.property.view.property.BaseCombo',
 
+
     getNormalCmp: function () {
-        var me = this;
+        var me = this,
+            maxLength = me.property.raw.propertyTypeInfo.propertyValidationRule ? me.property.raw.propertyTypeInfo.propertyValidationRule.maxLength : undefined;
         return {
             xtype: 'textfield',
             name: this.getName(),
@@ -12,6 +14,8 @@ Ext.define('Uni.property.view.property.Text', {
             readOnly: me.isReadOnly,
             allowBlank: me.allowBlank,
             inputType: me.inputType,
+            maxLength: maxLength,
+            enforceMaxLength: (maxLength != null) ? true : false,
             blankText: me.blankText
         }
     },

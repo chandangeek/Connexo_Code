@@ -15,18 +15,14 @@ Ext.define('Uni.form.field.Coordinates', {
     initComponent: function () {
         var me = this,
             noCoordinate = {
-                xtype: 'component',
+                xtype: 'displayfield',
                 itemId: 'no-coordinate',
-                hidden: true,
-                cls: 'x-form-display-field',
-                autoEl: {
-                    html: Uni.I18n.translate('coordinate.noInput', 'UNI', 'No coordinates input'),
-                    tag: 'span',
-                    style: {
-                        fontStyle: 'italic',
-                        color: '#999'
-                    }
-                }
+                value: Uni.I18n.translate('coordinate.noInput', 'UNI', 'No coordinates input'),
+                fieldStyle: {
+                    fontStyle: 'italic',
+                    color: '#999'
+                },
+                width: '100%'
             },
             displayCoordinateLat = {
                 xtype: 'displayfield',
@@ -56,6 +52,7 @@ Ext.define('Uni.form.field.Coordinates', {
             },
             textCoordinateLat = {
                 xtype: 'numberfield',
+                hideTrigger: true,
                 itemId: 'txt-coordinate-lat',
                 width: '35%',
                 decimalPrecision: 4,
@@ -65,11 +62,16 @@ Ext.define('Uni.form.field.Coordinates', {
                     change: {
                         fn: me.onItemChange,
                         scope: me
+                    },
+                    blur: {
+                        fn: me.recurrenceNumberFieldValidation,
+                        scope: me
                     }
                 }
             },
             textCoordinateLong = {
                 xtype: 'numberfield',
+                hideTrigger: true,
                 itemId: 'txt-coordinate-long',
                 width: '35%',
                 decimalPrecision: 4,
@@ -79,17 +81,28 @@ Ext.define('Uni.form.field.Coordinates', {
                     change: {
                         fn: me.onItemChange,
                         scope: me
+                    },
+                    blur: {
+                        fn: me.recurrenceNumberFieldValidation,
+                        scope: me
                     }
                 }
             },
             textCoordinateElev = {
                 xtype: 'numberfield',
+                hideTrigger: true,
                 itemId: 'txt-coordinate-elev',
                 width: '20%',
                 decimalPrecision: 3,
+                minValue: -10000,
+                maxValue: 10000,
                 listeners: {
                     change: {
                         fn: me.onItemChange,
+                        scope: me
+                    },
+                    blur: {
+                        fn: me.recurrenceNumberFieldValidation,
                         scope: me
                     }
                 }
@@ -101,17 +114,13 @@ Ext.define('Uni.form.field.Coordinates', {
                 margin: '5 0 0 6'
             },
             textNote = {
-                xtype: 'component',
-                cls: 'x-form-display-field',
-                autoEl: {
-                    html: Uni.I18n.translate('coordinate.note', 'UNI', 'Edited coordinate values will be displayed also in <br/>degrees, minutes, seconds format'),
-                    tag: 'span',
-                    style: {
-
-                        fontStyle: 'italic',
-                        color: '#999'
-                    }
-                }
+                xtype: 'displayfield',
+                value: Uni.I18n.translate('coordinate.note', 'UNI', 'Edited coordinate values will be displayed also in degrees, minutes, seconds format'),
+                fieldStyle: {
+                    fontStyle: 'italic',
+                    color: '#999'
+                },
+                width: '100%'
             },
             textContainer = {
                 xtype: 'container',
@@ -204,7 +213,7 @@ Ext.define('Uni.form.field.Coordinates', {
             elevTextField = me.down('#txt-coordinate-elev');
 
         return {
-            spatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null &&  elevTextField.getValue() == null)? null :
+            spatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null && elevTextField.getValue() == null) ? null :
                 Ext.String.format('{0}:{1}:{2}', latTextField.getValue(), longTextField.getValue(), elevTextField.getValue()),
             coordinatesDisplay: null
         };
@@ -238,6 +247,9 @@ Ext.define('Uni.form.field.Coordinates', {
             direction = days < 0 ? 'W' : 'E'
         }
 
+        if (isNaN(days) || isNaN(minutes) || isNaN(secounds)) {
+            return '';
+        }
         return (days * sign) + 'º ' + minutes + "' " + secounds + "'' " + direction;
     },
 
@@ -245,5 +257,15 @@ Ext.define('Uni.form.field.Coordinates', {
         this.down('#txt-coordinate-long').markInvalid('');
         this.down('#txt-coordinate-elev').markInvalid('');
         this.down('#txt-coordinate-lat').markInvalid(fields);
+    },
+
+    recurrenceNumberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (value < field.minValue) {
+            field.setValue(field.minValue);
+        } else if (value > field.maxValue) {
+            field.setValue(field.maxValue);
+        }
     }
 });
