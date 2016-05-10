@@ -70,7 +70,8 @@ Ext.define('Uni.Loader', {
         'Uni.override.DisplayFieldOverride',
         'Uni.override.Date',
         'Uni.override.picker.Date',
-        'Uni.override.form.field.Text'
+        'Uni.override.form.field.Text',
+        'Uni.util.CheckAppStatus'
     ],
 
     /**
