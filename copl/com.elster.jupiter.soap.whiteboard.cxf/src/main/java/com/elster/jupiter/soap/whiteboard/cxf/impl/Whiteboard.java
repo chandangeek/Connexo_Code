@@ -1,6 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.soap.whiteboard.EndPointProvider;
+import com.elster.jupiter.soap.whiteboard.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.WebServicesService;
 
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
@@ -47,8 +48,27 @@ public class Whiteboard {
 		webServicesService.register(alias, provider);
 	}
 
-    public void removeEndPoint(EndPointProvider provider) {
-		webServicesService.unregister(provider);
+	public void removeEndPoint(EndPointProvider provider, Map<String, Object> props) {
+		String alias = getName(props);
+		if (alias == null) {
+			webServicesService.unregister(alias);
+		}
+	}
+
+	@Reference(name = "ZOutboundEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+	public void addEndPoint(OutboundEndPointProvider provider, Map<String, Object> props) {
+		String alias = getName(props);
+		if (alias == null) {
+			return;
+		}
+		webServicesService.register(alias, provider);
+	}
+
+	public void removeEndPoint(OutboundEndPointProvider provider, Map<String, Object> props) {
+		String alias = getName(props);
+		if (alias == null) {
+			webServicesService.unregister(alias);
+		}
 	}
 
 	private String getName(Map<String, Object> props) {
