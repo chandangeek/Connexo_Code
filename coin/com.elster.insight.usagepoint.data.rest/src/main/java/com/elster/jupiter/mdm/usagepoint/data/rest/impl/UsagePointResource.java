@@ -166,6 +166,11 @@ public class UsagePointResource {
     public UsagePointInfo updateUsagePoint(@PathParam("id") String id, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info);
 
+        RestValidationBuilder validationBuilder = new RestValidationBuilder();
+        validateGeoCoordinates(validationBuilder, "geoCoordinates", info.geoCoordinates);
+        validateLocation(validationBuilder, "location", info.location);
+        validationBuilder.validate();
+
         GeoCoordinates geoCoordinates = usagePointInfoFactory.getGeoCoordinates(info);
         if (geoCoordinates != null){
             usagePoint.setGeoCoordinates(geoCoordinates);
