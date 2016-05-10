@@ -51,7 +51,7 @@ public class Whiteboard {
 
 	public void removeEndPoint(EndPointProvider provider, Map<String, Object> props) {
 		String alias = getName(props);
-		if (alias == null) {
+		if (alias != null) {
 			webServicesService.unregister(alias);
 		}
 	}
@@ -67,7 +67,7 @@ public class Whiteboard {
 
 	public void removeEndPoint(OutboundEndPointProvider provider, Map<String, Object> props) {
 		String alias = getName(props);
-		if (alias == null) {
+		if (alias != null) {
 			webServicesService.unregister(alias);
 		}
 	}
