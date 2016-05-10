@@ -28,8 +28,7 @@ Ext.define('MdcApp.controller.Main', {
         'Dbp.privileges.DeviceProcesses',
         'Mdc.privileges.Monitor',
         'Mdc.privileges.UsagePoint',
-        'Scs.privileges.ServiceCall',
-        'Mdc.privileges.Monitor'
+        'Scs.privileges.ServiceCall'
 
     ],
     applicationTitle: 'Connexo MultiSense',
