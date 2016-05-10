@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -110,6 +111,7 @@ public class DeviceResource {
     private final ServiceCallInfoFactory serviceCallInfoFactory;
     private final TransactionService transactionService;
     private final ServiceCallService serviceCallService;
+    private final CalendarInfoFactory calendarInfoFactory;
 
     @Inject
     public DeviceResource(
@@ -139,11 +141,14 @@ public class DeviceResource {
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider,
             Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
             Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider,
-            Provider<GoingOnResource> goingOnResourceProvider, DeviceInfoFactory deviceInfoFactory,
+            Provider<GoingOnResource> goingOnResourceProvider,
+            DeviceInfoFactory deviceInfoFactory,
             DeviceAttributesInfoFactory deviceAttributesInfoFactory,
             DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory,
-            ServiceCallInfoFactory serviceCallInfoFactory, TransactionService transactionService,
-            ServiceCallService serviceCallService) {
+            ServiceCallInfoFactory serviceCallInfoFactory,
+            TransactionService transactionService,
+            ServiceCallService serviceCallService,
+            CalendarInfoFactory calendarInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -177,6 +182,7 @@ public class DeviceResource {
         this.serviceCallInfoFactory = serviceCallInfoFactory;
         this.transactionService = transactionService;
         this.serviceCallService = serviceCallService;
+        this.calendarInfoFactory = calendarInfoFactory;
     }
 
     @GET
@@ -765,6 +771,18 @@ public class DeviceResource {
         List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d)))
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
+    }
+
+    @GET
+    @Transactional
+    @Path("/{mRID}/timeofuse")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
+    public Response getCalendarInfo(@PathParam("mRID")String id) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+        DeviceCalendarInfo info = new DeviceCalendarInfo(device.getEffectiveCalendars(), calendarInfoFactory);
+
+        return Response.ok(info).build();
     }
 
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {
