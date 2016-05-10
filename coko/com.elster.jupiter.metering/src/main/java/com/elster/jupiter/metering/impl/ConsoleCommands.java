@@ -339,7 +339,7 @@ public class ConsoleCommands {
             EndDevice endDevice = meteringService.findEndDevice(mRID)
                     .orElseThrow(() -> new RuntimeException("No device with mRID " + mRID + "!"));
             GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude + ":" + elevation);
-            endDevice.setGeoCoordintes(geoCoordinates);
+            endDevice.setGeoCoordinates(geoCoordinates);
             endDevice.update();
             context.commit();
         }

@@ -24,6 +24,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -186,7 +187,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
-    public void setGeoCoordintes(GeoCoordinates geoCoordinates){
+    public void setGeoCoordinates(GeoCoordinates geoCoordinates){
         this.geoCoordinates.set(geoCoordinates);
     }
 

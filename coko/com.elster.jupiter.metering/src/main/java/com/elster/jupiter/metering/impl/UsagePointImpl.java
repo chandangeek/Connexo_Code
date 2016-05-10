@@ -331,6 +331,7 @@ public class UsagePointImpl implements UsagePoint {
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
         } else {
             updateDeviceDefaultLocation();
+            updateDeviceDefaultGeoCoordinates();
             Save.UPDATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
         }
@@ -762,8 +763,8 @@ public class UsagePointImpl implements UsagePoint {
         return Objects.hash(id);
     }
 
-    private void updateDeviceDefaultLocation(){
-        if(upLocation.isPresent()) {
+    private void updateDeviceDefaultLocation() {
+        if (upLocation.isPresent()) {
             if (location != upLocation.get().getId()) {
                 this.getMeterActivations().stream()
                         .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
@@ -775,7 +776,7 @@ public class UsagePointImpl implements UsagePoint {
                             }
                         }));
             }
-        } else if(location != 0){
+        } else if (location != 0) {
             this.getMeterActivations().stream()
                     .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
                         if (!meter.getLocation().isPresent()) {
@@ -786,6 +787,9 @@ public class UsagePointImpl implements UsagePoint {
                         }
                     }));
         }
+    }
+
+    private void updateDeviceDefaultGeoCoordinates(){
         if(geoCoordinates.isPresent()){
             dataModel.mapper(UsagePoint.class).getOptional(this.getId()).ifPresent(up -> {
                 if(up.getGeoCoordinates().isPresent()) {
@@ -793,7 +797,7 @@ public class UsagePointImpl implements UsagePoint {
                         this.getMeterActivations().stream()
                                 .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
                                     if (!meter.getGeoCoordinates().isPresent() || meter.getGeoCoordinates().get().getId() == up.getGeoCoordinates().get().getId()) {
-                                        meter.setGeoCoordintes(geoCoordinates.get());
+                                        meter.setGeoCoordinates(geoCoordinates.get());
                                         meter.update();
                                     }
                                 }));
@@ -802,7 +806,7 @@ public class UsagePointImpl implements UsagePoint {
                     this.getMeterActivations().stream()
                             .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
                                 if (!meter.getGeoCoordinates().isPresent()) {
-                                    meter.setGeoCoordintes(geoCoordinates.get());
+                                    meter.setGeoCoordinates(geoCoordinates.get());
                                     meter.update();
                                 }
                             }));

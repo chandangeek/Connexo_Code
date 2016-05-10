@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -9,6 +8,8 @@ import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -34,7 +35,7 @@ public interface EndDevice extends IdentifiedObject {
     long getLocationId();
     Optional<GeoCoordinates> getGeoCoordinates();
     long getGeoCoordinatesId();
-    void setGeoCoordintes(GeoCoordinates geoCoordinates);
+    void setGeoCoordinates(GeoCoordinates geoCoordinates);
 
 
     EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant);
