@@ -8,6 +8,8 @@ import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.rest.impl.MetrologyCofigurationInfo;
+import com.elster.jupiter.validation.rest.impl.MetrologyContractInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
@@ -21,6 +23,8 @@ public class DataValidationTaskInfo {
     public String name = "blank_name";
     public MeterGroupInfo deviceGroup;
     public UsagePointGroupInfo usagePointGroup;
+    public MetrologyCofigurationInfo metrologyConfiguration;
+    public MetrologyContractInfo metrologyContract;
     public PeriodicalExpressionInfo schedule;
     public DataValidationTaskHistoryInfo lastValidationOccurence;
     public Long nextRun;
@@ -46,6 +50,14 @@ public class DataValidationTaskInfo {
         }
         if (dataValidationTask.getUsagePointGroup().isPresent()) {
             usagePointGroup = new UsagePointGroupInfo(dataValidationTask.getUsagePointGroup().get());
+        }
+
+        if (dataValidationTask.getMetrologyContract().isPresent()) {
+            metrologyContract = new MetrologyContractInfo(dataValidationTask.getMetrologyContract().get());
+        }
+
+        if (dataValidationTask.getMetrologyContract().isPresent()) {
+            metrologyConfiguration = new MetrologyCofigurationInfo(dataValidationTask.getMetrologyContract().get().getMetrologyConfiguration());
         }
 
         if (Never.NEVER.equals(dataValidationTask.getScheduleExpression())) {

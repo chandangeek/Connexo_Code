@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -48,6 +49,7 @@ public class ValidationApplication extends Application implements TranslationKey
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -58,6 +60,7 @@ public class ValidationApplication extends Application implements TranslationKey
                 ValidationResource.class,
                 DataValidationTaskResource.class,
                 MeterGroupsResource.class,
+                MetrologyConfigurationsAndContractsResource.class,
                 UsagePointGroupsResource.class);
     }
 
@@ -90,6 +93,11 @@ public class ValidationApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
     }
@@ -111,6 +119,7 @@ public class ValidationApplication extends Application implements TranslationKey
             bind(validationService).to(ValidationService.class);
             bind(transactionService).to(TransactionService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
+            bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(timeService).to(TimeService.class);
         }

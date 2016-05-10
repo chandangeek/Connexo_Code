@@ -1,6 +1,8 @@
 package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -63,6 +65,7 @@ public class DataValidationTaskResource {
     private final RestQueryService queryService;
     private final ValidationService validationService;
     private final MeteringGroupsService meteringGroupsService;
+    private final MetrologyConfigurationService metrologyConfigurationService;
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final TimeService timeService;
@@ -73,6 +76,7 @@ public class DataValidationTaskResource {
                                       ValidationService validationService,
                                       TransactionService transactionService,
                                       MeteringGroupsService meteringGroupsService,
+                                      MetrologyConfigurationService metrologyConfigurationService,
                                       TimeService timeService,
                                       Thesaurus thesaurus,
                                       ConcurrentModificationExceptionFactory conflictFactory) {
@@ -80,6 +84,7 @@ public class DataValidationTaskResource {
         this.validationService = validationService;
         this.transactionService = transactionService;
         this.meteringGroupsService = meteringGroupsService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
         this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.conflictFactory = conflictFactory;
@@ -100,9 +105,12 @@ public class DataValidationTaskResource {
             if (info.deviceGroup != null) {
                 builder = builder.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
             }
-            if (info.usagePointGroup != null) {
-                builder = builder.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
+            if (info.metrologyContract != null) {
+                builder = builder.setMetrologyContract(metrologyContract(info.metrologyContract.id));
             }
+//            if (info.usagePointGroup != null) {
+//                builder = builder.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
+//            }
             DataValidationTask dataValidationTask = builder.create();
             context.commit();
             return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).build();
@@ -114,18 +122,11 @@ public class DataValidationTaskResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public PagedInfoList getDataValidationTasks(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
-//        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-//        List<DataValidationTask> list = getValidationTaskRestQuery().select(queryParameters, Order.descending("lastRun").nullsLast());
-//        List<DataValidationTask> list = getValidationTaskRestQuery(queryParameters, applicationName);
-//        DataValidationTaskInfos dataValidationTaskInfos = new DataValidationTaskInfos();
-//        dataValidationTaskInfos.addAll(validationService.findValidationTasks(), thesaurus, timeService);
         List<DataValidationTaskInfo> infos = validationService.findValidationTasks()
                 .stream()
                 .filter(task -> task.getApplication().equals(applicationName))
                 .map(dataValidationTask -> new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService))
                 .collect(Collectors.toList());
-//        return PagedInfoList.asJson("dataValidationTasks",
-//                list.stream().map(dataValidationTask -> new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).collect(Collectors.toList()), queryParameters);
 
         return PagedInfoList.fromPagedList("dataValidationTasks", infos, queryParameters);
     }
@@ -262,6 +263,10 @@ public class DataValidationTaskResource {
 
     private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
         return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElse(null);
+    }
+
+    private MetrologyContract metrologyContract(long metrologyContractId) {
+        return metrologyConfigurationService.findMetrologyContract(metrologyContractId).orElse(null);
     }
 
     private UsagePointGroup usagePointGroup(long usagePointGroupId) {
