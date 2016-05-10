@@ -103,11 +103,25 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
             items: [
                 {
                     xtype: 'container',
-                    cls: Uni.About.baseCssPrefix + 'panel-no-items-found-header',
-                    items: {
-                        xtype: 'container',
-                        itemId: 'header'
-                    }
+                    layout: 'hbox',
+                    items: [
+                        {
+                            xtype: 'box',
+                            height: 22,
+                            width: 26,
+                            margin: '5 0 0 5',
+                            style: {
+                                fontSize: '22px',
+                                color: '#eb5642'
+                            },
+                            cls: 'icon-warning'
+                        },
+                        {
+                            xtype: 'container',
+                            cls: Uni.About.baseCssPrefix + 'panel-no-items-found-header',
+                            itemId: 'header'
+                        }
+                    ]
                 },
                 {
                     xtype: 'panel',
@@ -174,7 +188,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
     },
 
     formatReason: function (reason) {
-        return '<li>' + reason + '</li>';
+        return '<li><span class="icon-target" style="margin-right:5px; font-size:12px; display:inline-block; color:#a0a0a0;"></span>' + reason + '</li>';
     },
 
     createSteps: function (stepItems) {
