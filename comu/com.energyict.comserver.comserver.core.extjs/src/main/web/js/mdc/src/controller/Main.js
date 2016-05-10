@@ -123,8 +123,7 @@ Ext.define('Mdc.controller.Main', {
     ],
 
     init: function () {
-        var me = this,
-            app = me.getApplication();
+        var me = this;
             //historian = me.getController('Mdc.controller.history.Setup'); // Forces route registration.
 
         if (Mdc.privileges.Device.canViewDevices()) {
