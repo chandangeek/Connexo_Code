@@ -6,7 +6,10 @@ import com.elster.jupiter.soap.whiteboard.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.WebServicesService;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
@@ -29,6 +32,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     private Map<String, ManagedEndpoint> webServices = new HashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
     private SoapProviderSupportFactory soapProviderSupportFactory;
+    private volatile BundleContext bundleContext;
 
     @Reference
     public void setSoapProviderSupportFactory(SoapProviderSupportFactory soapProviderSupportFactory) {
@@ -66,6 +70,15 @@ public class WebServicesServiceImpl implements WebServicesService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public boolean isInbound(String webServiceName) {
+        if (webServices.containsKey(webServiceName)) {
+            return webServices.get(webServiceName).getClass().isAssignableFrom(InboundEndPoint.class);
+        } else {
+            throw new IllegalArgumentException("No such web service");
+        }
+    }
+
     // called by whiteboard
     public void register(String name, InboundEndPointProvider endPointProvider) {
         webServices.put(name, new InboundEndPoint(endPointProvider, soapProviderSupportFactory));
@@ -73,7 +86,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     // called by whiteboard
     public void register(String name, OutboundEndPointProvider endPointProvider) {
-        webServices.put(name, new OutboundEndPoint(endPointProvider, soapProviderSupportFactory));
+        webServices.put(name, new OutboundEndPoint(endPointProvider, bundleContext));
     }
 
     // called by whiteboard
@@ -85,5 +98,15 @@ public class WebServicesServiceImpl implements WebServicesService {
                     .filter(e -> e.getKey().getWebServiceName().equals(webServiceName))
                     .forEach(e -> e.getValue().stop());
         }
+    }
+
+    @Activate
+    public void start(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
+    @Deactivate
+    public void stop(BundleContext bundleContext) {
+        // Do I have to unregister all outgoing services?
     }
 }

@@ -68,9 +68,15 @@ public class WebServicesGogoCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            endPointConfigurationService.newInboundEndPoint(name, webServiceName, url)
-                    .logLevel(LogLevel.valueOf(logLevel))
-                    .create();
+            if (webServicesService.isInbound(webServiceName)) {
+                endPointConfigurationService.newInboundEndPoint(name, webServiceName, url)
+                        .logLevel(LogLevel.valueOf(logLevel))
+                        .create();
+            } else {
+                endPointConfigurationService.newOutboundEndPoint(name, webServiceName, url)
+                        .logLevel(LogLevel.valueOf(logLevel))
+                        .create();
+            }
             context.commit();
         }
     }
