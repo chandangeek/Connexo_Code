@@ -175,7 +175,7 @@ Ext.define('Mdc.controller.setup.Messages', {
                         title: Uni.I18n.translate('commands.grid.empty.title', 'MDC', 'Device protocol did not specify any commands.'),
                         reasons: [
                             Uni.I18n.translate('commands.grid.emptyCmp.item1', 'MDC', 'No commands have been defined yet.'),
-                            Uni.I18n.translate('commands.grid.emptyCmp.item2', 'MDC', 'No commands is available for this category.')
+                            Uni.I18n.translate('commands.grid.emptyCmp.item2', 'MDC', 'No commands are available for this category.')
                         ]
                     }
                 );

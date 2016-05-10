@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
 
     initComponent: function () {
@@ -42,11 +42,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                             connectionId: this.connectionMethodId
                         },
                         emptyComponent: {
-                            xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('deviceconnectionhistory.empty.title', 'MDC', 'No history found'),
-                            reasons: [
-                                Uni.I18n.translate('deviceconnectionhistory.empty.list.item2', 'MDC', 'The connection method has never been used on the device')
-                            ]
+                            xtype: 'uni-form-empty-message',
+                            text: Uni.I18n.translate('deviceconnectionhistory.empty', 'MDC', 'The connection method has never been used on the device')
                         },
                         previewComponent: {
                             xtype: 'container',
@@ -78,11 +75,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                                                 mrid: this.mrid
                                             },
                                             emptyComponent: {
-                                                xtype: 'no-items-found-panel',
-                                                title: Uni.I18n.translate('deviceconnectionhistory.empty.title', 'MDC', 'No history found'),
-                                                reasons: [
-                                                    Uni.I18n.translate('deviceconnectionhistory.empty.list.item1', 'MDC', 'The communication task has never been executed on the device')
-                                                ]
+                                                xtype: 'uni-form-empty-message',
+                                                text: Uni.I18n.translate('devicecommunicationtaskhistory.empty', 'MDC', 'The communication task has never been executed on the device')
                                             },
                                             previewComponent:   {
                                                 xtype: 'deviceCommunicationTaskExecutionPreview'

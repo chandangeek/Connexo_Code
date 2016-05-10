@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
         'Mdc.view.setup.registerconfig.RegisterConfigPreview',
         'Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
 
     layout: {
@@ -42,11 +42,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
                 registerId: this.registerId
             },
             emptyComponent: {
-                xtype: 'no-items-found-panel',
-                title: Uni.I18n.translate('validation.empty.rules.title', 'MDC', 'No validation rules found'),
-                reasons: [
-                    Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the register configuration.')
-                ]
+                xtype: 'uni-form-empty-message',
+                text: Uni.I18n.translate('registerConfig.validationRules.empty', 'MDC', 'No validation rules are applied on the register configuration.')
             },
             previewComponent: {
                 xtype: 'validation-rule-preview',

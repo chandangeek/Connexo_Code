@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
         'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolGrid',
         'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolPreview',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
 
     content: [
@@ -22,11 +22,8 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                         xtype: 'deviceCommunicationProtocolGrid'
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('deviceCommunicationProtocol.empty.title', 'MDC', 'No communication protocols found'),
-                        reasons: [
-                            Uni.I18n.translate('deviceCommunicationProtocol.empty.list.item1', 'MDC', 'No license.')
-                        ]
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('deviceCommunicationProtocol.empty.list.item1', 'MDC', 'No license.')
                     },
                     previewComponent: {
                         xtype: 'deviceCommunicationProtocolPreview'

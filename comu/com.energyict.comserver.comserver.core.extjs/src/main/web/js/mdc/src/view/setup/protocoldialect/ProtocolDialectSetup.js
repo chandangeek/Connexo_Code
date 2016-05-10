@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
     requires: [
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
 
     initComponent: function () {
@@ -44,11 +44,8 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectSetup', {
                             deviceConfigId: this.deviceConfigId
                         },
                         emptyComponent: {
-                            xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('protocolDialects.empty.title', 'MDC', 'No protocol dialects found'),
-                            reasons: [
-                                Uni.I18n.translate('protocolDialects.empty.list.item1', 'MDC', 'No protocol dialects have been defined yet.')
-                            ]
+                            xtype: 'uni-form-empty-message',
+                            text: Uni.I18n.translate('protocolDialects.empty', 'MDC', 'No protocol dialects have been defined yet.')
                         },
                         previewComponent: {
                             xtype: 'protocolDialectPreview',

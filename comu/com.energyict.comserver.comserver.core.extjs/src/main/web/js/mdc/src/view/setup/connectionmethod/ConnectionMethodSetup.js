@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
     requires: [
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage'
     ],
 
     initComponent: function () {
@@ -81,11 +82,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
             };
         } else {
             return {
-                xtype: 'no-items-found-panel',
-                title: Uni.I18n.translate('connectionMethod.empty.title', 'MDC', 'No connection methods found'),
-                reasons: [
-                    Uni.I18n.translate('connectionMethod.empty.list.detailNotAdressableItem1', 'MDC', 'This device configuration is not directly addressable.')
-                ]
+                xtype: 'uni-form-empty-message',
+                text: Uni.I18n.translate('connectionMethod.empty.list.detailNotAdressableItem1', 'MDC', 'This device configuration is not directly addressable.')
             };
         }
     }

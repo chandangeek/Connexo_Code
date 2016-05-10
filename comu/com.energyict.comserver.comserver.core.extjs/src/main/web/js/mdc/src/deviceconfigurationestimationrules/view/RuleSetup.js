@@ -4,7 +4,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetup', {
 
     requires: [
         'Mdc.deviceconfigurationestimationrules.view.RulesGrid',
-        'Mdc.deviceconfigurationestimationrules.view.Preview'
+        'Mdc.deviceconfigurationestimationrules.view.Preview',
+        'Uni.util.FormEmptyMessage'
     ],
 
     router: null,
@@ -19,11 +20,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetup', {
         };
 
         me.emptyComponent = {
-            xtype: 'no-items-found-panel',
-            title: Uni.I18n.translate('deviceconfiguration.estimation.rules.title', 'MDC', 'No estimation rules found'),
-            reasons: [
-                Uni.I18n.translate('deviceconfiguration.estimation.rules.empty.list.item1', 'MDC', 'No estimation rules have been created yet.')
-            ]
+            xtype: 'uni-form-empty-message',
+            text: Uni.I18n.translate('deviceconfiguration.estimation.rules.empty', 'MDC', 'No estimation rules have been created yet.')
         };
 
         me.previewComponent = {

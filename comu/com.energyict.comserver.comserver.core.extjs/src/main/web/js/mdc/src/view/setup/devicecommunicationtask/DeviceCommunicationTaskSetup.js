@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskSetup'
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
         'Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPreview'
     ],
@@ -57,12 +57,9 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskSetup'
 
     getEmptyComponent: function () {
             return  {
-                xtype: 'no-items-found-panel',
+                xtype: 'uni-form-empty-message',
                 itemId: 'no-device-communication-tasks',
-                title: Uni.I18n.translate('devicecommunicationTask.empty.title', 'MDC', 'No communication tasks found'),
-                reasons: [
-                    Uni.I18n.translate('devicecommunicationTask.empty.list.item1', 'MDC', 'No communication tasks have been added to the device configuration.')
-                ]
+                text: Uni.I18n.translate('devicecommunicationTask.empty', 'MDC', 'No communication tasks have been added to the device configuration.')
             };
         }
 });

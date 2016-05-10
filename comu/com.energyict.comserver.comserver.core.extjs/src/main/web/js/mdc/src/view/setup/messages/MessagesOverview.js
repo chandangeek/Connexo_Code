@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.messages.MessagesOverview', {
     requires: [
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
         'Mdc.view.setup.messages.MessagesCategoriesGrid',
-        'Mdc.view.setup.messages.MessagesGrid'
+        'Mdc.view.setup.messages.MessagesGrid',
+        'Uni.util.FormEmptyMessage'
     ],
     initComponent: function () {
         var me = this;
@@ -36,11 +37,8 @@ Ext.define('Mdc.view.setup.messages.MessagesOverview', {
                             deviceConfigId: me.deviceConfigId
                         },
                         emptyComponent: {
-                            xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('commands.categoriesGrid.empty.title', 'MDC', 'No commands found'),
-                            reasons: [
-                                Uni.I18n.translate('commands.CategoriesGrid.emptyCmp.item1', 'MDC', 'Device protocol did not specify any commands')
-                            ]
+                            xtype: 'uni-form-empty-message',
+                            text: Uni.I18n.translate('commands.CategoriesGrid.empty', 'MDC', 'Device protocol did not specify any commands')
                         },
                         previewComponent: {
                             xtype: 'messages-grid'

@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TableView', {
     alias: 'widget.deviceLoadProfilesTableView',
     itemId: 'deviceLoadProfilesTableView',
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.deviceloadprofiles.DataGrid',
         'Mdc.view.setup.deviceloadprofiles.DataPreview',
         'Mdc.view.setup.devicechannels.DataPreview'
@@ -20,12 +20,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TableView', {
         };
 
         me.emptyComponent = {
-            xtype: 'no-items-found-panel',
+            xtype: 'uni-form-empty-message',
             itemId: 'no-load-profile-data',
-            title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
-            reasons: [
-                Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.')
-            ]
+            text: Uni.I18n.translate('deviceloadprofiles.data.empty', 'MDC', 'No readings have been defined yet.')
         };
 
         me.previewComponent = {

@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
     requires: [
         'Mdc.store.RegisterTypes',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
         'Uni.grid.column.Obis',
         'Uni.grid.column.ReadingType',
         'Ext.grid.plugin.BufferedRenderer'
@@ -132,11 +132,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             ]
                                         },
                                         emptyComponent: {
-                                            xtype: 'no-items-found-panel',
-                                            title: Uni.I18n.translate('setup.registergroup.RegisterGroupEdit.NoItemsFoundPanel.title', 'MDC', 'No register types found'),
-                                            reasons: [
-                                                Uni.I18n.translate('setup.registergroup.RegisterGroupEdit.NoItemsFoundPanel.reason1', 'MDC', 'No register types are associated to this register group.')
-                                            ]
+                                            xtype: 'uni-form-empty-message',
+                                            text: Uni.I18n.translate('setup.registergroup.RegisterGroupEdit.NoRegisterTypes', 'MDC', 'No register types are associated to this register group.')
                                         }
                                     },
                                     {

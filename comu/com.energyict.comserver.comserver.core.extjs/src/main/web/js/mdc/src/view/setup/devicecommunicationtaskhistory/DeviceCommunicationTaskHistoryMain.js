@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage',
     ],
 
     initComponent: function () {
@@ -42,11 +42,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                             comTaskId: me.comTaskId
                         },
                         emptyComponent: {
-                            xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('devicecommunicationtaskhistory.empty.title', 'MDC', 'No communication history found'),
-                            reasons: [
-                                Uni.I18n.translate('devicecommunicationtaskhistory.empty.reason1', 'MDC', 'The communication task has never been executed on the device')
-                            ]
+                            xtype: 'uni-form-empty-message',
+                            text: Uni.I18n.translate('devicecommunicationtaskhistory.empty', 'MDC', 'The communication task has never been executed on the device')
                         },
                         previewComponent: {
                             xtype: 'container',

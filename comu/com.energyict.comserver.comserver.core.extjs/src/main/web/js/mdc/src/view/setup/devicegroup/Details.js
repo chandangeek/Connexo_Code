@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
         'Mdc.view.setup.devicegroup.DeviceGroupActionMenu',
         'Mdc.view.setup.devicegroup.PreviewForm',
         'Uni.view.container.EmptyGridContainer',
-        'Mdc.view.setup.devicegroup.DevicesOfDeviceGroupGrid'
+        'Mdc.view.setup.devicegroup.DevicesOfDeviceGroupGrid',
+        'Uni.util.FormEmptyMessage'
     ],
 
     router: null,
@@ -75,18 +76,15 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
                     ]
                 },
                 {
-                    xtype: 'emptygridcontainer',
+                    xtype: 'preview-container',
                     itemId: 'search-preview-container',
                     grid: {
                         xtype: 'devicesOfDeviceGroupGrid',
                         service: me.service
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('devicesearch.empty.title', 'MDC', 'No devices found'),
-                        reasons: [
-                            Uni.I18n.translate('devicegroup.empty.list.message', 'MDC', 'There are no devices in your group.')
-                        ]
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('devicegroup.empty.list.message', 'MDC', 'There are no devices in your group.')
                     }
                 }
             ]
