@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.HasValidProperties;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.rest.util.properties.StringValidationRules;
 import com.elster.jupiter.validation.rest.BasicPropertyTypes;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -28,6 +29,14 @@ public class EditLocationInfo {
     public PropertyInfo[] properties;
 
     public EditLocationInfo() {
+    }
+
+    public EditLocationInfo(MeteringService meteringService, Thesaurus thesaurus, String mRID) {
+        Optional<Location> location = meteringService.findDeviceLocation(mRID);
+        if (location.isPresent()) {
+            createLocationInfo(meteringService, thesaurus, location.get().getId());
+
+        }
     }
 
     public void createLocationInfo(MeteringService meteringService, Thesaurus thesaurus, Long locationId) {
@@ -72,21 +81,16 @@ public class EditLocationInfo {
                     .collect(Collectors.toList()).
                             get(0).isMandatory();
 
+            StringValidationRules stringValidationRules = new StringValidationRules();
+            stringValidationRules.setMinLength(0);
+            stringValidationRules.setMaxLength(80);
             infoProperties[i] = new PropertyInfo(thesaurus.getString(templateElementsNames.get(i), templateElementsNames.get(i)),
                     templateElementsNames.get(i),
-                    new PropertyValueInfo<>(locationList.size() > i ? locationList.get(i) : "", null),
+                    new PropertyValueInfo<>(locationList.size() > i ? locationList.get(i) : null, "", false),
                     new PropertyTypeInfo(BasicPropertyTypes.TEXT, null, null, null),
                     isMandatory);
         }
         properties = infoProperties;
-    }
-
-    public EditLocationInfo(MeteringService meteringService, Thesaurus thesaurus, String mRID) {
-        Optional<Location> location = meteringService.findDeviceLocation(mRID);
-        if (location.isPresent()) {
-            createLocationInfo( meteringService, thesaurus, location.get().getId());
-
-        }
     }
 
 }
