@@ -94,6 +94,17 @@ Ext.onReady(function () {
     });
 
     loader.onReady(function () {
+        var dependenciesCounter = 2,
+            onDependenciesLoad = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    Ext.application({
+                        name: 'MdcApp',
+                        extend: 'MdcApp.Application',
+                        autoCreateViewport: true
+                    });
+                }
+            };
 
         if(localStorage.getItem('X-AUTH-TOKEN')){
             Ext.Ajax.defaultHeaders = {
@@ -118,13 +129,8 @@ Ext.onReady(function () {
             }
         });
 
-        Uni.store.Apps.load(function() {
-            Ext.application({
-                name: 'MdcApp',
-                extend: 'MdcApp.Application',
-                autoCreateViewport: true
-            });
-        });
+        Uni.store.Apps.load(onDependenciesLoad);
+        Uni.util.CheckAppStatus.checkInsightAppStatus(onDependenciesLoad);
     });
 });
 
