@@ -41,6 +41,7 @@ import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
@@ -81,6 +82,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -92,11 +95,14 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -135,6 +141,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private static String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
     private static String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
 
+    private Map<AmrSystem, HeadEndInterface> headEndInterfaces = new ConcurrentHashMap<>();
+
     public MeteringServiceImpl() {
         this.createAllReadingTypes = true;
     }
@@ -172,6 +180,33 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
     }
+
+    @Reference(name = "ZHeadEndInterface", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addHeadEndInterface(AmrSystem amrSystem, HeadEndInterface headEndInterface) {
+        headEndInterfaces.put(amrSystem, headEndInterface);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeHeadEndInterface(AmrSystem amrSystem) {
+        headEndInterfaces.remove(amrSystem);
+    }
+
+    @Override
+    public Map<AmrSystem, HeadEndInterface> getHeadEndInterfaces() {
+        return headEndInterfaces;
+    }
+
+    @Override
+    public Optional<HeadEndInterface> getHeadEndInterface(AmrSystem amrSystem) {
+        Optional<Map.Entry<AmrSystem, HeadEndInterface>> headEndInterface = headEndInterfaces.entrySet().stream()
+                .filter(entry -> entry.getKey().equals(amrSystem))
+                .findFirst();
+        if(headEndInterface.isPresent()){
+            return Optional.of(headEndInterface.get().getValue());
+        }
+        return Optional.empty();
+    }
+
 
     @Override
     public Optional<ServiceCategory> getServiceCategory(ServiceKind kind) {

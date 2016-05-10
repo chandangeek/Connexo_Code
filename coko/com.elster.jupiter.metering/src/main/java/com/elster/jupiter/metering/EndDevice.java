@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -35,6 +36,7 @@ public interface EndDevice extends IdentifiedObject {
     Optional<GeoCoordinates> getGeoCoordinates();
     long getGeoCoordinatesId();
     void setGeoCoordintes(GeoCoordinates geoCoordinates);
+    Optional<HeadEndInterface> getHeadEndInterface();
 
 
     EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant);
