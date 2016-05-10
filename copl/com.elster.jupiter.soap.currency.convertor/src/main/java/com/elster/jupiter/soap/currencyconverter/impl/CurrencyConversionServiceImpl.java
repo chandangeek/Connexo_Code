@@ -4,15 +4,18 @@ import com.elster.jupiter.soap.currencyconverter.CurrencyConversionService;
 import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
  * Created by bvn on 5/9/16.
  */
-@Component(name = "com.elster.jupiter.currency.converter", service = CurrencyConversionService.class, immediate = true)
+//@Component(name = "com.elster.jupiter.currency.converter", service = CurrencyConversionService.class, immediate = true)
 public class CurrencyConversionServiceImpl implements CurrencyConversionService {
     private SoapProviderSupportFactory soapProviderSupportFactory;
+
+    public CurrencyConversionServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory) {
+        this.soapProviderSupportFactory = soapProviderSupportFactory;
+    }
 
     @Reference
     public void setSoapProviderSupportFactory(SoapProviderSupportFactory soapProviderSupportFactory) {
