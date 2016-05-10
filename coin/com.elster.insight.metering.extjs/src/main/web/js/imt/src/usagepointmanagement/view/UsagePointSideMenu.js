@@ -57,8 +57,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                 items: [
                     {
                         text: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-                        itemId: 'usage-point-metrology-configuration-link',
-                        privileges: Imt.privileges.UsagePoint.view,
+                        itemId: 'usage-point-metrology-configuration-link',                        
                         href: me.router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl()
                     }
                 ]

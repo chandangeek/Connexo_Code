@@ -94,6 +94,15 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
             }
         ];
 
+        me.bbar = [
+            {
+                itemId: 'up-metrology-config-more-details-link',
+                ui: 'link',                
+                text: Uni.I18n.translate('general.moreDetails', 'IMT', 'More details'),
+                href: me.router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl()
+            }
+        ];
+
         me.callParent(arguments);
     }
 });
