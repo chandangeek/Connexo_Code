@@ -125,6 +125,9 @@ public class IssueResourceHelper {
 
     public IssueFilter buildFilterFromQueryParameters(JsonQueryFilter jsonFilter) {
         IssueFilter filter = issueService.newIssueFilter();
+        if (jsonFilter.hasProperty(IssueRestModuleConst.ID)) {
+            filter.setIssueId(jsonFilter.getString(IssueRestModuleConst.ID));
+        }
         jsonFilter.getStringList(IssueRestModuleConst.STATUS).stream()
                 .flatMap(s -> issueService.findStatus(s).map(Stream::of).orElse(Stream.empty()))
                 .forEach(filter::addStatus);
