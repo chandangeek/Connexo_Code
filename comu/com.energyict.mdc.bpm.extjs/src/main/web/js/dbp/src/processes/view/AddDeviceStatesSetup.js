@@ -3,7 +3,8 @@ Ext.define('Dbp.processes.view.AddDeviceStatesSetup', {
     xtype: 'dbp-add-device-states-setup',
     overflowY: true,
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.view.container.PreviewContainer',
+        'Uni.util.FormEmptyMessage',
         'Dbp.processes.view.AddDeviceStates'
     ],
 
@@ -33,12 +34,9 @@ Ext.define('Dbp.processes.view.AddDeviceStatesSetup', {
                             }
                         },
                         emptyComponent: {
-                            xtype: 'no-items-found-panel',
+                            xtype: 'uni-form-empty-message',
                             itemId: 'ctr-add-device-states',
-                            title: Uni.I18n.translate('editProcess.addDeviceStates.empty.title', 'DBP', 'No device states found'),
-                            reasons: [
-                                Uni.I18n.translate('editProcess.addDeviceStates.empty.list.item1', 'DBP', 'All device states have been added to the process.')
-                            ]
+                            text: Uni.I18n.translate('editProcess.addDeviceStates.empty', 'DBP', 'All device states have been added to the process.')
                         }
                     }
                 ]

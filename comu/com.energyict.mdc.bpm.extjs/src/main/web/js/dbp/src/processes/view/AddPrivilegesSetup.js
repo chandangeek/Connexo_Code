@@ -3,7 +3,8 @@ Ext.define('Dbp.processes.view.AddPrivilegesSetup', {
     xtype: 'dbp-add-privileges-setup',
     overflowY: true,
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.view.container.PreviewContainer',
+        'Uni.util.FormEmptyMessage',
         'Dbp.processes.view.AddPrivileges'
     ],
 
@@ -33,12 +34,9 @@ Ext.define('Dbp.processes.view.AddPrivilegesSetup', {
                             }
                         },
                         emptyComponent: {
-                            xtype: 'no-items-found-panel',
+                            xtype: 'uni-form-empty-message',
                             itemId: 'ctr-add-device-states',
-                            title: Uni.I18n.translate('editProcess.addPrivileges.empty.title', 'DBP', 'No privileges found'),
-                            reasons: [
-                                Uni.I18n.translate('editProcess.addPrivileges.empty.list.item1', 'DBP', 'All privileges have been added to the process.')
-                            ]
+                            text: Uni.I18n.translate('editProcess.addPrivileges.empty', 'DBP', 'All privileges have been added to the process.')
                         }
                     }
                 ]
