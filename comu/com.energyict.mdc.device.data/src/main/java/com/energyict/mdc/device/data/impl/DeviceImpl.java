@@ -388,8 +388,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 if (this.geoCoordinates.isPresent()) {
                     foundMeter.setGeoCoordinates(geoCoordinates.get());
                 }
+                else{
+                    foundMeter.setGeoCoordintes(null);
+                }
                 foundMeter.update();
             });
+
             this.saveDirtySecurityProperties();
             this.saveDirtyConnectionProperties();
             this.saveNewAndDirtyDialectProperties();
