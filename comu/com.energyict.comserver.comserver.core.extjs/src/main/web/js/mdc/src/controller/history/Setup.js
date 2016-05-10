@@ -1075,7 +1075,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     route: 'metrologyconfiguration',
                     controller: 'Mdc.metrologyconfiguration.controller.ListView',
                     action: 'showList',
-                    privileges: Mdc.privileges.MetrologyConfiguration.all()
+                    privileges: Mdc.privileges.MetrologyConfiguration.full()
                 }
             }
         },

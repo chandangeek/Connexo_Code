@@ -123,7 +123,8 @@ Ext.define('Mdc.controller.Main', {
     ],
 
     init: function () {
-        var me = this;
+        var me = this,
+            app = me.getApplication();
             //historian = me.getController('Mdc.controller.history.Setup'); // Forces route registration.
 
         if (Mdc.privileges.Device.canViewDevices()) {
@@ -286,6 +287,21 @@ Ext.define('Mdc.controller.Main', {
 
                 Uni.store.PortalItems.add(portalItem);
             }
+        }
+
+        if (Mdc.privileges.MetrologyConfiguration.full()) {
+            Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.usagePointManagement', 'MDC', 'Usage point management'),
+                portal: 'administration',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.metrologyConfigurations', 'MDC', 'Metrology configurations'),
+                        itemId: 'lnk-metrology-configurations',
+                        href: '#/administration/metrologyconfiguration',
+                        route: 'add'
+                    }
+                ]
+            }));
         }
 
         Uni.store.Apps.load({
