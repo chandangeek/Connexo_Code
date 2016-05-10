@@ -2,7 +2,8 @@ Ext.define('Ddv.view.ValidationOverview', {
     extend: 'Ext.container.Container',
     requires: [
         'Dsh.view.widget.HeaderSection',
-        'Ddv.view.Setup'
+        'Ddv.view.Setup',
+        'Uni.util.FormEmptyMessage'
     ],
     alias: 'widget.ddv-validation-overview',
     autoScroll: true,
@@ -41,17 +42,14 @@ Ext.define('Ddv.view.ValidationOverview', {
                         hidden: me.hiddenGrid
                     },
                     {
-                        xtype: 'no-items-found-panel',
+                        xtype: 'uni-form-empty-message',
                         itemId: 'ctr-no-group-selected',
                         hidden: me.hiddenNoGroup,
                         style: {
                             marginRight: '17px',
                             padding: '17px'
                         },
-                        title: Uni.I18n.translate('validation.validationOverview.noGroupSelected', 'DDV', 'No group selected'),
-                        reasons: [
-                            Uni.I18n.translate('validation.validationOverview.noGroup.list.item', 'DDV', 'No device group has been selected yet.')
-                        ]
+                        text: Uni.I18n.translate('validation.validationOverview.noGroup', 'DDV', 'No device group has been selected yet.')
                     }
                 ]
             }
