@@ -5,7 +5,7 @@ import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
-import com.elster.jupiter.orm.fields.impl.LazyLoadedBlob;
+import com.elster.jupiter.orm.fields.impl.LazyLoadingBlob;
 
 import com.google.inject.Injector;
 
@@ -103,8 +103,9 @@ public enum DomainMapper {
                 Object currentValue = field.get(target);
                 if (currentValue instanceof Reference) {
                     ((Reference<Object>) currentValue).set(value);
-                } else if (value instanceof LazyLoadedBlob) {
-                    ((LazyLoadedBlob) value).setKeyValueFor(target);
+                    return;
+                } else if (value instanceof LazyLoadingBlob) {
+                    ((LazyLoadingBlob) value).setKeyValueFor(target);
                 }
                 field.set(target, value);
             } catch (IllegalAccessException e) {

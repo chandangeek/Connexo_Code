@@ -32,7 +32,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LobTest {
@@ -50,10 +49,6 @@ public class LobTest {
 
     @Before
     public void setUp() {
-        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@localhost:1521:orcl");
-        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("kore");
-        when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcpassword")).thenReturn("kore");
-
 // Uncomment to work with OracleBootstrapModule
 //    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@doraps003.eict.vpdc:7137:DEVRD");
 //    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("RVK_DATA_AGGREGATION");
@@ -84,7 +79,7 @@ public class LobTest {
     }
 
     @Test
-    public void testInsert() {
+    public void testInsert() throws SQLException {
     	OrmService service = injector.getInstance(OrmService.class);
     	DataModel dataModel = this.findOrCreateDataModel(service);
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {

@@ -1,6 +1,6 @@
 package com.elster.jupiter.orm.fields.impl;
 
-import com.elster.jupiter.orm.SimpleBlob;
+import com.elster.jupiter.orm.Blob;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
@@ -398,10 +398,10 @@ public enum ColumnConversionImpl {
 
         @Override
         public Object convertToDb(ColumnImpl column, Object value) {
-	        if (value instanceof LazyLoadedBlob) {
+	        if (value instanceof LazyLoadingBlob) {
                 return value;
-            } else if (value instanceof SimpleBlob) {
-                return LazyLoadedBlob.from((SimpleBlob) value, column);
+            } else if (value instanceof Blob) {
+                return LazyLoadingBlob.from((Blob) value, column);
 	        } else {
 		        throw new IllegalArgumentException("Conversion " + name() + " only supports PersistentBlob and SimpleBlob values but not " + value.getClass().getName());
 	        }
@@ -409,7 +409,7 @@ public enum ColumnConversionImpl {
 
         @Override
         public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) {
-            return LazyLoadedBlob.lazyLoadedFrom(column);
+            return LazyLoadingBlob.from(column);
         }
     },
     NUMBERINUTCSECONDS2INSTANT {

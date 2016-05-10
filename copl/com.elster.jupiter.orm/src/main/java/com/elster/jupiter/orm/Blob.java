@@ -2,7 +2,6 @@ package com.elster.jupiter.orm;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -73,13 +72,5 @@ public interface Blob {
      * @return an <code>OutputStream</code> object to which data can be written
      */
     OutputStream setBinaryStream();
-
-    /**
-     * Copies the contents of this Blob to the specified OutputStream.
-     *
-     * @param stream The OutputStream to which this Blob's contents will be copied.
-     * @throws IOException May be thrown by the OutputStream's write methods
-     */
-    void writeTo(OutputStream stream) throws IOException;
 
 }

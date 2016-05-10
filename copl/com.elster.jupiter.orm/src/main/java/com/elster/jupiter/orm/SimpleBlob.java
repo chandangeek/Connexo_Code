@@ -37,11 +37,6 @@ public final class SimpleBlob implements Blob {
     }
 
     @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        stream.write(this.bytes);
-    }
-
-    @Override
     public long length() {
         return this.bytes.length;
     }

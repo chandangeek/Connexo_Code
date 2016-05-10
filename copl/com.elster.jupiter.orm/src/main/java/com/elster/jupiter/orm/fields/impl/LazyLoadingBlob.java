@@ -29,26 +29,26 @@ import java.util.Arrays;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-05-06 (15:07)
  */
-public final class LazyLoadedBlob implements Blob {
+public final class LazyLoadingBlob implements Blob {
 
     private final DataModel dataModel;
     private final ColumnImpl column;
     private EnhancedSqlBlob actualBlob;
     private KeyValue keyValue;
 
-    public static LazyLoadedBlob lazyLoadedFrom(ColumnImpl column) {
-        LazyLoadedBlob blob = new LazyLoadedBlob(column.getTable().getDataModel(), column);
+    public static LazyLoadingBlob from(ColumnImpl column) {
+        LazyLoadingBlob blob = new LazyLoadingBlob(column.getTable().getDataModel(), column);
         blob.prepareForLoading();
         return blob;
     }
 
-    public static LazyLoadedBlob from(Blob simpleBlob, ColumnImpl column) {
-        LazyLoadedBlob lazyLoadedBlob = new LazyLoadedBlob(column.getTable().getDataModel(), column);
-        lazyLoadedBlob.initFromBlob(simpleBlob);
-        return lazyLoadedBlob;
+    public static LazyLoadingBlob from(Blob simpleBlob, ColumnImpl column) {
+        LazyLoadingBlob lazyLoadingBlob = new LazyLoadingBlob(column.getTable().getDataModel(), column);
+        lazyLoadingBlob.initFromBlob(simpleBlob);
+        return lazyLoadingBlob;
     }
 
-    private LazyLoadedBlob(DataModel dataModel, ColumnImpl column) {
+    private LazyLoadingBlob(DataModel dataModel, ColumnImpl column) {
         this.dataModel = dataModel;
         this.column = column;
     }
@@ -75,11 +75,6 @@ public final class LazyLoadedBlob implements Blob {
 
     public void bindTo(PreparedStatement statement, int index) throws SQLException {
         this.actualBlob.bindTo(statement, index);
-    }
-
-    @Override
-    public void writeTo(OutputStream stream) {
-        throw new UnsupportedOperationException("Copying to OutputStream is intended for the public classes such as SimpleBlob or FileBlob");
     }
 
     @Override
@@ -140,13 +135,7 @@ public final class LazyLoadedBlob implements Blob {
 
         @Override
         public void bindTo(PreparedStatement statement, int index) throws SQLException {
-            java.sql.Blob newBlob = statement.getConnection().createBlob();
-            try {
-                this.simpleBlob.writeTo(newBlob.setBinaryStream(1));
-            } catch (IOException e) {
-                throw new SQLException(e);
-            };
-            statement.setBlob(index, newBlob);
+            statement.setBinaryStream(index, this.simpleBlob.getBinaryStream());
         }
 
         @Override

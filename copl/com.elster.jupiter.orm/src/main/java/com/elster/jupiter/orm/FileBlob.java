@@ -1,7 +1,5 @@
 package com.elster.jupiter.orm;
 
-import com.google.common.io.ByteStreams;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,11 +37,6 @@ public final class FileBlob implements Blob {
             throw new IllegalStateException("Either provide the file at construction time or use FileBlob.empty() in conjuction with this setter but you cannot have it both ways ;-)");
         }
         this.in = new BufferedInputStream(new FileInputStream(file));
-    }
-
-    @Override
-    public void writeTo(OutputStream stream) throws IOException {
-        ByteStreams.copy(this.in, stream);
     }
 
     @Override
