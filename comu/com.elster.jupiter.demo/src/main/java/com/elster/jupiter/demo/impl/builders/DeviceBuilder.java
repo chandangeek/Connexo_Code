@@ -86,7 +86,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
             }
         }
         device.setLocation(location);
-        device.setGeoCoordintes(geoCoordiantes);
+        device.setGeoCoordinates(geoCoordiantes);
         device.save();
         applyPostBuilders(device);
         return device;
