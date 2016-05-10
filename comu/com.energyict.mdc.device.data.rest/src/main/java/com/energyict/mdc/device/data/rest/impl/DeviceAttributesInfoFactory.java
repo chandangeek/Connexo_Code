@@ -2,34 +2,25 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
-import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyType;
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.geo.Latitude;
-import com.elster.jupiter.util.geo.SpatialCoordinates;
-import com.elster.jupiter.validation.rest.BasicPropertyTypes;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.impl.DeviceAttributesInfo.DeviceAttribute;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
-
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -296,7 +287,7 @@ public class DeviceAttributesInfoFactory {
         lifecycleDates.save();
 
         if (DeviceAttribute.GEOCOORDINATES.isEditableForState(state) && info.geoCoordinates != null) {
-            device.setGeoCoordintes(info.geoCoordinates.displayValue.spatialCoordinates == null? null:meteringService.createGeoCoordinates(info.geoCoordinates.displayValue.spatialCoordinates));
+            device.setGeoCoordinates(info.geoCoordinates.displayValue.spatialCoordinates == null? null:meteringService.createGeoCoordinates(info.geoCoordinates.displayValue.spatialCoordinates));
         }
 
         if (DeviceAttribute.LOCATION.isEditableForState(state) && info.location != null) {
