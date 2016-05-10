@@ -80,12 +80,17 @@ public class WebServicesGogoCommands {
     }
 
     public void publish(String name) {
+//        endPointConfigurationService.getEndPointConfiguration(name).ifPresent(endPointConfigurationService::activate);
         endPointConfigurationService.getEndPointConfiguration(name).ifPresent(
                 ep -> webServicesService.publishEndPoint(ep)
         );
     }
 
-    public void unpublish(String webService) {
-        webServicesService.getWebService(webService).ifPresent(webServicesService::removeEndPoint);
+    public void unpublish(String name) {
+//        endPointConfigurationService.getEndPointConfiguration(name).ifPresent(endPointConfigurationService::deactivate);
+        endPointConfigurationService.getEndPointConfiguration(name).ifPresent(
+                epc -> webServicesService.removeEndPoint(epc)
+        );
+
     }
 }

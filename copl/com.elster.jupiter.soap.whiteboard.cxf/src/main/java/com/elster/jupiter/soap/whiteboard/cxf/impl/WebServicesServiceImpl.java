@@ -11,7 +11,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.xml.ws.Endpoint;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     public static final String COMPONENT_NAME = "WSCXF";
 
     private Map<String, EndPointProvider> webServices = new HashMap<>();
-    private final Map<EndPointProvider, List<Endpoint>> endpoints = new ConcurrentHashMap<>();
+    private final Map<EndPointConfiguration, Endpoint> endpoints = new ConcurrentHashMap<>();
     private SoapProviderSupportFactory soapProviderSupportFactory;
 
     @Reference
@@ -54,9 +53,7 @@ public class WebServicesServiceImpl implements WebServicesService {
             EndPointProvider endPointProvider = webServices.get(endPointConfiguration.getWebServiceName());
             try (ContextClassLoaderResource ctx = soapProviderSupportFactory.create()) {
                 Endpoint endpoint = Endpoint.publish(endPointConfiguration.getUrl(), endPointProvider.get());
-                List<Endpoint> endpoints = this.endpoints.getOrDefault(endPointProvider, new ArrayList<>());
-                endpoints.add(endpoint);
-                this.endpoints.put(endPointProvider, endpoints);
+                this.endpoints.put(endPointConfiguration, endpoint);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -67,10 +64,10 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Override
-    public void removeEndPoint(EndPointProvider provider) {
-        List<Endpoint> endPoints = endpoints.remove(provider);
-        if (endPoints != null) {
-            endPoints.stream().forEach(Endpoint::stop);
+    public void removeEndPoint(EndPointConfiguration endPointConfiguration) {
+        Endpoint endpoint = endpoints.remove(endPointConfiguration);
+        if (endpoint != null) {
+            endpoint.stop();
         }
     }
 
@@ -78,7 +75,6 @@ public class WebServicesServiceImpl implements WebServicesService {
     public List<String> getEndPoints() {
         return endpoints.values()
                 .stream()
-                .flatMap(Collection::stream)
                 .map(ep -> ep.getClass().getName())
                 .collect(Collectors.toList());
     }
@@ -89,16 +85,16 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     public void unregister(EndPointProvider provider) {
         if (webServices.containsValue(provider)) {
-            List<Endpoint> endPoints = endpoints.remove(provider);
-            if (endPoints != null) {
-                endPoints.stream().forEach(Endpoint::stop);
-            }
-            webServices.entrySet()
+            Optional<String> webServiceName = webServices.entrySet()
                     .stream()
-                    .filter(s -> s.getValue().equals(provider))
+                    .filter(e -> e.getValue().equals(provider))
                     .map(Map.Entry::getKey)
-                    .findFirst()
-                    .ifPresent(webServices::remove);
+                    .findFirst();
+            webServiceName.ifPresent(webServices::remove);
+            endpoints.entrySet()
+                    .stream()
+                    .filter(e -> e.getKey().getWebServiceName().equals(webServiceName.get()))
+                    .forEach(e -> e.getValue().stop());
         }
     }
 }
