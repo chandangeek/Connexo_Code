@@ -3,7 +3,7 @@ Ext.define('Imt.channeldata.view.TableView', {
     alias: 'widget.channelTableView',
     itemId: 'channelTableView',
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
         'Imt.channeldata.view.DataGrid',
         'Imt.channeldata.view.DataPreview'
     ],
@@ -12,12 +12,9 @@ Ext.define('Imt.channeldata.view.TableView', {
     router: null,
 
     emptyComponent: {
-        xtype: 'no-items-found-panel',
+        xtype: 'uni-form-empty-message',
         itemId: 'ctr-table-no-data',
-        title: Uni.I18n.translate('channels.data.empty.title', 'IMT', 'No readings found'),
-        reasons: [
-            Uni.I18n.translate('channels.data.empty.list.item1', 'IMT', 'No readings have been defined yet.')
-        ]
+        text: Uni.I18n.translate('channels.data.empty', 'IMT', 'No readings have been defined yet.')
     },
 
     initComponent: function () {

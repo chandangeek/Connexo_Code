@@ -5,7 +5,7 @@ Ext.define('Imt.registerdata.view.Setup', {
     requires: [
         'Imt.registerdata.view.RegisterList',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
     router: null,
     usagepoint: null,
@@ -54,12 +54,9 @@ Ext.define('Imt.registerdata.view.Setup', {
                         router: me.router
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
+                        xtype: 'uni-form-empty-message',
                         itemId: 'ctr-no-device-register-config',
-                        title: Uni.I18n.translate('registerdata.label.register.list.empty', 'IMT', 'No registers found'),
-                        reasons: [
-                            Uni.I18n.translate('registerdata.label.register.list.undefined', 'IMT', 'No registers have been defined yet.')
-                        ]
+                        text: Uni.I18n.translate('registerdata.label.register.list.undefined', 'IMT', 'No registers have been defined yet.')
                     },
                     previewComponent: {
                         xtype: 'container',

@@ -4,7 +4,7 @@ Ext.define('Imt.servicecategories.view.CASpanel', {
     requires: [
         'Imt.customattributesets.view.Grid',
         'Imt.customattributesets.view.DetailForm',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
 
     initComponent: function () {
@@ -23,12 +23,9 @@ Ext.define('Imt.servicecategories.view.CASpanel', {
                 }
             },
             emptyComponent: {
-                xtype: 'no-items-found-panel',
+                xtype: 'uni-form-empty-message',
                 itemId: 'no-cas-found-panel',
-                title: Uni.I18n.translate('serviceCategories.cas.empty.title', 'IMT', 'No custom attribute sets found'),
-                reasons: [
-                    Uni.I18n.translate('serviceCategories.cas.empty.list.item1', 'IMT', 'No custom attribute sets have been added yet.')
-                ]
+                text: Uni.I18n.translate('serviceCategories.cas.empty.list.item1', 'IMT', 'No custom attribute sets have been added yet.')
             },
             previewComponent: {
                 xtype: 'cas-detail-form',
