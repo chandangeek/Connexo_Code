@@ -3,9 +3,12 @@ package com.energyict.mdc.masterdata.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,7 +18,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-11 (16:46)
  */
-public class Installer {
+class Installer implements FullInstaller {
 
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
@@ -24,7 +27,8 @@ public class Installer {
     private final MeteringService meteringService;
     private final MasterDataService masterDataService;
 
-    public Installer(DataModel dataModel, EventService eventService, MeteringService meteringService, MasterDataService masterDataService) {
+    @Inject
+    Installer(DataModel dataModel, EventService eventService, MeteringService meteringService, MasterDataService masterDataService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -32,17 +36,17 @@ public class Installer {
         this.masterDataService = masterDataService;
     }
 
-    public void install(boolean executeDdl, boolean createDefaults) {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         try {
-            this.dataModel.install(executeDdl, true);
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
         }
         catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
         createEventTypes();
-        if (createDefaults) {
-            this.createDefaults();
-        }
+        createDefaults();
+
     }
 
     private void createDefaults() {

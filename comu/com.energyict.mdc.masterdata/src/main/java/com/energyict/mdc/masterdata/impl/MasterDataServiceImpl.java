@@ -15,10 +15,10 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -55,8 +55,8 @@ import static com.elster.jupiter.util.streams.Predicates.not;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-11 (16:41)
  */
-@Component(name = "com.energyict.mdc.masterdata", service = {MasterDataService.class, InstallService.class, MessageSeedProvider.class}, property = "name=" + MasterDataService.COMPONENTNAME, immediate = true)
-public class MasterDataServiceImpl implements MasterDataService, InstallService, MessageSeedProvider {
+@Component(name = "com.energyict.mdc.masterdata", service = {MasterDataService.class, MessageSeedProvider.class}, property = "name=" + MasterDataService.COMPONENTNAME, immediate = true)
+public class MasterDataServiceImpl implements MasterDataService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -64,26 +64,23 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService,
     private volatile MeteringService meteringService;
     private volatile Publisher publisher;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    private volatile UpgradeService upgradeService;
 
     public MasterDataServiceImpl() {
         super();
     }
 
     @Inject
-    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, Publisher publisher, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
-        this(ormService, eventService, nlsService, meteringService, publisher, mdcReadingTypeUtilService, true);
-    }
-
-    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, Publisher publisher, MdcReadingTypeUtilService mdcReadingTypeUtilService, boolean createDefaults) {
+    public MasterDataServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, MeteringService meteringService, Publisher publisher, MdcReadingTypeUtilService mdcReadingTypeUtilService, UpgradeService upgradeService) {
         this();
-        this.setOrmService(ormService);
-        this.setEventService(eventService);
-        this.setNlsService(nlsService);
-        this.setMeteringService(meteringService);
-        this.setPublisher(publisher);
-        this.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
-        this.activate();
-        this.install(true, createDefaults);
+        setOrmService(ormService);
+        setEventService(eventService);
+        setNlsService(nlsService);
+        setMeteringService(meteringService);
+        setPublisher(publisher);
+        setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
+        setUpgradeService(upgradeService);
+        activate();
     }
 
     @Override
@@ -226,6 +223,11 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService,
         }
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     DataModel getDataModel() {
         return dataModel;
     }
@@ -287,25 +289,8 @@ public class MasterDataServiceImpl implements MasterDataService, InstallService,
 
     @Activate
     public void activate() {
-        try {
-            this.dataModel.register(this.getModule());
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void install() {
-        this.install(true, true);
-    }
-
-    private void install(boolean executeDdl, boolean createDefaults) {
-        new Installer(this.dataModel, eventService, this.meteringService, this).install(executeDdl, createDefaults);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "NLS", "MTR");
+        this.dataModel.register(this.getModule());
+        upgradeService.register(InstallIdentifier.identifier(MasterDataService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override

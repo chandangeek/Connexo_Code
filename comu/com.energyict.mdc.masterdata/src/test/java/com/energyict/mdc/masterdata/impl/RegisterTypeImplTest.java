@@ -23,8 +23,12 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
-import org.fest.assertions.core.Condition;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -32,12 +36,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -60,7 +58,8 @@ public class RegisterTypeImplTest {
             "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.111.0",
             "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
             "0.0.0.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0",
-            "11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"};
+            "11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+            "0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.840"};
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -97,29 +96,10 @@ public class RegisterTypeImplTest {
 
     @Test
     @Transactional
-    public void testCreateWithoutViolations() {
-        MeasurementType measurementType;
-        this.setupReadingTypesInExistingTransaction();
-
-        // Business method
-        measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
-        measurementType.setDescription("For testing purposes only");
-        measurementType.save();
-
-        // Asserts
-        assertThat(measurementType).isNotNull();
-        assertThat(measurementType.getId()).isGreaterThan(0);
-        assertThat(measurementType.getDescription()).isNotEmpty();
-        assertThat(measurementType.getReadingType()).isEqualTo(this.readingType1);
-        assertThat(measurementType.getObisCode()).isEqualTo(obisCode1);
-    }
-
-    @Test
-    @Transactional
     public void testFindAfterCreation() {
         this.setupReadingTypesInExistingTransaction();
 
-        RegisterType registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
+        RegisterType registerType = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType1).get();
         registerType.setDescription("For testing purposes only");
         registerType.save();
 
@@ -152,10 +132,12 @@ public class RegisterTypeImplTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     public void testCreateWithoutObisCode() {
         String registerTypeName = "testCreateWithoutObisCode";
-        this.setupReadingTypesInExistingTransaction();
+        ReadingType readingType = inMemoryPersistence.getMeteringService()
+                .getReadingType("0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.840")
+                .get();
 
         // Business method
-        MeasurementType measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, null);
+        MeasurementType measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType, null);
         measurementType.setDescription("For testing purposes only");
         measurementType.save();
 
@@ -183,9 +165,7 @@ public class RegisterTypeImplTest {
         MeasurementType measurementType;
         this.setupReadingTypesInExistingTransaction();
 
-        measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
-        measurementType.setDescription("For testing purposes only");
-        measurementType.save();
+        measurementType = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType1).get();
 
         // Business method
         measurementType.setObisCode(obisCode2);
@@ -193,7 +173,6 @@ public class RegisterTypeImplTest {
 
         // Asserts
         assertThat(measurementType.getObisCode()).isEqualTo(obisCode2);
-        assertThat(measurementType.getDescription()).isNotEmpty();
     }
 
 
@@ -205,9 +184,7 @@ public class RegisterTypeImplTest {
         this.setupReadingTypesInExistingTransaction();
 
         // Business method
-        measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
-        measurementType.setDescription("For testing purposes only");
-        measurementType.save();
+        measurementType = inMemoryPersistence.getMasterDataService().findMeasurementTypeByReadingType(readingType1).get();
 
         long id = measurementType.getId();
         measurementType.delete();
@@ -225,9 +202,7 @@ public class RegisterTypeImplTest {
         this.setupReadingTypesInExistingTransaction();
 
         // Create the RegisterType
-        registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
-        registerType.setDescription("For testing purposes only");
-        registerType.save();
+        registerType = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType1).get();
 
         // Use it in a LoadProfileType
         this.setupLoadProfileTypesInExistingTransaction(registerType);
