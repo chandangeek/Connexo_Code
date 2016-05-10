@@ -168,13 +168,15 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 items: [
                     {
                         text: Uni.I18n.translate('general.firmware', 'MDC', 'Firmware'),
+                        itemId: 'device-firmware-link-menu',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/firmware'
                     },
                     {
                         text: Uni.I18n.translate('timeofuse.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
                         itemId: 'deviceTimeOfUseLink',
-                        //privileges: Cfg.privileges.Validation.fineTuneValidation,
-                        href: '#/devices/' + encodeURIComponent(mRID) + '/timeofuse',
+                        privileges: Mdc.privileges.Device.viewDevice,
+                        showCondition: me.device.get('timeOfUseAllowed'),
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/timeofuse'
                     }
                 ]
             }
