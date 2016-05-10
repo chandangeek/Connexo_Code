@@ -37,4 +37,9 @@ public class InboundEndPoint implements ManagedEndpoint {
             endpoint = null;
         }
     }
+
+    @Override
+    public boolean isInbound() {
+        return true;
+    }
 }

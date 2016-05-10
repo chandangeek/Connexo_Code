@@ -33,4 +33,9 @@ public class OutboundEndPoint implements ManagedEndpoint {
             serviceRegistration = null;
         }
     }
+
+    @Override
+    public boolean isInbound() {
+        return false;
+    }
 }

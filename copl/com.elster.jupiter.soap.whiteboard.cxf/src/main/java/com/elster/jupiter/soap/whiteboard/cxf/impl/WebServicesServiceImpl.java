@@ -107,6 +107,6 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Deactivate
     public void stop(BundleContext bundleContext) {
-        // Do I have to unregister all outgoing services?
+        endpoints.values().stream().forEach(ManagedEndpoint::stop);
     }
 }
