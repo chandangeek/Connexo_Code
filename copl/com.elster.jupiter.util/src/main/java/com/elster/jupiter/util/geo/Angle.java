@@ -19,6 +19,11 @@ public class Angle implements Comparable<Angle> {
 		this.value = value;
 	}
 
+	public final int hashCode() {
+		long bits = Double.doubleToLongBits(this.value.doubleValue());
+		return (int) (bits ^ (bits >>> BITS_PER_INT));
+	}
+
 	public final boolean equals(Object other) {
 		if (other == null) {
             return false;
@@ -30,14 +35,14 @@ public class Angle implements Comparable<Angle> {
 		return is(this.value).equalValue(o.value);
 	}
 
-	public final int hashCode() {
-        long bits = Double.doubleToLongBits(this.value.doubleValue());
-        return (int)(bits ^ (bits >>> BITS_PER_INT));
-    }
-
+	@Override
+	public String toString() {
+		return (signum() < 0 ? "-" : "") + baseString();
+	}
+	
 	@Override
     public final int compareTo(Angle other) {
-		return value.compareTo(other.value);		
+		return value.compareTo(other.value);
 	}
 	
 	public final BigDecimal getValue() {
@@ -63,7 +68,7 @@ public class Angle implements Comparable<Angle> {
 	public final double toRadians() {
 		return Math.toRadians(value.doubleValue());
 	}
-	
+
 	public final double cos() {
 		return Math.cos(toRadians());
 	}
@@ -72,17 +77,12 @@ public class Angle implements Comparable<Angle> {
         return Math.sin(toRadians());
     }
 
-    public final int signum() {
+	public final int signum() {
 		return value.signum();
 	}
-	
+
 	String baseString() {
-		return getDegrees() + "\u00B0" + getMinutes() + "'" + getSeconds() + "\"";
-	}
-	
-	@Override 
-	public String toString() {
-		return (signum() < 0 ?  "-" : "") + baseString();
+		return getDegrees() + "\u00B0" + getMinutes() + "'" + getSeconds() + "''";
 	}
 
 	
