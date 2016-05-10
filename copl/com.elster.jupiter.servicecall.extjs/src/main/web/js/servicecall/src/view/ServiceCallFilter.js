@@ -16,11 +16,13 @@ Ext.define('Scs.view.ServiceCallFilter', {
         me.filters = [
             {
                 type: 'text',
+                itemId: 'service-call-name-filter',
                 dataIndex: 'name',
                 emptyText: Uni.I18n.translate('general.IDOrReference', 'SCS', 'ID or reference')
             },
             {
                 type: 'combobox',
+                itemId: 'service-call-type-filter',
                 dataIndex: 'type',
                 emptyText: Uni.I18n.translate('general.type', 'SCS', 'Type'),
                 multiSelect: true,
@@ -30,6 +32,7 @@ Ext.define('Scs.view.ServiceCallFilter', {
             },
             {
                 type: 'combobox',
+                itemId: 'service-call-status-filter',
                 dataIndex: 'status',
                 emptyText: Uni.I18n.translate('general.status', 'SCS', 'Status'),
                 multiSelect: true,
@@ -39,6 +42,7 @@ Ext.define('Scs.view.ServiceCallFilter', {
             },
             {
                 type: 'interval',
+                itemId: 'service-call-received-date-filter',
                 dataIndex: 'creationTime',
                 dataIndexFrom: 'receivedDateFrom',
                 dataIndexTo: 'receivedDateTo',
@@ -48,6 +52,7 @@ Ext.define('Scs.view.ServiceCallFilter', {
             },
             {
                 type: 'interval',
+                itemId: 'service-call-modification-date-filter',
                 dataIndex: 'lastModificationTime',
                 dataIndexFrom: 'modificationDateFrom',
                 dataIndexTo: 'modificationDateTo',
