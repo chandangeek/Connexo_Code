@@ -4,22 +4,19 @@
     padding: {
         top: 16px;
         right: 24px;
-        bottom: 24px;
+        bottom: 0px;
     }
 
     .uni-panel-no-items-found-header {
-      background-image: url('images/shared/icon-error.png');
-      background-position: 4px 4px;
-      background-repeat: no-repeat;
-      font-family: 'Lato', helvetica, arial, verdana, sans-serif;
-      font-size: 18px;
-      color: #686868;
-      padding: {
-        top: 8px;
-        right: 128px;
-        bottom: 8px;
-        left: 48px;
-      }
+        font-family: 'Lato', helvetica, arial, verdana, sans-serif;
+        font-size: 18px;
+        color: #686868;
+        padding: {
+            top: 8px;
+            right: 128px;
+            bottom: 8px;
+            left: 15px;
+        }
     }
 
     .message > .#{$prefix}panel-body {
@@ -27,7 +24,11 @@
     }
 
     .reasons-text {
-      padding-left: 32px;
+        padding-left: 32px;
+    }
+
+    .steps-text {
+        padding-left: 32px;
     }
 
     ul {
@@ -38,10 +39,6 @@
         }
         padding-left: 32px;
         li {
-            background-image: url('images/container/bullet.png');
-            background-position: left 2px;
-            background-repeat: no-repeat;
-            padding-left: 24px;
             margin: 0 {
                 bottom: 8px;
             }
@@ -49,7 +46,11 @@
     }
 
     .steps {
-        margin-top: 8px;
+        padding-left: 32px;
+        margin: 0 {
+            top: 8px;
+            bottom: 10px;
+        }
     }
 
     *[class*='#{$prefix}panel-body-'] {
