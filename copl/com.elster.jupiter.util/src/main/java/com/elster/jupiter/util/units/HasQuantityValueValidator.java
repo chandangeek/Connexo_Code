@@ -16,8 +16,8 @@ public class HasQuantityValueValidator implements ConstraintValidator<HasQuantit
     @Override
     public boolean isValid(Quantity value, ConstraintValidatorContext context) {
         return value == null
-                || (value.getValue().compareTo(BigDecimal.valueOf(constraintAnnotation.min())) < 0
-                && value.getValue().compareTo(BigDecimal.valueOf(constraintAnnotation.max())) > 0);
+                || (value.getValue().compareTo(BigDecimal.valueOf(constraintAnnotation.min())) >= 0
+                && value.getValue().compareTo(BigDecimal.valueOf(constraintAnnotation.max())) <= 0);
     }
 
 }
