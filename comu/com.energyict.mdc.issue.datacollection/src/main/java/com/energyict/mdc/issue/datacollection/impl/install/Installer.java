@@ -47,6 +47,14 @@ public class Installer {
         this.eventService = eventService;
     }
 
+    private static void run(Runnable runnable, String explanation) {
+        try {
+            runnable.run();
+        } catch (Exception stEx) {
+            LOG.warning("[" + IssueDataCollectionService.COMPONENT_NAME + "] Unable to install " + explanation);
+        }
+    }
+
     public void install() {
         run(() -> {
             dataModel.install(true, false);
@@ -76,7 +84,7 @@ public class Installer {
     }
 
     private IssueType setSupportedIssueType() {
-        return issueService.createIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE, TranslationKeys.ISSUE_TYPE_DATA_COLLECTION);
+        return issueService.createIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE, TranslationKeys.ISSUE_TYPE_DATA_COLLECTION, IssueDataCollectionService.DATA_COLLECTION_ISSUE_PREFIX);
     }
 
     private void setAQSubscriber() {
@@ -115,14 +123,6 @@ public class Installer {
         issueService.createReason(ModuleConstants.REASON_TYME_SYNC_FAILED, issueType,
                 TranslationKeys.ISSUE_REASON_TIME_SYNC_FAILED, TranslationKeys.ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, CloseIssueAction.class.getName(), issueType, CreationRuleActionPhase.OVERDUE);
-    }
-
-    private static void run(Runnable runnable, String explanation) {
-        try {
-            runnable.run();
-        } catch (Exception stEx) {
-            LOG.warning("[" + IssueDataCollectionService.COMPONENT_NAME + "] Unable to install " + explanation);
-        }
     }
 
 }
