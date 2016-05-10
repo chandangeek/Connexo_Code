@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
@@ -189,6 +190,12 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class)
                 .select(condition, new Order[0], false, new String[0], 1, 1);
         return !atLeastOneUsagePoint.isEmpty();
+    }
+
+
+    @Override
+    public Optional<MetrologyContract> findMetrologyContract(long id) {
+        return this.getDataModel().mapper(MetrologyContract.class).getUnique("id", id);
     }
 
 
