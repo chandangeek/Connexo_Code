@@ -2,7 +2,7 @@ Ext.define('Cfg.view.log.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.cfg-log-setup',
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
         'Cfg.view.log.Menu',
         'Cfg.view.log.Grid',
         'Cfg.view.log.Preview'
@@ -43,11 +43,12 @@ Ext.define('Cfg.view.log.Setup', {
                         xtype: 'cfg-log-grid'
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('validationTasks.log.empty.title', 'CFG', 'No logs found'),
-                        reasons: [
-                            Ext.String.format(Uni.I18n.translate('validationTasks.log.empty.list', 'CFG', "Validation task '{0}' started on {1} did not create any logs."), me.task.get('name'), me.runStartedOn)
-                        ]
+                        xtype: 'uni-form-empty-message',
+                        text: Ext.String.format(
+                            Uni.I18n.translate('validationTasks.log.empty.list', 'CFG', "Validation task '{0}' started on {1} did not create any logs."),
+                            me.task.get('name'),
+                            me.runStartedOn
+                        )
                     }
                 }
             ]
