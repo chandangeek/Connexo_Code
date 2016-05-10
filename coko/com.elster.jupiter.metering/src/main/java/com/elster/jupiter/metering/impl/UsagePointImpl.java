@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -119,6 +120,7 @@ public class UsagePointImpl implements UsagePoint {
     private final Clock clock;
     private final DataModel dataModel;
     private final EventService eventService;
+    private final MeteringService meteringService;
     private final Thesaurus thesaurus;
     private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
@@ -130,7 +132,7 @@ public class UsagePointImpl implements UsagePoint {
             Clock clock, DataModel dataModel, EventService eventService,
             Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
-            CustomPropertySetService customPropertySetService) {
+            CustomPropertySetService customPropertySetService, MeteringService meteringService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -138,6 +140,7 @@ public class UsagePointImpl implements UsagePoint {
         this.meterActivationFactory = meterActivationFactory;
         this.accountabilityFactory = accountabilityFactory;
         this.customPropertySetService = customPropertySetService;
+        this.meteringService = meteringService;
     }
 
     UsagePointImpl init(String mRID, ServiceCategory serviceCategory) {
@@ -327,6 +330,19 @@ public class UsagePointImpl implements UsagePoint {
             Save.CREATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
         } else {
+            if(upLocation.isPresent()) {
+                if (location != upLocation.get().getId()) {
+                    this.getMeterActivations().stream()
+                            .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
+                                if (meter.getLocationId() == upLocation.get().getId()) {
+                                    meteringService.findLocation(location).ifPresent(l -> {
+                                        meter.setLocation(l);
+                                        meter.update();
+                                    });
+                                }
+                            }));
+                }
+            }
             Save.UPDATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
         }
