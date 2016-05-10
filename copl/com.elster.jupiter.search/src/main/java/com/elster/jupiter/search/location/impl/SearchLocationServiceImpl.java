@@ -162,15 +162,11 @@ public class SearchLocationServiceImpl implements SearchLocationService {
             }
 
             if ((i == mapLocationPart.length - 1) && (!locationPart.endsWith(","))) {
-                if (part.isEmpty()) {
-                    resultClause.add(String.format("upper%s is null", templateMap.get("#" + item)));
-                } else {
+                if (part.isEmpty() == false) {
                     resultClause.add(String.format("upper%s LIKE UPPER('%%%s%%')", templateMap.get("#" + item), part));
                 }
             } else {
-                if (part.isEmpty()) {
-                    resultClause.add(String.format("upper%s is null", templateMap.get("#" + item)));
-                } else {
+                if (part.isEmpty() == false) {
                     resultClause.add(String.format("upper%s = UPPER('%s')", templateMap.get("#" + item), part));
                 }
             }
