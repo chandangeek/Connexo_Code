@@ -33,7 +33,7 @@ public class RemoveLocationTest {
 
         // Asserts
         verify(device).setLocation(null);
-        verify(device).setGeoCoordintes(null);
+        verify(device).setGeoCoordinates(null);
         verify(device).save();
     }
 
