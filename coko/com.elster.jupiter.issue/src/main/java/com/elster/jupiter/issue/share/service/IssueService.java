@@ -74,7 +74,7 @@ public interface IssueService {
      * @param translationKey TraslationKey which contains translation for this issue type. It will be saved automatically as a part of the {@value IssueService#COMPONENT_NAME} component
      * @return instance of issue type (it is already saved into database)
      */
-    IssueType createIssueType(String key, TranslationKey translationKey);
+    IssueType createIssueType(String key, TranslationKey translationKey, String prefix);
 
     <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers);
 

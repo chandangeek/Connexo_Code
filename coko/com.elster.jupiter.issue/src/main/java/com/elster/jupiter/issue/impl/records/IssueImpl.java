@@ -49,6 +49,11 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
+    public String getIssueId() {
+        return "ISS-" + this.getId();
+    }
+
+    @Override
     public String getTitle() {
         String title = getReason().getName();
         EndDevice endDevice = getDevice();
@@ -79,13 +84,11 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public Instant getDueDate() {
-        return dueDate;
-    }
-
-    @Override
-    public void setDueDate(Instant dueDate) {
-        this.dueDate = dueDate;
+    public IssueAssigneeImpl getAssignee() {
+        if (assignee == null && assigneeType != null) {
+            assignee = assigneeType.getAssignee(this);
+        }
+        return assignee;
     }
 
     @Override
@@ -99,13 +102,26 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public CreationRule getRule() {
-        return rule.orNull();
+    public Optional<UsagePoint> getUsagePoint() {
+        EndDevice endDevice = getDevice();
+        if (endDevice != null && Meter.class.isInstance(endDevice)) {
+            Meter meter = Meter.class.cast(endDevice);
+            Optional<? extends MeterActivation> meterActivation = meter.getCurrentMeterActivation();
+            if (meterActivation.isPresent()) {
+                return meterActivation.get().getUsagePoint();
+            }
+        }
+        return Optional.empty();
     }
 
     @Override
-    public void setRule(CreationRule rule) {
-        this.rule.set(rule);
+    public Instant getDueDate() {
+        return dueDate;
+    }
+
+    @Override
+    public void setDueDate(Instant dueDate) {
+        this.dueDate = dueDate;
     }
 
     @Override
@@ -114,33 +130,13 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public void setOverdue(boolean overdue) {
-        this.overdue = overdue;
+    public CreationRule getRule() {
+        return rule.orNull();
     }
 
     @Override
-    public IssueAssigneeImpl getAssignee() {
-        if (assignee == null && assigneeType != null) {
-            assignee = assigneeType.getAssignee(this);
-        }
-        return assignee;
-    }
-
-    public User getUser() {
-        return user.orNull();
-    }
-
-    public void setAssigneeType(AssigneeType assigneeType) {
-        this.assigneeType = assigneeType;
-    }
-
-    public void setUser(User user) {
-        this.user.set(user);
-    }
-
-    protected void resetAssignee(){
-        assigneeType = null;
-        setUser(null);
+    public void setRule(CreationRule rule) {
+        this.rule.set(rule);
     }
 
     @Override
@@ -177,16 +173,25 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public Optional<UsagePoint> getUsagePoint(){
-        EndDevice endDevice = getDevice();
-        if (endDevice != null && Meter.class.isInstance(endDevice)) {
-            Meter meter = Meter.class.cast(endDevice);
-            Optional<? extends MeterActivation> meterActivation = meter.getCurrentMeterActivation();
-            if (meterActivation.isPresent()) {
-                return meterActivation.get().getUsagePoint();
-            }
-        }
-        return Optional.empty();
+    public void setOverdue(boolean overdue) {
+        this.overdue = overdue;
+    }
+
+    public User getUser() {
+        return user.orNull();
+    }
+
+    public void setUser(User user) {
+        this.user.set(user);
+    }
+
+    public void setAssigneeType(AssigneeType assigneeType) {
+        this.assigneeType = assigneeType;
+    }
+
+    protected void resetAssignee() {
+        assigneeType = null;
+        setUser(null);
     }
 
     protected IssueService getIssueService() {

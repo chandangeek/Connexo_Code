@@ -8,8 +8,13 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IssueFilter {
+
+    Optional<String> getIssueId();
+
+    void setIssueId(String issueId);
 
     void setUnassignedSelected();
 

@@ -256,13 +256,13 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
 
     @Override
-    public Layer getLayer() {
-        return Layer.DOMAIN;
+    public String getComponentName() {
+        return IssueService.COMPONENT_NAME;
     }
 
     @Override
-    public String getComponentName() {
-        return IssueService.COMPONENT_NAME;
+    public Layer getLayer() {
+        return Layer.DOMAIN;
     }
 
     @Override
@@ -294,10 +294,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         }
     }
 
-    public Map<String, CreationRuleTemplate> getCreationRuleTemplates() {
-        return creationRuleTemplates;
-    }
-
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addIssueActionFactory(IssueActionFactory issueActionFactory) {
         issueActionFactories.put(issueActionFactory.getId(), issueActionFactory);
@@ -307,11 +303,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         issueActionFactories.remove(issueActionFactory.getId());
     }
 
-    @Override
-    public Map<String, IssueActionFactory> getIssueActionFactories() {
-        return issueActionFactories;
-    }
-
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addIssueProvider(IssueProvider issueProvider) {
         issueProviders.add(issueProvider);
@@ -319,11 +310,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
 
     public void removeIssueProvider(IssueProvider issueProvider) {
         issueProviders.remove(issueProvider);
-    }
-
-    @Override
-    public List<IssueProvider> getIssueProviders() {
-        return issueProviders;
     }
 
     @Override
@@ -396,17 +382,13 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
 
     @Override
-    public IssueType createIssueType(String key, TranslationKey translationKey) {
+    public IssueType createIssueType(String key, TranslationKey translationKey, String prefix) {
         if(findIssueType(key).isPresent()){
             throw new NotUniqueKeyException(thesaurus, key);
         }
         IssueTypeImpl issueType = dataModel.getInstance(IssueTypeImpl.class);
-        issueType.init(key, translationKey).save();
+        issueType.init(key, translationKey, prefix).save();
         return issueType;
-    }
-
-    private <T extends Entity> Optional<T> find(Class<T> clazz, Object... key) {
-        return queryService.wrap(dataModel.query(clazz)).get(key);
     }
 
     @Override
@@ -437,6 +419,16 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
 
     @Override
+    public List<IssueProvider> getIssueProviders() {
+        return issueProviders;
+    }
+
+    @Override
+    public List<IssueCreationValidator> getIssueCreationValidators() {
+        return issueCreationValidators;
+    }
+
+    @Override
     public IssueActionService getIssueActionService() {
         return issueActionService;
     }
@@ -449,6 +441,51 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     @Override
     public IssueCreationService getIssueCreationService() {
         return issueCreationService;
+    }
+
+    public Map<String, CreationRuleTemplate> getCreationRuleTemplates() {
+        return creationRuleTemplates;
+    }
+
+    @Override
+    public Map<String, IssueActionFactory> getIssueActionFactories() {
+        return issueActionFactories;
+    }
+
+    @Override
+    public Finder<? extends Issue> findIssues(IssueFilter filter, Class<?>... eagers) {
+        Condition condition = buildConditionFromFilter(filter);
+        List<Class<?>> eagerClasses = determineMainApiClass(filter);
+        if (eagers == null) {
+            eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class));
+        } else {
+            eagerClasses.addAll(Arrays.asList(eagers));
+        }
+        return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses
+                .size()]));
+    }
+
+    @Override
+    public Optional<? extends Issue> findAndLockIssueByIdAndVersion(long id, long version) {
+        Optional<? extends Issue> issue = findOpenIssue(id);
+        if (issue.isPresent()) {
+            return dataModel.mapper(OpenIssue.class).lockObjectIfVersion(version, id);
+        }
+        return dataModel.mapper(HistoricalIssue.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public IssueFilter newIssueFilter() {
+        return new IssueFilterImpl();
+    }
+
+    @Override
+    public IssueGroupFilter newIssueGroupFilter() {
+        return new IssueGroupFilterImpl();
+    }
+
+    private <T extends Entity> Optional<T> find(Class<T> clazz, Object... key) {
+        return queryService.wrap(dataModel.query(clazz)).get(key);
     }
 
     @Override
@@ -494,42 +531,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         issueCreationValidators.remove(issueCreationValidator);
     }
 
-    @Override
-    public List<IssueCreationValidator> getIssueCreationValidators() {
-        return issueCreationValidators;
-    }
-
-    @Override
-    public Finder<? extends Issue> findIssues(IssueFilter filter, Class<?>... eagers) {
-        Condition condition = buildConditionFromFilter(filter);
-        List<Class<?>> eagerClasses = determineMainApiClass(filter);
-        if (eagers == null) {
-            eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class));
-        } else {
-            eagerClasses.addAll(Arrays.asList(eagers));
-        }
-        return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
-    }
-
-    @Override
-    public Optional<? extends Issue> findAndLockIssueByIdAndVersion(long id, long version) {
-        Optional<? extends Issue> issue = findOpenIssue(id);
-        if (issue.isPresent()) {
-            return dataModel.mapper(OpenIssue.class).lockObjectIfVersion(version, id);
-        }
-        return dataModel.mapper(HistoricalIssue.class).lockObjectIfVersion(version, id);
-    }
-
-    @Override
-    public IssueFilter newIssueFilter() {
-        return new IssueFilterImpl();
-    }
-
-    @Override
-    public IssueGroupFilter newIssueGroupFilter() {
-        return new IssueGroupFilterImpl();
-    }
-
     private List<Class<?>> determineMainApiClass(IssueFilter filter) {
         List<Class<?>> eagerClasses = new ArrayList<>();
         List<IssueStatus> statuses = filter.getStatuses();
@@ -545,6 +546,13 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
 
     private Condition buildConditionFromFilter(IssueFilter filter) {
         Condition condition = Condition.TRUE;
+        //filter by issue id
+        if (filter.getIssueId().isPresent()) {
+            String[] issueIdPart = filter.getIssueId().get().split("-");
+            if (issueIdPart.length > 1) {
+                condition = condition.and(where("id").isEqualTo(Long.parseLong(issueIdPart[1])));
+            }
+        }
         //filter by assignee
         if (!filter.getAssignees().isEmpty()) {
             condition = condition.and(where("user").in(filter.getAssignees()));

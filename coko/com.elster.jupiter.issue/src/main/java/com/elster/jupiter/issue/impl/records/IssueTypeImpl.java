@@ -12,15 +12,16 @@ import javax.validation.constraints.Size;
 import java.util.Objects;
 
 public final class IssueTypeImpl extends EntityImpl implements IssueType {
+    private final Thesaurus thesaurus;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String key;
-
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String translationKey;
-
-    private final Thesaurus thesaurus;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @Size(min = 1, max = 3, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String prefix;
 
     @Inject
     public IssueTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
@@ -28,8 +29,9 @@ public final class IssueTypeImpl extends EntityImpl implements IssueType {
         this.thesaurus = thesaurus;
     }
 
-    public IssueTypeImpl init(String key, TranslationKey translationKey){
+    public IssueTypeImpl init(String key, TranslationKey translationKey, String prefix) {
         this.key = key;
+        this.prefix = prefix;
         if (translationKey != null) {
             this.translationKey = translationKey.getKey();
         }
@@ -44,6 +46,11 @@ public final class IssueTypeImpl extends EntityImpl implements IssueType {
     @Override
     public String getName() {
         return this.thesaurus.getStringBeyondComponent(this.translationKey, this.translationKey);
+    }
+
+    @Override
+    public String getPrefix() {
+        return prefix;
     }
 
     @Override

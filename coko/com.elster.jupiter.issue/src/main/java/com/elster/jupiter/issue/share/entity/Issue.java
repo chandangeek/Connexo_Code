@@ -3,30 +3,43 @@ package com.elster.jupiter.issue.share.entity;
 import java.time.Instant;
 import java.util.Optional;
 
-import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
 
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.users.User;
 
-@ConsumerType
+@ProviderType
 public interface Issue extends Entity {
 
+    String getIssueId();
     String getTitle();
     IssueReason getReason();
-    IssueStatus getStatus();
-    IssueAssignee getAssignee();
-    EndDevice getDevice();
-    Optional<UsagePoint> getUsagePoint();
-    Instant getDueDate();
-    boolean isOverdue();
-    CreationRule getRule();
 
     void setReason(IssueReason reason);
+
+    IssueStatus getStatus();
+
     void setStatus(IssueStatus status);
+
+    IssueAssignee getAssignee();
+
+    EndDevice getDevice();
+
     void setDevice(EndDevice device);
+
+    Optional<UsagePoint> getUsagePoint();
+
+    Instant getDueDate();
+
     void setDueDate(Instant dueDate);
+
+    boolean isOverdue();
+
     void setOverdue(boolean overdue);
+
+    CreationRule getRule();
+
     void setRule(CreationRule rule);
 
     Optional<IssueComment> addComment(String body, User author);
