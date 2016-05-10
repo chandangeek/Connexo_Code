@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -131,6 +133,8 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     @Override
     public List<Channel> getMatchingChannelsFor(MeterActivation meterActivation) {
         return meterActivation.getChannels().stream()
+                .filter(channel -> channel.getMainReadingType().getMacroPeriod() != MacroPeriod.NOTAPPLICABLE
+                        || channel.getMainReadingType().getMeasuringPeriod() != TimeAttribute.NOTAPPLICABLE)
                 .filter(channel -> matches(channel.getMainReadingType()))
                 .collect(Collectors.toList());
     }
