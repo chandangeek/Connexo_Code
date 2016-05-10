@@ -1074,7 +1074,8 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: Uni.I18n.translate('general.metrologyConfigurations', 'MDC', 'Metrology configurations'),
                     route: 'metrologyconfiguration',
                     controller: 'Mdc.metrologyconfiguration.controller.ListView',
-                    action: 'showList'
+                    action: 'showList',
+                    privileges: Mdc.privileges.MetrologyConfiguration.all()
                 }
             }
         },
