@@ -9,13 +9,13 @@ import java.util.stream.Stream;
 
 public enum DefaultMeterRole {
 
-    DEFAULT("meter.role.default", "Default"),
-    CONSUMPTION("meter.role.consumption", "Consumption"),
-    PRODUCTION("meter.role.production", "Production"),
-    MAIN("meter.role.main", "Main"),
-    CHECK("meter.role.check", "Check"),
-    PEAK_CONSUMPTION("meter.role.peak.consumption", "Peak consumption"),
-    OFF_PEAK_CONSUMPTION("meter.role.off.peak.consumption", "Off peak consumption");
+    DEFAULT("default", "Default"),
+    CONSUMPTION("consumption", "Consumption"),
+    PRODUCTION("production", "Production"),
+    MAIN("main", "Main"),
+    CHECK("check", "Check"),
+    PEAK_CONSUMPTION("peak.consumption", "Peak consumption"),
+    OFF_PEAK_CONSUMPTION("off.peak.consumption", "Off peak consumption");
 
     private String key;
     private String defaultFormat;
