@@ -13,6 +13,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @ConsumerType
 public interface Validator extends HasDynamicProperties {
@@ -40,13 +41,10 @@ public interface Validator extends HasDynamicProperties {
     String getDefaultFormat();
 
     /**
-     * Checks if the Validator is intended to deal with the provided target application
+     * Returns the set of target applications supported by this validator.
      *
-     * @return <code>true</code> if the Validator is intended to deal with the provided application
+     * @return the set of target applications supported by this validator.
      * @see ValidationService#getAvailableValidators(String)
      */
-    default boolean acceptsTargetApplication(String application) {
-        return true;
-    }
-
+    Set<String> getSupportedApplications();
 }

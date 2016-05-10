@@ -494,7 +494,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         return validatorFactories.stream()
                 .flatMap(f -> f.available().stream())
                 .map(validatorCreator::getTemplateValidator)
-                .filter(validator -> validator.acceptsTargetApplication(application))
+                .filter(validator -> validator.getSupportedApplications().contains(application))
                 .collect(Collectors.toList());
     }
 

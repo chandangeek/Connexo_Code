@@ -50,6 +50,11 @@ public interface ValidationService {
 
     List<Validator> getAvailableValidators();
 
+    /**
+     * Filters validators and returns ones supporting a given <code>targetApplication</code>.
+     * @param targetApplication a string representation of target application.
+     * @return the list of validators supporting a given <code>targetApplication</code>.
+     */
     List<Validator> getAvailableValidators(String targetApplication);
 
     Validator getValidator(String implementation);
