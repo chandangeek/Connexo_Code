@@ -10,7 +10,7 @@ Ext.define('Usr.view.user.Browse', {
         'Usr.view.user.UserActionMenu',
         'Ext.panel.Panel',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
 
     content: [
@@ -29,11 +29,8 @@ Ext.define('Usr.view.user.Browse', {
                         xtype: 'userList'
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('user.Browse.NoItemsFoundPanel.title', 'USR', 'No users found'),
-                        reasons: [
-                            Uni.I18n.translate('user.Browse.NoItemsFoundPanel.item', 'USR', 'An error occurred while loading the users.')
-                        ]
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('user.Browse.empty', 'USR', 'An error occurred while loading the users.')
                     },
                     previewComponent: {
                         xtype: 'userDetails'
