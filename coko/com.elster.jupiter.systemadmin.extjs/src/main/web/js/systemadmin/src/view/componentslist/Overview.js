@@ -3,7 +3,8 @@ Ext.define('Sam.view.componentslist.Overview', {
     alias: 'widget.components-overview',
     requires: [
         'Sam.view.componentslist.Grid',
-        'Sam.view.componentslist.Filter'
+        'Sam.view.componentslist.Filter',
+        'Uni.util.FormEmptyMessage'
     ],
 
     content: [
@@ -23,11 +24,8 @@ Ext.define('Sam.view.componentslist.Overview', {
                     },
                     emptyComponent: {
                         itemId: 'components-no-items-found-panel',
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('components.empty.title', 'SAM', 'No components found'),
-                        reasons: [
-                            Uni.I18n.translate('components.empty.list.item1', 'SAM', 'The filter is too narrow')
-                        ]
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('components.empty', 'SAM', 'The filter is too narrow')
                     }
                 }
             ]

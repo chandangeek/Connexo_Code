@@ -7,7 +7,7 @@ Ext.define('Sam.view.datapurge.LogOverview', {
         'Sam.view.datapurge.LogSortingToolbar',
         'Uni.component.filter.view.FilterTopPanel',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
     router: null,
 
@@ -37,11 +37,8 @@ Ext.define('Sam.view.datapurge.LogOverview', {
                         },
                         emptyComponent: {
                             itemId: 'data-purge-log-no-items-found-panel',
-                            xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('datapurge.log.empty.title', 'SAM', 'No logging has been found'),
-                            reasons: [
-                                Uni.I18n.translate('datapurge.log.empty.list.item1', 'SAM', 'No logging has been found for the data purge task.')
-                            ]
+                            xtype: 'uni-form-empty-message',
+                            text: Uni.I18n.translate('datapurge.log.empty', 'SAM', 'No logging has been found for the data purge task.')
                         }
                     }
                 ]

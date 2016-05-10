@@ -6,7 +6,7 @@ Ext.define('Sam.view.datapurge.HistoryOverview', {
         'Sam.view.datapurge.HistoryDetails',
         'Uni.component.filter.view.FilterTopPanel',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
     router: null,
 
@@ -27,11 +27,8 @@ Ext.define('Sam.view.datapurge.HistoryOverview', {
                         },
                         emptyComponent: {
                             itemId: 'data-purge-history-no-items-found-panel',
-                            xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('datapurge.history.empty.title', 'SAM', 'No data purge history found'),
-                            reasons: [
-                                Uni.I18n.translate('datapurge.history.empty.list.item1', 'SAM', 'No data has been purged so far.')
-                            ]
+                            xtype: 'uni-form-empty-message',
+                            text: Uni.I18n.translate('datapurge.history.empty', 'SAM', 'No data has been purged so far.')
                         },
                         previewComponent: {
                             itemId: 'data-purge-history-details',

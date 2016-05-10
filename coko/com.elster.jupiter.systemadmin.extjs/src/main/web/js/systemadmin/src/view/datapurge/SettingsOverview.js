@@ -4,7 +4,7 @@ Ext.define('Sam.view.datapurge.SettingsOverview', {
     requires: [
         'Sam.view.datapurge.SettingGrid',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
     router: null,
 
@@ -25,11 +25,8 @@ Ext.define('Sam.view.datapurge.SettingsOverview', {
                         },
                         emptyComponent: {
                             itemId: 'data-purge-settings-no-items-found-panel',
-                            xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('datapurge.settings.empty.title', 'SAM', 'No data purge settings found'),
-                            reasons: [
-                                Uni.I18n.translate('datapurge.settings.empty.list.item1', 'SAM', 'No data purge settings have been defined yet.')
-                            ]
+                            xtype: 'uni-form-empty-message',
+                            text: Uni.I18n.translate('datapurge.settings.empty', 'SAM', 'No data purge settings have been defined yet.')
                         }
                     }
                 ]
