@@ -28,7 +28,6 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<Instant> installationDate;
     public DeviceAttributeInfo<Instant> deactivationDate;
     public DeviceAttributeInfo<Instant> decommissioningDate;
-    //public DeviceAttributeInfo<String> location;
     public DeviceAttributeInfo<EditLocationInfo> location;
     public DeviceAttributeInfo<CoordinatesInfo> geoCoordinates;
     public DeviceInfo device;

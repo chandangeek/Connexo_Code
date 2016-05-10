@@ -70,12 +70,12 @@ public class DeviceAttributesInfoFactory {
 
         info.device = DeviceInfo.from(device, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
 
-        CoordinatesInfo coordinatesInfo = new CoordinatesInfo(meteringService, device.getmRID());
+        CoordinatesInfo coordinatesInfo = new CoordinatesInfo(meteringService, device);
         info.geoCoordinates = new DeviceAttributeInfo();
         info.geoCoordinates.displayValue = coordinatesInfo;
         fillAvailableAndEditable(info.geoCoordinates, DeviceAttribute.GEOCOORDINATES, state);
 
-        EditLocationInfo editLocationInfo = new EditLocationInfo(meteringService, thesaurus, device.getmRID());
+        EditLocationInfo editLocationInfo = new EditLocationInfo(meteringService, thesaurus, device);
         info.location = new DeviceAttributeInfo();
         info.location.displayValue = editLocationInfo;
         fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);
@@ -287,7 +287,13 @@ public class DeviceAttributesInfoFactory {
         lifecycleDates.save();
 
         if (DeviceAttribute.GEOCOORDINATES.isEditableForState(state) && info.geoCoordinates != null) {
-            device.setGeoCoordinates(info.geoCoordinates.displayValue.spatialCoordinates == null? null:meteringService.createGeoCoordinates(info.geoCoordinates.displayValue.spatialCoordinates));
+            if(info.location.displayValue.isInherited){
+                if(info.geoCoordinates.displayValue.usagePointGeoCoordinatesId != null){
+                    meteringService.findGeoCoordinates(info.geoCoordinates.displayValue.usagePointGeoCoordinatesId).ifPresent(device::setGeoCoordinates);
+                }
+            } else {
+                device.setGeoCoordinates(info.geoCoordinates.displayValue.spatialCoordinates == null ? null : meteringService.createGeoCoordinates(info.geoCoordinates.displayValue.spatialCoordinates));
+            }
         }
 
         if (DeviceAttribute.LOCATION.isEditableForState(state) && info.location != null) {
@@ -312,10 +318,11 @@ public class DeviceAttributesInfoFactory {
                 }
                 device.setLocation(builder.create());
 
-            } else if ((info.location.displayValue.locationId != null) && (info.location.displayValue.locationId > 0)) {
-                meteringService.findLocation(info.location.displayValue.locationId).ifPresent(loc ->  device.setLocation(loc));
+            } else if((info.location.displayValue.isInherited) && (info.location.displayValue.usagePointLocationId != null)){
+                meteringService.findLocation(info.location.displayValue.usagePointLocationId).ifPresent(device::setLocation);
+            }else if ((info.location.displayValue.locationId != null) && (info.location.displayValue.locationId > 0) && (!info.location.displayValue.isInherited)) {
+                meteringService.findLocation(info.location.displayValue.locationId).ifPresent(device::setLocation);
             }
-
         }
         device.save();
     }
