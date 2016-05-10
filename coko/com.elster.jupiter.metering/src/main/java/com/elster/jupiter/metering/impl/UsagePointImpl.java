@@ -330,19 +330,7 @@ public class UsagePointImpl implements UsagePoint {
             Save.CREATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
         } else {
-            if(upLocation.isPresent()) {
-                if (location != upLocation.get().getId()) {
-                    this.getMeterActivations().stream()
-                            .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
-                                if (meter.getLocationId() == upLocation.get().getId()) {
-                                    meteringService.findLocation(location).ifPresent(l -> {
-                                        meter.setLocation(l);
-                                        meter.update();
-                                    });
-                                }
-                            }));
-                }
-            }
+            updateDeviceDefaultLocation();
             Save.UPDATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
         }
@@ -772,5 +760,54 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    private void updateDeviceDefaultLocation(){
+        if(upLocation.isPresent()) {
+            if (location != upLocation.get().getId()) {
+                this.getMeterActivations().stream()
+                        .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
+                            if (!meter.getLocation().isPresent() || meter.getLocationId() == upLocation.get().getId()) {
+                                meteringService.findLocation(location).ifPresent(l -> {
+                                    meter.setLocation(l);
+                                    meter.update();
+                                });
+                            }
+                        }));
+            }
+        } else if(location != 0){
+            this.getMeterActivations().stream()
+                    .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
+                        if (!meter.getLocation().isPresent()) {
+                            meteringService.findLocation(location).ifPresent(l -> {
+                                meter.setLocation(l);
+                                meter.update();
+                            });
+                        }
+                    }));
+        }
+        if(geoCoordinates.isPresent()){
+            dataModel.mapper(UsagePoint.class).getOptional(this.getId()).ifPresent(up -> {
+                if(up.getGeoCoordinates().isPresent()) {
+                    if (up.getGeoCoordinates().get().getId() != geoCoordinates.get().getId()) {
+                        this.getMeterActivations().stream()
+                                .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
+                                    if (!meter.getGeoCoordinates().isPresent() || meter.getGeoCoordinates().get().getId() == up.getGeoCoordinates().get().getId()) {
+                                        meter.setGeoCoordintes(geoCoordinates.get());
+                                        meter.update();
+                                    }
+                                }));
+                    }
+                } else {
+                    this.getMeterActivations().stream()
+                            .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
+                                if (!meter.getGeoCoordinates().isPresent()) {
+                                    meter.setGeoCoordintes(geoCoordinates.get());
+                                    meter.update();
+                                }
+                            }));
+                }
+            });
+        }
     }
 }
