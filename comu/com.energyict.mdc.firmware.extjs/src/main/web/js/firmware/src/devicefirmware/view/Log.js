@@ -5,7 +5,9 @@ Ext.define('Fwc.devicefirmware.view.Log', {
     requires: [
         'Fwc.devicefirmware.view.LogGrid',
         'Fwc.devicefirmware.view.LogPreview',
-        'Mdc.view.setup.device.DeviceMenu'
+        'Mdc.view.setup.device.DeviceMenu',
+        'Uni.view.container.PreviewContainer',
+        'Uni.util.FormEmptyMessage'
     ],
 
     router: null,
@@ -31,11 +33,8 @@ Ext.define('Fwc.devicefirmware.view.Log', {
                         xtype: 'device-firmware-log-grid'
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('deviceFirmware.empty.title', 'FWC', 'No log lines found'),
-                        reasons: [
-                            Uni.I18n.translate('deviceFirmware.empty.list.item1', 'FWC', 'No log lines have been added yet')
-                        ]
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('deviceFirmware.empty', 'FWC', 'No log lines have been added yet')
                     },
                     previewComponent: {
                         xtype: 'device-firmware-log-preview'
