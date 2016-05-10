@@ -1,7 +1,7 @@
 Ext.define('Bpm.monitorissueprocesses.view.ProcessList', {
     extend: 'Ext.panel.Panel',
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
     alias: 'widget.issue-process-list',
 
@@ -9,12 +9,9 @@ Ext.define('Bpm.monitorissueprocesses.view.ProcessList', {
     buttonAlign: 'left',
     items: [
         {
-            xtype: 'no-items-found-panel',
+            xtype: 'uni-form-empty-message',
             itemId: 'no-issue-processes',
-            title: Uni.I18n.translate('processes.issue.noProcesses','BPM','No processes found'),
-            reasons: [
-                Uni.I18n.translate('processes.issue.noProcessesStarted','BPM','No process started yet on this issue')
-            ],
+            text: Uni.I18n.translate('processes.issue.noProcessesStarted','BPM','No process started yet on this issue'),
             hidden: true
         },
         {
