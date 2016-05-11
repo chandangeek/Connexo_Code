@@ -437,7 +437,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         info.description = "desc";
 
         ValidationRuleSet ruleSet = mockValidationRuleSet(V_RULE_SET_ID);
-        when(validationService.createValidationRuleSet(info.name, info.description, "APP")).thenReturn(ruleSet);
+        when(validationService.createValidationRuleSet(info.name, "APP", info.description)).thenReturn(ruleSet);
         Response response = target("/validation").request().header(APPLICATION_HEADER_PARAM, "APP").post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }

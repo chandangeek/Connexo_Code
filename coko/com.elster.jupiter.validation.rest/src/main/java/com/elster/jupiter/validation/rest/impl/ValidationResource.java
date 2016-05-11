@@ -107,7 +107,7 @@ public class ValidationResource {
     public Response createValidationRuleSet(final ValidationRuleSetInfo info, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         return Response.status(Response.Status.CREATED)
                 .entity(new ValidationRuleSetInfo(transactionService.execute(
-                        () -> validationService.createValidationRuleSet(info.name, info.description, applicationName)))).build();
+                        () -> validationService.createValidationRuleSet(info.name, applicationName, info.description)))).build();
     }
 
     @PUT
@@ -156,7 +156,7 @@ public class ValidationResource {
 
     private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters, String applicationName) {
         Query<ValidationRuleSet> query = validationService.getRuleSetQuery();
-        query.setRestriction(where("application").isEqualTo(applicationName));
+        query.setRestriction(where("applicationName").isEqualTo(applicationName));
         RestQuery<ValidationRuleSet> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
