@@ -25,6 +25,7 @@ import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
+import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
@@ -205,7 +206,44 @@ public class MasterDataSerializer {
         final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(ak, dlmsMeterKEK), "");
         final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(ek, dlmsMeterKEK), "");
 
-        return new Beacon3100MeterDetails(callHomeId, deviceTypeId, deviceTimeZone, device.getSerialNumber(), wrappedPassword, wrappedAK, wrappedEK);
+        return new Beacon3100MeterDetails(callHomeId, deviceTypeId, deviceTimeZone, device.getSerialNumber(), createClientDetails(device, dlmsMeterKEK), wrappedPassword, wrappedAK, wrappedEK);
+    }
+
+    private static List<Beacon3100ClientDetails> createClientDetails(Device device, byte[] dlmsMeterKEK){
+        int clientId = 1; //default
+        byte[] password = null;
+        byte[] hlsPassword = null;
+        byte[] ak = null;
+        byte[] ek = null;
+        List<Beacon3100ClientDetails> clientDetails = new ArrayList<>();
+        final long initialFrameCounter = device.getProtocolProperties().getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER, -1);
+
+        for (SecurityPropertySet securityPropertySet : device.getConfiguration().getCommunicationConfiguration().getSecurityPropertySets()) {
+            for (SecurityProperty protocolSecurityProperty : device.getProtocolSecurityProperties(securityPropertySet)) {
+
+                if (protocolSecurityProperty.getName().equals(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString())) {
+                    clientId = ((BigDecimal) protocolSecurityProperty.getValue()).intValue();
+                } else if (protocolSecurityProperty.getName().equals(SecurityPropertySpecName.PASSWORD.toString())) {
+                    if(securityPropertySet.getAuthenticationDeviceAccessLevelId() >= 3){
+                        hlsPassword = parseASCIIPassword(protocolSecurityProperty.getName(), (String) protocolSecurityProperty.getValue());
+                    } else {
+                        password = parseASCIIPassword(protocolSecurityProperty.getName(), (String) protocolSecurityProperty.getValue());
+                    }
+                } else if (protocolSecurityProperty.getName().equals(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())) {
+                    ak = parseKey(protocolSecurityProperty.getName(), (String) protocolSecurityProperty.getValue());
+                } else if (protocolSecurityProperty.getName().equals(SecurityPropertySpecName.ENCRYPTION_KEY.toString())) {
+                    ek = parseKey(protocolSecurityProperty.getName(), (String) protocolSecurityProperty.getValue());
+                }
+            }
+            //Get the DLMS keys from the device. If they are empty, an empty OctetString will be sent to the beacon.
+            final String wrappedPassword = password == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(password, dlmsMeterKEK), "");
+            final String wrappedHLSPassword = hlsPassword == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(hlsPassword, dlmsMeterKEK), "");
+            final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(ak, dlmsMeterKEK), "");
+            final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(ek, dlmsMeterKEK), "");
+            clientDetails.add(new Beacon3100ClientDetails(clientId, new Beacon3100ConnectionDetails(wrappedPassword, wrappedHLSPassword, wrappedAK, wrappedEK, initialFrameCounter)));
+        }
+
+        return  clientDetails;
     }
 
     public static String parseCallHomeId(Device device) {
@@ -495,8 +533,9 @@ public class MasterDataSerializer {
                 clientMacAddress = BigDecimal.ONE;
             }
         }
+        final int securitySuite = 0;//TODO: get the security suite in use
 
-        return new Beacon3100ClientType(clientTypeId, clientMacAddress.intValue(), securityPropertySet.getAuthenticationDeviceAccessLevelId(), securityPropertySet.getEncryptionDeviceAccessLevelId());
+        return new Beacon3100ClientType(clientTypeId, clientMacAddress.intValue(), securitySuite, securityPropertySet.getAuthenticationDeviceAccessLevelId(), securityPropertySet.getEncryptionDeviceAccessLevelId());
     }
 
     /**
