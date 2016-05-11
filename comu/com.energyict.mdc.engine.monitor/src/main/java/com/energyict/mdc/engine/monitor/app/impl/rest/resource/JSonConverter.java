@@ -4,6 +4,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.*;
 import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.monitor.*;
 import com.energyict.mdc.engine.status.*;
@@ -89,11 +90,11 @@ public class JSonConverter {
 
             JSONObject result = new JSONObject();
             result.put("serverId", status.getComServerId());
-            result.put("currentDate", format(Instant.now(), FormatKey.SHORT_DATETIME));
+            result.put("currentDate", format(Instant.now(), DateTimeFormatGenerator.Mode.SHORT, DateTimeFormatGenerator.Mode.SHORT));
             if (status.isRunning() && operationalStatistics != null) {
                 Date startTime = operationalStatistics.getStartTimestamp();
                 if (startTime != null) {
-                    String startedAndDurationText = format(startTime.toInstant(), FormatKey.SHORT_DATETIME);
+                    String startedAndDurationText = format(startTime.toInstant(), DateTimeFormatGenerator.Mode.SHORT, DateTimeFormatGenerator.Mode.SHORT);
                     TimeDuration duration = operationalStatistics.getRunningTime();
                     if (duration != null) {
                         startedAndDurationText += " (" + formatDuration(duration) + ")";
@@ -126,7 +127,13 @@ public class JSonConverter {
                 jsDuration.put("time-unit", unit);
                 result.put("changeDetectionFrequency", jsDuration);
                 if (lastCheckForChanges != null) {
-                    result.put("changeDetectionNextRun", format(lastCheckForChanges.toInstant().plusSeconds(changesInterPollDelay.getSeconds()), FormatKey.LONG_DATETIME));
+                    result.put("changeDetectionNextRun",
+                        format(
+                            lastCheckForChanges.toInstant().plusSeconds(changesInterPollDelay.getSeconds()),
+                            DateTimeFormatGenerator.Mode.LONG,
+                            DateTimeFormatGenerator.Mode.LONG
+                        )
+                    );
                 }
             }
 
@@ -218,7 +225,7 @@ public class JSonConverter {
                     if (monitor.isPresent()) {
                         Optional<Date> lastCheckForWork = monitor.get().getOperationalStatistics().getLastCheckForWorkTimestamp();
                         if (lastCheckForWork.isPresent()) {
-                            lastSeen = format(lastCheckForWork.get().toInstant(), FormatKey.LONG_DATETIME);
+                            lastSeen = format(lastCheckForWork.get().toInstant(), DateTimeFormatGenerator.Mode.LONG, DateTimeFormatGenerator.Mode.LONG);
                         }
                     }
                 }
@@ -395,8 +402,8 @@ public class JSonConverter {
         return pool.getComPorts().stream().filter(p -> p.getId() == port.getId()).findFirst().isPresent();
     }
 
-    private String format(Instant date, FormatKey format){
-        return date!=null ? getDateFormatForCurrentUser(format).format(LocalDateTime.ofInstant(date, ZoneId.systemDefault())) : "";
+    private String format(Instant date, DateTimeFormatGenerator.Mode dateFormatMode, DateTimeFormatGenerator.Mode timeFormatMode) {
+        return date!=null ? getDateFormatForCurrentUser(dateFormatMode, timeFormatMode).format(LocalDateTime.ofInstant(date, ZoneId.systemDefault())) : "";
     }
 
     private static String formatDuration(TimeDuration duration) {
@@ -442,19 +449,34 @@ public class JSonConverter {
     }
 
 
-    private DateTimeFormatter getDateFormatForCurrentUser(FormatKey format){
+    private DateTimeFormatter getDateFormatForCurrentUser(DateTimeFormatGenerator.Mode dateFormatMode, DateTimeFormatGenerator.Mode timeFormatMode){
         UserPreferencesService preferencesService = this.userService.getUserPreferencesService();
         Principal principal = threadPrincipalService.getPrincipal();
-        String dateFormat = "HH:mm:ss EEE dd MMM ''yy"; // default backend date format
+        // Construct the default backend date format:
+        String dateTimeFormat =
+            (dateFormatMode.equals(DateTimeFormatGenerator.Mode.LONG) ? "HH:mm:ss" : "HH:mm") +
+            (timeFormatMode.equals(DateTimeFormatGenerator.Mode.LONG) ? " EEE dd MMM ''yy" : " dd MMM ''yy");
         Locale locale = Locale.ENGLISH;
         if (principal instanceof User){
-            Optional<UserPreference> dateFormatPref = preferencesService.getPreferenceByKey((User) principal, format);
-            if (dateFormatPref.isPresent()){
-                dateFormat = dateFormatPref.get().getFormatBE();
+            Optional<UserPreference> dateFormatPref = dateFormatMode.equals(DateTimeFormatGenerator.Mode.LONG)
+                ? preferencesService.getPreferenceByKey((User) principal, FormatKey.LONG_DATE)
+                : preferencesService.getPreferenceByKey((User) principal, FormatKey.SHORT_DATE);
+            Optional<UserPreference> timeFormatPref = timeFormatMode.equals(DateTimeFormatGenerator.Mode.LONG)
+                ? preferencesService.getPreferenceByKey((User) principal, FormatKey.LONG_TIME)
+                : preferencesService.getPreferenceByKey((User) principal, FormatKey.SHORT_TIME);
+            Optional<UserPreference> orderFormatPref = preferencesService.getPreferenceByKey((User) principal, FormatKey.DATETIME_ORDER);
+            Optional<UserPreference> separatorFormatPref = preferencesService.getPreferenceByKey((User) principal, FormatKey.DATETIME_SEPARATOR);
+            if (dateFormatPref.isPresent() && timeFormatPref.isPresent() && orderFormatPref.isPresent() && separatorFormatPref.isPresent()) {
+                dateTimeFormat = DateTimeFormatGenerator.getDateTimeFormat(
+                    dateFormatPref.get().getFormatBE(),
+                    timeFormatPref.get().getFormatBE(),
+                    orderFormatPref.get().getFormatBE(),
+                    separatorFormatPref.get().getFormatBE()
+                );
             }
             locale = ((User) principal).getLocale().orElse(locale);
         }
-        return DateTimeFormatter.ofPattern(dateFormat,locale);
+        return DateTimeFormatter.ofPattern(dateTimeFormat,locale);
     }
 
 
