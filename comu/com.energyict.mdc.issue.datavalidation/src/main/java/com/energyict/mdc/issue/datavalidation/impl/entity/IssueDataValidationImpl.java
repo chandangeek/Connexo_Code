@@ -26,14 +26,32 @@ import java.util.Optional;
 
 public class IssueDataValidationImpl implements IssueDataValidation {
 
-    private final DataModel dataModel;
-    private final IssueDataValidationService issueDataValidationService;
+    public enum Fields {
+        BASEISSUE("baseIssue"),
+        NOTESTIMATEDBLOCKS("notEstimatedBlocks"),;
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        public String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     private Reference<Issue> baseIssue = ValueReference.absent();
+
     // Audit fields
     private long version;
     private Instant createTime;
     private Instant modTime;
     private String userName;
+
+    private final DataModel dataModel;
+    private final IssueDataValidationService issueDataValidationService;
+
     @Inject
     public IssueDataValidationImpl(DataModel dataModel, IssueDataValidationService issueDataValidationService) {
         this.dataModel = dataModel;
@@ -60,18 +78,8 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
-    public void setReason(IssueReason reason) {
-        getBaseIssue().setReason(reason);
-    }
-
-    @Override
     public IssueStatus getStatus() {
         return getBaseIssue().getStatus();
-    }
-
-    @Override
-    public void setStatus(IssueStatus status) {
-        getBaseIssue().setStatus(status);
     }
 
     @Override
@@ -85,11 +93,6 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
-    public void setDevice(EndDevice device) {
-        getBaseIssue().setDevice(device);
-    }
-
-    @Override
     public Optional<UsagePoint> getUsagePoint() {
         return getBaseIssue().getUsagePoint();
     }
@@ -100,23 +103,38 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
-    public void setDueDate(Instant dueDate) {
-        getBaseIssue().setDueDate(dueDate);
-    }
-
-    @Override
     public boolean isOverdue() {
         return getBaseIssue().isOverdue();
     }
 
     @Override
-    public void setOverdue(boolean overdue) {
-        getBaseIssue().setOverdue(overdue);
+    public CreationRule getRule() {
+        return getBaseIssue().getRule();
     }
 
     @Override
-    public CreationRule getRule() {
-        return getBaseIssue().getRule();
+    public void setReason(IssueReason reason) {
+        getBaseIssue().setReason(reason);
+    }
+
+    @Override
+    public void setStatus(IssueStatus status) {
+        getBaseIssue().setStatus(status);
+    }
+
+    @Override
+    public void setDevice(EndDevice device) {
+        getBaseIssue().setDevice(device);
+    }
+
+    @Override
+    public void setDueDate(Instant dueDate) {
+        getBaseIssue().setDueDate(dueDate);
+    }
+
+    @Override
+    public void setOverdue(boolean overdue) {
+        getBaseIssue().setOverdue(overdue);
     }
 
     @Override
@@ -169,6 +187,10 @@ public class IssueDataValidationImpl implements IssueDataValidation {
         return userName;
     }
 
+    public void save() {
+        Save.CREATE.save(dataModel, this);
+    }
+
     public void update() {
         getBaseIssue().update();
         Save.UPDATE.save(dataModel, this);
@@ -176,10 +198,6 @@ public class IssueDataValidationImpl implements IssueDataValidation {
 
     public void delete() {
         dataModel.remove(this);
-    }
-
-    public void save() {
-        Save.CREATE.save(dataModel, this);
     }
 
     @Override
@@ -198,11 +216,6 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(getBaseIssue());
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -216,18 +229,8 @@ public class IssueDataValidationImpl implements IssueDataValidation {
         return Objects.equals(this.getBaseIssue(), that.getBaseIssue());
     }
 
-    public enum Fields {
-        BASEISSUE("baseIssue"),
-        NOTESTIMATEDBLOCKS("notEstimatedBlocks"),;
-
-        private final String javaFieldName;
-
-        Fields(String javaFieldName) {
-            this.javaFieldName = javaFieldName;
-        }
-
-        public String fieldName() {
-            return javaFieldName;
-        }
+    @Override
+    public int hashCode() {
+        return Objects.hash(getBaseIssue());
     }
 }
