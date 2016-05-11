@@ -6,7 +6,6 @@ import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.mdw.core.Code;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.RegisterValue;
@@ -17,6 +16,7 @@ import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.Tracker;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
+import com.energyict.protocolimplv2.common.objectserialization.codetable.objects.CodeObject;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
@@ -31,13 +31,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -534,7 +528,7 @@ public class ObjectFactory {
         addRequestToOverview(RequestType.Config);
     }
 
-    public void sendTariffConfiguration(int number, int numberOfRates, Code codeTable) {
+    public void sendTariffConfiguration(int number, int numberOfRates, CodeObject codeTable) {
         log(Level.INFO, "Sending request to configure tariff settings" + getRetryDescription());
         getTariffConfiguration().setTariffNumber(number);
         getTariffConfiguration().setNumberOfRates(numberOfRates);
