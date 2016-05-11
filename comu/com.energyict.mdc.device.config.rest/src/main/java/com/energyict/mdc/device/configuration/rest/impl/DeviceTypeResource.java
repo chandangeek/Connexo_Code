@@ -513,7 +513,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         infos = deviceType.getAllowedCalendars()
                 .stream()
-                .map(allowedCalendar -> getAllowedCalendarInfo(allowedCalendar))
+                .map(this::getAllowedCalendarInfo)
                 .collect(Collectors.toList());
 
         return Response.ok(infos).build();
@@ -537,12 +537,18 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE,Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response getCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
-        Instant instant = Instant.ofEpochMilli(milliseconds);
-        Calendar calendar = calendarService.findCalendar(calendarId).get();
-        LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
-                .toLocalDate();
+        if(milliseconds <= 0) {
+            return  Response.ok(calendarService.findCalendar(id)
+                    .map(calendarInfoFactory::detailedFromCalendar)
+                    .orElseThrow(IllegalArgumentException::new)).build();
+        } else {
+            Instant instant = Instant.ofEpochMilli(milliseconds);
+            Calendar calendar = calendarService.findCalendar(calendarId).get();
+            LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
+                    .toLocalDate();
 
-        return Response.ok(transformToWeekCalendar(calendar, localDate)).build();
+            return Response.ok(transformToWeekCalendar(calendar, localDate)).build();
+        }
     }
 
     @GET
@@ -562,7 +568,7 @@ public class DeviceTypeResource {
         infos = calendarService.findAllCalendars()
                 .stream()
                 .filter(calendar -> !usedCalendars.contains(calendar))
-                .map(cal -> calendarInfoFactory.summaryFromCalendar(cal))
+                .map(calendarInfoFactory::summaryFromCalendar)
                 .collect(Collectors.toList());
 
         return Response.ok(infos).build();
@@ -641,7 +647,6 @@ public class DeviceTypeResource {
     }
 
     private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
-        calendarService.newCalendar(calendar.getName(), calendar.getTimeZone(), Year.of(localDate.getYear()));
         return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);
     }
 
@@ -731,7 +736,7 @@ public class DeviceTypeResource {
         if (allowedCalendar.isGhost()) {
             return new AllowedCalendarInfo(allowedCalendar);
         } else {
-            return new AllowedCalendarInfo(allowedCalendar, calendarInfoFactory.detailedFromCalendar(allowedCalendar.getCalendar()
+            return new AllowedCalendarInfo(allowedCalendar, calendarInfoFactory.summaryFromCalendar(allowedCalendar.getCalendar()
                     .get()));
         }
     }
