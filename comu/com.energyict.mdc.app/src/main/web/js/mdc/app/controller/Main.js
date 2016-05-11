@@ -26,6 +26,7 @@ Ext.define('MdcApp.controller.Main', {
         'Fwc.privileges.FirmwareCampaign',
         'Bpm.privileges.BpmManagement',
         'Dbp.privileges.DeviceProcesses',
+        'Mdc.privileges.Monitor',
         'Mdc.privileges.UsagePoint',
         'Scs.privileges.ServiceCall',
         'Mdc.privileges.Monitor'
@@ -51,6 +52,7 @@ Ext.define('MdcApp.controller.Main', {
         Mdc.privileges.DeviceCommands.all(),
         Mdc.privileges.Device.all(),
         Mdc.privileges.DataCollectionKpi.all(),
+        Mdc.privileges.Monitor.all(),
         Isu.privileges.Issue.all(),
         Dxp.privileges.DataExport.all(),
         Dlc.privileges.DeviceLifeCycle.all(),
