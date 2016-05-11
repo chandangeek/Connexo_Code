@@ -507,7 +507,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/timeofuse")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE,Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response getCalendars(@PathParam("id") long id) {
         List<AllowedCalendarInfo> infos;
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -535,7 +535,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/timeofuse/{calendarId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE,Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response getCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
         Instant instant = Instant.ofEpochMilli(milliseconds);
         Calendar calendar = calendarService.findCalendar(calendarId).get();
@@ -586,7 +586,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/timeofuseoptions/{dummyid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE,Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response getTimeOfUseManagementOptions(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         TimeOfUseOptionsInfo timeOfUseOptionsInfo = getTimeOfUseOptions(deviceType);
