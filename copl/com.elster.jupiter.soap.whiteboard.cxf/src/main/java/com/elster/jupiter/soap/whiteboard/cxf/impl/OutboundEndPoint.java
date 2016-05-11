@@ -2,7 +2,6 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.OutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -15,14 +14,12 @@ import javax.inject.Inject;
 public final class OutboundEndPoint implements ManagedEndpoint {
     private OutboundEndPointProvider endPointProvider;
     private final BundleContext bundleContext;
-    private final SoapProviderSupportFactory soapProviderSupportFactory;
 
     private ServiceRegistration<?> serviceRegistration;
 
     @Inject
-    public OutboundEndPoint(BundleContext bundleContext, SoapProviderSupportFactory soapProviderSupportFactory) {
+    public OutboundEndPoint(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
-        this.soapProviderSupportFactory = soapProviderSupportFactory;
     }
 
     OutboundEndPoint init(OutboundEndPointProvider endPointProvider) {
