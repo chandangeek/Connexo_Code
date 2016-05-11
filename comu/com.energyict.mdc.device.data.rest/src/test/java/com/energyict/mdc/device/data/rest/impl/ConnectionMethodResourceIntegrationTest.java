@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.rest.ObjectMapperProvider;
 import com.elster.jupiter.messaging.MessageService;
@@ -134,6 +135,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static DeviceLifeCycleService deviceLifecycleService;
     private static TopologyService topologyService;
     private static ServiceCallService serviceCallService;
+    private static BpmService bpmService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -153,6 +155,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         deviceLifecycleService = mock(DeviceLifeCycleService.class);
         topologyService = mock(TopologyService.class);
         serviceCallService = mock(ServiceCallService.class);
+        bpmService = mock(BpmService.class);
 
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
@@ -340,6 +343,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setDeviceMessageService(deviceMessageService);
         application.setCustomPropertySetService(inMemoryPersistence.getCustomPropertySetService());
         application.setServiceCallService(inMemoryPersistence.getServiceCallService());
+        application.setBpmService(bpmService);
         application.setServiceCallInfoFactory(inMemoryPersistence.getServiceCallInfoFactory());
         return application;
     }

@@ -27,12 +27,8 @@ import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+
 import com.google.common.collect.Range;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.mockito.Mock;
 
 import java.net.URLEncoder;
 import java.time.Instant;
@@ -45,6 +41,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -258,9 +260,9 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         doReturn(Arrays.asList(channelReadingType2)).when(channel9).getReadingTypes();
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(validationService.getEvaluator(eq(meter), any(Range.class))).thenReturn(evaluator);
-        when(suspect.getTypeCode()).thenReturn("3.5.258");
+        when(suspect.getTypeCode()).thenReturn("2.5.258");
         when(notSuspect.getTypeCode()).thenReturn("0.0.0");
-        when(suspect.getType()).thenReturn(new ReadingQualityType("3.5.258"));
+        when(suspect.getType()).thenReturn(new ReadingQualityType("2.5.258"));
         when(notSuspect.getType()).thenReturn(new ReadingQualityType("0.0.0"));
 
         Interval regInterval1 = new Interval(Date.from(fromReg.toInstant()), Date.from(to.toInstant()));

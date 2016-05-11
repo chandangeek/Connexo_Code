@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.rest.AppServerHelper;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
@@ -55,6 +56,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -123,6 +125,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile ServiceCallService serviceCallService;
+    private volatile BpmService bpmService;
     private volatile ServiceCallInfoFactory serviceCallInfoFactory;
 
     @Override
@@ -168,6 +171,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     @Reference
@@ -294,6 +302,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         for (EndDeviceEventOrAction eventOrAction : EndDeviceEventOrAction.values()) {
             if (uniqueIds.add(eventOrAction.toString())) {
                 keys.add(new SimpleTranslationKey(eventOrAction.toString(), eventOrAction.getMnemonic()));
+            }
+        }
+        for (FirmwareType firmwareType : FirmwareType.values()) {
+            if (uniqueIds.add(firmwareType.getType())) {
+                keys.add(new SimpleTranslationKey(firmwareType.getType(), firmwareType.getDescription()));
             }
         }
         keys.addAll(Arrays.asList(DefaultTranslationKey.values()));
@@ -468,6 +481,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
             bind(DeviceLifeCycleHistoryInfoFactory.class).to(DeviceLifeCycleHistoryInfoFactory.class);
+            bind(DeviceFirmwareHistoryInfoFactory.class).to(DeviceFirmwareHistoryInfoFactory.class);
             bind(ValidationInfoFactory.class).to(ValidationInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(DeviceDataInfoFactory.class).to(DeviceDataInfoFactory.class);
@@ -486,6 +500,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DevicesForConfigChangeSearchFactory.class).to(DevicesForConfigChangeSearchFactory.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(serviceCallService).to(ServiceCallService.class);
+            bind(bpmService).to(BpmService.class);
+            bind(GoingOnResource.class).to(GoingOnResource.class);
             bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
         }
     }
