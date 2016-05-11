@@ -30,6 +30,10 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         this.requestedReadingType = requestedReadingType;
     }
 
+    protected VirtualReadingType getRequestedReadingType() {
+        return requestedReadingType;
+    }
+
     @Override
     public VirtualReadingType visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
         throw new IllegalArgumentException("Inference of reading type is not supported for expert mode functions");
@@ -37,9 +41,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
 
     @Override
     public VirtualReadingType visitVirtualRequirement(VirtualRequirementNode node) {
-        VirtualReadingType preferredReadingType = node.getPreferredReadingType();
-        node.setTargetReadingType(preferredReadingType);
-        return preferredReadingType;
+        return node.getPreferredReadingType();
     }
 
     @Override
@@ -58,13 +60,18 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
     }
 
     @Override
-    public VirtualReadingType visitNull(NullNodeImpl nullNode) {
+    public VirtualReadingType visitNull(NullNode nullNode) {
         return VirtualReadingType.dontCare();
     }
 
     @Override
-    public VirtualReadingType visitVariable(VariableReferenceNode variable) {
+    public VirtualReadingType visitSqlFragment(SqlFragmentNode variable) {
         return VirtualReadingType.dontCare();
+    }
+
+    @Override
+    public VirtualReadingType visitUnitConversion(UnitConversionNode unitConversionNode) {
+        return unitConversionNode.getTargetReadingType();
     }
 
     @Override
@@ -113,14 +120,18 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
                 return this.enforceReadingType(children, preferredReadingType);
             } else {
                 // Difference of opinions, try to compromise
-                return this.searchCompromise(children, preferredReadingTypes, unsupportedOperationExceptionSupplier);
+                return this.searchAndEnforceCompromise(children, preferredReadingTypes, unsupportedOperationExceptionSupplier);
             }
         }
     }
 
-    private VirtualReadingType enforceReadingType(List<ServerExpressionNode> nodes,  VirtualReadingType readingType) {
-        EnforceReadingType enforce = new EnforceReadingType(readingType);
-        nodes.stream().forEach(enforce::onto);
+    private VirtualReadingType enforceReadingType(List<ServerExpressionNode> nodes, VirtualReadingType readingType) {
+        new EnforceReadingType(readingType).enforceOntoAll(nodes);
+        return readingType;
+    }
+
+    private VirtualReadingType enforceIntervalMultiplierAndCommodity(List<ServerExpressionNode> nodes, VirtualReadingType readingType) {
+        new EnforceIntervalMultiplierAndCommodity(readingType).enforceOntoAll(nodes);
         return readingType;
     }
 
@@ -138,29 +149,34 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
      * @param unsupportedOperationExceptionSupplier The supplier of the UnsupportedOperationException that will be thrown when no compromise can be found
      * @return The compromising VirtualReadingType
      */
-    private VirtualReadingType searchCompromise(List<ServerExpressionNode> nodes, List<VirtualReadingType> preferredReadingTypes, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
-        List<VirtualReadingType> smallestToBiggest = new ArrayList<>(preferredReadingTypes);
-        Collections.sort(smallestToBiggest, new VirtualReadingTypeRelativeComparator(this.requestedReadingType));
-        Optional<VirtualReadingType> compromise =
-                smallestToBiggest
-                        .stream()
-                        .map(CheckEnforceReadingType::new)
-                        .filter(checker -> checker.forAll(nodes))
-                        .map(CheckEnforceReadingType::getReadingType)
-                        .findFirst();
+    private VirtualReadingType searchAndEnforceCompromise(List<ServerExpressionNode> nodes, List<VirtualReadingType> preferredReadingTypes, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
+        Optional<VirtualReadingType> compromise = this.searchCompromise(nodes, preferredReadingTypes);
         if (compromise.isPresent()) {
-            new EnforceReadingType(compromise.get()).enforceOntoAll(nodes);
-            return compromise.get();
+            return this.enforceReadingType(nodes, compromise.get());
         } else if (this.checkForCompromiseOnRequestedIntervalAndMultiplier(nodes)) {
-            new EnforceIntervalMultiplierAndCommodity(this.requestedReadingType).enforceOntoAll(nodes);
-            return this.requestedReadingType;
+            return this.enforceIntervalMultiplierAndCommodity(nodes, this.requestedReadingType);
         } else {
             throw unsupportedOperationExceptionSupplier.get();
         }
     }
 
+    protected Optional<VirtualReadingType> searchCompromise(List<ServerExpressionNode> nodes, List<VirtualReadingType> preferredReadingTypes) {
+        List<VirtualReadingType> smallestToBiggest = new ArrayList<>(preferredReadingTypes);
+        Collections.sort(smallestToBiggest, new VirtualReadingTypeRelativeComparator(this.requestedReadingType));
+        return smallestToBiggest
+                .stream()
+                .map(this::newCheckInforceReadingType)
+                .filter(checker -> checker.forAll(nodes))
+                .map(CheckEnforceReadingType::getReadingType)
+                .findFirst();
+    }
+
+    protected CheckEnforceReadingType newCheckInforceReadingType(VirtualReadingType readingType) {
+        return new CheckEnforceReadingTypeImpl(readingType);
+    }
+
     private Boolean checkForCompromiseOnRequestedIntervalAndMultiplier(List<ServerExpressionNode> nodes) {
-        return new CheckEnforceReadingType(this.requestedReadingType).forAll(nodes);
+        return new CheckEnforceReadingTypeImpl(this.requestedReadingType).forAll(nodes);
     }
 
     private String getFunctionName(FunctionCallNode functionCall) {
@@ -172,85 +188,10 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
     }
 
     /**
-     * Checks if enforcing a VirtualReadingType onto all expressions will work
-     * and returns <code>true</code> if that is the case.
-     * As an example, the VirtualReadingType 15min cannot be forced into a
-     * {@link VirtualReadingTypeRequirement} if none of the backing channels
-     * are capable of providing that interval.
-     */
-    private class CheckEnforceReadingType implements ServerExpressionNode.Visitor<Boolean> {
-        private final VirtualReadingType readingType;
-
-        private CheckEnforceReadingType(VirtualReadingType readingType) {
-            super();
-            this.readingType = readingType;
-        }
-
-        public VirtualReadingType getReadingType() {
-            return readingType;
-        }
-
-        private Boolean forAll(List<ServerExpressionNode> expressions) {
-            if (this.readingType.isUnsupported()) {
-                return Boolean.FALSE;
-            }
-            else {
-                return expressions.stream().allMatch(expression -> expression.accept(this));
-            }
-        }
-
-        @Override
-        public Boolean visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
-            throw new IllegalArgumentException("Inference of reading type is not supported for expert mode functions");
-        }
-
-        @Override
-        public Boolean visitConstant(NumericalConstantNode constant) {
-            return Boolean.TRUE;
-        }
-
-        @Override
-        public Boolean visitNull(NullNodeImpl nullNode) {
-            return Boolean.TRUE;
-        }
-
-        @Override
-        public Boolean visitConstant(StringConstantNode constant) {
-            return Boolean.TRUE;
-        }
-
-        @Override
-        public Boolean visitVariable(VariableReferenceNode variable) {
-            return Boolean.TRUE;
-        }
-
-        @Override
-        public Boolean visitVirtualRequirement(VirtualRequirementNode requirement) {
-            return requirement.supports(this.getReadingType());
-        }
-
-        @Override
-        public Boolean visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-            // This is just another reference to a deliverable that we can always aggregate to a different interval
-            return true;
-        }
-
-        @Override
-        public Boolean visitOperation(OperationNode operationNode) {
-            return operationNode.getLeftOperand().accept(this) && operationNode.getRightOperand().accept(this);
-        }
-
-        @Override
-        public Boolean visitFunctionCall(FunctionCallNode functionCall) {
-            return this.forAll(functionCall.getArguments());
-        }
-    }
-
-    /**
      * Enforces a VirtualReadingType onto all visited expressions
      * after it has been verified that this will work.
      *
-     * @see CheckEnforceReadingType
+     * @see CheckEnforceReadingTypeImpl
      */
     private class EnforceReadingType implements ServerExpressionNode.Visitor<Void> {
         private final VirtualReadingType readingType;
@@ -264,7 +205,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         }
 
         private void enforceOntoAll(List<ServerExpressionNode> expressions) {
-            expressions.stream().forEach(expression -> expression.accept(this));
+            expressions.stream().forEach(this::onto);
         }
 
         @Override
@@ -283,12 +224,12 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         }
 
         @Override
-        public Void visitNull(NullNodeImpl nullNode) {
+        public Void visitNull(NullNode nullNode) {
             return null;
         }
 
         @Override
-        public Void visitVariable(VariableReferenceNode variable) {
+        public Void visitSqlFragment(SqlFragmentNode variable) {
             return null;
         }
 
@@ -301,6 +242,12 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         @Override
         public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
             deliverable.setTargetReadingType(this.readingType);
+            return null;
+        }
+
+        @Override
+        public Void visitUnitConversion(UnitConversionNode unitConversionNode) {
+            unitConversionNode.setTargetReadingType(this.readingType);
             return null;
         }
 
@@ -322,7 +269,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
      * Enforces an IntervalLength onto all visited expressions
      * after it has been verified that this will work.
      *
-     * @see CheckEnforceReadingType
+     * @see CheckEnforceReadingTypeImpl
      */
     private class EnforceIntervalMultiplierAndCommodity implements ServerExpressionNode.Visitor<Void> {
         private final IntervalLength intervalLength;
@@ -359,20 +306,20 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         }
 
         @Override
-        public Void visitNull(NullNodeImpl nullNode) {
+        public Void visitNull(NullNode nullNode) {
             return null;
         }
 
         @Override
-        public Void visitVariable(VariableReferenceNode variable) {
+        public Void visitSqlFragment(SqlFragmentNode variable) {
             return null;
         }
 
         @Override
         public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
-            requirement.setTargetInterval(this.intervalLength);
+            requirement.setTargetIntervalLength(this.intervalLength);
             requirement.setTargetMultiplier(this.multiplier);
-            requirement.setCommodity(this.commodity);
+            requirement.setTargetCommodity(this.commodity);
             return null;
         }
 
@@ -380,7 +327,15 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
         public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
             deliverable.setTargetIntervalLength(this.intervalLength);
             deliverable.setTargetMultiplier(this.multiplier);
-            deliverable.setCommodity(this.commodity);
+            deliverable.setTargetCommodity(this.commodity);
+            return null;
+        }
+
+        @Override
+        public Void visitUnitConversion(UnitConversionNode unitConversionNode) {
+            unitConversionNode.setTargetIntervalLength(this.intervalLength);
+            unitConversionNode.setTargetMultiplier(this.multiplier);
+            unitConversionNode.setTargetCommodity(this.commodity);
             return null;
         }
 

@@ -28,12 +28,12 @@ public class FromClauseForExpressionNode implements ServerExpressionNode.Visitor
     }
 
     @Override
-    public String visitNull(NullNodeImpl nullNode) {
+    public String visitNull(NullNode nullNode) {
         return null;
     }
 
     @Override
-    public String visitVariable(VariableReferenceNode variable) {
+    public String visitSqlFragment(SqlFragmentNode variable) {
         return null;
     }
 
@@ -45,6 +45,11 @@ public class FromClauseForExpressionNode implements ServerExpressionNode.Visitor
     @Override
     public String visitVirtualRequirement(VirtualRequirementNode requirement) {
         return requirement.sqlName();
+    }
+
+    @Override
+    public String visitUnitConversion(UnitConversionNode unitConversionNode) {
+        return unitConversionNode.getExpressionNode().accept(this);
     }
 
     @Override

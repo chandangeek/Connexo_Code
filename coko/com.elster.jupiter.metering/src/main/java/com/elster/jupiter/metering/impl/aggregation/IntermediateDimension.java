@@ -132,4 +132,14 @@ public class IntermediateDimension {
     public boolean isCurrency() {
         return hasSameDimensions(new IntermediateDimension(0, 0, 0, 0, 0, 0, 0));
     }
+
+    @Override
+    public String toString() {
+        if (this.exists()) {
+            return this.getDimension().get().toString();
+        } else {
+            return super.toString();
+        }
+    }
+
 }

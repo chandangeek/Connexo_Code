@@ -57,12 +57,12 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
     }
 
     @Override
-    public Void visitVariable(VariableReferenceNode variable) {
+    public Void visitSqlFragment(SqlFragmentNode variable) {
         return null;
     }
 
     @Override
-    public Void visitNull(NullNodeImpl nullNode) {
+    public Void visitNull(NullNode nullNode) {
         return null;
     }
 
@@ -75,6 +75,12 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
     @Override
     public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
         this.visitTableName(requirement.sqlName());
+        return null;
+    }
+
+    @Override
+    public Void visitUnitConversion(UnitConversionNode unitConversionNode) {
+        unitConversionNode.getExpressionNode().accept(this);
         return null;
     }
 

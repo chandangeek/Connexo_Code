@@ -37,10 +37,10 @@ public class VirtualReadingTypeRequirement {
     private final ReadingTypeRequirement requirement;
     private final ReadingTypeDeliverable deliverable;
     private final List<Channel> matchingChannels;
-    private final VirtualReadingType targetReadingType;
+    private VirtualReadingType targetReadingType;
     private final Range<Instant> rawDataPeriod;
     private final int meterActivationSequenceNumber;
-    private ChannelContract preferredChannel;   // Lazy from the list of matching channels and the targetIntervalLength
+    private Optional<ChannelContract> preferredChannel;   // Lazy from the list of matching channels and the targetIntervalLength
 
     public VirtualReadingTypeRequirement(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, VirtualReadingType targetReadingType, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
         super();
@@ -139,19 +139,22 @@ public class VirtualReadingTypeRequirement {
         if (this.preferredChannel == null) {
             this.preferredChannel = this.findPreferredChannel();
         }
-        return this.preferredChannel;
+        return this.preferredChannel.orElseThrow(() -> new IllegalStateException("Calculation of preferred channel failed before"));
     }
 
-    private ChannelContract findPreferredChannel() {
+    private Optional<ChannelContract> findPreferredChannel() {
         return new MatchingChannelSelector(this.matchingChannels, this.mode)
                     .getPreferredChannel(this.targetReadingType)
-                    .map(ChannelContract.class::cast)
-                    .orElseThrow(() -> new IllegalStateException("Calculation of preferred channel failed before"));
+                    .map(ChannelContract.class::cast);
     }
 
     private boolean aggregationIsRequired() {
         return Formula.Mode.AUTO.equals(this.mode)
             && IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
+    }
+
+    void appendSimpleReferenceTo(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
     }
 
     void appendReferenceTo(SqlBuilder sqlBuilder) {
@@ -163,8 +166,21 @@ public class VirtualReadingTypeRequirement {
                     this.targetReadingType));
     }
 
-    private VirtualReadingType getSourceReadingType() {
+    VirtualReadingType getSourceReadingType() {
         return VirtualReadingType.from(this.getPreferredChannel().getMainReadingType());
+    }
+
+    VirtualReadingType getTargetReadingType() {
+        return targetReadingType;
+    }
+
+    void setTargetReadingType(VirtualReadingType targetReadingType) {
+        this.targetReadingType = targetReadingType;
+        this.findPreferredChannel().ifPresent(this::setPreferredChannel);
+    }
+
+    private void setPreferredChannel(ChannelContract preferredChannel) {
+        this.preferredChannel = Optional.of(preferredChannel);
     }
 
 }

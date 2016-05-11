@@ -5,11 +5,15 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.units.Dimension;
 
 import com.google.common.base.MoreObjects;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static java.math.BigDecimal.ONE;
 
@@ -43,6 +47,33 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
 
     static VirtualReadingType from(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Commodity commodity) {
         return new VirtualReadingType(intervalLength, unitMultiplier, unit, commodity, null);
+    }
+
+    static VirtualReadingType from(IntervalLength intervalLength, Dimension dimension, Commodity commodity) {
+        return from(intervalLength, MetricMultiplier.ZERO, readingTypeUnitFrom(dimension, commodity), commodity);
+    }
+
+    private static ReadingTypeUnit readingTypeUnitFrom(Dimension dimension, Commodity commodity) {
+        if (isElectricalEnergy(dimension, commodity)) {
+            return ReadingTypeUnit.WATTHOUR;
+        } else {
+            return Stream
+                    .of(ReadingTypeUnit.values())
+                    .filter(readingTypeUnit -> readingTypeUnit.getUnit().getDimension().equals(dimension))
+                    .findAny()
+                    .orElse(ReadingTypeUnit.NOTAPPLICABLE);
+        }
+    }
+
+    private static boolean isElectricalEnergy(Dimension dimension, Commodity commodity) {
+        return Dimension.ENERGY.equals(dimension)
+            && isElectricity(commodity);
+    }
+
+    private static boolean isElectricity(Commodity commodity) {
+        return Commodity.ELECTRICITY_PRIMARY_METERED.equals(commodity)
+            || Commodity.ELECTRICITY_SECONDARY_METERED.equals(commodity);
+
     }
 
     static VirtualReadingType notSupported() {
@@ -131,6 +162,10 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         return new VirtualReadingType(this.intervalLength, unitMultiplier, this.unit, this.commodity, this.marker);
     }
 
+    Dimension getDimension() {
+        return this.getUnit().getUnit().getDimension();
+    }
+
     ReadingTypeUnit getUnit() {
         return unit;
     }
@@ -147,6 +182,50 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         return new VirtualReadingType(this.intervalLength, this.unitMultiplier, this.unit, commondity, this.marker);
     }
 
+    VirtualReadingType withDimension(Dimension dimension) {
+        return this.withUnit(readingTypeUnitFrom(dimension, this.commodity));
+    }
+
+    /**
+     * Builds and returns the appropriate SQL constructs to achieve unit conversion for the specified
+     * expression from this VirtualReadingType to the specified target VirtualReadingType.
+     *
+     * @param mode The Mode
+     * @param expression The expression
+     * @param targetReadingType The target VirtualReadingType
+     */
+    SqlFragment buildSqlUnitConversion(Formula.Mode mode, SqlFragment expression, VirtualReadingType targetReadingType) {
+        SqlBuilder sqlBuilder = new SqlBuilder();
+        if (this.isDontCare()) {
+            return expression;
+        } else if (this.getUnit().equals(targetReadingType.getUnit())) {
+            // Unit is the same, consider multiplier
+            if (this.getUnitMultiplier().equals(targetReadingType.getUnitMultiplier())) {
+                // Same multiplier, just append the expression and we're done
+                return expression;
+            }
+            else {
+                Loggers.SQL.debug(() -> "Rescaling " + expression + " from " + this.getUnitMultiplier() + " to " + targetReadingType.getUnitMultiplier());
+                sqlBuilder.append("(");
+                sqlBuilder.add(expression);
+                sqlBuilder.append(" * ");
+                BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(this.getUnitMultiplier().getMultiplier() - targetReadingType.getUnitMultiplier().getMultiplier());
+                sqlBuilder.append(multiplierConversionFactor.toString());
+                sqlBuilder.append(")");
+            }
+        }
+        else if (UnitConversionSupport.areCompatibleForAutomaticUnitConversion(this.getUnit(), targetReadingType.getUnit())) {
+            this.applyUnitConversion(mode, expression, targetReadingType, sqlBuilder);
+        }
+        else if (mode.equals(Formula.Mode.EXPERT)) {
+            return expression;
+        }
+        else {
+            throw new UnsupportedOperationException("Unsuported unit conversion from " + this + " to " + targetReadingType);
+        }
+        return sqlBuilder;
+    }
+
     /**
      * Builds and returns the appropriate SQL constructs to achieve unit conversion for the specified
      * expression from this VirtualReadingType to the specified target VirtualReadingType.
@@ -156,63 +235,35 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
      * @param targetReadingType The target VirtualReadingType
      */
     String buildSqlUnitConversion(Formula.Mode mode, String expression, VirtualReadingType targetReadingType) {
-        StringBuilder sqlBuilder = new StringBuilder();
-        if (this.isDontCare()) {
-            sqlBuilder.append(expression);
-        } else if (this.getUnit().equals(targetReadingType.getUnit())) {
-            // Unit is the same, consider multiplier
-            if (this.getUnitMultiplier().equals(targetReadingType.getUnitMultiplier())) {
-                // Same multiplier, just append the expression and we're done
-                sqlBuilder.append(expression);
-            }
-            else {
-                Loggers.SQL.debug(() -> "Rescaling " + expression + " from " + this.getUnitMultiplier() + " to " + targetReadingType.getUnitMultiplier());
-                sqlBuilder.append("(");
-                sqlBuilder.append(expression);
-                sqlBuilder.append(" * ");
-                BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(this.getUnitMultiplier().getMultiplier() - targetReadingType.getUnitMultiplier().getMultiplier());
-                sqlBuilder.append(multiplierConversionFactor.toString());
-                sqlBuilder.append(")");
-            }
-        }
-        else if (UnitConversionSupport.areCompatibleForAutomaticUnitConversion(this.getUnit(), targetReadingType.getUnit())) {
-            this.applyUnitConversion(expression, targetReadingType, sqlBuilder);
-        }
-        else if (mode.equals(Formula.Mode.EXPERT)) {
-            sqlBuilder.append(expression);
-        }
-        else {
-            throw new UnsupportedOperationException("Unsuported unit conversion from " + this + " to " + targetReadingType);
-        }
-        return sqlBuilder.toString();
+        return buildSqlUnitConversion(mode, new TextFragment(expression), targetReadingType).getText();
     }
 
-    private void applyUnitConversion(String expression, VirtualReadingType targetReadingType, StringBuilder sqlBuilder) {
+    private void applyUnitConversion(Formula.Mode mode, SqlFragment expression, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
         if (this.isFlowRelated() && targetReadingType.isVolumeRelated()) {
-            this.applyVolumeFlowConversion(expression, " / ", targetReadingType, sqlBuilder);
+            this.applyFlowToVolumeConversion(expression, targetReadingType, sqlBuilder);
         }
         else if (this.isVolumeRelated() && targetReadingType.isFlowRelated()) {
-            this.applyVolumeFlowConversion(expression, " * ", targetReadingType, sqlBuilder);
+            this.applyVolumeToFlowConversion(expression, targetReadingType, sqlBuilder);
         }
         else {
             ServerExpressionNode conversionExpression =
                     UnitConversionSupport.unitConversion(
-                            new VariableReferenceNode(expression),
+                            new SqlFragmentNode(expression),
                             this.getUnit(),
                             this.getUnitMultiplier(),
                             targetReadingType.getUnit(),
                             targetReadingType.getUnitMultiplier());
-            String convertedExpression = conversionExpression.accept(new ExpressionNodeToString());
+            String convertedExpression = conversionExpression.accept(new ExpressionNodeToString(mode));
             Loggers.SQL.debug(() -> "Applying unit conversion to " + expression + " to convert from " + this.toString() + " to " + targetReadingType.toString() + " using: " + convertedExpression);
             sqlBuilder.append(convertedExpression);
         }
     }
 
-    private void applyVolumeFlowConversion(String expression, String operator, VirtualReadingType targetReadingType, StringBuilder sqlBuilder) {
-        Loggers.SQL.debug(() -> "Applying volume to flow conversion to " + expression + " using operator " + operator + " to convert from " + this.toString() + " to " + targetReadingType.toString());
+    private void applyVolumeToFlowConversion(SqlFragment expression, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+        Loggers.SQL.debug(() -> "Applying volume to flow conversion to " + expression + " to convert from " + this.toString() + " to " + targetReadingType.toString());
         sqlBuilder.append("(");
-        sqlBuilder.append(expression);
-        sqlBuilder.append(operator);
+        sqlBuilder.add(expression);
+        sqlBuilder.append(" * ");
         BigDecimal intervalConversionFactor = this.getIntervalLength().getVolumeFlowConversionFactor();
         if (!this.getUnitMultiplier().equals(targetReadingType.getUnitMultiplier())) {
             BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(this.getUnitMultiplier().getMultiplier() - targetReadingType.getUnitMultiplier().getMultiplier());
@@ -220,6 +271,26 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         }
         else {
             sqlBuilder.append(intervalConversionFactor.toString());
+        }
+        sqlBuilder.append(")");
+    }
+
+    private void applyFlowToVolumeConversion(SqlFragment expression, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+        Loggers.SQL.debug(() -> "Applying flow to volume conversion to " + expression + " to convert from " + this.toString() + " to " + targetReadingType.toString());
+        boolean withRescaling = !this.getUnitMultiplier().equals(targetReadingType.getUnitMultiplier());
+        if (withRescaling) {
+            sqlBuilder.append("((");
+        } else {
+            sqlBuilder.append("(");
+        }
+        sqlBuilder.add(expression);
+        sqlBuilder.append(" / ");
+        BigDecimal intervalConversionFactor = this.getIntervalLength().getVolumeFlowConversionFactor();
+        sqlBuilder.append(intervalConversionFactor.toString());
+        if (withRescaling) {
+            sqlBuilder.append(") * ");
+            BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(this.getUnitMultiplier().getMultiplier() - targetReadingType.getUnitMultiplier().getMultiplier());
+            sqlBuilder.append(multiplierConversionFactor.toString());
         }
         sqlBuilder.append(")");
     }
