@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class WebServicesServiceImpl implements WebServicesService {
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
 
-    private Map<String, WebService> webServices = new ConcurrentHashMap<>();
+    private Map<String, EndPointFactory> webServices = new ConcurrentHashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
     private volatile SoapProviderSupportFactory soapProviderSupportFactory;
     private volatile BundleContext bundleContext;
@@ -91,12 +91,12 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     // called by whiteboard
     public void register(String name, InboundEndPointProvider endPointProvider) {
-        webServices.put(name, dataModel.getInstance(InboundWebServiceImpl.class).init(name, endPointProvider));
+        webServices.put(name, dataModel.getInstance(InboundEndPointFactoryImpl.class).init(name, endPointProvider));
     }
 
     // called by whiteboard
     public void register(String name, OutboundEndPointProvider endPointProvider) {
-        webServices.put(name, dataModel.getInstance(OutboundWebServiceImpl.class).init(name, endPointProvider));
+        webServices.put(name, dataModel.getInstance(OutboundEndPointFactoryImpl.class).init(name, endPointProvider));
     }
 
     // called by whiteboard

@@ -12,6 +12,7 @@ import org.apache.cxf.feature.validation.SchemaValidationFeature;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,14 +20,19 @@ import java.util.List;
  * Created by bvn on 5/10/16.
  */
 public final class InboundEndPoint implements ManagedEndpoint {
-    private final InboundEndPointProvider endPointProvider;
+    private InboundEndPointProvider endPointProvider;
     private final SoapProviderSupportFactory soapProviderSupportFactory;
 
     private Server endpoint;
 
-    public InboundEndPoint(InboundEndPointProvider endPointProvider, SoapProviderSupportFactory soapProviderSupportFactory) {
-        this.endPointProvider = endPointProvider;
+    @Inject
+    public InboundEndPoint(SoapProviderSupportFactory soapProviderSupportFactory) {
         this.soapProviderSupportFactory = soapProviderSupportFactory;
+    }
+
+    InboundEndPoint init(InboundEndPointProvider endPointProvider) {
+        this.endPointProvider = endPointProvider;
+        return this;
     }
 
     @Override

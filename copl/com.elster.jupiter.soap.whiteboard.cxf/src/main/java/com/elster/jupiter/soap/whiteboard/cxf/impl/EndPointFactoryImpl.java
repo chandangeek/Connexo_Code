@@ -5,7 +5,7 @@ import com.elster.jupiter.soap.whiteboard.EndPointProvider;
 /**
  * Created by bvn on 5/11/16.
  */
-public abstract class WebServiceImpl<T extends EndPointProvider> implements WebService<T> {
+public abstract class EndPointFactoryImpl<T extends EndPointProvider> implements EndPointFactory<T> {
     private String name;
     private T endPointProvider;
 
@@ -30,7 +30,7 @@ public abstract class WebServiceImpl<T extends EndPointProvider> implements WebS
     }
 
     @Override
-    public WebService<T> init(String name, T endPointProvider) {
+    public EndPointFactory<T> init(String name, T endPointProvider) {
         this.setName(name);
         this.setEndPointProvider(endPointProvider);
         return this;

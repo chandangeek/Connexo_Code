@@ -5,7 +5,7 @@ import com.elster.jupiter.soap.whiteboard.EndPointProvider;
 /**
  * Created by bvn on 5/11/16.
  */
-public interface WebService<T extends EndPointProvider> {
+public interface EndPointFactory<T extends EndPointProvider> {
     void setName(String name);
 
     String getName();
@@ -14,7 +14,7 @@ public interface WebService<T extends EndPointProvider> {
 
     T getEndPointProvider();
 
-    WebService<T> init(String name, T endPointProvider);
+    EndPointFactory<T> init(String name, T endPointProvider);
 
     ManagedEndpoint createEndpoint();
 
