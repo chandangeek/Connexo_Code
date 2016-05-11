@@ -23,7 +23,7 @@ Ext.define('Isu.view.issues.Grid', {
                 dataIndex: 'issueId',
                 flex: 0.5,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.get('issueId')}, {issueType: record.get('issueType').uid});
+                    var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()}, {issueType: record.get('issueType').uid});
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
@@ -33,7 +33,7 @@ Ext.define('Isu.view.issues.Grid', {
                 dataIndex: 'title',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.get('issueId')}, {issueType: record.get('issueType').uid});
+                    var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()}, {issueType: record.get('issueType').uid});
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
