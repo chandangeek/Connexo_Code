@@ -369,7 +369,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         info.description="desc";
 
         EstimationRuleSet ruleSet = mockDefaultRuleSet();
-        when(estimationService.createEstimationRuleSet(info.name, info.description, null)).thenReturn(ruleSet);
+        when(estimationService.createEstimationRuleSet(info.name, "MDC", info.description)).thenReturn(ruleSet);
         Response response = target("/estimation").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }

@@ -121,7 +121,7 @@ public class EstimationResource {
     private List<EstimationRuleSet> queryRuleSets(QueryParameters queryParameters, String applicationName) {
         Query<EstimationRuleSet> query = estimationService.getEstimationRuleSetQuery();
         query.setRestriction(where("obsoleteTime").isNull());
-        query.setRestriction(where("application").isEqualTo(applicationName));
+        query.setRestriction(where("applicationName").isEqualTo(applicationName));
         RestQuery<EstimationRuleSet> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
@@ -161,7 +161,7 @@ public class EstimationResource {
         return Response.status(Response.Status.CREATED).entity(new EstimationRuleSetInfo(transactionService.execute(new Transaction<EstimationRuleSet>() {
             @Override
             public EstimationRuleSet perform() {
-                return estimationService.createEstimationRuleSet(info.name, info.description, applicationName);
+                return estimationService.createEstimationRuleSet(info.name, applicationName, info.description);
             }
         }))).build();
     }
