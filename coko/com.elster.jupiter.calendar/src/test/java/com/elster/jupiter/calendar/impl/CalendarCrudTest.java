@@ -11,13 +11,16 @@ import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
 import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec;
+import com.elster.jupiter.calendar.importers.impl.CalendarFactory;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.nls.Thesaurus;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintViolationException;
@@ -50,6 +53,8 @@ public class CalendarCrudTest {
 
     private static CalendarInMemoryBootstrapModule inMemoryBootstrapModule = new CalendarInMemoryBootstrapModule();
 
+    @Mock
+    private Thesaurus thesaurus;
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
 
@@ -473,7 +478,10 @@ public class CalendarCrudTest {
                     sf.newSchema(new File(getClass().getClassLoader().getResource("com.elster.jupiter.calendar.impl/calendar-import-format.xsd").toURI()));
             u.setSchema(schema);
             in = new FileInputStream(new File(getClass().getClassLoader().getResource("calendar-import-format.xml").toURI()));
-            Object result = u.unmarshal(in);
+            com.elster.jupiter.calendar.impl.xmlbinding.Calendar result =
+                    (com.elster.jupiter.calendar.impl.xmlbinding.Calendar) u.unmarshal(in);
+            CalendarFactory factory = new CalendarFactory(getCalendarService(), thesaurus);
+            Calendar calendar = factory.getCalendar(result);
             System.out.println("ok");
         }
         catch (Exception e) {

@@ -1,5 +1,6 @@
 package com.elster.jupiter.calendar.importers.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -17,6 +18,7 @@ public class CalendarImporterContext {
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile CalendarService calendarService;
     private volatile Clock clock;
 
     public CalendarImporterContext() {
@@ -26,10 +28,12 @@ public class CalendarImporterContext {
     public CalendarImporterContext(NlsService nlsService,
                                      UserService userService,
                                      ThreadPrincipalService threadPrincipalService,
+                                    CalendarService calendarService,
                                      Clock clock) {
         setNlsService(nlsService);
         setUserService(userService);
         setThreadPrincipalService(threadPrincipalService);
+        setCalendarService(calendarService);
         setClock(clock);
     }
 
@@ -53,6 +57,11 @@ public class CalendarImporterContext {
     @Reference
     public final void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public final void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     public UserService getUserService() {
