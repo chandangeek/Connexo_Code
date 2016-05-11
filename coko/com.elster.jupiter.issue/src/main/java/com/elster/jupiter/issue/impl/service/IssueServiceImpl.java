@@ -550,7 +550,8 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         if (filter.getIssueId().isPresent()) {
             String[] issueIdPart = filter.getIssueId().get().split("-");
             if (issueIdPart.length > 1) {
-                condition = condition.and(where("id").isEqualTo(Long.parseLong(issueIdPart[1])));
+                condition = condition.and(where("id").isEqualTo(Long.parseLong(issueIdPart[1])))
+                        .and(where("reason.issueType.prefix").isEqualTo(issueIdPart[0]));
             }
         }
         //filter by assignee
