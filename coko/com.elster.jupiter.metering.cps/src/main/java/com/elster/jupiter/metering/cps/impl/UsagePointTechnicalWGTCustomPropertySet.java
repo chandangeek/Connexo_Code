@@ -90,6 +90,7 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_SIZE_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("EU", "UK", "NA")
+                .markExhaustive()
                 .finish();
         PropertySpec pipeTypeSpec = propertySpecService
                 .stringSpec()
@@ -97,12 +98,14 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_TYPE_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("Asbestos", "Lead", "Iron", "Steel", "Bronze", "Copper", "Non metallic")
+                .markExhaustive()
                 .finish();
         PropertySpec pressureLevelSpec = propertySpecService
                 .stringSpec()
                 .named(UsagePointTechnicalWGTDomExt.Fields.PRESSURE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PRESSURE_LEVEL)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("low", "medium", "high")
+                .markExhaustive()
                 .finish();
         return Arrays.asList(pipeSizeSpec,
                 pipeTypeSpec,

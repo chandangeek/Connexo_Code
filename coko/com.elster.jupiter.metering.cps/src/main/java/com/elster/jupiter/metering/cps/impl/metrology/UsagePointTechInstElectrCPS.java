@@ -13,9 +13,11 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.QuantityValueFactory;
 import com.elster.jupiter.util.units.Quantity;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 
+import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -151,7 +153,12 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override
