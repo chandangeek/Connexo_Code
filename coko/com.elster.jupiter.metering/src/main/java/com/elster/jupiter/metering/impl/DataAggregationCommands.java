@@ -34,7 +34,8 @@ import java.util.NoSuchElementException;
         "osgi.command.function=activateMetrologyConfig",
         "osgi.command.function=linkMetrologyConfig",
         "osgi.command.function=setMultiplierValue",
-        "osgi.command.function=matchingChannels"
+        "osgi.command.function=matchingChannels",
+        "osgi.command.function=showData"
 }, immediate = true)
 public class DataAggregationCommands {
 
@@ -96,6 +97,36 @@ public class DataAggregationCommands {
             System.out.println("records found for deliverable:" + dataForDeliverable.size());
             context.commit();
         }
+    }
+
+    public void showData(String usagePointMRID, String contractPurpose, String deliverableName, String startDate) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
+                    .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
+            MetrologyConfiguration configuration = usagePoint.getMetrologyConfiguration()
+                    .orElseThrow(() -> new NoSuchElementException("No metrology configuration"));
+            MetrologyContract contract = configuration.getContracts().stream()
+                    .filter(c -> c.getMetrologyPurpose().getName().equals(contractPurpose))
+                    .findFirst()
+                    .orElseThrow(() -> new NoSuchElementException("No contract for purpose " + contractPurpose));
+            ReadingTypeDeliverable deliverable = contract.getDeliverables().stream()
+                    .filter(d -> d.getName().equals(deliverableName))
+                    .findFirst()
+                    .orElseThrow(() -> new NoSuchElementException("Deliverable not found on contract"));
+
+            Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+            CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), null));
+
+            List<? extends BaseReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
+            dataForDeliverable.forEach(this::showReading);
+            System.out.println("records found for deliverable:" + dataForDeliverable.size());
+            context.commit();
+        }
+    }
+
+    private void showReading(BaseReadingRecord readingRecord) {
+        System.out.println(readingRecord.getTimeStamp() + " : " + readingRecord.getValue());
     }
 
     private String getValue(BaseReadingRecord reading) {

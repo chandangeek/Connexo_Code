@@ -4,11 +4,24 @@ import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.config.FormulaImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementImpl;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,8 +39,6 @@ public class ReadingTypeGeneratorForElectricityTest {
     @BeforeClass
     public static void beforeClass() {
         inMemoryBootstrapModule.activate();
-        DataModel dataModel = inMemoryBootstrapModule.getMeteringService().getDataModel();
-        dataModel.query(ReadingType.class).select(Condition.TRUE).stream().forEach(dataModel::remove);
     }
 
     @AfterClass
@@ -41,13 +52,15 @@ public class ReadingTypeGeneratorForElectricityTest {
     @Test
     @Transactional
     public void generateTest() {
-        assertThat(getMeteringService().getAvailableReadingTypes()).hasSize(0).overridingErrorMessage("We should have started with 0 reading types");
 
         ReadingTypeGeneratorForElectricity readingTypeGeneratorForElectricity = new ReadingTypeGeneratorForElectricity();
         List<Pair<String, String>> readingTypes = readingTypeGeneratorForElectricity.generateReadingTypes();
         getMeteringService().createAllReadingTypes(readingTypes);
+        List<String> availableReadingTypes = getMeteringService().getAvailableReadingTypes().stream().map(ReadingType::getMRID).collect(Collectors.toList());
 
-        assertThat(getMeteringService().getAvailableReadingTypes()).hasSize(readingTypes.size()).overridingErrorMessage("Expected " + readingTypes.size() + " reading types");
+        assertThat(readingTypes.stream()
+                .allMatch(rt -> availableReadingTypes.stream().anyMatch(e -> e.equalsIgnoreCase(rt.getFirst()))))
+                .isTrue();
     }
 
     @Test

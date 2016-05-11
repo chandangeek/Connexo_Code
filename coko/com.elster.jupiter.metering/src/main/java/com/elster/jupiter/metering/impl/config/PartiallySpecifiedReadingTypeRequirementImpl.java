@@ -128,7 +128,10 @@ public class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeReq
 
     private Optional<String> getTemplateValue(ReadingTypeTemplateAttributeName attributeName) {
         List<Integer> possibleValues = this.getReadingTypeTemplate().getAttribute(attributeName).getPossibleValues();
-        if (possibleValues.size() == 1) {
+        if (possibleValues.size() == 1
+                && Stream.of(ReadingTypeTemplateAttributeName.ACCUMULATION,
+                ReadingTypeTemplateAttributeName.FLOW_DIRECTION,
+                ReadingTypeTemplateAttributeName.COMMODITY).noneMatch(a -> a.equals(attributeName))) {
             return translate(attributeName.getDefinition(), possibleValues.get(0));
         } else {
             return attributeName.getDefinition().canBeWildcard() ? Optional.of("*") : Optional.empty();
@@ -137,7 +140,10 @@ public class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeReq
 
     private Optional<String> getTemplateValue(ReadingTypeTemplateAttributeName attributeName, String prefix) {
         List<Integer> possibleValues = this.getReadingTypeTemplate().getAttribute(attributeName).getPossibleValues();
-        if (possibleValues.size() == 1) {
+        if (possibleValues.size() == 1
+                && Stream.of(ReadingTypeTemplateAttributeName.ACCUMULATION,
+                ReadingTypeTemplateAttributeName.FLOW_DIRECTION,
+                ReadingTypeTemplateAttributeName.COMMODITY).noneMatch(a -> a.equals(attributeName))) {
             return Optional.of(prefix + possibleValues.get(0));
         } else {
             return attributeName.getDefinition().canBeWildcard() ? Optional.of("*") : Optional.empty();

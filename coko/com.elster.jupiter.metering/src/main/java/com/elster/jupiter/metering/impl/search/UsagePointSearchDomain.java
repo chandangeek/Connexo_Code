@@ -179,7 +179,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                                         .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(LimiterSearchableProperty.class)
                                         .init(this, gasGroup, this.clock));
-                                properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
+                                properties.add(injector.getInstance(GasLoadLimitSearchableProperty.class)
                                         .init(this, gasGroup, this.clock));
                                 properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
                                         .init(this, gasGroup, this.clock));
@@ -209,7 +209,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                                         .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(LoadLimiterTypeSearchableProperty.class)
                                         .init(this, waterGroup, this.clock));
-                                properties.add(injector.getInstance(LoadLimitSearchableProperty.class)
+                                properties.add(injector.getInstance(WaterLoadLimitSearchableProperty.class)
                                         .init(this, waterGroup, this.clock));
                                 properties.add(injector.getInstance(PhysicalCapacitySearchableProperty.class)
                                         .init(this, waterGroup, this.clock));
@@ -231,7 +231,7 @@ public class UsagePointSearchDomain implements SearchDomain {
                             case HEAT:
                                 properties.add(injector.getInstance(CollarSearchableProperty.class)
                                         .init(this, thermalGroup, this.clock));
-                                properties.add(injector.getInstance(PhysicalCapacitySearchableProperty.class)
+                                properties.add(injector.getInstance(ThermalPhysicalCapacitySearchableProperty.class)
                                         .init(this, thermalGroup, this.clock));
                                 properties.add(injector.getInstance(BypassSearchableProperty.class)
                                         .init(this, thermalGroup, this.clock));
