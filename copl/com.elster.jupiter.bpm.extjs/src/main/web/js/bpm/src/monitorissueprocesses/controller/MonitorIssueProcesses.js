@@ -51,11 +51,10 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
             widget,
-            processRecord,
-            customIssueId;
+            processRecord;
 
         viewport.setLoading();
-        customIssueId = issueId.split("-")[1];
+
 
         widget = Ext.widget('bpm-issue-processes-main-view', {
             properties: {
@@ -64,7 +63,7 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         });
 
         me.getApplication().fireEvent('changecontentevent', widget);
-        Ext.ModelManager.getModel('Idc.model.Issue').load(customIssueId, {
+        Ext.ModelManager.getModel('Idc.model.Issue').load(issueId, {
             success: function (issue) {
                 me.getApplication().fireEvent('issueLoad', issue);
             },
