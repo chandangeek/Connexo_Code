@@ -10,8 +10,8 @@ public enum FormatKey {
     LONG_TIME("format.time.long"),
     
     //date-time
-    SHORT_DATETIME("format.datetime.short"),
-    LONG_DATETIME("format.datetime.long"),
+    DATETIME_SEPARATOR("format.datetime.separator"),
+    DATETIME_ORDER("format.datetime.order"),
     
     //separators for numbers
     DECIMAL_SEPARATOR("format.number.decimalseparator"),
