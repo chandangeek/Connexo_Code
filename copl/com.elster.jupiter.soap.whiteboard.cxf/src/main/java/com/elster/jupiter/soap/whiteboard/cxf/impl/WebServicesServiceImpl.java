@@ -27,8 +27,6 @@ import java.util.stream.Collectors;
 public class WebServicesServiceImpl implements WebServicesService {
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
 
-    public static final String COMPONENT_NAME = "WSCXF";
-
     private Map<String, ManagedEndpoint> webServices = new HashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
     private SoapProviderSupportFactory soapProviderSupportFactory;
@@ -47,7 +45,9 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Override
     public void publishEndPoint(EndPointConfiguration endPointConfiguration) {
         if (webServices.containsKey(endPointConfiguration.getWebServiceName())) {
-            webServices.get(endPointConfiguration.getWebServiceName()).publish(endPointConfiguration);
+            ManagedEndpoint managedEndpoint = webServices.get(endPointConfiguration.getWebServiceName());
+            managedEndpoint.publish(endPointConfiguration);
+            endpoints.put(endPointConfiguration, managedEndpoint);
         } else {
             logger.warning("Could not publish " + endPointConfiguration.getName() + ": the required web service '" + endPointConfiguration
                     .getWebServiceName() + "' is not registered");
@@ -73,7 +73,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Override
     public boolean isInbound(String webServiceName) {
         if (webServices.containsKey(webServiceName)) {
-            return webServices.get(webServiceName).getClass().isAssignableFrom(InboundEndPoint.class);
+            return webServices.get(webServiceName).isInbound();
         } else {
             throw new IllegalArgumentException("No such web service");
         }

@@ -5,12 +5,20 @@ import com.elster.jupiter.soap.whiteboard.InboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
+import org.apache.cxf.annotations.SchemaValidation;
+import org.apache.cxf.feature.Feature;
+import org.apache.cxf.feature.validation.SchemaValidationFeature;
+import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
+import org.apache.cxf.transport.common.gzip.GZIPFeature;
+
 import javax.xml.ws.Endpoint;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by bvn on 5/10/16.
  */
-public class InboundEndPoint implements ManagedEndpoint {
+public final class InboundEndPoint implements ManagedEndpoint {
     private final InboundEndPointProvider endPointProvider;
     private final SoapProviderSupportFactory soapProviderSupportFactory;
 
@@ -24,7 +32,20 @@ public class InboundEndPoint implements ManagedEndpoint {
     @Override
     public void publish(EndPointConfiguration endPointConfiguration) {
         try (ContextClassLoaderResource ctx = soapProviderSupportFactory.create()) {
-            this.endpoint = javax.xml.ws.Endpoint.publish(endPointConfiguration.getUrl(), endPointProvider.get());
+            List<Feature> features = new ArrayList<>();
+            if (endPointConfiguration.isHttpCompression()) {
+                features.add(new GZIPFeature());
+            }
+            if (endPointConfiguration.isSchemaValidation()) {
+                features.add(new SchemaValidationFeature(operationInfo -> SchemaValidation.SchemaValidationType.BOTH));
+            }
+            Object implementor = endPointProvider.get();
+            JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
+//            svrFactory.setServiceClass(HelloWorld.class);
+            svrFactory.setAddress(endPointConfiguration.getUrl());
+            svrFactory.setServiceBean(implementor);
+            svrFactory.setFeatures(features);
+            svrFactory.create();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

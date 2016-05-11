@@ -9,7 +9,7 @@ import org.osgi.framework.ServiceRegistration;
 /**
  * Created by bvn on 5/10/16.
  */
-public class OutboundEndPoint implements ManagedEndpoint {
+public final class OutboundEndPoint implements ManagedEndpoint {
     private final OutboundEndPointProvider endPointProvider;
     private final BundleContext bundleContext;
 
