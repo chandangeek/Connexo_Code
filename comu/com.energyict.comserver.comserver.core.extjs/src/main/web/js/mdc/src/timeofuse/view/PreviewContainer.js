@@ -3,6 +3,7 @@ Ext.define('Mdc.timeofuse.view.PreviewContainer', {
     alias: 'widget.tou-devicetype-preview-container',
     deviceTypeId: null,
     timeOfUseAllowed: null,
+    timeOfUseSupported: null,
 
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
@@ -33,7 +34,7 @@ Ext.define('Mdc.timeofuse.view.PreviewContainer', {
                 title: Uni.I18n.translate('timeofuse.calendars.empty.title', 'MDC', 'No time of use calendars found'),
                 reasons: [
                 Uni.I18n.translate('timeofuse.calendars.empty.list.item1', 'MDC', 'No time of use calendars have been added yet.'),
-                Uni.I18n.translate('timeofuse.calendars.empty.list.item2', 'MDC', 'No time of use calendars have been defined in the system yet.'),
+                Uni.I18n.translate('timeofuse.calendars.empty.list.item2', 'MDC', 'No time of use calendars have been defined yet.'),
                 Uni.I18n.translate('timeofuse.calendars.empty.list.item3', 'MDC', 'Time of use is not allowed.')
             ],
                 stepItems: [
@@ -47,7 +48,7 @@ Ext.define('Mdc.timeofuse.view.PreviewContainer', {
                     text: Uni.I18n.translate('timeofuse.activate', 'MDC', 'Activate time of use'),
                     privileges: Mdc.privileges.DeviceType.admin,
                     itemId: 'tou-no-cal-activate-btn',
-                    disabled: me.timeOfUseAllowed
+                    disabled: me.timeOfUseAllowed || !me.timeOfUseSupported
                 }
             ]
         },

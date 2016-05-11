@@ -43,6 +43,10 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         {
             ref: 'editForm',
             selector: 'tou-devicetype-edit-specs-form'
+        },
+        {
+            ref: 'breadCrumbs',
+            selector: 'breadcrumbTrail'
         }
     ],
 
@@ -95,19 +99,20 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             optionsModel = Ext.ModelManager.getModel('Mdc.timeofuse.model.TimeOfUseOptions');
 
         optionsModel.getProxy().setUrl(deviceTypeId);
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(1, {
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 optionsModel.load(1, {
                     success: function (options) {
                         view = Ext.widget('device-type-tou-setup', {
                             deviceTypeId: deviceTypeId,
-                            timeOfUseAllowed: options.get('isAllowed')
+                            timeOfUseAllowed: options.get('isAllowed'),
+                            timeOfUseSupported: options.supportedOptions().count() > 0
                         });
                         view.down('tou-devicetype-specifications-form').fillOptions(options);
                         me.deviceTypeId = deviceTypeId;
                         me.getApplication().fireEvent('changecontentevent', view);
                         store.getProxy().setUrl(deviceTypeId);
-                        view.down('#add-tou-calendars-btn').setDisabled(!options.get('isAllowed'));
                         store.load({
                             callback: function (records, operation, success) {
                                 if (success === true) {
@@ -148,6 +153,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         optionsModel.getProxy().setUrl(deviceTypeId);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 optionsModel.load(1, {
                     success: function (options) {
                         if (options.get('isAllowed')) {
@@ -161,6 +167,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                             me.reconfigureMenu(deviceType, view);
                         } else {
                             view = Ext.widget('errorNotFound');
+                            me.removeBreadcrumbs();
                         }
                         me.getApplication().fireEvent('changecontentevent', view);
                     }
@@ -211,23 +218,35 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         optionsModel.getProxy().setUrl(deviceTypeId);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 optionsModel.load(deviceTypeId, {
                     success: function (options) {
-                        view = Ext.widget('tou-devicetype-edit-specs-setup', {
-                            deviceTypeId: deviceTypeId,
-                            timeOfUseAllowed: options.get('isAllowed')
-                        });
-                        view.down('tou-devicetype-edit-specs-form').fillOptions(options);
+                        if(options.supportedOptions().count() > 0) {
+                            view = Ext.widget('tou-devicetype-edit-specs-setup', {
+                                deviceTypeId: deviceTypeId,
+                                timeOfUseAllowed: options.get('isAllowed')
+                            });
+                            view.down('tou-devicetype-edit-specs-form').fillOptions(options);
+
+                            me.deviceTypeId = deviceTypeId;
+                            view.setLoading(true);
+                            view.suspendLayouts();
+                            me.reconfigureMenu(deviceType, view);
+                        } else {
+                            view = Ext.widget('errorNotFound');
+                            me.removeBreadcrumbs();
+                        }
                         me.getApplication().fireEvent('changecontentevent', view);
-                        me.deviceTypeId = deviceTypeId;
-                        view.setLoading(true);
-                        view.suspendLayouts();
-                        me.reconfigureMenu(deviceType, view);
                     }
                 });
             }
         });
 
+    },
+
+    removeBreadcrumbs: function() {
+        var me = this;
+        me.getBreadCrumbs().hide();
     },
 
     forwardToCalendarView: function (calendarId) {
@@ -245,6 +264,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 view = Ext.widget('tou-devicetype-view-calendar-setup', {
                     url: '/api/dtc/devicetypes/' + deviceTypeId + '/timeofuse',
                     calendarId: calendarId,
@@ -269,7 +289,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         var me = this;
         switch (item.action) {
             case 'viewpreview':
-                me.forwardToCalendarView(1);
+                me.forwardToCalendarView(menu.record.getCalendar().get('id'));
                 break;
             case 'remove':
                 me.showRemovalPopup(menu.record);
@@ -320,7 +340,9 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         } else {
             previewForm.showEmptyMessage();
         }
-        preview.down('tou-devicetype-action-menu').record = record;
+        if(preview.down('tou-devicetype-action-menu')) {
+            preview.down('tou-devicetype-action-menu').record = record;
+        }
     },
 
     saveTOUSettings: function () {
