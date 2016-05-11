@@ -4,7 +4,8 @@ Ext.define('Sam.view.datapurge.LogGrid', {
     store: 'Sam.store.DataPurgeLog',
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Uni.DateTime'
     ],
     forceFit: true,
 
@@ -15,7 +16,7 @@ Ext.define('Sam.view.datapurge.LogGrid', {
             dataIndex: 'timestamp',
             width: 200,
             renderer: function (value) {
-                return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                return value ? Uni.DateTime.formatDateTime(value, Uni.DateTime.SHORT, Uni.DateTime.LONG) : '-';
             }
         },
         {
