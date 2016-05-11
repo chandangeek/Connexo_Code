@@ -288,12 +288,8 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testGetAvailableValidators() {
-        when(validator1.acceptsTargetApplication("BADDIE")).thenReturn(false);
-        when(validator1.acceptsTargetApplication("HERO")).thenReturn(true);
-        when(validator1.acceptsTargetApplication("BORING")).thenReturn(true);
-        when(validator2.acceptsTargetApplication("BADDIE")).thenReturn(false);
-        when(validator2.acceptsTargetApplication("HERO")).thenReturn(true);
-        when(validator2.acceptsTargetApplication("BORING")).thenReturn(false);
+        when(validator1.getSupportedApplications()).thenReturn(ImmutableSet.of("HERO", "BORING"));
+        when(validator2.getSupportedApplications()).thenReturn(Collections.singleton("HERO"));
         assertThat(validationService.getAvailableValidators())
                 .as("There must be 2 validators in sum")
                 .containsExactly(validator1, validator2);
@@ -301,7 +297,7 @@ public class ValidationServiceImplTest {
                 .as("Application HERO must be supported by both validators")
                 .containsExactly(validator1, validator2);
         assertThat(validationService.getAvailableValidators("BADDIE"))
-                .as("Application BADDIE is supported by some validator1 but must not be...")
+                .as("Application BADDIE is supported by some validator but must not be...")
                 .isEmpty();
         assertThat(validationService.getAvailableValidators("BORING"))
                 .as("Application BORING must be supported by only one validator1")
