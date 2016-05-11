@@ -39,7 +39,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     name: 'name',
                     itemId: 'txt-communication-server-name',
                     fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                    allowBlank: false,
                     maxLength: 75,
                     required: true,
                     width: 600,
@@ -100,7 +99,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                             defaults: {
                                 validateOnChange: false,
                                 validateOnBlur: false,
-                                allowBlank: false
                             },
                             items: [
                                 {
@@ -144,8 +142,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                             layout: 'hbox',
                             defaults: {
                                 validateOnChange: false,
-                                validateOnBlur: false,
-                                allowBlank: false
+                                validateOnBlur: false
                             },
                             items: [
                                 {
@@ -181,7 +178,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     itemId: 'num-store-task-queue-size',
                     name: 'storeTaskQueueSize',
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.storeTaskQueueSize', 'MDC', 'Store task queue size'),
-                    allowBlank: false,
                     minValue: 0,
                     required: true,
                     width: 415
@@ -191,7 +187,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     itemId: 'num-store-task-thread-count',
                     name: 'numberOfStoreTaskThreads',
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.storeTaskThreadCount', 'MDC', 'Store task thread count'),
-                    allowBlank: false,
                     minValue: 0,
                     required: true,
                     width: 415
@@ -201,7 +196,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     itemId: 'num-store-task-queue-priority',
                     name: 'storeTaskThreadPriority',
                     fieldLabel: Uni.I18n.translate('comServer.formFieldLabel.storeTaskQueuePriority', 'MDC', 'Store task queue priority'),
-                    allowBlank: false,
                     minValue: 0,
                     required: true,
                     width: 415
@@ -213,7 +207,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     name: 'serverName',
                     width: 600,
                     required: true,
-                    allowBlank: false,
                     blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
                 },
                 {
@@ -222,7 +215,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.monitor.port', 'MDC', 'Monitor port'),
                     name: 'monitorPort',
                     required: true,
-                    allowBlank: false,
                     blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
                     minValue: 0,
                     // Remove spinner buttons, and arrow key and mouse wheel listeners
@@ -237,7 +229,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.event.registration.port', 'MDC', 'Event registration port'),
                     name: 'eventRegistrationPort',
                     required: true,
-                    allowBlank: false,
                     blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
                     minValue: 0,
                     hideTrigger: true,
