@@ -1,62 +1,29 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.Phase;
-import com.elster.jupiter.cbo.RationalNumber;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.util.Currency;
-import java.util.List;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.io.ByteArrayInputStream;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest{
 
-    protected ReadingType mockReadingType(String mrid) {
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMRID()).thenReturn(mrid);
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
-        when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK1MIN);
-        when(readingType.getAccumulation()).thenReturn(Accumulation.BULKQUANTITY);
-        when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
-        when(readingType.getCommodity()).thenReturn(Commodity.AIR);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getTou()).thenReturn(3);
-        when(readingType.getCpp()).thenReturn(4);
-        when(readingType.getConsumptionTier()).thenReturn(5);
-        when(readingType.getPhases()).thenReturn(Phase.PHASEA);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
-        when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        return readingType;
-    }
 
     @Test
     public void testGetCalculatedReadingType_forUnexistingMrid(){

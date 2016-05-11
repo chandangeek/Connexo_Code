@@ -16,8 +16,8 @@ import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.IntStream;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -273,7 +275,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
         assertThat(jsonModel.<Integer>get("$.unitsOfMeasure[0].unit")).isEqualTo(38);
     }
 
-    private ReadingType mockReadingType(String name) {
+    protected ReadingType mockReadingType(String name) {
         return mockReadingType(name, TimeAttribute.FIXEDBLOCK15MIN, "alias", 0, ReadingTypeUnit.AMPEREHOUR, MetricMultiplier.KILO);
     }
 
