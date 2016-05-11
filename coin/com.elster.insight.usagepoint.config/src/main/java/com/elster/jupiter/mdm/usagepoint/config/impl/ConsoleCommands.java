@@ -123,12 +123,12 @@ public class ConsoleCommands {
         }
     }
 
-    public void createValidationRuleSet(String name) {
+    public void createValidationRuleSet(String name, String applicationName) {
         try {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        validationService.createValidationRuleSet(name);
+                        validationService.createValidationRuleSet(name, applicationName);
                     });
         } catch (Exception e) {
             e.printStackTrace();
