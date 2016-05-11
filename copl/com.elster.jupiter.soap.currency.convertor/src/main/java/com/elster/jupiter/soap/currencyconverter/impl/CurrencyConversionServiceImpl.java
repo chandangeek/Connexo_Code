@@ -7,9 +7,8 @@ import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * Created by bvn on 5/9/16.
+ * Bridge between generated SOAP code and
  */
-//@Component(name = "com.elster.jupiter.currency.converter", service = CurrencyConversionService.class, immediate = true)
 public class CurrencyConversionServiceImpl implements CurrencyConversionService {
     private SoapProviderSupportFactory soapProviderSupportFactory;
 
