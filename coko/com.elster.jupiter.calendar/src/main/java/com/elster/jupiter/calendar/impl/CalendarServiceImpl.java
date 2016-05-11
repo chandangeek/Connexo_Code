@@ -34,6 +34,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by igh on 18/04/2016.
@@ -130,7 +133,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        return Stream.of(
+                Stream.of(TranslationKeys.values()),
+                Stream.of(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
