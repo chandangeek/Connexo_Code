@@ -36,7 +36,7 @@ Ext.define('Mdc.timeofuse.view.AvailableCalendarsSetup', {
                         margin: '15 0 20 0',
                         title: Uni.I18n.translate('timeofuse.calendars.empty.title', 'MDC', 'No time of use calendars found'),
                         reasons: [
-                            Uni.I18n.translate('timeofuse.calendars.empty.list.item2', 'MDC', 'No time of use calendars have been defined in the system yet.')
+                            Uni.I18n.translate('timeofuse.calendars.empty.list.item2', 'MDC', 'No time of use calendars have been defined yet.')
                         ]
                     }
                 },
