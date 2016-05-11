@@ -1,9 +1,25 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -23,21 +39,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -68,14 +69,16 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-05 (10:40)
  */
-@Component(name="com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, InstallService.class, MessageSeedProvider.class}, property = "name=" + TopologyService.COMPONENT_NAME)
-public class TopologyServiceImpl implements ServerTopologyService, InstallService, MessageSeedProvider {
+@Component(name="com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, MessageSeedProvider.class}, property = "name=" + TopologyService.COMPONENT_NAME)
+public class TopologyServiceImpl implements ServerTopologyService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile UpgradeService upgradeService;
+    private volatile DeviceDataModelService deviceDataModelService;
 
     // For OSGi framework only
     public TopologyServiceImpl() {
@@ -84,22 +87,15 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     // For unit testing purposes only
     @Inject
-    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService) {
+    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService) {
         this();
-        this.setOrmService(ormService);
-        this.setNlsService(nlsService);
-        this.setClock(clock);
-        this.setConnectionTaskService(connectionTaskService);
-        this.setCommunicationTaskService(communicationTaskService);
-        this.activate();
-        if (!this.dataModel.isInstalled()) {
-            this.install();
-        }
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Collections.singletonList(DeviceDataServices.COMPONENT_NAME);
+        setOrmService(ormService);
+        setNlsService(nlsService);
+        setClock(clock);
+        setConnectionTaskService(connectionTaskService);
+        setCommunicationTaskService(communicationTaskService);
+        setUpgradeService(upgradeService);
+        activate();
     }
 
     @Override
@@ -115,6 +111,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
+        upgradeService.register(InstallIdentifier.identifier(TopologyService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     private Module getModule() {
@@ -129,11 +126,6 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
                 bind(ServerTopologyService.class).toInstance(TopologyServiceImpl.this);
             }
         };
-    }
-
-    @Override
-    public void install() {
-        new Installer(this.dataModel).install(true);
     }
 
     @Override
@@ -657,6 +649,16 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
+        this.deviceDataModelService = deviceDataModelService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     private interface FirstLevelTopologyTimeslicer {
