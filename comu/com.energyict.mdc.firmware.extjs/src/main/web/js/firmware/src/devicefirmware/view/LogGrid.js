@@ -2,7 +2,9 @@ Ext.define('Fwc.devicefirmware.view.LogGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.device-firmware-log-grid',
     store: 'Fwc.devicefirmware.store.FirmwareLogs',
-
+    requires: [
+        'Uni.DateTime'
+    ],
     initComponent: function () {
         var me = this;
 
@@ -12,7 +14,7 @@ Ext.define('Fwc.devicefirmware.view.LogGrid', {
                 dataIndex: 'timestamp',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                    return value ? Uni.DateTime.formatDateTime(value, Uni.DateTime.SHORT, Uni.DateTime.LONG) : '-';
                 }
             },
             {
