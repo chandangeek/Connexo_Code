@@ -102,7 +102,7 @@ Ext.define('Isu.controller.IssueDetail', {
                     user: rec.data.author.name,
                     actionText: Uni.I18n.translate('issue.workspace.datacollection.added.comment','ISU','added a comment'),
                     creationDate: rec.data.creationDate,
-                    contentText: rec.data.splittedComments,
+                    contentText: rec.data.splittedComments
                 });
             }
         );
@@ -115,14 +115,14 @@ Ext.define('Isu.controller.IssueDetail', {
                         contentText: rec.data.name,
                         forProcess: true,
                         processId: rec.data.processId,
-                        status: ' (' + rec.data.statusDisplay + ')',
+                        status: ' (' + rec.data.statusDisplay + ')'
                     });
                 }
             );
         }
         Ext.Array.each(data, function (item) {
             timelineStore.add(item);
-        })
+        });
 
         timelineStore.sort('creationDate', 'DESC');
         timelineView.bindStore(timelineStore);
