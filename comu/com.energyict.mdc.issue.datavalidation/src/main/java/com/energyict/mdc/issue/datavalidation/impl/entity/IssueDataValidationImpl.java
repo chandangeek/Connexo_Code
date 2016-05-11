@@ -39,7 +39,7 @@ public class IssueDataValidationImpl implements IssueDataValidation {
         this.dataModel = dataModel;
         this.issueDataValidationService = issueDataValidationService;
     }
-    
+
     Issue getBaseIssue() {
         return baseIssue.orNull();
     }
@@ -60,8 +60,18 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
+    public void setReason(IssueReason reason) {
+        getBaseIssue().setReason(reason);
+    }
+
+    @Override
     public IssueStatus getStatus() {
         return getBaseIssue().getStatus();
+    }
+
+    @Override
+    public void setStatus(IssueStatus status) {
+        getBaseIssue().setStatus(status);
     }
 
     @Override
@@ -75,6 +85,11 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
+    public void setDevice(EndDevice device) {
+        getBaseIssue().setDevice(device);
+    }
+
+    @Override
     public Optional<UsagePoint> getUsagePoint() {
         return getBaseIssue().getUsagePoint();
     }
@@ -85,8 +100,18 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
+    public void setDueDate(Instant dueDate) {
+        getBaseIssue().setDueDate(dueDate);
+    }
+
+    @Override
     public boolean isOverdue() {
         return getBaseIssue().isOverdue();
+    }
+
+    @Override
+    public void setOverdue(boolean overdue) {
+        getBaseIssue().setOverdue(overdue);
     }
 
     @Override
@@ -117,31 +142,6 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     @Override
     public void autoAssign() {
         getBaseIssue().autoAssign();
-    }
-
-    @Override
-    public void setOverdue(boolean overdue) {
-        getBaseIssue().setOverdue(overdue);
-    }
-
-    @Override
-    public void setDueDate(Instant dueDate) {
-        getBaseIssue().setDueDate(dueDate);
-    }
-
-    @Override
-    public void setDevice(EndDevice device) {
-        getBaseIssue().setDevice(device);
-    }
-
-    @Override
-    public void setStatus(IssueStatus status) {
-        getBaseIssue().setStatus(status);
-    }
-
-    @Override
-    public void setReason(IssueReason reason) {
-        getBaseIssue().setReason(reason);
     }
 
     @Override
