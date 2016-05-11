@@ -10,8 +10,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.license.LicensedProtocolRule;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -28,16 +29,13 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.mdc.InboundDeviceProtocolRule;
+import com.energyict.protocols.mdc.services.impl.Installer;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+
+import com.energyict.license.LicensedProtocolRule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -50,11 +48,20 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -136,6 +143,7 @@ public class AllDeviceProtocolsTest {
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
+        when(dataModel.getInstance(Installer.class)).thenAnswer(invocation -> new Installer(dataModel));
     }
 
     @After
@@ -177,7 +185,7 @@ public class AllDeviceProtocolsTest {
     }
 
     @Test
-    public void testAllInbboundProtocols() {
+    public void testAllInboundProtocols() {
         Stream.of(InboundDeviceProtocolRule.values()).forEach(this::testProtocolCreation);
         System.out.println("Successfully tested the creation of " + InboundDeviceProtocolRule.values().length + " inbound protocol(s)");
     }
@@ -218,6 +226,7 @@ public class AllDeviceProtocolsTest {
             bind(IdentificationService.class).toInstance(identificationService);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(SerialComponentService.class).toInstance(serialComponentService);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
