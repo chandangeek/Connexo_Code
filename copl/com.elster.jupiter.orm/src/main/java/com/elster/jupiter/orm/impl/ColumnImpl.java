@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -465,13 +466,15 @@ public class ColumnImpl implements Column {
         setDomainValue(target, convertFromDb(rs, index));
     }
 
-    void setObject(PreparedStatement statement, int index, Object target) throws SQLException {
+    Optional<IOResource> setObject(PreparedStatement statement, int index, Object target) throws SQLException {
         Object dbValue = this.getDatabaseValue(target);
         if (dbValue instanceof LazyLoadingBlob) {
             LazyLoadingBlob lazyLoadingBlob = (LazyLoadingBlob) dbValue;
             lazyLoadingBlob.bindTo(statement, index);
+            return Optional.of(lazyLoadingBlob);
         } else {
             statement.setObject(index, dbValue);
+            return Optional.empty();
         }
     }
 

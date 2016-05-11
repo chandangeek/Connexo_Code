@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.Blob;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
+import com.elster.jupiter.orm.impl.IOResource;
 import com.elster.jupiter.orm.impl.KeyValue;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
@@ -29,11 +30,11 @@ import java.util.Arrays;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-05-06 (15:07)
  */
-public final class LazyLoadingBlob implements Blob {
+public final class LazyLoadingBlob implements Blob, IOResource {
 
     private final DataModel dataModel;
     private final ColumnImpl column;
-    private EnhancedSqlBlob actualBlob;
+    private InternalBlob actualBlob;
     private KeyValue keyValue;
 
     public static LazyLoadingBlob from(ColumnImpl column) {
@@ -73,140 +74,82 @@ public final class LazyLoadingBlob implements Blob {
         this.keyValue = this.column.getTable().getPrimaryKey(target);
     }
 
+    @Override
+    public void close() throws IOException {
+        this.actualBlob.close();
+    }
+
     public void bindTo(PreparedStatement statement, int index) throws SQLException {
         this.actualBlob.bindTo(statement, index);
     }
 
     @Override
     public void clear() {
-        try {
-            this.actualBlob.truncate(0);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
+        this.actualBlob.clear();
     }
 
     @Override
     public OutputStream setBinaryStream() {
-        try {
-            return this.actualBlob.setBinaryStream(1);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
+        return this.actualBlob.setBinaryStream();
     }
 
     @Override
     public long length() {
-        try {
-            return this.actualBlob.length();
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
+        return this.actualBlob.length();
     }
 
     @Override
     public InputStream getBinaryStream() {
-        try {
-            return this.actualBlob.getBinaryStream();
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
+        return this.actualBlob.getBinaryStream();
     }
 
-    @Override
-    public InputStream getBinaryStream(long pos, long length) {
-        try {
-            return actualBlob.getBinaryStream(pos, length);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
-
-    private interface EnhancedSqlBlob extends java.sql.Blob {
+    private interface InternalBlob extends Blob, IOResource {
         void bindTo(PreparedStatement statement, int index) throws SQLException;
     }
 
-    private static class TransientBlob implements EnhancedSqlBlob {
-        private final Blob simpleBlob;
+    private static class TransientBlob implements InternalBlob {
+        private final Blob actualBlob;
+        private InputStream binaryStream;
 
-        private TransientBlob(Blob simpleBlob) {
-            this.simpleBlob = simpleBlob;
+        private TransientBlob(Blob actualBlob) {
+            this.actualBlob = actualBlob;
         }
 
         @Override
-        public void bindTo(PreparedStatement statement, int index) throws SQLException {
-            statement.setBinaryStream(index, this.simpleBlob.getBinaryStream());
-        }
-
-        @Override
-        public long length() throws SQLException {
-            return this.simpleBlob.length();
-        }
-
-        @Override
-        public byte[] getBytes(long pos, int length) throws SQLException {
-            byte[] bytes = new byte[length];
-            InputStream stream = this.getBinaryStream(pos, length);
-            int b;
-            int index = 0;
-            try {
-                while ((b = stream.read()) != -1) {
-                    bytes[index] = (byte) b;
-                    index++;
-                }
-                return bytes;
-            } catch (IOException e) {
-                throw new SQLException(e);
+        public void close() throws IOException {
+            if (this.binaryStream != null) {
+                this.binaryStream.close();
             }
         }
 
         @Override
-        public InputStream getBinaryStream() throws SQLException {
-            return this.simpleBlob.getBinaryStream();
+        public void bindTo(PreparedStatement statement, int index) throws SQLException {
+            this.binaryStream = this.actualBlob.getBinaryStream();
+            statement.setBinaryStream(index, this.binaryStream);
         }
 
         @Override
-        public InputStream getBinaryStream(long pos, long length) throws SQLException {
-            return this.simpleBlob.getBinaryStream(pos, length);
+        public long length() {
+            return this.actualBlob.length();
         }
 
         @Override
-        public void free() throws SQLException {
-            // Nothing to free
+        public InputStream getBinaryStream() {
+            return this.actualBlob.getBinaryStream();
         }
 
         @Override
-        public void truncate(long len) throws SQLException {
-            throw new UnsupportedOperationException("Not expecting the jdbc layer to be calling truncate while persisting a BLOB");
+        public void clear() {
+            this.actualBlob.clear();
         }
 
         @Override
-        public OutputStream setBinaryStream(long pos) throws SQLException {
-            throw new UnsupportedOperationException("Not expecting the jdbc layer to be calling setBinaryStream while persisting a BLOB");
-        }
-
-        @Override
-        public int setBytes(long pos, byte[] bytes, int offset, int len) throws SQLException {
-            throw new UnsupportedOperationException("Not expecting the jdbc layer to be calling setBytes while persisting a BLOB");
-        }
-
-        @Override
-        public int setBytes(long pos, byte[] bytes) throws SQLException {
-            throw new UnsupportedOperationException("Not expecting the jdbc layer to be calling setBytes while persisting a BLOB");
-        }
-
-        @Override
-        public long position(byte[] pattern, long start) throws SQLException {
-            throw new UnsupportedOperationException("Not expecting the jdbc layer to be calling position while persisting a BLOB");
-        }
-
-        @Override
-        public long position(java.sql.Blob pattern, long start) throws SQLException {
-            throw new UnsupportedOperationException("Not expecting the jdbc layer to be calling position while persisting a BLOB");
+        public OutputStream setBinaryStream() {
+            return this.actualBlob.setBinaryStream();
         }
     }
 
-    private class PersistentBlob implements EnhancedSqlBlob {
+    private class PersistentBlob implements InternalBlob {
         private java.sql.Blob databaseBlob;
 
         private void ensureLoaded() {
@@ -273,6 +216,11 @@ public final class LazyLoadingBlob implements Blob {
         }
 
         @Override
+        public void close() throws IOException {
+            // No resources to close
+        }
+
+        @Override
         public long length() {
             try {
                 this.ensureLoaded();
@@ -283,69 +231,35 @@ public final class LazyLoadingBlob implements Blob {
         }
 
         @Override
-        public byte[] getBytes(long pos, int length) throws SQLException {
-            this.ensureLoaded();
-            return this.databaseBlob.getBytes(pos, length);
-        }
-
-        @Override
         public InputStream getBinaryStream() {
             this.ensureLoaded();
-            return this.getBinaryStream(1, this.length());
-        }
-
-        @Override
-        public InputStream getBinaryStream(long position, long length) {
             try {
-                this.ensureLoaded();
-                return this.databaseBlob.getBinaryStream(position, length);
+                return this.databaseBlob.getBinaryStream();
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
             }
         }
 
         @Override
-        public long position(java.sql.Blob pattern, long start) throws SQLException {
+        public void clear() {
             this.ensureLoaded();
-            return this.databaseBlob.position(pattern, start);
-        }
-
-        @Override
-        public long position(byte[] pattern, long start) throws SQLException {
-            this.ensureLoaded();
-            return this.databaseBlob.position(pattern, start);
-        }
-
-        @Override
-        public void truncate(long len) throws SQLException {
-            this.ensureLoaded();
-            this.databaseBlob.truncate(len);
-        }
-
-        @Override
-        public int setBytes(long pos, byte[] bytes, int offset, int len) throws SQLException {
-            this.ensureLoaded();
-            return this.databaseBlob.setBytes(pos, bytes, offset, len);
-        }
-
-        @Override
-        public int setBytes(long pos, byte[] bytes) throws SQLException {
-            this.ensureLoaded();
-            return this.databaseBlob.setBytes(pos, bytes);
-        }
-
-        @Override
-        public OutputStream setBinaryStream(long pos) throws SQLException {
-            this.ensureLoaded();
-            return this.databaseBlob.setBinaryStream(pos);
-        }
-
-        @Override
-        public void free() throws SQLException {
-            if (this.databaseBlob != null) {
-                this.databaseBlob.free();
+            try {
+                this.databaseBlob.truncate(1);
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
             }
         }
+
+        @Override
+        public OutputStream setBinaryStream() {
+            this.ensureLoaded();
+            try {
+                return this.databaseBlob.setBinaryStream(1);
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
+            }
+        }
+
     }
 
 }

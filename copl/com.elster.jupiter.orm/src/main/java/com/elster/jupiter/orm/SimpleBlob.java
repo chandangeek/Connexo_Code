@@ -47,11 +47,6 @@ public final class SimpleBlob implements Blob {
     }
 
     @Override
-    public InputStream getBinaryStream(long pos, long length) {
-        return new ByteArrayInputStream(this.bytes, ((int) pos - 1), (int) length);
-    }
-
-    @Override
     public void clear() {
         this.bytes = new byte[0];
     }

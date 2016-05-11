@@ -40,21 +40,6 @@ public interface Blob {
     InputStream getBinaryStream ();
 
     /**
-     * Returns an <code>InputStream</code> object that contains a part
-     * of the contents of this Blob.
-     * The part is designated by the position of the first byte
-     * for <code>length</code> number of bytes in length.
-     *
-     * @param position the position of the first byte of the partial value to be retrieved.
-     *  The first byte in the <code>Blob</code> is at position 1
-     * @param length the length in bytes of the partial value to be retrieved
-     * @return <code>InputStream</code> through which the partial <code>Blob</code> value can be read.
-     *
-     * @since 1.6
-     */
-    InputStream getBinaryStream(long position, long length);
-
-    /**
      * Clears the contents of this Blob.
      * After this call, {@link #length()} should return 0 (zero)
      * and any InputStream will be empty.
