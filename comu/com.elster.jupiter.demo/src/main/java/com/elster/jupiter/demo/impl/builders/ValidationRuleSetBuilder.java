@@ -34,7 +34,7 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
 
     @Override
     public ValidationRuleSet create() {
-        ValidationRuleSet ruleSet = validationService.createValidationRuleSet(getName(), this.description, "MDC");
+        ValidationRuleSet ruleSet = validationService.createValidationRuleSet(getName(), "MDC", this.description);
         ValidationRuleSetVersion ruleSetVersion = ruleSet.addRuleSetVersion("Demo Default Version", Instant.EPOCH);
         addRegisterIncreaseValidationRule(ruleSetVersion);
         addDetectMissingValuesValidationRule(ruleSetVersion);
