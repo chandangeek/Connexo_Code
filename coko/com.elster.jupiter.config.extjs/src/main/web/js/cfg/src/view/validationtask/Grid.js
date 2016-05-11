@@ -6,7 +6,8 @@ Ext.define('Cfg.view.validationtask.Grid', {
     requires: [
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Uni.DateTime'
     ],
     initComponent: function () {
         var me = this;

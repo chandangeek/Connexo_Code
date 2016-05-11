@@ -4,7 +4,8 @@ Ext.define('Cfg.view.log.Grid', {
     store: 'Cfg.store.Logs',
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Uni.DateTime'
     ],
     initComponent: function () {
         var me = this;
@@ -13,7 +14,7 @@ Ext.define('Cfg.view.log.Grid', {
                 header: Uni.I18n.translate('validationTasks.general.timestamp', 'CFG', 'Timestamp'),
                 dataIndex: 'timestamp',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTime(value, Uni.DateTime.SHORT, Uni.DateTime.LONG) : '-';
                 },
                 flex: 2
             },
