@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 
+import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +23,7 @@ public class Installer implements FullInstaller {
     private final DataModel dataModel;
     private final EventService eventService;
 
+    @Inject
     public Installer(DataModel dataModel, EventService eventService) {
         super();
         this.dataModel = dataModel;
