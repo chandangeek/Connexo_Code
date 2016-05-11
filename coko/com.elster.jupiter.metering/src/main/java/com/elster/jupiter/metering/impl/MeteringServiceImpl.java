@@ -141,7 +141,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private static String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
     private static String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
 
-    private Map<String, HeadEndInterface> headEndInterfaces = new ConcurrentHashMap<>();
+    private List<HeadEndInterface> headEndInterfaces = new CopyOnWriteArrayList<>();
 
     public MeteringServiceImpl() {
         this.createAllReadingTypes = true;
@@ -183,7 +183,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Reference(name = "ZHeadEndInterface", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addHeadEndInterface(HeadEndInterface headEndInterface) {
-        headEndInterfaces.put(headEndInterface.getAmrSystem(), headEndInterface);
+        headEndInterfaces.add(headEndInterface);
     }
 
     @SuppressWarnings("unused")
@@ -192,22 +192,14 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
-    public  Map<String, HeadEndInterface> getHeadEndInterfaces() {
+    public  List<HeadEndInterface> getHeadEndInterfaces() {
         return headEndInterfaces;
     }
 
     @Override
     public Optional<HeadEndInterface> getHeadEndInterface(String amrSystem) {
-        Optional<Map.Entry<String, HeadEndInterface>> headEndInterface = headEndInterfaces.entrySet()
-                .stream()
-                .filter(entry ->
-                        entry.getKey().equals(amrSystem))
-                .findFirst();
-
-        if(headEndInterface.isPresent()){
-            return Optional.of(headEndInterface.get().getValue());
-        }
-        return  Optional.empty();
+        return headEndInterfaces.stream()
+                .filter(itf -> itf.getAmrSystem().equalsIgnoreCase(amrSystem)).findFirst();
     }
 
 
