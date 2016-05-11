@@ -226,6 +226,6 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testGetSupportedApplications() {
-        assertThat(thresholdValidator.getSupportedApplications()).containsOnly("COIN", "COMU");
+        assertThat(thresholdValidator.getSupportedApplications()).containsOnly("INS", "MDC");
     }
 }

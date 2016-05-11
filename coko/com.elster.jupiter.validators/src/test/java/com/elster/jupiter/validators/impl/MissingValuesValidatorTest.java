@@ -281,7 +281,7 @@ public class MissingValuesValidatorTest {
 
         @Test
         public void testGetSupportedApplications() {
-            assertThat(validator.getSupportedApplications()).containsOnly("COIN", "COMU");
+            assertThat(validator.getSupportedApplications()).containsOnly("INS", "MDC");
         }
     }
 }

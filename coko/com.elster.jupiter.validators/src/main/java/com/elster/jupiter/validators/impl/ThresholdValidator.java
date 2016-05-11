@@ -31,7 +31,7 @@ class ThresholdValidator extends AbstractValidator {
 
     static final String MIN = "minimum";
     static final String MAX = "maximum";
-    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("COMU", "COIN");
+    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
 
     private Quantity minimum;
     private Quantity maximum;

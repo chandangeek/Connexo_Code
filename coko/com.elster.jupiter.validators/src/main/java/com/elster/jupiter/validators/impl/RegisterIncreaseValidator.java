@@ -28,7 +28,7 @@ import java.util.Set;
 class RegisterIncreaseValidator extends AbstractValidator {
 
     static final String FAIL_EQUAL_DATA = "failEqualData";
-    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("COMU", "COIN");
+    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
 
     private Channel channel;
     private boolean failEqualData = false;

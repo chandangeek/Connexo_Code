@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 class IntervalStateValidator extends AbstractValidator {
 
     static final String INTERVAL_FLAGS = "intervalFlags";
-    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("COMU", "COIN");
+    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
 
     private Set<Flag> selectedFlags;
     private final IntervalFlag[] POSSIBLE_FLAGS = {
