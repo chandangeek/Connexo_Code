@@ -22,4 +22,5 @@ public interface HeadEndInterface {
     CompletionOptions sendCommand(Meter meter, EndDeviceCommand meterCmd, Instant instant);
     CompletionOptions sendCommand(Meter meter, EndDeviceCommand meterCmd, Instant instant, ServiceCall serviceCall) throws
             UnsupportedCommandException;
+    String getAmrSystem();
 }

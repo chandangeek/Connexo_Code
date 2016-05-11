@@ -181,7 +181,7 @@ public interface MeteringService {
 
     EndDeviceControlType createEndDeviceControlType(String mRID);
 
-    Map<AmrSystem, HeadEndInterface> getHeadEndInterfaces();
+    Map<String, HeadEndInterface> getHeadEndInterfaces();
 
-    Optional<HeadEndInterface> getHeadEndInterface(AmrSystem amrSystem);
+    Optional<HeadEndInterface> getHeadEndInterface(String amrSystem);
 }

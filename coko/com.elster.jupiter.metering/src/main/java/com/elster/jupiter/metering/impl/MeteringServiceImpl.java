@@ -141,7 +141,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private static String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
     private static String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
 
-    private Map<AmrSystem, HeadEndInterface> headEndInterfaces = new ConcurrentHashMap<>();
+    private Map<String, HeadEndInterface> headEndInterfaces = new ConcurrentHashMap<>();
 
     public MeteringServiceImpl() {
         this.createAllReadingTypes = true;
@@ -182,29 +182,32 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Reference(name = "ZHeadEndInterface", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addHeadEndInterface(AmrSystem amrSystem, HeadEndInterface headEndInterface) {
-        headEndInterfaces.put(amrSystem, headEndInterface);
+    public void addHeadEndInterface(HeadEndInterface headEndInterface) {
+        headEndInterfaces.put(headEndInterface.getAmrSystem(), headEndInterface);
     }
 
     @SuppressWarnings("unused")
-    public void removeHeadEndInterface(AmrSystem amrSystem) {
-        headEndInterfaces.remove(amrSystem);
+    public void removeHeadEndInterface(HeadEndInterface headEndInterface) {
+        headEndInterfaces.remove(headEndInterface);
     }
 
     @Override
-    public Map<AmrSystem, HeadEndInterface> getHeadEndInterfaces() {
+    public  Map<String, HeadEndInterface> getHeadEndInterfaces() {
         return headEndInterfaces;
     }
 
     @Override
-    public Optional<HeadEndInterface> getHeadEndInterface(AmrSystem amrSystem) {
-        Optional<Map.Entry<AmrSystem, HeadEndInterface>> headEndInterface = headEndInterfaces.entrySet().stream()
-                .filter(entry -> entry.getKey().equals(amrSystem))
+    public Optional<HeadEndInterface> getHeadEndInterface(String amrSystem) {
+        Optional<Map.Entry<String, HeadEndInterface>> headEndInterface = headEndInterfaces.entrySet()
+                .stream()
+                .filter(entry ->
+                        entry.getKey().equals(amrSystem))
                 .findFirst();
+
         if(headEndInterface.isPresent()){
             return Optional.of(headEndInterface.get().getValue());
         }
-        return Optional.empty();
+        return  Optional.empty();
     }
 
 
