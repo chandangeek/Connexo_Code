@@ -72,6 +72,13 @@ Ext.define('Mdc.model.Device', {
             storeConfig: {
                 pageSize: 5
             }
+        },
+        {
+            name: 'dataLoggerslaveDevices',
+            type: 'hasMany',
+            model: 'Mdc.model.Device',
+            associationKey: 'dataLoggerSlaveDevices',
+            foreignKey: 'dataLoggerSlaveDevices'
         }
     ],
 
