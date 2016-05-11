@@ -59,11 +59,12 @@ public class DeviceInfo extends DeviceVersionInfo {
     public String usagePoint;
     public DeviceEstimationStatusInfo estimationStatus;
     public DeviceLifeCycleStateInfo state;
+    public List<DataLoggerSlaveDeviceInfo> dataLoggerSlaveDevices;
 
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
@@ -109,6 +110,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, null, deviceState);
         deviceInfo.version = device.getVersion();
         deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+        deviceInfo.dataLoggerSlaveDevices = dataLoggerSlaveDeviceInfoFactory.from(device);
         return deviceInfo;
     }
 

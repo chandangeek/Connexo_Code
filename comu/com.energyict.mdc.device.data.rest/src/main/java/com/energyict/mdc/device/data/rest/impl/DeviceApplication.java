@@ -479,6 +479,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DevicesForConfigChangeSearchFactory.class).to(DevicesForConfigChangeSearchFactory.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(serviceCallService).to(ServiceCallService.class);
+            bind(DataLoggerSlaveDeviceInfoFactory.class).to(DataLoggerSlaveDeviceInfoFactory.class);
         }
     }
 }

@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.impl.DataLoggerSlaveDeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.impl.DeviceApplication;
 import com.energyict.mdc.device.data.rest.impl.DeviceInfo;
 import com.energyict.mdc.device.data.rest.impl.DeviceSearchInfo;
@@ -36,17 +37,19 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private IssueService issueService;
     private IssueDataValidationService issueDataValidationService;
     private MeteringService meteringService;
+    private DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
 
     public DeviceInfoFactory() {}
 
     @Inject
-    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService) {
+    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory) {
         this.thesaurus = thesaurus;
         this.batchService = batchService;
         this.topologyService = topologyService;
         this.issueService = issueService;
         this.issueDataValidationService = issueDataValidationService;
         this.meteringService = meteringService;
+        this.dataLoggerSlaveDeviceInfoFactory = dataLoggerSlaveDeviceInfoFactory;
     }
 
     @Reference
@@ -93,7 +96,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
-        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus);
+        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, dataLoggerSlaveDeviceInfoFactory);
     }
 
     @Override

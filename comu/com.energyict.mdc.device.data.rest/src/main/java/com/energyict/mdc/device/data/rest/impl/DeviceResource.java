@@ -25,6 +25,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
@@ -252,6 +253,7 @@ public class DeviceResource {
             try (TransactionContext context = transactionService.getContext()) {
                 device = resourceHelper.lockDeviceOrThrowException(info);
                 updateGateway(info, device);
+                updateDataLoggerChannels(info, device);
                 device.save();
                 context.commit();
             }
@@ -270,6 +272,41 @@ public class DeviceResource {
             removeGateway(device);
         }
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
+    }
+
+    private DeviceInfo updateDataLoggerChannels(DeviceInfo info, Device dataLogger){
+        if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()){
+            List<Device> currentSlaves =topologyService.findDataLoggerSlaves(dataLogger);
+            List<Device> slavesToRemove;
+            if (info.dataLoggerSlaveDevices.isEmpty()){
+                slavesToRemove = currentSlaves;
+            }else{
+                slavesToRemove = currentSlaves.stream().filter(((Predicate<? super Device>) (slave) -> isStillADataLoggerSlave(slave, info)).negate()).collect(Collectors.toList());
+            }
+            slavesToRemove.stream().forEach(topologyService::clearDataLogger);
+            info.dataLoggerSlaveDevices.stream().forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
+            return deviceInfoFactory.deviceInfo(dataLogger); //, topologyService.findDataLoggerSlaves(dataLogger));
+        }
+        return info;
+    }
+
+    private void setDataLogger(DataLoggerSlaveDeviceInfo slaveDeviceInfo, Device dataLogger){
+        Device slave = deviceService.findByUniqueMrid(slaveDeviceInfo.mRID).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_ID, slaveDeviceInfo.mRID));
+        final HashMap<Channel, Channel> channelMap = new HashMap<>();
+        slaveDeviceInfo.dataLoggerSlaveChannelInfos.stream().map(this::slaveDataLoggerChannelPair).forEach((pair) -> channelMap.put(pair.getFirst(), pair.getLast()));
+        topologyService.setDataLogger(slave, dataLogger, channelMap);
+    }
+
+    private Pair<Channel, Channel> slaveDataLoggerChannelPair(DataLoggerSlaveChannelInfo info){
+       return Pair.of(channelInfoToChannel(info.slaveChannel), channelInfoToChannel(info.dataLoggerChannel));
+    }
+
+    private boolean isStillADataLoggerSlave(Device slave, DeviceInfo info){
+        return info.dataLoggerSlaveDevices.stream().filter((dataLoggerSlaveDeviceInfo) -> dataLoggerSlaveDeviceInfo.id == slave.getId()).findFirst().isPresent();
+    }
+
+    private Channel channelInfoToChannel(ChannelInfo info){
+        return resourceHelper.findChannelOnDeviceOrThrowException(info.parent.id, info.id );
     }
 
     private void updateGateway(Device device, String gatewayMRID) {
@@ -678,22 +715,22 @@ public class DeviceResource {
         }
         return dataLoggerSlaves;
     }
-
-    @GET @Transactional
-    @Path("/unlinkeddataloggerslaves")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public DeviceInfos getUnlinkedSlaves(@BeanParam JsonQueryParameters queryParameters) {
-        String searchText = queryParameters.getLike();
-        if (searchText != null && !searchText.isEmpty()) {
-            return new DeviceInfos(
-                deviceService.findAllDevices(getUnlinkedSlaveDevicesCondition(searchText)).stream()
-                .limit(50)
-                .collect(Collectors.<Device>toList())
-            );
-        }
-        return new DeviceInfos();
-    }
+//
+//    @GET @Transactional
+//    @Path("/unlinkeddataloggerslaves")
+//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+//    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+//    public DeviceInfos getUnlinkedSlaves(@BeanParam JsonQueryParameters queryParameters) {
+//        String searchText = queryParameters.getLike();
+//        if (searchText != null && !searchText.isEmpty()) {
+//            return new DeviceInfos(
+//                deviceService.findAllDevices(getUnlinkedSlaveDevicesCondition(searchText)).stream()
+//                .limit(50)
+//                .collect(Collectors.<Device>toList())
+//            );
+//        }
+//        return new DeviceInfos();
+//    }
 
     private Condition getUnlinkedSlaveDevicesCondition(String dbSearchText) {
         // TODO: add extra conditions in order to only get
