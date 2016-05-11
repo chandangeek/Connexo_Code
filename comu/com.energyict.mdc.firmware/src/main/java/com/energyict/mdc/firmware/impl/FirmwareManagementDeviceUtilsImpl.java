@@ -5,7 +5,11 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
@@ -265,6 +269,12 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     @Override
     public boolean isPendingMessage(DeviceMessage<Device> upgradeMessage) {
         return FirmwareManagementDeviceUtilsImpl.PENDING_STATUSES.contains(upgradeMessage.getStatus());
+    }
+
+    @Override
+    public boolean firmwareTaskIsScheduled() {
+        Optional<ComTaskExecution> firmwareComTaskExecution = getFirmwareComTaskExecution();
+        return firmwareComTaskExecution.isPresent() && firmwareComTaskExecution.get().getNextExecutionTimestamp() != null;
     }
 
     private Optional<ComTaskExecution> getComTaskExecutionToCheckTheFirmwareVersion(Device device) {

@@ -1,5 +1,15 @@
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -13,16 +23,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -43,18 +43,20 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     public enum Fields {
-        ID ("id"),
-        NAME ("name"),
-        STATUS ("status"),
-        DEVICE_TYPE ("deviceType"),
+        ID("id"),
+        NAME("name"),
+        STATUS("status"),
+        DEVICE_TYPE("deviceType"),
         MANAGEMENT_OPTION("managementOption"),
-        FIRMWARE_TYPE ("firmwareType"),
-        STARTED_ON ("startedOn"),
-        FINISHED_ON ("finishedOn"),
-        DEVICES ("devices"),
-        PROPERTIES ("properties"),
-        DEVICES_STATUS ("devicesStatus"),
-        ;
+        FIRMWARE_TYPE("firmwareType"),
+        STARTED_ON("startedOn"),
+        FINISHED_ON("finishedOn"),
+        DEVICES("devices"),
+        PROPERTIES("properties"),
+        DEVICES_STATUS("devicesStatus"),
+        COMWINDOW_START("comWindow.start.millis"),
+        COMWINDOW_END("comWindow.end.millis"),
+        NROFDEVICES("numberOfDevices");
 
         private String name;
 
@@ -62,7 +64,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
             this.name = name;
         }
 
-        public String fieldName(){
+        public String fieldName() {
             return this.name;
         }
     }
@@ -83,10 +85,13 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private FirmwareType firmwareType;
     private Instant startedOn;
     private Instant finishedOn;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private ComWindow comWindow;
     @Valid
     private List<DeviceInFirmwareCampaign> devices = new ArrayList<>();
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
     private Reference<DevicesInFirmwareCampaignStatusImpl> devicesStatus = ValueReference.absent();
+    private Integer numberOfDevices = 0;
 
     @SuppressWarnings("unused")
     private long version;
@@ -96,6 +101,8 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
+
+    private transient boolean timeBoundariesChanged = false;
 
     private final DataModel dataModel;
     private final Clock clock;
@@ -138,7 +145,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     @Override
     public void setName(String name) {
-        if (!Checks.is(name).emptyOrOnlyWhiteSpace()){
+        if (!Checks.is(name).emptyOrOnlyWhiteSpace()) {
             this.name = name.trim();
         } else {
             this.name = null;
@@ -150,7 +157,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         return status;
     }
 
-    void setStatus(FirmwareCampaignStatus status){
+    void setStatus(FirmwareCampaignStatus status) {
         this.status = status;
     }
 
@@ -205,14 +212,14 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     }
 
     @Override
-    public List<DeviceInFirmwareCampaign> getDevices(){
+    public List<DeviceInFirmwareCampaign> getDevices() {
         return new ArrayList<>(this.devices);
     }
 
     @Override
-    public Map<String, Object> getProperties(){
+    public Map<String, Object> getProperties() {
         Optional<DeviceMessageSpec> firmwareMessageSpec = getFirmwareMessageSpec();
-        if (firmwareMessageSpec.isPresent()){
+        if (firmwareMessageSpec.isPresent()) {
             Map<String, Object> convertedProperties = new HashMap<>();
             for (FirmwareCampaignProperty property : properties) {
                 firmwareMessageSpec
@@ -242,7 +249,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     }
 
     @Override
-    public Optional<DeviceMessageSpec> getFirmwareMessageSpec(){
+    public Optional<DeviceMessageSpec> getFirmwareMessageSpec() {
         Optional<DeviceMessageId> firmwareMessageId = getFirmwareMessageId();
         if (firmwareMessageId.isPresent()) {
             return deviceMessageSpecificationService.findMessageSpecById(firmwareMessageId.get().dbValue());
@@ -251,7 +258,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     }
 
     @Override
-    public FirmwareCampaign addProperty(String key, String value){
+    public FirmwareCampaign addProperty(String key, String value) {
         FirmwareCampaignProperty newProperty = dataModel.getInstance(FirmwareCampaignPropertyImpl.class).init(this, key, value);
         dataModel.getValidatorFactory().getValidator().validate(newProperty);
         this.properties.add(newProperty);
@@ -259,14 +266,14 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     }
 
     @Override
-    public void clearProperties(){
+    public void clearProperties() {
         this.properties.clear();
     }
 
     @Override
     public boolean isValidName(boolean caseSensitive) {
         Condition condition = Condition.TRUE;
-        if (getId() > 0){
+        if (getId() > 0) {
             condition = where(Fields.ID.fieldName()).isNotEqual(getId());
         }
         return dataModel.query(FirmwareCampaign.class).select(condition.and(where(Fields.NAME.fieldName()).isEqualTo(this.name))).isEmpty();
@@ -274,8 +281,11 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     @Override
     public void save() {
-        if (getId() > 0){
+        if (getId() > 0) {
             Save.UPDATE.save(dataModel, this);
+            if (this.timeBoundariesChanged) {
+                this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_TIMEBOUNDARIES_UPDATED.topic(), this);
+            }
         } else {
             Save.CREATE.save(dataModel, this);
             this.eventService.postEvent(EventType.FIRMWARE_CAMPAIGN_CREATED.topic(), this);
@@ -283,12 +293,12 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     }
 
     @Override
-    public void delete(){
+    public void delete() {
         dataModel.remove(this);
     }
 
     public void cancel() {
-        if (this.finishedOn == null){
+        if (this.finishedOn == null) {
             this.finishedOn = clock.instant();
         }
         setStatus(FirmwareCampaignStatus.CANCELLED);
@@ -306,12 +316,21 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         return this.version;
     }
 
-    public void updateStatistic(){
+    public void updateStatistic() {
         DevicesInFirmwareCampaignStatusImpl devicesStatus = this.devicesStatus.get();
         devicesStatus.update();
-        if (devicesStatus.getOngoing() == 0 && devicesStatus.getPending() == 0 && !getStatus().equals(FirmwareCampaignStatus.CANCELLED)){
-            setStatus(FirmwareCampaignStatus.COMPLETE);
-            this.finishedOn = clock.instant();
+        if (devices.size() == numberOfDevices) { // all devices have been processed by the handler
+            if (devicesStatus.getOngoing() == 0 && devicesStatus.getPending() == 0 && !getStatus().equals(FirmwareCampaignStatus.CANCELLED)) {
+                setStatus(FirmwareCampaignStatus.COMPLETE);
+                this.finishedOn = clock.instant();
+                save();
+            }
+        }
+    }
+
+    public void updateNumberOfDevices(int numberOfDevices) {
+        if (this.numberOfDevices != numberOfDevices) {
+            this.numberOfDevices = numberOfDevices;
             save();
         }
     }
@@ -324,5 +343,23 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     public Instant getModTime() {
         return modTime;
+    }
+
+    @Override
+    public ComWindow getComWindow() {
+        return comWindow;
+    }
+
+    @Override
+    public void setComWindow(ComWindow window) {
+        if (getId() > 0 && !window.equals(this.comWindow)) {
+            this.timeBoundariesChanged = true;
+        }
+        this.comWindow = window;
+    }
+
+    @Override
+    public void decreaseCount() {
+        this.numberOfDevices--;
     }
 }

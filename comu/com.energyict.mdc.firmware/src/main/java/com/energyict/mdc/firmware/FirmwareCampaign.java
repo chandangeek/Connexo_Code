@@ -2,6 +2,7 @@ package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
@@ -53,4 +54,10 @@ public interface FirmwareCampaign extends HasId, HasName{
     Map<String, Long> getDevicesStatusMap();
 
     long getVersion();
+
+    ComWindow getComWindow();
+
+    void setComWindow(ComWindow window);
+
+    void decreaseCount();
 }

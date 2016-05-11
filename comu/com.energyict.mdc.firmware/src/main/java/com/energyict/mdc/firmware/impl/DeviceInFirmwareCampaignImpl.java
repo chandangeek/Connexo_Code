@@ -6,11 +6,20 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -21,10 +30,12 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.function.Predicate;
 
 public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
@@ -35,8 +46,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         STATUS("status"),
         MESSAGE_ID("firmwareMessageId"),
         STARTED_ON("startedOn"),
-        FINISHED_ON("finishedOn"),
-        ;
+        FINISHED_ON("finishedOn"),;
 
         private String name;
 
@@ -82,6 +92,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     DeviceInFirmwareCampaign init(FirmwareCampaign campaign, Device device) {
         this.campaign.set(campaign);
         this.device.set(device);
+        this.status = FirmwareManagementDeviceStatus.UPLOAD_PENDING;    //Initial state
         return this;
     }
 
@@ -95,8 +106,14 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         if (status != null) {
             this.oldStatus = this.status;
             this.status = status;
-            if (!NON_FINAL_STATUSES.contains(this.status.key()) && this.finishedOn == null){
+            if (status.equals(FirmwareManagementDeviceStatus.UPLOAD_ONGOING)) {
+                this.startedOn = clock.instant();
+            }
+            if (!NON_FINAL_STATUSES.contains(this.status.key()) && this.finishedOn == null) {
                 this.finishedOn = clock.instant();
+            }
+            if (NON_FINAL_STATUSES.contains(this.status.key()) && this.finishedOn != null) {
+                this.finishedOn = null;
             }
         }
     }
@@ -111,26 +128,36 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     }
 
     public void startFirmwareProcess() {
-        this.startedOn = clock.instant();
-        if (!checkDeviceType() || !checkDeviceConfiguration() || !cancelPendingFirmwareUpdates()) {
-            setStatus(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
-            save();
-            return;
-        }
         Optional<DeviceMessageId> firmwareMessageId = getFirmwareCampaign().getFirmwareMessageId();
-        if (!firmwareMessageId.isPresent()) {
+        if (!checkDeviceType()
+                || !checkDeviceConfiguration()
+                || !cancelPendingFirmwareUpdates()
+                || !firmwareMessageId.isPresent()
+                || noOverlappingConnectionWindow()) {
             setStatus(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
-            save();
-            return;
-        }
-        if (deviceAlreadyHasTheSameVersion()) {
-            setStatus(FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS);
         } else {
-            createFirmwareMessage(firmwareMessageId);
-            setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
-            scheduleFirmwareTask();
+            if (deviceAlreadyHasTheSameVersion()) {
+                setStatus(FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS);
+            } else {
+                createFirmwareMessage(firmwareMessageId);
+                setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
+                scheduleFirmwareTask();
+            }
         }
         save();
+    }
+
+    private boolean noOverlappingConnectionWindow() {
+        Optional<ConnectionTask<?, ?>> connectionTask = getFirmwareComTaskExec().getConnectionTask();
+        if (connectionTask.isPresent() && connectionTask.get() instanceof ScheduledConnectionTask) {
+            ComWindow connectionTaskComWindow = ((ScheduledConnectionTask) connectionTask.get()).getCommunicationWindow();
+            if (connectionTaskComWindow != null) {
+                Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(this.clock.getZone()));
+                connectionTaskComWindow.getStart().copyTo(calendar);
+                return !getFirmwareCampaign().getComWindow().includes(calendar);
+            }
+        }
+        return false;
     }
 
     public FirmwareManagementDeviceStatus updateStatus(FirmwareComTaskExecution comTaskExecution) {
@@ -146,7 +173,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
                     FirmwareManagementDeviceStatus.Group.getStatusGroupFor(uploadOption)
                             .get()
                             .getStatusBasedOnMessage(firmwareMessage.get(), helper)
-                            .ifPresent(newStatus -> setStatus(newStatus));
+                            .ifPresent(this::setStatus);
                 });
             } else {
                 setStatus(FirmwareManagementDeviceStatus.CANCELLED);
@@ -169,7 +196,49 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     @Override
     public void cancel() {
         setStatus(FirmwareManagementDeviceStatus.CANCELLED);
+
         save();
+    }
+
+    public void retry() {
+        setStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
+        this.finishedOn = null;
+        save();
+    }
+
+    @Override
+    public void updateTimeBoundaries() {
+        if (hasNonFinalStatus()) {
+            if (noOverlappingConnectionWindow()) {
+                setStatus(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
+                save();
+            } else {
+                FirmwareManagementDeviceUtils helper = firmwareService.getFirmwareManagementDeviceUtilsFor(getDevice());
+                if (helper.firmwareTaskIsScheduled() && !helper.firmwareUploadTaskIsBusy()) {
+                    helper.getFirmwareComTaskExecution().ifPresent(comTaskExecution -> {
+                        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(this.clock.getZone()));
+                        calendar.setTimeInMillis(comTaskExecution.getNextExecutionTimestamp().toEpochMilli());
+                        ComWindow comWindow = getFirmwareCampaign().getComWindow();
+                        if (!comWindow.includes(calendar)) {
+                            if (comWindow.after(calendar)) {
+                                comWindow.getStart().copyTo(calendar);
+                            } else {
+                            /* Timestamp must be after ComWindow,
+                            * advance one day and set time to start of the ComWindow. */
+                                calendar.add(Calendar.DATE, 1);
+                                comWindow.getStart().copyTo(calendar);
+                            }
+                            comTaskExecution.schedule(calendar.toInstant());
+                            updateStatus((FirmwareComTaskExecution) comTaskExecution);
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    public boolean hasNonFinalStatus() {
+        return NON_FINAL_STATUSES.contains(this.getStatus().key());
     }
 
     private void createFirmwareMessage(Optional<DeviceMessageId> firmwareMessageId) {
@@ -185,9 +254,29 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
 
     private void scheduleFirmwareTask() {
         ComTaskExecution firmwareComTaskExec = getFirmwareComTaskExec();
+        Instant comWindowAppliedStartDate = getComWindowAppliedStartDate();
         if (firmwareComTaskExec.getNextExecutionTimestamp() == null ||
-                firmwareComTaskExec.getNextExecutionTimestamp().isAfter(getFirmwareCampaign().getStartedOn())) {
-            firmwareComTaskExec.schedule(getFirmwareCampaign().getStartedOn());
+                firmwareComTaskExec.getNextExecutionTimestamp().isAfter(comWindowAppliedStartDate)) {
+            firmwareComTaskExec.schedule(comWindowAppliedStartDate);
+        }
+    }
+
+    private Instant getComWindowAppliedStartDate() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(this.clock.getZone()));
+        Instant startDate = getFirmwareCampaign().getStartedOn();
+        calendar.setTimeInMillis(startDate.toEpochMilli());
+        ComWindow comWindow = getFirmwareCampaign().getComWindow();
+        if (comWindow.includes(calendar)) {
+            return startDate;
+        } else if (comWindow.after(calendar)) {
+            comWindow.getStart().copyTo(calendar);
+            return calendar.toInstant();
+        } else {
+                /* Timestamp must be after ComWindow,
+                 * advance one day and set time to start of the ComWindow. */
+            calendar.add(Calendar.DATE, 1);
+            comWindow.getStart().copyTo(calendar);
+            return calendar.toInstant();
         }
     }
 
@@ -231,7 +320,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
 
     private void save() {
         dataModel.update(this);
-        if (this.status != this.oldStatus){
+        if (this.status != this.oldStatus) {
             eventService.postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATED.topic(), getFirmwareCampaign());
         }
     }

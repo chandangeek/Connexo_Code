@@ -31,6 +31,12 @@ public enum EventType {
             return super.addCustomProperties(eventTypeBuilder).withProperty("deviceGroupId", ValueType.LONG, "deviceGroup.id").shouldPublish();
         }
     },
+    FIRMWARE_CAMPAIGN_TIMEBOUNDARIES_UPDATED("firmwarecampaign/UPDATEDTIMEBOUNDARIES"){
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return super.addCustomProperties(eventTypeBuilder).shouldPublish();
+        }
+    },
     DEVICE_IN_FIRMWARE_CAMPAIGN_CREATED("firmwarecampaign/device/CREATED"){
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
@@ -47,6 +53,15 @@ public enum EventType {
         }
     },
     DEVICE_IN_FIRMWARE_CAMPAIGN_CANCEL("firmwarecampaign/device/CANCEL"){
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
+            return eventTypeBuilder
+                    .withProperty("deviceId", ValueType.LONG, "device.id")
+                    .withProperty("firmwareCampaignId", ValueType.LONG, "firmwareCampaign.id")
+                    .shouldPublish();
+        }
+    },
+    DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATE_TIME_BOUNDARIES("firmwarecampaign/device/UPDATETIMEBOUNDARIES"){
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
             return eventTypeBuilder

@@ -1,16 +1,22 @@
 package com.energyict.mdc.firmware;
 
 public enum FirmwareType {
-    COMMUNICATION("communication"),
-    METER("meter");
+    COMMUNICATION("communication", "Communication firmware"),
+    METER("meter", "Meter firmware");
 
     private String type;
+    private String description;
 
-    FirmwareType(String type) {
+    FirmwareType(String type, String description) {
         this.type = type;
+        this.description = description;
     }
 
     public String getType() {
         return type;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }
