@@ -96,17 +96,19 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
             items: [
                 {
                     text: Uni.I18n.translate('general.firmwareManagementOptions', 'MDC', 'Firmware management options'),
+                    privileges: Mdc.privileges.DeviceType.view,
                     itemId: 'firmwareoptionsLink',
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmware/options'
                 },
                 {
                     text: Uni.I18n.translate('general.firmwareVersions', 'MDC', 'Firmware versions'),
+                    privileges: Mdc.privileges.DeviceType.view,
                     itemId: 'firmwareversionsLink',
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmware/versions'
                 },
                 {
                     text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
-                    privileges: Mdc.privileges.DeviceType.admin,
+                    privileges: Mdc.privileges.DeviceType.view,
                     itemId: 'timeOfUseLink',
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/timeofuse'
                 }
@@ -122,7 +124,7 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
             items: [
                 {
                     text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
-                    privileges: Mdc.privileges.DeviceType.admin,
+                    privileges: Mdc.privileges.DeviceType.view,
                     itemId: 'timeOfUseLink',
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/timeofuse'
                 }

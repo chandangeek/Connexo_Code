@@ -15,7 +15,7 @@ Ext.define('Mdc.timeofuse.view.Preview', {
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                privileges: Mdc.privileges.DeviceType.admin,
+                privileges: Mdc.privileges.DeviceType.view,
                 iconCls: 'x-uni-action-iconD',
                 itemId: 'touPreviewMenuButton',
                 hidden: !me.timeOfUseAllowed,

@@ -2,6 +2,7 @@ Ext.define('Mdc.timeofuse.view.Specifications', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.tou-specifications-preview-panel',
     frame: false,
+    timeOfUseSupported: null,
     requires: [
         'Mdc.timeofuse.view.SpecificationsForm',
         'Mdc.timeofuse.view.SpecificationsActionMenu'
@@ -13,7 +14,8 @@ Ext.define('Mdc.timeofuse.view.Specifications', {
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                //privileges: Scs.privileges.ServiceCall.admin,
+                privileges: Mdc.privileges.DeviceType.admin,
+                disabled: !me.timeOfUseSupported,
                 iconCls: 'x-uni-action-iconD',
                 itemId: 'touSpecificationsButton',
                 menu: {

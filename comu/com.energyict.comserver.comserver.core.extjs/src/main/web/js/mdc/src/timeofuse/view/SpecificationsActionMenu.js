@@ -8,11 +8,8 @@ Ext.define('Mdc.timeofuse.view.SpecificationsActionMenu', {
         {
             itemId: 'edit-tou-specifications',
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            //privileges: Scs.privileges.ServiceCall.admin,
+            privileges: Mdc.privileges.DeviceType.admin,
             action: 'editspecifications'
-            //visible: function() {
-            //    return this.record.get('canCancel');
-            //}
         }
 
     ],

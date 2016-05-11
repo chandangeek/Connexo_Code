@@ -10,6 +10,7 @@ Ext.define('Mdc.timeofuse.view.Setup', {
 
     deviceTypeId: null,
     timeOfUseAllowed: null,
+    timeOfUseSupported: null,
 
     initComponent: function () {
         var me = this;
@@ -43,6 +44,7 @@ Ext.define('Mdc.timeofuse.view.Setup', {
                             items: [
                                 {
                                     xtype: 'tou-specifications-preview-panel',
+                                    timeOfUseSupported: me.timeOfUseSupported
                                 }
                             ]
                         },
@@ -53,7 +55,8 @@ Ext.define('Mdc.timeofuse.view.Setup', {
                                 {
                                     xtype: 'tou-devicetype-preview-container',
                                     deviceTypeId: me.deviceTypeId,
-                                    timeOfUseAllowed: me.timeOfUseAllowed
+                                    timeOfUseAllowed: me.timeOfUseAllowed,
+                                    timeOfUseSupported: me.timeOfUseSupported
                                 }
 
                             ]

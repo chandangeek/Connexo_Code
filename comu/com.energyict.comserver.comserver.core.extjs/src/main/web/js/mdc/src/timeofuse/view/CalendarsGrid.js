@@ -25,7 +25,7 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                privileges: Mdc.privileges.DeviceType.admin,
+                privileges: Mdc.privileges.DeviceType.view,
                 isDisabled: me.fnIsDisabled,
                 timeOfUseAllowed: me.timeOfUseAllowed,
                 menu: {
@@ -45,6 +45,7 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('tou.addTouCalendars', 'MDC', 'Add time of use calendars'),
+                        privileges: Mdc.privileges.DeviceType.admin,
                         itemId: 'add-tou-calendars-btn'
                     }
                 ],
