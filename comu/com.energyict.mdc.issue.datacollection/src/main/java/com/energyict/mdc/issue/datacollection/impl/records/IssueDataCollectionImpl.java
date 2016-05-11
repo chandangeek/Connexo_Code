@@ -82,7 +82,7 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
         Save.UPDATE.save(dataModel, this);
     }
 
-    public void delete(){
+    public void delete() {
         dataModel.remove(this);
     }
 
@@ -92,7 +92,7 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
 
     @Override
     public String getIssueId() {
-        return this.getBaseIssue().getIssueId();
+        return getBaseIssue().getIssueId();
     }
 
     @Override
@@ -189,12 +189,12 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     public void autoAssign() {
         getBaseIssue().autoAssign();
     }
-    
+
     @Override
     public Optional<ConnectionTask> getConnectionTask() {
         return connectionTask.getOptional();
     }
-    
+
     @Override
     public void setConnectionTask(ConnectionTask task) {
         connectionTask.set(task);
