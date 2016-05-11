@@ -69,11 +69,11 @@ public class WebServicesGogoCommands {
 
         try (TransactionContext context = transactionService.getContext()) {
             if (webServicesService.isInbound(webServiceName)) {
-                endPointConfigurationService.newInboundEndPoint(name, webServiceName, url)
+                endPointConfigurationService.newInboundEndPointConfiguration(name, webServiceName, url)
                         .logLevel(LogLevel.valueOf(logLevel))
                         .create();
             } else {
-                endPointConfigurationService.newOutboundEndPoint(name, webServiceName, url)
+                endPointConfigurationService.newOutboundEndPointConfiguration(name, webServiceName, url)
                         .logLevel(LogLevel.valueOf(logLevel))
                         .create();
             }

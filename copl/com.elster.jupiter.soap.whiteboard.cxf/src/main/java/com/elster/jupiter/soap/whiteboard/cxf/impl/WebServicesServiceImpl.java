@@ -1,11 +1,15 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.InboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.WebServicesService;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -13,7 +17,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,14 +30,20 @@ import java.util.stream.Collectors;
 public class WebServicesServiceImpl implements WebServicesService {
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
 
-    private Map<String, ManagedEndpoint> webServices = new HashMap<>();
+    private Map<String, WebService> webServices = new ConcurrentHashMap<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
-    private SoapProviderSupportFactory soapProviderSupportFactory;
+    private volatile SoapProviderSupportFactory soapProviderSupportFactory;
     private volatile BundleContext bundleContext;
+    private volatile DataModel dataModel;
 
     @Reference
     public void setSoapProviderSupportFactory(SoapProviderSupportFactory soapProviderSupportFactory) {
         this.soapProviderSupportFactory = soapProviderSupportFactory;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.dataModel = ormService.newDataModel("WebServicesService", "Injector for web services");
     }
 
     @Override
@@ -45,7 +54,8 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Override
     public void publishEndPoint(EndPointConfiguration endPointConfiguration) {
         if (webServices.containsKey(endPointConfiguration.getWebServiceName())) {
-            ManagedEndpoint managedEndpoint = webServices.get(endPointConfiguration.getWebServiceName());
+            ManagedEndpoint managedEndpoint = webServices.get(endPointConfiguration.getWebServiceName())
+                    .createEndpoint();
             managedEndpoint.publish(endPointConfiguration);
             endpoints.put(endPointConfiguration, managedEndpoint);
         } else {
@@ -81,12 +91,12 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     // called by whiteboard
     public void register(String name, InboundEndPointProvider endPointProvider) {
-        webServices.put(name, new InboundEndPoint(endPointProvider, soapProviderSupportFactory));
+        webServices.put(name, dataModel.getInstance(InboundWebServiceImpl.class).init(name, endPointProvider));
     }
 
     // called by whiteboard
     public void register(String name, OutboundEndPointProvider endPointProvider) {
-        webServices.put(name, new OutboundEndPoint(endPointProvider, bundleContext));
+        webServices.put(name, dataModel.getInstance(OutboundWebServiceImpl.class).init(name, endPointProvider));
     }
 
     // called by whiteboard
@@ -103,10 +113,23 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Activate
     public void start(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+        this.dataModel.register(this.getModule());
     }
 
     @Deactivate
     public void stop(BundleContext bundleContext) {
         endpoints.values().stream().forEach(ManagedEndpoint::stop);
     }
+
+    private Module getModule() {
+        return new AbstractModule() {
+            @Override
+            public void configure() {
+                bind(DataModel.class).toInstance(dataModel);
+                bind(BundleContext.class).toInstance(bundleContext);
+                bind(SoapProviderSupportFactory.class).toInstance(soapProviderSupportFactory);
+            }
+        };
+    }
+
 }

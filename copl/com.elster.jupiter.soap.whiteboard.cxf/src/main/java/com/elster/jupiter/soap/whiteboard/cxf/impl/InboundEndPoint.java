@@ -6,12 +6,12 @@ import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import org.apache.cxf.annotations.SchemaValidation;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.feature.validation.SchemaValidationFeature;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
 
-import javax.xml.ws.Endpoint;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +22,7 @@ public final class InboundEndPoint implements ManagedEndpoint {
     private final InboundEndPointProvider endPointProvider;
     private final SoapProviderSupportFactory soapProviderSupportFactory;
 
-    private Endpoint endpoint;
+    private Server endpoint;
 
     public InboundEndPoint(InboundEndPointProvider endPointProvider, SoapProviderSupportFactory soapProviderSupportFactory) {
         this.endPointProvider = endPointProvider;
@@ -41,11 +41,10 @@ public final class InboundEndPoint implements ManagedEndpoint {
             }
             Object implementor = endPointProvider.get();
             JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
-//            svrFactory.setServiceClass(HelloWorld.class);
             svrFactory.setAddress(endPointConfiguration.getUrl());
             svrFactory.setServiceBean(implementor);
             svrFactory.setFeatures(features);
-            svrFactory.create();
+            endpoint = svrFactory.create();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
