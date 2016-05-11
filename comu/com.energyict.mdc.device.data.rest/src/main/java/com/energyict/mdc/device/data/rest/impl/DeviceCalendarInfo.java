@@ -14,7 +14,7 @@ public class DeviceCalendarInfo {
 
     public List<String> passiveCalendars = new ArrayList<>();
     public CalendarInfo activeCalendar;
-    public CalendarInfoFactory calendarInfoFactory;
+    private CalendarInfoFactory calendarInfoFactory;
 
 
     public DeviceCalendarInfo(List<EffectiveCalendar> effectiveCalendars, CalendarInfoFactory calendarInfoFactory) {
