@@ -27,7 +27,6 @@ import static com.elster.jupiter.util.Checks.is;
 
 public class IssueDataCollectionImpl implements IssueDataCollection {
 
-    private final DataModel dataModel;
     private Reference<Issue> baseIssue = ValueReference.absent();
     private Reference<ComTaskExecution> comTask = ValueReference.absent();
     private Reference<ConnectionTask> connectionTask = ValueReference.absent();
@@ -36,12 +35,15 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     private Instant firstConnectionAttemptTimestamp;
     private Instant lastConnectionAttemptTimestamp;
     private long connectionAttempt;
+
     private long id;//do we need this id ? we have a reference to base issue instead...
     // Audit fields
     private long version;
     private Instant createTime;
     private Instant modTime;
     private String userName;
+
+    private final DataModel dataModel;
 
     @Inject
     public IssueDataCollectionImpl(DataModel dataModel) {
@@ -54,36 +56,6 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    @Override
-    public long getVersion() {
-        return getBaseIssue().getVersion();
-    }
-
-    @Override
-    public Instant getCreateTime() {
-        return createTime;
-    }
-
-    @Override
-    public Instant getModTime() {
-        return modTime;
-    }
-
-    @Override
-    public String getUserName() {
-        return userName;
-    }
-
-    @Override
-    public void update() {
-        getBaseIssue().update();
-        Save.UPDATE.save(dataModel, this);
-    }
-
-    public void delete() {
-        dataModel.remove(this);
     }
 
     protected Issue getBaseIssue() {
@@ -106,18 +78,8 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
-    public void setReason(IssueReason reason) {
-        getBaseIssue().setReason(reason);
-    }
-
-    @Override
     public IssueStatus getStatus() {
         return getBaseIssue().getStatus();
-    }
-
-    @Override
-    public void setStatus(IssueStatus status) {
-        getBaseIssue().setStatus(status);
     }
 
     @Override
@@ -131,11 +93,6 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
-    public void setDevice(EndDevice device) {
-        getBaseIssue().setDevice(device);
-    }
-
-    @Override
     public Optional<UsagePoint> getUsagePoint() {
         return getBaseIssue().getUsagePoint();
     }
@@ -146,23 +103,38 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
-    public void setDueDate(Instant dueDate) {
-        getBaseIssue().setDueDate(dueDate);
-    }
-
-    @Override
     public boolean isOverdue() {
         return getBaseIssue().isOverdue();
     }
 
     @Override
-    public void setOverdue(boolean overdue) {
-        getBaseIssue().setOverdue(overdue);
+    public CreationRule getRule() {
+        return getBaseIssue().getRule();
     }
 
     @Override
-    public CreationRule getRule() {
-        return getBaseIssue().getRule();
+    public void setReason(IssueReason reason) {
+        getBaseIssue().setReason(reason);
+    }
+
+    @Override
+    public void setStatus(IssueStatus status) {
+        getBaseIssue().setStatus(status);
+    }
+
+    @Override
+    public void setDevice(EndDevice device) {
+        getBaseIssue().setDevice(device);
+    }
+
+    @Override
+    public void setDueDate(Instant dueDate) {
+        getBaseIssue().setDueDate(dueDate);
+    }
+
+    @Override
+    public void setOverdue(boolean overdue) {
+        getBaseIssue().setOverdue(overdue);
     }
 
     @Override
@@ -236,16 +208,6 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
-    public Instant getFirstConnectionAttemptTimestamp() {
-        return firstConnectionAttemptTimestamp;
-    }
-
-    @Override
-    public void setFirstConnectionAttemptTimestamp(Instant firstConnectionAttemptTimestamp) {
-        this.firstConnectionAttemptTimestamp = firstConnectionAttemptTimestamp;
-    }
-
-    @Override
     public Instant getLastConnectionAttemptTimestamp() {
         return lastConnectionAttemptTimestamp;
     }
@@ -253,6 +215,16 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     @Override
     public void setLastConnectionAttemptTimestamp(Instant lastConnectionAttemptTimestamp) {
         this.lastConnectionAttemptTimestamp = lastConnectionAttemptTimestamp;
+    }
+
+    @Override
+    public Instant getFirstConnectionAttemptTimestamp() {
+        return firstConnectionAttemptTimestamp;
+    }
+
+    @Override
+    public void setFirstConnectionAttemptTimestamp(Instant firstConnectionAttemptTimestamp) {
+        this.firstConnectionAttemptTimestamp = firstConnectionAttemptTimestamp;
     }
 
     @Override
@@ -270,6 +242,7 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
         this.connectionAttempt = this.connectionAttempt + 1;
     }
 
+
     public void save() {
         if (getBaseIssue() != null) {
             this.setId(getBaseIssue().getId());
@@ -277,13 +250,38 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
         Save.CREATE.save(dataModel, this);
     }
 
-    protected DataModel getDataModel() {
-        return dataModel;
+    @Override
+    public void update() {
+        getBaseIssue().update();
+        Save.UPDATE.save(dataModel, this);
+    }
+
+    public void delete() {
+        dataModel.remove(this);
     }
 
     @Override
-    public final int hashCode() {
-        return Objects.hash(id);
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public Instant getModTime() {
+        return modTime;
+    }
+
+    @Override
+    public long getVersion() {
+        return getBaseIssue().getVersion();
+    }
+
+    @Override
+    public String getUserName() {
+        return userName;
+    }
+
+    protected DataModel getDataModel() {
+        return dataModel;
     }
 
     @Override
@@ -298,5 +296,10 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
         IssueDataCollectionImpl that = (IssueDataCollectionImpl) o;
 
         return this.id == that.id;
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(id);
     }
 }

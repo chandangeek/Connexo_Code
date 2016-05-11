@@ -1,17 +1,5 @@
 package com.energyict.mdc.issue.datacollection.impl.install;
 
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.impl.DataCollectionActionsFactory;
-import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
-import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
-import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction;
-import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction;
-import com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAction;
-import com.energyict.mdc.issue.datacollection.impl.database.CreateIssueViewOperation;
-import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
-import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEventDescription;
-import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
@@ -23,6 +11,17 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.impl.DataCollectionActionsFactory;
+import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction;
+import com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAction;
+import com.energyict.mdc.issue.datacollection.impl.database.CreateIssueViewOperation;
+import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
+import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEventDescription;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -45,14 +44,6 @@ public class Installer {
         this.messageService = messageService;
         this.dataModel = dataModel;
         this.eventService = eventService;
-    }
-
-    private static void run(Runnable runnable, String explanation) {
-        try {
-            runnable.run();
-        } catch (Exception stEx) {
-            LOG.warning("[" + IssueDataCollectionService.COMPONENT_NAME + "] Unable to install " + explanation);
-        }
     }
 
     public void install() {
@@ -123,6 +114,14 @@ public class Installer {
         issueService.createReason(ModuleConstants.REASON_TYME_SYNC_FAILED, issueType,
                 TranslationKeys.ISSUE_REASON_TIME_SYNC_FAILED, TranslationKeys.ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, CloseIssueAction.class.getName(), issueType, CreationRuleActionPhase.OVERDUE);
+    }
+
+    private static void run(Runnable runnable, String explanation) {
+        try {
+            runnable.run();
+        } catch (Exception stEx) {
+            LOG.warning("[" + IssueDataCollectionService.COMPONENT_NAME + "] Unable to install " + explanation);
+        }
     }
 
 }
