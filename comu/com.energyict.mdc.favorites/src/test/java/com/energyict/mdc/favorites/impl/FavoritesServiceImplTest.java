@@ -35,6 +35,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -126,6 +128,7 @@ public class FavoritesServiceImplTest {
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -226,16 +229,6 @@ public class FavoritesServiceImplTest {
     @After
     public void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();
-    }
-
-    @Test
-    public void testInstall() {
-        FavoritesServiceImpl favDevicesServiceImpl = (FavoritesServiceImpl) favoritesService;
-        assertThat(favDevicesServiceImpl.getPrerequisiteModules()).contains("ORM", "USR", "NLS", "MTG", "DDC");
-
-        //double installation
-        favDevicesServiceImpl.install();
-        //no exceptions
     }
 
     @Test
