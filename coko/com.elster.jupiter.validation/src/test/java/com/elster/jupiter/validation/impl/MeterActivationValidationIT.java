@@ -232,7 +232,7 @@ public class MeterActivationValidationIT {
 
     private void createRuleSet(ReadingType readingType) {
         try (TransactionContext context = transactionService.getContext()) {
-            validationRuleSet = (IValidationRuleSet) validationService.createValidationRuleSet("forTest");
+            validationRuleSet = (IValidationRuleSet) validationService.createValidationRuleSet("forTest", "MDC");
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("First, Last and Always", Instant.EPOCH);
             ValidationRule validationRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, "autoPass", "autoPass")
                     .withReadingType(readingType)

@@ -213,20 +213,13 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
-    public ValidationRuleSet createValidationRuleSet(String name) {
-        return createValidationRuleSet(name, null);
+    public ValidationRuleSet createValidationRuleSet(String name, String applicationName) {
+        return createValidationRuleSet(name, applicationName, null);
     }
 
     @Override
-    public ValidationRuleSet createValidationRuleSet(String name, String description) {
-        ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, description);
-        set.save();
-        return set;
-    }
-
-    @Override
-    public ValidationRuleSet createValidationRuleSet(String name, String description, String application) {
-        ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, description, application);
+    public ValidationRuleSet createValidationRuleSet(String name, String applicationName, String description) {
+        ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, applicationName, description);
         set.save();
         return set;
     }

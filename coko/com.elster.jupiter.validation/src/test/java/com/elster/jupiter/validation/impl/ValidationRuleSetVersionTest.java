@@ -37,6 +37,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
     private static final long ID = 651L;
     private static final long OTHER_ID = 426294L;
     private static final String NAME = "name";
+    private static final String APPLICATION = "MDC";
     private ValidationRuleSetImpl validationRuleSet;
     private ValidationRuleSetVersionImpl validationRuleSetVersion;
 
@@ -80,7 +81,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(queryExecutor);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
-        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, null, null);
+        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, APPLICATION, null);
         validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet, null, null);
     }
     @After

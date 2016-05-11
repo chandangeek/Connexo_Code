@@ -26,11 +26,9 @@ public interface ValidationService {
      * Management of ruleSets and rules *
      */
 
-    ValidationRuleSet createValidationRuleSet(String name);
+    ValidationRuleSet createValidationRuleSet(String name, String applicationName);
 
-    ValidationRuleSet createValidationRuleSet(String name, String description);
-
-    ValidationRuleSet createValidationRuleSet(String name, String description, String application);
+    ValidationRuleSet createValidationRuleSet(String name, String applicationName, String description);
 
     List<ValidationRuleSet> getValidationRuleSets();
 
