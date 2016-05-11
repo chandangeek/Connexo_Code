@@ -3,6 +3,7 @@ package com.energyict.mdc.device.topology.impl;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
@@ -25,6 +26,7 @@ import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -354,6 +356,15 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     }
 
     @Override
+    public Optional<Channel> getSlaveChannel(Channel dataLoggerChannel, Instant when) {
+        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerChannel).get(),when).map((dataLoggerChannelUsage) -> {
+            Device slaveDevice = dataLoggerChannelUsage.getDataLoggerReference().getOrigin();
+            ReadingType slaveChannelReadingType = dataLoggerChannelUsage.getSlaveChannel().getMainReadingType();
+            return slaveDevice.getChannels().stream().filter((channel)-> channel.getReadingType() == slaveChannelReadingType).findFirst().get();
+        });
+    }
+
+    @Override
     public boolean isReferenced(Channel dataLoggerChannel) {
         return this.isReferenced(getMeteringChannel(dataLoggerChannel).get());
     }
@@ -366,6 +377,16 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         Condition gateway =  where(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.fieldName()).isEqualTo(dataLoggerChannel);
         Condition effective = where(DataLoggerChannelUsageImpl.Field.PHYSICALGATEWAYREF.fieldName() + "." + AbstractPhysicalGatewayReferenceImpl.Field.INTERVAL.fieldName()).isEffective();
         return dataModel.query(DataLoggerChannelUsage.class, PhysicalGatewayReference.class).select(gateway.and(effective));
+    }
+
+    private Optional<DataLoggerChannelUsage> findDataLoggerChannelUsage(com.elster.jupiter.metering.Channel dataLoggerChannel, Instant when){
+        Condition gateway =  where(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.fieldName()).isEqualTo(dataLoggerChannel);
+        Condition effective = where(DataLoggerChannelUsageImpl.Field.PHYSICALGATEWAYREF.fieldName() + "." + AbstractPhysicalGatewayReferenceImpl.Field.INTERVAL.fieldName()).isEffective(when);
+        List<DataLoggerChannelUsage> found = dataModel.query(DataLoggerChannelUsage.class, PhysicalGatewayReference.class).select(gateway.and(effective));
+        if (found.isEmpty()){
+            return Optional.empty();
+        }
+        return Optional.of(found.get(0));
     }
 
     private Condition getDevicesInTopologyCondition(Device device) {
@@ -388,6 +409,10 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final com.energyict.mdc.device.data.Channel channel){
         return channel.getDevice().getCurrentMeterActivation().get().getChannels().stream().filter((x)-> x.getMainReadingType() == channel.getReadingType()).findFirst();
+    }
+
+    Optional<Channel> getMdcChannel(final Device device, final com.elster.jupiter.metering.Channel meteringChannel){
+        return device.getChannels().stream().filter((channel) -> channel.getReadingType() == meteringChannel.getMainReadingType()).findFirst();
     }
 
     private void terminateTemporal(PhysicalGatewayReference gatewayReference, Instant now) {

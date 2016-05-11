@@ -246,6 +246,14 @@ public interface TopologyService {
     List<Device> findDataLoggerSlaves(Device dataLogger);
 
     /**
+     * @param dataLoggerChannel
+     * @param when Time at which the link should be effective
+     * @return an Optional channel of the slave device to which the data logger channel is linked. Optional<empty> if the $
+     * dataLogger channel is not linked
+     */
+    Optional<Channel> getSlaveChannel(Channel dataLoggerChannel, Instant when);
+
+    /**
      * Checks wether a (datalogger Channel) is referenced
      * @param dataLoggerChannel channel to inspect
      * @return true if the channel is already present as gateway channel in one or more DataLoggerChannelUsages

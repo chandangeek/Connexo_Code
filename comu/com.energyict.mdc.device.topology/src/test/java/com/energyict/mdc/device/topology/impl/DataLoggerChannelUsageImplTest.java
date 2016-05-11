@@ -485,6 +485,44 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         dataLogger.delete();
     }
 
+    @Test
+    @Transactional
+    public void getSlaveChannelTestForLinkedDataLoggerChannel(){
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave2Device();
+
+        Device slave2 = createSecondSlave("slave2");
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+
+        HashMap<Channel, Channel> channelMapping = new HashMap<>();
+        channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping);
+
+        assertThat(inMemoryPersistence.getTopologyService().getSlaveChannel(dataLogger.getChannels().get(0),  Instant.now())).isPresent();
+
+        slave2.delete();
+        dataLogger.delete();
+    }
+
+    @Test
+    @Transactional
+    public void getSlaveChannelTestForNotLinkedDataLoggerChannel(){
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlave2Device();
+
+        Device slave2 = createSecondSlave("slave2");
+        Device dataLogger = createDataLoggerDevice("dataLogger");
+
+        HashMap<Channel, Channel> channelMapping = new HashMap<>();
+        channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping);
+
+        assertThat(inMemoryPersistence.getTopologyService().getSlaveChannel(dataLogger.getChannels().get(1),  Instant.now())).isEmpty();
+
+        slave2.delete();
+        dataLogger.delete();
+    }
+
     @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void dataLoggerChannelUsedTwiceTest() {
