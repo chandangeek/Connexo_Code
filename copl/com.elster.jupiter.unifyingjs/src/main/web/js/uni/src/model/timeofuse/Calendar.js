@@ -64,5 +64,17 @@ Ext.define('Uni.model.timeofuse.Calendar', {
                 return 'Uni.model.timofuse.DaysPerType';
             }
         }
-    ]
+    ],
+
+    proxy: {
+        type: 'rest',
+        timeout: 120000,
+        reader: {
+            type: 'json'
+        },
+
+        setUrl: function(url) {
+            this.url = url;
+        }
+    }
 });

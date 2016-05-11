@@ -6,7 +6,6 @@ Ext.define('Uni.view.search.field.Simple', {
     ],
 
     //reset: function() {
-    //    debugger;
     //    this.down('uni-search-internal-criterialine').reset();
     //    this.callParent(arguments);
     //},
