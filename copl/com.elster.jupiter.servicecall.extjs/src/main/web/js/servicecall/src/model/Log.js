@@ -1,7 +1,9 @@
 Ext.define('Scs.model.Log', {
     extend: 'Ext.data.Model',
+    requires: ['Uni.DateTime'],
     fields: [
-        'logLevel', 'message',
+        'logLevel',
+        'message',
         {
             name: 'timestamp',
             dateFormat: 'time',
@@ -13,10 +15,10 @@ Ext.define('Scs.model.Log', {
             convert: function (value, record) {
                 var timestamp = record.get('timestamp');
                 if (timestamp && (timestamp !== 0)) {
-                    return Uni.DateTime.formatDateTimeShort(new Date(timestamp));
+                    return Uni.DateTime.formatDateTime(new Date(timestamp), Uni.DateTime.SHORT, Uni.DateTime.LONG);
                 }
                 return '-';
             }
-        },
+        }
     ]
 });
