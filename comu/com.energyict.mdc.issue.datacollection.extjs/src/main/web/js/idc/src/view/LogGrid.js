@@ -3,6 +3,7 @@ Ext.define('Idc.view.LogGrid', {
     alias: 'widget.issue-details-log-grid',
     store: null,
     ui: 'medium',
+    requires: [ 'Uni.DateTime' ],
     maxHeight: 408,
     columns: [
         {
@@ -10,7 +11,7 @@ Ext.define('Idc.view.LogGrid', {
             dataIndex: 'timestamp',
             flex: 1,
             renderer: function (value) {
-                return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                return value ? Uni.DateTime.formatDateTime(value, Uni.DateTime.SHORT, Uni.DateTime.LONG) : '-';
             }
         },
         {
