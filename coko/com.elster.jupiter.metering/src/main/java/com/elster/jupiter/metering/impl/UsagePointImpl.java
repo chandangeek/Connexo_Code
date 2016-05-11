@@ -31,8 +31,8 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -94,6 +94,7 @@ public class UsagePointImpl implements UsagePoint {
     private Instant installationTime;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceDeliveryRemark;
+    private ConnectionState connectionState = ConnectionState.UNDER_CONSTRUCTION;
     private long version;
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -101,11 +102,10 @@ public class UsagePointImpl implements UsagePoint {
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
-    @SuppressWarnings("unused")
     private long location;
 
     private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
-    private TemporalReference<UsagePointMetrologyConfiguration> metrologyConfiguration = Temporals.absent();
+    private TemporalReference<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration = Temporals.absent();
 
     // associations
     private final Reference<ServiceCategory> serviceCategory = ValueReference.absent();
@@ -180,12 +180,6 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public long getId() {
         return id;
-    }
-
-    @Override
-    public long getServiceLocationId() {
-        Optional<ServiceLocation> location = getServiceLocation();
-        return location.isPresent() ? location.get().getId() : 0L;
     }
 
     @Override
@@ -477,7 +471,7 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when) {
         return this.metrologyConfiguration.effective(when)
-                .map(UsagePointMetrologyConfiguration::getMetrologyConfiguration);
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
     }
 
     @Override
@@ -485,7 +479,7 @@ public class UsagePointImpl implements UsagePoint {
         return this.metrologyConfiguration
                 .effective(period)
                 .stream()
-                .map(UsagePointMetrologyConfiguration::getMetrologyConfiguration)
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                 .collect(Collectors.toList());
     }
 
@@ -499,13 +493,13 @@ public class UsagePointImpl implements UsagePoint {
         this.removeMetrologyConfiguration(when);
         this.metrologyConfiguration.add(
                 this.dataModel
-                        .getInstance(UsagePointMetrologyConfigurationImpl.class)
+                        .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
                         .initAndSave(this, metrologyConfiguration, when));
     }
 
     @Override
     public void removeMetrologyConfiguration(Instant when) {
-        Optional<UsagePointMetrologyConfiguration> current = this.metrologyConfiguration.effective(this.clock.instant());
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> current = this.metrologyConfiguration.effective(this.clock.instant());
         if (current.isPresent()) {
             if (!current.get().getRange().contains(when)) {
                 throw new IllegalArgumentException("Time of metrology configuration removal is before it was actually applied");
@@ -524,7 +518,12 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public ConnectionState getConnectionState() {
-        return ConnectionState.UNDER_CONSTRUCTION;
+        return connectionState;
+    }
+
+    @Override
+    public void setConnectionState(ConnectionState connectionState) {
+        this.connectionState = connectionState;
     }
 
     @Override
@@ -711,8 +710,9 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public long getLocationId() {
-        Optional<Location> location = getLocation();
-        return location.isPresent() ? location.get().getId() : 0L;
+//        Optional<Location> location = getLocation();
+//        return location.isPresent() ? location.get().getId() : 0L;
+        return location;
     }
 
     @Override
@@ -721,8 +721,8 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void setUpLocation(Location location){
-        this.upLocation.set(location);
+    public void setLocation(long locationId){
+        this.location = locationId;
     }
 
     @Override

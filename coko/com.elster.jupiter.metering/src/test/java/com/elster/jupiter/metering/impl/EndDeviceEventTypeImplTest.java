@@ -1,125 +1,50 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.UtilModule;
-
 import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceEventTypeImplTest extends EqualsContractTest {
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
 
-    private Injector injector;
-
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private UserService userService;
-    @Mock
-    private Principal principal;
-    @Mock
-    private EventAdmin eventAdmin;
-    @Mock
-    private DataModel dataModel;
-    @Mock
-    private Thesaurus thesaurus;
-
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-    private EndDeviceEventTypeImpl instanceA;
-
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-        }
+    @BeforeClass
+    public static void beforeClass() {
+        inMemoryBootstrapModule.activate();
     }
 
-    @Before
-    public void setUp() throws SQLException {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new MeteringModule(),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(principal),
-                new PubSubModule(),
-                new TransactionModule(),
-                new BpmModule(),
-                new FiniteStateMachineModule(),
-                new NlsModule(),
-                new CustomPropertySetsModule());
-        when(principal.getName()).thenReturn("Test");
-        injector.getInstance(TransactionService.class).execute(() -> {
-            injector.getInstance(CustomPropertySetService.class);
-            injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(MeteringService.class);
-            return null;
-        });
-    }
-
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void afterClass() {
         inMemoryBootstrapModule.deactivate();
     }
 
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
+
+    private EndDeviceEventTypeImpl instanceA;
+
     @Test
     public void testPersist() throws SQLException {
-    	final ServerMeteringService meteringService = getMeteringService();
+        final ServerMeteringService meteringService = getMeteringService();
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
@@ -129,15 +54,14 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
                 assertThat(found.get()).isEqualTo(endDeviceEventType);
             }
         });
-
     }
 
     private ServerMeteringService getMeteringService() {
-        return injector.getInstance(ServerMeteringService.class);
+        return inMemoryBootstrapModule.getMeteringService();
     }
 
     private TransactionService getTransactionService() {
-        return injector.getInstance(TransactionService.class);
+        return inMemoryBootstrapModule.getTransactionService();
     }
 
     @Override
@@ -146,7 +70,7 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
     }
 
     private EndDeviceEventTypeImpl createEndDeviceEventType() {
-    	return new EndDeviceEventTypeImpl(dataModel, thesaurus);
+        return new EndDeviceEventTypeImpl(getMeteringService().getDataModel(), getMeteringService().getThesaurus());
     }
 
     @Override
@@ -165,10 +89,10 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         return ImmutableList.of(
-        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.GAS_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode()),
-        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.CLOCK).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode()),
-        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.TIME).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode()),
-        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.INCREASED).toCode())
+                createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.GAS_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode()),
+                createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.CLOCK).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode()),
+                createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.TIME).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode()),
+                createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.INCREASED).toCode())
         );
     }
 

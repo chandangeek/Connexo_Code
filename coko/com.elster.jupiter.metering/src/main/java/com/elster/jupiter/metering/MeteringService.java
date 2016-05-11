@@ -7,9 +7,13 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+
+import aQute.bnd.annotation.ProviderType;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -137,7 +141,30 @@ public interface MeteringService {
 
     Finder<ReadingType> getReadingTypesByMridFilter(@NotNull ReadingTypeMridFilter filter);
 
+    /**
+     * Creates a new {@link MultiplierType} with the specified name.
+     *
+     * @param name The required name
+     * @return The newly created MultiplierType
+     */
     MultiplierType createMultiplierType(String name);
+
+    /**
+     * Creates a new {@link MultiplierType} whose name is
+     * determined by the specified NlsKey.
+     *
+     * @param name The required nameKey
+     * @return The newly created MultiplierType
+     */
+    MultiplierType createMultiplierType(NlsKey name);
+
+    /**
+     * Gets the {@link MultiplierType} that was created by default.
+     *
+     * @param standardType The StandardType of interest
+     * @return The MultiplierType
+     */
+    MultiplierType getMultiplierType(MultiplierType.StandardType standardType);
 
     Optional<MultiplierType> getMultiplierType(String name);
 

@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.impl.cps.UsagePointTestCustomPropertySet;
@@ -51,7 +53,10 @@ public class MetrologyConfigurationCPSUsageTestIT {
 
     private MetrologyConfiguration getMetrologyConfiguration() {
         return findMetrologyConfiguration()
-                .orElseGet(() -> inMemoryBootstrapModule.getMetrologyConfigurationService().newMetrologyConfiguration(METROLOGY_CONFIG_NAME));
+                .orElseGet(() -> {
+                    Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+                    return inMemoryBootstrapModule.getMetrologyConfigurationService().newMetrologyConfiguration(METROLOGY_CONFIG_NAME, serviceCategory.get()).create();
+                });
     }
 
     private Optional<MetrologyConfiguration> findMetrologyConfiguration() {

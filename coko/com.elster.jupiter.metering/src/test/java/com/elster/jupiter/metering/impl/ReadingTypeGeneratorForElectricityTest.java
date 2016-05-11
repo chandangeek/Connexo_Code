@@ -1,152 +1,88 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.pubsub.Subscriber;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.config.FormulaImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementImpl;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.UtilModule;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
+import com.elster.jupiter.util.conditions.Condition;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.sql.SQLException;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeGeneratorForElectricityTest {
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
 
-    private Injector injector;
-
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private UserService userService;
-    @Mock
-    private EventAdmin eventAdmin;
-    @Mock
-    private Subscriber topicHandler;
-
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-        }
+    @BeforeClass
+    public static void beforeClass() {
+        inMemoryBootstrapModule.activate();
     }
 
-    @Before
-    public void setUp() throws SQLException {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new MeteringModule(),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new BpmModule(),
-                new FiniteStateMachineModule(),
-                new NlsModule(),
-                new CustomPropertySetsModule()
-        );
-        injector.getInstance(TransactionService.class).execute(() -> {
-            injector.getInstance(CustomPropertySetService.class);
-            injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(MeteringServiceImpl.class);
-            return null;
-        });
-    }
-
-    @After
-    public void tearDown() throws SQLException {
+    @AfterClass
+    public static void afterClass() {
         inMemoryBootstrapModule.deactivate();
     }
 
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
+
     @Test
+    @Transactional
     public void generateTest() {
-        getTransactionService().execute(new VoidTransaction(){
-            @Override
-            protected void doPerform() {
-                assertThat(getMeteringService().getAvailableReadingTypes()).hasSize(0).overridingErrorMessage("We should have started with 0 reading types");
 
-                ReadingTypeGeneratorForElectricity readingTypeGeneratorForElectricity = new ReadingTypeGeneratorForElectricity();
-                List<Pair<String, String>> readingTypes = readingTypeGeneratorForElectricity.generateReadingTypes();
-                getMeteringService().createAllReadingTypes(readingTypes);
+        ReadingTypeGeneratorForElectricity readingTypeGeneratorForElectricity = new ReadingTypeGeneratorForElectricity();
+        List<Pair<String, String>> readingTypes = readingTypeGeneratorForElectricity.generateReadingTypes();
+        getMeteringService().createAllReadingTypes(readingTypes);
+        List<String> availableReadingTypes = getMeteringService().getAvailableReadingTypes().stream().map(ReadingType::getMRID).collect(Collectors.toList());
 
-                assertThat(getMeteringService().getAvailableReadingTypes()).hasSize(readingTypes.size()).overridingErrorMessage("Expected " + readingTypes.size() + " reading types");
-            }
-        });
-
+        assertThat(readingTypes.stream()
+                .allMatch(rt -> availableReadingTypes.stream().anyMatch(e -> e.equalsIgnoreCase(rt.getFirst()))))
+                .isTrue();
     }
 
     @Test
+    @Transactional
     public void aliasPrefixTest() {
-        getTransactionService().execute(new VoidTransaction(){
-            @Override
-            protected void doPerform() {
+        ReadingTypeGeneratorForElectricity readingTypeGeneratorForElectricity = new ReadingTypeGeneratorForElectricity();
+        List<Pair<String, String>> readingTypes = readingTypeGeneratorForElectricity.generateReadingTypes();
+        getMeteringService().createAllReadingTypes(readingTypes);
 
-                ReadingTypeGeneratorForElectricity readingTypeGeneratorForElectricity = new ReadingTypeGeneratorForElectricity();
-                List<Pair<String, String>> readingTypes = readingTypeGeneratorForElectricity.generateReadingTypes();
-                getMeteringService().createAllReadingTypes(readingTypes);
-
-                getMeteringService().getAvailableReadingTypes().stream().forEach(readingType ->
-                {
-                    if(readingType.getAccumulation().equals(Accumulation.DELTADELTA)){
-                        assertThat(readingType.getFullAliasName().contains("Delta ")).isTrue();
-                    } else if(readingType.getAccumulation().equals(Accumulation.BULKQUANTITY)){
-                        assertThat(readingType.getFullAliasName().contains("Bulk ")).isTrue();
-                    } else if(readingType.getAccumulation().equals(Accumulation.SUMMATION)){
-                        assertThat(readingType.getFullAliasName().contains("Sum ")).isTrue();
-                    }
-                });
+        getMeteringService().getAvailableReadingTypes().stream().forEach(readingType ->
+        {
+            if (readingType.getAccumulation().equals(Accumulation.DELTADELTA)) {
+                assertThat(readingType.getFullAliasName().contains("Delta ")).isTrue();
+            } else if (readingType.getAccumulation().equals(Accumulation.BULKQUANTITY)) {
+                assertThat(readingType.getFullAliasName().contains("Bulk ")).isTrue();
+            } else if (readingType.getAccumulation().equals(Accumulation.SUMMATION)) {
+                assertThat(readingType.getFullAliasName().contains("Sum ")).isTrue();
             }
         });
     }
 
     private MeteringServiceImpl getMeteringService() {
-        return injector.getInstance(MeteringServiceImpl.class);
-    }
-
-    private TransactionService getTransactionService() {
-        return injector.getInstance(TransactionService.class);
+        return (MeteringServiceImpl) inMemoryBootstrapModule.getMeteringService();
     }
 }
