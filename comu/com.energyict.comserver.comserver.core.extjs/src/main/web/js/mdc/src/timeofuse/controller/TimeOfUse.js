@@ -333,10 +333,22 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     showPreview: function (selectionModel, record) {
         var me = this,
             preview = me.getPreview(),
-            previewForm = preview.down('devicetype-tou-preview-form');
+            previewForm = preview.down('devicetype-tou-preview-form'),
+            model = Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar');
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         if (record.get('ghost') !== true) {
-            previewForm.fillFieldContainers(record.getCalendar());
+            model.getProxy().setUrl('/api/dtc/devicetypes/' + me.deviceTypeId + '/timeofuse');
+            previewForm.setLoading(true);
+            model.load(record.getCalendar().get('id'), {
+                success: function (calendar) {
+                    previewForm.fillFieldContainers(calendar);
+                    previewForm.setLoading(false);
+                },
+                failure: function () {
+                    previewForm.setLoading(false);
+                }
+            });
+
         } else {
             previewForm.showEmptyMessage();
         }
