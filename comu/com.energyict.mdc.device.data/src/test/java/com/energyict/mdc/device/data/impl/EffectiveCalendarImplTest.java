@@ -27,7 +27,7 @@ public class EffectiveCalendarImplTest extends PersistenceIntegrationTest {
         Calendar calendar = createCalendar();
         DeviceType deviceType = device.getDeviceConfiguration().getDeviceType();
         deviceType.addCalendar(calendar);
-        device.setEffectiveCalendars(Collections.singletonList(new PassiveEffectiveCalendarImpl(deviceType.getAllowedCalendars().get(0),Interval.forever(),device, Instant.now())));
+        device.setEffectiveCalendars(Collections.singletonList(new PassiveEffectiveCalendarImpl().init(deviceType.getAllowedCalendars().get(0),Interval.forever(),device, Instant.now())));
         return device;
     }
 

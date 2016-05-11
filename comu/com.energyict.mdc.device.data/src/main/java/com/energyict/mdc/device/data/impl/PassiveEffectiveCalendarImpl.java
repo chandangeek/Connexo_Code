@@ -21,8 +21,13 @@ public class PassiveEffectiveCalendarImpl extends EffectiveCalendarImpl implemen
     }
 
     @Inject
-    public PassiveEffectiveCalendarImpl(AllowedCalendar calendar, Interval interval, Device device, Instant activationDate) {
-        super(calendar, interval, device);
+    public PassiveEffectiveCalendarImpl() {
+        super();
+    }
+
+    public PassiveEffectiveCalendarImpl init(AllowedCalendar calendar, Interval interval, Device device, Instant activationDate) {
+        PassiveEffectiveCalendarImpl passiveEffectiveCalendar = (PassiveEffectiveCalendarImpl) super.init(calendar, interval, device);
         this.activationDate = activationDate;
+        return passiveEffectiveCalendar;
     }
 }

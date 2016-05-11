@@ -67,10 +67,16 @@ public abstract class EffectiveCalendarImpl implements EffectiveCalendar {
         return builder.build();
     }
 
-    @Inject
-    public EffectiveCalendarImpl(AllowedCalendar allowedCalendar, Interval interval, Device device) {
+
+    public EffectiveCalendarImpl init (AllowedCalendar allowedCalendar, Interval interval, Device device) {
         this.allowedCalendar.set(allowedCalendar);
         this.interval = interval;
         this.device.set(device);
+        return this;
+    }
+
+    @Inject
+    public EffectiveCalendarImpl() {
+
     }
 }

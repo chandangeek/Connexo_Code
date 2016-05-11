@@ -10,8 +10,15 @@ import javax.inject.Inject;
 public class ActiveEffectiveCalendarImpl extends EffectiveCalendarImpl implements ActiveEffectiveCalendar {
     static final String TYPE_IDENTIFIER = "AEC";
 
+
     @Inject
-    public ActiveEffectiveCalendarImpl (AllowedCalendar calendar, Interval interval, Device device) {
-        super(calendar, interval, device);
+    public ActiveEffectiveCalendarImpl () {
+        super();
+    }
+
+
+    public ActiveEffectiveCalendarImpl init (AllowedCalendar calendar, Interval interval, Device device) {
+        ActiveEffectiveCalendarImpl activeEffectiveCalendar = (ActiveEffectiveCalendarImpl) super.init(calendar, interval, device);
+        return activeEffectiveCalendar;
     }
 }
