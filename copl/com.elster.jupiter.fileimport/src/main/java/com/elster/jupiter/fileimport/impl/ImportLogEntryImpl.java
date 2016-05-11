@@ -1,8 +1,8 @@
 package com.elster.jupiter.fileimport.impl;
 
 
-import com.elster.jupiter.fileimport.ImportLogEntry;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.ImportLogEntry;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;

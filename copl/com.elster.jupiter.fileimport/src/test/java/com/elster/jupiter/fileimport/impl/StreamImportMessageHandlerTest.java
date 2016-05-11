@@ -10,6 +10,16 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.logging.Logger;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,13 +29,9 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Optional;
-
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -71,10 +77,17 @@ public class StreamImportMessageHandlerTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DataModel dataModel;
 
+    @Mock
+    private Connection connection;
+    @Mock
+    private Savepoint savepoint;
+
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         when(clock.instant()).thenReturn(Instant.now());
         when(fileImportOccurrence.getId()).thenReturn(FILE_IMPORT_ID);
+        when(fileImportOccurrence.getCurrentConnection()).thenReturn(connection);
+        when(fileImportOccurrence.getLogger()).thenReturn(Logger.getAnonymousLogger());
         fileImportMessage = new FileImportMessage(fileImportOccurrence);
         when(message.getPayload()).thenReturn(PAYLOAD);
         when(jsonService.deserialize(aryEq(PAYLOAD), eq(FileImportMessage.class))).thenReturn(fileImportMessage);
@@ -94,9 +107,22 @@ public class StreamImportMessageHandlerTest {
     }
 
     @Test
-    public void testProcessPassesFileImportToFileImporter() {
+    public void testProcessPassesFileImportToFileImporter() throws SQLException {
         streamImportMessageHandler.process(message);
         verify(fileImporter).process(fileImportOccurrence);
+        verify(connection).setSavepoint();
+    }
+
+    @Test
+    public void testHandlerUsesSavePointToPartiallyRollBack() throws SQLException {
+        when(connection.setSavepoint()).thenReturn(savepoint);
+        doThrow(new RuntimeException("fooled you!!")).when(fileImporter).process(fileImportOccurrence);
+
+        streamImportMessageHandler.process(message);
+        verify(connection).setSavepoint();
+        verify(connection).rollback(savepoint);
+
+
     }
 
 }
