@@ -19,9 +19,13 @@ Ext.define('Bpm.view.task.bulk.TaskGroupPreview', {
             itemId: 'task-execute-form',
             items: [
                 {
-                    xtype: 'property-form'
+                    xtype: 'property-form',
+                    defaults: {
+                        labelWidth: 250,
+                        width: 268
+                    }
                 }
             ]
-        }    ]
+        }]
 });
 
