@@ -2,7 +2,14 @@ package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.AssigneeType;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueForAssign;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
@@ -23,20 +30,25 @@ import java.util.Optional;
 import static com.elster.jupiter.util.Checks.is;
 
 public class IssueImpl extends EntityImpl implements Issue {
-    private static final String DEFAULT_ISSUE_PREFIX = "ISS";
     private Instant dueDate;
     private Reference<IssueReason> reason = ValueReference.absent();
     private Reference<IssueStatus> status = ValueReference.absent();
+
     private IssueAssigneeImpl assignee;
     private boolean overdue;
+
     //work around
     private AssigneeType assigneeType;
     private Reference<User> user = ValueReference.absent();
+
     private Reference<EndDevice> device = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<CreationRule> rule = ValueReference.absent();
+
     private volatile IssueService issueService;
     private volatile IssueAssignmentService issueAssignmentService;
+
+    private static final String DEFAULT_ISSUE_PREFIX = "ISU";
 
     @Inject
     public IssueImpl(DataModel dataModel, IssueService issueService){
@@ -85,11 +97,13 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public IssueAssigneeImpl getAssignee() {
-        if (assignee == null && assigneeType != null) {
-            assignee = assigneeType.getAssignee(this);
-        }
-        return assignee;
+    public Instant getDueDate() {
+        return dueDate;
+    }
+
+    @Override
+    public void setDueDate(Instant dueDate) {
+        this.dueDate = dueDate;
     }
 
     @Override
@@ -103,26 +117,13 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public Optional<UsagePoint> getUsagePoint() {
-        EndDevice endDevice = getDevice();
-        if (endDevice != null && Meter.class.isInstance(endDevice)) {
-            Meter meter = Meter.class.cast(endDevice);
-            Optional<? extends MeterActivation> meterActivation = meter.getCurrentMeterActivation();
-            if (meterActivation.isPresent()) {
-                return meterActivation.get().getUsagePoint();
-            }
-        }
-        return Optional.empty();
+    public CreationRule getRule() {
+        return rule.orNull();
     }
 
     @Override
-    public Instant getDueDate() {
-        return dueDate;
-    }
-
-    @Override
-    public void setDueDate(Instant dueDate) {
-        this.dueDate = dueDate;
+    public void setRule(CreationRule rule) {
+        this.rule.set(rule);
     }
 
     @Override
@@ -136,13 +137,28 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public CreationRule getRule() {
-        return rule.orNull();
+    public IssueAssigneeImpl getAssignee() {
+        if (assignee == null && assigneeType != null) {
+            assignee = assigneeType.getAssignee(this);
+        }
+        return assignee;
     }
 
-    @Override
-    public void setRule(CreationRule rule) {
-        this.rule.set(rule);
+    public User getUser() {
+        return user.orNull();
+    }
+
+    public void setAssigneeType(AssigneeType assigneeType) {
+        this.assigneeType = assigneeType;
+    }
+
+    public void setUser(User user) {
+        this.user.set(user);
+    }
+
+    protected void resetAssignee() {
+        assigneeType = null;
+        setUser(null);
     }
 
     @Override
@@ -178,24 +194,21 @@ public class IssueImpl extends EntityImpl implements Issue {
         issueAssignmentService.assignIssue(Collections.singletonList(wrapper));
     }
 
-    public User getUser() {
-        return user.orNull();
-    }
-
-    public void setUser(User user) {
-        this.user.set(user);
-    }
-
-    public void setAssigneeType(AssigneeType assigneeType) {
-        this.assigneeType = assigneeType;
-    }
-
-    protected void resetAssignee() {
-        assigneeType = null;
-        setUser(null);
+    @Override
+    public Optional<UsagePoint> getUsagePoint() {
+        EndDevice endDevice = getDevice();
+        if (endDevice != null && Meter.class.isInstance(endDevice)) {
+            Meter meter = Meter.class.cast(endDevice);
+            Optional<? extends MeterActivation> meterActivation = meter.getCurrentMeterActivation();
+            if (meterActivation.isPresent()) {
+                return meterActivation.get().getUsagePoint();
+            }
+        }
+        return Optional.empty();
     }
 
     protected IssueService getIssueService() {
         return issueService;
     }
 }
+

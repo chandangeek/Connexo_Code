@@ -4,6 +4,8 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.issue.impl.IssueFilterImpl;
+import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
@@ -34,8 +36,6 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.impl.IssueFilterImpl;
-import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
@@ -60,6 +60,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.kie.api.io.KieResources;
@@ -87,12 +88,12 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue",
-    service = {IssueService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class},
-    property = {"name=" + IssueService.COMPONENT_NAME,
+        service = {IssueService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class},
+        property = {"name=" + IssueService.COMPONENT_NAME,
                 "osgi.command.scope=issue",
                 "osgi.command.function=rebuildAssignmentRules",
                 "osgi.command.function=loadAssignmentRuleFromFile"},
-    immediate = true)
+        immediate = true)
 public class IssueServiceImpl implements IssueService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
@@ -256,13 +257,13 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
 
     @Override
-    public String getComponentName() {
-        return IssueService.COMPONENT_NAME;
+    public Layer getLayer() {
+        return Layer.DOMAIN;
     }
 
     @Override
-    public Layer getLayer() {
-        return Layer.DOMAIN;
+    public String getComponentName() {
+        return IssueService.COMPONENT_NAME;
     }
 
     @Override
@@ -294,6 +295,10 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         }
     }
 
+    public Map<String, CreationRuleTemplate> getCreationRuleTemplates() {
+        return creationRuleTemplates;
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addIssueActionFactory(IssueActionFactory issueActionFactory) {
         issueActionFactories.put(issueActionFactory.getId(), issueActionFactory);
@@ -303,6 +308,11 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         issueActionFactories.remove(issueActionFactory.getId());
     }
 
+    @Override
+    public Map<String, IssueActionFactory> getIssueActionFactories() {
+        return issueActionFactories;
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addIssueProvider(IssueProvider issueProvider) {
         issueProviders.add(issueProvider);
@@ -310,6 +320,11 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
 
     public void removeIssueProvider(IssueProvider issueProvider) {
         issueProviders.remove(issueProvider);
+    }
+
+    @Override
+    public List<IssueProvider> getIssueProviders() {
+        return issueProviders;
     }
 
     @Override
@@ -391,6 +406,10 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         return issueType;
     }
 
+    private <T extends Entity> Optional<T> find(Class<T> clazz, Object... key) {
+        return queryService.wrap(dataModel.query(clazz)).get(key);
+    }
+
     @Override
     public <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers) {
         QueryExecutor<T> queryExecutor = dataModel.query(clazz, eagers);
@@ -419,16 +438,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
 
     @Override
-    public List<IssueProvider> getIssueProviders() {
-        return issueProviders;
-    }
-
-    @Override
-    public List<IssueCreationValidator> getIssueCreationValidators() {
-        return issueCreationValidators;
-    }
-
-    @Override
     public IssueActionService getIssueActionService() {
         return issueActionService;
     }
@@ -443,13 +452,52 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         return issueCreationService;
     }
 
-    public Map<String, CreationRuleTemplate> getCreationRuleTemplates() {
-        return creationRuleTemplates;
+    @Override
+    public String getModuleName() {
+        return IssueService.COMPONENT_NAME;
     }
 
     @Override
-    public Map<String, IssueActionFactory> getIssueActionFactories() {
-        return issueActionFactories;
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, Privileges.RESOURCE_ISSUES.getKey(), Privileges.RESOURCE_ISSUES_DESCRIPTION.getKey(),
+                Arrays.asList(
+                        Privileges.Constants.VIEW_ISSUE, Privileges.Constants.COMMENT_ISSUE,
+                        Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.ASSIGN_ISSUE,
+                        Privileges.Constants.ACTION_ISSUE
+                )));
+        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, Privileges.RESOURCE_ISSUES_CONFIGURATION.getKey(), Privileges.RESOURCE_ISSUES_CONFIGURATION_DESCRIPTION.getKey(),
+                Arrays.asList(
+                        Privileges.Constants.VIEW_CREATION_RULE,
+                        Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_ASSIGNMENT_RULE
+                )));
+        return resources;
+    }
+
+    public void rebuildAssignmentRules() {
+        issueAssignmentService.rebuildAssignmentRules();
+    }
+
+    public void loadAssignmentRuleFromFile(String absolutePath) {
+        issueAssignmentService.loadAssignmentRuleFromFile(absolutePath);
+    }
+
+    public DataModel getDataModel() {
+        return dataModel;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addIssueCreationValidator(IssueCreationValidator issueCreationValidator) {
+        issueCreationValidators.add(issueCreationValidator);
+    }
+
+    public void removeIssueCreationValidator(IssueCreationValidator issueCreationValidator) {
+        issueCreationValidators.remove(issueCreationValidator);
+    }
+
+    @Override
+    public List<IssueCreationValidator> getIssueCreationValidators() {
+        return issueCreationValidators;
     }
 
     @Override
@@ -482,53 +530,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     @Override
     public IssueGroupFilter newIssueGroupFilter() {
         return new IssueGroupFilterImpl();
-    }
-
-    private <T extends Entity> Optional<T> find(Class<T> clazz, Object... key) {
-        return queryService.wrap(dataModel.query(clazz)).get(key);
-    }
-
-    @Override
-    public String getModuleName() {
-        return IssueService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, Privileges.RESOURCE_ISSUES.getKey(), Privileges.RESOURCE_ISSUES_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_ISSUE, Privileges.Constants.COMMENT_ISSUE,
-                        Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.ASSIGN_ISSUE,
-                        Privileges.Constants.ACTION_ISSUE
-                        )));
-        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, Privileges.RESOURCE_ISSUES_CONFIGURATION.getKey(), Privileges.RESOURCE_ISSUES_CONFIGURATION_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_CREATION_RULE,
-                        Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_ASSIGNMENT_RULE
-                )));
-        return resources;
-    }
-
-    public void rebuildAssignmentRules() {
-        issueAssignmentService.rebuildAssignmentRules();
-    }
-
-    public void loadAssignmentRuleFromFile(String absolutePath) {
-        issueAssignmentService.loadAssignmentRuleFromFile(absolutePath);
-    }
-
-    public DataModel getDataModel() {
-        return dataModel;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addIssueCreationValidator(IssueCreationValidator issueCreationValidator) {
-        issueCreationValidators.add(issueCreationValidator);
-    }
-
-    public void removeIssueCreationValidator(IssueCreationValidator issueCreationValidator) {
-        issueCreationValidators.remove(issueCreationValidator);
     }
 
     private List<Class<?>> determineMainApiClass(IssueFilter filter) {

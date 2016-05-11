@@ -12,7 +12,6 @@ import javax.validation.constraints.Size;
 import java.util.Objects;
 
 public final class IssueTypeImpl extends EntityImpl implements IssueType {
-    private final Thesaurus thesaurus;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String key;
@@ -22,6 +21,8 @@ public final class IssueTypeImpl extends EntityImpl implements IssueType {
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 3, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String prefix;
+
+    private final Thesaurus thesaurus;
 
     @Inject
     public IssueTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
