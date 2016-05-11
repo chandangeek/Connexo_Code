@@ -44,7 +44,7 @@ public class CalendarResource {
     public List<CalendarInfo> getAllTimeOfUseCalendars() {
        return calendarService.findAllCalendars()
                .stream()
-               .map(calendarInfoFactory::detailedFromCalendar)
+               .map(calendarInfoFactory::summaryFromCalendar)
                .collect(Collectors.toList());
     }
 
@@ -67,7 +67,6 @@ public class CalendarResource {
     }
 
     private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
-        calendarService.newCalendar(calendar.getName(), calendar.getTimeZone(), Year.of(localDate.getYear()));
         return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);
     }
 
