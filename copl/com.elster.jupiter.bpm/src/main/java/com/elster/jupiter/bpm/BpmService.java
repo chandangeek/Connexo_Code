@@ -61,4 +61,5 @@ public interface BpmService {
 
     Optional<ProcessAssociationProvider> getProcessAssociationProvider(String type);
 
+    ProcessInstanceInfos getRunningProcesses(String authorization, String filter);
 }

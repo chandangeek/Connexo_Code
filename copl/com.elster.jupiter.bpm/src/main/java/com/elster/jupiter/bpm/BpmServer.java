@@ -2,9 +2,6 @@ package com.elster.jupiter.bpm;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.io.IOException;
-import java.util.Optional;
-
 /**
  * Copyrights EnergyICT
  * Date: 23/09/2014
@@ -26,4 +23,6 @@ public interface BpmServer {
     String doGet(String resourceURL);
 
     String doGet(String resourceURL, String authorization);
+
+    ProcessInstanceInfos getRunningProcesses(String authorization, String filter);
 }
