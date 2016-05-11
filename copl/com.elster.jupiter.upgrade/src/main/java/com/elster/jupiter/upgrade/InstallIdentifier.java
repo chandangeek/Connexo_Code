@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public final class InstallIdentifier {
 
-    private static Pattern IDENTIFIER_VALID_PATTERN = Pattern.compile("[A-Z]{3}");
+    private static Pattern IDENTIFIER_VALID_PATTERN = Pattern.compile("[A-Z][A-Z0-9]{2}");
 
     private final String identifier;
 
@@ -18,7 +18,7 @@ public final class InstallIdentifier {
         this.identifier = identifier;
     }
 
-    public static final InstallIdentifier identifier(String identifier) {
+    public static InstallIdentifier identifier(String identifier) {
         return new InstallIdentifier(identifier);
     }
 
