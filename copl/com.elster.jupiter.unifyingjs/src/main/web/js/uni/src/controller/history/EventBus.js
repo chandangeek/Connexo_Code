@@ -93,7 +93,7 @@ Ext.define('Uni.controller.history.EventBus', {
         }
         if (Uni.util.History.isParsePath() || pathChanged) {
             crossroads.parse(token);
- //           this.setPreviousQueryString(null);
+            //this.setPreviousQueryString(null);
         } else if (queryStringChanged) {
             Uni.util.QueryString.changed(queryString);
         }
