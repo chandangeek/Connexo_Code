@@ -275,7 +275,7 @@ public class ReadingEstimateTest {
         EstimationRuleSet ruleSet = null;
         EstimationRule rule = null;
         try (TransactionContext ctx = transactionService.getContext()) {
-            ruleSet = estimationService.createEstimationRuleSet("testRuleSet");
+            ruleSet = estimationService.createEstimationRuleSet("testRuleSet", "MDC");
             rule = ruleSet.addRule(IMPLEMENTATION, "testRule")
                     .withReadingType(readingType)
                     .active(true)

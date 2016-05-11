@@ -34,11 +34,9 @@ public interface EstimationService {
 
     EstimationResult previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType, Estimator estimator);
 
-    EstimationRuleSet createEstimationRuleSet(String name);
+    EstimationRuleSet createEstimationRuleSet(String name, String applicationName);
 
-    EstimationRuleSet createEstimationRuleSet(String name, String description);
-
-    EstimationRuleSet createEstimationRuleSet(String name, String description, String application);
+    EstimationRuleSet createEstimationRuleSet(String name, String applicationName, String description);
 
     List<? extends EstimationRuleSet> getEstimationRuleSets();
 

@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleBuilder;
@@ -50,8 +51,9 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     private Instant obsoleteTime;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class})
     @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    private String application;
+    private String applicationName;
 
     private long version;
     private Instant createTime;
@@ -75,20 +77,14 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
         this.validationRuleProvider = validationRuleProvider;
     }
 
-    EstimationRuleSetImpl init(String name) {
-        return init(name,null);
+    EstimationRuleSetImpl init(String name, String applicationName) {
+        return init(name, applicationName, null);
     }
 
-    EstimationRuleSetImpl init(String name, String description) {
+    EstimationRuleSetImpl init(String name, String applicationName, String description) {
         this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
+        this.applicationName = Checks.is(applicationName).emptyOrOnlyWhiteSpace() ? null : applicationName.trim();
         this.description = description;
-        return this;
-    }
-
-    EstimationRuleSetImpl init(String name, String description, String application) {
-        this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
-        this.description = description;
-        this.application = application;
         return this;
     }
 

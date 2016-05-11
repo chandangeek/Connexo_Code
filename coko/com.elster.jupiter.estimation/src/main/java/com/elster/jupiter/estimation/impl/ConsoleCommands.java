@@ -30,6 +30,7 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -102,11 +103,11 @@ public class ConsoleCommands {
                 .forEach(System.out::println);
     }
 
-    public void createRuleSet(String name) {
+    public void createRuleSet(String name, String applicationName) {
         threadPrincipalService.set(() -> "Console");
         try {
             transactionService.execute(VoidTransaction.of(() -> {
-                EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet(name);
+                EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet(name, applicationName);
                 estimationRuleSet.save();
                 System.out.println(print(estimationRuleSet));
             }));
