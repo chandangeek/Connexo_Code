@@ -21,6 +21,7 @@ import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
@@ -459,16 +460,24 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private DateTimeFormatter getLongDateFormatForCurrentUser(){
         UserPreferencesService preferencesService = this.userService.getUserPreferencesService();
         Principal principal = threadPrincipalService.getPrincipal();
-        String dateFormat = "HH:mm:ss EEE dd MMM ''yy"; // default backend date format
+        String dateTimeFormat = "HH:mm:ss EEE dd MMM ''yy"; // default backend date format
         Locale locale = Locale.ENGLISH;
         if (principal instanceof User){
-            Optional<UserPreference> dateFormatPref = preferencesService.getPreferenceByKey((User) principal, FormatKey.LONG_DATETIME);
-            if (dateFormatPref.isPresent()){
-                dateFormat = dateFormatPref.get().getFormatBE();
+            Optional<UserPreference> dateFormatPref = preferencesService.getPreferenceByKey((User) principal, FormatKey.LONG_DATE);
+            Optional<UserPreference> timeFormatPref = preferencesService.getPreferenceByKey((User) principal, FormatKey.LONG_TIME);
+            Optional<UserPreference> orderFormatPref = preferencesService.getPreferenceByKey((User) principal, FormatKey.DATETIME_ORDER);
+            Optional<UserPreference> separatorFormatPref = preferencesService.getPreferenceByKey((User) principal, FormatKey.DATETIME_SEPARATOR);
+            if (dateFormatPref.isPresent() && timeFormatPref.isPresent() && orderFormatPref.isPresent() && separatorFormatPref.isPresent()) {
+                dateTimeFormat = DateTimeFormatGenerator.getDateTimeFormat(
+                    dateFormatPref.get().getFormatBE(),
+                    timeFormatPref.get().getFormatBE(),
+                    orderFormatPref.get().getFormatBE(),
+                    separatorFormatPref.get().getFormatBE()
+                );
             }
             locale = ((User) principal).getLocale().orElse(locale);
         }
         DateTimeFormatterBuilder formatterBuilder = new DateTimeFormatterBuilder();
-        return formatterBuilder.appendPattern(dateFormat).toFormatter(locale);
+        return formatterBuilder.appendPattern(dateTimeFormat).toFormatter(locale);
     }
 }
