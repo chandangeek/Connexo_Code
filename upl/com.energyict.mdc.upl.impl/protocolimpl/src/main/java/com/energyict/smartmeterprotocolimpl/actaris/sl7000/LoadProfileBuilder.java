@@ -20,6 +20,7 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -44,6 +45,8 @@ public class LoadProfileBuilder {
     private static final int EV_ALL_CLOCK_SETTINGS = 0x30;
     private static final int EV_POWER_FAILURE = 0x40;
     private static final int EV_START_OF_MEASUREMENT = 0x80;
+
+    private static SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     /**
      * Load profile information summary object, holding scaler and unit of each channel
@@ -216,21 +219,30 @@ public class LoadProfileBuilder {
                 profile = this.meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
                 profileData = new ProfileData(lpr.getLoadProfileId());
                 profileData.setChannelInfos(this.channelInfoMap.get(lpr));
+                ProfileLimiter limiter = new ProfileLimiter(lpr.getStartReadingTime(), lpr.getEndReadingTime() == null ? new Date() : lpr.getEndReadingTime(), getLimitMaxNrOfDays());
+                this.meterProtocol.getLogger().log(Level.INFO, "Retrieving LoadProfile data for profile " + lpr.getProfileObisCode() +
+                        " for period [" + DATE_FORMATTER.format(limiter.getFromDate()) + " - " + DATE_FORMATTER.format(limiter.getToDate()) + "].");
 
-                Calendar fromCalendar = Calendar.getInstance(meterProtocol.getTimeZone());
-                fromCalendar.setTime(lpr.getStartReadingTime());
-                roundCalendarToMidnight(fromCalendar, false);
-
-                Calendar toCalendar = Calendar.getInstance(meterProtocol.getTimeZone());
-                toCalendar.setTime(lpr.getEndReadingTime() == null ? new Date() : lpr.getEndReadingTime());
-                roundCalendarToMidnight(toCalendar, true);
-
-                DataContainer dataContainer = profile.getBuffer(fromCalendar, toCalendar);
+                DataContainer dataContainer = profile.getBuffer(limiter.getFromCalendar(meterProtocol.getTimeZone()), limiter.getToCalendar(meterProtocol.getTimeZone()));
                 buildProfileData(dataContainer, profileData, lpr, lpc);
+
+                // If there are no intervals in the profile, read the profile data again, but now with limitMaxNrOfDays increased with the value of Custom Property limitMaxNrOfDays property
+                // This way we can prevent the profile to be stuck at a certain date if there is a gap in the profile bigger than the limitMaxNrOfDays.
+                while ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0) && (limiter.getOriginalToDate().getTime() >= limiter.getToDate().getTime())) {
+                    limiter = new ProfileLimiter(lpr.getStartReadingTime(), lpr.getEndReadingTime() == null ? new Date() : lpr.getEndReadingTime(), limiter.getLimitMaxNrOfDays() + getLimitMaxNrOfDays());
+                    this.meterProtocol.getLogger().log(Level.INFO, "Retrieved no LoadProfile data for profile " + lpr.getProfileObisCode() +
+                            " - re-retrieving data for period [" + DATE_FORMATTER.format(limiter.getFromDate()) + " - " + DATE_FORMATTER.format(limiter.getToDate()) + "].");
+                    dataContainer = profile.getBuffer(limiter.getFromCalendar(meterProtocol.getTimeZone()), limiter.getToCalendar(meterProtocol.getTimeZone()));
+                    buildProfileData(dataContainer, profileData, lpr, lpc);
+                }
                 profileDataList.add(profileData);
             }
         }
         return profileDataList;
+    }
+
+    private int getLimitMaxNrOfDays() {
+        return meterProtocol.getProperties().getLimitMaxNrOfDays();
     }
 
     protected void buildProfileData(DataContainer dataContainer, ProfileData profileData, LoadProfileReader lpr, LoadProfileConfiguration lpc) throws IOException {
