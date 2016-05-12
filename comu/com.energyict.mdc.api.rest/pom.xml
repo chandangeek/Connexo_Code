@@ -179,6 +179,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps.rest</artifactId>
+        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>
@@ -262,11 +266,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>parties</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps.rest</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
