@@ -15,6 +15,7 @@ public class UserTaskInfo {
     public String createdOn;
     public String actualOwner = "";
     public String processInstancesId;
+    public String optLock;
     public boolean isAssignedToCurrentUser;
 
     public UserTaskInfo() {
@@ -34,6 +35,7 @@ public class UserTaskInfo {
             this.createdOn = jsonObject.isNull("createdOn") ? "" : jsonObject.getString("createdOn");
             this.actualOwner = jsonObject.isNull("actualOwner") ? "" : jsonObject.getString("actualOwner");
             this.isAssignedToCurrentUser = (!currentUser.isEmpty() && this.actualOwner.equals(currentUser));
+            this.optLock = jsonObject.getString("optLock").equals("-1") ? "" : jsonObject.getString("optLock");
         } catch (JSONException e) {
         }
     }
