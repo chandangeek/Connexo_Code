@@ -23,6 +23,8 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -48,7 +50,9 @@ import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.Optional;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -155,6 +159,8 @@ public class InMemoryPersistence {
         this.licenseService = mock(LicenseService.class);
         this.userService = mock(UserService.class);
         this.meteringService = mock(MeteringService.class);
+
+        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
     }
 
     private DataModel createNewProtocolPluggableService() {
@@ -172,7 +178,9 @@ public class InMemoryPersistence {
                         this.customPropertySetService,
                         this.licenseService,
                         this.dataVaultService,
-                        this.transactionService);
+                        this.transactionService,
+                        UpgradeModule.FakeUpgradeService.getInstance()
+                        );
         this.protocolPluggableService.addInboundDeviceProtocolService(this.inboundDeviceProtocolService);
         this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
         this.protocolPluggableService.addDeviceCacheMarshallingService(this.deviceCacheMarshallingService);
@@ -231,6 +239,7 @@ public class InMemoryPersistence {
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
 
     }
