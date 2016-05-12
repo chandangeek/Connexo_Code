@@ -1,4 +1,4 @@
-package com.elster.jupiter.soap.whiteboard.cxf.impl;
+package com.elster.jupiter.soap.whiteboard.cxf.impl.gogo;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.EndPointConfigurationService;
@@ -9,6 +9,12 @@ import com.elster.jupiter.transaction.TransactionService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 4/29/16.
@@ -49,14 +55,22 @@ public class WebServicesGogoCommands {
     }
 
     public void services() {
-        webServicesService.getWebServices().stream().forEach(System.out::println);
+        List<List<?>> collect = webServicesService.getWebServices()
+                .stream()
+                .map(Collections::singletonList)
+                .collect(toList());
+        collect.add(0, Collections.singletonList("Web service"));
+        new MysqlPrint().printTableWithHeader(collect);
     }
 
     public void endpoints() {
-        endPointConfigurationService.findEndPointConfigurations()
+        List<List<?>> collect = endPointConfigurationService.findEndPointConfigurations()
                 .stream()
-                .forEach(ep -> System.out.println(ep.getName() + (ep.isActive() ? " serving " : " will serve ") + ep.getWebServiceName() + " on " + ep
-                        .getUrl()));
+                .map(ep -> Arrays.asList(ep.getName(), ep.getWebServiceName(), ep.getUrl(), ep.isActive()))
+                .collect(toList());
+        collect.add(0, Arrays.asList("Endpoint", "Web service", "URL", "Active"));
+        new MysqlPrint().printTableWithHeader(collect);
+
     }
 
     public void endpoint() {
