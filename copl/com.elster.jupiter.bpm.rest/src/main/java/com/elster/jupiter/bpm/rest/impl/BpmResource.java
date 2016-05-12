@@ -6,6 +6,10 @@ import com.elster.jupiter.bpm.BpmProcessPrivilege;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
+import com.elster.jupiter.bpm.ProcessInstanceInfo;
+import com.elster.jupiter.bpm.ProcessInstanceInfos;
+import com.elster.jupiter.bpm.UserTaskInfo;
+import com.elster.jupiter.bpm.UserTaskInfos;
 import com.elster.jupiter.bpm.rest.AssigneeFilterListInfo;
 import com.elster.jupiter.bpm.rest.BpmProcessNotAvailable;
 import com.elster.jupiter.bpm.rest.BpmResourceAssignUserException;
@@ -24,15 +28,11 @@ import com.elster.jupiter.bpm.rest.ProcessHistoryInfos;
 import com.elster.jupiter.bpm.rest.ProcessInstanceNodeInfos;
 import com.elster.jupiter.bpm.rest.ProcessesPrivilegesInfo;
 import com.elster.jupiter.bpm.rest.PropertyUtils;
-import com.elster.jupiter.bpm.ProcessInstanceInfo;
-import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.bpm.rest.StartupInfo;
 import com.elster.jupiter.bpm.rest.TaskBulkReportInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfos;
 import com.elster.jupiter.bpm.rest.TaskGroupsInfos;
-import com.elster.jupiter.bpm.UserTaskInfo;
-import com.elster.jupiter.bpm.UserTaskInfos;
 import com.elster.jupiter.bpm.rest.TaskOutputContentInfo;
 import com.elster.jupiter.bpm.rest.VariableInfos;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
@@ -42,6 +42,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -263,8 +264,7 @@ public class BpmResource {
     @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
-    public UserTaskInfos getTask(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter filterX, @HeaderParam("Authorization") String auth) {
-    public TaskInfos getTask(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter filterX, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
+    public UserTaskInfos getTask(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter filterX, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String jsonContent;
         int total = -1;
