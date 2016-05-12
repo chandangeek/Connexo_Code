@@ -29,8 +29,8 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.privileges.Monitor',
         'Mdc.privileges.UsagePoint',
         'Scs.privileges.ServiceCall',
+        'Mdc.privileges.Monitor',
         'Mdc.privileges.MetrologyConfiguration'
-
     ],
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
