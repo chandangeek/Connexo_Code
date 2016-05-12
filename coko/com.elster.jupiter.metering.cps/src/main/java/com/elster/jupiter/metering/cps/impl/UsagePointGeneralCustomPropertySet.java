@@ -99,7 +99,7 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
                 .named(UsagePointGeneralDomainExtension.Fields.MARKET_CODE_SECTOR.javaName(), TranslationKeys.CPS_GENERAL_PROPERTIES_MARKET_CODE_SECTOR)
                 .describedAs(TranslationKeys.CPS_GENERAL_PROPERTIES_MARKED_CODE_SECTOR_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("BE", "NL", "UK")
+                .addValues("Industrial & Commercial", "Domestic")
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .markRequired()
                 .finish();
@@ -108,7 +108,7 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
                 .named(UsagePointGeneralDomainExtension.Fields.METERING_POINT_TYPE.javaName(), TranslationKeys.CPS_GENERAL_PROPERTIES_METERING_POINT_TYPE)
                 .describedAs(TranslationKeys.CPS_GENERAL_PROPERTIES_METERING_POINT_TYPE_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("BE", "NL", "UK")
+                .addValues("E17 - Consumption", "E18 - Production", "E19 - Combined", "E20 - Exchange")
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .markRequired()
                 .finish();

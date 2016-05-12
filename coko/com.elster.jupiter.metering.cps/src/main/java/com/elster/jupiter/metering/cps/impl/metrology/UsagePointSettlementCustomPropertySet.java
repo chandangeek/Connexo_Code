@@ -97,7 +97,7 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
                 .named(UsagePointSettlementDomExt.Fields.SETTLEMENT_METHOD.javaName(), TranslationKeys.CPS_SETTLEMENT_METHOD)
                 .describedAs(TranslationKeys.CPS_SETTLEMENT_METHOD_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("NL", "BE", "UK", "NA")
+                .addValues("E01 - Profiled", "E02 - Non-Profiled", "E15 - Non-Profiled Netted")
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .markRequired()
                 .finish();

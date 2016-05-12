@@ -91,7 +91,7 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
                 .stringSpec()
                 .named(UsagePointContDomainExtension.Fields.BILLING_CYCLE.javaName(), TranslationKeys.CPS_CONTRACTUAL_BILLING_CYCLE)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("Monthly", "Yearly", "Billing month")
+                .addValues("Monthly", "Yearly")
                 .markRequired()
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();

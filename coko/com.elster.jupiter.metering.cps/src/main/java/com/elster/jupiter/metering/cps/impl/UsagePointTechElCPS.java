@@ -96,14 +96,14 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
                 .named(UsagePointTechElDomExt.FieldNames.CROSS_SECTIONAL_AREA.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_CROSS_SECTIONAL_AREA)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_CROSS_SECTIONAL_AREA_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("EU", "NA")
+                .addValues("x mm\u00b2")
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
         PropertySpec volatageLevelSpec = propertySpecService
                 .stringSpec()
                 .named(UsagePointTechElDomExt.FieldNames.VOLTAGE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_VOLTAGE_LEVEL)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("low", "medium", "high")
+                .addValues("Low", "Medium", "High")
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
 

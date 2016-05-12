@@ -91,7 +91,7 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
                 .named(UsagePointMeterTechInfAllDomExt.Fields.METER_MECHANISM.javaName(), TranslationKeys.CPS_METER_TECH_MECHANISM)
                 .describedAs(TranslationKeys.CPS_METER_TECH_MECHANISM_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("CR -Credit", "MT -Mechanical Token", "ET -Electronic Token", "CM -Coin", "PP -Prepayment", "TH -Thrift", "U -Unknown", "NS - SMETS non-compliant", "S1 - SMETS Version 1", "S2 - SMETS Version 2")
+                .addValues("CR - Credit", "MT - Mechanical Token", "ET - Electronic Token", "CM - Coin", "PP - Prepayment", "TH - Thrift", "U - Unknown", "NS - SMETS non-compliant", "S1 - SMETS Version 1", "S2 - SMETS Version 2")
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
         PropertySpec meterTypeSpec = propertySpecService

@@ -119,7 +119,7 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
                 .stringSpec()
                 .named(UsagePointDecentProdDomExt.Fields.DEC_PROD.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_TYPE_OF_DECENTRALIZED_PRODUCTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("solar", "wind", "other")
+                .addValues("Solar", "Wind", "Other")
                 .markRequired()
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();

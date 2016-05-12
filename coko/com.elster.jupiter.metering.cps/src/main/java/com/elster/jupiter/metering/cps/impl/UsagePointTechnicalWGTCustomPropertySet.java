@@ -90,7 +90,7 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
                 .named(UsagePointTechnicalWGTDomExt.Fields.PIPE_SIZE.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_SIZE)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_SIZE_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("EU", "UK", "NA")
+                .addValues("Flens - Dn40", "Flens - Dn50", "Flens - Dn80", "Flens - Dn100", "Flens - Dn150", "Flens - Dn200", "Schroefdraad - G 1/2\"", "Schroefdraad - G 3/4\"", "Schroefdraad - G 1\"", "Schroefdraad - G 1\" 1/4", "Schroefdraad - G 1\" 1/2", "Schroefdraad - G 1\" 3/4", "Schroefdraad - G 2\"")
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
         PropertySpec pipeTypeSpec = propertySpecService
@@ -105,7 +105,7 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
                 .stringSpec()
                 .named(UsagePointTechnicalWGTDomExt.Fields.PRESSURE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PRESSURE_LEVEL)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("low", "medium", "high")
+                .addValues("Low", "Medium", "High")
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
         return Arrays.asList(pipeSizeSpec,
