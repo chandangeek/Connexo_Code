@@ -1,13 +1,13 @@
 package com.elster.partners.connexo.filters.flow;
 
 import com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthorizationManager;
-import com.elster.partners.connexo.filters.flow.identity.ConnexoFlowRestProxyManager;
 import com.elster.partners.connexo.filters.generic.ConnexoAbstractSSOFilter;
-import com.elster.partners.connexo.filters.generic.ConnexoAuthenticationRequestWrapper;
 import com.elster.partners.connexo.filters.generic.ConnexoPrincipal;
-import org.jboss.solder.core.Veto;
-import org.uberfire.security.Role;
-import org.uberfire.security.impl.RoleImpl;
+import org.jboss.errai.security.shared.api.Group;
+import org.jboss.errai.security.shared.api.GroupImpl;
+import org.jboss.errai.security.shared.api.Role;
+import org.jboss.errai.security.shared.api.RoleImpl;
+import org.uberfire.commons.services.cdi.Veto;
 import org.uberfire.security.server.cdi.SecurityFactory;
 
 import javax.servlet.FilterChain;
@@ -18,8 +18,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.uberfire.security.server.SecurityConstants.LOGOUT_URI;
 
@@ -49,12 +49,14 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
                 redirectToLogout(request, response);
             }
             else {
-                List<Role> roles = new ArrayList<>();
+                Set<Role> roles = new HashSet<>();
+                Set<Group> groups = new HashSet<>();
                 for(String role : principal.getRoles()) {
                     roles.add(new RoleImpl(role));
+                    groups.add(new GroupImpl(role));
                 }
 
-                ConnexoUberfireSubject subject = new ConnexoUberfireSubject(principal.getName(), roles);
+                ConnexoUberfireSubject subject = new ConnexoUberfireSubject(principal.getName(), groups, roles);
 
                 SecurityFactory.setSubject(subject);
                 SecurityFactory.setAuthzManager(new ConnexoAuthorizationManager());

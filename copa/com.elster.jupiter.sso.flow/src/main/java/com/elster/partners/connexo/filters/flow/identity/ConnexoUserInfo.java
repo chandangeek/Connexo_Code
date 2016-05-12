@@ -1,16 +1,16 @@
 package com.elster.partners.connexo.filters.flow.identity;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.jboss.solder.core.Veto;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.User;
 import org.kie.internal.task.api.TaskModelProvider;
 import org.kie.internal.task.api.UserInfo;
 import org.kie.internal.task.api.model.InternalOrganizationalEntity;
+import org.uberfire.commons.services.cdi.Veto;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Veto
 public class ConnexoUserInfo implements UserInfo {

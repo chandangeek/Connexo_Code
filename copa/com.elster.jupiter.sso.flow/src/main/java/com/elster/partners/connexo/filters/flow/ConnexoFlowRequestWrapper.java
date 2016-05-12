@@ -1,20 +1,20 @@
 package com.elster.partners.connexo.filters.flow;
 
-import org.jboss.solder.core.Veto;
-import org.uberfire.security.Subject;
-import org.uberfire.security.impl.RoleImpl;
+import org.jboss.errai.security.shared.api.RoleImpl;
+import org.jboss.errai.security.shared.api.identity.User;
+import org.uberfire.commons.services.cdi.Veto;
 
-import java.security.Principal;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import java.security.Principal;
 
 @Veto
 public class ConnexoFlowRequestWrapper extends HttpServletRequestWrapper {
 
-    private final Subject subject;
+    private final User subject;
     private final HttpServletRequest realRequest;
 
-    public ConnexoFlowRequestWrapper(Subject subject, HttpServletRequest request) {
+    public ConnexoFlowRequestWrapper(User subject, HttpServletRequest request) {
         super(request);
         this.subject = subject;
         this.realRequest = request;
@@ -25,7 +25,7 @@ public class ConnexoFlowRequestWrapper extends HttpServletRequestWrapper {
         if (subject == null || subject.getRoles().isEmpty()) {
             return this.realRequest.isUserInRole(role);
         }
-        return subject.hasRole(new RoleImpl(role));
+        return subject.getRoles().contains(new RoleImpl(role));
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ConnexoFlowRequestWrapper extends HttpServletRequestWrapper {
         return new Principal() {
             @Override
             public String getName() {
-                return subject.getName();
+                return subject.getIdentifier();
             }
         };
     }

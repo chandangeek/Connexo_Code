@@ -1,37 +1,43 @@
 package com.elster.partners.connexo.filters.flow;
 
-import org.jboss.solder.core.Veto;
-import org.uberfire.security.Role;
-import org.uberfire.security.Subject;
-import org.uberfire.security.impl.RoleImpl;
+import org.jboss.errai.security.shared.api.Group;
+import org.jboss.errai.security.shared.api.Role;
+import org.jboss.errai.security.shared.api.identity.User;
+import org.uberfire.commons.services.cdi.Veto;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by dragos on 11/6/2015.
  */
 
 @Veto
-public class ConnexoUberfireSubject implements Subject {
+public class ConnexoUberfireSubject implements User {
     private final String user;
-    private final List<Role> roles;
+    private final Set<Group> groups;
+    private final Set<Role> roles;
 
-    ConnexoUberfireSubject(String user, List<Role> roles){
+    ConnexoUberfireSubject(String user, Set<Group> groups, Set<Role> roles) {
         this.user = user;
+        this.groups = groups;
         this.roles = roles;
     }
 
     @Override
-    public List<Role> getRoles() {
+    public String getIdentifier() {
+        return user;
+    }
+
+    @Override
+    public Set<Role> getRoles() {
         return roles;
     }
 
     @Override
-    public boolean hasRole(Role role) {
-        return true;
+    public Set<Group> getGroups() {
+        return groups;
     }
 
     @Override
@@ -40,7 +46,7 @@ public class ConnexoUberfireSubject implements Subject {
     }
 
     @Override
-    public void aggregateProperty(String s, String s1) {
+    public void setProperty(String s, String s1) {
 
     }
 
@@ -50,12 +56,7 @@ public class ConnexoUberfireSubject implements Subject {
     }
 
     @Override
-    public String getProperty(String s, String s1) {
+    public String getProperty(String s) {
         return null;
-    }
-
-    @Override
-    public String getName() {
-        return this.user;
     }
 }

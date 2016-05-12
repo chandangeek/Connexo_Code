@@ -1,7 +1,8 @@
 package com.elster.partners.connexo.filters.flow.identity;
 
-import org.jboss.solder.core.Veto;
 import org.kie.api.task.UserGroupCallback;
+import org.uberfire.commons.services.cdi.Veto;
+
 import java.util.List;
 
 @Veto

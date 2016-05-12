@@ -1,9 +1,9 @@
 package com.elster.partners.connexo.filters.flow.authorization;
 
-import org.jboss.solder.core.Veto;
+import org.jboss.errai.security.shared.api.identity.User;
+import org.jboss.errai.security.shared.exception.UnauthorizedException;
+import org.uberfire.commons.services.cdi.Veto;
 import org.uberfire.security.Resource;
-import org.uberfire.security.Subject;
-import org.uberfire.security.authz.AuthorizationException;
 import org.uberfire.security.authz.AuthorizationManager;
 
 /**
@@ -22,7 +22,7 @@ public class ConnexoAuthorizationManager implements AuthorizationManager {
     }
 
     @Override
-    public boolean authorize(Resource resource, Subject subject) throws AuthorizationException {
+    public boolean authorize(Resource resource, User subject) throws UnauthorizedException {
         return true;
     }
 }
