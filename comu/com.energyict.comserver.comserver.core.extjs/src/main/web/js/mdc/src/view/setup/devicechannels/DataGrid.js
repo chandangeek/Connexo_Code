@@ -170,33 +170,28 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
     formatColumn: function (v, metaData, record, validationInfo) {
         var me = this,
-            icon = '';
-
-        if (!Ext.isEmpty(v)) {
-            var status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '',
-                value = Uni.Number.formatNumber(
+            status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '',
+            icon = '',
+            value = Ext.isEmpty(v)
+                ? '-'
+                : Uni.Number.formatNumber(
                     v.toString(),
                     me.channelRecord && !Ext.isEmpty(me.channelRecord.get('nbrOfFractionDigits')) ? me.channelRecord.get('nbrOfFractionDigits') : -1
                 );
 
-            if (Ext.isEmpty(value)) {
-                return '-';
-            }
-            if (status === 'notValidated') {
-                icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
-            } else if (validationInfo.confirmedNotSaved) {
-                metaData.tdCls = 'x-grid-dirty-cell';
-            } else if (status === 'suspect') {
-                icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
-            }
-
-            if (validationInfo.estimatedByRule && !record.isModified('value')) {
-                icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
-            } else if (validationInfo.isConfirmed && !record.isModified('value')) {
-                icon = '<span class="icon-checkmark3" style="margin-left:10px; position:absolute;"></span>';
-            }
-            return value + icon;
+        if (status === 'notValidated') {
+            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+        } else if (validationInfo.confirmedNotSaved) {
+            metaData.tdCls = 'x-grid-dirty-cell';
+        } else if (status === 'suspect') {
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
         }
-        return '-';
+
+        if (validationInfo.estimatedByRule && !record.isModified('value')) {
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
+        } else if (validationInfo.isConfirmed && !record.isModified('value')) {
+            icon = '<span class="icon-checkmark3" style="margin-left:10px; position:absolute;"></span>';
+        }
+        return value + icon;
     }
 });
