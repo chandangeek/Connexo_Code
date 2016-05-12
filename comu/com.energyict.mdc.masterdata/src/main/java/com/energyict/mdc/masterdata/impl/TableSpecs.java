@@ -1,6 +1,6 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -70,7 +70,7 @@ public enum TableSpecs {
             table.column("INTERVAL").number().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
             table.column("INTERVALCODE").number().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
             table.column("TEMPLATEREGISTER").number().conversion(ColumnConversion.NUMBER2LONG).map("templateRegisterId").add();
-            table.foreignKey("FK_MDS_MEASTP_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").add();
+            table.foreignKey("FK_MDS_MEASTP_READINGTYPE").on(readingType).references(ReadingType.class).map("readingType").add();
             table.unique("UK_MDS_MTREADINGTYPE").on(readingType).add();
             table.primaryKey("PK_MDS_MEASUREMENTTYPE").on(id).add();
         }
