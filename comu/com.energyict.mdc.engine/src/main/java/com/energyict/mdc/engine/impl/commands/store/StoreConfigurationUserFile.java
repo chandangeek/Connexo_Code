@@ -25,7 +25,7 @@ import java.util.Optional;
  */
 public class StoreConfigurationUserFile extends DeviceCommandImpl<StoreConfigurationEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Store configuration user file";
+    public static final String DESCRIPTION_TITLE = "Store configuration user file";
 
     private DeviceIdentifier deviceIdentifier;
     private String fileExtension;
@@ -64,11 +64,9 @@ public class StoreConfigurationUserFile extends DeviceCommandImpl<StoreConfigura
         return Optional.of(event);
     }
 
-
     @Override
     public String getDescriptionTitle() {
         return DESCRIPTION_TITLE;
     }
-
 
 }
