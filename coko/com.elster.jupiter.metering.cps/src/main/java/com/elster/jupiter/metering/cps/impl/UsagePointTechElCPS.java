@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.cps.impl.metrology.TranslationKeys;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.QuantityValueFactory;
@@ -96,12 +97,14 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_CROSS_SECTIONAL_AREA_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("EU", "NA")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
         PropertySpec volatageLevelSpec = propertySpecService
                 .stringSpec()
                 .named(UsagePointTechElDomExt.FieldNames.VOLTAGE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_VOLTAGE_LEVEL)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("low", "medium", "high")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
 
         PropertySpec cableLocationSpec = propertySpecService

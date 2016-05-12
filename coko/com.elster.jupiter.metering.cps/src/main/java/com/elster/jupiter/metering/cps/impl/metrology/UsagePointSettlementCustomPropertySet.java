@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
@@ -97,6 +98,7 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
                 .describedAs(TranslationKeys.CPS_SETTLEMENT_METHOD_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("NL", "BE", "UK", "NA")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .markRequired()
                 .finish();
         PropertySpec gridfeeTimeframeSpec = propertySpecService

@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.cps.impl.metrology.TranslationKeys;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
@@ -90,6 +91,7 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_SIZE_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("EU", "UK", "NA")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
         PropertySpec pipeTypeSpec = propertySpecService
                 .stringSpec()
@@ -97,12 +99,14 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_TYPE_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("Asbestos", "Lead", "Iron", "Steel", "Bronze", "Copper", "Non metallic")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
         PropertySpec pressureLevelSpec = propertySpecService
                 .stringSpec()
                 .named(UsagePointTechnicalWGTDomExt.Fields.PRESSURE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PRESSURE_LEVEL)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("low", "medium", "high")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
         return Arrays.asList(pipeSizeSpec,
                 pipeTypeSpec,

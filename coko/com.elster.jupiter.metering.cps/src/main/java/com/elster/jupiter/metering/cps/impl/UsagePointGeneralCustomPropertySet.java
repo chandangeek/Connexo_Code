@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.cps.impl.metrology.TranslationKeys;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
@@ -99,6 +100,7 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
                 .describedAs(TranslationKeys.CPS_GENERAL_PROPERTIES_MARKED_CODE_SECTOR_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("BE", "NL", "UK")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .markRequired()
                 .finish();
         PropertySpec meteringPointTypeSpec = propertySpecService
@@ -107,6 +109,7 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
                 .describedAs(TranslationKeys.CPS_GENERAL_PROPERTIES_METERING_POINT_TYPE_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("BE", "NL", "UK")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .markRequired()
                 .finish();
 

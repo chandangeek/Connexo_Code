@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
@@ -91,6 +92,7 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
                 .describedAs(TranslationKeys.CPS_METER_TECH_MECHANISM_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("CR -Credit", "MT -Mechanical Token", "ET -Electronic Token", "CM -Coin", "PP -Prepayment", "TH -Thrift", "U -Unknown", "NS - SMETS non-compliant", "S1 - SMETS Version 1", "S2 - SMETS Version 2")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
         PropertySpec meterTypeSpec = propertySpecService
                 .stringSpec()
@@ -98,6 +100,7 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
                 .describedAs(TranslationKeys.CPS_METER_TECH_TYPE_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("R = Rotary", "T = Turbine", "D = Diaphragm of unknown material", "L = Leather Diaphragm", "S = Synthetic Diaphragm", "U = Ultrasonic", "Z = Unknown")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
 
         return Arrays.asList(meterMechanismSpec,

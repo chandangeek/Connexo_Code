@@ -107,27 +107,6 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
                 .describedAs(TranslationKeys.CPS_METER_TECH_CONVERSION_METROLOGY_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .finish();
-//        PropertySpec capacityMinimalSpec = propertySpecService
-//                .specForValuesOf(new QuantityValueFactory())
-//                .named(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MIN.javaName(), TranslationKeys.CPS_METER_TECH_CAPACITY_MINIMAL)
-//                .describedAs(TranslationKeys.CPS_METER_TECH_CAPACITY_MINIMAL_DESCRIPTION)
-//                .fromThesaurus(this.getThesaurus())
-//                .addValues(Quantity.create(new BigDecimal(0), 1, "Nm\u00b3/h"))
-//                .finish();
-//        PropertySpec capacityNominalSpec = propertySpecService
-//                .specForValuesOf(new QuantityValueFactory())
-//                .named(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_NOM.javaName(), TranslationKeys.CPS_METER_TECH_CAPACITY_NOMINAL)
-//                .describedAs(TranslationKeys.CPS_METER_TECH_CAPACITY_NOMINAL_DESCRIPTION)
-//                .fromThesaurus(this.getThesaurus())
-//                .addValues(Quantity.create(new BigDecimal(0), 1, "Nm\u00b3/h"))
-//                .finish();
-//        PropertySpec capacityMaximalSpec = propertySpecService
-//                .specForValuesOf(new QuantityValueFactory())
-//                .named(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MAX.javaName(), TranslationKeys.CPS_METER_TECH_CAPACITY_MAXIMAL)
-//                .describedAs(TranslationKeys.CPS_METER_TECH_CAPACITY_MAXIMAL_DESCRIPTION)
-//                .fromThesaurus(this.getThesaurus())
-//                .addValues(Quantity.create(new BigDecimal(0), 1, "Nm\u00b3/h"))
-//                .finish();
         PropertySpec pressureMaximalSpec = propertySpecService
                 .specForValuesOf(new QuantityValueFactory())
                 .named(UsagePointMeterTechInfGTWDomExt.Fields.PRESSURE_MAX.javaName(), TranslationKeys.CPS_METER_TECH_PRESSURE_MAXIMAL)
@@ -138,9 +117,6 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
         return Arrays.asList(recessedLengthSpec,
                 connectionTypeSpec,
                 conversionMetrologySpec,
-//                capacityMinimalSpec,
-//                capacityNominalSpec,
-//                capacityMaximalSpec,
                 pressureMaximalSpec);
     }
 

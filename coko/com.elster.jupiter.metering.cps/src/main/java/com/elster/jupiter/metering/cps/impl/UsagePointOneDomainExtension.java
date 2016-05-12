@@ -14,6 +14,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
+@Deprecated
+/** TODO check usages and delete */
 public class UsagePointOneDomainExtension implements PersistentDomainExtension<UsagePoint> {
 
     public enum FieldNames {

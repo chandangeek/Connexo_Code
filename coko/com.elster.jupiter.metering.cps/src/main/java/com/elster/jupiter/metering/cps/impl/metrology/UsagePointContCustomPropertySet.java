@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
@@ -92,6 +93,7 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
                 .fromThesaurus(this.getThesaurus())
                 .addValues("Monthly", "Yearly", "Billing month")
                 .markRequired()
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
 
         return Arrays.asList(billingCycleSpec);

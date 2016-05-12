@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
@@ -102,6 +103,7 @@ public class UsagePointMeterGnrCustomPropertySet implements CustomPropertySet<Us
                 .describedAs(TranslationKeys.CPS_METER_GENERAL_CLAZZ_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("Class 0.5", "Class 1", "Class 2", "Class 3")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
         return Arrays.asList(manufacturerSpec,
                 modelSpec,

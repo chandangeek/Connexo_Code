@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.InstantFactory;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.QuantityValueFactory;
@@ -120,6 +121,7 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
                 .fromThesaurus(this.getThesaurus())
                 .addValues("solar", "wind", "other")
                 .markRequired()
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
         PropertySpec commissioningDateSpec = propertySpecService
                 .specForValuesOf(new InstantFactory())
