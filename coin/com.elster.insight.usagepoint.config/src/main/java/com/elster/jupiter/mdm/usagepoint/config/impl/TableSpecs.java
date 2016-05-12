@@ -10,12 +10,14 @@ import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     UPC_MCVALRULESETUSAGE {
         void addTo(DataModel dataModel) {
             Table<MetrologyConfigurationValidationRuleSetUsage> table = dataModel
                     .addTable(name(), MetrologyConfigurationValidationRuleSetUsage.class);
+            table.since(version(10, 2));
             table.map(MetrologyConfigurationValidationRuleSetUsageImpl.class);
             table.setJournalTableName("UPC_MCVALRULESETUSAGEJRNL");
             Column validationRule = table
