@@ -482,7 +482,6 @@ public class CalendarCrudTest {
                     (com.elster.jupiter.calendar.impl.xmlbinding.Calendar) u.unmarshal(in);
             CalendarFactory factory = new CalendarFactory(getCalendarService(), getCalendarService().getThesaurus());
             Calendar calendar = factory.getCalendar(result);
-            System.out.println("ok");
         }
         catch (Exception e) {
             e.printStackTrace();

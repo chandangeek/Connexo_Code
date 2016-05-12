@@ -4,9 +4,10 @@
     <name>Residential TOU Example</name>
     <category>TOU</category>
     <mRID>optional</mRID>
-    <description>From example provide by Robert Ritchy</description>
+    <!--  <description>From example provide by Robert Ritchy</description>  -->
     <timezone>EDT</timezone>
     <start-year>2010</start-year>
+    <end-year>2015</end-year>
     <events>
         <event>
             <id>1</id>

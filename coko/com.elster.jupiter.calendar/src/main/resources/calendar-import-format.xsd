@@ -6,10 +6,11 @@
         <xs:element ref="content-version"/>
         <xs:element ref="name"/>
         <xs:element ref="category"/>
-        <xs:element ref="mRID"/>
-        <xs:element ref="description"/>
+        <xs:element ref="mRID" minOccurs="0"/>
+        <xs:element ref="description" minOccurs="0"/>
         <xs:element ref="timezone"/>
         <xs:element ref="start-year"/>
+        <xs:element ref="end-year" minOccurs="0"/>
         <xs:element ref="events"/>
         <xs:element ref="day-types"/>
         <xs:element ref="periods"/>
@@ -24,6 +25,7 @@
   <xs:element name="description" type="xs:string"/>
   <xs:element name="timezone" type="xs:NCName"/>
   <xs:element name="start-year" type="xs:integer"/>
+  <xs:element name="end-year" type="xs:integer"/>
   <xs:element name="events">
     <xs:complexType>
       <xs:sequence>

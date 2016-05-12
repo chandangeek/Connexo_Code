@@ -29,6 +29,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_PERIOD_DEFINED_WITH_ID(2009, Constants.NO_PERIOD_DEFINED_WITH_ID, "There is no period defined with id '{0}'"),
     INVALID_EVENT_ID(2010, Constants.INVALID_EVENT_ID, "Event id '{0}' should be numeric"),
     NO_EVENT_DEFINED_WITH_ID(2011, Constants.NO_EVENT_DEFINED_WITH_ID, "There is no daytype defined with id '{0}'"),
+    ENDYEAR_CANNOT_BE_ZERO(2012, Constants.ENDYEAR_CANNOT_BE_ZERO, "Calendar end year cannot be zero"),
     ;
 
     private final int number;
@@ -100,6 +101,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_PERIOD_DEFINED_WITH_ID = "calendar.import.no.period.defined.with.id";
         public static final String INVALID_EVENT_ID = "calendar.import.invalid.event.id";
         public static final String NO_EVENT_DEFINED_WITH_ID = "calendar.import.invalid.event.id";
+        public static final String ENDYEAR_CANNOT_BE_ZERO = "calendar.import.endyear.cannot.be.zero";
 
     }
 }
