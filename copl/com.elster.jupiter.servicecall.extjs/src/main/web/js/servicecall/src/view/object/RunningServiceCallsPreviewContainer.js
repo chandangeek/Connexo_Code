@@ -15,7 +15,7 @@ Ext.define('Scs.view.object.RunningServiceCallsPreviewContainer', {
         reasons: [
             Uni.I18n.translate('serviceCalls.empty.list.item1', 'SCS', 'No service calls have been defined yet.'),
             Uni.I18n.translate('serviceCalls.empty.list.item3', 'SCS', 'No running service calls have been found.'),
-            Uni.I18n.translate('serviceCalls.empty.list.item2', 'SCS', "Service calls exist but you don't have permission to view them.")
+            Uni.I18n.translate('serviceCalls.empty.list.item2', 'SCS', "Service calls exist, but you don't have permission to view them.")
         ]
     },
 
