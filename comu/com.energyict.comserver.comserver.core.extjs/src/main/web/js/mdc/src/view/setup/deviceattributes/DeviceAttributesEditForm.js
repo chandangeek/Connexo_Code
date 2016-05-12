@@ -126,12 +126,16 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 xtype: 'coordinates',
                 name: 'geoCoordinatesEdit',
                 itemId: 'geoCoordinatesEdit',
+                width: 490,
+                displayResetButton: true,
                 fieldLabel: Uni.I18n.translate('general.coordinates', 'MDC', 'Coordinates')
             },
             {
                 xtype: 'location',
                 name: 'locationEdit',
                 itemId: 'locationEdit',
+                width: 490,
+                displayResetButton: true,
                 findLocationsUrl: '/api/jsr/search/com.energyict.mdc.device.data.Device/locationsearchcriteria/location',
                 locationDetailsUrl: '/api/ddr/devices/locations'
             },
