@@ -144,7 +144,7 @@ public class NlsServiceImpl implements NlsService {
     }
 
     @Reference(name = "ZTranslationProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
-    public synchronized void addTranslationKeyProvider(TranslationKeyProvider provider) {
+    public void addTranslationKeyProvider(TranslationKeyProvider provider) {
         synchronized (translationLock) {
             this.translationKeyProviders.add(provider);
             if (installed) {
@@ -181,7 +181,7 @@ public class NlsServiceImpl implements NlsService {
 
     @SuppressWarnings("unused")
     @Reference(name = "ZMessageSeedProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
-    public synchronized void addMessageSeedProvider(MessageSeedProvider provider) {
+    public void addMessageSeedProvider(MessageSeedProvider provider) {
         synchronized (translationLock) {
             this.messageSeedProviders.add(provider);
             if (installed) {
@@ -223,7 +223,7 @@ public class NlsServiceImpl implements NlsService {
         return () -> "Jupiter Installer";
     }
 
-    public synchronized void doInstall(DataModelUpgrader dataModelUpgrader) {
+    public void doInstall(DataModelUpgrader dataModelUpgrader) {
         synchronized (translationLock) {
             dataModelUpgrader.upgrade(dataModel, Version.latest());
             translationKeyProviders.forEach(this::doInstallProvider);
