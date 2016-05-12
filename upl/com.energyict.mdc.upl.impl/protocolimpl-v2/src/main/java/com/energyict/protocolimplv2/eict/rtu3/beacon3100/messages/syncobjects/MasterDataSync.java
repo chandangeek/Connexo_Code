@@ -163,9 +163,9 @@ public class MasterDataSync {
     }
 
     private void syncDevices(Beacon3100MeterDetails[] allMeterDetails) throws IOException {
-
+        boolean isFirmwareVersion140OrAbove = getIsFirmwareVersion140OrAbove();
         for (Beacon3100MeterDetails beacon3100MeterDetails : allMeterDetails) {
-            getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().assignDeviceType(beacon3100MeterDetails.toStructure(getIsFirmwareVersion140OrAbove()));
+            getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().assignDeviceType(beacon3100MeterDetails.toStructure(isFirmwareVersion140OrAbove));
         }
     }
 
