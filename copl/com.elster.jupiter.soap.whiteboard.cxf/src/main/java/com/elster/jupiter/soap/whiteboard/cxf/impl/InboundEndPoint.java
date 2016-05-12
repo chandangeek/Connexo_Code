@@ -37,6 +37,9 @@ public final class InboundEndPoint implements ManagedEndpoint {
 
     @Override
     public void publish(EndPointConfiguration endPointConfiguration) {
+        if (this.isActive()) {
+            throw new IllegalStateException("Service already published");
+        }
         try (ContextClassLoaderResource ctx = soapProviderSupportFactory.create()) {
             List<Feature> features = new ArrayList<>();
             if (endPointConfiguration.isHttpCompression()) {
@@ -58,14 +61,21 @@ public final class InboundEndPoint implements ManagedEndpoint {
 
     @Override
     public void stop() {
-        if (endpoint != null) {
+        if (this.isActive()) {
             endpoint.stop();
             endpoint = null;
+        } else {
+            throw new IllegalStateException("Service already stopped");
         }
     }
 
     @Override
     public boolean isInbound() {
         return true;
+    }
+
+    @Override
+    public boolean isActive() {
+        return endpoint != null;
     }
 }
