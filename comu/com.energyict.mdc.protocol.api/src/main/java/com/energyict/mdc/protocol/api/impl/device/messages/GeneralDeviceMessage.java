@@ -3,7 +3,7 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
@@ -54,7 +54,7 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .referenceSpec(UserFile.class)
+                            .referenceSpec(DeviceMessageFile.class)
                             .named(DeviceMessageAttributes.configUserFileAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()

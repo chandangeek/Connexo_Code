@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -28,7 +28,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .referenceSpec(UserFile.class)
+                            .referenceSpec(DeviceMessageFile.class)
                             .named(DeviceMessageAttributes.contractsXmlUserFileAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()

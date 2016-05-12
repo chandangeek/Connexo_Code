@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .referenceSpec(UserFile.class)
+                            .referenceSpec(DeviceMessageFile.class)
                             .named(ZigBeeConfigurationDeviceMessageAttributes.ZigBeeConfigurationHANRestoreUserFileAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -128,7 +128,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .referenceSpec(UserFile.class)
+                            .referenceSpec(DeviceMessageFile.class)
                             .named(ZigBeeConfigurationDeviceMessageAttributes.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -141,7 +141,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .referenceSpec(UserFile.class)
+                            .referenceSpec(DeviceMessageFile.class)
                             .named(ZigBeeConfigurationDeviceMessageAttributes.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
