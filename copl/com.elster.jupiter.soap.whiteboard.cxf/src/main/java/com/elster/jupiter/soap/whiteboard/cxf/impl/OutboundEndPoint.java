@@ -7,6 +7,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 import javax.inject.Inject;
+import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceFeature;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by bvn on 5/10/16.
@@ -29,8 +35,16 @@ public final class OutboundEndPoint implements ManagedEndpoint {
 
     @Override
     public void publish(EndPointConfiguration endPointConfiguration) {
-        serviceRegistration = bundleContext.registerService(endPointProvider.getServices(), endPointProvider
-                .get(), null);
+        List<WebServiceFeature> features = new ArrayList<>();
+        try {
+            Service service = endPointProvider.get(new URL(endPointConfiguration.getUrl()), features);
+            serviceRegistration = bundleContext.registerService(
+                    endPointProvider.getService(),
+                    service.getPort(endPointProvider.getService()),
+                    null);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
