@@ -330,11 +330,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
                 .request()
                 .put(Entity.json(usagePointMetrologyConfigurationInfo));
         assertThat(response.getStatus()).isEqualTo(202);
-        verify(usagePoint, never()).apply(any(MetrologyConfiguration.class));
-
+        when(usagePointMetrologyConfiguration.isActive()).thenReturn(true);
+        verify(usagePoint, never()).apply(usagePointMetrologyConfiguration);
         response = target("usagepoints/test/metrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(usagePointMetrologyConfigurationInfo));
         assertThat(response.getStatus()).isEqualTo(200);
-        verify(usagePoint, times(1)).apply(any(MetrologyConfiguration.class));
+        verify(usagePoint, times(1)).apply(usagePointMetrologyConfiguration);
     }
 
     private DataValidationStatus mockDataValidationStatus(ReadingQualityType readingQualityType, boolean isBulk) {
