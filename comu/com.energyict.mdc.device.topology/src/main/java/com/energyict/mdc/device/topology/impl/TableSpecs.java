@@ -165,7 +165,7 @@ public enum TableSpecs {
                     .conversion(NUMBER2LONG)
                     .add();
             table.primaryKey("PK_DTL_CHANNELUSAGE").on(physicalGateWayReference, originChannel).add();
-            table.index("IX_DTL_DATALOGGERCHANNELUSAGE_GATEWAY").on(gatewayChannel).add();
+            table.index("IX_DTL_CHANNELUSAGE_GATEWAY").on(gatewayChannel).add();
             table.foreignKey("FK_DTL_CU_GATEWAYREFERENCE")
                     .references(DTL_PHYSICALGATEWAYREFERENCE.name())
                     .on(physicalGateWayReference)
