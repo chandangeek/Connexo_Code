@@ -385,9 +385,9 @@ public class BpmResource {
     @Path("/availableactiveprocesses")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
-    public ProcessDefinitionInfos getAvailableProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
+    public ProcessDefinitionInfos getAvailableProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
-        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions(appKey);
         return (filterProperties.get("type") != null) ? filterProcesses(activeProcesses, filterProperties.get("type").get(0), auth) : filterProcesses(activeProcesses, null, auth);
     }
 
