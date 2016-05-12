@@ -3,11 +3,14 @@ package com.elster.jupiter.metering.cps.impl.metrology;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.cps.impl.MessageSeeds;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.units.HasQuantityValueMin;
 import com.elster.jupiter.util.units.Quantity;
 
 import javax.validation.constraints.NotNull;
@@ -60,8 +63,10 @@ public class UsagePointDecentProdDomExt implements PersistentDomainExtension<Usa
     Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @NotNull(message = "{CannotBeNull}")
+    @HasQuantityValueMin(min = 0, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.QUANTITY_MIN_VALUE + "}")
     private Quantity installationPower;
     @NotNull(message = "{CannotBeNull}")
+    @HasQuantityValueMin(min = 0, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.QUANTITY_MIN_VALUE + "}")
     private Quantity convertorPower;
     @NotNull(message = "{CannotBeNull}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")

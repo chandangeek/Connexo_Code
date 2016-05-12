@@ -42,7 +42,7 @@ public class TranslationInstaller implements TranslationKeyProvider, MessageSeed
 
     @Override
     public List<MessageSeed> getSeeds() {
-        return Collections.emptyList();
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
