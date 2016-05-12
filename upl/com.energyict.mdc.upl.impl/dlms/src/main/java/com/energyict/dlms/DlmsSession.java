@@ -39,6 +39,7 @@ public class DlmsSession implements ProtocolLink {
     private TimeZone timeZone;
     private InputStream in;
     private OutputStream out;
+    private boolean useLegacyHDLCConnection = false;
 
     /**
      * @param in
@@ -203,18 +204,30 @@ public class DlmsSession implements ProtocolLink {
         switch (getProperties().getConnectionMode()) {
             case HDLC:
                 try {
-                    transportConnection = new HDLC2Connection(
-                            in, out,
-                            getProperties().getTimeout(),
-                            getProperties().getForcedDelay(),
-                            getProperties().getRetries(),
-                            getProperties().getClientMacAddress(),
-                            getProperties().getLowerHDLCAddress(),
-                            getProperties().getUpperHDLCAddress(),
-                            getProperties().getAddressingMode(),
-                            getProperties().getInformationFieldSize(),
-                            5
-                    );
+                    if (isUseLegacyHDLCConnection()) {
+                        transportConnection = new HDLCConnection(in, out,
+                                getProperties().getTimeout(),
+                                getProperties().getForcedDelay(),
+                                getProperties().getRetries(),
+                                getProperties().getClientMacAddress(),
+                                getProperties().getLowerHDLCAddress(),
+                                getProperties().getUpperHDLCAddress(),
+                                getProperties().getAddressingMode());
+                    } else {
+                        transportConnection = new HDLC2Connection(
+                                in, out,
+                                getProperties().getTimeout(),
+                                getProperties().getForcedDelay(),
+                                getProperties().getRetries(),
+                                getProperties().getClientMacAddress(),
+                                getProperties().getLowerHDLCAddress(),
+                                getProperties().getUpperHDLCAddress(),
+                                getProperties().getAddressingMode(),
+                                getProperties().getInformationFieldSize(),
+                                5
+                        );
+                    }
+
                 } catch (DLMSConnectionException e) {
                     throw new NestedIOException(e);
                 }
@@ -415,5 +428,13 @@ public class DlmsSession implements ProtocolLink {
      */
     public void updateTimeZone(final TimeZone timeZone) {
         this.timeZone = timeZone;
+    }
+
+    public boolean isUseLegacyHDLCConnection() {
+        return useLegacyHDLCConnection;
+    }
+
+    public void setUseLegacyHDLCConnection(boolean useLegacyHDLCConnection) {
+        this.useLegacyHDLCConnection = useLegacyHDLCConnection;
     }
 }

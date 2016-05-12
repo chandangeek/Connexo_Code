@@ -18,6 +18,7 @@ public class SL7000Properties extends DlmsProtocolProperties {
 
     public static final String USE_REGISTER_PROFILE = "UseRegisterProfile";
     public static final String LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
+    private static final String USE_LEGACY_HDLC_CONNECTION = "UseLegacyHDLCConnection";
 
     public static final String DEFAULT_SECURITY_LEVEL = "1:0";
     public static final String DEFAULT_ADDRESSING_MODE = "-1";
@@ -26,6 +27,7 @@ public class SL7000Properties extends DlmsProtocolProperties {
     public static final String DEFAULT_MAX_REC_PDU_SIZE = "0";
     public static final String DEFAULT_USE_REGISTER_PROFILE = "0";
     public static final String DEFAULT_LIMIT_MAX_NR_OF_DAYS = "0";
+    public static final String DEFAULT_USE_LEGACY_HDLC_CONNECTION = "0";
 
     public List<String> getOptionalKeys() {
         List result = new ArrayList();
@@ -37,6 +39,7 @@ public class SL7000Properties extends DlmsProtocolProperties {
         result.add(SERVER_MAC_ADDRESS);
         result.add(USE_REGISTER_PROFILE);
         result.add(LIMIT_MAX_NR_OF_DAYS);
+        result.add(USE_LEGACY_HDLC_CONNECTION);
         return result;
     }
 
@@ -110,5 +113,10 @@ public class SL7000Properties extends DlmsProtocolProperties {
     @ProtocolProperty
     public int getLimitMaxNrOfDays() {
         return getIntProperty(LIMIT_MAX_NR_OF_DAYS, DEFAULT_LIMIT_MAX_NR_OF_DAYS);
+    }
+
+    @ProtocolProperty
+    public boolean getUseLegacyHDLCConnection() {
+        return getIntProperty(USE_LEGACY_HDLC_CONNECTION, DEFAULT_USE_LEGACY_HDLC_CONNECTION) == 1;
     }
 }

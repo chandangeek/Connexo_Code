@@ -76,6 +76,20 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         return properties;
     }
 
+    /**
+     * Make a connection to the physical device.
+     * Setup the association and check the objectList
+     *
+     * @throws java.io.IOException if errors occurred during data fetching
+     */
+    @Override
+    public void connect() throws IOException {
+        getDlmsSession().setUseLegacyHDLCConnection(getProperties().getUseLegacyHDLCConnection());
+        getDlmsSession().connect();
+        checkCacheObjects();
+        initAfterConnect();
+    }
+
     @Override
     protected void initAfterConnect() throws ConnectionException {
     }
@@ -171,7 +185,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
      * Returns the protocol version
      */
     public String getVersion() {
-        return "$Date: 2015-11-26 15:26:01 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2016-05-12 16:20:57 +0300 (Thu, 12 May 2016)$";
     }
 
     /**
