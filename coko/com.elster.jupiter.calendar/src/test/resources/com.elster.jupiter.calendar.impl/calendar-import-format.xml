@@ -184,13 +184,11 @@
                  will have year/month/day and will map to java.util.LocalDate -->
             <transition>
                 <to-period>1</to-period>
-                <year>2016</year>
                 <month>5</month>
                 <day>1</day>
             </transition>
             <transition>
                 <to-period>2</to-period>
-                <year>2016</year>
                 <month>11</month>
                 <day>1</day>
             </transition>

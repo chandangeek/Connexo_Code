@@ -9,6 +9,7 @@ import com.elster.jupiter.calendar.impl.xmlbinding.Period;
 import com.elster.jupiter.calendar.impl.xmlbinding.RangeTime;
 import com.elster.jupiter.calendar.impl.xmlbinding.RecurringOccurrence;
 import com.elster.jupiter.calendar.impl.xmlbinding.Transition;
+import com.elster.jupiter.calendar.impl.xmlbinding.Transitions;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
@@ -19,12 +20,9 @@ import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Created by igh on 10/05/2016.
@@ -101,7 +99,15 @@ public class CalendarFactory {
                     getDayTypeNameById(period.getWeekTemplate().getSunday().getDayType()));
         }
 
-        for (Transition transition : calendar.getPeriods().getTransitions().getTransition()) {
+        Transitions transitions =  calendar.getPeriods().getTransitions();
+        boolean recurring = transitions.isRecurring();
+        for (Transition transition : transitions.getTransition()) {
+            if (recurring && (transition.getYear() != null)) {
+                throw new CalendarParserException(thesaurus, MessageSeeds.YEAR_NOT_ALLOWED_FOR_RECURRING_TRANSITIONS);
+            }
+            if (!recurring && (transition.getYear() == null)) {
+                throw new CalendarParserException(thesaurus, MessageSeeds.YEAR_REQUIRED_FOR_NOT_RECURRING_TRANSITIONS);
+            }
             if (transition.getYear() != null) {
                 builder.on(LocalDate.of(transition.getYear().intValue(), transition.getMonth().intValue(), transition.getDay().intValue()))
                         .transitionTo(getPeriodNameById(transition.getToPeriod()));
