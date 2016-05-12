@@ -6,6 +6,9 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventDescription;
@@ -14,7 +17,7 @@ import com.google.inject.Inject;
 
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 
-public class Installer {
+class Installer implements FullInstaller {
 
     private final IssueService issueService;
     private final DataModel dataModel;
@@ -22,16 +25,17 @@ public class Installer {
     private final MessageService messageService;
 
     @Inject
-    public Installer(DataModel dataModel, IssueService issueService, EventService eventService, MessageService messageService) {
+    Installer(DataModel dataModel, IssueService issueService, EventService eventService, MessageService messageService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.eventService = eventService;
         this.messageService = messageService;
     }
 
-    public void install() {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         ExceptionCatcher.executing(
-                this::installDataModel,
+                () -> this.installDataModel(dataModelUpgrader),
                 this::createIssueTypeAndReasons,
                 this::setAQSubscriber,
                 this::publishEvents)
@@ -39,8 +43,8 @@ public class Installer {
                 .execute();
     }
 
-    private void installDataModel() {
-        dataModel.install(true, true);
+    private void installDataModel(DataModelUpgrader dataModelUpgrader) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
         new CreateIssueViewOperation(dataModel).execute();
     }
 
