@@ -1,5 +1,19 @@
 package com.energyict.mdc.issue.datacollection.impl.install;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.DataCollectionActionsFactory;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
@@ -12,25 +26,14 @@ import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDesc
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.EventType;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.orm.DataModel;
-
+import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 
-public class Installer {
+public class Installer implements FullInstaller {
     private static final Logger LOG = Logger.getLogger("DataCollectionIssueInstaller");
 
     private final MessageService messageService;
@@ -39,6 +42,7 @@ public class Installer {
     private final DataModel dataModel;
     private final EventService eventService;
 
+    @Inject
     public Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService, EventService eventService) {
         this.issueService = issueService;
         this.issueActionService = issueActionService;
@@ -47,9 +51,10 @@ public class Installer {
         this.eventService = eventService;
     }
 
-    public void install() {
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader) {
         run(() -> {
-            dataModel.install(true, false);
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
             new CreateIssueViewOperation(dataModel).execute();
         }, "database schema. Execute command 'ddl " + IssueDataCollectionService.COMPONENT_NAME + "' and apply the sql script manually");
         run(this::setAQSubscriber, "aq subscribers");
@@ -58,6 +63,7 @@ public class Installer {
             setDataCollectionReasons(issueType);
         }, "issue reasons and action types");
         run(this::publishEvents, "event publishing");
+
     }
 
     private void publishEvents() {
