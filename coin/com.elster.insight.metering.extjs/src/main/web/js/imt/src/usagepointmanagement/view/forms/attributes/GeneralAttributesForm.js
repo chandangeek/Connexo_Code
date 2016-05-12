@@ -133,12 +133,15 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                 xtype: 'coordinates',
                 name: 'geoCoordinates',
                 itemId: 'fld-up-geoCoordinates',
+                width: 421,
+                displayResetButton: false,
                 fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates')
             },
             {
                 xtype: 'location',
                 name: 'location',
                 itemId: 'fld-location',
+                width: 421,
                 findLocationsUrl: '/api/jsr/search/com.elster.jupiter.metering.UsagePoint/locationsearchcriteria/location',
                 locationDetailsUrl: '/api/udr/usagepoints/locations'
             },

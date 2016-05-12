@@ -103,10 +103,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location'),
                 findLocationsUrl: '/api/jsr/search/com.elster.jupiter.metering.UsagePoint/locationsearchcriteria/location',
                 locationDetailsUrl: '/api/udr/usagepoints/locations',
-                defaults: {
-                    labelWidth: 260,
-                    width: 600
-                }
+                labelWidth: 260,
+                width: 600
+
             },
             {
                 xtype: 'combobox',
