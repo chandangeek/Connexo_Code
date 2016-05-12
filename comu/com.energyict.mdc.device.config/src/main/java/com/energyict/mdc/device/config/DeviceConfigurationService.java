@@ -11,6 +11,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -324,4 +325,7 @@ public interface DeviceConfigurationService {
     DeviceConfiguration cloneDeviceConfiguration(DeviceConfiguration templateDeviceConfiguration, String name);
 
     Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id);
+
+    Optional<DeviceMessageFile> findDeviceMessageFile(long id);
+
 }
