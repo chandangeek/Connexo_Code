@@ -11,8 +11,9 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -40,6 +41,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -47,28 +49,30 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-@Component(name = "com.energyict.mdc.scheduling", service = {ServerSchedulingService.class,SchedulingService.class, InstallService.class, MessageSeedProvider.class, PrivilegesProvider.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
-public class SchedulingServiceImpl implements ServerSchedulingService, InstallService, MessageSeedProvider, PrivilegesProvider, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.scheduling", service = {ServerSchedulingService.class,SchedulingService.class, MessageSeedProvider.class, PrivilegesProvider.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
+public class SchedulingServiceImpl implements ServerSchedulingService, MessageSeedProvider, PrivilegesProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
     private volatile TaskService tasksService;
     private volatile UserService userService;
+    private volatile UpgradeService upgradeService;
 
     public SchedulingServiceImpl() {
     }
 
     @Inject
-    public SchedulingServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, TaskService tasksService, UserService userService) {
+    public SchedulingServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, TaskService tasksService, UserService userService, UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
         setNlsService(nlsService);
         setTasksService(tasksService);
         setUserService(userService);
+        setUpgradeService(upgradeService);
+
         activate();
-        this.install();
     }
 
     @Override
@@ -105,19 +109,15 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
         this.userService = userService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-    }
-
-    @Override
-    public void install() {
-        new Installer(this.dataModel, this.eventService, this.userService).install(true);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "EVT", "NLS", "CTS");
+        upgradeService.register(InstallIdentifier.identifier(SchedulingService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
