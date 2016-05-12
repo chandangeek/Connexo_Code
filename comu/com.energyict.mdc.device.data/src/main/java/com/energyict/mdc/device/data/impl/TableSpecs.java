@@ -806,7 +806,6 @@ public enum TableSpecs {
             table.column("LAST_VERIFIED_DATE").type("number").conversion(NUMBER2INSTANT).map(ActiveEffectiveCalendarImpl.Fields.LASTVERIFIEDDATE.fieldName()).add();
 
             table.primaryKey("DDC_PK_ACTIVE_CAL").on(device, intervalColumns.get(0)).add();
-            table.unique("UK_DDC_DEV_ACT_CAL").on(device, intervalColumns.get(0)).add();
             table.foreignKey("DDC_ACTI_TO_ALLOWED")
                     .references(AllowedCalendar.class)
                     .on(calendarColumn)
