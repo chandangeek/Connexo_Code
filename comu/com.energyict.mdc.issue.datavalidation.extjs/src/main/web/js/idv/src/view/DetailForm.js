@@ -22,6 +22,11 @@ Ext.define('Idv.view.DetailForm', {
                 },
                 items: [
                     {
+                        itemId: 'data-validation-issue-id',
+                        fieldLabel: Uni.I18n.translate('general.title.issueId', 'IDV', 'Id'),
+                        name: 'issueId'
+                    },
+                    {
                         itemId: 'data-validation-issue-detail-usage-point',
                         fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'IDV', 'Usage point'),
                         name: 'usage_point'
