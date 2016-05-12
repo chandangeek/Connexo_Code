@@ -60,7 +60,7 @@ Ext.define('Uni.form.field.Coordinates', {
                 hideTrigger: true,
                 itemId: 'txt-coordinate-lat',
                 width: '35%',
-                decimalPrecision: 4,
+                decimalPrecision: 5,
                 minValue: -90,
                 maxValue: 90,
                 listeners: {
@@ -79,7 +79,7 @@ Ext.define('Uni.form.field.Coordinates', {
                 hideTrigger: true,
                 itemId: 'txt-coordinate-long',
                 width: '35%',
-                decimalPrecision: 4,
+                decimalPrecision: 5,
                 minValue: -180,
                 maxValue: 180,
                 listeners: {
@@ -167,7 +167,14 @@ Ext.define('Uni.form.field.Coordinates', {
                         },
                         items: [
                             {
-                                xtype: 'uni-default-button'
+                                xtype: 'uni-default-button',
+                                itemId: 'uni-coordinate-default-button',
+                                listeners: {
+                                    click: {
+                                        fn: me.onClickDefault,
+                                        scope: me
+                                    }
+                                }
                             }
                         ]
                     }
@@ -200,6 +207,7 @@ Ext.define('Uni.form.field.Coordinates', {
             latField = me.down('#coordinate-lat'),
             longField = me.down('#coordinate-long'),
             elevField = me.down('#coordinate-elev'),
+            defaultButton = me.down('#uni-coordinate-default-button'),
             isNoCoordinateVisible = (latTextField.getValue() == null) && (longTextField.getValue() == null) && (elevTextField.getValue() == null);
 
         me.down('#no-coordinate').setVisible(isNoCoordinateVisible);
@@ -214,6 +222,7 @@ Ext.define('Uni.form.field.Coordinates', {
             else if (field.itemId == 'txt-coordinate-elev') {
                 elevField.setValue(Ext.String.format('{0} {1}', field.getValue(), Uni.I18n.translate('coordinates.elevationUnit', 'UNI', 'm')));
             }
+            // defaultButton.setDisabled(me.getValue().spatialCoordinates == me.displayValue.usagePointSpatialCoordinates);
         }
         else {
             if (field.itemId == 'txt-coordinate-lat') {
@@ -226,6 +235,7 @@ Ext.define('Uni.form.field.Coordinates', {
                 elevField.setValue('');
             }
         }
+        defaultButton.setDisabled(true);
     },
 
     setValue: function (value) {
@@ -233,12 +243,13 @@ Ext.define('Uni.form.field.Coordinates', {
             latTextField = me.down('#txt-coordinate-lat'),
             longTextField = me.down('#txt-coordinate-long'),
             elevTextField = me.down('#txt-coordinate-elev'),
+            defaultButton = me.down('#uni-coordinate-default-button'),
             values;
 
+        me.displayValue = value;
         if ((value == null) || (value.spatialCoordinates == null) || (value.spatialCoordinates.length == 0)) {
             me.down('#ctn-coordinate').setVisible(false);
             me.down('#no-coordinate').setVisible(true);
-
             return;
         }
         else {
@@ -257,15 +268,23 @@ Ext.define('Uni.form.field.Coordinates', {
         if (values.length > 1) {
             elevTextField.setValue(values[2]);
         }
+        defaultButton.setDisabled(value.isInherited);
     },
 
     getValue: function () {
         var me = this,
             latTextField = me.down('#txt-coordinate-lat'),
             longTextField = me.down('#txt-coordinate-long'),
-            elevTextField = me.down('#txt-coordinate-elev');
+            elevTextField = me.down('#txt-coordinate-elev'),
+            defaultButton = me.down('#uni-coordinate-default-button');
 
-        return {
+        return me.displayResetButton ? {
+            spatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null && elevTextField.getValue() == null) ? null :
+                Ext.String.format('{0}:{1}:{2}', latTextField.getValue(), longTextField.getValue(), elevTextField.getValue()),
+            coordinatesDisplay: null,
+            isInherited: defaultButton.disabled
+        } :
+        {
             spatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null && elevTextField.getValue() == null) ? null :
                 Ext.String.format('{0}:{1}:{2}', latTextField.getValue(), longTextField.getValue(), elevTextField.getValue()),
             coordinatesDisplay: null
@@ -339,5 +358,37 @@ Ext.define('Uni.form.field.Coordinates', {
         } else if (value > field.maxValue) {
             field.setValue(field.maxValue);
         }
+    },
+
+    onClickDefault: function (button) {
+        var me = this,
+            latTextField = me.down('#txt-coordinate-lat'),
+            longTextField = me.down('#txt-coordinate-long'),
+            elevTextField = me.down('#txt-coordinate-elev'),
+            defaultButton = me.down('#uni-coordinate-default-button'),
+            value = me.displayValue, values;
+
+        if ((value == null) || (value.usagePointSpatialCoordinates == null) || (value.usagePointSpatialCoordinates.length == 0)) {
+            me.down('#ctn-coordinate').setVisible(false);
+            me.down('#no-coordinate').setVisible(true);
+            return;
+        }
+        else {
+            me.down('#ctn-coordinate').setVisible(true);
+            me.down('#no-coordinate').setVisible(false);
+        }
+        values = value.usagePointSpatialCoordinates.split(':');
+        if (values.length > 0) {
+            latTextField.setValue(values[0]);
+        }
+
+        if (values.length > 1) {
+            longTextField.setValue(values[1]);
+        }
+
+        if (values.length > 1) {
+            elevTextField.setValue(values[2]);
+        }
+        defaultButton.setDisabled(true);
     }
 });

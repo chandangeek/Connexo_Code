@@ -100,7 +100,14 @@ Ext.define('Uni.form.field.Location', {
                     },
                     items: [
                         {
-                            xtype: 'uni-default-button'
+                            xtype: 'uni-default-button',
+                            itemId: 'uni-location-default-button',
+                            listeners: {
+                                click: {
+                                    fn: me.onClickDefault,
+                                    scope: me
+                                }
+                            }
                         }
                     ]
                 }
@@ -130,7 +137,6 @@ Ext.define('Uni.form.field.Location', {
                 type: 'vbox',
                 align: 'stretch'
             }
-
         };
         me.items = [locationContainer, editLocation, propertyFormLocation];
 
@@ -143,10 +149,10 @@ Ext.define('Uni.form.field.Location', {
 
     updateResetButton: function () {
         var me = this,
-            restoreDefault = me.down('uni-default-button');
+            defaultButton = me.down('#uni-location-default-button');
 
         if (me.displayResetButton) {
-            restoreDefault.setVisible(true);
+            defaultButton.setVisible(true);
         }
     },
 
@@ -155,7 +161,7 @@ Ext.define('Uni.form.field.Location', {
             propertyForm = me.down('#property-form-location'),
             url = Ext.String.format('{0}/{1}', me.locationDetailsUrl, newValue[0].get('id')),
             comboLocation = me.down('#combo-location'),
-            editLocation = me.down('#edit-location');
+            defaultButton = me.down('#uni-location-default-button');
 
         Ext.Ajax.request({
             url: url,
@@ -173,6 +179,7 @@ Ext.define('Uni.form.field.Location', {
                 field.locationId = newValue[0].get('id');
                 comboLocation.setRawValue(recordProperties.get('unformattedLocationValue'));
                 propertyForm.hide();
+                defaultButton.setDisabled(me.displayValue.usagePointLocationId == newValue[0].get('id'));
             }
         })
     },
@@ -180,9 +187,10 @@ Ext.define('Uni.form.field.Location', {
     onEditChange: function (field, newValue, oldValue) {
         var me = this,
             comboLocation = me.down('#combo-location'),
-            propertyForm = me.down('#property-form-location');
+            propertyForm = me.down('#property-form-location'),
+            defaultButton = me.down('#uni-location-default-button');
 
-        if ((newValue == true) && (comboLocation.getValue() == null)) {
+        if ((newValue == true) && (comboLocation.getRawValue() == null)) {
             var url = Ext.String.format('{0}/{1}', me.locationDetailsUrl, 0);
             Ext.Ajax.request({
                 url: url,
@@ -199,14 +207,22 @@ Ext.define('Uni.form.field.Location', {
                     }
 
                     propertyForm.setVisible(newValue);
-                    comboLocation.setReadOnly(newValue);
+                    comboLocation.setDisabled(newValue);
                     comboLocation.reset();
                 }
             })
         }
+        else if ((newValue == true) && (comboLocation.getRawValue() != null)) {
+            comboLocation.oldRawValue = comboLocation.getRawValue();
+            propertyForm.setVisible(newValue);
+            comboLocation.setDisabled(newValue);
+            comboLocation.reset();
+        }
         else {
             propertyForm.setVisible(newValue);
-            comboLocation.setReadOnly(newValue);
+            comboLocation.setDisabled(newValue);
+            comboLocation.setRawValue(comboLocation.oldRawValue);
+            defaultButton.setDisabled(me.displayValue.usagePointLocationId == comboLocation.locationId);
         }
     },
 
@@ -214,7 +230,9 @@ Ext.define('Uni.form.field.Location', {
         var me = this,
             comboLocation = me.down('#combo-location'),
             propertyForm = me.down('#property-form-location'),
-            editLocation = me.down('#edit-location');
+            editLocation = me.down('#edit-location'),
+            defaultButton = me.down('#uni-location-default-button');
+
 
         var model = new Uni.model.LocationInfo();
         var reader = model.getProxy().getReader();
@@ -226,11 +244,12 @@ Ext.define('Uni.form.field.Location', {
         } else {
             propertyForm.hide();
         }
-
         comboLocation.locationId = value.locationId;
         comboLocation.setRawValue(value.unformattedLocationValue);
         propertyForm.hide();
         editLocation.setValue(false);
+        defaultButton.setDisabled(value.isInherited);
+        me.displayValue = value;
     },
 
     getValue: function () {
@@ -244,7 +263,6 @@ Ext.define('Uni.form.field.Location', {
         if (isChecked) {
             value.locationValue = '';
             value.locationId = -1;
-
             value.properties = [];
             propertyForm.updateRecord();
 
@@ -259,10 +277,48 @@ Ext.define('Uni.form.field.Location', {
                 }
             );
 
+            if (me.displayResetButton) {
+                value.isInherited = false;
+            }
+
         } else {
             value.locationValue = '';
             value.locationId = comboLocation.locationId;
+
+            if (me.displayResetButton) {
+                value.isInherited = (comboLocation.locationId == me.displayValue.usagePointLocationId);
+            }
         }
         return value;
+    },
+
+    onClickDefault: function (button) {
+        var me = this,
+            propertyForm = me.down('#property-form-location'),
+            url = Ext.String.format('{0}/{1}', me.locationDetailsUrl, me.displayValue.usagePointLocationId),
+            comboLocation = me.down('#combo-location'),
+            editLocation = me.down('#edit-location'),
+            defaultButton = me.down('#uni-location-default-button');
+
+        Ext.Ajax.request({
+            url: url,
+            method: 'GET',
+            success: function (response) {
+                var model = new Uni.model.LocationInfo();
+                var reader = model.getProxy().getReader();
+                var resultSet = reader.readRecords(Ext.decode(response.responseText));
+                var recordProperties = resultSet.records[0];
+
+                if (recordProperties && recordProperties.properties() && recordProperties.properties().count()) {
+                    propertyForm.loadRecord(recordProperties);
+                    propertyForm.show();
+                }
+                comboLocation.locationId = me.displayValue.usagePointLocationId;
+                comboLocation.setRawValue(recordProperties.get('unformattedLocationValue'));
+                propertyForm.hide();
+                defaultButton.setDisabled(true);
+            }
+        })
+
     }
 });

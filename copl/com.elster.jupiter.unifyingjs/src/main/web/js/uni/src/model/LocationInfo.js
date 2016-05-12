@@ -5,7 +5,7 @@ Ext.define('Uni.model.LocationInfo', {
     ],
 
     fields: [
-        'locationId','locationValue','unformattedLocationValue'
+        'locationId', 'locationValue', 'unformattedLocationValue', 'usagePointLocationId', 'isInherited'
     ],
     associations: [
         {
