@@ -2,10 +2,9 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.EffectiveCalendar;
+import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -19,7 +18,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EffectiveCalendarImplTest extends PersistenceIntegrationTest {
+public class PassiveEffectiveCalendarImplTest extends PersistenceIntegrationTest {
 
     private Device createSimpleDeviceWithOneCalendar() {
         Device device = inMemoryPersistence.getDeviceService()
@@ -27,7 +26,11 @@ public class EffectiveCalendarImplTest extends PersistenceIntegrationTest {
         Calendar calendar = createCalendar();
         DeviceType deviceType = device.getDeviceConfiguration().getDeviceType();
         deviceType.addCalendar(calendar);
-        device.setEffectiveCalendars(Collections.singletonList(new PassiveEffectiveCalendarImpl().init(deviceType.getAllowedCalendars().get(0),Interval.forever(),device, Instant.now())));
+        PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
+        passiveEffectiveCalendar.setAllowedCalendar(deviceType.getAllowedCalendars().get(0));
+        passiveEffectiveCalendar.setDevice(device);
+        passiveEffectiveCalendar.setActivationDate(Instant.now());
+        device.setPassiveCalendars(Collections.singletonList(passiveEffectiveCalendar));
         return device;
     }
 
@@ -35,9 +38,9 @@ public class EffectiveCalendarImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void testDeviceEffectiveCalendar() {
         Device device = createSimpleDeviceWithOneCalendar();
-        assertThat(device.getEffectiveCalendars()).hasSize(1);
-        EffectiveCalendar effectiveCalendar = device.getEffectiveCalendars().get(0);
-        assertThat(effectiveCalendar.getAllowedCalendar().getCalendar().get().getName()).isEqualTo("Calendar");
+        assertThat(device.getPassiveCalenders()).hasSize(1);
+        PassiveEffectiveCalendar passiveEffectiveCalendar = device.getPassiveCalenders().get(0);
+        assertThat(passiveEffectiveCalendar.getAllowedCalendar().getCalendar().get().getName()).isEqualTo("Calendar");
     }
 
     private Calendar createCalendar() {

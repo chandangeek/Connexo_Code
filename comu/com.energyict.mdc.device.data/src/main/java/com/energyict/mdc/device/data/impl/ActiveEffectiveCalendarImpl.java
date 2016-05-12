@@ -1,24 +1,69 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
+import java.time.Instant;
 
-public class ActiveEffectiveCalendarImpl extends EffectiveCalendarImpl implements ActiveEffectiveCalendar {
-    static final String TYPE_IDENTIFIER = "AEC";
+public class ActiveEffectiveCalendarImpl implements ActiveEffectiveCalendar {
 
+    public enum Fields {
+        CALENDAR("allowedCalendar"),
+        DEVICE("device"),
+        INTERVAL("interval"),
+        LASTVERIFIEDDATE("lastVerifiedDate");
 
-    @Inject
-    public ActiveEffectiveCalendarImpl () {
-        super();
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        public String fieldName() {
+            return javaFieldName;
+        }
     }
 
+    private long id;
 
-    public ActiveEffectiveCalendarImpl init (AllowedCalendar calendar, Interval interval, Device device) {
-        ActiveEffectiveCalendarImpl activeEffectiveCalendar = (ActiveEffectiveCalendarImpl) super.init(calendar, interval, device);
-        return activeEffectiveCalendar;
+    private Reference<AllowedCalendar> allowedCalendar = ValueReference.absent();
+    private Reference<Device> device = ValueReference.absent();
+    private Interval interval;
+    private Instant lastVerifiedDate;
+
+    @Override
+    public AllowedCalendar getAllowedCalendar() {
+        return this.allowedCalendar.orNull();
+    }
+
+    public void setAllowedCalendar(AllowedCalendar allowedCalendar) {
+        this.allowedCalendar.set(allowedCalendar);
+    }
+
+    @Override
+    public Interval getInterval() {
+        return this.interval;
+    }
+
+    public void setInterval(Interval interval) {
+        this.interval = interval;
+    }
+
+    @Override
+    public Instant getLastVerifiedDate() {
+        return lastVerifiedDate;
+    }
+
+    public void setLastVerifiedDate(Instant lastVerifiedDate) {
+        this.lastVerifiedDate = lastVerifiedDate;
+    }
+
+    public void setDevice(Device device) {
+        this.device.set(device);
     }
 }

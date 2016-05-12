@@ -441,9 +441,13 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     CIMLifecycleDates getLifecycleDates();
 
-    List<EffectiveCalendar> getEffectiveCalendars();
+    List<PassiveEffectiveCalendar> getPassiveCalenders();
 
-    void setEffectiveCalendars(List<EffectiveCalendar> effectiveCalendars);
+    void setPassiveCalendars(List<PassiveEffectiveCalendar> passiveCalendars);
+
+    Optional<ActiveEffectiveCalendar> getActiveCalendar();
+
+    void setActiveCalendar(ActiveEffectiveCalendar activeEffectiveCalendar);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.

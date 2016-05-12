@@ -51,6 +51,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
@@ -81,6 +83,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -88,10 +91,10 @@ import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.EffectiveCalendar;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
@@ -249,7 +252,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private List<ProtocolDialectPropertiesImpl> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> newDialectProperties = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> dirtyDialectProperties = new ArrayList<>();
-    private List<EffectiveCalendar> effectiveCalendars = new ArrayList<>();
+    private List<PassiveEffectiveCalendar> passiveCalendars = new ArrayList<>();
+    private TemporalReference<ActiveEffectiveCalendar> activeCalendar = Temporals.absent();
 
     private Map<SecurityPropertySet, TypedProperties> dirtySecurityProperties = new HashMap<>();
 
@@ -2133,13 +2137,22 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<EffectiveCalendar> getEffectiveCalendars() {
-        return this.effectiveCalendars;
+    public List<PassiveEffectiveCalendar> getPassiveCalenders() {
+        return this.passiveCalendars;
     }
 
     @Override
-    public void setEffectiveCalendars(List<EffectiveCalendar> effectiveCalendars) {
-        this.effectiveCalendars = effectiveCalendars;
+    public void setPassiveCalendars(List<PassiveEffectiveCalendar> passiveCalendars) {
+        this.passiveCalendars = passiveCalendars;
+    }
+
+    @Override
+    public Optional<ActiveEffectiveCalendar> getActiveCalendar() {
+        return activeCalendar.effective(this.clock.instant());
+    }
+
+    public void setActiveCalendar(ActiveEffectiveCalendar activeCalendar) {
+        this.activeCalendar.add(activeCalendar);
     }
 
     @Override
