@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
@@ -92,6 +93,8 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
                 .stringSpec()
                 .named(UsagePointMetrologyGeneralDomExt.Fields.READ_CYCLE.javaName(), TranslationKeys.CPS_METROLOGY_GENERAL_PROPERTIES_READ_CYCLE)
                 .fromThesaurus(this.getThesaurus())
+                .addValues("Monthly", "Six-Monthly", "Yearly")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .markRequired()
                 .finish();
         PropertySpec informationFrequencySpec = propertySpecService
