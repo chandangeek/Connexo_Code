@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
-import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 
@@ -18,8 +18,8 @@ public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
-    public AS300TimeOfUseMessageBuilder(CodeFactory codeFactory, UserFileFactory userFileFactory) {
-        super(codeFactory, userFileFactory);
+    public AS300TimeOfUseMessageBuilder(CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
+        super(codeFactory, deviceConfigurationService);
     }
 
     /**
@@ -27,7 +27,7 @@ public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
      */
     @Override
     protected String getMessageContent() throws ParserConfigurationException, IOException {
-        if ((getCodeId() == 0) && (getUserFileId() == 0)) {
+        if ((getCodeId() == 0) && (getDeviceMessageFileId() == 0)) {
             throw new IllegalArgumentException("Code or userFile needed");
         }
         StringBuilder builder = new StringBuilder();
@@ -40,17 +40,17 @@ public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
             addAttribute(builder, getAttributeActivationDate(), getActivationDate().getTime() / 1000);
         }
         builder.append(">");
-        if (getCodeId() > 0l) {
+        if (getCodeId() > 0) {
             String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(getCodeId(), Calendar.getInstance().getTime().before(getActivationDate())?getActivationDate().getTime():1, getName());
             addChildTag(builder, getTagCode(), getCodeId());
             addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
         }
-        if (getUserFileId() > 0) {
+        if (getDeviceMessageFileId() > 0) {
             if (isInlineUserFiles()) {
                 builder.append("<").append(INCLUDED_USERFILE_TAG).append(">");
 
                 // This will generate a message that will make the DeviceMessageContentParser inline the file.
-                builder.append("<").append(INCLUDE_USERFILE_TAG).append(" ").append(INCLUDE_USERFILE_ID_ATTRIBUTE).append("=\"").append(getUserFileId()).append("\"");
+                builder.append("<").append(INCLUDE_USERFILE_TAG).append(" ").append(INCLUDE_USERFILE_ID_ATTRIBUTE).append("=\"").append(getDeviceMessageFileId()).append("\"");
                 if (isZipMessageContent()) {
                     builder.append(" ").append(CREATEZIP_ATTRIBUTE_TAG).append("=\"true\"");
                 } else if (isEncodeB64()) {
@@ -60,7 +60,7 @@ public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
                 builder.append("</").append(INCLUDED_USERFILE_TAG).append(">");
             } else {
-                addChildTag(builder, getTagUserfile(), getUserFileId());
+                addChildTag(builder, getTagUserfile(), getDeviceMessageFileId());
             }
         }
         builder.append("</");

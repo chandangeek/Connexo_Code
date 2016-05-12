@@ -1,7 +1,5 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.protocol.api.UserFile;
-
 /**
  * Copyrights EnergyICT
  * Date: 17/08/11
@@ -46,21 +44,25 @@ public class FirmwareUpdateMessagingConfig {
     }
 
     /**
-     * Indicates whether the protocol supports user files for the transfer of a firmware image. The idea here is that the upgrade image is created in EIServer
-     * by means of a {@link UserFile}, and is then communicated to the protocol by means of the ID of the user file (after which the protocol picks it up from the
-     * database (supportsUserFileReferences returns <code>true</code>), or it is embedded into the message itself (supportsUserFileReferences returns <code>false</code>).
+     * Indicates whether the protocol supports user files for the transfer of a firmware image.
+     * The idea here is that the upgrade image is created in EIServer by means of a {@link com.energyict.mdc.protocol.api.DeviceMessageFile}
+     * and is then communicated to the protocol by means of the ID of the file.
+     * The protocol subsequently picks it up from the database (supportsUserFileReferences returns <code>true</code>),
+     * or it is embedded into the message itself (supportsUserFileReferences returns <code>false</code>).
      *
-     * @return <code>true</code> if the implementor supports EIServer {@link UserFile}s to store firmware images and communicating them, <code>false</code> if it does not.
+     * @return <code>true</code> if the implementor supports {@link com.energyict.mdc.protocol.api.DeviceMessageFile}s to store firmware images and communicating them, <code>false</code> if it does not.
      */
     public boolean supportsUserFiles() {
         return this.supportsUserFiles;
     }
 
     /**
-     * Indicates whether the implementor supports user file references. This will typically be used by generic protocols, as these have
-     * access to the database. If supportsUserFilesForFirmwareUpdate is true, and this method returns <code>false</code>, the entire file is sent as payload in
-     * the message. If this method returns <code>true</code>, a user file ID is passed on to the implementor, who can then query the database for the
-     * contents of the file.
+     * Indicates whether the implementor supports user file references.
+     * This will typically be used by generic protocols, as these have access to the database.
+     * If supportsUserFilesForFirmwareUpdate is true, and this method returns <code>false</code>,
+     * the entire file is sent as payload in the message.
+     * If this method returns <code>true</code>, a user file ID is passed on to the implementor,
+     * who can then query the database for the contents of the file.
      *
      * @return <code>true</code> if the protocol supports a file ID reference, <code>false</code> if it does not. This can equally be translated into
      *         <code>true</code> for a generic protocol, and <code>false</code> for a normal one.
@@ -80,4 +82,5 @@ public class FirmwareUpdateMessagingConfig {
     public void setSupportsUserFileReferences(boolean supportsUserFileReferences) {
         this.supportsUserFileReferences = supportsUserFileReferences;
     }
+
 }

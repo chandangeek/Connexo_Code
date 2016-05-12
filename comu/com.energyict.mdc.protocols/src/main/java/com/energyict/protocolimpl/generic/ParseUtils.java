@@ -105,6 +105,21 @@ public class ParseUtils {
 			return false;
 		}
     }
+
+    /**
+     * Checks if a string can be parsed to an integer
+     * @param str - the String to check
+     * @return true or false
+     */
+    public static boolean isLong(String str){
+    	try {
+			Long.parseLong(str);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
+    }
+
     /**
      * Build up a stringbuffer containing the hex values from the byteArray.
      * Adds zero to the left if necessary.

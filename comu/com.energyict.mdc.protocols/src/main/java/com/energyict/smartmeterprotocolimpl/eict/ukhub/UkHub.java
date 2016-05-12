@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -76,16 +76,16 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     private UkHubRegisterFactory registerFactory = null;
     private UkHubEventProfiles ukHubEventProfiles = null;
     private boolean reboot = false;
-    private final UserFileFactory userFileFactory;
+    private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public UkHub(PropertySpecService propertySpecService, OrmClient ormClient, UserFileFactory userFileFactory) {
+    public UkHub(PropertySpecService propertySpecService, OrmClient ormClient, DeviceConfigurationService deviceConfigurationService) {
         super(propertySpecService, ormClient);
-        this.userFileFactory = userFileFactory;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    protected UserFileFactory getUserFileFactory() {
-        return userFileFactory;
+    protected DeviceConfigurationService getDeviceConfigurationService() {
+        return deviceConfigurationService;
     }
 
     /**
@@ -95,7 +95,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this, this.userFileFactory));
+            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this, this.deviceConfigurationService));
         }
         return messageProtocol;
     }

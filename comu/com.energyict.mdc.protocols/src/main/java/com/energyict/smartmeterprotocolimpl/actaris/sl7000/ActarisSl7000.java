@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -93,13 +93,13 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
     private Messages messageProtocol;
     private final CodeFactory codeFactory;
-    private final UserFileFactory userFileFactory;
+    private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public ActarisSl7000(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+    public ActarisSl7000(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
         super(propertySpecService, ormClient);
         this.codeFactory = codeFactory;
-        this.userFileFactory = userFileFactory;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
@@ -298,8 +298,9 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
      public Messages getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Messages(this, codeFactory, userFileFactory);
+            messageProtocol = new Messages(this, this.codeFactory, this.deviceConfigurationService);
         }
         return messageProtocol;
     }
+
 }

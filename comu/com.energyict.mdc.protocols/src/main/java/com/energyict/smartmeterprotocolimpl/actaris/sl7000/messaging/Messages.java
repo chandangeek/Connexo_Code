@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -52,12 +52,12 @@ public class Messages extends ProtocolMessages {
 
     private final ActarisSl7000 protocol;
     private final CodeFactory codeFactory;
-    private final UserFileFactory userFileFactory;
+    private final DeviceConfigurationService deviceConfigurationService;
 
-    public Messages(ActarisSl7000 protocol, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+    public Messages(ActarisSl7000 protocol, CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
         this.protocol = protocol;
         this.codeFactory = codeFactory;
-        this.userFileFactory = userFileFactory;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     /**
@@ -194,7 +194,7 @@ public class Messages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder(this.codeFactory, this.userFileFactory);
+        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder(this.codeFactory, this.deviceConfigurationService);
         ActivityCalendarController activityCalendarController = new com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging.ActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
         if (builder.getCodeId() > 0) { // codeTable implementation

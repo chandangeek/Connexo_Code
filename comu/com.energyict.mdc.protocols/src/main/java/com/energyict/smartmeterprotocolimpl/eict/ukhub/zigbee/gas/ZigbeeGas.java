@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -65,18 +65,18 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     private ZigbeeGasLoadProfile zigbeeGasLoadProfile;
     private ZigbeeGasRegisterFactory registerFactory;
     protected final CodeFactory codeFactory;
-    protected final UserFileFactory userFileFactory;
+    protected final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
-    public ZigbeeGas(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+    public ZigbeeGas(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
         super(propertySpecService, ormClient);
         this.codeFactory = codeFactory;
-        this.userFileFactory = userFileFactory;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     public ZigbeeGasMessaging getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
-            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, this.codeFactory, this.userFileFactory));
+            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, this.codeFactory, this.deviceConfigurationService));
         }
         return this.zigbeeGasMessaging;
     }
@@ -125,7 +125,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * Get the firmware version of the meter
      *
      * @return the version of the meter firmware
-     * @throws java.io.IOException Thrown in case of an exception
+     * @throws IOException Thrown in case of an exception
      */
     public String getFirmwareVersion() throws IOException {
         if (getProperties().isFirmwareUpdateSession()) {

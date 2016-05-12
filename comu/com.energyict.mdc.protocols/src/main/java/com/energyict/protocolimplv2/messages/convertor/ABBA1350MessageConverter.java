@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.UserFile;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ABBA1350UserFileMessageEntry;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,17 +24,10 @@ public class ABBA1350MessageConverter extends AbstractMessageConverter {
     private static final String UploadSwitchPointClock = "SPC_DATA";
     private static final String UploadSwitchPointClockUpdate = "SPCU_DATA";
 
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public ABBA1350MessageConverter() {
-        super();
-    }
-
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.SwitchPointClockSettings) || propertySpec.getName().equals(DeviceMessageConstants.SwitchPointClockUpdateSettings)) {
-            return new String(((UserFile) messageAttribute).loadFileInByteArray(), Charset.forName(CHARSET));   // Content should be valid ASCII data
+            return DeviceMessageFileStringContentConsumer.readFrom((DeviceMessageFile) messageAttribute, CHARSET);   // Content should be valid ASCII data
         } else {
             return messageAttribute.toString();
         }

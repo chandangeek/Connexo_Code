@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -18,7 +19,6 @@ import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -57,8 +57,10 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -108,7 +110,7 @@ public class AllConnectionTypesTest {
     @Mock
     private MdcReadingTypeUtilService mdcReadingTypeUtilService;
     @Mock
-    private UserFileFactory userFileFactory;
+    private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private CodeFactory codeFactory;
     @Mock
@@ -278,7 +280,7 @@ public class AllConnectionTypesTest {
             bind(TopologyService.class).toInstance(topologyService);
             bind(IssueService.class).toInstance(issueService);
             bind(MdcReadingTypeUtilService.class).toInstance(mdcReadingTypeUtilService);
-            bind(UserFileFactory.class).toInstance(userFileFactory);
+            bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
             bind(CodeFactory.class).toInstance(codeFactory);
             bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
             bind(IdentificationService.class).toInstance(identificationService);

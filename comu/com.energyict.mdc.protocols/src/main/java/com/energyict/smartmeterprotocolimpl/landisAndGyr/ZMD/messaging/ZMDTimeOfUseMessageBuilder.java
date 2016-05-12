@@ -1,13 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 20/12/11
- * Time: 15:09
- */
-
-import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 
@@ -19,13 +12,17 @@ import java.io.IOException;
 
 /**
  * MessageBuilder for the TimeOfUse Message.
+ * Copyrights EnergyICT
+ * User: sva
+ * Date: 20/12/11
+ * Time: 15:09
  */
 public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
-    public ZMDTimeOfUseMessageBuilder(CodeFactory codeFactory, UserFileFactory userFileFactory) {
-        super(codeFactory, userFileFactory);
+    public ZMDTimeOfUseMessageBuilder(CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
+        super(codeFactory, deviceConfigurationService);
     }
 
     /**
@@ -33,7 +30,7 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
      */
     @Override
     protected String getMessageContent() throws ParserConfigurationException, IOException {
-        if ((getCodeId() == 0) && (getUserFileId() == 0)) {
+        if ((getCodeId() == 0) && (getDeviceMessageFileId() == 0)) {
             throw new IllegalArgumentException("Code or userFile needed");
         }
         StringBuilder builder = new StringBuilder();
@@ -46,7 +43,7 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
             addAttribute(builder, getAttributeActivationDate(), getActivationDate().getTime() / 1000);
         }
         builder.append(">");
-        if (getCodeId() > 0l) {
+        if (getCodeId() > 0) {
             String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(getCodeId(), getActivationDate().getTime(), getName());
             addChildTag(builder, getTagCode(), getCodeId());
             addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
@@ -56,4 +53,5 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
         builder.append(">");
         return builder.toString();
     }
+
 }

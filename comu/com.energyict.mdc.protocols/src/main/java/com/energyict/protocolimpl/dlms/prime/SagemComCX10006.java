@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.prime;
 
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
@@ -18,8 +19,8 @@ public class SagemComCX10006 extends AbstractPrimeMeter {
     }
 
     @Inject
-    public SagemComCX10006(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public SagemComCX10006(PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService) {
+        super(propertySpecService, deviceConfigurationService);
     }
 
     @Override

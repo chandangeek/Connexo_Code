@@ -1,10 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging;
 
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,13 +30,11 @@ public class InHomeDisplayMessaging extends GenericMessaging implements MessageP
         return this.messageExecutor.queryMessage(messageEntry);
     }
 
-    /**
-     * Abstract method to define your message categories *
-     */
     @Override
     public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+        List<MessageCategorySpec> categories = new ArrayList<>();
         categories.add(getFirmwareCategory());
         return categories;
     }
+
 }
