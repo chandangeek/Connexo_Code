@@ -699,6 +699,8 @@ public class BpmResource {
                             .isPresent() ? eachConnexo.getAssociationProvider().get().getType() : "";
                     eachBpm.displayType = eachConnexo.getAssociationProvider()
                             .isPresent() ? eachConnexo.getAssociationProvider().get().getName() : "";
+                    eachBpm.appKey = eachConnexo.getAssociationProvider()
+                            .isPresent() ? eachConnexo.getAssociationProvider().get().getAppKey() : "";
                     found = true;
                 }
             }
