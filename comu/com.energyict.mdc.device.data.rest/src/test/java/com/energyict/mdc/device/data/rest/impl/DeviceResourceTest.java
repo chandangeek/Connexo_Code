@@ -1,9 +1,20 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.OverlapCalculatorBuilder;
@@ -41,6 +52,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -94,6 +106,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -724,6 +737,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel1.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
+        when(device1.getChannels()).thenReturn(Arrays.asList(channel1));
         when(deviceService.findByUniqueMrid("mrid2")).thenReturn(Optional.of(device1));
         List<LoadProfileReading> loadProfileReadings = new ArrayList<>();
         final long startTime = 1388534400000L;
@@ -1292,6 +1306,270 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(topologyService).clearPhysicalGateway(device);
+    }
+
+    @Test
+    public void testLinkFirstSlaveToDataLogger(){
+        Device dataLogger = mockDeviceForTopologyTest("dataLogger");
+        Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
+        when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
+        when(dataLoggerChannel.getId()).thenReturn(2L);
+        when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
+
+        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
+        when(slaveChannel1.getDevice()).thenReturn(slave1);
+        when(slaveChannel1.getId()).thenReturn(1L);
+        when(slave1.getChannels()).thenReturn(Collections.singletonList(slaveChannel1));
+
+        DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
+
+        when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
+        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
+        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+
+        DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
+        channelMappingForSlave1.slaveChannel = newChannelInfo(1L, "firstSlave", 1L);
+        channelMappingForSlave1.dataLoggerChannel = newChannelInfo(2L, "dataLogger", 13L);
+
+        DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
+        slaveInfo1.id = 100L;
+        slaveInfo1.mRID = "firstSlave";
+        slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
+        slaveInfo1.deviceConfigurationId = 2L;
+        slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
+        slaveInfo1.serialNumber = "100";
+        slaveInfo1.yearOfCertification = 1960;
+        slaveInfo1.version = 1;
+        slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
+
+        DeviceInfo info = new DeviceInfo();
+        info.id = 1L;
+        info.version = 13L;
+        info.mRID = "dataLogger";
+        info.parent = new VersionInfo<>(1L, 1L);
+        info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
+
+        when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.of(slaveChannel1));
+
+        Response response = target("/devices/1").request().put(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), any(Map.class));
+    }
+
+    private Channel prepareMockedChannel(Channel mockedChannel){
+        ReadingType readingType = prepareMockedReadingType(mock(ReadingType.class));
+        LoadProfileType loadProfileType = mock(LoadProfileType.class);
+        when(loadProfileType.getName()).thenReturn("some loadprofile type");
+        LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
+        when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
+        LoadProfile loadProfile = mock(LoadProfile.class);
+        when(loadProfile.getId()).thenReturn(11L);
+        when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
+
+        ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getNbrOfFractionDigits()).thenReturn(2);
+        when(channelSpec.isUseMultiplier()).thenReturn(false);
+
+        when(mockedChannel.getReadingType()).thenReturn(readingType);
+        when(mockedChannel.getInterval()).thenReturn(TimeDuration.minutes(15));
+        when(mockedChannel.getLastReading()).thenReturn(Optional.empty());
+        when(mockedChannel.getLastDateTime()).thenReturn(Optional.empty());
+        when(mockedChannel.getCalculatedReadingType(any(Instant.class))).thenReturn(Optional.empty());
+        when(mockedChannel.getOverflow()).thenReturn(Optional.empty());
+        when(mockedChannel.getUnit()).thenReturn(Unit.get("kWh"));
+        when(mockedChannel.getChannelSpec()).thenReturn(channelSpec);
+        when(mockedChannel.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
+        when(mockedChannel.getLoadProfile()).thenReturn(loadProfile);
+        return mockedChannel;
+    }
+
+    private ReadingType prepareMockedReadingType(ReadingType readingType){
+        when(readingType.getMRID()).thenReturn("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        when(readingType.getName()).thenReturn("readingTypeName");
+        when(readingType.isActive()).thenReturn(true);
+        when(readingType.isCumulative()).thenReturn(true);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+        when(readingType.getAggregate()).thenReturn(Aggregate.NORMAL);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getAccumulation()).thenReturn(Accumulation.CUMULATIVE);
+        when(readingType.getFlowDirection()).thenReturn(FlowDirection.NOTAPPLICABLE);
+        when(readingType.getCommodity()).thenReturn(Commodity.DEVICE);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.CURRENT);
+        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(0,1));
+        when(readingType.getArgument()).thenReturn(new RationalNumber(0,1));
+        when(readingType.getTou()).thenReturn(0);
+        when(readingType.getCpp()).thenReturn(0);
+    	when(readingType.getConsumptionTier()).thenReturn(0);
+    	when(readingType.getPhases()).thenReturn(Phase.PHASES1);
+    	when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+    	when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+    	when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
+        when(readingType.getVersion()).thenReturn(1L);
+        return readingType;
+    }
+
+    private ChannelInfo newChannelInfo(long id, String deviceMRID, long version){
+        ChannelInfo mock = new ChannelInfo();
+        mock.id = id;
+        mock.interval = new TimeDurationInfo(900);
+        mock.parent = new VersionInfo<String>(deviceMRID, version);
+        return mock;
+    }
+
+    @Test
+    public void testLinkNewSlavesToDataLogger(){
+        Device dataLogger = mockDeviceForTopologyTest("dataLogger");
+        Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
+        when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
+        when(dataLoggerChannel.getId()).thenReturn(2L);
+        when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
+
+        Device slave1 = mockDeviceForTopologyTest("slave1");
+        when(deviceService.newDevice(any(DeviceConfiguration.class), eq("firstSlave"), eq("firstSlave"), any(Instant.class))).thenReturn(slave1);
+        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+        Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
+        when(slaveChannel1.getDevice()).thenReturn(slave1);
+        when(slaveChannel1.getId()).thenReturn(1L);
+        when(slave1.getChannels()).thenReturn(Collections.singletonList(slaveChannel1));
+
+        DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
+        DeviceConfiguration slaveDeviceConfig = mock(DeviceConfiguration.class);
+
+        when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
+        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
+        when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
+        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty());
+
+        DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
+        channelMappingForSlave1.slaveChannel = newChannelInfo(1L, "firstSlave", 1L);
+        channelMappingForSlave1.dataLoggerChannel = newChannelInfo(2L, "dataLogger", 13L);
+
+        DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
+        slaveInfo1.id = 0;
+        slaveInfo1.mRID = "firstSlave";
+        slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
+        slaveInfo1.deviceConfigurationId = 2L;
+        slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
+        slaveInfo1.serialNumber = "100";
+        slaveInfo1.yearOfCertification = 1960;
+        slaveInfo1.version = 0;
+        slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
+
+        DeviceInfo info = new DeviceInfo();
+        info.id = 1L;
+        info.version = 13L;
+        info.mRID = "dataLogger";
+        info.parent = new VersionInfo<>(1L, 1L);
+        info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
+
+        when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.of(slaveChannel1));
+
+        Response response = target("/devices/1").request().put(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        // A slave device need to be created
+        verify(deviceService).newDevice(eq(slaveDeviceConfig), eq("firstSlave"), eq("firstSlave"), any(Instant.class));
+    }
+    @Test
+    public void testUnlinkDataLoggerChannelWhenDataLoggerChannelLinked(){
+        Device dataLogger = mockDeviceForTopologyTest("dataLogger");
+        Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
+        when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
+        when(dataLoggerChannel.getId()).thenReturn(2L);
+        when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
+
+        Device slave1 = mockDeviceForTopologyTest("slave1");
+        when(deviceService.newDevice(any(DeviceConfiguration.class), eq("firstSlave"), eq("firstSlave"), any(Instant.class))).thenReturn(slave1);
+        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+        Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
+        when(slaveChannel1.getDevice()).thenReturn(slave1);
+        when(slaveChannel1.getId()).thenReturn(1L);
+        when(slave1.getChannels()).thenReturn(Collections.singletonList(slaveChannel1));
+
+        DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
+        DeviceConfiguration slaveDeviceConfig = mock(DeviceConfiguration.class);
+
+        when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
+        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
+        when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
+        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty());
+
+        DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
+        channelMappingForSlave1.dataLoggerChannel = newChannelInfo(2L, "dataLogger", 13L);
+
+        DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
+        slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
+
+        DeviceInfo info = new DeviceInfo();
+        info.id = 1L;
+        info.version = 13L;
+        info.mRID = "dataLogger";
+        info.parent = new VersionInfo<>(1L, 1L);
+        info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);   //no linked channels
+
+        doReturn(Arrays.asList(slave1)).when(topologyService).findDataLoggerSlaves(dataLogger);
+        when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.of(slaveChannel1));  // datalogger has linked channel
+
+        Response response = target("/devices/1").request().put(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(topologyService, times(1)).clearDataLogger(slave1);
+        verify(topologyService, never()).setDataLogger(any(Device.class), eq(dataLogger), any(Map.class));
+    }
+
+    @Test
+    public void testUnlinkedWhenDataLoggerChannelUnlinked(){
+        Device dataLogger = mockDeviceForTopologyTest("dataLogger");
+        Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
+        when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
+        when(dataLoggerChannel.getId()).thenReturn(2L);
+        when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
+
+        DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
+        DeviceConfiguration slaveDeviceConfig = mock(DeviceConfiguration.class);
+
+        when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
+        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
+        when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
+        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty());
+
+        DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
+        channelMappingForSlave1.dataLoggerChannel = newChannelInfo(2L, "dataLogger", 13L);
+
+        DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
+        slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
+
+        DeviceInfo info = new DeviceInfo();
+        info.id = 1L;
+        info.version = 13L;
+        info.mRID = "dataLogger";
+        info.parent = new VersionInfo<>(1L, 1L);
+        info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);   //no linked channels
+
+        when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.empty());
+
+        Response response = target("/devices/1").request().put(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(topologyService, never()).setDataLogger(any(Device.class), eq(dataLogger), any(Map.class));
     }
 
     @Test

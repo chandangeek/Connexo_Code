@@ -341,11 +341,9 @@ public class ResourceHelper {
     }
 
     public Channel findChannelOnDeviceOrThrowException(Device device, long channelId) {
-        return device.getLoadProfiles().stream()
-                .flatMap(lp -> lp.getChannels().stream())
-                .filter(c -> c.getId() == channelId)
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, device.getmRID(), channelId));
+        return device.getChannels().stream().filter(c -> c.getId() == channelId)
+                        .findFirst()
+                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, device.getmRID(), channelId));
     }
 
 

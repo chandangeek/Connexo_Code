@@ -192,19 +192,23 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADD_DEVICE)
     public DeviceInfo addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
-        Optional<DeviceConfiguration> deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
-        Device newDevice;
-        if (!is(info.batch).emptyOrOnlyWhiteSpace()) {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, info.batch, Instant.now());
-        } else {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, Instant.now());
-        }
-        newDevice.setSerialNumber(info.serialNumber);
-        newDevice.setYearOfCertification(info.yearOfCertification);
-        newDevice.save();
-
+        Device newDevice= newDevice(info.deviceConfigurationId, info.batch, info.mRID, info.serialNumber, info.yearOfCertification );
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
         return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
+    }
+
+    private Device newDevice(long deviceConfigurationId, String batch, String mRID, String serialNumber, int yearOfCertification){
+        Optional<DeviceConfiguration> deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
+        Device newDevice;
+        if (!is(batch).emptyOrOnlyWhiteSpace()) {
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), mRID, mRID, batch, Instant.now());
+        } else {
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), mRID, mRID, Instant.now());
+        }
+        newDevice.setSerialNumber(serialNumber);
+        newDevice.setYearOfCertification(yearOfCertification);
+        newDevice.save();
+        return newDevice;
     }
 
     @PUT @Transactional
@@ -265,18 +269,17 @@ public class DeviceResource {
         return deviceService.changeDeviceConfigurationForSingleDevice(device.getId(), deviceVersion, destinationConfiguration.getId(), deviceConfigurationVersion);
     }
 
-    private DeviceInfo updateGateway(DeviceInfo info, Device device) {
+    private void updateGateway(DeviceInfo info, Device device) {
         if (info.masterDevicemRID != null) {
             updateGateway(device, info.masterDevicemRID);
         } else {
             removeGateway(device);
         }
-        return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
-    private DeviceInfo updateDataLoggerChannels(DeviceInfo info, Device dataLogger){
+    private void updateDataLoggerChannels(DeviceInfo info, Device dataLogger){
         if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()){
-            List<Device> currentSlaves =topologyService.findDataLoggerSlaves(dataLogger);
+            List<Device> currentSlaves = topologyService.findDataLoggerSlaves(dataLogger);
             List<Device> slavesToRemove;
             if (info.dataLoggerSlaveDevices.isEmpty()){
                 slavesToRemove = currentSlaves;
@@ -285,20 +288,26 @@ public class DeviceResource {
             }
             slavesToRemove.stream().forEach(topologyService::clearDataLogger);
             info.dataLoggerSlaveDevices.stream().forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
-            return deviceInfoFactory.deviceInfo(dataLogger); //, topologyService.findDataLoggerSlaves(dataLogger));
         }
-        return info;
     }
 
     private void setDataLogger(DataLoggerSlaveDeviceInfo slaveDeviceInfo, Device dataLogger){
-        Device slave = deviceService.findByUniqueMrid(slaveDeviceInfo.mRID).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_ID, slaveDeviceInfo.mRID));
-        final HashMap<Channel, Channel> channelMap = new HashMap<>();
-        slaveDeviceInfo.dataLoggerSlaveChannelInfos.stream().map(this::slaveDataLoggerChannelPair).forEach((pair) -> channelMap.put(pair.getFirst(), pair.getLast()));
-        topologyService.setDataLogger(slave, dataLogger, channelMap);
+        if (!slaveDeviceInfo.containsTheUnlinkedDataLoggerChannels()) {
+            Device slave;
+            if (slaveDeviceInfo.id == 0 && slaveDeviceInfo.version == 0) {
+                slave = newDevice(slaveDeviceInfo.deviceConfigurationId, null, slaveDeviceInfo.mRID, slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification);
+            } else {
+                slave = deviceService.findByUniqueMrid(slaveDeviceInfo.mRID)
+                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_ID, slaveDeviceInfo.mRID));
+            }
+            final HashMap<Channel, Channel> channelMap = new HashMap<>();
+            slaveDeviceInfo.dataLoggerSlaveChannelInfos.stream().map(info -> slaveDataLoggerChannelPair(slave, info)).forEach((pair) -> channelMap.put(pair.getFirst(), pair.getLast()));
+            topologyService.setDataLogger(slave, dataLogger, channelMap);
+        }
     }
 
-    private Pair<Channel, Channel> slaveDataLoggerChannelPair(DataLoggerSlaveChannelInfo info){
-       return Pair.of(channelInfoToChannel(info.slaveChannel), channelInfoToChannel(info.dataLoggerChannel));
+    private Pair<Channel, Channel> slaveDataLoggerChannelPair(Device slave, DataLoggerSlaveChannelInfo info){
+       return Pair.of(channelInfoToChannel(slave, info.slaveChannel), channelInfoToChannel(info.dataLoggerChannel));
     }
 
     private boolean isStillADataLoggerSlave(Device slave, DeviceInfo info){
@@ -307,6 +316,10 @@ public class DeviceResource {
 
     private Channel channelInfoToChannel(ChannelInfo info){
         return resourceHelper.findChannelOnDeviceOrThrowException(info.parent.id, info.id );
+    }
+
+    private Channel channelInfoToChannel(Device slave, ChannelInfo info){
+        return resourceHelper.findChannelOnDeviceOrThrowException(slave, info.id );
     }
 
     private void updateGateway(Device device, String gatewayMRID) {
