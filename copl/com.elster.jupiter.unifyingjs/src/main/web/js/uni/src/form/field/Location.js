@@ -17,20 +17,25 @@ Ext.define('Uni.form.field.Location', {
         type: 'vbox',
         align: 'stretch'
     },
-    defaults: {
-        labelWidth: 150,
-        width: 335
-    },
+    labelWidth: 150,
+
     editLocation: Uni.I18n.translate('location.editLocation', 'UNI', 'Input location'),
     findLocationsUrl: null,
     locationDetailsUrl: null,
+    displayResetButton: false,
     isValid: function () {
         return true;
     },
     initComponent: function () {
-        var me = this, comboLocation, editLocation, propertyFormLocation, store;
+        var me = this, comboLocation, locationContainer, editLocation, propertyFormLocation, store,
+            labelPad = 15,
+        //completeWidth = me.width-me.labelWidth-labelPad,
+        //itemsWidth = me.displayResetButton ?  me.width-me.labelWidth-labelPad-40 : me.width-me.labelWidth-labelPad,
+            completeWidth = me.width,
+            propertyWidth = me.displayResetButton ? me.width - me.labelWidth - labelPad - 40 : me.width - me.labelWidth - labelPad,
+            itemsWidth = me.displayResetButton ? me.width - 40 : me.width,
+            store = Ext.create('Uni.store.FindLocations');
 
-        store = Ext.create('Uni.store.FindLocations');
         store.getProxy().setUrl(me.findLocationsUrl);
         comboLocation = {
             xtype: 'combobox',
@@ -62,9 +67,44 @@ Ext.define('Uni.form.field.Location', {
             },
             style: {
                 display: 'inline'
-            }
-
-
+            },
+            labelWidth: me.labelWidth,
+            width: itemsWidth
+        };
+        locationContainer = {
+            xtype: 'container',
+            itemId: 'ctn-location',
+            width: completeWidth,
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    xtype: 'container',
+                    itemId: 'ctn-txtCoordinates',
+                    width: itemsWidth,
+                    layout: {
+                        type: 'hbox',
+                        align: 'top'
+                    },
+                    items: [comboLocation]
+                },
+                {
+                    xtype: 'container',
+                    itemId: 'ctn-restore',
+                    width: 40,
+                    layout: {
+                        type: 'hbox',
+                        align: 'top'
+                    },
+                    items: [
+                        {
+                            xtype: 'uni-default-button'
+                        }
+                    ]
+                }
+            ]
         };
         editLocation = {
             xtype: 'checkbox',
@@ -84,7 +124,7 @@ Ext.define('Uni.form.field.Location', {
             defaults: {
                 resetButtonHidden: true,
                 labelWidth: this.labelWidth,
-                width: '100%'
+                width: propertyWidth
             },
             layout: {
                 type: 'vbox',
@@ -92,11 +132,21 @@ Ext.define('Uni.form.field.Location', {
             }
 
         };
-        me.items = [comboLocation, editLocation, propertyFormLocation];
+        me.items = [locationContainer, editLocation, propertyFormLocation];
 
         me.callParent(arguments);
         if (me.value) {
             me.setValue(me.value);
+        }
+        me.updateResetButton();
+    },
+
+    updateResetButton: function () {
+        var me = this,
+            restoreDefault = me.down('uni-default-button');
+
+        if (me.displayResetButton) {
+            restoreDefault.setVisible(true);
         }
     },
 
@@ -180,6 +230,7 @@ Ext.define('Uni.form.field.Location', {
         comboLocation.locationId = value.locationId;
         comboLocation.setRawValue(value.unformattedLocationValue);
         propertyForm.hide();
+        editLocation.setValue(false);
     },
 
     getValue: function () {

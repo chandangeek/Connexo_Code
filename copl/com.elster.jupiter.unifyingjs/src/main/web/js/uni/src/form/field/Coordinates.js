@@ -9,11 +9,16 @@ Ext.define('Uni.form.field.Coordinates', {
     },
     layout: 'vbox',
     requires: [
-        'Ext.container.Container'
+        'Ext.container.Container',
+        'Uni.property.view.DefaultButton'
     ],
+    displayResetButton: false,
 
     initComponent: function () {
+
         var me = this,
+            completeWidth = me.width - me.labelWidth - me.labelPad,
+            itemsWidth = me.displayResetButton ? me.width - me.labelWidth - me.labelPad - 40 : me.width - me.labelWidth - me.labelPad,
             noCoordinate = {
                 xtype: 'displayfield',
                 itemId: 'no-coordinate',
@@ -22,28 +27,28 @@ Ext.define('Uni.form.field.Coordinates', {
                     fontStyle: 'italic',
                     color: '#999'
                 },
-                width: '100%'
+                width: itemsWidth
             },
             displayCoordinateLat = {
                 xtype: 'displayfield',
                 itemId: 'coordinate-lat',
-                width: '40%'
+                width: '39%'
             },
             displayCoordinateLong = {
                 xtype: 'displayfield',
                 itemId: 'coordinate-long',
-                width: '40%'
+                width: '39%'
             },
             displayCoordinateElev = {
                 xtype: 'displayfield',
                 itemId: 'coordinate-elev',
-                width: '20%'
+                width: '22%'
             },
             displayContainer = {
                 xtype: 'container',
                 itemId: 'ctn-coordinate',
                 hidden: true,
-                width: '100%',
+                width: itemsWidth,
                 layout: {
                     type: 'hbox',
                     align: 'middle'
@@ -92,7 +97,7 @@ Ext.define('Uni.form.field.Coordinates', {
                 xtype: 'numberfield',
                 hideTrigger: true,
                 itemId: 'txt-coordinate-elev',
-                width: '20%',
+                width: '21%',
                 decimalPrecision: 3,
                 minValue: -10000,
                 maxValue: 10000,
@@ -108,34 +113,82 @@ Ext.define('Uni.form.field.Coordinates', {
                 }
             },
             coordinateSeparator = {
-                xtype: 'component',
-                html: ':',
+                xtype: 'displayfield',
+                value: ':',
                 width: '4%',
-                margin: '5 0 0 6'
+                fieldStyle: "text-align:center;"
+            },
+            invalidCoordinate = {
+                xtype: 'panel',
+                itemId: 'pnl-invalid-coordinate',
+                width: '100%',
+                bodyStyle: {
+                    color: '#eb5642'
+                },
+                hidden: true,
+                html: ''
             },
             textNote = {
                 xtype: 'displayfield',
+                itemId: 'txtNote',
                 value: Uni.I18n.translate('coordinate.note', 'UNI', 'Edited coordinate values will be displayed also in degrees, minutes, seconds format'),
                 fieldStyle: {
                     fontStyle: 'italic',
                     color: '#999'
                 },
-                width: '100%'
+                width: itemsWidth
             },
             textContainer = {
                 xtype: 'container',
-                width: '100%',
+                itemId: 'ctn-coordinates',
+                width: completeWidth,
                 layout: {
                     type: 'hbox',
-                    align: 'top'
+                    align: 'stretch'
                 },
-                items: [textCoordinateLat, coordinateSeparator, textCoordinateLong, coordinateSeparator, textCoordinateElev]
+                items: [
+                    {
+                        xtype: 'container',
+                        itemId: 'ctn-txtCoordinates',
+                        width: itemsWidth,
+                        layout: {
+                            type: 'hbox',
+                            align: 'top'
+                        },
+                        items: [textCoordinateLat, coordinateSeparator, textCoordinateLong, coordinateSeparator, textCoordinateElev]
+                    },
+                    {
+                        xtype: 'container',
+                        itemId: 'ctn-restore',
+                        width: 40,
+                        layout: {
+                            type: 'hbox',
+                            align: 'top'
+                        },
+                        items: [
+                            {
+                                xtype: 'uni-default-button'
+                            }
+                        ]
+                    }
+                ]
             };
-        me.items = [noCoordinate, displayContainer, textContainer, textNote];
+
+        me.items = [noCoordinate, displayContainer, textContainer, invalidCoordinate, textNote];
 
         me.callParent(arguments);
         if (me.value) {
             me.setValue(me.value);
+        }
+        me.updateResetButton();
+    },
+
+    updateResetButton: function () {
+        var me = this,
+            restoreDefault = me.down('uni-default-button');
+
+        if (me.displayResetButton) {
+            restoreDefault.setVisible(true);
         }
     },
 
@@ -254,9 +307,28 @@ Ext.define('Uni.form.field.Coordinates', {
     },
 
     markInvalid: function (fields) {
-        this.down('#txt-coordinate-long').markInvalid('');
-        this.down('#txt-coordinate-elev').markInvalid('');
-        this.down('#txt-coordinate-lat').markInvalid(fields);
+        var me = this,
+            latTextField = me.down('#txt-coordinate-lat'),
+            longTextField = me.down('#txt-coordinate-long'),
+            elevTextField = me.down('#txt-coordinate-elev');
+
+        if ((latTextField.getValue() == null) || latTextField.getValue().length == 0) {
+            latTextField.markInvalid('');
+        }
+        if ((longTextField.getValue() == null) || longTextField.getValue().length == 0) {
+            longTextField.markInvalid('');
+        }
+        if ((elevTextField.getValue() == null) || elevTextField.getValue().length == 0) {
+            elevTextField.markInvalid('');
+        }
+
+        var errorMsg = this.down('#pnl-invalid-coordinate');
+        errorMsg.update(fields);
+        errorMsg.show();
+
+    },
+    clearInvalid: function () {
+        this.down('#pnl-invalid-coordinate').hide();
     },
 
     recurrenceNumberFieldValidation: function (field) {
