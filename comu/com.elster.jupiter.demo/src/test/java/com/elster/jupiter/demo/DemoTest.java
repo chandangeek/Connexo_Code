@@ -107,7 +107,6 @@ import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveI
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -121,7 +120,6 @@ import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.favorites.impl.FavoritesModule;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -141,7 +139,6 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
@@ -193,7 +190,9 @@ import java.util.TimeZone;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -214,7 +213,7 @@ public class DemoTest {
             bind(FtpClientService.class).toInstance(mock(FtpClientService.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(UserFileFactory.class).toInstance(mock(UserFileFactory.class));
+            bind(DeviceConfigurationService.class).toInstance(mock(DeviceConfigurationService.class));
             bind(CodeFactory.class).toInstance(mock(CodeFactory.class));
             bind(CollectedDataFactory.class).toInstance(mock(CollectedDataFactory.class));
 
