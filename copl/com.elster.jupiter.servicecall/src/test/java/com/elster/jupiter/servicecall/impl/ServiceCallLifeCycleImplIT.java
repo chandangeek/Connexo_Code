@@ -18,6 +18,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.LifeCycleIsStillInUseException;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
@@ -54,6 +55,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -95,6 +97,7 @@ public class ServiceCallLifeCycleImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(MessageInterpolator.class).toInstance(messageInterpolator);
+            bind(SearchService.class).toInstance(mock(SearchService.class));
 //            bind(ServiceCallTypeOneCustomPropertySet.class).to(ServiceCallTypeOneCustomPropertySet.class);
         }
     }
