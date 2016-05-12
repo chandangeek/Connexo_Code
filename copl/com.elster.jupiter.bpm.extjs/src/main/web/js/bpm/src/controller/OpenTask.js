@@ -255,6 +255,17 @@ Ext.define('Bpm.controller.OpenTask', {
         assignUser.save({
             success: function () {
                 assigneeForm.setLoading(false);
+
+                var task = me.getModel('Bpm.model.task.Task');
+                task.load(taskRecord.get('id'), {
+                        success: function (taskRec) {
+                            button.taskRecord = taskRec;
+                            me.loadAboutTaskForm(taskRec);
+                        }
+                    }
+                );
+
+                me.loadJbpmForm(taskRecord);
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
