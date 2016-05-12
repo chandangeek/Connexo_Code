@@ -214,7 +214,6 @@ public class SecurityPropertySetImplCrudIT {
             eventService = new SpyEventService(injector.getInstance(EventService.class));
             FiniteStateMachineService finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
-            injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(TaskService.class);
@@ -229,6 +228,7 @@ public class SecurityPropertySetImplCrudIT {
                     injector.getInstance(MeteringService.class),
                     injector.getInstance(MdcReadingTypeUtilService.class),
                     injector.getInstance(UserService.class),
+                    injector.getInstance(PluggableService.class),
                     protocolPluggableService,
                     injector.getInstance(EngineConfigurationService.class),
                     injector.getInstance(SchedulingService.class),

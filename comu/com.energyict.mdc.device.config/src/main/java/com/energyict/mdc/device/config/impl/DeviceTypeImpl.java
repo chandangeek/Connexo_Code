@@ -33,6 +33,7 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DataloggerSlaveException;
+import com.energyict.mdc.device.config.exceptions.DuplicateDeviceMessageFileException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeAlreadyInDeviceTypeException;
@@ -43,6 +44,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -54,6 +56,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -73,7 +76,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         CONFLICTINGMAPPING("deviceConfigConflictMappings"),
         CUSTOMPROPERTYSETUSAGE("deviceTypeCustomPropertySetUsages"),
         DEVICETYPEPURPOSE("deviceTypePurpose"),
-        DEVICE_LIFE_CYCLE("deviceLifeCycle"),;
+        DEVICE_LIFE_CYCLE("deviceLifeCycle"),
+        FILE_MANAGEMENT_ENABLED("fileManagementEnabled"),
+        DEVICE_MESSAGE_FILES("deviceMessageFiles"),
+        ;
 
         private final String javaFieldName;
 
@@ -107,6 +113,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private long deviceProtocolPluggableClassId;
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private boolean deviceProtocolPluggableClassChanged = false;
+    private boolean fileManagementEnabled = false;
+    private List<DeviceMessageFile> deviceMessageFiles = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -738,6 +746,51 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 .initialize(this, name));
     }
 
+    @Override
+    public boolean isFileManagementEnabled() {
+        return this.fileManagementEnabled;
+    }
+
+    @Override
+    public void enableFileManagement() {
+        if (!this.fileManagementEnabled) {
+            this.fileManagementEnabled = true;
+            this.update();
+        }
+    }
+
+    @Override
+    public void disableFileManagement() {
+        if (this.fileManagementEnabled) {
+            this.fileManagementEnabled = false;
+            this.deviceMessageFiles.clear();
+            this.update();
+        }
+    }
+
+    @Override
+    public List<DeviceMessageFile> getDeviceMessageFiles() {
+        return Collections.unmodifiableList(this.deviceMessageFiles);
+    }
+
+    @Override
+    public DeviceMessageFile addDeviceMessageFile(Path path) {
+        DeviceMessageFileImpl file = this.getDataModel().getInstance(DeviceMessageFileImpl.class).init(this, path);
+        if (this.deviceMessageFiles.stream().anyMatch(other -> other.getName().equals(file.getName()))) {
+            throw new DuplicateDeviceMessageFileException(this, file.getName(), this.getThesaurus());
+        }
+        this.deviceMessageFiles.add(file);
+        this.touch();
+        return file;
+    }
+
+    @Override
+    public void removeDeviceMessageFile(DeviceMessageFile obsolete) {
+        if (this.deviceMessageFiles.remove(obsolete)) {
+            this.touch();
+        }
+    }
+
     private enum BuildingMode {
         UNDERCONSTRUCTION {
             @Override
@@ -1082,7 +1135,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         private final DeviceTypeImpl underConstruction;
 
-        public DeviceTypeBuilderImpl(DeviceTypeImpl underConstruction, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle, boolean isDataloggerSlave) {
+        DeviceTypeBuilderImpl(DeviceTypeImpl underConstruction, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle, boolean isDataloggerSlave) {
             this.underConstruction = underConstruction;
             if (isDataloggerSlave) {
                 this.underConstruction.initializeDataloggerSlave(name, deviceLifeCycle);
@@ -1112,6 +1165,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         @Override
         public DeviceTypeBuilder setDescription(String description) {
             underConstruction.setDescription(description);
+            return this;
+        }
+
+        @Override
+        public DeviceTypeBuilder enableFileManagement() {
+            underConstruction.enableFileManagement();
             return this;
         }
 

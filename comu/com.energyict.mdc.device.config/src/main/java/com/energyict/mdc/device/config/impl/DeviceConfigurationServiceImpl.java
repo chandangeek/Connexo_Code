@@ -123,6 +123,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
+    private volatile PluggableService pluggableService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile MasterDataService masterDataService;
@@ -142,7 +143,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -151,6 +152,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
+        this.setPluggableServce(pluggableService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setReadingTypeUtilService(mdcReadingTypeUtilService);
         this.setEngineConfigurationService(engineConfigurationService);
@@ -496,6 +498,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setPluggableServce(PluggableService pluggableService) {
+        this.pluggableService = pluggableService;
     }
 
     @Reference
