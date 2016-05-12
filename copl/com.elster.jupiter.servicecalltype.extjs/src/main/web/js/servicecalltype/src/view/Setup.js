@@ -28,7 +28,7 @@ Ext.define('Sct.view.Setup', {
                         reasons: [
 
                             Uni.I18n.translate('serviceCallTypes.empty.list.item1', 'SCT', 'No service call types have been defined yet.'),
-                            Uni.I18n.translate('serviceCallTypes.empty.list.item2', 'SCT', 'Service call types exist, but you do not have permission to view them.')
+                            Uni.I18n.translate('serviceCallTypes.empty.list.item2', 'SCT', "Service call types exist, but you don't have permission to view them.")
                         ]
                     },
                     previewComponent: {
