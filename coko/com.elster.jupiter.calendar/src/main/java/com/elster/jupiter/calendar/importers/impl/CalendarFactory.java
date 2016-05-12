@@ -102,8 +102,13 @@ public class CalendarFactory {
         }
 
         for (Transition transition : calendar.getPeriods().getTransitions().getTransition()) {
-             builder.on(MonthDay.of(transition.getMonth().intValue(), transition.getDay().intValue()))
-                    .transitionTo(getPeriodNameById(transition.getToPeriod()));
+            if (transition.getYear() != null) {
+                builder.on(LocalDate.of(transition.getYear().intValue(), transition.getMonth().intValue(), transition.getDay().intValue()))
+                        .transitionTo(getPeriodNameById(transition.getToPeriod()));
+            } else {
+                builder.on(MonthDay.of(transition.getMonth().intValue(), transition.getDay().intValue()))
+                        .transitionTo(getPeriodNameById(transition.getToPeriod()));
+            }
         }
 
         for (com.elster.jupiter.calendar.impl.xmlbinding.Exception exception : calendar.getExceptions().getException()) {

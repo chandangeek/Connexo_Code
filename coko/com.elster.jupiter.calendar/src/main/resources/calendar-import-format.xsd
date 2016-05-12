@@ -155,6 +155,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="to-period"/>
+        <xs:element ref="year" minOccurs="0"/>
         <xs:element ref="month"/>
         <xs:element ref="day"/>
       </xs:sequence>

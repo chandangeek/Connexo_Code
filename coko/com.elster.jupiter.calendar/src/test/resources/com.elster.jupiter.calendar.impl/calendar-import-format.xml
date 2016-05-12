@@ -6,7 +6,7 @@
     <mRID>optional</mRID>
     <description>From example provide by Robert Ritchy</description>
     <timezone>CST</timezone>
-    <!-- <start-year>2010</start-year> -->
+    <start-year>2010</start-year>
     <end-year>2015</end-year>
     <events>
         <event>
@@ -184,11 +184,13 @@
                  will have year/month/day and will map to java.util.LocalDate -->
             <transition>
                 <to-period>1</to-period>
+                <year>2016</year>
                 <month>5</month>
                 <day>1</day>
             </transition>
             <transition>
                 <to-period>2</to-period>
+                <year>2016</year>
                 <month>11</month>
                 <day>1</day>
             </transition>
