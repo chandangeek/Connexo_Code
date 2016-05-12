@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.orm.UnderlyingIOException;
@@ -14,6 +16,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.google.common.base.Strings;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
@@ -36,6 +39,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -61,6 +65,8 @@ public class DeviceMessageFileImplIT {
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -162,6 +168,47 @@ public class DeviceMessageFileImplIT {
         DeviceMessageFileContentReader reader = new DeviceMessageFileContentReader();
         deviceMessageFile.readWith(reader);
         assertThat(reader.whatWasRead()).isEqualTo(expectedContents);
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "name")
+    @Transactional
+    public void addWithEmptyFileName() throws IOException {
+        DeviceLifeCycle defaultDeviceLifeCycle = inMemoryBootstrapModule.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get();
+        DeviceConfigurationService deviceConfigurationService = inMemoryBootstrapModule.getDeviceConfigurationService();
+        DeviceType deviceType = deviceConfigurationService
+                .newDeviceTypeBuilder(DeviceMessageFileImplIT.class.getSimpleName(), this.deviceProtocolPluggableClass, defaultDeviceLifeCycle)
+                .enableFileManagement()
+                .create();
+        when(this.filePart.toString()).thenReturn("");
+
+        // Business method
+        deviceType.addDeviceMessageFile(path);
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}")
+    @Transactional
+    public void addWithFileThatIsTooLarge() throws IOException {
+        DeviceLifeCycle defaultDeviceLifeCycle = inMemoryBootstrapModule.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get();
+        DeviceConfigurationService deviceConfigurationService = inMemoryBootstrapModule.getDeviceConfigurationService();
+        DeviceType deviceType = deviceConfigurationService
+                .newDeviceTypeBuilder(DeviceMessageFileImplIT.class.getSimpleName(), this.deviceProtocolPluggableClass, defaultDeviceLifeCycle)
+                .enableFileManagement()
+                .create();
+        FileSystem jimfs = Jimfs.newFileSystem(Configuration.unix());
+
+        Path path = jimfs.getPath("/too-big.txt");
+        try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(path))) {
+            writer.write(Strings.repeat("7", DeviceConfigurationService.MAX_DEVICE_MESSAGE_FILE_SIZE_BYTES + 10));
+        }
+
+        // Business method
+        deviceType.addDeviceMessageFile(path);
+
+        // Asserts: see expected constraint violation rule
     }
 
     @Test(expected = DuplicateDeviceMessageFileException.class)

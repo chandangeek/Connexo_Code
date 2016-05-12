@@ -9,14 +9,17 @@ import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 
 import com.google.common.base.MoreObjects;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -51,15 +54,23 @@ public class DeviceMessageFileImpl implements DeviceMessageFile {
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String name;
-    @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
     private Reference<DeviceType> deviceType = ValueReference.absent();
     private Blob contents = FileBlob.empty();
+    @Max(value = DeviceConfigurationService.MAX_DEVICE_MESSAGE_FILE_SIZE_MB, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}", groups = {Save.Create.class, Save.Update.class})
+    private BigDecimal blobSize = BigDecimal.ZERO;
 
     DeviceMessageFileImpl init(DeviceType deviceType, Path path) {
         this.deviceType.set(deviceType);
         this.name = path.getFileName().toString();
         this.contents = FileBlob.from(path);
+        this.blobSize = this.sizeInMB();
         return this;
+    }
+
+    private BigDecimal sizeInMB() {
+        BigDecimal byteToMBScaler = BigDecimal.valueOf(1024 * 1024);
+        return BigDecimal.valueOf(this.contents.length()).divide(byteToMBScaler, 3, BigDecimal.ROUND_CEILING);
     }
 
     @Override

@@ -31,6 +31,8 @@ import java.util.Optional;
 public interface DeviceConfigurationService {
 
     String COMPONENTNAME = "DTC";
+    int MAX_DEVICE_MESSAGE_FILE_SIZE_MB = 2;
+    int MAX_DEVICE_MESSAGE_FILE_SIZE_BYTES = MAX_DEVICE_MESSAGE_FILE_SIZE_MB * 1024 * 1024;    // 2MB
 
     Finder<DeviceType> findAllDeviceTypes();
 

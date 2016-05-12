@@ -779,6 +779,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         if (this.deviceMessageFiles.stream().anyMatch(other -> other.getName().equals(file.getName()))) {
             throw new DuplicateDeviceMessageFileException(this, file.getName(), this.getThesaurus());
         }
+        Save.CREATE.validate(this.getDataModel(), file);
         this.deviceMessageFiles.add(file);
         this.touch();
         return file;
