@@ -1,24 +1,25 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
-import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
-
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
-import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
+import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
+
 import com.google.common.collect.BoundType;
-import org.junit.Test;
 
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static com.google.common.collect.Range.range;
 
@@ -81,7 +82,7 @@ public class CommunicationTaskServiceImplTest extends PersistenceIntegrationTest
     }
 
     private SearchablePropertyValue buildSearchablePropertyCondition(String property, SearchablePropertyOperator operator, List<String> values) {
-        DeviceSearchDomain deviceSearchDomain = inMemoryPersistence.getDeviceSearchDomain();
+        SearchDomain deviceSearchDomain = inMemoryPersistence.getDeviceSearchDomain();
         Optional<SearchableProperty> searchableProperty = deviceSearchDomain.getProperties().stream().filter(p -> property.equals(p.getName())).findFirst();
         if (searchableProperty.isPresent()) {
             SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();

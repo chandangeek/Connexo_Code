@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
@@ -17,10 +18,9 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.events.EndDeviceGroupDeletionVetoEventHandler;
 import com.energyict.mdc.device.data.impl.events.VetoDeleteDeviceGroupException;
-import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+
 import org.joda.time.DateTime;
-import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -28,6 +28,8 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -132,7 +134,7 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
     }
 
     private SearchablePropertyValue buildSearchablePropertyCondition(String property, SearchablePropertyOperator operator, List<String> values) {
-        DeviceSearchDomain deviceSearchDomain = inMemoryPersistence.getDeviceSearchDomain();
+        SearchDomain deviceSearchDomain = inMemoryPersistence.getDeviceSearchDomain();
         Optional<SearchableProperty> searchableProperty = deviceSearchDomain.getProperties().stream().filter(p -> property.equals(p.getName())).findFirst();
         if (searchableProperty.isPresent()) {
             SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
