@@ -1,5 +1,5 @@
 
-package com.elster.jupiter.soap.currencyconverter.impl;
+package com.elster.jupiter.soap.currencyconverter;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlType;

@@ -1,5 +1,7 @@
 package com.elster.jupiter.soap.currencyconverter.impl;
 
+import com.elster.jupiter.soap.currencyconverter.CurrencyConvertorSoap;
+
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebEndpoint;
@@ -92,7 +94,7 @@ public class CurrencyConvertor extends Service {
      * @return returns CurrencyConvertorSoap
      */
     @WebEndpoint(name = "CurrencyConvertorSoap")
-    public CurrencyConvertorSoap getCurrencyConvertorSoap() {
+    public com.elster.jupiter.soap.currencyconverter.CurrencyConvertorSoap getCurrencyConvertorSoap() {
         return super.getPort(CurrencyConvertorSoap, CurrencyConvertorSoap.class);
     }
 

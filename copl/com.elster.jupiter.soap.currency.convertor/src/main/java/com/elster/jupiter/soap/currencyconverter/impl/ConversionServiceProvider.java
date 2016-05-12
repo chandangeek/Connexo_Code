@@ -1,10 +1,17 @@
 package com.elster.jupiter.soap.currencyconverter.impl;
 
+import com.elster.jupiter.soap.currencyconverter.CurrencyConvertorSoap;
 import com.elster.jupiter.soap.whiteboard.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
+import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceFeature;
+import java.net.URL;
+import java.util.List;
 
 /**
  * Created by bvn on 5/9/16.
@@ -23,12 +30,14 @@ public class ConversionServiceProvider implements OutboundEndPointProvider {
     }
 
     @Override
-    public Object get() {
-        return new CurrencyConversionServiceImpl(soapProviderSupportFactory);
+    public Service get(URL wsdlUrl, List<WebServiceFeature> webServiceFeatures) {
+        try (ContextClassLoaderResource ctx = soapProviderSupportFactory.create()) {
+            return new CurrencyConvertor(wsdlUrl, webServiceFeatures.toArray(new WebServiceFeature[webServiceFeatures.size()]));
+        }
     }
 
     @Override
-    public String[] getServices() {
-        return new String[]{"com.elster.jupiter.soap.currencyconverter.CurrencyConversionService"};
+    public Class getService() {
+        return CurrencyConvertorSoap.class;
     }
 }

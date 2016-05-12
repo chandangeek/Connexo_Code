@@ -1,6 +1,8 @@
 
 package com.elster.jupiter.soap.currencyconverter.impl;
 
+import com.elster.jupiter.soap.currencyconverter.Currency;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;

@@ -1,4 +1,6 @@
-package com.elster.jupiter.soap.currencyconverter.impl;
+package com.elster.jupiter.soap.currencyconverter;
+
+import com.elster.jupiter.soap.currencyconverter.impl.ObjectFactory;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
