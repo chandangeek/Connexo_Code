@@ -68,7 +68,7 @@ public class CalendarCrudTest {
         inMemoryBootstrapModule.deactivate();
     }
 
-    private CalendarService getCalendarService() {
+    private ServerCalendarService getCalendarService() {
         return inMemoryBootstrapModule.getCalendarService();
     }
 
@@ -475,12 +475,12 @@ public class CalendarCrudTest {
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
             Schema schema =
-                    sf.newSchema(new File(getClass().getClassLoader().getResource("com.elster.jupiter.calendar.impl/calendar-import-format.xsd").toURI()));
+                    sf.newSchema(new File(getClass().getClassLoader().getResource("calendar-import-format.xsd").toURI()));
             u.setSchema(schema);
-            in = new FileInputStream(new File(getClass().getClassLoader().getResource("calendar-import-format.xml").toURI()));
+            in = new FileInputStream(new File(getClass().getClassLoader().getResource("com.elster.jupiter.calendar.impl/calendar-import-format.xml").toURI()));
             com.elster.jupiter.calendar.impl.xmlbinding.Calendar result =
                     (com.elster.jupiter.calendar.impl.xmlbinding.Calendar) u.unmarshal(in);
-            CalendarFactory factory = new CalendarFactory(getCalendarService(), thesaurus);
+            CalendarFactory factory = new CalendarFactory(getCalendarService(), getCalendarService().getThesaurus());
             Calendar calendar = factory.getCalendar(result);
             System.out.println("ok");
         }

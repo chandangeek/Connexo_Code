@@ -256,11 +256,9 @@
         <exception day-type="5">
             <occurrences>
                 <fixed-occurrence>
-                    <fixed-occurrence>
-                        <day>2</day>
-                        <month>5</month>
-                        <year>2016</year>
-                    </fixed-occurrence>
+                    <day>2</day>
+                    <month>5</month>
+                    <year>2016</year>
                 </fixed-occurrence>
             </occurrences>
         </exception>

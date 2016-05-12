@@ -2,11 +2,13 @@ package com.elster.jupiter.calendar.importers.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.MessageSeeds;
-import com.elster.jupiter.calendar.impl.xmlbinding.Calendar;
 import com.elster.jupiter.calendar.impl.xmlbinding.DayType;
 import com.elster.jupiter.calendar.impl.xmlbinding.Event;
+import com.elster.jupiter.calendar.impl.xmlbinding.FixedOccurrence;
 import com.elster.jupiter.calendar.impl.xmlbinding.Period;
 import com.elster.jupiter.calendar.impl.xmlbinding.RangeTime;
+import com.elster.jupiter.calendar.impl.xmlbinding.RecurringOccurrence;
+import com.elster.jupiter.calendar.impl.xmlbinding.Transition;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
@@ -17,9 +19,11 @@ import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 /**
  * Created by igh on 10/05/2016.
@@ -30,7 +34,9 @@ public class CalendarFactory {
     private final Thesaurus thesaurus;
 
     private com.elster.jupiter.calendar.impl.xmlbinding.Calendar calendar;
+    private Map<BigInteger, String> events;
     private Map<BigInteger, String> dayTypes;
+    private Map<BigInteger, String> periods;
 
     @Inject
     public CalendarFactory(CalendarService service, Thesaurus thesaurus) {
@@ -47,29 +53,39 @@ public class CalendarFactory {
                     getStartYear())
                    .description(getDescription()).mRID(getMRID());
 
+        events = new HashMap<BigInteger, String>();
         for (Event event : calendar.getEvents().getEvent()) {
-            builder.addEvent(getEventName(event), getEventCode(event));
+            BigInteger eventId = getEventId(event);
+            String eventName = getEventName(event);
+            int eventCode = getEventCode(event);
+            events.put(eventId, eventName);
+            builder.addEvent(eventName, eventCode);
         }
 
-        dayTypes = new HashMap<BigInteger, String>(); // needed for periods (has a link to daytypes on id) and builder api requires daytype name
+        dayTypes = new HashMap<BigInteger, String>(); // needed for periods (has a link to daytypes on code) and builder api requires daytype name
         for (DayType dayType : calendar.getDayTypes().getDayType()) {
             BigInteger id = dayType.getId();
             String dayTypeName = dayType.getName();
             dayTypes.put(id, dayTypeName);
             CalendarService.DayTypeBuilder dayTypeBuilder =  builder.newDayType(dayTypeName);
             for (RangeTime rangeTime : dayType.getRanges().getRangeTime()) {
-                int event = rangeTime.getEvent().intValue();
+                BigInteger eventId = rangeTime.getEvent();
                 LocalTime localTime =  LocalTime.of(
                         rangeTime.getFrom().getHour().intValue(),
                         rangeTime.getFrom().getMinute().intValue(),
                         rangeTime.getFrom().getSecond().intValue());
-                dayTypeBuilder.eventWithCode(event).startsFrom(localTime);
+                dayTypeBuilder.event(getEventNameById(eventId)).startsFrom(localTime);
             }
+            dayTypeBuilder.add();
         }
 
+        periods = new HashMap<BigInteger, String>(); // needed for period transitions
         for (Period period : calendar.getPeriods().getPeriod()) {
+            BigInteger id = period.getId();
+            String periodName = period.getName();
+            periods.put(id, periodName);
             builder.addPeriod(
-                    period.getName(),
+                    periodName,
                     getDayTypeNameById(period.getWeekTemplate().getMonday().getDayType()),
                     getDayTypeNameById(period.getWeekTemplate().getTuesday().getDayType()),
                     getDayTypeNameById(period.getWeekTemplate().getWednesday().getDayType()),
@@ -79,29 +95,31 @@ public class CalendarFactory {
                     getDayTypeNameById(period.getWeekTemplate().getSunday().getDayType()));
         }
 
+        for (Transition transition : calendar.getPeriods().getTransitions().getTransition()) {
+             builder.on(MonthDay.of(transition.getMonth().intValue(), transition.getDay().intValue()))
+                    .transitionTo(getPeriodNameById(transition.getToPeriod()));
+        }
 
-
-
-
-
-                /*builder.addPeriod("Summer", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Summer weekday", "Weekend", "Weekend")
-                .addPeriod("Winter", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day", "Winter day")
-                .on(MonthDay.of(5, 1)).transitionTo("Summer")
-                .on(MonthDay.of(11, 1)).transitionTo("Winter")
-                .except("Holiday")
-                .occursOnceOn(LocalDate.of(2016, 1, 18))
-                .occursOnceOn(LocalDate.of(2016, 2, 15))
-                .occursOnceOn(LocalDate.of(2016, 5, 30))
-                .occursAlwaysOn(MonthDay.of(7, 4))
-                .occursOnceOn(LocalDate.of(2016, 9, 5))
-                .occursOnceOn(LocalDate.of(2016, 10, 10))
-                .occursAlwaysOn(MonthDay.of(11, 11))
-                .occursOnceOn(LocalDate.of(2016, 11, 24))
-                .occursAlwaysOn(MonthDay.of(12, 25))
-                .occursAlwaysOn(MonthDay.of(12, 26))
-                .add()
-                .add();*/
-        return null;
+        for (com.elster.jupiter.calendar.impl.xmlbinding.Exception exception : calendar.getExceptions().getException()) {
+            String dayTypeName = getDayTypeNameById(exception.getDayType());
+            CalendarService.ExceptionBuilder exceptionBuilder = builder.except(dayTypeName);
+            for (Object occurrence : exception.getOccurrences().getFixedOccurrenceOrRecurringOccurrence()) {
+                if (occurrence instanceof FixedOccurrence) {
+                    FixedOccurrence fixedOccurrence = (FixedOccurrence) occurrence;
+                    exceptionBuilder.occursOnceOn(LocalDate.of(
+                            fixedOccurrence.getYear().intValue(),
+                            fixedOccurrence.getMonth().intValue(),
+                            fixedOccurrence.getDay().intValue()));
+                }
+                if (occurrence instanceof RecurringOccurrence) {
+                    RecurringOccurrence recurringOccurrence = (RecurringOccurrence) occurrence;
+                    exceptionBuilder.occursAlwaysOn(MonthDay.of(
+                            recurringOccurrence.getMonth().intValue(),
+                            recurringOccurrence.getDay().intValue()));
+                }
+            }
+        }
+        return builder.add();
     }
 
     private String getEventName(Event event) {
@@ -117,14 +135,23 @@ public class CalendarFactory {
         }
     }
 
+    private BigInteger getEventId(Event event) {
+        Object code = findProperty(event, "id");
+        try {
+            return (BigInteger) code;
+        } catch (ClassCastException e) {
+            throw new CalendarParserException(thesaurus, MessageSeeds.INVALID_EVENT_ID, code);
+        }
+    }
+
     private Object findProperty(Event event, String name) {
         Optional<Object> result = event.getContent().stream().filter(e -> e instanceof JAXBElement)
-                .filter(e -> ((JAXBElement) e).getName().equals(name))
+                .filter(e -> ((JAXBElement) e).getName().toString().equals(name))
                 .map(e -> ((JAXBElement) e).getValue()).findFirst();
         if (!result.isPresent()) {
             throw new CalendarParserException(thesaurus, MessageSeeds.PROPERTY_NOT_FOUND_ON_EVENT, name);
         }
-        return (String) result.get();
+        return result.get();
     }
 
     private boolean isEmpty(String value) {
@@ -172,6 +199,22 @@ public class CalendarFactory {
             throw new CalendarParserException(thesaurus, MessageSeeds.NO_DAYTYPE_DEFINED_WITH_ID, id.intValue());
         }
         return dayTypeName;
+    }
+
+    private String getPeriodNameById(BigInteger id) {
+        String periodName = periods.get(id);
+        if (periodName == null) {
+            throw new CalendarParserException(thesaurus, MessageSeeds.NO_PERIOD_DEFINED_WITH_ID, id.intValue());
+        }
+        return periodName;
+    }
+
+    private String getEventNameById(BigInteger id) {
+        String eventName = events.get(id);
+        if (eventName == null) {
+            throw new CalendarParserException(thesaurus, MessageSeeds.NO_EVENT_DEFINED_WITH_ID, id.intValue());
+        }
+        return eventName;
     }
 
 }
