@@ -538,7 +538,7 @@ public class DeviceTypeResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE,Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response getCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
         if(milliseconds <= 0) {
-            return  Response.ok(calendarService.findCalendar(id)
+            return  Response.ok(calendarService.findCalendar(calendarId)
                     .map(calendarInfoFactory::detailedFromCalendar)
                     .orElseThrow(IllegalArgumentException::new)).build();
         } else {
