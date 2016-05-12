@@ -6,7 +6,8 @@ public enum TranslationKeys implements TranslationKey {
 
     //Translations for importer names
     CALENDAR_IMPORTER(CalendarImporterFactory.NAME, "Calendar importer"),
-
+    TOU_CALENDAR_IMPORTED_SUCCESSFULLY("calendar.import.succes", "Time of use calendar \"{0}\" is imported successfully."),
+    TOU_CALENDAR_IMPORT_FAILED("calendar.import.failed", "Time of use calendar import has failed.")
     ;
 
     private final String key;

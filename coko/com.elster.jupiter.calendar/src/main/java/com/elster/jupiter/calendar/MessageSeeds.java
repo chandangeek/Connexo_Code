@@ -19,17 +19,18 @@ public enum MessageSeeds implements MessageSeed {
 
     SCHEMA_FAILED(2001, Constants.SCHEMA_FAILED, "XSD schema for calendar import could not be read"),
     JAXB_FAILED(2002, Constants.JAXB_FAILED, "JAXB error occurred"),
-    PROPERTY_NOT_FOUND_ON_EVENT(2003, Constants.PROPERTY_NOT_FOUND_ON_EVENT, "Missing property '{0}' on event"),
-    INVALID_EVENT_CODE(2003, Constants.INVALID_EVENT_CODE, "Event code '{0}' should be numeric"),
+    PROPERTY_NOT_FOUND_ON_EVENT(2003, Constants.PROPERTY_NOT_FOUND_ON_EVENT, "Missing property \"{0}\" on event"),
+    INVALID_EVENT_CODE(2003, Constants.INVALID_EVENT_CODE, "Event code \"{0}\" should be numeric"),
     MISSING_CALENAR_NAME(2004, Constants.MISSING_CALENDAR_NAME, "Calendar name is missing"),
     MISSING_TIMEZONE(2005, Constants.MISSING_TIMEZONE, "Calendar timezone is missing"),
     MISSING_STARTYEAR(2006, Constants.MISSING_STARTYEAR, "Calendar start year is missing"),
     STARTYEAR_CANNOT_BE_ZERO(2007, Constants.STARTYEAR_CANNOT_BE_ZERO, "Calendar start year cannot be zero"),
-    NO_DAYTYPE_DEFINED_WITH_ID(2008, Constants.NO_DAYTYPE_DEFINED_WITH_ID, "There is no daytype defined with id '{0}'"),
-    NO_PERIOD_DEFINED_WITH_ID(2009, Constants.NO_PERIOD_DEFINED_WITH_ID, "There is no period defined with id '{0}'"),
-    INVALID_EVENT_ID(2010, Constants.INVALID_EVENT_ID, "Event id '{0}' should be numeric"),
-    NO_EVENT_DEFINED_WITH_ID(2011, Constants.NO_EVENT_DEFINED_WITH_ID, "There is no daytype defined with id '{0}'"),
+    NO_DAYTYPE_DEFINED_WITH_ID(2008, Constants.NO_DAYTYPE_DEFINED_WITH_ID, "There is no daytype defined with id \"{0}\""),
+    NO_PERIOD_DEFINED_WITH_ID(2009, Constants.NO_PERIOD_DEFINED_WITH_ID, "There is no period defined with id \"{0}\""),
+    INVALID_EVENT_ID(2010, Constants.INVALID_EVENT_ID, "Event id \"{0}\" should be numeric"),
+    NO_EVENT_DEFINED_WITH_ID(2011, Constants.NO_EVENT_DEFINED_WITH_ID, "There is no daytype defined with id \"{0}\""),
     ENDYEAR_CANNOT_BE_ZERO(2012, Constants.ENDYEAR_CANNOT_BE_ZERO, "Calendar end year cannot be zero"),
+    NO_TIMEZONE_FOUND_WITH_ID(2013, Constants.NO_TIMEZONE_FOUND_WITH_ID, "Timzone \"{0}\" does not exist"),
     ;
 
     private final int number;
@@ -102,6 +103,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_EVENT_ID = "calendar.import.invalid.event.id";
         public static final String NO_EVENT_DEFINED_WITH_ID = "calendar.import.invalid.event.id";
         public static final String ENDYEAR_CANNOT_BE_ZERO = "calendar.import.endyear.cannot.be.zero";
+        public static final String NO_TIMEZONE_FOUND_WITH_ID = "calendar.import.no.timezone.found.with.id";
 
     }
 }

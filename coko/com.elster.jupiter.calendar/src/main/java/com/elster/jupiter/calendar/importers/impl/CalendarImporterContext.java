@@ -28,7 +28,7 @@ public class CalendarImporterContext {
     public CalendarImporterContext(NlsService nlsService,
                                      UserService userService,
                                      ThreadPrincipalService threadPrincipalService,
-                                    CalendarService calendarService,
+                                     CalendarService calendarService,
                                      Clock clock) {
         setNlsService(nlsService);
         setUserService(userService);
@@ -46,6 +46,10 @@ public class CalendarImporterContext {
 
     public Thesaurus getThesaurus() {
         return thesaurus;
+    }
+
+    public CalendarService getCalendarService() {
+        return calendarService;
     }
 
     @Reference

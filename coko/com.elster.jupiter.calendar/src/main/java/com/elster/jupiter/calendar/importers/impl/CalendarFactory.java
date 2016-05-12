@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -176,7 +177,11 @@ public class CalendarFactory {
         if (isEmpty(timeZoneId)) {
             throw new CalendarParserException(thesaurus, MessageSeeds.MISSING_TIMEZONE);
         }
-        return TimeZone.getTimeZone(timeZoneId);
+        TimeZone result = TimeZone.getTimeZone(timeZoneId);
+        if (!result.getID().equals(timeZoneId)) {
+            throw new CalendarParserException(thesaurus, MessageSeeds.NO_TIMEZONE_FOUND_WITH_ID, timeZoneId);
+        }
+        return result;
     }
 
     private Year getStartYear() {

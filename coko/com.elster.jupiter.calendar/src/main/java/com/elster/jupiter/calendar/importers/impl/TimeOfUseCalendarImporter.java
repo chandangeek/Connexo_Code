@@ -13,6 +13,8 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.File;
+import java.io.FileInputStream;
+import java.net.URISyntaxException;
 
 /**
  * Created by igh on 27/04/2016.
@@ -28,20 +30,41 @@ public class TimeOfUseCalendarImporter implements FileImporter {
     @Override
     public void process(FileImportOccurrence fileImportOccurrence) {
         try {
-            JAXBContext jc = JAXBContext.newInstance(Calendar.class);
+            JAXBContext jc = JAXBContext.newInstance(com.elster.jupiter.calendar.impl.xmlbinding.Calendar.class);
             Unmarshaller u = jc.createUnmarshaller();
             u.setSchema(getSchema());
-            Object result = u.unmarshal(fileImportOccurrence.getContents());
+            CalendarFactory factory = new CalendarFactory(context.getCalendarService(), context.getThesaurus());
+            com.elster.jupiter.calendar.impl.xmlbinding.Calendar result =
+                    (com.elster.jupiter.calendar.impl.xmlbinding.Calendar) u.unmarshal(fileImportOccurrence.getContents());
+            com.elster.jupiter.calendar.Calendar calendar = factory.getCalendar(result);
+            fileImportOccurrence.markSuccess(
+                    context.getThesaurus().getFormat(TranslationKeys.TOU_CALENDAR_IMPORTED_SUCCESSFULLY).format(calendar.getName()));
         } catch (JAXBException e) {
-            throw new CalendarParserException(context.getThesaurus(), MessageSeeds.JAXB_FAILED, e);
+            MessageSeeds.JAXB_FAILED.log(fileImportOccurrence.getLogger(), context.getThesaurus(), e);
+            fileImportOccurrence.markFailure(e.getMessage());
+        } catch (CalendarParserException e) {
+            fileImportOccurrence.getLogger().severe(e.getLocalizedMessage());
+            fileImportOccurrence.markFailure(e.getMessage());
         }
+    }
+
+    private void markFailure(FileImportOccurrence fileImportOccurrence) {
+        fileImportOccurrence.markFailure(
+                context.getThesaurus().getFormat(TranslationKeys.TOU_CALENDAR_IMPORT_FAILED).format());
+    }
+
+    private void markSuccess(FileImportOccurrence fileImportOccurrence, Calendar calendar) {
+        fileImportOccurrence.markSuccess(
+                context.getThesaurus().getFormat(TranslationKeys.TOU_CALENDAR_IMPORTED_SUCCESSFULLY).format(calendar.getName()));
     }
 
     private Schema getSchema() {
         try {
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            return sf.newSchema(new File("C:\\repository\\connexo\\coko\\com.elster.jupiter.calendar\\src\\main\\resources\\calendar-import-format.xsd"));
+            return sf.newSchema(new File(getClass().getClassLoader().getResource("calendar-import-format.xsd").toURI()));
         } catch (SAXException e) {
+            throw new CalendarParserException(context.getThesaurus(), MessageSeeds.SCHEMA_FAILED, e);
+        } catch (URISyntaxException e) {
             throw new CalendarParserException(context.getThesaurus(), MessageSeeds.SCHEMA_FAILED, e);
         }
     }
