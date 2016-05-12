@@ -17,12 +17,14 @@ public class Beacon3100ClientType {
 
     private long id;
     private int clientMacAddress;
+    private int securitySuite;
     private int securityLevel;
     private int securityPolicy;
 
-    public Beacon3100ClientType(long id, int clientMacAddress, int securityLevel, int securityPolicy) {
+    public Beacon3100ClientType(long id, int clientMacAddress, int securitySuite, int securityLevel, int securityPolicy) {
         this.id = id;
         this.clientMacAddress = clientMacAddress;
+        this.securitySuite = securitySuite;
         this.securityLevel = securityLevel;
         this.securityPolicy = securityPolicy;
     }
@@ -50,6 +52,7 @@ public class Beacon3100ClientType {
         final Structure structure = new Structure();
         structure.addDataType(new Unsigned32(getId()));
         structure.addDataType(new Unsigned16(getClientMacAddress()));
+        structure.addDataType(new TypeEnum(getSecuritySuite()));
         structure.addDataType(new TypeEnum(getSecurityLevel()));
         structure.addDataType(new TypeEnum(getSecurityPolicy()));
         return structure;
@@ -73,5 +76,10 @@ public class Beacon3100ClientType {
     @XmlAttribute
     public int getSecurityPolicy() {
         return securityPolicy;
+    }
+
+    @XmlAttribute
+    public int getSecuritySuite() {
+        return securitySuite;
     }
 }
