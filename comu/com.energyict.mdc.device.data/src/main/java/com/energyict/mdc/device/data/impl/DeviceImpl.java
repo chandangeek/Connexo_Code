@@ -714,21 +714,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public List<Channel> getChannels() {
-        List<Channel> channels = new ArrayList<>();
-        for (LoadProfile loadProfile : loadProfiles) {
-            channels.addAll(loadProfile.getChannels());
-        }
-        return channels;
+        return loadProfiles.stream().flatMap(lp -> lp.getChannels().stream()).collect(Collectors.toList());
     }
 
     @Override
     public List<Register> getRegisters() {
         return new ArrayList<>(getDeviceConfiguration().getRegisterSpecs().stream().map(this::newRegisterFor).collect(Collectors.toList()));
-//        List<Register> registers = new ArrayList<>();
-//        for (RegisterSpec registerSpec : getDeviceConfiguration().getRegisterSpecs()) {
-//            registers.add(this.newRegisterFor(registerSpec));
-//        }
-//        return registers;
     }
 
     @Override
