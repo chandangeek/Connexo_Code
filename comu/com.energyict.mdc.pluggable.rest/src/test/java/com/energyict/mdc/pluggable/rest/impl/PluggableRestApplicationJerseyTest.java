@@ -4,7 +4,6 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -25,8 +24,6 @@ public class PluggableRestApplicationJerseyTest extends FelixRestApplicationJers
     @Mock
     CodeFactory codeFactory;
     @Mock
-    UserFileFactory userFileFactory;
-    @Mock
     FirmwareService firmwareService;
 
     @Override
@@ -38,8 +35,8 @@ public class PluggableRestApplicationJerseyTest extends FelixRestApplicationJers
         application.setPropertySpecService(propertySpecService);
         application.setProtocolPluggableService(protocolPluggableService);
         application.setCodeFactory(codeFactory);
-        application.setUserFileFactory(userFileFactory);
         application.setFirmwareService(firmwareService);
         return application;
     }
+
 }
