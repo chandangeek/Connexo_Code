@@ -29,6 +29,10 @@ Ext.define('Bpm.processes.model.Process', {
         {
             name: 'active',
             type: 'string'
+        },
+        {
+            name: 'appKey',
+            type: 'string'
         }
     ],
 

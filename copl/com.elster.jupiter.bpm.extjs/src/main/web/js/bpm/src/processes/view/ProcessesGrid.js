@@ -51,6 +51,11 @@ Ext.define('Bpm.processes.view.ProcessesGrid', {
 
             },
             {
+                header: Uni.I18n.translate('bpm.process.application', 'BPM', 'Application'),
+                dataIndex: 'appKey',
+                flex: 1
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 privileges: Bpm.privileges.BpmManagement.administrateProcesses,
                 width: 100,

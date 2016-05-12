@@ -80,6 +80,12 @@ Ext.define('Bpm.processes.view.ProcessPreviewForm', {
                                             return value;
                                     }
                                 }
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('bpm.process.application', 'BPM', 'Application'),
+                                name: 'appKey',
+                                itemId: 'bpm-preview-appKey'
                             }
                         ]
                     }
