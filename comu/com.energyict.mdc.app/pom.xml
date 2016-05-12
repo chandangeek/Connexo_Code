@@ -178,6 +178,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall.extjs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>upgrade</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>appserver</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
