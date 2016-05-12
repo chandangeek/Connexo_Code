@@ -1,6 +1,7 @@
 package com.elster.jupiter.soap.currencyconvertor.client;
 
-import com.elster.jupiter.soap.currencyconverter.CurrencyConversionService;
+import com.elster.jupiter.soap.currencyconverter.Currency;
+import com.elster.jupiter.soap.currencyconverter.CurrencyConvertorSoap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -15,7 +16,7 @@ import org.osgi.service.component.annotations.Reference;
         immediate = true)
 public class CurrencyGogoCommands {
 
-    private volatile CurrencyConversionService currencyConvertService;
+    private volatile CurrencyConvertorSoap soapService;
 
     public void convert() {
         System.out.println("Convert a currency");
@@ -25,12 +26,12 @@ public class CurrencyGogoCommands {
     }
 
     public void convert(double amount, String from, String to) {
-        double result = currencyConvertService.convert(from, to, amount);
-        System.out.println(result);
+        double result = soapService.conversionRate(Currency.fromValue(from), Currency.fromValue(to));
+        System.out.println(result * amount);
     }
 
     @Reference
-    public void setCurrencyConvertService(CurrencyConversionService currencyConvertService) {
-        this.currencyConvertService = currencyConvertService;
+    public void setSoapService(CurrencyConvertorSoap soapService) {
+        this.soapService = soapService;
     }
 }
