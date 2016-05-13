@@ -190,7 +190,8 @@ Ext.define('Uni.form.field.Location', {
             propertyForm = me.down('#property-form-location'),
             defaultButton = me.down('#uni-location-default-button');
 
-        if ((newValue == true) && ((comboLocation.getRawValue() != null) || (comboLocation.getRawValue().length == 0))) {
+        if ((newValue == true) && ((comboLocation.getRawValue() == null) ||
+            ((comboLocation.getRawValue() != null) && (comboLocation.getRawValue().length == 0)))) {
             var url = Ext.String.format('{0}/{1}', me.locationDetailsUrl, 0);
             Ext.Ajax.request({
                 url: url,
