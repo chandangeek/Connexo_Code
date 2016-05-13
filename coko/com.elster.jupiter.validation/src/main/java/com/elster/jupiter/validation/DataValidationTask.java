@@ -77,3 +77,4 @@ public interface DataValidationTask extends HasAuditInfo {
     void updateLastRun(Instant triggerTime);
 
 }
+
