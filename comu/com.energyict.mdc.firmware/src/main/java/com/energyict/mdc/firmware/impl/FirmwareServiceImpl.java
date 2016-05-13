@@ -47,6 +47,9 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.firmware.DeviceFirmwareHistory;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -164,6 +167,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
+    public FirmwareVersionFilter filterForFirmwareVersion(DeviceType deviceType) {
+        return new FirmwareVersionFilterImpl(deviceType);
+    }
+
+    @Override
     public Finder<FirmwareVersion> findAllFirmwareVersions(FirmwareVersionFilter filter) {
         if (filter == null) {
             throw new IllegalArgumentException("Please provide a filter with preset device type");
@@ -180,6 +188,14 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         }
 
         return DefaultFinder.of(FirmwareVersion.class, condition, dataModel).sorted("lower(firmwareVersion)", false);
+    }
+
+    Finder<ActivatedFirmwareVersion> findActivatedFirmwareVersion(Condition condition){
+        return DefaultFinder.of(ActivatedFirmwareVersion.class, condition, dataModel);
+    }
+
+    Finder<PassiveFirmwareVersion> findPassiveFirmwareVersion(Condition condition){
+        return DefaultFinder.of(PassiveFirmwareVersion.class, condition, dataModel);
     }
 
     private <T> Condition createMultipleConditions(List<T> params, String conditionField) {
@@ -321,8 +337,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
+    public DevicesInFirmwareCampaignFilter filterForDevicesInFirmwareCampaign() {
+        return new DevicesInFirmwareCampaignFilterImpl(this, deviceService);
+    }
+
+    @Override
     public Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter) {
-        return DefaultFinder.of(DeviceInFirmwareCampaign.class, filter.usingFirmwareService(this).usingDeviceService(deviceService).getCondition(), dataModel);
+        return DefaultFinder.of(DeviceInFirmwareCampaign.class, filter.getCondition(), dataModel);
     }
 
     public List<DeviceInFirmwareCampaignImpl> getDeviceInFirmwareCampaignsFor(Device device) {
@@ -332,12 +353,40 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
+    public Optional<FirmwareCampaign> getFirmwareCampaign(FirmwareComTaskExecution comTaskExecution) {
+        Optional<FirmwareCampaignImpl> firmwareCampaign = getDeviceInFirmwareCampaignsFor(comTaskExecution.getDevice())
+                .stream()
+                .filter(DeviceInFirmwareCampaignImpl::hasNonFinalStatus)
+                .map(DeviceInFirmwareCampaignImpl::getFirmwareCampaign)
+                .findAny();
+        return Optional.ofNullable(firmwareCampaign.orElse(null));
+    }
+
+    @Override
     public void cancelFirmwareCampaign(FirmwareCampaign firmwareCampaign) {
         ((FirmwareCampaignImpl) firmwareCampaign).cancel();
     }
 
     @Override
     public boolean cancelFirmwareUploadForDevice(Device device) {
+        Optional<ComTaskExecution> fwComTaskExecution = getFirmwareComtaskExecution(device);
+        return fwComTaskExecution.isPresent() && cancelFirmwareUpload(fwComTaskExecution);
+    }
+
+    @Override
+    public boolean retryFirmwareUploadForDevice(DeviceInFirmwareCampaign deviceInFirmwareCampaign) {
+        if (deviceInFirmwareCampaign.getFirmwareCampaign().getStatus() != FirmwareCampaignStatus.ONGOING){
+            throw RetryDeviceInFirmwareCampaignExceptions.invalidState(this.thesaurus);
+        }
+        // retry
+        if (!deviceInFirmwareCampaign.getStatus().canTransitToStatus(FirmwareManagementDeviceStatus.UPLOAD_PENDING)){
+            throw RetryDeviceInFirmwareCampaignExceptions.transitionToPendingStateImpossible(this.thesaurus, deviceInFirmwareCampaign);
+        }
+        ((DeviceInFirmwareCampaignImpl) deviceInFirmwareCampaign).startFirmwareProcess();
+         return true;
+    }
+
+    private Optional<ComTaskExecution> getFirmwareComtaskExecution(Device device){
         Optional<ComTask> fwComTask = taskService.findFirmwareComTask();
         if (fwComTask.isPresent()) {
             ComTask firmwareComTask = fwComTask.get();
@@ -347,17 +396,27 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                             .findAny()
                             .isPresent())
                     .findAny();
-            return fwComTaskExecution.isPresent() && cancelFirmwareFirmwareUpload(device, fwComTaskExecution);
+            return fwComTaskExecution;
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private boolean cancelFirmwareUpload(Optional<ComTaskExecution> fwComTaskExecution) {
+        ComTaskExecution comTaskExecution1 = fwComTaskExecution.get();
+        if (comTaskExecution1.getNextExecutionTimestamp() != null) {
+            comTaskExecution1.putOnHold();
+            cancelPendingFirmwareMessages(comTaskExecution1.getDevice());
+            return true;
         } else {
             return false;
         }
     }
 
-    private boolean cancelFirmwareFirmwareUpload(Device device, Optional<ComTaskExecution> fwComTaskExecution) {
+    private boolean rescheduleFirmwareUpload(Optional<ComTaskExecution> fwComTaskExecution) {
         ComTaskExecution comTaskExecution1 = fwComTaskExecution.get();
-        if (communicationTaskService.isComTaskStillPending(comTaskExecution1.getId())) {
-            comTaskExecution1.putOnHold();
-            cancelPendingFirmwareMessages(device);
+        if (comTaskExecution1.getNextExecutionTimestamp() != null) {
+            comTaskExecution1.scheduleNow();
             return true;
         } else {
             return false;
@@ -522,6 +581,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 Arrays.asList(
                         Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN)));
         return resources;
+    }
+
+    @Override
+    public DeviceFirmwareHistory getFirmwareHistory(Device device) {
+        return new DeviceFirmwareHistoryImpl(this, device);
     }
 
 }

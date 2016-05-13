@@ -102,6 +102,9 @@ public enum TableSpecs {
             table.column("FIRMWARE_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.FIRMWARE_TYPE.fieldName()).notNull().add();
             table.column("STARTED_ON").number().map(FirmwareCampaignImpl.Fields.STARTED_ON.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("FINISHED_ON").number().map(FirmwareCampaignImpl.Fields.FINISHED_ON.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("COMWINDOWSTART").number().conversion(ColumnConversion.NUMBER2INT).map(FirmwareCampaignImpl.Fields.COMWINDOW_START.fieldName()).add();
+            table.column("COMWINDOWEND").number().conversion(ColumnConversion.NUMBER2INT).map(FirmwareCampaignImpl.Fields.COMWINDOW_END.fieldName()).add();
+            table.column("NROFDEVICES").number().map(FirmwareCampaignImpl.Fields.NROFDEVICES.fieldName()).conversion(ColumnConversion.NUMBER2INT).add();
 
             table.addAuditColumns();
 
@@ -124,11 +127,12 @@ public enum TableSpecs {
 
             Column campaign = table.column("CAMPAIGN").number().notNull().add();
             Column device = table.column("DEVICE").number().notNull().add();
-            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName()).add();
+            Column status = table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceInFirmwareCampaignImpl.Fields.STATUS.fieldName()).add();
             table.column("MESSAGE_ID").number().conversion(ColumnConversion.NUMBER2LONGNULLZERO).map(DeviceInFirmwareCampaignImpl.Fields.MESSAGE_ID.fieldName()).add();
             table.column("STARTED_ON").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceInFirmwareCampaignImpl.Fields.STARTED_ON.fieldName()).add();
-            table.column("FINISHED_ON").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceInFirmwareCampaignImpl.Fields.FINISHED_ON.fieldName()).add();
+            Column finishedOn = table.column("FINISHED_ON").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceInFirmwareCampaignImpl.Fields.FINISHED_ON.fieldName()).add();
 
+            table.unique("UQ_FWC_DEV_IN_CAMP").on(device, status, finishedOn).add();
             table.foreignKey("FK_FWC_DEVICE_TO_CAMPAIGN")
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
@@ -160,6 +164,7 @@ public enum TableSpecs {
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
                     .map(FirmwareCampaignPropertyImpl.Fields.CAMPAIGN.fieldName())
+                    .onDelete(DeleteRule.CASCADE)
                     .reverseMap(FirmwareCampaignImpl.Fields.PROPERTIES.fieldName())
                     .composition()
                     .add();
@@ -185,6 +190,7 @@ public enum TableSpecs {
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
                     .map(DevicesInFirmwareCampaignStatusImpl.Fields.CAMPAIGN.fieldName())
+                    .onDelete(DeleteRule.CASCADE)
                     .reverseMap(FirmwareCampaignImpl.Fields.DEVICES_STATUS.fieldName())
                     .composition()
                     .add();

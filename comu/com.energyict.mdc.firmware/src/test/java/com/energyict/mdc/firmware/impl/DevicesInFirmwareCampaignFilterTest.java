@@ -38,8 +38,7 @@ public class DevicesInFirmwareCampaignFilterTest {
         when(firmwareService.getFirmwareCampaignById(1L)).thenReturn(Optional.of(firmwareCampaign));
         when(firmwareCampaign.getId()).thenReturn(1L);
 
-        Condition condition = new DevicesInFirmwareCampaignFilter()
-                                    .usingFirmwareService(firmwareService)
+        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                     .withFirmwareCampaignId(this.firmwareCampaign.getId())
                                     .getCondition();
 
@@ -48,30 +47,20 @@ public class DevicesInFirmwareCampaignFilterTest {
         assertThat(((Comparison)condition).getValues()[0]).isEqualTo(firmwareCampaign);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testForCampaignFirmwareStatusNotSet(){
-        when(firmwareService.getFirmwareCampaignById(1L)).thenReturn(Optional.of(firmwareCampaign));
-        when(firmwareCampaign.getId()).thenReturn(1L);
-
-        Condition condition = new DevicesInFirmwareCampaignFilter()
-                                    .withFirmwareCampaignId(this.firmwareCampaign.getId())
-                                    .getCondition();
-    }
 
     @Test(expected = BadFilterException.class)
     public void testForCampaignNotFound(){
         when(firmwareService.getFirmwareCampaignById(1L)).thenReturn(Optional.empty());
         when(firmwareCampaign.getId()).thenReturn(1L);
 
-        Condition condition = new DevicesInFirmwareCampaignFilter()
-                                    .usingFirmwareService(firmwareService)
+        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                     .withFirmwareCampaignId(this.firmwareCampaign.getId())
                                     .getCondition();
     }
 
     @Test
     public void testStateSuccess(){
-        Condition condition = new DevicesInFirmwareCampaignFilter()
+        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                     .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.SUCCESS))
                                     .getCondition();
 
@@ -92,7 +81,7 @@ public class DevicesInFirmwareCampaignFilterTest {
     @Test
     public void testStateFailed(){
 
-        Condition condition = new DevicesInFirmwareCampaignFilter()
+        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                     .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.FAILED))
                                     .getCondition();
 
@@ -105,7 +94,7 @@ public class DevicesInFirmwareCampaignFilterTest {
     @Test
     public void testStateOngoing(){
 
-        Condition condition = new DevicesInFirmwareCampaignFilter()
+        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                     .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.ONGOING))
                                     .getCondition();
 
@@ -117,7 +106,7 @@ public class DevicesInFirmwareCampaignFilterTest {
 
     @Test
     public void testStatePending(){
-        Condition condition = new DevicesInFirmwareCampaignFilter()
+        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                     .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.PENDING))
                                     .getCondition();
 
@@ -130,7 +119,7 @@ public class DevicesInFirmwareCampaignFilterTest {
     @Test
     public void testStateConfigurationError(){
 
-        Condition condition = new DevicesInFirmwareCampaignFilter()
+        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                     .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.CONFIGURATION_ERROR))
                                     .getCondition();
 
@@ -143,7 +132,7 @@ public class DevicesInFirmwareCampaignFilterTest {
     @Test
     public void testStateCancelled(){
 
-        Condition condition = new DevicesInFirmwareCampaignFilter()
+        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                     .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.CANCELLED))
                                     .getCondition();
 
@@ -153,24 +142,12 @@ public class DevicesInFirmwareCampaignFilterTest {
         assertThat(((Comparison)condition).getValues()[0]).isEqualTo(FirmwareManagementDeviceStatus.CANCELLED);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testSingleDeviceWithFilterNotCorrectlyInitiated(){
-        when(deviceService.findDeviceById(1L)).thenReturn(Optional.of(device1));
-        when(device1.getId()).thenReturn(1L);
-
-        Condition condition = new DevicesInFirmwareCampaignFilter()
-                                    .withDeviceIds(Collections.singletonList(device1.getId()))
-                                    .getCondition();
-
-    }
-
     @Test
     public void testSingleDevice(){
         when(deviceService.findDeviceById(1L)).thenReturn(Optional.of(device1));
         when(device1.getId()).thenReturn(1L);
 
-        Condition condition = new DevicesInFirmwareCampaignFilter()
-                                    .usingDeviceService(deviceService)
+        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                     .withDeviceIds(Collections.singletonList(device1.getId()))
                                     .getCondition();
 
@@ -187,8 +164,7 @@ public class DevicesInFirmwareCampaignFilterTest {
         when(device1.getId()).thenReturn(1L);
         when(device2.getId()).thenReturn(2L);
 
-        Condition condition = new DevicesInFirmwareCampaignFilter()
-                                    .usingDeviceService(deviceService)
+        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                     .withDeviceIds(Arrays.asList(device1.getId(), device2.getId()))
                                     .getCondition();
 
@@ -203,14 +179,14 @@ public class DevicesInFirmwareCampaignFilterTest {
     public void testForCampaignAndStatus(){
         when(firmwareCampaign.getId()).thenReturn(1L);
 
-        DevicesInFirmwareCampaignFilter filter = new DevicesInFirmwareCampaignFilter()
+        DevicesInFirmwareCampaignFilterImpl filter = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                             .withFirmwareCampaignId(this.firmwareCampaign.getId())
                                             .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.SUCCESS));
 
-        DevicesInFirmwareCampaignFilter filter1 =  new DevicesInFirmwareCampaignFilter()
+        DevicesInFirmwareCampaignFilterImpl filter1 =  new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                             .withFirmwareCampaignId(this.firmwareCampaign.getId());
 
-        DevicesInFirmwareCampaignFilter filter2  = new DevicesInFirmwareCampaignFilter()
+        DevicesInFirmwareCampaignFilterImpl filter2  = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                     .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.SUCCESS));
 
         Condition condition = filter.getCondition();
@@ -224,17 +200,14 @@ public class DevicesInFirmwareCampaignFilterTest {
         when(firmwareService.getFirmwareCampaignById(1L)).thenReturn(Optional.of(firmwareCampaign));
         when(firmwareCampaign.getId()).thenReturn(1L);
 
-        DevicesInFirmwareCampaignFilter filter = new DevicesInFirmwareCampaignFilter()
-                                            .usingFirmwareService(firmwareService)
+        DevicesInFirmwareCampaignFilterImpl filter = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                             .withFirmwareCampaignId(this.firmwareCampaign.getId())
                                             .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.FAILED));
 
-        DevicesInFirmwareCampaignFilter filter1 =  new DevicesInFirmwareCampaignFilter()
-                                            .usingFirmwareService(firmwareService)
+        DevicesInFirmwareCampaignFilterImpl filter1 =  new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                             .withFirmwareCampaignId(this.firmwareCampaign.getId());
 
-        DevicesInFirmwareCampaignFilter filter2  = new DevicesInFirmwareCampaignFilter()
-                                    .usingFirmwareService(firmwareService)
+        DevicesInFirmwareCampaignFilterImpl filter2  = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                     .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.FAILED));
 
         Condition condition = filter.getCondition();
@@ -249,19 +222,14 @@ public class DevicesInFirmwareCampaignFilterTest {
         when(deviceService.findDeviceById(11L)).thenReturn(Optional.of(device1));
         when(device1.getId()).thenReturn(11L);
 
-        DevicesInFirmwareCampaignFilter filter = new DevicesInFirmwareCampaignFilter()
-                                            .usingFirmwareService(firmwareService)
-                                            .usingDeviceService(deviceService)
+        DevicesInFirmwareCampaignFilterImpl filter = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                             .withFirmwareCampaignId(this.firmwareCampaign.getId())
                                             .withDeviceIds(Collections.singletonList(device1.getId()));
 
-        DevicesInFirmwareCampaignFilter filter1 =  new DevicesInFirmwareCampaignFilter()
-                                            .usingFirmwareService(firmwareService)
-                                            .usingDeviceService(deviceService)
+        DevicesInFirmwareCampaignFilterImpl filter1 =  new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                             .withFirmwareCampaignId(this.firmwareCampaign.getId());
 
-        DevicesInFirmwareCampaignFilter filter2  = new DevicesInFirmwareCampaignFilter()
-                                                        .usingDeviceService(deviceService)
+        DevicesInFirmwareCampaignFilterImpl filter2  = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                                                         .withDeviceIds(Collections.singletonList(device1.getId()));
 
         Condition condition = filter.getCondition();

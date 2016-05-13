@@ -58,4 +58,6 @@ public interface FirmwareManagementDeviceUtils {
     boolean cancelPendingFirmwareUpdates(FirmwareType firmwareType);
 
     boolean isPendingMessage(DeviceMessage<Device> upgradeMessage);
+
+    boolean firmwareTaskIsScheduled();
 }
