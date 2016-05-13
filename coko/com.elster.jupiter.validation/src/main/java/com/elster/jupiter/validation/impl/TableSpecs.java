@@ -3,12 +3,16 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
@@ -169,33 +173,20 @@ public enum TableSpecs {
             table.setJournalTableName("VAL_DATAVALIDATIONTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column usagePointGroupId = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column metrologyConfigurationId = table.column("METROLOGY_CONFIGURATION").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column metrologyContractId = table.column("METROLOGY_CONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add(); //Add contract
+            Column metrologyContractId = table.column("METROLOGYCONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.column("APPLICATION").varChar(NAME_LENGTH).map("application").add();
             table.addAuditColumns();
             table.foreignKey("VAL_FK_VALTASK2DEVICEGROUP")
                     .on(endDeviceGroupId)
-                    .references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP")
+                    .references(EndDeviceGroup.class)
                     .map("endDeviceGroup")
                     .add();
-            table.foreignKey("VAL_FK_VALTASK2USGPNTGROUP")
-                    .on(usagePointGroupId)
-                    .references(MeteringGroupsService.COMPONENTNAME, "MTG_UP_GROUP")
-                    .map("usagePointGroup")
-                    .add();
 
-            table.foreignKey("VAL_FK_VALTASK2METROLOGY_CONFIGURATION")
-                    .on(metrologyConfigurationId)
-                    .references(MeteringService.COMPONENTNAME, "MTR_METROLOGYCONFIG")
-                    .map("metrologyConfiguration")
-                    .add();
-
-            table.foreignKey("VAL_FK_VALTASK2METROLOGY_CONTRACT")
+            table.foreignKey("VAL_FK_METROLOGYCONTRACT")
                     .on(metrologyContractId)
-                    .references(MeteringService.COMPONENTNAME, "MTR_METROLOGY_CONTRACT")
+                    .references(MetrologyContract.class)
                     .map("metrologyContract")
                     .add();
 
@@ -204,7 +195,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("VAL_FK_RECURRENTTASK")
                     .on(recurrentTaskId)
-                    .references(TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK")
+                    .references(RecurrentTask.class)
                     .map("recurrentTask")
                     .add();
         }
@@ -224,7 +215,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("VAL_FK_VALOCC_TSKOCC")
                     .on(taskOccurrence)
-                    .references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE")
+                    .references(TaskOccurrence.class)
                     .map("taskOccurrence").refPartition().add();
             table.foreignKey("VAL_FK_OCC_VALIDATIONTASK").on(dataValidationTask).references(VAL_DATAVALIDATIONTASK.name())
                     .map("dataValidationTask").add();

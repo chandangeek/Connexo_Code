@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -26,6 +27,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DataValidationTaskExecutor implements TaskExecutor {
+
+    public static final String MULTISENSE_KEY = "MDC";
+    public static final String INSIGHT_KEY = "INS";
 
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
@@ -97,37 +101,30 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     private void doExecute(DataValidationOccurrence occurrence, Logger logger) {
         DataValidationTask task = occurrence.getTask();
 
-        if (task.getEndDeviceGroup().isPresent()) {
-            List<EndDevice> devices = task.getEndDeviceGroup().get().getMembers(Instant.now());
-            for (EndDevice device : devices) {
-                Optional<Meter> found = device.getAmrSystem().findMeter(device.getAmrId());
-                if (found.isPresent()) {
-                    List<? extends MeterActivation> activations = found.get().getMeterActivations();
-                    for (MeterActivation activation : activations) {
-                        try (TransactionContext transactionContext = transactionService.getContext()) {
-                            validationService.validate(activation);
-                            transactionContext.commit();
+        switch(task.getApplication()){
+            case MULTISENSE_KEY :
+                List<EndDevice> devices = task.getEndDeviceGroup().get().getMembers(Instant.now());
+                for (EndDevice device : devices) {
+                    Optional<Meter> found = device.getAmrSystem().findMeter(device.getAmrId());
+                    if (found.isPresent()) {
+                        List<? extends MeterActivation> activations = found.get().getMeterActivations();
+                        for (MeterActivation activation : activations) {
+                            try (TransactionContext transactionContext = transactionService.getContext()) {
+                                validationService.validate(activation);
+                                transactionContext.commit();
+                            }
+                            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate().get())));
                         }
-                        transactionService.execute(VoidTransaction.of(() -> MessageSeeds.TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate().get())));
-                    }
 
-                }
-            }
-        } else if (task.getUsagePointGroup().isPresent()) {
-            List<UsagePoint> usagePoints = task.getUsagePointGroup().get().getMembers(Instant.now()); // add contract filter
-            for (UsagePoint usagePoint : usagePoints) {
-                List<? extends MeterActivation> activations = usagePoint.getMeterActivations();
-                for (MeterActivation activation : activations) {
-                    try (TransactionContext transactionContext = transactionService.getContext()) {
-                        validationService.validate(activation);
-                        transactionContext.commit();
                     }
-                    transactionService.execute(VoidTransaction.of(() -> MessageSeeds.TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, usagePoint.getMRID(), occurrence.getStartDate().get())));
                 }
+                break;
+            case INSIGHT_KEY :
+                MetrologyContract metrologyContract = task.getMetrologyContract().get();
+                // Validation should be added in scope of "Usage point validation".
+                break;
 
-            }
         }
-
     }
 
     private LoggingExceptions loggingExceptions(Logger logger, Runnable runnable) {
