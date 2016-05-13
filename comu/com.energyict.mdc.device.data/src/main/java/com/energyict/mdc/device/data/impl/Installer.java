@@ -35,7 +35,7 @@ import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:42)
  */
-class Installer implements FullInstaller {
+public class Installer implements FullInstaller {
 
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
 
