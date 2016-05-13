@@ -82,6 +82,7 @@ public class PrivilegeIT extends EqualsContractTest {
                 new PubSubModule(),
                 new TransactionModule(),
                 new UserModule(),
+                new InMemoryMessagingModule(),
                 new NlsModule(),
                 new DataVaultModule());
         injector.getInstance(TransactionService.class).execute(() -> {
