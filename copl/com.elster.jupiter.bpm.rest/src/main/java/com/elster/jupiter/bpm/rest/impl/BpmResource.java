@@ -728,7 +728,7 @@ public class BpmResource {
     @Path("/runningprocesses")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
-    public ProcessInstanceInfos getRunningProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
+    public ProcessInstanceInfos getRunningProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth,  @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String jsonContent;
         int total = -1;
@@ -753,7 +753,7 @@ public class BpmResource {
                     .entity(this.errorNotFoundMessage)
                     .build());
         }
-        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions(appKey);
         ProcessInstanceInfos runningProcessInfos = new ProcessInstanceInfos(arr, "");
         List<ProcessInstanceInfo> runningProcessesList = runningProcessInfos.processes.stream()
                 .filter(s -> activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName()) && s.version.equals(a.getVersion())))
