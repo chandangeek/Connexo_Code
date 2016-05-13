@@ -78,16 +78,16 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
-                    propertySpecService.
-                            stringSpec()
+                    propertySpecService
+                            .stringSpec()
                             .named(DeviceMessageAttributes.converterTypeAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .addValues("VOL1", "VOL2", "VEN1", "VEN2")
                             .finish());
             propertySpecs.add(
-                    propertySpecService.
-                            stringSpec()
+                    propertySpecService
+                            .stringSpec()
                             .named(DeviceMessageAttributes.converterSerialNumberAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
