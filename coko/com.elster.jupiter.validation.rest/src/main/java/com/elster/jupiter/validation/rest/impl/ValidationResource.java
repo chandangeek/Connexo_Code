@@ -1,7 +1,6 @@
 package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
@@ -56,7 +55,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -64,6 +62,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Path("/validation")
 public class ValidationResource {
 
+    private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
     private final RestQueryService queryService;
     private final ValidationService validationService;
     private final TransactionService transactionService;
@@ -90,7 +89,7 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public Response getValidationRuleSets(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName, @Context UriInfo uriInfo) {
+    public Response getValidationRuleSets(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<ValidationRuleSet> list = queryRuleSets(params, applicationName);
 
@@ -104,7 +103,7 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public Response createValidationRuleSet(final ValidationRuleSetInfo info, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
+    public Response createValidationRuleSet(final ValidationRuleSetInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         return Response.status(Response.Status.CREATED)
                 .entity(new ValidationRuleSetInfo(transactionService.execute(
                         () -> validationService.createValidationRuleSet(info.name, applicationName, info.description)))).build();
@@ -447,8 +446,6 @@ public class ValidationResource {
     public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") final long ruleSetId,
                                                    @PathParam("ruleSetVersionId") final long ruleSetVersionId,
                                                    @PathParam("ruleId") long ruleId, @Context SecurityContext securityContext) {
-        ReadingTypeInfos infos = new ReadingTypeInfos();
-
         Optional<? extends ValidationRuleSet> ruleSetRef = validationService.getValidationRuleSet(ruleSetId);
         if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -456,19 +453,14 @@ public class ValidationResource {
 
         ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSetRef.get(), ruleSetVersionId);
         ValidationRule validationRule = getValidationRuleFromVersionOrThrowException(ruleSetVersion, ruleId);
-        Set<ReadingType> readingTypes = validationRule.getReadingTypes();
-        for (ReadingType readingType : readingTypes) {
-            infos.add(readingType);
-        }
-        infos.total = readingTypes.size();
-        return infos;
+        return new ReadingTypeInfos(validationRule.getReadingTypes());
     }
 
     @GET
     @Path("/validators")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
-    public ValidatorInfos getAvailableValidators(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName, @Context UriInfo uriInfo) {
+    public ValidatorInfos getAvailableValidators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @Context UriInfo uriInfo) {
         ValidatorInfos infos = new ValidatorInfos();
         validationService.getAvailableValidators(applicationName).stream()
                 .sorted(Compare.BY_DISPLAY_NAME)
