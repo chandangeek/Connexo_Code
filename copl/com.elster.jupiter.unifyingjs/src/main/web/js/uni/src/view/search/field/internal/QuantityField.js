@@ -20,9 +20,10 @@ Ext.define('Uni.view.search.field.internal.QuantityField', {
 
     getValue: function() {
         var me = this,
-            unitRegExp = /\d*(\:\d*\:.*)/;
+            unitRegExp = /\d*(\:\d*\:.*)/,
+            value = me.down('#filter-input').getValue();
 
-        return me.down('#unit-combo').getValue().replace(unitRegExp, me.down('#filter-input').getValue() + '$1');
+        return !Ext.isEmpty(value) ? me.down('#unit-combo').getValue().replace(unitRegExp, value + '$1') : null;
     },
 
     reset: function() {
