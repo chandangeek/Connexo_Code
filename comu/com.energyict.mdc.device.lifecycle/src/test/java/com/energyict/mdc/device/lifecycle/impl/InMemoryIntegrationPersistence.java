@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -182,7 +183,8 @@ public class InMemoryIntegrationPersistence {
                 new TopologyModule(),
                 new DeviceDataModule(),
                 new DeviceLifeCycleModule(),
-                new CustomPropertySetsModule());
+                new CustomPropertySetsModule(),
+                new CalendarModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.transactionService = this.injector.getInstance(TransactionService.class);
