@@ -16,6 +16,7 @@ import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,6 +70,7 @@ public class LinearInterpolation extends AbstractEstimator {
 
     }
 
+    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
     private Long maxNumberOfConsecutiveSuspects;
 
     LinearInterpolation(Thesaurus thesaurus, PropertySpecService propertySpecService) {
@@ -87,6 +90,11 @@ public class LinearInterpolation extends AbstractEstimator {
     @Override
     public List<String> getRequiredProperties() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Set<String> getSupportedApplications() {
+        return SUPPORTED_APPLICATIONS;
     }
 
     @Override

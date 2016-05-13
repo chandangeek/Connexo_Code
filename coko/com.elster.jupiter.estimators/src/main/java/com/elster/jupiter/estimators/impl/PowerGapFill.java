@@ -20,6 +20,7 @@ import com.elster.jupiter.util.logging.LoggingContext;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -27,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class PowerGapFill extends AbstractEstimator implements Estimator {
@@ -66,6 +68,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
 
     }
 
+    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
     private long maxNumberOfConsecutiveSuspects;
 
     public PowerGapFill(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
@@ -261,6 +264,11 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     @Override
     public List<String> getRequiredProperties() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Set<String> getSupportedApplications() {
+        return SUPPORTED_APPLICATIONS;
     }
 
     private Optional<BigDecimal> getValueAt(CimChannel bulkCimChannel, Estimatable last) {

@@ -50,9 +50,12 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -72,13 +75,12 @@ public class AverageWithSamplesEstimatorTest {
 
     private static final Logger LOGGER = Logger.getLogger(AverageWithSamplesEstimatorTest.class.getName());
 
-    private static final ZonedDateTime ESTIMATABLE_TIME = ZonedDateTime.of(2004, 4, 13, 14, 15, 0, 0, TimeZoneNeutral.getMcMurdo());
+    private static final ZonedDateTime ESTIMABLE_TIME = ZonedDateTime.of(2004, 4, 13, 14, 15, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime START = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime LAST_CHECKED = ZonedDateTime.of(2004, 4, 20, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
 
     private static final ZonedDateTime BEFORE = ZonedDateTime.of(2015, 3, 11, 20, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime AFTER = BEFORE.plusHours(4);
-
 
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
@@ -93,7 +95,7 @@ public class AverageWithSamplesEstimatorTest {
     private MeteringService meteringService;
     @Mock
     private EstimationBlock block;
-    private Estimatable estimatable, estimatable2;
+    private Estimatable estimable, estimable2;
     @Mock
     private ReadingType readingType, bulkReadingType, advanceReadingType, deltaReadingType;
     @Mock
@@ -113,14 +115,13 @@ public class AverageWithSamplesEstimatorTest {
 
     @Before
     public void setUp() {
-        estimatable = new EstimatableImpl(ESTIMATABLE_TIME.toInstant());
-        estimatable2 = new EstimatableImpl(ESTIMATABLE_TIME.plusMinutes(15).toInstant());
+        estimable = new EstimableImpl(ESTIMABLE_TIME.toInstant());
+        estimable2 = new EstimableImpl(ESTIMABLE_TIME.plusMinutes(15).toInstant());
         doReturn(AllRelativePeriod.INSTANCE).when(timeService).getAllRelativePeriod();
-        doReturn(asList(estimatable)).when(block).estimatables();
+        doReturn(asList(estimable)).when(block).estimatables();
         doReturn(readingType).when(block).getReadingType();
         doReturn(channel).when(block).getChannel();
         doReturn(meterActivation).when(channel).getMeterActivation();
-
 
         doReturn(Optional.of(meter)).when(meterActivation).getMeter();
         doReturn(asList(channel, otherChannel)).when(meterActivation).getChannels();
@@ -130,7 +131,6 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(Optional.of(bulkCimChannel)).when(channel).getCimChannel(bulkReadingType);
         doReturn(Optional.of(deltaCimChannel)).when(channel).getCimChannel(deltaReadingType);
         doReturn(Optional.of(advanceCimChannel)).when(otherChannel).getCimChannel(advanceReadingType);
-
 
         doReturn(START.toInstant()).when(meterActivation).getStart();
         doReturn(Optional.of(LAST_CHECKED.toInstant())).when(validationService).getLastChecked(channel);
@@ -153,7 +153,6 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(true).when(bulkReadingType).isCumulative();
         doReturn(true).when(bulkReadingType).isRegular();
 
-
         logRecorder = new LogRecorder(Level.ALL);
         LOGGER.addHandler(logRecorder);
         LoggingContext.get().with("rule", "rule");
@@ -162,29 +161,29 @@ public class AverageWithSamplesEstimatorTest {
     private List<BaseReadingRecord> buildReadings() {
         Long[] values = new Long[] {4L, 100L, 100L, 5L, 200L, null, 6L, 100L, 7L};
         List<BaseReadingRecord> readingRecords = IntStream.rangeClosed(-4, 4)
-                .mapToObj(i -> mockReading(ESTIMATABLE_TIME.plusDays(7 * i).toInstant(), values[i + 4]))
+                .mapToObj(i -> mockReading(ESTIMABLE_TIME.plusDays(7 * i).toInstant(), values[i + 4]))
                 .collect(Collectors.toCollection(ArrayList::new));
-        readingRecords.add(1, mockReading(ESTIMATABLE_TIME.minusDays(25).toInstant(), 1000L));
+        readingRecords.add(1, mockReading(ESTIMABLE_TIME.minusDays(25).toInstant(), 1000L));
         doReturn(Collections.emptyList()).when(channel).findReadingQuality(any(Instant.class));
-        doReturn(singletonList(confirmedReadingQuality())).when(channel).findReadingQuality(ESTIMATABLE_TIME.minusDays(21).toInstant());
-        doReturn(singletonList(estimatedReadingQuality())).when(channel).findReadingQuality(ESTIMATABLE_TIME.minusDays(14).toInstant());
-        doReturn(singletonList(editReadingQuality())).when(channel).findReadingQuality(ESTIMATABLE_TIME.plusDays(21).toInstant());
+        doReturn(singletonList(confirmedReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.minusDays(21).toInstant());
+        doReturn(singletonList(estimatedReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.minusDays(14).toInstant());
+        doReturn(singletonList(editReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.plusDays(21).toInstant());
         return readingRecords;
     }
 
     private List<BaseReadingRecord> buildTwiceTheReadings() {
         Long[] values = new Long[] {4L, 100L, 100L, 5L, 200L, null, 6L, 100L, 7L};
         List<BaseReadingRecord> readingRecords = IntStream.rangeClosed(-4, 4)
-                .mapToObj(i -> ImmutableList.of(mockReading(ESTIMATABLE_TIME.plusDays(7 * i).toInstant(), values[i + 4]), mockReading(ESTIMATABLE_TIME.plusDays(7 * i).plusMinutes(15).toInstant(), values[i + 4])))
+                .mapToObj(i -> ImmutableList.of(mockReading(ESTIMABLE_TIME.plusDays(7 * i).toInstant(), values[i + 4]), mockReading(ESTIMABLE_TIME.plusDays(7 * i).plusMinutes(15).toInstant(), values[i + 4])))
                 .flatMap(List::stream)
                 .collect(Collectors.toCollection(ArrayList::new));
         doReturn(Collections.emptyList()).when(channel).findReadingQuality(any(Instant.class));
-        doReturn(singletonList(confirmedReadingQuality())).when(channel).findReadingQuality(ESTIMATABLE_TIME.minusDays(21).toInstant());
-        doReturn(singletonList(estimatedReadingQuality())).when(channel).findReadingQuality(ESTIMATABLE_TIME.minusDays(14).toInstant());
-        doReturn(singletonList(editReadingQuality())).when(channel).findReadingQuality(ESTIMATABLE_TIME.plusDays(21).toInstant());
-        doReturn(singletonList(confirmedReadingQuality())).when(channel).findReadingQuality(ESTIMATABLE_TIME.minusDays(21).plusMinutes(15).toInstant());
-        doReturn(singletonList(estimatedReadingQuality())).when(channel).findReadingQuality(ESTIMATABLE_TIME.minusDays(14).plusMinutes(15).toInstant());
-        doReturn(singletonList(editReadingQuality())).when(channel).findReadingQuality(ESTIMATABLE_TIME.plusDays(21).plusMinutes(15).toInstant());
+        doReturn(singletonList(confirmedReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.minusDays(21).toInstant());
+        doReturn(singletonList(estimatedReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.minusDays(14).toInstant());
+        doReturn(singletonList(editReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.plusDays(21).toInstant());
+        doReturn(singletonList(confirmedReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.minusDays(21).plusMinutes(15).toInstant());
+        doReturn(singletonList(estimatedReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.minusDays(14).plusMinutes(15).toInstant());
+        doReturn(singletonList(editReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.plusDays(21).plusMinutes(15).toInstant());
         return readingRecords;
     }
 
@@ -231,7 +230,6 @@ public class AverageWithSamplesEstimatorTest {
         return reading;
     }
 
-
     @After
     public void tearDown() {
         LoggingContext.get().close();
@@ -255,7 +253,7 @@ public class AverageWithSamplesEstimatorTest {
         EstimationResult result = estimator.estimate(asList(block));
 
         assertThat(result.estimated()).contains(block);
-        assertThat(estimatable.getEstimation()).isEqualTo(BigDecimal.valueOf(5000000, 6));
+        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(5000000, 6));
     }
 
     @Test
@@ -278,7 +276,7 @@ public class AverageWithSamplesEstimatorTest {
         EstimationResult result = estimator.estimate(asList(block));
 
         assertThat(result.estimated()).contains(block);
-        assertThat(estimatable.getEstimation()).isEqualTo(BigDecimal.valueOf(5500000, 6));
+        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(5500000, 6));
     }
 
     @Test
@@ -286,7 +284,7 @@ public class AverageWithSamplesEstimatorTest {
         List<BaseReadingRecord> readingRecords = buildReadings();
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(100))).when(readingRecords.get(6)).getQuantity(readingType);
         doReturn(readingRecords).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
-        doReturn(singletonList(suspectReadingQuality())).when(channel).findReadingQuality(ESTIMATABLE_TIME.plusDays(7).toInstant());
+        doReturn(singletonList(suspectReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.plusDays(7).toInstant());
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
@@ -303,16 +301,16 @@ public class AverageWithSamplesEstimatorTest {
         EstimationResult result = estimator.estimate(asList(block));
 
         assertThat(result.estimated()).contains(block);
-        assertThat(estimatable.getEstimation()).isEqualTo(BigDecimal.valueOf(5000000, 6));
+        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(5000000, 6));
     }
 
     @Test
     public void testEstimateFailIfTooManySuspects() {
-        Estimatable estimatableExtra = mock(Estimatable.class);
+        Estimatable estimableExtra = mock(Estimatable.class);
 
-        doReturn(ESTIMATABLE_TIME.minusMinutes(15).toInstant()).when(estimatableExtra).getTimestamp();
+        doReturn(ESTIMABLE_TIME.minusMinutes(15).toInstant()).when(estimableExtra).getTimestamp();
 
-        doReturn(asList(estimatableExtra, estimatable)).when(block).estimatables();
+        doReturn(asList(estimableExtra, estimable)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 1L)
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
@@ -356,7 +354,6 @@ public class AverageWithSamplesEstimatorTest {
         assertThat(result.remainingToBeEstimated()).containsExactly(block);
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("since not enough samples are found")).atLevel(Level.INFO);
-
     }
 
     @Test
@@ -366,11 +363,11 @@ public class AverageWithSamplesEstimatorTest {
         BaseReadingRecord postBulkReading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preBulkReading).getQuantity(bulkReadingType);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(22))).when(postBulkReading).getQuantity(bulkReadingType);
-        doReturn(Optional.of(preBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.minusMinutes(15).toInstant());
-        doReturn(Optional.of(postBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.plusMinutes(15).toInstant());
+        doReturn(Optional.of(preBulkReading)).when(channel).getReading(ESTIMABLE_TIME.minusMinutes(15).toInstant());
+        doReturn(Optional.of(postBulkReading)).when(channel).getReading(ESTIMABLE_TIME.plusMinutes(15).toInstant());
 
 
-        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
@@ -386,7 +383,7 @@ public class AverageWithSamplesEstimatorTest {
         EstimationResult result = estimator.estimate(asList(block));
 
         assertThat(result.estimated()).contains(block);
-        assertThat(estimatable.getEstimation()).isEqualTo(BigDecimal.valueOf(4000000, 6));
+        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(4000000, 6));
     }
 
     @Test
@@ -396,31 +393,32 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preAdvanceReading).getQuantity(advanceReadingType);
         BaseReadingRecord postAdvanceReading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(32))).when(postAdvanceReading).getQuantity(advanceReadingType);
-        doReturn(singletonList(preAdvanceReading)).when(meterActivation).getReadingsBefore(ESTIMATABLE_TIME.toInstant(), advanceReadingType, 1);
-        doReturn(singletonList(postAdvanceReading)).when(meterActivation).getReadings(Range.atLeast(ESTIMATABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
-        doReturn(ESTIMATABLE_TIME.minusMinutes(35).toInstant()).when(preAdvanceReading).getTimeStamp();
-        doReturn(ESTIMATABLE_TIME.plusMinutes(35).toInstant()).when(postAdvanceReading).getTimeStamp();
+        doReturn(singletonList(preAdvanceReading)).when(meterActivation).getReadingsBefore(ESTIMABLE_TIME.toInstant(), advanceReadingType, 1);
+        doReturn(singletonList(postAdvanceReading)).when(meterActivation).getReadings(Range.atLeast(ESTIMABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
+        doReturn(ESTIMABLE_TIME.minusMinutes(35).toInstant()).when(preAdvanceReading).getTimeStamp();
+        doReturn(ESTIMABLE_TIME.plusMinutes(35).toInstant()).when(postAdvanceReading).getTimeStamp();
         BaseReadingRecord pre1Reading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(3))).when(pre1Reading).getQuantity(readingType);
-        doReturn(ESTIMATABLE_TIME.minusMinutes(30).toInstant()).when(pre1Reading).getTimeStamp();
+        doReturn(ESTIMABLE_TIME.minusMinutes(30).toInstant()).when(pre1Reading).getTimeStamp();
         BaseReadingRecord pre2Reading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(3))).when(pre2Reading).getQuantity(readingType);
-        doReturn(ESTIMATABLE_TIME.minusMinutes(15).toInstant()).when(pre2Reading).getTimeStamp();
-        doReturn(asList(pre1Reading, pre2Reading)).when(channel).getReadings(Range.openClosed(ESTIMATABLE_TIME.minusMinutes(35).toInstant(), ESTIMATABLE_TIME.minusMinutes(15).toInstant()));
+        doReturn(ESTIMABLE_TIME.minusMinutes(15).toInstant()).when(pre2Reading).getTimeStamp();
+        doReturn(asList(pre1Reading, pre2Reading)).when(channel).getReadings(Range.openClosed(ESTIMABLE_TIME.minusMinutes(35).toInstant(), ESTIMABLE_TIME.minusMinutes(15).toInstant()));
         BaseReadingRecord post1Reading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(4))).when(post1Reading).getQuantity(readingType);
-        doReturn(ESTIMATABLE_TIME.plusMinutes(30).toInstant()).when(post1Reading).getTimeStamp();
+        doReturn(ESTIMABLE_TIME.plusMinutes(30).toInstant()).when(post1Reading).getTimeStamp();
         BaseReadingRecord post2Reading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(6))).when(post2Reading).getQuantity(readingType);
-        doReturn(ESTIMATABLE_TIME.plusMinutes(45).toInstant()).when(post2Reading).getTimeStamp();
-        doReturn(asList(post1Reading, post2Reading)).when(channel).getReadings(Range.openClosed(ESTIMATABLE_TIME.plusMinutes(15).toInstant(), ESTIMATABLE_TIME.plusMinutes(45).toInstant()));
-        doReturn(asList(ESTIMATABLE_TIME.plusMinutes(30).toInstant())).when(channel).toList(Range.openClosed(ESTIMATABLE_TIME.plusMinutes(15).toInstant(), ESTIMATABLE_TIME.plusMinutes(35).toInstant()));
-        doReturn(ESTIMATABLE_TIME.plusMinutes(45).toInstant()).when(channel).getNextDateTime(ESTIMATABLE_TIME.plusMinutes(30).toInstant());
-        doReturn(asList(ESTIMATABLE_TIME.minusMinutes(30).toInstant(), ESTIMATABLE_TIME.minusMinutes(15).toInstant())).when(channel).toList(Range.openClosed(ESTIMATABLE_TIME.minusMinutes(35).toInstant(), ESTIMATABLE_TIME.minusMinutes(15).toInstant()));
+        doReturn(ESTIMABLE_TIME.plusMinutes(45).toInstant()).when(post2Reading).getTimeStamp();
+        doReturn(asList(post1Reading, post2Reading)).when(channel).getReadings(Range.openClosed(ESTIMABLE_TIME.plusMinutes(15).toInstant(), ESTIMABLE_TIME.plusMinutes(45).toInstant()));
+        doReturn(asList(ESTIMABLE_TIME.plusMinutes(30).toInstant())).when(channel).toList(Range.openClosed(ESTIMABLE_TIME.plusMinutes(15).toInstant(), ESTIMABLE_TIME.plusMinutes(35).toInstant()));
+        doReturn(ESTIMABLE_TIME.plusMinutes(45).toInstant()).when(channel).getNextDateTime(ESTIMABLE_TIME.plusMinutes(30).toInstant());
+        doReturn(asList(ESTIMABLE_TIME.minusMinutes(30).toInstant(), ESTIMABLE_TIME.minusMinutes(15).toInstant())).when(channel).toList(Range.openClosed(ESTIMABLE_TIME.minusMinutes(35).toInstant(), ESTIMABLE_TIME
+                .minusMinutes(15).toInstant()));
         doReturn(Optional.of(Duration.ofMinutes(15))).when(channel).getIntervalLength();
         doReturn(deltaCimChannel).when(block).getCimChannel();
 
-        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
@@ -436,26 +434,26 @@ public class AverageWithSamplesEstimatorTest {
         EstimationResult result = estimator.estimate(asList(block));
 
         assertThat(result.estimated()).contains(block);
-        assertThat(estimatable.getEstimation()).isEqualTo(BigDecimal.valueOf(4000000, 6));
+        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(4000000, 6));
     }
 
     @Test
     public void testEstimateFailsWhenPriorAdvanceReadingIsSuspect() {
-        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ESTIMATABLE_TIME.minusMinutes(35).toInstant());
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ESTIMABLE_TIME.minusMinutes(35).toInstant());
         doReturn(true).when(suspect4).isSuspect();
-        doReturn(ESTIMATABLE_TIME.minusMinutes(35).toInstant()).when(suspect4).getReadingTimestamp();
+        doReturn(ESTIMABLE_TIME.minusMinutes(35).toInstant()).when(suspect4).getReadingTimestamp();
         doReturn(true).when(suspect4).isActual();
         doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
         BaseReadingRecord preAdvanceReading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preAdvanceReading).getQuantity(advanceReadingType);
         BaseReadingRecord postAdvanceReading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(32))).when(postAdvanceReading).getQuantity(advanceReadingType);
-        doReturn(singletonList(preAdvanceReading)).when(meterActivation).getReadingsBefore(ESTIMATABLE_TIME.toInstant(), advanceReadingType, 1);
-        doReturn(singletonList(postAdvanceReading)).when(meterActivation).getReadings(Range.atLeast(ESTIMATABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
-        doReturn(ESTIMATABLE_TIME.minusMinutes(35).toInstant()).when(preAdvanceReading).getTimeStamp();
-        doReturn(ESTIMATABLE_TIME.plusMinutes(35).toInstant()).when(postAdvanceReading).getTimeStamp();
+        doReturn(singletonList(preAdvanceReading)).when(meterActivation).getReadingsBefore(ESTIMABLE_TIME.toInstant(), advanceReadingType, 1);
+        doReturn(singletonList(postAdvanceReading)).when(meterActivation).getReadings(Range.atLeast(ESTIMABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
+        doReturn(ESTIMABLE_TIME.minusMinutes(35).toInstant()).when(preAdvanceReading).getTimeStamp();
+        doReturn(ESTIMABLE_TIME.plusMinutes(35).toInstant()).when(postAdvanceReading).getTimeStamp();
 
-        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
@@ -478,21 +476,21 @@ public class AverageWithSamplesEstimatorTest {
 
     @Test
     public void testEstimateFailsWhenLaterAdvanceReadingIsSuspect() {
-        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ESTIMATABLE_TIME.plusMinutes(35).toInstant());
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ESTIMABLE_TIME.plusMinutes(35).toInstant());
         doReturn(true).when(suspect4).isSuspect();
-        doReturn(ESTIMATABLE_TIME.plusMinutes(35).toInstant()).when(suspect4).getReadingTimestamp();
+        doReturn(ESTIMABLE_TIME.plusMinutes(35).toInstant()).when(suspect4).getReadingTimestamp();
         doReturn(true).when(suspect4).isActual();
         doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
         BaseReadingRecord preAdvanceReading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preAdvanceReading).getQuantity(advanceReadingType);
         BaseReadingRecord postAdvanceReading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(32))).when(postAdvanceReading).getQuantity(advanceReadingType);
-        doReturn(singletonList(preAdvanceReading)).when(meterActivation).getReadingsBefore(ESTIMATABLE_TIME.toInstant(), advanceReadingType, 1);
-        doReturn(singletonList(postAdvanceReading)).when(meterActivation).getReadings(Range.atLeast(ESTIMATABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
-        doReturn(ESTIMATABLE_TIME.minusMinutes(35).toInstant()).when(preAdvanceReading).getTimeStamp();
-        doReturn(ESTIMATABLE_TIME.plusMinutes(35).toInstant()).when(postAdvanceReading).getTimeStamp();
+        doReturn(singletonList(preAdvanceReading)).when(meterActivation).getReadingsBefore(ESTIMABLE_TIME.toInstant(), advanceReadingType, 1);
+        doReturn(singletonList(postAdvanceReading)).when(meterActivation).getReadings(Range.atLeast(ESTIMABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
+        doReturn(ESTIMABLE_TIME.minusMinutes(35).toInstant()).when(preAdvanceReading).getTimeStamp();
+        doReturn(ESTIMABLE_TIME.plusMinutes(35).toInstant()).when(postAdvanceReading).getTimeStamp();
 
-        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
@@ -518,11 +516,11 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
         BaseReadingRecord postAdvanceReading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(32))).when(postAdvanceReading).getQuantity(advanceReadingType);
-        doReturn(asList()).when(meterActivation).getReadingsBefore(ESTIMATABLE_TIME.toInstant(), advanceReadingType, 1);
-        doReturn(singletonList(postAdvanceReading)).when(meterActivation).getReadings(Range.atLeast(ESTIMATABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
-        doReturn(ESTIMATABLE_TIME.plusMinutes(35).toInstant()).when(postAdvanceReading).getTimeStamp();
+        doReturn(asList()).when(meterActivation).getReadingsBefore(ESTIMABLE_TIME.toInstant(), advanceReadingType, 1);
+        doReturn(singletonList(postAdvanceReading)).when(meterActivation).getReadings(Range.atLeast(ESTIMABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
+        doReturn(ESTIMABLE_TIME.plusMinutes(35).toInstant()).when(postAdvanceReading).getTimeStamp();
 
-        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
@@ -548,10 +546,10 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
         BaseReadingRecord preAdvanceReading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preAdvanceReading).getQuantity(advanceReadingType);
-        doReturn(singletonList(preAdvanceReading)).when(meterActivation).getReadingsBefore(ESTIMATABLE_TIME.toInstant(), advanceReadingType, 1);
-        doReturn(ESTIMATABLE_TIME.minusMinutes(35).toInstant()).when(preAdvanceReading).getTimeStamp();
+        doReturn(singletonList(preAdvanceReading)).when(meterActivation).getReadingsBefore(ESTIMABLE_TIME.toInstant(), advanceReadingType, 1);
+        doReturn(ESTIMABLE_TIME.minusMinutes(35).toInstant()).when(preAdvanceReading).getTimeStamp();
 
-        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
@@ -579,11 +577,11 @@ public class AverageWithSamplesEstimatorTest {
         BaseReadingRecord postBulkReading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preBulkReading).getQuantity(bulkReadingType);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(22))).when(postBulkReading).getQuantity(bulkReadingType);
-        doReturn(Optional.empty()).when(channel).getReading(ESTIMATABLE_TIME.minusMinutes(15).toInstant());
-        doReturn(Optional.empty()).when(channel).getReading(ESTIMATABLE_TIME.plusMinutes(15).toInstant());
+        doReturn(Optional.empty()).when(channel).getReading(ESTIMABLE_TIME.minusMinutes(15).toInstant());
+        doReturn(Optional.empty()).when(channel).getReading(ESTIMABLE_TIME.plusMinutes(15).toInstant());
 
 
-        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
@@ -602,7 +600,6 @@ public class AverageWithSamplesEstimatorTest {
         assertThat(result.remainingToBeEstimated()).containsExactly(block);
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith("since the surrounding bulk readings are not available")).atLevel(Level.INFO);
-
     }
 
     @Test
@@ -637,12 +634,11 @@ public class AverageWithSamplesEstimatorTest {
         BaseReadingRecord postBulkReading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preBulkReading).getQuantity(bulkReadingType);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(22))).when(postBulkReading).getQuantity(bulkReadingType);
-        doReturn(Optional.of(preBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.minusMinutes(15).toInstant());
-        doReturn(Optional.of(postBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.plusMinutes(15).toInstant());
+        doReturn(Optional.of(preBulkReading)).when(channel).getReading(ESTIMABLE_TIME.minusMinutes(15).toInstant());
+        doReturn(Optional.of(postBulkReading)).when(channel).getReading(ESTIMABLE_TIME.plusMinutes(15).toInstant());
         doReturn(Optional.empty()).when(readingType).getBulkReadingType();
 
-
-        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
@@ -661,9 +657,7 @@ public class AverageWithSamplesEstimatorTest {
         assertThat(result.remainingToBeEstimated()).containsExactly(block);
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("since the reading type readingType has no bulk reading type")).atLevel(Level.INFO);
-
     }
-
 
     @Test(expected = LocalizedFieldValidationException.class)
     public void testInvalidPropertiesWhenConsecutiveIsZero() {
@@ -699,11 +693,11 @@ public class AverageWithSamplesEstimatorTest {
         BaseReadingRecord postBulkReading = mock(BaseReadingRecord.class);
         doReturn(null).when(preBulkReading).getQuantity(bulkReadingType);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(22))).when(postBulkReading).getQuantity(bulkReadingType);
-        doReturn(Optional.of(preBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.minusMinutes(15).toInstant());
-        doReturn(Optional.of(postBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.plusMinutes(15).toInstant());
+        doReturn(Optional.of(preBulkReading)).when(channel).getReading(ESTIMABLE_TIME.minusMinutes(15).toInstant());
+        doReturn(Optional.of(postBulkReading)).when(channel).getReading(ESTIMABLE_TIME.plusMinutes(15).toInstant());
 
 
-        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
@@ -722,9 +716,7 @@ public class AverageWithSamplesEstimatorTest {
         assertThat(result.remainingToBeEstimated()).containsExactly(block);
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
         JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith("since the prior bulk reading has no value")).atLevel(Level.INFO);
-
     }
-
 
     @Test
     public void testEstimateWithBulkFailsSinceNoLaterBulkReading() {
@@ -733,11 +725,11 @@ public class AverageWithSamplesEstimatorTest {
         BaseReadingRecord postBulkReading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(22))).when(preBulkReading).getQuantity(bulkReadingType);
         doReturn(null).when(postBulkReading).getQuantity(bulkReadingType);
-        doReturn(Optional.of(preBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.minusMinutes(15).toInstant());
-        doReturn(Optional.of(postBulkReading)).when(channel).getReading(ESTIMATABLE_TIME.plusMinutes(15).toInstant());
+        doReturn(Optional.of(preBulkReading)).when(channel).getReading(ESTIMABLE_TIME.minusMinutes(15).toInstant());
+        doReturn(Optional.of(postBulkReading)).when(channel).getReading(ESTIMABLE_TIME.plusMinutes(15).toInstant());
 
 
-        doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
+        doReturn(asList(estimable, estimable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
                 .put(AverageWithSamplesEstimator.MIN_NUMBER_OF_SAMPLES, 2L)
@@ -759,13 +751,18 @@ public class AverageWithSamplesEstimatorTest {
 
     }
 
+    @Test
+    public void testGetSupportedApplications() {
+        assertThat(new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService).getSupportedApplications())
+                .containsOnly("INS", "MDC");
+    }
 
-    private static class EstimatableImpl implements Estimatable {
+    private static class EstimableImpl implements Estimatable {
 
         private final Instant timestamp;
         private BigDecimal bigDecimal;
 
-        private EstimatableImpl(Instant timestamp) {
+        private EstimableImpl(Instant timestamp) {
             this.timestamp = timestamp;
         }
 
@@ -784,9 +781,6 @@ public class AverageWithSamplesEstimatorTest {
             return bigDecimal;
         }
     }
-
-
-
 
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {
         return new EstimationRuleProperties() {

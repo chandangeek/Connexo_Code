@@ -31,6 +31,7 @@ import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -137,6 +139,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     private static final Long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
     private static final Long MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE = 1L;
     private static final Long MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE = 10L;
+    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
 
     private final ValidationService validationService;
     private final MeteringService meteringService;
@@ -234,6 +237,11 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                 RELATIVE_PERIOD,
                 ADVANCE_READINGS_SETTINGS
         );
+    }
+
+    @Override
+    public Set<String> getSupportedApplications() {
+        return SUPPORTED_APPLICATIONS;
     }
 
     @Override
