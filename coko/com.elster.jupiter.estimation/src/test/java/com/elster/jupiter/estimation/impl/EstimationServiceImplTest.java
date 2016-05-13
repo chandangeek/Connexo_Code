@@ -297,7 +297,7 @@ public class EstimationServiceImplTest {
                 .as("Both estimators must be supported for APP")
                 .containsExactly("Estimator1", "Estimator2");
         assertThat(estimationService.getAvailableEstimatorImplementations("APP1"))
-                .as("Only estimator1 must be supported for APP1")
+                .as("Only estimator2 must be supported for APP1")
                 .containsExactly("Estimator2");
         assertThat(estimationService.getAvailableEstimatorImplementations("NoAPP"))
                 .as("No estimator must be supported for NoAPP")
