@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
@@ -17,6 +18,13 @@ import java.util.stream.Collectors;
  */
 public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFragment> {
 
+    private final Formula.Mode mode;
+    private boolean unitConversionActive = false;
+
+    public ExpressionNodeToSql(Formula.Mode mode) {
+        this.mode = mode;
+    }
+
     @Override
     public SqlFragment visitConstant(NumericalConstantNode constant) {
         SqlBuilder fragment = new SqlBuilder();
@@ -25,7 +33,7 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
     }
 
     @Override
-    public SqlFragment visitNull(NullNodeImpl nullNode) {
+    public SqlFragment visitNull(NullNode nullNode) {
         return new SqlBuilder("null");
     }
 
@@ -37,8 +45,18 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
     }
 
     @Override
-    public SqlFragment visitVariable(VariableReferenceNode variable) {
-        return new TextFragment(variable.getName());
+    public SqlFragment visitSqlFragment(SqlFragmentNode variable) {
+        return variable.getSqlFragment();
+    }
+
+    @Override
+    public SqlFragment visitUnitConversion(UnitConversionNode unitConversionNode) {
+        VirtualReadingType sourceReadingType = unitConversionNode.getSourceReadingType();
+        VirtualReadingType targetReadingType = unitConversionNode.getTargetReadingType();
+        this.unitConversionActive = true;
+        SqlFragment expressionBuilder = unitConversionNode.getExpressionNode().accept(this);
+        this.unitConversionActive = false;
+        return sourceReadingType.buildSqlUnitConversion(this.mode, expressionBuilder, targetReadingType);
     }
 
     @Override
@@ -77,14 +95,25 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
     @Override
     public SqlFragment visitVirtualRequirement(VirtualRequirementNode requirement) {
         SqlBuilder fragment = new SqlBuilder();
-        requirement.appendTo(fragment);
+        if (this.unitConversionActive) {
+            requirement.appendTo(fragment);
+        } else {
+            /* May sound silly but we are actually requesting the node
+             * to append itself to the SqlFragment and apply unit conversion
+             * because unit conversion is currently not active. */
+            requirement.appendToWithUnitConversion(fragment);
+        }
         return fragment;
     }
 
     @Override
     public SqlFragment visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         SqlBuilder fragment = new SqlBuilder();
-        deliverable.appendTo(fragment);
+        if (this.unitConversionActive) {
+            deliverable.appendTo(fragment);
+        } else {
+            deliverable.appendToWithUnitConversion(fragment);
+        }
         return fragment;
     }
 

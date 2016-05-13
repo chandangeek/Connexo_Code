@@ -29,12 +29,12 @@ public class IntervalLengthFromExpressionNode implements ServerExpressionNode.Vi
     }
 
     @Override
-    public IntervalLength visitVariable(VariableReferenceNode variable) {
+    public IntervalLength visitSqlFragment(SqlFragmentNode variable) {
         return null;
     }
 
     @Override
-    public IntervalLength visitNull(NullNodeImpl nullNode) {
+    public IntervalLength visitNull(NullNode nullNode) {
         return null;
     }
 
@@ -46,6 +46,11 @@ public class IntervalLengthFromExpressionNode implements ServerExpressionNode.Vi
     @Override
     public IntervalLength visitVirtualRequirement(VirtualRequirementNode requirement) {
         return null;
+    }
+
+    @Override
+    public IntervalLength visitUnitConversion(UnitConversionNode unitConversionNode) {
+        return unitConversionNode.getExpressionNode().accept(this);
     }
 
     @Override

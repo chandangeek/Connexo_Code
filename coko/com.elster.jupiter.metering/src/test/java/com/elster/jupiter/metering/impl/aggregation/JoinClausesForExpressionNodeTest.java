@@ -7,8 +7,11 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.util.units.Dimension;
+
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -57,9 +60,9 @@ public class JoinClausesForExpressionNodeTest {
     }
 
     @Test
-    public void variableReferenceNodesDoNotProvideJoinClauseInformation() {
+    public void sqlFragementNodesDoNotProvideJoinClauseInformation() {
         JoinClausesForExpressionNode testInstance = this.testInstance();
-        ServerExpressionNode node = new VariableReferenceNode("varName");
+        ServerExpressionNode node = new SqlFragmentNode("sequence.nextval");
 
         // Business method
         node.accept(testInstance);
@@ -109,8 +112,7 @@ public class JoinClausesForExpressionNodeTest {
         when(readingTypeDeliverableForMeterActivation.sqlName()).thenReturn(expectedJoinTableName);
         when(readingTypeDeliverableForMeterActivation.getReadingType()).thenReturn(readingType);
         ServerExpressionNode node =
-                new OperationNode(
-                        Operator.PLUS,
+                Operator.PLUS.node(
                         new VirtualDeliverableNode(readingTypeDeliverableForMeterActivation),
                         new VirtualDeliverableNode(readingTypeDeliverableForMeterActivation));
 
@@ -133,7 +135,7 @@ public class JoinClausesForExpressionNodeTest {
         ServerExpressionNode node =
                 new FunctionCallNode(
                         Function.SUM,
-                        new VirtualDeliverableNode(readingTypeDeliverableForMeterActivation),
+                        IntermediateDimension.of(Dimension.DIMENSIONLESS), new VirtualDeliverableNode(readingTypeDeliverableForMeterActivation),
                         new VirtualDeliverableNode(readingTypeDeliverableForMeterActivation));
 
         // Business method
@@ -148,15 +150,18 @@ public class JoinClausesForExpressionNodeTest {
     public void requirementWithSameTableNameIsIgnored() {
         JoinClausesForExpressionNode testInstance = this.testInstance();
         ReadingType readingType = this.mockedReadingType();
-        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(requirement.getReadingType()).thenReturn(mock(ReadingType.class));
         VirtualFactory virtualFactory = mock(VirtualFactory.class);
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         when(deliverable.getReadingType()).thenReturn(readingType);
         VirtualReadingTypeRequirement virtualReadingTypeRequirement = mock(VirtualReadingTypeRequirement.class);
         when(virtualReadingTypeRequirement.sqlName()).thenReturn(SOURCE_TABLE_NAME);
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(requirement), eq(deliverable), any(VirtualReadingType.class))).thenReturn(virtualReadingTypeRequirement);
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getRange()).thenReturn(Range.all());
 
-        ServerExpressionNode node = new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, mock(MeterActivation.class));
+        ServerExpressionNode node = new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, meterActivation);
 
         // Business method
         node.accept(testInstance);
@@ -168,7 +173,8 @@ public class JoinClausesForExpressionNodeTest {
     public void requirementWithDifferentTableNameIsNotIgnored() {
         JoinClausesForExpressionNode testInstance = this.testInstance();
         ReadingType readingType = this.mockedReadingType();
-        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(requirement.getReadingType()).thenReturn(mock(ReadingType.class));
         VirtualFactory virtualFactory = mock(VirtualFactory.class);
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         when(deliverable.getReadingType()).thenReturn(readingType);
@@ -176,8 +182,10 @@ public class JoinClausesForExpressionNodeTest {
         String expectedJoinTableName = "requirementWithDifferentTableNameIsNotIgnored";
         when(virtualReadingTypeRequirement.sqlName()).thenReturn(expectedJoinTableName);
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(requirement), eq(deliverable), any(VirtualReadingType.class))).thenReturn(virtualReadingTypeRequirement);
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getRange()).thenReturn(Range.all());
 
-        ServerExpressionNode node = new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, mock(MeterActivation.class));
+        ServerExpressionNode node = new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, meterActivation);
 
         // Business method
         node.accept(testInstance);
@@ -191,7 +199,8 @@ public class JoinClausesForExpressionNodeTest {
     public void additionOfSameRequirement() {
         JoinClausesForExpressionNode testInstance = this.testInstance();
         ReadingType readingType = this.mockedReadingType();
-        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(requirement.getReadingType()).thenReturn(mock(ReadingType.class));
         VirtualFactory virtualFactory = mock(VirtualFactory.class);
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         when(deliverable.getReadingType()).thenReturn(readingType);
@@ -199,12 +208,13 @@ public class JoinClausesForExpressionNodeTest {
         String expectedJoinTableName = "REQ1";
         when(virtualReadingTypeRequirement.sqlName()).thenReturn(expectedJoinTableName);
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(requirement), eq(deliverable), any(VirtualReadingType.class))).thenReturn(virtualReadingTypeRequirement);
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getRange()).thenReturn(Range.all());
 
         ServerExpressionNode node =
-                new OperationNode(
-                        Operator.PLUS,
-                        new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, mock(MeterActivation.class)),
-                        new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, mock(MeterActivation.class)));
+                Operator.PLUS.node(
+                        new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, meterActivation),
+                        new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, meterActivation));
 
         // Business method
         node.accept(testInstance);
@@ -218,7 +228,8 @@ public class JoinClausesForExpressionNodeTest {
     public void functionCallWithSameRequirement() {
         JoinClausesForExpressionNode testInstance = this.testInstance();
         ReadingType readingType = this.mockedReadingType();
-        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(requirement.getReadingType()).thenReturn(mock(ReadingType.class));
         VirtualFactory virtualFactory = mock(VirtualFactory.class);
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         when(deliverable.getReadingType()).thenReturn(readingType);
@@ -226,12 +237,14 @@ public class JoinClausesForExpressionNodeTest {
         String expectedJoinTableName = "REQ1";
         when(virtualReadingTypeRequirement.sqlName()).thenReturn(expectedJoinTableName);
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(requirement), eq(deliverable), any(VirtualReadingType.class))).thenReturn(virtualReadingTypeRequirement);
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getRange()).thenReturn(Range.all());
 
         ServerExpressionNode node =
                 new FunctionCallNode(
                         Function.SUM,
-                        new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, mock(MeterActivation.class)),
-                        new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, mock(MeterActivation.class)));
+                        IntermediateDimension.of(Dimension.DIMENSIONLESS), new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, meterActivation),
+                        new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, deliverable, meterActivation));
 
         // Business method
         node.accept(testInstance);

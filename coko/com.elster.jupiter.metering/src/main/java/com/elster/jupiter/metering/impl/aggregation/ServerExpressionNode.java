@@ -12,17 +12,20 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 public interface ServerExpressionNode {
 
     interface Visitor<T> {
-        T visitNull(NullNodeImpl nullNode);
+        T visitNull(NullNode nullNode);
         T visitConstant(NumericalConstantNode constant);
         T visitConstant(StringConstantNode constant);
-        T visitVariable(VariableReferenceNode variable);
+        T visitSqlFragment(SqlFragmentNode variable);
         T visitVirtualRequirement(VirtualRequirementNode requirement);
         T visitVirtualDeliverable(VirtualDeliverableNode deliverable);
+        T visitUnitConversion(UnitConversionNode unitConversionNode);
         T visitOperation(OperationNode operationNode);
         T visitFunctionCall(FunctionCallNode functionCall);
         T visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode);
     }
 
     <T> T accept(Visitor<T> visitor);
+
+    public IntermediateDimension getIntermediateDimension();
 
 }

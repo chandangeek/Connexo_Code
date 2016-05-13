@@ -93,7 +93,8 @@ import java.util.stream.Stream;
         "osgi.command.function=addDeviceLocation",
         "osgi.command.function=addDeviceGeoCoordinates",
         "osgi.command.function=addUsagePointLocation",
-        "osgi.command.function=addUsagePointGeoCoordinates"
+        "osgi.command.function=addUsagePointGeoCoordinates",
+        "osgi.command.function=activateMetrologyConfig"
 
 }, immediate = true)
 public class ConsoleCommands {
@@ -412,8 +413,11 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                     .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
-            MetrologyConfiguration config = metrologyConfigurationService.newMetrologyConfiguration(name, serviceCategory)
+            UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(name, serviceCategory)
                     .create();
+            MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
+                    .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+            config.addMeterRole(meterRole);
             System.out.println(config.getId() + ": " + config.getName());
             context.commit();
         }
@@ -579,7 +583,7 @@ public class ConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration(), deliverable.getFormula().getMode()).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO).parse(formulaString);
 
             deliverable.setName(name);
             deliverable.setReadingType(readingType);
@@ -622,7 +626,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration(), deliverable.getFormula().getMode()).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO).parse(formulaString);
 
             deliverable.getFormula().updateExpression(node);
             deliverable.update();
@@ -755,4 +759,13 @@ public class ConsoleCommands {
         return builder.toString();
     }
 
+    public void activateMetrologyConfig(String name) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            metrologyConfigurationService.findMetrologyConfiguration(name)
+                    .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"))
+                    .activate();
+            context.commit();
+        }
+    }
 }
