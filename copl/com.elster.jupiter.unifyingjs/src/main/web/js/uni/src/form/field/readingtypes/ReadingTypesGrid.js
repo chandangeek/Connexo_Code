@@ -22,7 +22,6 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesGrid', {
     columns: [
         {
             xtype: 'reading-type-column',
-            dataIndex: 'mRID',
             valueIsRecordData: true,
             flex: 1
         }

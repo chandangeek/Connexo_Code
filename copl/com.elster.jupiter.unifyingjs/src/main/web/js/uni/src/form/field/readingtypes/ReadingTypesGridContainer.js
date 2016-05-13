@@ -63,7 +63,8 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesGridContainer', {
                         iconCls: 'uni-icon-info-small',
                         ui: 'plane',
                         width: 16,
-                        handler: Ext.bind(me.openInfoWindow, me)
+                        handler: Ext.bind(me.openInfoWindow, me),
+                        hidden: true
                     },
                     {
                         xtype: 'container',
@@ -141,6 +142,7 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesGridContainer', {
         Ext.suspendLayouts();
         me.down('#uncheck-all-button').setDisabled(!me.selectedReadingTypes.length);
         me.down('#selection-counter').setText(me.counterTextFn(me.selectedReadingTypes.length));
+        me.down('#selected-reading-types-info-button').setVisible(!!me.selectedReadingTypes.length);
         me.fireEvent('selectionChange', !!me.selectedReadingTypes.length);
         Ext.resumeLayouts(true);
     },

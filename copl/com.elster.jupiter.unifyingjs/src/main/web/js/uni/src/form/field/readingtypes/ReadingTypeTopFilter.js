@@ -1,8 +1,11 @@
 Ext.define('Uni.form.field.readingtypes.ReadingTypeTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'uni-add-reading-type-top-filter',
-    filterDefault: {},
+    historyEnabled: false,
+
     selectedReadingTypes: null,
+    isEquidistant: false,
+    isActive: false,
 
     initComponent: function () {
         var me = this;
@@ -80,11 +83,20 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypeTopFilter', {
         if (Ext.isArray(me.selectedReadingTypes) && me.selectedReadingTypes.length) {
             me.setSelectedReadings(me.selectedReadingTypes);
         }
+        if (me.isEquidistant) {
+            me.setEquidistant();
+        }
+        if (me.isActive) {
+            me.setActive();
+        }
     },
 
     setSelectedReadings: function (readingArray) {
         this.getFilterByItemId('selectedReadingsFilter').setInitialValue(readingArray);
         this.getFilterByItemId('selectedReadingsFilter').setFilterValue(readingArray);
+    },
+
+    setEquidistant: function () {
         this.getFilterByItemId('equidistantFilter').setInitialValue(true);
         this.getFilterByItemId('equidistantFilter').setFilterValue(true);
     },

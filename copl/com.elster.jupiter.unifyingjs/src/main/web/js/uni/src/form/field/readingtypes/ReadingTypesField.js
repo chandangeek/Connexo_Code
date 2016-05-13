@@ -5,7 +5,8 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
         'Uni.model.ReadingType',
         'Uni.form.field.readingtypes.AddingView',
         'Uni.form.field.readingtypes.Controller',
-        'Uni.util.History'
+        'Uni.util.History',
+        'Uni.model.ReadingType'
     ],
     mixins: {
         field: 'Ext.form.field.Field'
@@ -13,6 +14,9 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
     layout: 'hbox',
     msgTarget: 'under',
     fieldLabel: Uni.I18n.translate('readingTypesField.readingTypes', 'UNI', 'Reading types'),
+
+    isEquidistant: false,
+    isActive: false,
     additionalReasons: null,
 
     initComponent: function () {
@@ -21,7 +25,8 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
         me.readingTypesStore = Ext.create('Ext.data.Store', {
             model: 'Uni.model.ReadingType'
         });
-        me.initialUrl = window.location.href;
+
+        me.minWidth = me.labelWidth + 650;
 
         me.items = [
             {
@@ -44,7 +49,6 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
                 columns: [
                     {
                         xtype: 'reading-type-column',
-                        dataIndex: 'mRID',
                         valueIsRecordData: true,
                         flex: 1
                     },
@@ -91,11 +95,11 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
         var me = this;
 
         if (Ext.isArray(value) && value.length) {
-            me.down('#added-reading-types-grid').getStore().loadData(value);
+            me.down('#added-reading-types-grid').getStore().loadData(value, false);
         }
+        me.updateView();
 
         me.value = value;
-        me.updateView();
     },
 
     getValue: function () {
@@ -103,7 +107,9 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
             value = null;
 
         if (me.readingTypesStore.getCount()) {
-            value = me.readingTypesStore.getRange();
+            value = _.map(me.readingTypesStore.getRange(), function (readingType) {
+                return readingType.getData();
+            });
         }
 
         return value;
@@ -154,35 +160,24 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
 
     showAddView: function () {
         var me = this,
-            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            filterChangesCounter = 0,
-            onFilterChange = function () {
-                filterChangesCounter++;
-            };
+            contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
         me.currentPageView = contentPanel.down();
+
         me.addReadingTypesView = Ext.widget('uni-add-reading-types-view', {
             itemId: 'uni-add-reading-types-view',
             selectedReadingTypes: _.map(me.getValue(), function (readingType) {
                 return readingType.mRID
             }),
+            isEquidistant: me.isEquidistant,
+            isActive: me.isActive,
             additionalReasons: me.additionalReasons
         });
+
         me.addReadingTypesView.on('addReadingTypes', function (readingTypes) {
             me.hideAddView();
             me.setValue(readingTypes);
-            Ext.util.History.un('change', onFilterChange, me);
-            if (filterChangesCounter) {
-                Uni.util.History.setParsePath(false);
-                Uni.util.History.suspendEventsForNextCall();
-                window.history.go(-filterChangesCounter);
-                Uni.util.History.setParsePath(false);
-                Uni.util.History.suspendEventsForNextCall();
-                window.location.replace(me.initialUrl);
-            }
         }, me, {single: true});
-
-        Ext.util.History.on('change', onFilterChange, me);
 
         Ext.suspendLayouts();
         me.currentPageView.hide();

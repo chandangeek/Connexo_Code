@@ -6,6 +6,8 @@ Ext.define('Uni.form.field.readingtypes.AddingView', {
         'Uni.form.field.readingtypes.ReadingTypesGridContainer'
     ],
 
+    isEquidistant: false,
+    isActive: false,
     selectedReadingTypes: null,
     additionalReasons: null,
 
@@ -22,6 +24,8 @@ Ext.define('Uni.form.field.readingtypes.AddingView', {
                         xtype: 'uni-add-reading-type-top-filter',
                         itemId: 'uni-add-reading-type-top-filter',
                         store: me.readingTypesStore,
+                        isEquidistant: me.isEquidistant,
+                        isActive: me.isActive,
                         selectedReadingTypes: me.selectedReadingTypes
                     },
                     {
