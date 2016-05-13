@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -11,12 +14,9 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
@@ -137,6 +137,22 @@ public enum QueryMethod {
                 Long connectionTaskId = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
                 ConnectionTask connectionTask = serviceProvider.connectionTaskService().findConnectionTask(connectionTaskId).get();
                 this.executionCompleted(serviceProvider, connectionTask);
+            }
+            return null;
+        }
+    },
+    ExecutionRescheduled {
+        @Override
+        protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
+            if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION)) {
+                Integer comTaskExecutionId = (Integer) parameters.get(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
+                Optional<ComTaskExecution> comTaskExecution = serviceProvider.communicationTaskService().findComTaskExecution(comTaskExecutionId);
+                if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE)) {
+                    Date rescheduleDate = new Date((Long) parameters.get(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE));
+                    if(comTaskExecution.isPresent()){
+                        this.executionRescheduled(serviceProvider, comTaskExecution.get(), rescheduleDate.toInstant());
+                    }
+                }
             }
             return null;
         }
@@ -274,6 +290,15 @@ public enum QueryMethod {
             @Override
             public void doPerform() {
                 serviceProvider.comServerDAO().executionFailed(connectionTask);
+            }
+        });
+    }
+
+    protected void executionRescheduled(ServiceProvider serviceProvider, ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+        this.executeTransaction(serviceProvider, new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                serviceProvider.comServerDAO().executionRescheduled(comTaskExecution, rescheduleDate);
             }
         });
     }

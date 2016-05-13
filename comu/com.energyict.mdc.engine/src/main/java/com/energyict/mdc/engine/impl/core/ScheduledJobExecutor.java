@@ -1,12 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
-
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 import java.util.List;
 
@@ -112,15 +111,17 @@ public abstract class ScheduledJobExecutor {
         public synchronized ValidationReturnStatus perform() {
             if (!this.job.isStillPending()) {
                 return ValidationReturnStatus.NOT_PENDING_ANYMORE;
-            } else if (this.job.isWithinComWindow()) {
-                if (this.job.attemptLock()) {
-                    return ValidationReturnStatus.ATTEMPT_LOCK_SUCCESS;
-                }
-                else {
+            } else {
+                boolean attemptLock = this.job.attemptLock();
+                if (attemptLock) {
+                    if (this.job.isWithinComWindow()) {
+                        return ValidationReturnStatus.ATTEMPT_LOCK_SUCCESS;
+                    } else {
+                        return ValidationReturnStatus.JOB_OUTSIDE_COM_WINDOW;
+                    }
+                } else {
                     return ValidationReturnStatus.ATTEMPT_LOCK_FAILED;
                 }
-            } else {
-                return ValidationReturnStatus.JOB_OUTSIDE_COM_WINDOW;
             }
         }
     }

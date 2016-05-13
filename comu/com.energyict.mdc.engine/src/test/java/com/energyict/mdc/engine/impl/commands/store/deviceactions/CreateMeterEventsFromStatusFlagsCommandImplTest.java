@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.device.data.DeviceService;
@@ -34,12 +36,11 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,8 +49,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -366,6 +368,11 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
         @Override
         public void rescheduleToNextComWindow(ComServerDAO comServerDAO) {
+        }
+
+        @Override
+        public void rescheduleToNextComWindow(ComServerDAO comServerDAO, Instant startingPoint) {
+
         }
 
         @Override

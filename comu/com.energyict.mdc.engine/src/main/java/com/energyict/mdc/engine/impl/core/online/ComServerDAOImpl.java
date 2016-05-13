@@ -465,6 +465,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+        getCommunicationTaskService().executionRescheduled(comTaskExecution, rescheduleDate);
+    }
+
+    @Override
     public void executionCompleted(final List<? extends ComTaskExecution> comTaskExecutions) {
         boolean connectionTaskWasLocked = false;
         for (ComTaskExecution execution : comTaskExecutions) {
