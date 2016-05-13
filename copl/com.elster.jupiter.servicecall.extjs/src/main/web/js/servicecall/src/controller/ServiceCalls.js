@@ -116,7 +116,7 @@ Ext.define('Scs.controller.ServiceCalls', {
                             store: store,
                             breadcrumbs: parents,
                             record: record,
-                            activeTab: window.location.href.indexOf('?status=') > 0 ? 1 : 0
+                            activeTab: window.location.href.indexOf('?') > 0 ? 1 : 0
                         });
                         me.setBreadcrumb(parents);
                         view.down('scs-landing-page').updateLandingPage(record);
