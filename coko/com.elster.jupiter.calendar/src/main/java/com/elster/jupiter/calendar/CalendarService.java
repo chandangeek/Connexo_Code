@@ -38,6 +38,8 @@ public interface CalendarService {
 
     Optional<Calendar> findCalendarByName(String name);
 
+    Optional<Calendar> findCalendarByMRID(String mRID);
+
     @ProviderType
     interface CalendarBuilder {
         CalendarBuilder endYear(Year setStartYear);

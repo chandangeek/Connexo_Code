@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 /**
  * Created by igh on 18/04/2016.
  */
+@UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CALENDAR + "}")
 public class CalendarImpl implements Calendar {
 
     public enum Fields {
@@ -137,6 +138,11 @@ public class CalendarImpl implements Calendar {
     @Override
     public String getUserName() {
         return userName;
+    }
+
+    @Override
+    public String getMRID() {
+        return mRID;
     }
 
     @Override

@@ -15,10 +15,13 @@ import com.elster.jupiter.nls.Thesaurus;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBElement;
 import java.math.BigInteger;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
+import java.time.ZoneId;
+import java.time.zone.ZoneRulesException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -184,15 +187,15 @@ public class CalendarFactory {
     }
 
     private TimeZone getTimeZone() {
-        String timeZoneId = calendar.getTimezone();
-        if (isEmpty(timeZoneId)) {
+        String timeZoneName = calendar.getTimezone();
+        if (isEmpty(timeZoneName)) {
             throw new CalendarParserException(thesaurus, MessageSeeds.MISSING_TIMEZONE);
         }
-        TimeZone result = TimeZone.getTimeZone(timeZoneId);
-        if (!result.getID().equals(timeZoneId)) {
-            throw new CalendarParserException(thesaurus, MessageSeeds.NO_TIMEZONE_FOUND_WITH_ID, timeZoneId);
+        try {
+            return TimeZone.getTimeZone(ZoneId.of(timeZoneName));
+        } catch (DateTimeException e) {
+            throw new CalendarParserException(thesaurus, MessageSeeds.NO_TIMEZONE_FOUND_WITH_ID, timeZoneName);
         }
-        return result;
     }
 
     private Year getStartYear() {

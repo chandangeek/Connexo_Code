@@ -29,7 +29,6 @@ public class CalendarImporterFactory implements FileImporterFactory {
 
     @Activate
     public void activate() {
-        System.out.println("test");
     }
 
     public CalendarImporterFactory() {

@@ -39,7 +39,7 @@ public class CalendarImporterContext {
 
     @Activate
     public void activate() {
-        System.out.println("test");
+
     }
 
 
