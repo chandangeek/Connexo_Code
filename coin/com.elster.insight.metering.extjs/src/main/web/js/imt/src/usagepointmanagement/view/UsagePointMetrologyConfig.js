@@ -58,7 +58,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 },
                 listeners: {
                     beforerender: function() {
-                        if (!me.getRecord().get('name')) {
+                        if (!me.getRecord().get('name') && Imt.privileges.UsagePoint.canAdministrate()) {
                             this.show();
                         }
                     }
