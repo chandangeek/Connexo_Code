@@ -60,7 +60,7 @@ public class LinkTest {
             ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
             ValidationService valService = getValidationService();
             mc = getMetrologyConfigurationService().newMetrologyConfiguration("MC1", serviceCategory).create();
-            vrs1 = valService.createValidationRuleSet("Rule #1");
+            vrs1 = valService.createValidationRuleSet("Rule #1", "INS");
             upcService.addValidationRuleSet(mc, vrs1);
             context.commit();
         }
@@ -74,7 +74,7 @@ public class LinkTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             ValidationService valService = getValidationService();
-            vrs2 = valService.createValidationRuleSet("Rule #2");
+            vrs2 = valService.createValidationRuleSet("Rule #2", "INS");
             vrs2.save();
             upcService.addValidationRuleSet(mc, vrs2);
             Optional<MetrologyConfiguration> mc2 = getMetrologyConfigurationService().findMetrologyConfiguration(mc.getId());
