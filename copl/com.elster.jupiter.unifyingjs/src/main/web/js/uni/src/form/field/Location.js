@@ -153,6 +153,7 @@ Ext.define('Uni.form.field.Location', {
 
         if (me.displayResetButton) {
             defaultButton.setVisible(true);
+            defaultButton.setTooltip(Uni.I18n.translate('location.locationResetTooltip', 'UNI', 'Reset to usage point location'));
         }
     },
 
@@ -317,7 +318,7 @@ Ext.define('Uni.form.field.Location', {
                 comboLocation.locationId = me.displayValue.usagePointLocationId;
                 comboLocation.setRawValue(recordProperties.get('unformattedLocationValue'));
                 propertyForm.hide();
-                defaultButton.setDisabled(true);
+                defaultButton.setDisabled(true && value.usagePointLocationId);
             }
         })
 

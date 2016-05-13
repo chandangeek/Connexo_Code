@@ -196,6 +196,7 @@ Ext.define('Uni.form.field.Coordinates', {
 
         if (me.displayResetButton) {
             restoreDefault.setVisible(true);
+            restoreDefault.setTooltip(Uni.I18n.translate('coordinate.coordinateResetTooltip', 'UNI', 'Reset to usage point coordinates'));
         }
     },
 
@@ -268,7 +269,7 @@ Ext.define('Uni.form.field.Coordinates', {
         if (values.length > 1) {
             elevTextField.setValue(values[2]);
         }
-        defaultButton.setDisabled(value.isInherited);
+        defaultButton.setDisabled(value.isInherited && value.usagePointGeoCoordinatesId);
     },
 
     getValue: function () {
