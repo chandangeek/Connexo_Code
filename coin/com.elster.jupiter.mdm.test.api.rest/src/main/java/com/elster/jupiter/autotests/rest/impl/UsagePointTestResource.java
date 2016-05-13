@@ -6,7 +6,6 @@ import com.elster.jupiter.rest.util.Transactional;
 
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -35,19 +34,5 @@ public class UsagePointTestResource {
         }
 
         return Response.status(Response.Status.NOT_FOUND).build();
-    }
-
-    @POST
-    @Path("/{mRID}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Transactional
-    public Response deactivateMetrologyConfiguration(@PathParam("mRID") String mRID) {
-        if (this.meteringService.findUsagePoint(mRID).isPresent()) {
-            UsagePoint usagePoint = this.meteringService.findUsagePoint(mRID).get();
-            if (usagePoint.getMetrologyConfiguration().isPresent()) {
-                usagePoint.getMetrologyConfiguration().get().deactivate();
-            }
-        }
-        return Response.status(Response.Status.OK).build();
     }
 }
