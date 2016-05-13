@@ -19,11 +19,13 @@ public class DeviceHistoryResource {
 
     private ResourceHelper resourceHelper;
     private DeviceLifeCycleHistoryInfoFactory deviceLifeCycleHistoryInfoFactory;
+    private DeviceFirmwareHistoryInfoFactory deviceFirmwareHistoryInfoFactory;
 
     @Inject
-    public DeviceHistoryResource(ResourceHelper resourceHelper, DeviceLifeCycleHistoryInfoFactory deviceLifeCycleStatesHistoryInfoFactory) {
+    public DeviceHistoryResource(ResourceHelper resourceHelper, DeviceLifeCycleHistoryInfoFactory deviceLifeCycleStatesHistoryInfoFactory, DeviceFirmwareHistoryInfoFactory deviceFirmwareHistoryInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceLifeCycleHistoryInfoFactory = deviceLifeCycleStatesHistoryInfoFactory;
+        this.deviceFirmwareHistoryInfoFactory = deviceFirmwareHistoryInfoFactory;
     }
 
     @GET
@@ -34,5 +36,15 @@ public class DeviceHistoryResource {
     public Response getDeviceLifeCycleStatesHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         return Response.ok(deviceLifeCycleHistoryInfoFactory.createDeviceLifeCycleChangeInfos(device)).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/firmwarechanges")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public Response getFirmwareHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        return Response.ok(deviceFirmwareHistoryInfoFactory.createDeviceFirmwareHistoryInfos(device)).build();
     }
 }
