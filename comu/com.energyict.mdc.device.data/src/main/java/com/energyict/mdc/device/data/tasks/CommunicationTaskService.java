@@ -1,5 +1,10 @@
 package com.energyict.mdc.device.data.tasks;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.config.ComPort;
@@ -10,11 +15,6 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -173,4 +173,5 @@ public interface CommunicationTaskService {
 
     void executionStartedFor(ComTaskExecution comTaskExecution, ComPort comPort);
 
+    void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate);
 }

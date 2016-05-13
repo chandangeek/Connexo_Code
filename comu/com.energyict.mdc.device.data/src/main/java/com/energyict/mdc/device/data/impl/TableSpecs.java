@@ -615,6 +615,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_DEVMESATTR_DEV")
                     .on(deviceMessage)
                     .references(DDC_DEVICEMESSAGE.name())
+                    .onDelete(CASCADE)
                     .map("deviceMessage")
                     .composition()
                     .reverseMap(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
