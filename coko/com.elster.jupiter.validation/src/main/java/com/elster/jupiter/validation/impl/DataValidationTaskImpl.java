@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -62,8 +63,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
     private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
-
-    private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
 
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
 
@@ -187,14 +186,14 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public String getApplication() {
-        return application;
-    }
-
-    @Override
     public void setName(String name) {
         this.name = (name != null ? name.trim() : "");
         recurrentTaskDirty = true;
+    }
+
+    @Override
+    public String getApplication() {
+        return application;
     }
 
     @Override
@@ -205,11 +204,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     @Override
     public Optional<UsagePointGroup> getUsagePointGroup() {
         return usagePointGroup.getOptional();
-    }
-
-    @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration() {
-        return metrologyConfiguration.getOptional();
     }
 
     @Override
@@ -225,11 +219,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     @Override
     public void setUsagePointGroup(UsagePointGroup usagePointGroup) {
         this.usagePointGroup.set(usagePointGroup);
-    }
-
-    @Override
-    public void setMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration) {
-        this.metrologyConfiguration.set(metrologyConfiguration);
     }
 
     @Override
