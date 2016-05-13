@@ -20,7 +20,7 @@ public class OutboundEndPointFactoryImpl extends EndPointFactoryImpl<OutboundEnd
 
     @Override
     public ManagedEndpoint createEndpoint(EndPointConfiguration endPointConfiguration) {
-        return outboundEndPointProvider.get().init(super.getEndPointProvider());
+        return outboundEndPointProvider.get().init(super.getEndPointProvider(), endPointConfiguration);
     }
 
     @Override
