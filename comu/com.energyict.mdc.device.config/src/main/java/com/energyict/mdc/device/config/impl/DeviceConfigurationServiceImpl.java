@@ -20,6 +20,7 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -123,6 +124,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
+    private volatile PropertySpecService propertySpecService;
     private volatile MeteringService meteringService;
     private volatile PluggableService pluggableService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
@@ -144,7 +146,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, PropertySpecService propertySpecService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -152,6 +154,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setUserService(userService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
+        this.setPropertySpecService(propertySpecService);
         this.setMeteringService(meteringService);
         this.setPluggableServce(pluggableService);
         this.setProtocolPluggableService(protocolPluggableService);
@@ -491,6 +494,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public Thesaurus getThesaurus() {
         return thesaurus;
@@ -545,6 +553,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);

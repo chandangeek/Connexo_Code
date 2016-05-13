@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
@@ -64,6 +65,8 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -177,9 +180,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private final Provider<DeviceConfigurationEstimationRuleSetUsageImpl> deviceConfigEstimationRuleSetUsageFactory;
     private boolean dataloggerEnabled;
 
+    private PropertySpecService propertySpecService;
+
     @Inject
     protected DeviceConfigurationImpl(
             DataModel dataModel, EventService eventService, Thesaurus thesaurus,
+            PropertySpecService propertySpecService,
             Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
             Provider<NumericalRegisterSpecImpl> numericalRegisterSpecProvider,
             Provider<TextualRegisterSpecImpl> textualRegisterSpecProvider,
@@ -190,6 +196,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             SchedulingService schedulingService,
             ThreadPrincipalService threadPrincipalService) {
         super(DeviceConfiguration.class, dataModel, eventService, thesaurus);
+        this.propertySpecService = propertySpecService;
         this.loadProfileSpecProvider = loadProfileSpecProvider;
         this.numericalRegisterSpecProvider = numericalRegisterSpecProvider;
         this.textualRegisterSpecProvider = textualRegisterSpecProvider;
@@ -1256,6 +1263,32 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             return Optional.empty();
         }
         return Optional.of((User) principal);
+    }
+
+    @Override
+    public List<DeviceMessageSpec> getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageCategory category) {
+        Set<DeviceMessageId> supportedMessagesSpecs =
+                this.getDeviceType()
+                    .getDeviceProtocolPluggableClass()
+                    .getDeviceProtocol()
+                    .getSupportedMessages();
+
+        EnumSet<DeviceMessageId> enabledDeviceMessageIds = EnumSet.noneOf(DeviceMessageId.class);
+        this.getDeviceMessageEnablements()
+            .stream()
+            .map(DeviceMessageEnablement::getDeviceMessageId)
+            .forEach(enabledDeviceMessageIds::add);
+        return category.getMessageSpecifications()
+                        .stream()
+                        .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
+                        .filter(deviceMessageSpec -> enabledDeviceMessageIds.contains(deviceMessageSpec.getId())) // limit to device message specs enabled on the config
+                        .filter(deviceMessageSpec -> this.isAuthorized(deviceMessageSpec.getId())) // limit to device message specs whom the user is authorized to
+                        .map(this::replaceDeviceMessageFileValueFactories)
+                        .collect(Collectors.toList());
+    }
+
+    private DeviceMessageSpec replaceDeviceMessageFileValueFactories(DeviceMessageSpec spec) {
+        return new DeviceMessageSpecImpl(this.getDeviceType(), spec, this.propertySpecService);
     }
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages() {

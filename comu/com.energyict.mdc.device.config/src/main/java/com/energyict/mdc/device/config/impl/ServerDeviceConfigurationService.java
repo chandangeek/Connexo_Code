@@ -8,9 +8,11 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.tasks.ComTask;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Extends {@link DeviceConfigurationService} with behavior that
@@ -52,5 +54,7 @@ public interface ServerDeviceConfigurationService extends DeviceConfigurationSer
      * @return A flag that indicates if the ComTask is used or not
      */
     boolean usedByDeviceConfigurations(ComTask comTask);
+
+    Optional<DeviceMessageFile> findDeviceMessageFile(long id);
 
 }
