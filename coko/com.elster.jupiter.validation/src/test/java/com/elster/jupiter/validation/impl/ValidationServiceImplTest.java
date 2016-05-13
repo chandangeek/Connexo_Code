@@ -204,7 +204,6 @@ public class ValidationServiceImplTest {
     @Mock
     private Query<DataValidationTask> dataValidationTaskQuery;
 
-
     @Before
     public void setUp() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
@@ -378,7 +377,6 @@ public class ValidationServiceImplTest {
                 return input.getChannel();
             }
         }).toSet()).contains(channel1);
-
     }
 
     @Test
@@ -693,7 +691,6 @@ public class ValidationServiceImplTest {
         verify(validationRuleSetResolver).resolve(meterActivation);
     }
 
-
     @Test
     public void testDeactivateMeterValidation() {
         Meter meter = mock(Meter.class);
@@ -708,7 +705,6 @@ public class ValidationServiceImplTest {
         verify(meterValidation).setActivationStatus(false);
         verify(meterValidation).save();
     }
-
 
     @Test
     public void testEnableValidationOnStorage() {
@@ -858,5 +854,4 @@ public class ValidationServiceImplTest {
         }
         return readingQualityRecord;
     }
-
 }
