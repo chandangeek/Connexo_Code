@@ -221,8 +221,8 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
     public void cloneWithValidationRuleSetsTest() {
         DeviceType deviceType = createSimpleDeviceType();
         DeviceConfiguration configWithValidation = deviceType.newConfiguration("configWithValidation").add();
-        ValidationRuleSet validationRuleSet1 = inMemoryPersistence.getValidationService().createValidationRuleSet("MyValRul1");
-        ValidationRuleSet validationRuleSet2 = inMemoryPersistence.getValidationService().createValidationRuleSet("MyValRul2");
+        ValidationRuleSet validationRuleSet1 = inMemoryPersistence.getValidationService().createValidationRuleSet("MyValRul1", "MDC");
+        ValidationRuleSet validationRuleSet2 = inMemoryPersistence.getValidationService().createValidationRuleSet("MyValRul2", "MDC");
         configWithValidation.addValidationRuleSet(validationRuleSet1);
         configWithValidation.addValidationRuleSet(validationRuleSet2);
         configWithValidation.save();
@@ -238,9 +238,9 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
     public void cloneWithEstimationRuleSetsTest() {
         DeviceType deviceType = createSimpleDeviceType();
         DeviceConfiguration configWithEstimation = deviceType.newConfiguration("configWithEstimation").add();
-        EstimationRuleSet myEstimationRule1 = inMemoryPersistence.getEstimationService().createEstimationRuleSet("MyEstimationRule1");
+        EstimationRuleSet myEstimationRule1 = inMemoryPersistence.getEstimationService().createEstimationRuleSet("MyEstimationRule1", "MDC");
         myEstimationRule1.save();
-        EstimationRuleSet myEstimationRule2 = inMemoryPersistence.getEstimationService().createEstimationRuleSet("MyEstimationRule2");
+        EstimationRuleSet myEstimationRule2 = inMemoryPersistence.getEstimationService().createEstimationRuleSet("MyEstimationRule2", "MDC");
         myEstimationRule2.save();
         configWithEstimation.addEstimationRuleSet(myEstimationRule1);
         configWithEstimation.addEstimationRuleSet(myEstimationRule2);

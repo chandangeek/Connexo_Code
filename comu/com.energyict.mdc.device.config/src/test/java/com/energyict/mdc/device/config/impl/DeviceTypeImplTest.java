@@ -911,11 +911,11 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     public void testCanRemoveDeviceConfigurationWithLinkedValidationAndEstimationRuleSets() {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
 
-        ValidationRuleSet validationRuleSet = inMemoryPersistence.getValidationService().createValidationRuleSet("ValidationRuleSet");
+        ValidationRuleSet validationRuleSet = inMemoryPersistence.getValidationService().createValidationRuleSet("ValidationRuleSet", "MDC");
         validationRuleSet.save();
         deviceConfiguration.addValidationRuleSet(validationRuleSet);
 
-        EstimationRuleSet estimationRuleSet = inMemoryPersistence.getEstimationService().createEstimationRuleSet("EstimationRuleSet");
+        EstimationRuleSet estimationRuleSet = inMemoryPersistence.getEstimationService().createEstimationRuleSet("EstimationRuleSet", "MDC");
         estimationRuleSet.save();
         deviceConfiguration.addEstimationRuleSet(estimationRuleSet);
 

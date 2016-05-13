@@ -122,7 +122,7 @@ public class DeviceConfigurationEstimationRuleSetUsageTest extends PersistenceTe
     }
 
     private EstimationRuleSet createEstimationRuleSet(String name) {
-        EstimationRuleSet estimationRuleSet = PersistenceTest.inMemoryPersistence.getEstimationService().createEstimationRuleSet(name);
+        EstimationRuleSet estimationRuleSet = PersistenceTest.inMemoryPersistence.getEstimationService().createEstimationRuleSet(name, "MDC");
         estimationRuleSet.save();
         return estimationRuleSet;
     }
