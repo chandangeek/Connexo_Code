@@ -26,7 +26,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     BAD_REQUEST(17, Keys.BAD_REQUEST, "Bad request"),
     NO_METROLOGYCONFIG_FOR_ID(18, Keys.NO_METROLOGYCONFIG_FOR_ID, "No metrology configuration with id {0}"),
     USAGE_POINT_LINKED_EXCEPTION(19, Keys.USAGE_POINT_LINKED_EXCEPTION, " Failed to link metrology configuration to '{0}'."),
-    USAGE_POINT_LINKED_EXCEPTION_MSG(20, Keys.USAGE_POINT_LINKED_EXCEPTION_MSG, "{0} is already linked to a metrology configuration.");
+    USAGE_POINT_LINKED_EXCEPTION_MSG(20, Keys.USAGE_POINT_LINKED_EXCEPTION_MSG, "{0} is already linked to a metrology configuration."),
+    NOT_POSSIBLE_TO_LINK_INACTIVE_METROLOGY_CONFIGURATION_TO_USAGE_POINT(21, Keys.NOT_POSSIBLE_TO_LINK_INACTIVE_METROLOGY_CONFIGURATION_TO_USAGE_POINT, "Not possible to link inactive metrology configuration ''{0}'' to usage point");
     private final int number;
     private final String key;
     private final String format;
@@ -83,7 +84,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String NO_METROLOGYCONFIG_FOR_ID = "NoMetrologyConfigWithId";
         public static final String USAGE_POINT_LINKED_EXCEPTION = "UsagePointLinkedException";
         public static final String USAGE_POINT_LINKED_EXCEPTION_MSG = "UsagePointLinkedExceptionMsg";
-
+        public static final String NOT_POSSIBLE_TO_LINK_INACTIVE_METROLOGY_CONFIGURATION_TO_USAGE_POINT = "UsagePointLinkedInactiveMetrologyConfigurationExceptionMsg";
     }
 
 }

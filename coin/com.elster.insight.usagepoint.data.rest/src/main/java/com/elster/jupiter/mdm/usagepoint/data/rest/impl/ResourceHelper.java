@@ -54,9 +54,17 @@ public class ResourceHelper {
         return metrologyConfigurationService
                 .findAndLockMetrologyConfiguration(id, version)
                 .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
-                .filter(MetrologyConfiguration::isActive)
+                .map(this::isActiveMetrologyConfigurationOrThrowException)
                 .map(UsagePointMetrologyConfiguration.class::cast)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
+    }
+
+    private MetrologyConfiguration isActiveMetrologyConfigurationOrThrowException(MetrologyConfiguration metrologyConfiguration) {
+        if (metrologyConfiguration.isActive()) {
+            return metrologyConfiguration;
+        }
+        throw exceptionFactory.newException(MessageSeeds.NOT_POSSIBLE_TO_LINK_INACTIVE_METROLOGY_CONFIGURATION_TO_USAGE_POINT, metrologyConfiguration.getName());
+
     }
 
     public UsagePoint lockUsagePointOrThrowException(UsagePointInfo info) {
