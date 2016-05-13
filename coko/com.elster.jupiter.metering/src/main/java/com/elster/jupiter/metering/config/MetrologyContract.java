@@ -18,6 +18,8 @@ import java.util.List;
 @ProviderType
 public interface MetrologyContract {
 
+    long getId();
+
     /**
      * Returns the {@link MetrologyConfiguration} that defined
      * this MetrologyContract.

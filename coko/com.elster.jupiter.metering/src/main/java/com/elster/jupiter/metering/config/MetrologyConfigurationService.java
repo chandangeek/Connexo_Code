@@ -34,6 +34,8 @@ public interface MetrologyConfigurationService {
 
     List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint);
 
+    Optional<MetrologyContract> findMetrologyContract(long id);
+
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
     MeterRole newMeterRole(NlsKey name);
