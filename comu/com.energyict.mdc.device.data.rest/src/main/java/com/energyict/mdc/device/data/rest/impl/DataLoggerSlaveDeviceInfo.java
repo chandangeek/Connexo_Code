@@ -28,6 +28,7 @@ public class DataLoggerSlaveDeviceInfo {
     public long version;
 
     public List<DataLoggerSlaveChannelInfo> dataLoggerSlaveChannelInfos;   //mapping slave channel to data logger channel
+    public List<DataLoggerSlaveRegisterInfo> dataLoggerSlaveRegisterInfos;   //mapping slave register to data logger register
 
     DataLoggerSlaveDeviceInfo(){
         super();
@@ -40,9 +41,17 @@ public class DataLoggerSlaveDeviceInfo {
         return dataLoggerSlaveChannelInfos.add(slaveChannelInfo);
     }
 
-    // A DataLoggerSlaveDeviceInfo with only a list of {@link DataLoggerSlavechannelInfo}s is used
-    // for keeping the data logger's channels which are not linked yet
-    public boolean containsTheUnlinkedDataLoggerChannels(){
+    public boolean addDataLoggerSlaveRegisterInfo(DataLoggerSlaveRegisterInfo slaveRegisterInfo){
+        if (dataLoggerSlaveRegisterInfos == null){
+            dataLoggerSlaveRegisterInfos = new ArrayList<>();
+        }
+        return dataLoggerSlaveRegisterInfos.add(slaveRegisterInfo);
+    }
+
+    // A DataLoggerSlaveDeviceInfo with only a list of {@link DataLoggerSlaveChannelInfo}s
+    // and or a list of {@link DataLoggerSlaveRegisterInfo}s is used
+    // for keeping the data logger's channels and registers which are not linked yet
+    public boolean placeHolderForUnlinkedDataLoggerChannelsAndRegisters(){
         return is(mRID).emptyOrOnlyWhiteSpace();
     }
 

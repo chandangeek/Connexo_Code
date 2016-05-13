@@ -346,6 +346,17 @@ public class ResourceHelper {
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, device.getmRID(), channelId));
     }
 
+    public Register findRegisterOnDeviceOrThrowException(String mRID, long registerId) {
+        Device device = this.findDeviceByMrIdOrThrowException(mRID);
+        return this.findRegisterOnDeviceOrThrowException(device, registerId);
+    }
+
+    public Register findRegisterOnDeviceOrThrowException(Device device, long registerId) {
+        return device.getRegisters().stream().filter(r -> r.getRegisterSpecId() == registerId)
+                        .findFirst()
+                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, device.getmRID(), registerId));
+    }
+
 
     public EndDeviceGroup findEndDeviceGroupOrThrowException(long id) {
         return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
