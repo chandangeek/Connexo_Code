@@ -7,12 +7,12 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
 
-public class ComTaskExecutionInfo extends LinkInfo {
+public class ComTaskExecutionInfo extends LinkInfo<Long> {
     @NotNull
     public ComTaskExecutionType type;
-    public LinkInfo connectionTask;
-    public LinkInfo schedule;
-    public LinkInfo device;
+    public LinkInfo<Long> connectionTask;
+    public LinkInfo<Long> schedule;
+    public LinkInfo<Long> device;
     @NotNull
     public Instant nextExecution;
     public Instant plannedNextExecution;
@@ -25,5 +25,5 @@ public class ComTaskExecutionInfo extends LinkInfo {
     public Instant lastSuccessfulCompletion;
     public TemporalExpressionInfo schedulingSpec;
     @NotNull
-    public LinkInfo comTask;
+    public LinkInfo<Long> comTask;
 }

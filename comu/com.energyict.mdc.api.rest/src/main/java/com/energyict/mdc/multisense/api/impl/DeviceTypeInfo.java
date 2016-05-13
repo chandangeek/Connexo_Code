@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by bvn on 5/12/15.
  */
-public class DeviceTypeInfo extends LinkInfo {
+public class DeviceTypeInfo extends LinkInfo<Long> {
     public String name;
     public String description;
     public List<LinkInfo> deviceConfigurations;

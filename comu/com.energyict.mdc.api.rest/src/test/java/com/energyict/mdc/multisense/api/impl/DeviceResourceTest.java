@@ -2,7 +2,6 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
@@ -18,12 +17,9 @@ import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ExecutableActionPropertyImpl;
-import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -34,6 +30,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -304,17 +304,6 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
 
         target("/devicetypes").queryParam("fields", "deviceConfigurations").request("application/json").get();
 
-    }
-
-    private PropertySpec mockDateTimePropertySpec(Date date) {
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.isRequired()).thenReturn(true);
-        when(propertySpec.getName()).thenReturn("datetime.property");
-        when(propertySpec.getValueFactory()).thenReturn(new DateAndTimeFactory());
-        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
-        when(possibleValues.getDefault()).thenReturn(date);
-        when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
-        return propertySpec;
     }
 
     private ExecutableAction mockExecutableAction(Long id, String name, MicroAction microAction, PropertySpec... propertySpecs) {

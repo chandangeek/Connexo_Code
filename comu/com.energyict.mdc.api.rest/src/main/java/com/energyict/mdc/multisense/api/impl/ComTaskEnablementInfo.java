@@ -1,6 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
-public class ComTaskEnablementInfo extends LinkInfo{
+public class ComTaskEnablementInfo extends LinkInfo<Long> {
     public LinkInfo comTask;
     public LinkInfo securityPropertySet;
     public LinkInfo partialConnectionTask;
