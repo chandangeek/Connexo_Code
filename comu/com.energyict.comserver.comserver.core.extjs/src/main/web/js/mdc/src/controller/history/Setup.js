@@ -2087,13 +2087,13 @@ Ext.define('Mdc.controller.history.Setup', {
                         title: Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
                         route: 'add',
                         controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
-                        privileges: Mdc.privileges.UsagePoint.admin,
+                        privileges: Mdc.privileges.UsagePoint.canAdmin(),
                         action: 'showAddUsagePoint',
                         callback: me.checkInsightRedirect
                     },
                     usagepoint: {
                         title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
-                        privileges: Mdc.privileges.UsagePoint.view,
+                        privileges: Mdc.privileges.UsagePoint.canView(),
                         route: '{usagePointId}',
                         controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                         action: 'showUsagePoint',
@@ -2111,7 +2111,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 title: Uni.I18n.translate('general.editUsagePoint', 'MDC', 'Edit usage point'),
                                 route: 'edit',
                                 controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
-                                privileges: Mdc.privileges.UsagePoint.admin,
+                                privileges: Mdc.privileges.UsagePoint.canAdmin(),
                                 action: 'showEditUsagePoint',
                                 callback: function (route) {
                                     me.checkInsightRedirect(route);

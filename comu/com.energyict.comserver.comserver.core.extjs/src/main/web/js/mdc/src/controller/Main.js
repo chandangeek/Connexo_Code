@@ -291,7 +291,7 @@ Ext.define('Mdc.controller.Main', {
 
         Uni.store.Apps.load({
             callback: function(){
-                if(Mdc.privileges.UsagePoint.checkAdminWithInsight()){
+                if(Mdc.privileges.UsagePoint.canAdmin()){
                     var usagePointsMenuItem = Ext.create('Uni.model.MenuItem', {
                         text: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points'),
                         href: '#/usagepoints',
