@@ -1,29 +1,19 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+
 import com.elster.jupiter.util.units.Dimension;
 
 /**
- * Models a {@link ServerExpressionNode} that holds a String constant.
+ * Models a {@link ServerExpressionNode} that represents the <code>null</code> literal.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-19 (09:35)
  */
-class StringConstantNode implements ServerExpressionNode {
-
-    private final String value;
-
-    StringConstantNode(String value) {
-        super();
-        this.value = value;
-    }
-
-    String getValue() {
-        return this.value;
-    }
+class NullNode implements ServerExpressionNode {
 
     @Override
     public <T> T accept(Visitor<T> visitor) {
-        return visitor.visitConstant(this);
+        return visitor.visitNull(this);
     }
 
     @Override

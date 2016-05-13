@@ -62,9 +62,12 @@ public class VirtualReadingTypeRelativeComparator implements Comparator<VirtualR
              * algorithm against the target so they are in some way compatible with the target. */
             if (this.target.isFlowRelated()) {
                 if (x.isFlowRelated()) {
-                    /* Likely y is not flow related or they would have had the same unit
-                     * so favour x over y to avoid volume to flow conversion. */
-                    return -1;
+                    if (y.isFlowRelated()) {
+                        // Both are flow related, consider them equal
+                        return 0;
+                    } else {
+                        return -1;
+                    }
                 } else if (y.isFlowRelated()) {
                     /* Was already established that x is not flow related
                      * but now that we are sure y is flow related
@@ -79,9 +82,12 @@ public class VirtualReadingTypeRelativeComparator implements Comparator<VirtualR
             } else if (this.target.isVolumeRelated()) {
                 // Remember that flow to volume conversion requires division
                 if (x.isVolumeRelated()) {
-                    /* Likely y is not volume related or they would have had the same unit
-                     * so favour x over y to avoid flow to volume conversion. */
-                    return -1;
+                    if (y.isVolumeRelated()) {
+                        // Both are volume related, consider them equal
+                        return 0;
+                    } else {
+                        return -1;
+                    }
                 } else if (y.isVolumeRelated()) {
                     /* Was already established that x is not volume related
                      * but now that we are sure y is volume related

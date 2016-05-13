@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.Collections;
@@ -16,13 +17,20 @@ import java.util.stream.Collectors;
  */
 public class ExpressionNodeToString implements ServerExpressionNode.Visitor<String> {
 
+    private final Formula.Mode mode;
+    private boolean unitConversionActive = false;
+
+    public ExpressionNodeToString(Formula.Mode mode) {
+        this.mode = mode;
+    }
+
     @Override
     public String visitConstant(NumericalConstantNode constant) {
         return String.valueOf(constant.getValue());
     }
 
     @Override
-    public String visitNull(NullNodeImpl nullNode) {
+    public String visitNull(NullNode nullNode) {
         return "null";
     }
 
@@ -32,8 +40,17 @@ public class ExpressionNodeToString implements ServerExpressionNode.Visitor<Stri
     }
 
     @Override
-    public String visitVariable(VariableReferenceNode variable) {
-        return variable.getName();
+    public String visitSqlFragment(SqlFragmentNode variable) {
+        return variable.getSqlFragment().getText();
+    }
+
+    @Override
+    public String visitUnitConversion(UnitConversionNode unitConversionNode) {
+        VirtualReadingType sourceReadingType = unitConversionNode.getSourceReadingType();
+        this.unitConversionActive = true;
+        String expression = unitConversionNode.getExpressionNode().accept(this);
+        this.unitConversionActive = false;
+        return sourceReadingType.buildSqlUnitConversion(this.mode, expression, unitConversionNode.getTargetReadingType());
     }
 
     @Override
@@ -72,14 +89,22 @@ public class ExpressionNodeToString implements ServerExpressionNode.Visitor<Stri
     @Override
     public String visitVirtualRequirement(VirtualRequirementNode requirement) {
         SqlBuilder fragment = new SqlBuilder();
-        requirement.appendTo(fragment);
+        if (this.unitConversionActive) {
+            requirement.appendTo(fragment);
+        } else {
+            requirement.appendToWithUnitConversion(fragment);
+        }
         return fragment.getText();
     }
 
     @Override
     public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         SqlBuilder fragment = new SqlBuilder();
-        deliverable.appendTo(fragment);
+        if (this.unitConversionActive) {
+            deliverable.appendTo(fragment);
+        } else {
+            deliverable.appendToWithUnitConversion(fragment);
+        }
         return fragment.getText();
     }
 
