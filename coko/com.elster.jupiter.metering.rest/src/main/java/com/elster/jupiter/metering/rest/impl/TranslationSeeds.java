@@ -27,19 +27,20 @@ public enum TranslationSeeds implements TranslationKey {
     READ_ROUTE("readRoute", "Read route"),
     REMARK("serviceDeliveryRemark", "Service remark"),
     PRIORITY("servicePriority", "Service priority"),
-    ISSUES("openIssues", "Open issues"), 
-    
+    ISSUES("openIssues", "Open issues"),
+
     SERIALNUMBER("serialNumber", "Serial number"),
     UTCNUMBER("utcNumber", "UTC number"),
     EMAIL1("email1", "Email 1"),
     EMAIL2("email2", "Email 2"),
     AMRSYSTEMNAME("amrSystemName", "AMR system name"),
-    INSTALLEDDATE("installedDate", "Installed date"),
+    INSTALLATION_TIME("installationTime", "Installation time"),
     REMOVEDDATE("removedDate", "Removed date"),
     RETIREDDATE("retiredDate", "Retired date"),
 
-    SERVICE_CATEGORY_DISPLAY("displayServiceCategory", "Service category"),
-    CONNECTION_STATE_DISPLAY("displayConnectionState", "Connection state"),
+    CONNECTION_STATE_DISPLAY("displayConnectionState", "ConnectionState"),
+    SERVICECATEGORY_DISPLAY("displayServiceCategory", "Service category"),
+    METROLOGY_CONFIGURATION_DISPLAY("displayMetrologyConfiguration", "Metrology configuration"),
     BILLING_READY_DISPLAY("displayAmiBillingReady", "AMI billing ready"),
     LOCATION("location", "Location"),
 

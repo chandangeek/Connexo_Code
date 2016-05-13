@@ -1,13 +1,5 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.nls.Layer;
@@ -15,6 +7,14 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Factory class to create Info objects. This class will register on the InfoFactoryWhiteboard and is used by DynamicSearch.
@@ -77,7 +77,7 @@ public class EndDeviceInfoFactory implements InfoFactory<EndDevice> {
         infos.add(createDescription(TranslationSeeds.EMAIL1, String.class));
         infos.add(createDescription(TranslationSeeds.EMAIL2, String.class));
         infos.add(createDescription(TranslationSeeds.AMRSYSTEMNAME, String.class));
-        infos.add(createDescription(TranslationSeeds.INSTALLEDDATE, String.class));
+        infos.add(createDescription(TranslationSeeds.INSTALLATION_TIME, String.class));
         infos.add(createDescription(TranslationSeeds.REMOVEDDATE, String.class));
         infos.add(createDescription(TranslationSeeds.RETIREDDATE, String.class));
         return infos;
