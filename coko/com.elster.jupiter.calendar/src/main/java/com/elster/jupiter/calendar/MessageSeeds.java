@@ -36,6 +36,7 @@ public enum MessageSeeds implements MessageSeed {
     VALIDATION_OF_FILE_SUCCEEDED(2016, Constants.VALIDATION_OF_FILE_SUCCEEDED, "The validation of the file succeeded.", Level.INFO),
     VALIDATION_OF_FILE_FAILED(2017, Constants.VALIDATION_OF_FILE_FAILED, "The validation of the file failed."),
     DUPLICATE_CALENDAR(2018, Constants.DUPLICATE_CALENDAR, "MRID must be unique", Level.SEVERE),
+    INVALID_CONTENT(2019, Constants.INVALID_CONTENT, "Please check your file, it contains invalid content.", Level.SEVERE)
     ;
 
     private final int number;
@@ -114,6 +115,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String VALIDATION_OF_FILE_SUCCEEDED = "calendar.import.validation succeeded";
         public static final String VALIDATION_OF_FILE_FAILED = "calendar.import.validation.failed";
         public static final String DUPLICATE_CALENDAR = "calendar.mridalreadyexists";
+        public static final String INVALID_CONTENT = "calendar.import.invalid.content";
 
     }
 }

@@ -56,7 +56,12 @@ public class TimeOfUseCalendarImporter implements FileImporter {
     }
 
     private void log(FileImportOccurrence fileImportOccurrence, Throwable e) {
-        fileImportOccurrence.getLogger().severe(e.getLocalizedMessage());
+        String message = e.getLocalizedMessage();
+        if ("Content is not allowed in prolog.".equals(message)) {
+            log (fileImportOccurrence, MessageSeeds.INVALID_CONTENT);
+        } else {
+            fileImportOccurrence.getLogger().severe(e.getLocalizedMessage());
+        }
     }
 
     private void log(FileImportOccurrence fileImportOccurrence, MessageSeeds messageSeeds) {
