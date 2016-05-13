@@ -24,7 +24,6 @@ import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -37,7 +36,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -540,44 +538,33 @@ public class DeviceResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-
-        Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType()
-                .getDeviceProtocolPluggableClass()
-                .getDeviceProtocol()
-                .getSupportedMessages();
-
-        List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration()
-                .getDeviceMessageEnablements()
-                .stream()
-                .map(DeviceMessageEnablement::getDeviceMessageId)
-                .collect(Collectors.toList());
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
-
         deviceMessageSpecificationService
                 .filteredCategoriesForUserSelection()
                 .stream()
                 .sorted((c1, c2) -> c1.getName().compareToIgnoreCase(c2.getName()))
                 .forEach(category -> {
-                    List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
-                            .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
-                            .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
-                            .filter(dms -> device.getDeviceConfiguration()
-                                    .isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
-                            .sorted(Comparator.comparing(DeviceMessageSpec::getName))
-                            .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
-                            .collect(Collectors.toList());
+                    List<DeviceMessageSpecInfo> deviceMessageSpecs =
+                            device
+                                .getDeviceConfiguration()
+                                .getEnabledAndAuthorizedDeviceMessageSpecsIn(category)
+                                .stream()
+                                .sorted(Comparator.comparing(DeviceMessageSpec::getName))
+                                .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
+                                .collect(Collectors.toList());
                     if (!deviceMessageSpecs.isEmpty()) {
                         DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);
                         info.deviceMessageSpecs = deviceMessageSpecs;
                         infos.add(info);
                     }
                 });
-        List<DeviceMessageCategoryInfo> deviceMessageCategoryInfosInPage = ListPager.of(infos)
-                .from(queryParameters)
-                .find();
-        return PagedInfoList.fromPagedList("categories", deviceMessageCategoryInfosInPage, queryParameters);
+        return PagedInfoList
+                    .fromPagedList(
+                        "categories",
+                        ListPager.of(infos).from(queryParameters).find(),
+                        queryParameters);
     }
 
     @Path("/{mRID}/connectionmethods")
