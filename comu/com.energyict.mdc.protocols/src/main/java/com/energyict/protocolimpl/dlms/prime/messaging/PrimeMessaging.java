@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
@@ -32,11 +32,11 @@ public class PrimeMessaging {
     private final PasswordSetup passwordSetup;
     private final BasicIntervalSetup basicIntervalSetup;
 
-    public PrimeMessaging(DlmsSession session, PrimeProperties properties, DeviceConfigurationService deviceConfigurationService) {
+    public PrimeMessaging(DlmsSession session, PrimeProperties properties, DeviceMessageFileService DeviceMessageFileService) {
         this.session = session;
         this.disconnectControl = new DisconnectControl(session);
         this.clockControl = new ClockControl(session);
-        this.firmwareUpgrade = new FirmwareUpgrade(session, properties, deviceConfigurationService);
+        this.firmwareUpgrade = new FirmwareUpgrade(session, properties, DeviceMessageFileService);
         this.tariffControl = new TariffControl(session);
         this.powerQuality = new PowerQuality(session);
         this.demandResponse = new DemandResponse(session);

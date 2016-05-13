@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -78,20 +78,20 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final TopologyService topologyService;
     private final LoadProfileFactory loadProfileFactory;
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceMessageFileService deviceMessageFileService;
 
     public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0, 30), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255)};
     private static final int ELECTRICITY = 0x00;
     private static final int MBUS = 0x01;
 
     @Inject
-    public IskraMx372(PropertySpecService propertySpecService, OrmClient ormClient, Clock clock, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, LoadProfileFactory loadProfileFactory, DeviceConfigurationService deviceConfigurationService) {
+    public IskraMx372(PropertySpecService propertySpecService, OrmClient ormClient, Clock clock, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, LoadProfileFactory loadProfileFactory, DeviceMessageFileService deviceMessageFileService) {
         super(propertySpecService, ormClient);
         this.clock = clock;
         this.readingTypeUtilService = readingTypeUtilService;
         this.topologyService = topologyService;
         this.loadProfileFactory = loadProfileFactory;
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     @Override
@@ -333,7 +333,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     public IskraMx372Messaging getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new IskraMx372Messaging(this, clock, this.topologyService, readingTypeUtilService, loadProfileFactory, deviceConfigurationService);
+            messageProtocol = new IskraMx372Messaging(this, clock, this.topologyService, readingTypeUtilService, loadProfileFactory, deviceMessageFileService);
         }
         return messageProtocol;
     }

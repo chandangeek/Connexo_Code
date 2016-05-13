@@ -7,7 +7,7 @@ package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
  * Time: 11:59
  */
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -26,8 +26,8 @@ public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.T
 
       public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
-    public TimeOfUseMessageBuilder(CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
-        super(codeFactory, deviceConfigurationService);
+    public TimeOfUseMessageBuilder(CodeFactory codeFactory, DeviceMessageFileService deviceMessageFileService) {
+        super(codeFactory, deviceMessageFileService);
     }
 
     /**

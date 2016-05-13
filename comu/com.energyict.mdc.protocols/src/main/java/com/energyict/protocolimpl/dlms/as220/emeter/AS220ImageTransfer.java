@@ -48,7 +48,7 @@ public class AS220ImageTransfer {
 
 	public void initiate() throws IOException {
 		getAs220().getLogger().info("Received a firmware upgrade message, using firmware message builder...");
-		final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(this.messaging.getAs220().getDeviceConfigurationService());
+		final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(this.messaging.getAs220().getDeviceMessageFileService());
 
 		try {
 		    builder.initFromXml(messageEntry.getContent());

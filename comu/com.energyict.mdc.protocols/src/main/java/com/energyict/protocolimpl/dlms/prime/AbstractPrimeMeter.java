@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.dlms.prime;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -34,7 +34,7 @@ import java.util.logging.Level;
 public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
 
     private final PrimeProperties properties = new PrimeProperties();
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceMessageFileService deviceMessageFileService;
     private PrimeProfile loadProfile;
     private PrimeEventLogs eventLogs;
     private PrimeClock clock;
@@ -43,9 +43,9 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
     private PrimeMessaging messaging;
     private ProfileCache cache = new ProfileCache();
 
-    public AbstractPrimeMeter(PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService) {
+    public AbstractPrimeMeter(PropertySpecService propertySpecService, DeviceMessageFileService deviceMessageFileService) {
         super(propertySpecService);
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     public String getProtocolVersion() {
@@ -59,7 +59,7 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
         this.clock = new PrimeClock(getSession());
         this.meterInfo = new PrimeMeterInfo(getSession());
         this.registers = new PrimeRegisters(getProperties(), getSession(), meterInfo);
-        this.messaging = new PrimeMessaging(getSession(), getProperties(), this.deviceConfigurationService);
+        this.messaging = new PrimeMessaging(getSession(), getProperties(), this.deviceMessageFileService);
     }
 
     @Override

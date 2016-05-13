@@ -1,7 +1,7 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -32,7 +32,7 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
      */
     private static final String INCLUDE_USERFILE_ID_ATTRIBUTE = "fileId";
 
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceMessageFileService deviceMessageFileService;
     private String url;
     private DeviceMessageFile deviceMessageFile;
     private long deviceMessageFileId = 0;
@@ -42,9 +42,9 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
      */
     private boolean inlineUserFiles;
 
-    public FirmwareUpdateMessageBuilder(DeviceConfigurationService deviceConfigurationService) {
+    public FirmwareUpdateMessageBuilder(DeviceMessageFileService deviceMessageFileService) {
         super();
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     /**
@@ -90,7 +90,7 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
     }
 
     private DeviceMessageFile findUserFile(long deviceMessageFileId) {
-        return this.deviceConfigurationService.findDeviceMessageFile(deviceMessageFileId).orElse(null);
+        return this.deviceMessageFileService.findDeviceMessageFile(deviceMessageFileId).orElse(null);
     }
 
     protected static String getMessageNodeTag() {

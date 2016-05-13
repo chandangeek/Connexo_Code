@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -34,8 +34,8 @@ public class InHomeDisplay extends UkHub {
     }
 
     @Inject
-    public InHomeDisplay(PropertySpecService propertySpecService, OrmClient ormClient, DeviceConfigurationService deviceConfigurationService) {
-        super(propertySpecService, ormClient, deviceConfigurationService);
+    public InHomeDisplay(PropertySpecService propertySpecService, OrmClient ormClient, DeviceMessageFileService deviceMessageFileService) {
+        super(propertySpecService, ormClient, deviceMessageFileService);
     }
 
     @Override

@@ -3,8 +3,8 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -87,14 +87,14 @@ public class AS300MessageExecutor extends MessageParser {
 
     protected final AbstractSmartDlmsProtocol protocol;
     protected final CodeFactory codeFactory;
-    protected final DeviceConfigurationService deviceConfigurationService;
+    protected final DeviceMessageFileService deviceMessageFileService;
 
     protected boolean success;
 
-    public AS300MessageExecutor(AbstractSmartDlmsProtocol protocol, CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
+    public AS300MessageExecutor(AbstractSmartDlmsProtocol protocol, CodeFactory codeFactory, DeviceMessageFileService deviceMessageFileService) {
         this.protocol = protocol;
         this.codeFactory = codeFactory;
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -575,7 +575,7 @@ public class AS300MessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.codeFactory, this.deviceConfigurationService);
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.codeFactory, this.deviceMessageFileService);
         ActivityCalendarController activityCalendarController = new AS300ActivityCalendarController((AS300) this.protocol);
         try {
             builder.initFromXml(content);

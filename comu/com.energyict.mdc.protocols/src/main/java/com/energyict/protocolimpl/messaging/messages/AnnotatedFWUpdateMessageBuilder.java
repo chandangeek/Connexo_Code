@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.messaging.messages;
 
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.messaging.MessageBuilder;
 
@@ -27,8 +27,8 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
     public static final String ATTR_USER_FILE_CONTENT = "userFileContent";
     public static final String ATTR_URL = "url";
 
-    public AnnotatedFWUpdateMessageBuilder(DeviceConfigurationService deviceConfigurationService) {
-        super(deviceConfigurationService);
+    public AnnotatedFWUpdateMessageBuilder(DeviceMessageFileService deviceMessageFileService) {
+        super(deviceMessageFileService);
     }
 
     @Override

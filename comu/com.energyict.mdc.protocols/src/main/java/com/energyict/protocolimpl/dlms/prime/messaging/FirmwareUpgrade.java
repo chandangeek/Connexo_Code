@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
@@ -25,11 +25,11 @@ public class FirmwareUpgrade extends PrimeMessageExecutor {
     private static final ObisCode IMAGE_TRANSFER_OBIS = ObisCode.fromString("0.0.44.0.0.255");
     private static final String FIRMWARE_UPDATE = "FirmwareUpdate";
 
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceMessageFileService deviceMessageFileService;
 
-    protected FirmwareUpgrade(DlmsSession session, PrimeProperties properties, DeviceConfigurationService deviceConfigurationService) {
+    protected FirmwareUpgrade(DlmsSession session, PrimeProperties properties, DeviceMessageFileService deviceMessageFileService) {
         super(session, properties);
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class FirmwareUpgrade extends PrimeMessageExecutor {
         getLogger().info("Received a firmware upgrade message, using firmware message builder...");
 
         try {
-            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(this.deviceConfigurationService);
+            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(this.deviceMessageFileService);
             builder.initFromXml(messageEntry.getContent());
 
             if (builder.getDeviceMessageFile() == null) {

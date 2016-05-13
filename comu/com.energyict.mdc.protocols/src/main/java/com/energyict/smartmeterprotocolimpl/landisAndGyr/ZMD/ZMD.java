@@ -1,9 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DemandResetProtocol;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
@@ -91,9 +91,9 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
     private final ZMDMessages messageProtocol;
 
     @Inject
-    public ZMD(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
+    public ZMD(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, DeviceMessageFileService deviceMessageFileService) {
         super(propertySpecService, ormClient);
-        this.messageProtocol = new ZMDMessages(this, codeFactory, deviceConfigurationService);
+        this.messageProtocol = new ZMDMessages(this, codeFactory, deviceMessageFileService);
     }
 
     /**

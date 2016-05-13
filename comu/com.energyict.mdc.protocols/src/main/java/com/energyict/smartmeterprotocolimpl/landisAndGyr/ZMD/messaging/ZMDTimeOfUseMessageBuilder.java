@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 
@@ -21,8 +21,8 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
-    public ZMDTimeOfUseMessageBuilder(CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
-        super(codeFactory, deviceConfigurationService);
+    public ZMDTimeOfUseMessageBuilder(CodeFactory codeFactory, DeviceMessageFileService deviceMessageFileService) {
+        super(codeFactory, deviceMessageFileService);
     }
 
     /**

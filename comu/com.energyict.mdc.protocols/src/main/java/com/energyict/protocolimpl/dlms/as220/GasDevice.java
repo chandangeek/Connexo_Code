@@ -5,8 +5,8 @@ package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -68,8 +68,8 @@ public class GasDevice extends AS220 implements MessageProtocol{
     private int dif = -1;
 
 	@Inject
-	public GasDevice(PropertySpecService propertySpecService, OrmClient ormClient, DeviceConfigurationService deviceConfigurationService) {
-		super(propertySpecService, ormClient, deviceConfigurationService);
+	public GasDevice(PropertySpecService propertySpecService, OrmClient ormClient, DeviceMessageFileService deviceMessageFileService) {
+		super(propertySpecService, ormClient, deviceMessageFileService);
 	}
 
 	@Override

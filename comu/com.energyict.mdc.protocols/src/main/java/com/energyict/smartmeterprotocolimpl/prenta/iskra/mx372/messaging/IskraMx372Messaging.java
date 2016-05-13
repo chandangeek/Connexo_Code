@@ -4,10 +4,10 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
@@ -88,7 +88,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     private final TopologyService topologyService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final LoadProfileFactory loadProfileFactory;
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceMessageFileService deviceMessageFileService;
 
     private ObisCode llsSecretObisCode1 = ObisCode.fromString("0.0.128.100.1.255");
     private ObisCode llsSecretObisCode2 = ObisCode.fromString("0.0.128.100.2.255");
@@ -123,13 +123,13 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
      */
     private static final int maxNumbersManagedWhiteList = 8;
 
-    public IskraMx372Messaging(IskraMx372 protocol, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, DeviceConfigurationService deviceConfigurationService) {
+    public IskraMx372Messaging(IskraMx372 protocol, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, DeviceMessageFileService deviceMessageFileService) {
         this.protocol = protocol;
         this.clock = clock;
         this.topologyService = topologyService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.loadProfileFactory = loadProfileFactory;
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     public List getMessageCategories() {
@@ -580,7 +580,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 
     protected DeviceMessageFile getUserFile(String contents) throws IOException {
         long id = getTouFileId(contents);
-        return this.deviceConfigurationService
+        return this.deviceMessageFileService
                 .findDeviceMessageFile(id)
                 .orElseThrow(() -> new IOException("No userfile found with id " + id));
     }

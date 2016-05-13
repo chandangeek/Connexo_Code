@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -65,18 +65,18 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     private ZigbeeGasLoadProfile zigbeeGasLoadProfile;
     private ZigbeeGasRegisterFactory registerFactory;
     protected final CodeFactory codeFactory;
-    protected final DeviceConfigurationService deviceConfigurationService;
+    protected final DeviceMessageFileService deviceMessageFileService;
 
     @Inject
-    public ZigbeeGas(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
+    public ZigbeeGas(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, DeviceMessageFileService deviceMessageFileService) {
         super(propertySpecService, ormClient);
         this.codeFactory = codeFactory;
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     public ZigbeeGasMessaging getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
-            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, this.codeFactory, this.deviceConfigurationService));
+            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, this.codeFactory, this.deviceMessageFileService));
         }
         return this.zigbeeGasMessaging;
     }

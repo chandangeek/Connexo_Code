@@ -11,6 +11,7 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -54,6 +55,7 @@ public class ProtocolsModule extends AbstractModule {
         requireBinding(CollectedDataFactory.class);
         requireBinding(CodeFactory.class);
         requireBinding(DeviceConfigurationService.class);
+        requireBinding(DeviceMessageFileService.class);
         requireBinding(TransactionService.class);
         requireBinding(ProtocolPluggableService.class);
 

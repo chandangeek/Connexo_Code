@@ -6,8 +6,8 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -130,7 +130,7 @@ import java.util.logging.Logger;
 @Deprecated
 public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
 
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceMessageFileService deviceMessageFileService;
 
     @Override
     public String getProtocolDescription() {
@@ -508,9 +508,9 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     private int cipheringType;
 
     @Inject
-    public EictZ3(PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService) {
+    public EictZ3(PropertySpecService propertySpecService, DeviceMessageFileService deviceMessageFileService) {
         super(propertySpecService);
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     public final DLMSConnection getDLMSConnection() {
@@ -1954,7 +1954,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         if (isEpIOFirmwareUpgrade(messageEntry.getContent())) {
             logger.info("Received a firmware upgrade message, using firmware message builder...");
 
-            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(this.deviceConfigurationService);
+            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(this.deviceMessageFileService);
 
             try {
                 builder.initFromXml(messageEntry.getContent());

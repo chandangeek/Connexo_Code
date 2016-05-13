@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -57,13 +57,13 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     protected AS300LoadProfileBuilder loadProfileBuilder;
     protected AS300Messaging messageProtocol;
     protected final CodeFactory codeFactory;
-    protected final DeviceConfigurationService deviceConfigurationService;
+    protected final DeviceMessageFileService deviceMessageFileService;
 
     @Inject
-    public AS300(PropertySpecService propertySpecService, CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService, OrmClient ormClient) {
+    public AS300(PropertySpecService propertySpecService, CodeFactory codeFactory, DeviceMessageFileService deviceMessageFileService, OrmClient ormClient) {
         super(propertySpecService, ormClient);
         this.codeFactory = codeFactory;
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     @Override
@@ -99,8 +99,8 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return codeFactory;
     }
 
-    protected DeviceConfigurationService getDeviceConfigurationService() {
-        return deviceConfigurationService;
+    protected DeviceMessageFileService getDeviceMessageFileService() {
+        return deviceMessageFileService;
     }
 
     @Override
@@ -209,7 +209,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, codeFactory, deviceConfigurationService));
+            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, codeFactory, deviceMessageFileService));
         }
         return messageProtocol;
     }

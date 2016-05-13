@@ -1,7 +1,7 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 
@@ -48,7 +48,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     private static final String TAG_CODE = "CodeId";
     private static final String TAG_USERFILE = "UserFileId";
 
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceMessageFileService deviceMessageFileService;
     private String name;
     private Date activationDate;
     private int codeId = 0;
@@ -79,9 +79,9 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     private boolean encodeB64;
 
-    public TimeOfUseMessageBuilder(CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
+    public TimeOfUseMessageBuilder(CodeFactory codeFactory, DeviceMessageFileService deviceMessageFileService) {
         this.codeFactory = codeFactory;
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     /**
@@ -176,7 +176,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
 
     public DeviceMessageFile getDeviceMessageFile() {
         if (deviceMessageFile == null) {
-            this.deviceMessageFile = this.deviceConfigurationService.findDeviceMessageFile(this.deviceMessageFileId).orElse(null);
+            this.deviceMessageFile = this.deviceMessageFileService.findDeviceMessageFile(this.deviceMessageFileId).orElse(null);
         }
         return deviceMessageFile;
     }

@@ -3,8 +3,8 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -75,13 +75,13 @@ public class UkHubMessageExecutor extends MessageParser {
     private static final String RESUME = "resume";
 
     private final AbstractSmartDlmsProtocol protocol;
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceMessageFileService deviceMessageFileService;
 
     private boolean success;
 
-    public UkHubMessageExecutor(AbstractSmartDlmsProtocol protocol, DeviceConfigurationService deviceConfigurationService) {
+    public UkHubMessageExecutor(AbstractSmartDlmsProtocol protocol, DeviceMessageFileService deviceMessageFileService) {
         this.protocol = protocol;
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -314,7 +314,7 @@ public class UkHubMessageExecutor extends MessageParser {
     }
 
     private DeviceMessageFile findDeviceMessageFile(long userFileID) {
-        return this.deviceConfigurationService.findDeviceMessageFile(userFileID).orElse(null);
+        return this.deviceMessageFileService.findDeviceMessageFile(userFileID).orElse(null);
     }
 
     private void zigbeeNCPFirmwareUpdate(MessageHandler messageHandler, String content) throws IOException {
@@ -876,7 +876,7 @@ public class UkHubMessageExecutor extends MessageParser {
     }
 
     private DeviceMessageFile getUserFile(long id) {
-        return this.deviceConfigurationService.findDeviceMessageFile(id).orElse(null);
+        return this.deviceMessageFileService.findDeviceMessageFile(id).orElse(null);
     }
 
     private void waitCyclus(int delay) throws IOException {

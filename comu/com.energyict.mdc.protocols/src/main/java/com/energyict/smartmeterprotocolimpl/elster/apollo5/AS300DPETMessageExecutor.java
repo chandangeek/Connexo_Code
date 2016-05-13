@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -27,8 +27,8 @@ public class AS300DPETMessageExecutor extends AS300MessageExecutor {
 
     private static final ObisCode PET_SETUP = ObisCode.fromString("0.128.0.2.0.255");
 
-    public AS300DPETMessageExecutor(AbstractSmartDlmsProtocol protocol, CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
-        super(protocol, codeFactory, deviceConfigurationService);
+    public AS300DPETMessageExecutor(AbstractSmartDlmsProtocol protocol, CodeFactory codeFactory, DeviceMessageFileService deviceMessageFileService) {
+        super(protocol, codeFactory, deviceMessageFileService);
     }
 
     @Override

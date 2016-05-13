@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 
@@ -18,8 +18,8 @@ public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
-    public AS300TimeOfUseMessageBuilder(CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService) {
-        super(codeFactory, deviceConfigurationService);
+    public AS300TimeOfUseMessageBuilder(CodeFactory codeFactory, DeviceMessageFileService deviceMessageFileService) {
+        super(codeFactory, deviceMessageFileService);
     }
 
     /**

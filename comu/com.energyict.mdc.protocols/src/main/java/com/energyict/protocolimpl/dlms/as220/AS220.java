@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -59,7 +59,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     private static final ObisCode FW_VERSION_PASSIVE_OBISCODE = ObisCode.fromString("1.1.0.2.0.255");
 
     private int iNROfIntervals = -1;
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceMessageFileService deviceMessageFileService;
     private final EMeter eMeter = new EMeter(this);
     private final PLC plc = new PLC(this);
     private final PowerQuality powerQuality = new PowerQuality(this);
@@ -72,16 +72,16 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     private FirmwareVersions passiveFirmwareVersion;
 
     @Inject
-    public AS220(PropertySpecService propertySpecService, OrmClient ormClient, DeviceConfigurationService deviceConfigurationService) {
+    public AS220(PropertySpecService propertySpecService, OrmClient ormClient, DeviceMessageFileService deviceMessageFileService) {
         super(propertySpecService, ormClient);
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
         messagingList = new ArrayList<>();
         messagingList.add(new AS220Messaging(this));
         messagingList.add(new PLCMessaging(this));
     }
 
-    public DeviceConfigurationService getDeviceConfigurationService() {
-        return deviceConfigurationService;
+    public DeviceMessageFileService getDeviceMessageFileService() {
+        return deviceMessageFileService;
     }
 
     public EMeter geteMeter() {

@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -76,16 +76,16 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     private UkHubRegisterFactory registerFactory = null;
     private UkHubEventProfiles ukHubEventProfiles = null;
     private boolean reboot = false;
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceMessageFileService deviceMessageFileService;
 
     @Inject
-    public UkHub(PropertySpecService propertySpecService, OrmClient ormClient, DeviceConfigurationService deviceConfigurationService) {
+    public UkHub(PropertySpecService propertySpecService, OrmClient ormClient, DeviceMessageFileService deviceMessageFileService) {
         super(propertySpecService, ormClient);
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
-    protected DeviceConfigurationService getDeviceConfigurationService() {
-        return deviceConfigurationService;
+    protected DeviceMessageFileService getDeviceMessageFileService() {
+        return deviceMessageFileService;
     }
 
     /**
@@ -95,7 +95,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this, this.deviceConfigurationService));
+            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this, this.deviceMessageFileService));
         }
         return messageProtocol;
     }
