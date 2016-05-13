@@ -1,9 +1,9 @@
 Ext.define('Cfg.store.MetrologyConfigurations', {
     extend: 'Ext.data.Store',
     requires: [
-        'Cfg.model.UsagePointGroup'
+        'Cfg.model.MetrologyContract'
     ],
-    model: 'Cfg.model.UsagePointGroup',
+    model: 'Cfg.model.MetrologyContract',
     autoLoad: false,
     proxy: {
         type: 'rest',

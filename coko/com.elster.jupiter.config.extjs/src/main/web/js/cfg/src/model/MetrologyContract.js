@@ -1,9 +1,8 @@
-Ext.define('Cfg.model.UsagePointGroup', {
+Ext.define('Cfg.model.MetrologyContract', {
     extend: 'Ext.data.Model',
     proxy: 'memory',
     fields: [
         { name: 'id', type: 'int'},
-        { name: 'mRID', type: 'string'},
         { name: 'name', type: 'string'},
     ]
 });

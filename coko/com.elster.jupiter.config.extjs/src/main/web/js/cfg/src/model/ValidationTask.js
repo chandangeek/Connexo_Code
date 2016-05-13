@@ -7,10 +7,6 @@ Ext.define('Cfg.model.ValidationTask', {
             defaultValue: null
         },
         {
-            name: 'usagePointGroup',
-            defaultValue: null
-        },
-        {
             name: 'metrologyConfiguration',
             defaultValue: null
         },
@@ -132,32 +128,6 @@ Ext.define('Cfg.model.ValidationTask', {
                     return '-';
                 }
             }
-        },
-        {
-        	name: 'groupType',
-        	persist: false,
-        	mapping: function(data) {
-        		if (data.deviceGroup) {
-        			return Uni.I18n.translate('general.group.device', 'CFG', 'End device');
-        		} else if (data.usagePointGroup) {
-        			return Uni.I18n.translate('general.group.usagepoint', 'CFG', 'Usage point');
-        		} else {
-        			return '-';
-        		}
-        	}
-        },
-        {
-           	name: 'groupName',
-           	persist: false,
-           	mapping: function(data) {
-           		if (data.deviceGroup) {
-           			return data.deviceGroup.name;
-           		} else if (data.usagePointGroup) {
-           			return data.usagePointGroup.name;
-           		} else {
-           			return '-';
-           		}
-           	}
         }
     ],
     proxy: {

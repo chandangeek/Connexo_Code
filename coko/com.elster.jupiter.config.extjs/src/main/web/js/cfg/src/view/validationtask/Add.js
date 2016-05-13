@@ -12,33 +12,7 @@ Ext.define('Cfg.view.validationtask.Add', {
     appName: null,
 
     initComponent: function () {
-        var me = this,
-            dataSourcesContainer,
-            groupComboConfig = {},
-            groupLabel = '',
-            noGroupDefinedTxt = '';
-
-        //switch (me.appName) {
-        //    case 'MultiSense':
-        //        groupComboConfig = {
-        //            name: 'deviceGroup',
-        //            store: 'Cfg.store.DeviceGroups',
-        //            emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
-        //            disabled: !Cfg.privileges.Validation.canAdministrate()
-        //        };
-        //        groupLabel = Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group');
-        //        noGroupDefinedTxt = Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.');
-        //        break;
-        //    case 'MdmApp':
-        //        groupComboConfig = {
-        //            name: 'usagePointGroup',
-        //            store: 'Cfg.store.UsagePointGroups',
-        //            emptyText: Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...')
-        //        };
-        //        groupLabel = Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', 'Usage point group');
-        //        noGroupDefinedTxt = Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.');
-        //        break;
-        //}
+        var me = this;
 
         me.content = [
             {
@@ -81,45 +55,9 @@ Ext.define('Cfg.view.validationtask.Add', {
                     {
                         xtype: 'cfg-data-sources-container',
                         itemId: 'field-validation-task-group',
-                        appName: me.appName
+                        appName: me.appName,
+                        edit: me.edit
                     },
-                    //{
-                    //    xtype: 'fieldcontainer',
-                    //    itemId: 'field-validation-task-group',
-                    //    fieldLabel: groupLabel,
-                    //    required: true,
-                    //    layout: 'hbox',
-                    //    msgTarget: 'under',
-                    //    items: [
-                    //        Ext.apply({
-                    //            xtype: 'combobox',
-                    //            itemId: 'cbo-validation-task-group',
-                    //            required: true,
-                    //            width: 235,
-                    //            editable: false,
-                    //            queryMode: 'local',
-                    //            displayField: 'name',
-                    //            valueField: 'id',
-                    //            setValue: function (value) {
-                    //                var field = this,
-                    //                    combo = new Ext.form.field.ComboBox;
-                    //
-                    //                if (Ext.isObject(value)) {
-                    //                    value = value.id;
-                    //                }
-                    //                combo.setValue.apply(field, [value]);
-                    //            }
-                    //        }, groupComboConfig),
-                    //        {
-                    //            xtype: 'displayfield',
-                    //            itemId: 'no-group-defined',
-                    //            hidden: true,
-                    //            value: '<div style="color: #FF0000">' + noGroupDefinedTxt + '</div>',
-                    //            htmlEncode: false,
-                    //            width: 235
-                    //        }
-                    //    ]
-                    //},
                     {
                         title: Uni.I18n.translate('validationTasks.general.schedule', 'CFG', 'Schedule'),
                         ui: 'medium'
@@ -189,7 +127,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                         displayField: 'displayValue',
                                         valueField: 'name',
                                         editable: false,
-                                        width: 100,
+                                        width: 125,
                                         listeners: {
                                             focus: {
                                                 fn: function () {

@@ -4,12 +4,22 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
     required: true,
     layout: 'vbox',
     appName: null,
+    edit: false,
     msgTarget: 'under',
     defaults: {
         width: 300
     },
     initComponent: function () {
-        var me = this;
+        var me = this,
+            setValue = function (value) {
+                var field = this,
+                    combo = new Ext.form.field.ComboBox;
+
+                if (Ext.isObject(value)) {
+                    value = value.id;
+                }
+                combo.setValue.apply(field, [value]);
+            };
 
         switch (me.appName) {
             case 'MultiSense':
@@ -27,15 +37,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                         store: 'Cfg.store.DeviceGroups',
                         emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
                         disabled: !Cfg.privileges.Validation.canAdministrate(),
-                        setValue: function (value) {
-                            var field = this,
-                                combo = new Ext.form.field.ComboBox;
-
-                            if (Ext.isObject(value)) {
-                                value = value.id;
-                            }
-                            combo.setValue.apply(field, [value]);
-                        }
+                        setValue: setValue
                     },
                     {
                         xtype: 'displayfield',
@@ -48,7 +50,6 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                 break;
 
             case 'MdmApp':
-                me.fieldLabel = Uni.I18n.translate('validationTasks.general.metrologyConfiguration', 'CFG', 'Metrology configuration');
                 me.items = [
                     {
                         xtype: 'combobox',
@@ -58,18 +59,13 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                         queryMode: 'local',
                         displayField: 'name',
                         valueField: 'id',
+                        labelWidth: 250,
+                        width: 565,
+                        fieldLabel : Uni.I18n.translate('validationTasks.general.metrologyConfiguration', 'CFG', 'Metrology configuration'),
                         name: 'metrologyConfiguration',
                         store: 'Cfg.store.MetrologyConfigurations',
                         emptyText: Uni.I18n.translate('validationTasks.addValidationTask.selectMetrologyConfiguration', 'CFG', 'Select a metrology configuration...'),
-                        setValue: function (value) {
-                            var field = this,
-                                combo = new Ext.form.field.ComboBox;
-
-                            if (Ext.isObject(value)) {
-                                value = value.id;
-                            }
-                            combo.setValue.apply(field, [value]);
-                        },
+                        setValue: setValue,
                         listeners: {
                             select: function (field, value) {
                                 var configCombo = field.nextSibling(),
@@ -113,27 +109,22 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                     {
                         xtype: 'combobox',
                         itemId: 'cbo-validation-task-up-metrology-contract',
-                        autoSelect: true,
-                        disabled: true,
+                        disabled: !me.edit,
                         editable: false,
+                        required: true,
                         queryMode: 'local',
                         displayField: 'name',
                         valueField: 'id',
+                        labelWidth: 250,
+                        width: 565,
                         name: 'metrologyContract',
                         store: 'Cfg.store.MetrologyContracts',
+                        fieldLabel : Uni.I18n.translate('validationTasks.general.purpose', 'CFG', 'Purpose'),
                         emptyText: Uni.I18n.translate('validationTasks.addValidationTask.selectPurpose', 'CFG', 'Select a purpose...'),
                         afterSubTpl: '<div style="color: #686868; margin-top: 6px"><i>'
-                        + Uni.I18n.translate('deviceAdd.firstSelectMetrologyConfig', 'MDC', 'First select a metrology configuration.')
+                        + Uni.I18n.translate('deviceAdd.firstSelectMetrologyConfig', 'CFG', 'First select a metrology configuration.')
                         + '</i></div>',
-                        setValue: function (value) {
-                            var field = this,
-                                combo = new Ext.form.field.ComboBox;
-
-                            if (Ext.isObject(value)) {
-                                value = value.id;
-                            }
-                            combo.setValue.apply(field, [value]);
-                        }
+                        setValue: setValue,
                     },
                     {
                         xtype: 'displayfield',
