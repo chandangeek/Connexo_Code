@@ -19,6 +19,7 @@ import java.util.List;
  */
 public final class OutboundEndPoint implements ManagedEndpoint {
     private OutboundEndPointProvider endPointProvider;
+    private EndPointConfiguration endPointConfiguration;
     private final BundleContext bundleContext;
 
     private ServiceRegistration<?> serviceRegistration;
@@ -28,13 +29,14 @@ public final class OutboundEndPoint implements ManagedEndpoint {
         this.bundleContext = bundleContext;
     }
 
-    OutboundEndPoint init(OutboundEndPointProvider endPointProvider) {
+    OutboundEndPoint init(OutboundEndPointProvider endPointProvider, EndPointConfiguration endPointConfiguration) {
         this.endPointProvider = endPointProvider;
+        this.endPointConfiguration = endPointConfiguration;
         return this;
     }
 
     @Override
-    public void publish(EndPointConfiguration endPointConfiguration) {
+    public void publish() {
         if (this.isActive()) {
             throw new IllegalStateException("Service already published");
         }

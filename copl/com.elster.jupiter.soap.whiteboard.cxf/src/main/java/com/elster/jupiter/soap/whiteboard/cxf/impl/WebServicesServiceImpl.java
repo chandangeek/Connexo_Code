@@ -55,8 +55,8 @@ public class WebServicesServiceImpl implements WebServicesService {
     public void publishEndPoint(EndPointConfiguration endPointConfiguration) {
         if (webServices.containsKey(endPointConfiguration.getWebServiceName())) {
             ManagedEndpoint managedEndpoint = webServices.get(endPointConfiguration.getWebServiceName())
-                    .createEndpoint();
-            managedEndpoint.publish(endPointConfiguration);
+                    .createEndpoint(endPointConfiguration);
+            managedEndpoint.publish();
             endpoints.put(endPointConfiguration, managedEndpoint);
         } else {
             logger.warning("Could not publish " + endPointConfiguration.getName() + ": the required web service '" + endPointConfiguration

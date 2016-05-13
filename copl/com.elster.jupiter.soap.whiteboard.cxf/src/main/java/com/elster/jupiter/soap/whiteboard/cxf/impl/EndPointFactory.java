@@ -1,5 +1,6 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.EndPointProvider;
 
 /**
@@ -16,7 +17,7 @@ public interface EndPointFactory<T extends EndPointProvider> {
 
     EndPointFactory<T> init(String name, T endPointProvider);
 
-    ManagedEndpoint createEndpoint();
+    ManagedEndpoint createEndpoint(EndPointConfiguration endPointConfiguration);
 
     boolean isInbound();
 }

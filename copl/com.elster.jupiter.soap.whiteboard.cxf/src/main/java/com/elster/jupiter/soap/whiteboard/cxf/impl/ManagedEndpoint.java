@@ -11,10 +11,8 @@ public interface ManagedEndpoint {
     /**
      * Publishes an endpoint as defined in the end point configuration. There can only be one endpoint published for a
      * configuration at a time (on a single appserver). An endpoint can only be published once.
-     *
-     * @param endPointConfiguration
      */
-    void publish(EndPointConfiguration endPointConfiguration);
+    void publish();
 
     /**
      * Stops the endpoint. The service will no longer be published.

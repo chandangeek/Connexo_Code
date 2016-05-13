@@ -21,6 +21,7 @@ import java.util.List;
  */
 public final class InboundEndPoint implements ManagedEndpoint {
     private InboundEndPointProvider endPointProvider;
+    private EndPointConfiguration endPointConfiguration;
     private final SoapProviderSupportFactory soapProviderSupportFactory;
 
     private Server endpoint;
@@ -30,13 +31,14 @@ public final class InboundEndPoint implements ManagedEndpoint {
         this.soapProviderSupportFactory = soapProviderSupportFactory;
     }
 
-    InboundEndPoint init(InboundEndPointProvider endPointProvider) {
+    InboundEndPoint init(InboundEndPointProvider endPointProvider, EndPointConfiguration endPointConfiguration) {
         this.endPointProvider = endPointProvider;
+        this.endPointConfiguration = endPointConfiguration;
         return this;
     }
 
     @Override
-    public void publish(EndPointConfiguration endPointConfiguration) {
+    public void publish() {
         if (this.isActive()) {
             throw new IllegalStateException("Service already published");
         }
