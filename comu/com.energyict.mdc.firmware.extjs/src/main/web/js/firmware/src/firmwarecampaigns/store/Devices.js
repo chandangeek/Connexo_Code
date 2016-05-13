@@ -2,7 +2,6 @@ Ext.define('Fwc.firmwarecampaigns.store.Devices', {
     extend: 'Uni.data.store.Filterable',
     model: 'Fwc.firmwarecampaigns.model.Device',
     autoLoad: false,
-
     proxy: {
         type: 'rest',
         urlTpl: '/api/fwc/campaigns/{firmwareCampaignId}/devices',
