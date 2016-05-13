@@ -684,6 +684,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
+    public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+        refreshComTaskExecution(comTaskExecution).executionRescheduled(rescheduleDate);
+    }
+
+    @Override
     public Finder<ComTaskExecutionSession> findSessionsByComTaskExecution(ComTaskExecution comTaskExecution) {
         return DefaultFinder.of(ComTaskExecutionSession.class,
                 Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).isEqualTo(comTaskExecution),

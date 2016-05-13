@@ -1,5 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
@@ -15,18 +22,10 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +43,7 @@ public class FirmwareComTaskExecutionImpl extends ComTaskExecutionImpl implement
     private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
 
     @Inject
-    public FirmwareComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
+    public FirmwareComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerCommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
         super(dataModel, eventService, thesaurus, clock, communicationTaskService, schedulingService);
     }
 
@@ -154,7 +153,7 @@ public class FirmwareComTaskExecutionImpl extends ComTaskExecutionImpl implement
 
     @Override
     public List<ComTask> getComTasks() {
-        return Arrays.asList(this.comTask.get());
+        return Collections.singletonList(this.comTask.get());
     }
 
     @Override
@@ -187,6 +186,11 @@ public class FirmwareComTaskExecutionImpl extends ComTaskExecutionImpl implement
     public void executionFailed() {
         super.executionFailed();
         postEvent(EventType.FIRMWARE_COMTASKEXECUTION_FAILED);
+    }
+
+    public void putOnHold() {
+        super.putOnHold();
+        postEvent(EventType.FIRMWARE_COMTASKEXECUTION_COMPLETED);
     }
 
     public static class FirmwareComTaskExecutionBuilderImpl extends AbstractComTaskExecutionBuilder<FirmwareComTaskExecution, FirmwareComTaskExecutionImpl> implements ComTaskExecutionBuilder<FirmwareComTaskExecution> {
