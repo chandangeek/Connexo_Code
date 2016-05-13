@@ -235,7 +235,7 @@ Ext.define('Uni.form.field.Coordinates', {
                 elevField.setValue('');
             }
         }
-        defaultButton.setDisabled(true);
+        defaultButton.setDisabled(false);
     },
 
     setValue: function (value) {
@@ -282,7 +282,8 @@ Ext.define('Uni.form.field.Coordinates', {
             spatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null && elevTextField.getValue() == null) ? null :
                 Ext.String.format('{0}:{1}:{2}', latTextField.getValue(), longTextField.getValue(), elevTextField.getValue()),
             coordinatesDisplay: null,
-            isInherited: defaultButton.disabled
+            isInherited: defaultButton.disabled,
+            usagePointGeoCoordinatesId: me.displayValue ? me.displayValue.usagePointGeoCoordinatesId : 0
         } :
         {
             spatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null && elevTextField.getValue() == null) ? null :
