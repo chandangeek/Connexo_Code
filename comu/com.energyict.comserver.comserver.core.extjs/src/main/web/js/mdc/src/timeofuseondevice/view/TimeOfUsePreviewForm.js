@@ -18,6 +18,7 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseCalendar', 'MDC', 'Time of use calendar'),
+                    itemId: 'nameField',
                     name: 'name'
                 },
                 {
@@ -51,11 +52,14 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
     },
 
     fillFieldContainers: function (record) {
-        var me = this;
+        var me = this,
+            calendarRecord = record.getActiveCalendar();
         Ext.suspendLayouts();
 
+        me.down('#nameField').setValue(calendarRecord.get('name'));
+
         me.down('#periodField').removeAll();
-        record.periods().each(function (record) {
+        calendarRecord.periods().each(function (record) {
             me.down('#periodField').add(
                 {
                     xtype: 'displayfield',
@@ -66,19 +70,19 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
             );
         });
         me.down('#dayTypesField').removeAll();
-        record.dayTypes().each(function (record) {
+        calendarRecord.dayTypes().each(function (record) {
             me.down('#dayTypesField').add(
                 {
                     xtype: 'displayfield',
                     fieldLabel: undefined,
-                    value: record.get('name'),
+                    value: record.get('name') + me.getDays(calendarRecord, record.get('id')),
                     margin: '0 0 -10 0'
                 }
             );
         });
 
         this.down('#tariffsField').removeAll();
-        record.events().each(function (record) {
+        calendarRecord.events().each(function (record) {
             me.down('#tariffsField').add(
                 {
                     xtype: 'displayfield',
@@ -89,21 +93,37 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
             );
         });
 
-        this.down('#passiveField').removeAll();
-        record.passivecalendars().each(function (record) {
-            me.down('#passiveField').add(
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: undefined,
-                    value: record.get('name'),
-                    margin: '0 0 -10 0'
-                }
-            );
-        });
+        //this.down('#passiveField').removeAll();
+        //calendarRecord.passivecalendars().each(function (record) {
+        //    me.down('#passiveField').add(
+        //        {
+        //            xtype: 'displayfield',
+        //            fieldLabel: undefined,
+        //            value: record.get('name'),
+        //            margin: '0 0 -10 0'
+        //        }
+        //    );
+        //});
         me.doComponentLayout();
         Ext.resumeLayouts(true);
         me.updateLayout();
         me.doLayout();
+    },
+
+    getDays: function (record, id) {
+        var days = record.daysPerType().findRecord('dayTypeId', id).get('days'),
+            response = "";
+        if (days.length === 0) {
+            return response;
+        } else {
+            response = ' (';
+            Ext.Array.each(days, function (day) {
+                response += day + ', '
+            });
+            response = response.substr(0, response.lastIndexOf(', '));
+            response += ')';
+            return response;
+        }
     },
 
     calculateDate: function (month, day) {

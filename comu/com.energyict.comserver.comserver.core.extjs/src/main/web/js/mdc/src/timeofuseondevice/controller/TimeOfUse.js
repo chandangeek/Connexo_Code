@@ -10,7 +10,8 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
 
     models: [
         'Mdc.model.Device',
-        'Uni.model.timeofuse.Calendar'
+        'Uni.model.timeofuse.Calendar',
+        'Mdc.timeofuseondevice.model.CalendarOnDevice'
     ],
 
     init: function () {
@@ -25,6 +26,11 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
     showTimeOfUseOverview: function (mRID) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
+            reader = Ext.create('Ext.data.reader.Json', {
+                model: 'Mdc.timeofuseondevice.model.CalendarOnDevice'
+            }),
+            result,
+            resultSet,
             view;
 
         deviceModel.load(mRID, {
@@ -34,6 +40,28 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                     device: record
                 });
                 me.getApplication().fireEvent('changecontentevent', view);
+                if (view.down('#wrappingPanel')) {
+                    view.down('#wrappingPanel').setLoading(true);
+                }
+                Ext.Ajax.request(
+                    {
+                        url: '/api/ddr/devices/' + mRID + '/timeofuse',
+                        method: 'GET',
+                        success: function (response, opt) {
+                            result = JSON.parse(response.responseText);
+                            resultSet = reader.read(result);
+                            if (view.down('device-tou-preview-form')) {
+                                view.down('device-tou-preview-form').fillFieldContainers(resultSet.records[0]);
+                                view.down('#wrappingPanel').setLoading(false);
+                            }
+                        },
+                        failure: function () {
+                            if (view.down('#wrappingPanel')) {
+                                view.down('#wrappingPanel').setLoading(false);
+                            }
+                        }
+                    }
+                );
             }
         });
     },
