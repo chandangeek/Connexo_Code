@@ -780,7 +780,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
     public Response getCalendarInfo(@PathParam("mRID")String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        DeviceCalendarInfo info = new DeviceCalendarInfo(device.getEffectiveCalendars(), calendarInfoFactory);
+        DeviceCalendarInfo info = new DeviceCalendarInfo(device.getActiveCalendar(), device.getPassiveCalenders(), calendarInfoFactory);
 
         return Response.ok(info).build();
     }
