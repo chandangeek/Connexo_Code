@@ -48,6 +48,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -134,46 +136,57 @@ public class LicenseServiceImpl implements LicenseService, PrivilegesProvider, M
         dataModel.register(getModule());
 
         this.context = context;
-        dailyCheck.scheduleAtFixedRate(new LicenseCheckTask(), 0, 24 * 60 * 60 * 1000);
-
         upgradeService.register(identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+
+        dailyCheck.scheduleAtFixedRate(new LicenseCheckTask(), 0, 24 * 60 * 60 * 1000);
     }
 
     @Deactivate
     public void deactivate() {
         dailyCheck.cancel();
         dailyCheck.purge();
-        unregisterApps();
+        unregisterAllLicenses();
     }
 
-    private void registerApps() {
-        if (upgradeService.isInstalled(identifier(COMPONENTNAME), version(1, 0))) {
-            List<License> licenses = dataModel.mapper(License.class).find();
-            for (License license : licenses) {
-                Dictionary<String, String> props = new Hashtable<>();
-                props.put("com.elster.jupiter.license.application.key", license.getApplicationKey());
-                if (license.getStatus().equals(License.Status.ACTIVE) || license.getGracePeriodInDays() > 0) {
-                    props.put("com.elster.jupiter.license.rest.key", license.getApplicationKey());
-                }
-
-                if (context != null) {
-                    licenseServices.add(context.registerService(License.class, license, props));
-                }
-            }
-        }
-    }
-
-    private void unregisterApps() {
-        for (ServiceRegistration<License> service : licenseServices) {
-            service.unregister();
-        }
-
+    private void unregisterAllLicenses() {
+        licenseServices.forEach(ServiceRegistration::unregister);
         licenseServices.clear();
     }
 
     private synchronized void reloadApps() {
-        unregisterApps();
-        registerApps();
+        if (context != null) {
+            List<ServiceRegistration> toRemove = new ArrayList<>();
+            for (ServiceRegistration<License> licenseService : licenseServices) {
+                License license = context.getService(licenseService.getReference());
+                if (License.Status.EXPIRED.equals(license.getStatus()) && license.getGracePeriodInDays() <= 0) {
+                    licenseService.unregister();
+                    toRemove.add(licenseService);
+                }
+            }
+            licenseServices.removeAll(toRemove);
+            try {
+                dataModel.mapper(License.class)
+                        .find()
+                        .stream()
+                        .filter(license -> License.Status.ACTIVE.equals(license.getStatus()) || license.getGracePeriodInDays() > 0)
+                        .filter(license -> !getLicenseServiceRegistrationFor(license).isPresent())
+                        .forEach(license -> {
+                            Dictionary<String, String> props = new Hashtable<>();
+                            props.put("com.elster.jupiter.license.application.key", license.getApplicationKey());
+                            props.put("com.elster.jupiter.license.rest.key", license.getApplicationKey());
+                            licenseServices.add(context.registerService(License.class, license, props));
+                        });
+            } catch (Exception ex) {
+                Logger.getLogger(getClass().getName()).log(Level.WARNING, "Could not load licenses because " + ex.getMessage(), ex);
+            }
+        }
+    }
+
+    private Optional<ServiceRegistration<License>> getLicenseServiceRegistrationFor(License license) {
+        return licenseServices.stream()
+                .filter(licenseServiceRegistration -> license.getApplicationKey()
+                        .equals(licenseServiceRegistration.getReference().getProperty("com.elster.jupiter.license.application.key")))
+                .findAny();
     }
 
     private Module getModule() {
