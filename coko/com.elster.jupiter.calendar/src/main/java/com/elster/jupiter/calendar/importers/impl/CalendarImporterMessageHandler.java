@@ -44,7 +44,6 @@ public class CalendarImporterMessageHandler implements MessageHandlerFactory, Tr
 
     @Activate
     public void activate() {
-        System.out.println("test");
     }
 
     @Inject
