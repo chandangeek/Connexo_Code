@@ -14,6 +14,7 @@ class MdmAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
 
                 //validation
                 com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,

@@ -61,6 +61,7 @@ public class MdmAppInstaller implements InstallService {
                 //usage point
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
 
                 //validation
                 com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
