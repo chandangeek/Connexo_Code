@@ -94,7 +94,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 name: 'geoCoordinates',
                 itemId: 'up-summary-geoCoordinates',
                 fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates'),
-                width: 600
+                width: 595
             },
             {
                 xtype: 'location',
@@ -104,7 +104,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 findLocationsUrl: '/api/jsr/search/com.elster.jupiter.metering.UsagePoint/locationsearchcriteria/location',
                 locationDetailsUrl: '/api/udr/usagepoints/locations',
                 labelWidth: 260,
-                width: 600
+                width: 595
 
             },
             {
