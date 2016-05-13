@@ -1,9 +1,11 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.util.Pair;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,10 +43,21 @@ public class DataMapperWriter<T> {
         }
     }
 
+    private void closeAll(List<IOResource> resources) {
+        try {
+            for (IOResource resource : resources) {
+                resource.close();
+            }
+        } catch (IOException e) {
+            throw new UnderlyingIOException(e);
+        }
+    }
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void persist(T object) throws SQLException {
         prepare(object, false, getTable().getDataModel().getClock().instant());
         try (Connection connection = getConnection(true)) {
+            List<IOResource> resources = new ArrayList<>();
             try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().insertSql(false))) {
                 int index = 1;
                 for (ColumnImpl column : getColumns()) {
@@ -53,10 +66,12 @@ public class DataMapperWriter<T> {
                         column.setDomainValue(object, nextVal);
                         statement.setObject(index++, column.hasIntValue() ? nextVal.intValue() : nextVal);
                     } else if (!column.hasInsertValue()) {
-                        column.setObject(statement, index++, object);
+                        column.setObject(statement, index++, object).ifPresent(resources::add);
                     }
                 }
                 statement.executeUpdate();
+            } finally {
+                this.closeAll(resources);
             }
         }
         refresh(object, true);
@@ -92,18 +107,21 @@ public class DataMapperWriter<T> {
             return;
         }
         try (Connection connection = getConnection(true)) {
+            List<IOResource> resources = new ArrayList<>();
             try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().insertSql(true))) {
                 for (T tuple : objects) {
                     prepare(tuple, false, now);
                     int index = 1;
                     for (ColumnImpl column : getColumns()) {
                         if (!column.isAutoIncrement() && !column.hasInsertValue()) {
-                            column.setObject(statement, index++, tuple);
+                            column.setObject(statement, index++, tuple).ifPresent(resources::add);
                         }
                     }
                     statement.addBatch();
                 }
                 statement.executeBatch();
+            } finally {
+                this.closeAll(resources);
             }
         }
         if (getTable().hasChildren()) {
@@ -171,13 +189,14 @@ public class DataMapperWriter<T> {
         List<Pair<ColumnImpl, Long>> versionCounts = new ArrayList<>(versionCountColumns.length);
         try (Connection connection = getConnection(true)) {
             String sql = getSqlGenerator().updateSql(columns);
+            List<IOResource> resources = new ArrayList<>();
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 int index = 1;
                 for (ColumnImpl column : columns) {
-                    column.setObject(statement, index++, object);
+                    column.setObject(statement, index++, object).ifPresent(resources::add);
                 }
                 for (ColumnImpl column : getTable().getAutoUpdateColumns()) {
-                    column.setObject(statement, index++, object);
+                    column.setObject(statement, index++, object).ifPresent(resources::add);
                 }
                 index = bindPrimaryKey(statement, index, object);
                 for (ColumnImpl column : versionCountColumns) {
@@ -193,6 +212,8 @@ public class DataMapperWriter<T> {
                         throw new OptimisticLockException();
                     }
                 }
+            } finally {
+                this.closeAll(resources);
             }
         }
         for (Pair<ColumnImpl, Long> pair : versionCounts) {
@@ -217,20 +238,23 @@ public class DataMapperWriter<T> {
             journal(objects, now);
         }
         try (Connection connection = getConnection(true)) {
+            List<IOResource> resources = new ArrayList<>();
             try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().updateSql(columns))) {
                 for (T tuple : objects) {
                     prepare(tuple, true, now);
                     int index = 1;
                     for (ColumnImpl column : columns) {
-                        column.setObject(statement, index++, tuple);
+                        column.setObject(statement, index++, tuple).ifPresent(resources::add);
                     }
                     for (ColumnImpl column : getTable().getAutoUpdateColumns()) {
-                        column.setObject(statement, index++, tuple);
+                        column.setObject(statement, index++, tuple).ifPresent(resources::add);
                     }
                     index = bindPrimaryKey(statement, index, tuple);
                     statement.addBatch();
                 }
                 statement.executeBatch();
+            } finally {
+                this.closeAll(resources);
             }
         }
     }
@@ -305,6 +329,7 @@ public class DataMapperWriter<T> {
 
     private int bindPrimaryKey(PreparedStatement statement, int index, Object target) throws SQLException {
         for (ColumnImpl column : getTable().getPrimaryKeyColumns()) {
+            // IO related resources are not supported in the primary key so ignore the result of setObject
             column.setObject(statement, index++, target);
         }
         return index;

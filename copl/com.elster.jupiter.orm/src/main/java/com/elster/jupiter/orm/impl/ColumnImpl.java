@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
+import com.elster.jupiter.orm.fields.impl.LazyLoadingBlob;
 
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -186,6 +187,7 @@ public class ColumnImpl implements Column {
         LOGGER.severe(message);
         throw new IllegalTableMappingException(message);
     }
+
     private ColumnImpl init(TableImpl<?> table, String name) {
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
             this.logAndThrowIllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
@@ -480,8 +482,16 @@ public class ColumnImpl implements Column {
         setDomainValue(target, convertFromDb(rs, index));
     }
 
-    void setObject(PreparedStatement statement, int index, Object target) throws SQLException {
-        statement.setObject(index, this.getDatabaseValue(target));
+    Optional<IOResource> setObject(PreparedStatement statement, int index, Object target) throws SQLException {
+        Object dbValue = this.getDatabaseValue(target);
+        if (dbValue instanceof LazyLoadingBlob) {
+            LazyLoadingBlob lazyLoadingBlob = (LazyLoadingBlob) dbValue;
+            lazyLoadingBlob.bindTo(statement, index);
+            return Optional.of(lazyLoadingBlob);
+        } else {
+            statement.setObject(index, dbValue);
+            return Optional.empty();
+        }
     }
 
     String getFormula() {
@@ -602,6 +612,11 @@ public class ColumnImpl implements Column {
         }
 
         @Override
+        public Builder blob() {
+            return this.type("BLOB").conversion(ColumnConversion.BLOB2SQLBLOB).skipOnUpdate();
+        }
+
+        @Override
         public Builder number() {
             return this.type("NUMBER");
         }
@@ -710,5 +725,5 @@ public class ColumnImpl implements Column {
             return base.add();
         }
     }
-}
 
+}
