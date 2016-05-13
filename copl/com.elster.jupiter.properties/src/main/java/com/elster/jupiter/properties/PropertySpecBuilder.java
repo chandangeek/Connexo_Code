@@ -2,6 +2,8 @@ package com.elster.jupiter.properties;
 
 import com.elster.jupiter.nls.TranslationKey;
 
+import java.util.List;
+
 /**
  * Provides building services for {@link PropertySpec}s.
  * All methods that contribute to aspects of the PropertySpec
@@ -26,7 +28,7 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public interface PropertySpecBuilder<T> {
 
-    static final String DEFAULT_MULTI_VALUE_SEPARATOR = "::";
+    String DEFAULT_MULTI_VALUE_SEPARATOR = "::";
 
     /**
      * Sets a default value for the {@link PropertySpec} under construction.
@@ -106,6 +108,14 @@ public interface PropertySpecBuilder<T> {
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
     PropertySpecBuilder<T> addValues (T... values);
+
+    /**
+     * Adds the specified values to the PropertySpec under construction.
+     *
+     * @param values The possible values
+     * @return This PropertySpecBuilder to support method chaining while constructing
+     */
+    PropertySpecBuilder<T> addValues (List<T> values);
 
     /**
      * Finishes the building process and returns the

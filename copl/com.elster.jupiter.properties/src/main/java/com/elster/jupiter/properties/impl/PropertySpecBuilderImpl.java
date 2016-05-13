@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.ValueFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Provides building services for {@link PropertySpec}s.
@@ -103,8 +104,15 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
     }
 
     @Override
-    public PropertySpecBuilder<T> addValues(Object... values) {
-        this.propertySpecAccessor.addValues(values);
+    public PropertySpecBuilder<T> addValues(T... values) {
+        this.propertySpecAccessor.addValues(Arrays.asList(values));
+        return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public PropertySpecBuilder<T> addValues(List<T> values) {
+        this.propertySpecAccessor.addValues((List<Object>) values);
         return this;
     }
 
@@ -127,7 +135,7 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
 
         void setDefaultValue(Object defaultValue);
 
-        void addValues(Object... values);
+        void addValues(List<Object> values);
 
         void markRequired();
 
@@ -182,16 +190,16 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
         }
 
         @Override
-        public void addValues (Object... values) {
-            if (values.length > 0) {
+        public void addValues (List<Object> values) {
+            if (!values.isEmpty()) {
                 PropertySpecPossibleValues xPossibleValues = this.propertySpec.getPossibleValues();
                 if (xPossibleValues == null) {
-                    PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(false, Arrays.asList(values));
+                    PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(false, values);
                     this.propertySpec.setPossibleValues(possibleValues);
                 }
                 else {
                     PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) xPossibleValues;
-                    possibleValues.add(values);
+                    values.forEach(possibleValues::add);
                 }
             }
         }
@@ -276,7 +284,7 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
         }
 
         @Override
-        public void addValues (Object... values) {
+        public void addValues (List<Object> values) {
             this.notifyBuildingProcessComplete();
         }
 
