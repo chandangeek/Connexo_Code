@@ -132,6 +132,8 @@ public class MeterActivationValidationIT {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new TimeModule(),
+                new BasicPropertiesModule(),
                 new MeteringModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new PartyModule(),
                 new EventsModule(),
