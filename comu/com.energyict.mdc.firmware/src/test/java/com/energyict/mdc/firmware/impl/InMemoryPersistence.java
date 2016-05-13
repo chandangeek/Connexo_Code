@@ -1,6 +1,7 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -137,7 +138,8 @@ public class InMemoryPersistence {
                 new MasterDataModule(),
                 new DeviceDataModule(),
                 new FirmwareModule(),
-                new KpiModule());
+                new KpiModule(),
+                new CalendarModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(OrmService.class);
