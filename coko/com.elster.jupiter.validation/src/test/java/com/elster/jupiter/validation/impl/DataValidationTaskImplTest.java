@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -52,6 +53,8 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     @Mock
     private UsagePointGroup usagePointGroup;
     @Mock
+    private MetrologyContract metrologyContract;
+    @Mock
     private Thesaurus thesaurus;
     @Mock
     private ValidationService dataValidationService;
@@ -82,14 +85,14 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationTask == null) {
-            validationTask = setId(newTask().init("taskname", Instant.now() , "MultiSense"), ID);
+            validationTask = setId(newTask().init("taskname", Instant.now() , "MDC"), ID);
         }
         return validationTask;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return setId(newTask().init("taskname", Instant.now(), "MultiSense"), ID);
+        return setId(newTask().init("taskname", Instant.now(), "MDC"), ID);
     }
 
     @Override
@@ -149,6 +152,15 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     }
 
     @Test
+    public void testPersistMetrologyContract() {
+        DataValidationTaskImpl testPersistDataValidationTask = newTask();
+        testPersistDataValidationTask.setName("testname");
+        testPersistDataValidationTask.setMetrologyContract(metrologyContract);
+        testPersistDataValidationTask.doSave();
+        verify(dataModel).persist(testPersistDataValidationTask);
+    }
+
+    @Test
     public void testUpdate() {
         DataValidationTaskImpl testUpdateDataValidationTask = newTask();
         testUpdateDataValidationTask.setName("taskname");
@@ -165,6 +177,17 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         DataValidationTaskImpl testUpdateDataValidationTask = newTask();
         testUpdateDataValidationTask.setName("taskname");
         testUpdateDataValidationTask.setUsagePointGroup(usagePointGroup);
+        testUpdateDataValidationTask.setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)));
+        field("id").ofType(Long.TYPE).in(testUpdateDataValidationTask).set(ID);
+        testUpdateDataValidationTask.update();
+        verify(dataModel).update(testUpdateDataValidationTask);
+    }
+
+    @Test
+    public void testUpdateMetrologyContract() {
+        DataValidationTaskImpl testUpdateDataValidationTask = newTask();
+        testUpdateDataValidationTask.setName("taskname");
+        testUpdateDataValidationTask.setMetrologyContract(metrologyContract);
         testUpdateDataValidationTask.setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)));
         field("id").ofType(Long.TYPE).in(testUpdateDataValidationTask).set(ID);
         testUpdateDataValidationTask.update();
@@ -196,7 +219,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     @Test
     public void testDeleteUsagePoint() {
         DataValidationTaskImpl task = newTask();
-        task.setUsagePointGroup(usagePointGroup);
+        task.setMetrologyContract(metrologyContract);
         task.setName("taskname");
         field("id").ofType(Long.TYPE).in(task).set(ID);
         task.update();

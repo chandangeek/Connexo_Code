@@ -2,7 +2,6 @@ package com.elster.jupiter.validation;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -20,8 +19,6 @@ public interface DataValidationTaskBuilder {
     DataValidationTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
     DataValidationTaskBuilder setUsagePointGroup(UsagePointGroup usagePointGroup);
-
-    DataValidationTaskBuilder setMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration);
 
     DataValidationTaskBuilder setMetrologyContract(MetrologyContract metrologyContract);
 

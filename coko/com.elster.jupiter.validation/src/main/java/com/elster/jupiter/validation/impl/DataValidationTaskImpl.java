@@ -64,8 +64,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
 
-    private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
-
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
 
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
@@ -209,11 +207,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration() {
-        return metrologyConfiguration.getOptional();
-    }
-
-    @Override
     public Optional<MetrologyContract> getMetrologyContract() {
         return metrologyContract.getOptional();
     }
@@ -226,11 +219,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     @Override
     public void setUsagePointGroup(UsagePointGroup usagePointGroup) {
         this.usagePointGroup.set(usagePointGroup);
-    }
-
-    @Override
-    public void setMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration) {
-        this.metrologyConfiguration.set(metrologyConfiguration);
     }
 
     @Override
