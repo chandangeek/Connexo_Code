@@ -43,6 +43,10 @@ Ext.onReady(function () {
         {
             name: 'Bpm',
             path: '../../apps/bpm/src'
+        },
+        {
+            name: 'Cal',
+            path: '../../apps/cal/src'
         }
     ];
 

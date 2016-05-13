@@ -12,7 +12,8 @@ Ext.define('SystemApp.Application', {
         'Cps.privileges.CustomAttributeSets',
         'Mtr.privileges.ReadingTypes',
         'Sct.privileges.ServiceCallType',
-        'Bpm.privileges.BpmManagement'
+        'Bpm.privileges.BpmManagement',
+        'Cal.privileges.Calendar'
     ],
 
     controllers: [

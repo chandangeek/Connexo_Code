@@ -3,6 +3,7 @@ package com.elster.jupiter.system.app.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.rest.impl.AppServerApplication;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.fileimport.FileImportService;
@@ -67,6 +68,7 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
     private volatile MeteringService meteringService;
     private volatile SubsystemService subsystemService;
     private volatile ServiceCallService serviceCallService;
+    private volatile CalendarService calendarService;
     private volatile UpgradeService upgradeService;
 
     public SysAppServiceImpl() {
@@ -125,7 +127,6 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
     public void stop(BundleContext context) throws Exception {
         registration.unregister();
     }
-
 
     @Reference
     public void setUserService(UserService userService) {
@@ -190,6 +191,11 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     private boolean isAllowed(User user) {
