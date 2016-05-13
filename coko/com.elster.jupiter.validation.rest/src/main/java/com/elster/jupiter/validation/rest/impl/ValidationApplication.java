@@ -60,8 +60,7 @@ public class ValidationApplication extends Application implements TranslationKey
                 ValidationResource.class,
                 DataValidationTaskResource.class,
                 MeterGroupsResource.class,
-                MetrologyConfigurationsAndContractsResource.class,
-                UsagePointGroupsResource.class);
+                MetrologyConfigurationsAndContractsResource.class);
     }
 
     @Override
