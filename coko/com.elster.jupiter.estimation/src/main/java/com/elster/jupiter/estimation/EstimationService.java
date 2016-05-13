@@ -18,9 +18,19 @@ public interface EstimationService {
 
     String COMPONENTNAME = "EST";
 
-    List<String> getAvailableEstimatorImplementations();
+    /**
+     * Filters estimators and returns names of implementations supporting a given <code>targetApplication</code>.
+     * @param targetApplication a string representation of target application.
+     * @return the list of estimator implementation names supporting a given <code>targetApplication</code>.
+     */
+    List<String> getAvailableEstimatorImplementations(String targetApplication);
 
-    List<Estimator> getAvailableEstimators();
+    /**
+     * Filters estimators and returns ones supporting a given <code>targetApplication</code>.
+     * @param targetApplication a string representation of target application.
+     * @return the list of estimators supporting a given <code>targetApplication</code>.
+     */
+    List<Estimator> getAvailableEstimators(String targetApplication);
 
     Optional<Estimator> getEstimator(String implementation);
 

@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -58,6 +59,11 @@ class ReadingQualityTypedEstimator implements Estimator {
     @Override
     public List<String> getRequiredProperties() {
         return decorated.getRequiredProperties();
+    }
+
+    @Override
+    public Set<String> getSupportedApplications() {
+        return decorated.getSupportedApplications();
     }
 
 }

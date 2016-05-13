@@ -95,8 +95,8 @@ public class ConsoleCommands {
         }
     }
 
-    public void availableEstimators() {
-        estimationService.getAvailableEstimators().stream()
+    public void availableEstimators(String applicationName) {
+        estimationService.getAvailableEstimators(applicationName).stream()
                 .peek(est -> System.out.println(est.getDefaultFormat()))
                 .flatMap(est -> est.getPropertySpecs().stream())
                 .map(spec -> spec.getName() + ' ' + spec.getValueFactory().getValueType().toString())

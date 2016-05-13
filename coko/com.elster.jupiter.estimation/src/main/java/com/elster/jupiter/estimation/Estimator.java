@@ -7,6 +7,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public interface Estimator extends HasDynamicProperties {
@@ -40,4 +41,12 @@ public interface Estimator extends HasDynamicProperties {
 
     List<String> getRequiredProperties();
 
+    /**
+     * Returns the set of target applications supported by this estimator.
+     *
+     * @return the set of target applications supported by this estimator.
+     * @see EstimationService#getAvailableEstimatorImplementations(String)
+     * @see EstimationService#getAvailableEstimators(String)
+     */
+    Set<String> getSupportedApplications();
 }
