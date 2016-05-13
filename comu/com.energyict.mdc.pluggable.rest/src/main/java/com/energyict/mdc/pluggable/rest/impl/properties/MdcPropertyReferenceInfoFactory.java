@@ -15,7 +15,6 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.pluggable.rest.impl.CodeTableInfo;
 import com.energyict.mdc.pluggable.rest.impl.CodeTableResource;
 import com.energyict.mdc.pluggable.rest.impl.DeviceMessageFileReferenceInfo;
-import com.energyict.mdc.pluggable.rest.impl.DeviceMessageFileReferenceResource;
 import com.energyict.mdc.pluggable.rest.impl.LoadProfileInfo;
 import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeInfo;
 import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeResource;
@@ -123,8 +122,8 @@ public class MdcPropertyReferenceInfoFactory {
             // The TimeZoneInUse values are provided as possibleValues
         } else if (Code.class.isAssignableFrom(propertyClassType)) {
             uri = uriInfo.getBaseUriBuilder().path(CodeTableResource.class).path("/").build();
-        } else if (DeviceMessageFile.class.isAssignableFrom(propertyClassType)) {
-            uri = uriInfo.getBaseUriBuilder().path(DeviceMessageFileReferenceResource.class).path("/").build();
+//        } else if (DeviceMessageFile.class.isAssignableFrom(propertyClassType)) {
+//            uri = uriInfo.getBaseUriBuilder().path(DeviceMessageFileReferenceResource.class).path("/").build();
         } else if (LoadProfileType.class.isAssignableFrom(propertyClassType)) {
             uri = uriInfo.getBaseUriBuilder().path(LoadProfileTypeResource.class).path("/").build();
         }

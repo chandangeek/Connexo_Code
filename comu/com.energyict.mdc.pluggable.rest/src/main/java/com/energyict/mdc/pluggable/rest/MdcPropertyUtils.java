@@ -70,12 +70,17 @@ public class MdcPropertyUtils {
             List<?> possibleValues = null;
             if (propertyType instanceof SimplePropertyType) {
                 SimplePropertyType simplePropertyType = (SimplePropertyType) propertyType;
-                if (simplePropertyType.equals(SimplePropertyType.LOADPROFILE)) {
+                if (SimplePropertyType.LOADPROFILE.equals(simplePropertyType)) {
                     possibleValues = device.getLoadProfiles();
-                } else if (simplePropertyType.equals(SimplePropertyType.LOGBOOK)) {
+                } else if (SimplePropertyType.LOGBOOK.equals(simplePropertyType)) {
                     possibleValues = device.getLogBooks();
-                } else if (simplePropertyType.equals(SimplePropertyType.REGISTER)) {
+                } else if (SimplePropertyType.REGISTER.equals(simplePropertyType)) {
                     possibleValues = device.getRegisters();
+                } else if (SimplePropertyType.DEVICEMESSAGEFILEREFERENCE.equals(simplePropertyType)) {
+                    PropertySpecPossibleValues possibleValuesFromSpec = propertySpec.getPossibleValues();
+                    if (possibleValuesFromSpec != null) {
+                        possibleValues = possibleValuesFromSpec.getAllValues();
+                    }
                 }
             }
             return possibleValues;
