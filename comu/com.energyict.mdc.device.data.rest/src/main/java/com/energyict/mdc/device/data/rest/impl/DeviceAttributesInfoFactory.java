@@ -287,7 +287,7 @@ public class DeviceAttributesInfoFactory {
         lifecycleDates.save();
 
         if (DeviceAttribute.GEOCOORDINATES.isEditableForState(state) && info.geoCoordinates != null) {
-            if(info.location.displayValue.isInherited){
+            if(info.geoCoordinates.displayValue.isInherited){
                 if(info.geoCoordinates.displayValue.usagePointGeoCoordinatesId != null){
                     meteringService.findGeoCoordinates(info.geoCoordinates.displayValue.usagePointGeoCoordinatesId).ifPresent(device::setGeoCoordinates);
                 }
