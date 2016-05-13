@@ -289,6 +289,7 @@ Ext.define('Uni.form.field.Location', {
 
             if (me.displayResetButton) {
                 value.isInherited = (comboLocation.locationId == me.displayValue.usagePointLocationId);
+                value.usagePointLocationId = me.displayValue.usagePointLocationId;
             }
         }
         return value;
