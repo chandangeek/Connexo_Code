@@ -23,17 +23,17 @@ public class CoordinatesInfo {
                     deviceGeoCoordinates.getCoordinates().getLongitude().getValue().toString(),
                     deviceGeoCoordinates.getCoordinates().getElevation().getValue().toString());
             deviceGeoCoordinatesId = deviceGeoCoordinates.getId();
-            device.getUsagePoint().ifPresent(usagePoint -> {
-                usagePoint.getGeoCoordinates().ifPresent(usagePointGeoCoordinates -> {
-                    if(usagePointGeoCoordinates.getId() == deviceGeoCoordinates.getId()){
-                        isInherited = true;
-                    }
-                    usagePointCoordinatesDisplay = usagePointGeoCoordinates.getCoordinates().toString();
-                    usagePointSpatialCoordinates = String.format("%s:%s:%s", usagePointGeoCoordinates.getCoordinates().getLatitude().getValue().toString(),
-                            usagePointGeoCoordinates.getCoordinates().getLongitude().getValue().toString(),
-                            usagePointGeoCoordinates.getCoordinates().getElevation().getValue().toString());
-                    usagePointGeoCoordinatesId = usagePointGeoCoordinates.getId();
-                });
+        });
+        device.getUsagePoint().ifPresent(usagePoint -> {
+            usagePoint.getGeoCoordinates().ifPresent(usagePointGeoCoordinates -> {
+                if((deviceGeoCoordinatesId != null) && (usagePointGeoCoordinates.getId() == deviceGeoCoordinatesId)){
+                    isInherited = true;
+                }
+                usagePointCoordinatesDisplay = usagePointGeoCoordinates.getCoordinates().toString();
+                usagePointSpatialCoordinates = String.format("%s:%s:%s", usagePointGeoCoordinates.getCoordinates().getLatitude().getValue().toString(),
+                        usagePointGeoCoordinates.getCoordinates().getLongitude().getValue().toString(),
+                        usagePointGeoCoordinates.getCoordinates().getElevation().getValue().toString());
+                usagePointGeoCoordinatesId = usagePointGeoCoordinates.getId();
             });
         });
     }
