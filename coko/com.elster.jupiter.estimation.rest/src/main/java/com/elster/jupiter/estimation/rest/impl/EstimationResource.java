@@ -11,7 +11,6 @@ import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.estimation.security.Privileges;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -62,13 +61,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -76,6 +73,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Path("/estimation")
 public class EstimationResource {
 
+    private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
     private final RestQueryService queryService;
     private final EstimationService estimationService;
     private final TransactionService transactionService;
@@ -97,7 +95,6 @@ public class EstimationResource {
         this.conflictFactory = conflictFactory;
     }
 
-
     /**
      * Get all estimation rulesets
      *
@@ -108,7 +105,7 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public EstimationRuleSetInfos getEstimationRuleSets(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName, @Context UriInfo uriInfo) {
+    public EstimationRuleSetInfos getEstimationRuleSets(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<EstimationRuleSet> list = queryRuleSets(params, applicationName);
 
@@ -120,7 +117,6 @@ public class EstimationResource {
 
     private List<EstimationRuleSet> queryRuleSets(QueryParameters queryParameters, String applicationName) {
         Query<EstimationRuleSet> query = estimationService.getEstimationRuleSetQuery();
-        query.setRestriction(where("obsoleteTime").isNull());
         query.setRestriction(where("applicationName").isEqualTo(applicationName));
         RestQuery<EstimationRuleSet> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
@@ -157,7 +153,7 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public Response createEstimationRuleSet(final EstimationRuleSetInfo info, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
+    public Response createEstimationRuleSet(final EstimationRuleSetInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         return Response.status(Response.Status.CREATED).entity(new EstimationRuleSetInfo(transactionService.execute(new Transaction<EstimationRuleSet>() {
             @Override
             public EstimationRuleSet perform() {
@@ -214,32 +210,23 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
     public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleId") long ruleId) {
-        ReadingTypeInfos infos = new ReadingTypeInfos();
         EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId);
         EstimationRule estimationRule = getEstimationRuleFromSetOrThrowException(estimationRuleSet, ruleId);
-        Set<ReadingType> readingTypes = estimationRule.getReadingTypes();
-        for (ReadingType readingType : readingTypes) {
-            infos.add(readingType);
-        }
-        infos.total = readingTypes.size();
-        return infos;
+        return new ReadingTypeInfos(estimationRule.getReadingTypes());
     }
 
     @GET
     @Path("/estimators")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
-    public EstimatorInfos getAvailableEstimatimators(@Context UriInfo uriInfo) {
+    public EstimatorInfos getAvailableEstimators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @Context UriInfo uriInfo) {
         EstimatorInfos infos = new EstimatorInfos();
-        List<Estimator> toAdd = estimationService.getAvailableEstimators();
-        Collections.sort(toAdd, Compare.BY_DISPLAY_NAME);
-        for (Estimator estimator : toAdd) {
-            infos.add(
-                    estimator.getClass().getName(),
-                    estimator.getDisplayName(),
-                    propertyUtils.convertPropertySpecsToPropertyInfos(estimator.getPropertySpecs()));
-        }
-        infos.total = toAdd.size();
+        estimationService.getAvailableEstimators(applicationName).stream()
+                .sorted(Compare.BY_DISPLAY_NAME)
+                .forEach(estimator -> infos.add(
+                        estimator.getClass().getName(),
+                        estimator.getDisplayName(),
+                        propertyUtils.convertPropertySpecsToPropertyInfos(estimator.getPropertySpecs())));
         return infos;
     }
 

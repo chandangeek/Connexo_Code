@@ -63,6 +63,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
+import static com.elster.jupiter.estimation.rest.impl.PropertyType.NULLABLE_BOOLEAN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -74,6 +75,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class EstimationResourceTest extends EstimationApplicationJerseyTest {
+
+    private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
 
     private static final long RULE_SET_ID = 27L;
     private static final long RULE_SET_SUCCESS_VERSION = 6L;
@@ -101,7 +104,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     @Test
     public void testGetEstimationRuleSetsNoRuleSets() {
         mockRuleSetQuery();
-        EstimationRuleSetInfos response = target("/estimation").request().get(EstimationRuleSetInfos.class);
+        EstimationRuleSetInfos response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "APP").get(EstimationRuleSetInfos.class);
 
         assertThat(response.total).isEqualTo(0);
         assertThat(response.ruleSets).hasSize(0);
@@ -110,7 +113,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     @Test
     public void testGetEstimationRuleSets() {
         mockRuleSetQuery(mockDefaultRuleSet());
-        EstimationRuleSetInfos response = target("/estimation").request().get(EstimationRuleSetInfos.class);
+        EstimationRuleSetInfos response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "APP").get(EstimationRuleSetInfos.class);
 
         assertThat(response.total).isEqualTo(1);
         List<EstimationRuleSetInfo> ruleSetInfos = response.ruleSets;
@@ -234,18 +237,18 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
 
     @Test
     public void testGetEstimatorsNoEstimators() {
-        EstimatorInfos estimatorInfos = target("/estimation/estimators").request().get(EstimatorInfos.class);
+        EstimatorInfos estimatorInfos = target("/estimation/estimators").request().header(APPLICATION_HEADER_PARAM, "APP").get(EstimatorInfos.class);
 
-        assertThat(estimatorInfos.total).isEqualTo(0);
-        assertThat(estimatorInfos.estimators).hasSize(0);
+        assertThat(estimatorInfos.total).isZero();
+        assertThat(estimatorInfos.estimators).isEmpty();
     }
 
     @Test
     public void testGetEstimators() {
-        List<Estimator> mockEstimator = Arrays.asList(mockEstimator("B Estimator"), mockEstimator("A Estimator"));
-        when(estimationService.getAvailableEstimators()).thenReturn(mockEstimator);
+        List<Estimator> mockEstimators = Arrays.asList(mockEstimator("B Estimator"), mockEstimator("A Estimator"));
+        when(estimationService.getAvailableEstimators("APP")).thenReturn(mockEstimators);
 
-        EstimatorInfos estimatorInfos = target("/estimation/estimators").request().get(EstimatorInfos.class);
+        EstimatorInfos estimatorInfos = target("/estimation/estimators").request().header(APPLICATION_HEADER_PARAM, "APP").get(EstimatorInfos.class);
 
         assertThat(estimatorInfos.total).isEqualTo(2);
         List<EstimationInfo> estimators = estimatorInfos.estimators;
@@ -369,8 +372,8 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         info.description="desc";
 
         EstimationRuleSet ruleSet = mockDefaultRuleSet();
-        when(estimationService.createEstimationRuleSet(info.name, "MDC", info.description)).thenReturn(ruleSet);
-        Response response = target("/estimation").request().post(Entity.json(info));
+        when(estimationService.createEstimationRuleSet(info.name, "PLEASE", info.description)).thenReturn(ruleSet);
+        Response response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "PLEASE").post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
@@ -629,46 +632,27 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     }
 
     private ValueFactory getValueFactoryFor(PropertyType propertyType) {
-        ValueFactory valueFactory = null;
         switch (propertyType) {
+            case NUMBER:
+                return new BigDecimalFactory();
+            case NULLABLE_BOOLEAN:
+                return new ThreeStateFactory();
+            case BOOLEAN:
+                return new BooleanFactory();
+            case TEXT:
+                return new StringFactory();
+            case RELATIVEPERIOD:
+                return new RelativePeriodFactory(this.timeService);
+            case ADVANCEREADINGSSETTINGS:
+                return new AdvanceReadingsSettingsFactory(this.meteringService);
+            case ADVANCEREADINGSSETTINGSWITHOUTNONE:
+                return new AdvanceReadingsSettingsWithoutNoneFactory(this.meteringService);
+            case LONG:
+                return new LongFactory();
             case UNKNOWN:
-                break;
-            case NUMBER: {
-                valueFactory = new BigDecimalFactory();
-                break;
-            }
-            case NULLABLE_BOOLEAN: {
-                valueFactory = new ThreeStateFactory();
-                break;
-            }
-            case BOOLEAN: {
-                valueFactory = new BooleanFactory();
-                break;
-            }
-            case TEXT: {
-                valueFactory = new StringFactory();
-                break;
-            }
-            case RELATIVEPERIOD: {
-                valueFactory = new RelativePeriodFactory(this.timeService);
-                break;
-            }
-            case ADVANCEREADINGSSETTINGS: {
-                valueFactory = new AdvanceReadingsSettingsFactory(this.meteringService);
-                break;
-            }
-            case ADVANCEREADINGSSETTINGSWITHOUTNONE: {
-                valueFactory = new AdvanceReadingsSettingsWithoutNoneFactory(this.meteringService);
-                break;
-            }
-            case LONG: {
-                valueFactory = new LongFactory();
-                break;
-            }
             default:
-                break;
+                return null;
         }
-        return valueFactory;
     }
 
     private Estimator mockEstimator(String displayName) {
@@ -676,7 +660,6 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         when(estimator.getDisplayName()).thenReturn(displayName);
         List<PropertySpec> propertySpecs = Collections.singletonList(mockListValueBeanPropertySpec("listvalue", false));
         when(estimator.getPropertySpecs()).thenReturn(propertySpecs);
-
         return estimator;
     }
 
