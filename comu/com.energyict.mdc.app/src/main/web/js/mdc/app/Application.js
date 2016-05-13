@@ -16,6 +16,7 @@ Ext.define('MdcApp.Application', {
         'Mdc.privileges.Communication',
         'Mdc.privileges.DataCollectionKpi',
         'Mdc.privileges.DeviceConfigurationEstimations',
+        'Mdc.privileges.Monitor',
         'Yfn.privileges.Yellowfin',
         'Isu.privileges.Issue',
         'Dxp.privileges.DataExport',
