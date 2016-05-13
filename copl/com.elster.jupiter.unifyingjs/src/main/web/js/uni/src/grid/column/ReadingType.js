@@ -8,6 +8,7 @@ Ext.define('Uni.grid.column.ReadingType', {
     minWidth: 280,
     align: 'left',
     showTimeAttribute: true,
+    valueIsRecordData: false,
 
     requires: [
         'Ext.panel.Tool',
@@ -26,7 +27,7 @@ Ext.define('Uni.grid.column.ReadingType', {
         }
         var field = new Uni.form.field.ReadingTypeDisplay();
         me.link = me.makeLink(record);
-        return field.renderer.apply(me, [value, field, view, record]);
+        return field.renderer.apply(me, [!me.valueIsRecordData ? value : record.getData(), field, view, record]);
     },
 
     // If need to make a link from reading type display field override this method and provide url inside
