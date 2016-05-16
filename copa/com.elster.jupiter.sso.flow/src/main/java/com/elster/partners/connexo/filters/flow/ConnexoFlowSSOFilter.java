@@ -1,6 +1,7 @@
 package com.elster.partners.connexo.filters.flow;
 
-import com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthorizationManager;
+import com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService;
+import com.elster.partners.connexo.filters.flow.identity.ConnexoIdentityService;
 import com.elster.partners.connexo.filters.generic.ConnexoAbstractSSOFilter;
 import com.elster.partners.connexo.filters.generic.ConnexoPrincipal;
 import org.jboss.errai.security.shared.api.Group;
@@ -8,8 +9,8 @@ import org.jboss.errai.security.shared.api.GroupImpl;
 import org.jboss.errai.security.shared.api.Role;
 import org.jboss.errai.security.shared.api.RoleImpl;
 import org.uberfire.commons.services.cdi.Veto;
-import org.uberfire.security.server.cdi.SecurityFactory;
 
+import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -21,14 +22,20 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.uberfire.security.server.SecurityConstants.LOGOUT_URI;
-
 /**
  * Created by dragos on 11/6/2015.
  */
 
 @Veto
 public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
+
+    private final static String LOGOUT_URI = "/logout.jsp";
+
+    @Inject
+    ConnexoIdentityService identityService;
+
+    @Inject
+    ConnexoAuthenticationService authenticationService;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -43,10 +50,12 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
         if(principal == null || token == null || isForbidden(request, principal)){
             // Not authenticated; redirect to login
             redirectToLogin(request, response);
+            identityService.setSubject(null);
         }
         else {
             if ( isLogoutRequest( request ) ) {
                 redirectToLogout(request, response);
+                identityService.setSubject(null);
             }
             else {
                 Set<Role> roles = new HashSet<>();
@@ -57,9 +66,9 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
                 }
 
                 ConnexoUberfireSubject subject = new ConnexoUberfireSubject(principal.getName(), groups, roles);
+                identityService.setSubject(subject);
 
-                SecurityFactory.setSubject(subject);
-                SecurityFactory.setAuthzManager(new ConnexoAuthorizationManager());
+                authenticationService.login(subject.getIdentifier(), "");
 
                 filterChain.doFilter(new ConnexoFlowRequestWrapper(subject, request), response);
             }
@@ -91,6 +100,6 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
     }
 
     private boolean isLogoutRequest( final HttpServletRequest request ) {
-        return request.getRequestURI().contains( LOGOUT_URI );
+        return request.getRequestURI().endsWith(LOGOUT_URI);
     }
 }
