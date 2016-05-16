@@ -82,29 +82,9 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                                 } else {
                                     configCombo.reset();
                                 }
-                                configCombo.getStore().reload();
-                            },
-                            change: function (field, value) {
-                                var configCombo = field.nextSibling();
-                                if (value == '') {
-                                    configCombo.reset();
-                                    configCombo.disable();
-                                }
-                            },
-                            blur: function (field) {
-                                if (!field.getValue()) {
-                                    field.nextSibling().reset();
-                                    field.nextSibling().disable();
-                                } else {
-                                    Ext.Array.each(field.getStore().getRange(), function (item) {
-                                        if (field.getValue() == item.get('name')) {
-                                            field.fireEvent('select', field, item);
-                                        }
-                                    });
-                                }
+                                configCombo.getStore().load();
                             }
                         }
-
                     },
                     {
                         xtype: 'combobox',
@@ -124,7 +104,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                         afterSubTpl: '<div style="color: #686868; margin-top: 6px"><i>'
                         + Uni.I18n.translate('deviceAdd.firstSelectMetrologyConfig', 'CFG', 'First select a metrology configuration.')
                         + '</i></div>',
-                        setValue: setValue,
+                        setValue: setValue
                     },
                     {
                         xtype: 'displayfield',

@@ -7,7 +7,7 @@ Ext.define('Cfg.store.MetrologyContracts', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/val/metrologyconfigurations/{configId}/contracts',
+        urlTpl: '/api/val/field/metrologyconfigurations/{configId}/contracts',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,

@@ -283,7 +283,6 @@ Ext.define('Cfg.controller.Tasks', {
                             Ext.resumeLayouts(true);
                         }
                     });
-
                 }
             }
         });

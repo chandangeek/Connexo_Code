@@ -11,12 +11,13 @@ Ext.define('Cfg.view.validationtask.DataSourcesPreviewContainer', {
     initComponent: function () {
         var me = this,
             fieldRenderer = function (value) {
-            return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
-        };
+                return value && value.name ? value.name : '-';
+            };
 
         switch (Uni.util.Application.getAppName()) {
 
             case 'MultiSense':
+            {
                 me.items = [
                     {
                         fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group'),
@@ -24,9 +25,10 @@ Ext.define('Cfg.view.validationtask.DataSourcesPreviewContainer', {
                         renderer: fieldRenderer
                     }
                 ];
+            }
                 break;
-
             case 'MdmApp':
+            {
                 me.items = [
                     {
                         fieldLabel: Uni.I18n.translate('validationTasks.general.metrologyConfiguration', 'CFG', 'Metrology configuration'),
@@ -39,6 +41,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesPreviewContainer', {
                         renderer: fieldRenderer
                     }
                 ];
+            }
                 break;
         }
         me.callParent(arguments);
