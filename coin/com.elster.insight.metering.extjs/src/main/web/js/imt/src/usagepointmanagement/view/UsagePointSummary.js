@@ -36,7 +36,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
             }
         },
         {
-            name: 'geoCoordinates',
+            name: 'extendedGeoCoordinates',
             itemId: 'up-summary-geoCoordinates',
             fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates'),
             renderer: function (value) {
@@ -49,7 +49,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
         },
         {
             itemId: 'up-summary-location',
-            name: 'location',
+            name: 'extendedLocation',
             fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location'),
             renderer: function (value) {
                 return value && value.formattedLocationValue ? Ext.String.htmlEncode(value.formattedLocationValue).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>') : '-';

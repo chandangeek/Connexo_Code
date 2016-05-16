@@ -11,11 +11,11 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'name', type: 'string'},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
         {
-            name: 'geoCoordinates',
+            name: 'extendedGeoCoordinates',
             type: 'auto'
         },
         {
-            name: 'location',
+            name: 'extendedLocation',
             type: 'auto'
         },
         {name: 'version', type: 'int'},

@@ -44,7 +44,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                 }
             },
             {
-                name: 'geoCoordinates',
+                name: 'extendedGeoCoordinates',
                 itemId: 'fld-up-geoCoordinates',
                 fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates'),
                 renderer: function (value) {
@@ -56,7 +56,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
                 }
             },
             {
-                name: 'location',
+                name: 'extendedLocation',
                 itemId: 'fld-up-location',
                 fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location'),
                 renderer: function (value) {
@@ -131,7 +131,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
             },
             {
                 xtype: 'coordinates',
-                name: 'geoCoordinates',
+                name: 'extendedGeoCoordinates',
                 itemId: 'fld-up-geoCoordinates',
                 width: 421,
                 displayResetButton: false,
@@ -139,7 +139,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.GeneralAttributesForm
             },
             {
                 xtype: 'location',
-                name: 'location',
+                name: 'extendedLocation',
                 itemId: 'fld-location',
                 width: 421,
                 findLocationsUrl: '/api/jsr/search/com.elster.jupiter.metering.UsagePoint/locationsearchcriteria/location',
