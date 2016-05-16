@@ -236,7 +236,7 @@ Ext.define('Uni.form.field.Coordinates', {
                 elevField.setValue('');
             }
         }
-        defaultButton.setDisabled(false);
+        defaultButton.setDisabled(me.displayValue.usagePointGeoCoordinatesId == undefined);
     },
 
     setValue: function (value) {
@@ -248,9 +248,11 @@ Ext.define('Uni.form.field.Coordinates', {
             values;
 
         me.displayValue = value;
+
         if ((value == null) || (value.spatialCoordinates == null) || (value.spatialCoordinates.length == 0)) {
             me.down('#ctn-coordinate').setVisible(false);
             me.down('#no-coordinate').setVisible(true);
+            defaultButton.setDisabled(true);
             return;
         }
         else {
@@ -269,7 +271,8 @@ Ext.define('Uni.form.field.Coordinates', {
         if (values.length > 1) {
             elevTextField.setValue(values[2]);
         }
-        defaultButton.setDisabled(value.isInherited && value.usagePointGeoCoordinatesId);
+        defaultButton.setDisabled((value.usagePointGeoCoordinatesId == undefined) ||
+            ((value.usagePointGeoCoordinatesId != undefined) && value.isInherited));
     },
 
     getValue: function () {

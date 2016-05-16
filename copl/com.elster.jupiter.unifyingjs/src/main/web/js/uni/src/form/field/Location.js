@@ -180,7 +180,8 @@ Ext.define('Uni.form.field.Location', {
                 field.locationId = newValue[0].get('id');
                 comboLocation.setRawValue(recordProperties.get('unformattedLocationValue'));
                 propertyForm.hide();
-                defaultButton.setDisabled(me.displayValue.usagePointLocationId == newValue[0].get('id'));
+                defaultButton.setDisabled((me.displayValue.usagePointLocationId == undefined) ||
+                    me.displayValue.usagePointLocationId == newValue[0].get('id'));
             }
         })
     },
@@ -250,7 +251,8 @@ Ext.define('Uni.form.field.Location', {
         comboLocation.setRawValue(value.unformattedLocationValue);
         propertyForm.hide();
         editLocation.setValue(false);
-        defaultButton.setDisabled(value.isInherited);
+        defaultButton.setDisabled((value.usagePointLocationId == undefined) ||
+            ((value.usagePointLocationId != undefined) && value.isInherited));
         me.displayValue = value;
     },
 
@@ -319,7 +321,7 @@ Ext.define('Uni.form.field.Location', {
                 comboLocation.locationId = me.displayValue.usagePointLocationId;
                 comboLocation.setRawValue(recordProperties.get('unformattedLocationValue'));
                 propertyForm.hide();
-                defaultButton.setDisabled(true && value.usagePointLocationId);
+                defaultButton.setDisabled(me.displayValue.usagePointLocationId);
             }
         })
 
