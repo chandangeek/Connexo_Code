@@ -44,10 +44,10 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
             chart: {
                 type: 'column',
                 height: 600,
-                renderTo: me.down('#graphContainer').el.dom
+                renderTo: me.down('#graphContainer').el.dom,
             },
             title: {
-                text: ''
+                text: null
             },
             credits: {
                 enabled: false
@@ -61,7 +61,7 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
                         color: '#686868',
                         fontWeight: 'normal',
                         fontSize: '13px',
-                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif',
                     }
                 },
                 lineWidth: 0,
@@ -116,7 +116,7 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
                     toDate.setMinutes(range.to.minute);
 
                     html = '<span style="font-family: Lato, Helvetica, Arial, Verdana, Sans-serif;color:#70BB51;font-size: 16px;font-weight: bold">'
-                        + this.series.options.label + '</span>'
+                        + this.series.options.label + ' (' + this.series.options.code + ')' + '</span>'
                     html += '<table style="margin-top: 5px" ><tbody>';
                     html += '<tr><td><b>' + Uni.I18n.translate('general.from', 'UNI', 'From') + ':</b></td><td>' + Uni.DateTime.formatTimeShort(fromDate) + '</td></tr>';
                     html += '<tr><td><b>' + Uni.I18n.translate('general.to', 'UNI', 'To') + ':</b></td><td>' + Uni.DateTime.formatTimeShort(toDate) + '</td></tr>';
@@ -177,10 +177,14 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
     },
 
     getCategories: function (record) {
-        var categories = [];
+        var categories = [],
+            date = new Date(),
+            midnightTime;
         if (record !== null) {
             Ext.Array.each(record.get('weekTemplate'), function (weekDay) {
-                categories.push(weekDay.name);
+                midnightTime = weekDay.date * 86400 * 1000 + date.getTimezoneOffset() * 60 * 1000;
+                date.setTime(midnightTime);
+                categories.push(weekDay.name + '<br/>' + Uni.DateTime.formatDateShort(date));
             });
         }
 
@@ -241,16 +245,17 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
             var minutes = (range.to.hour * 60 + range.to.minute) - (range.from.hour * 60 + range.from.minute);
             var blockSize = (minutes / (60 * 24)) * 24;
             var s = [null, null, null, null, null, null, null];
-            var label = record.events().findRecord('id', range.event).get('name');
+            var event = record.events().findRecord('id', range.event);
+            var label = event.get('name');
             s[index] = blockSize;
             indexOf = record.events().indexOf(record.events().findRecord('id', range.event));
-            //colorIndex = (indexOf % 8) * 8 + Math.floor(indexOf / 8) * 8;
             daySerie.push({
                 data: s,
                 color: me.colors[indexOf],
                 showInLegend: false,
                 label: label,
-                range: range
+                range: range,
+                code: event.get('code')
             })
         });
         return daySerie.reverse();
