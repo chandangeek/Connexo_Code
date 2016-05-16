@@ -5,6 +5,7 @@ Ext.define('Uni.override.form.field.ComboBoxOverride', {
     override: 'Ext.form.field.ComboBox',
 
     anyMatch: true,
+    valueIsRecordData: false,
 
     listeners: {
         // force re-validate on combo change
@@ -22,5 +23,18 @@ Ext.define('Uni.override.form.field.ComboBoxOverride', {
             }
         });
         this.callParent(arguments);
+    },
+
+    getValue: function () {
+        var me = this,
+            value = me.callParent(arguments),
+            record;
+
+        if (me.valueIsRecordData && !Ext.isEmpty(value)) {
+            record = me.findRecordByValue(value);
+            value = record ? record.getData() : null;
+        }
+
+        return value;
     }
 });
