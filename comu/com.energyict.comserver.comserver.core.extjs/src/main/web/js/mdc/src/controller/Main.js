@@ -105,7 +105,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.Search',
         'Mdc.controller.setup.ServiceCalls',
         'Mdc.timeofuse.controller.TimeOfUse',
-        'Mdc.metrologyconfiguration.controller.ListView',
+        'Mdc.metrologyconfiguration.controller.ListView'
     ],
 
     stores: [
