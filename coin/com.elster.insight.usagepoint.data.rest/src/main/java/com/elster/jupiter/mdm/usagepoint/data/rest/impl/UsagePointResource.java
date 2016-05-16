@@ -167,7 +167,7 @@ public class UsagePointResource {
         UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info);
 
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
-        validateGeoCoordinates(validationBuilder, "geoCoordinates", info.extendedGeoCoordinates);
+        validateGeoCoordinates(validationBuilder, "extendedGeoCoordinates", info.extendedGeoCoordinates);
         validateLocation(validationBuilder, "location", info.extendedLocation);
         validationBuilder.validate();
 
@@ -309,7 +309,7 @@ public class UsagePointResource {
     @SuppressWarnings("unchecked")
     public Response createUsagePoint(UsagePointInfo info, @QueryParam("validate") boolean validate, @QueryParam("step") long step, @QueryParam("customPropertySetId") long customPropertySetId) {
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
-        validateGeoCoordinates(validationBuilder, "geoCoordinates", info.extendedGeoCoordinates);
+        validateGeoCoordinates(validationBuilder, "extendedGeoCoordinates", info.extendedGeoCoordinates);
         validateLocation(validationBuilder, "location", info.extendedLocation);
 
         validationBuilder.notEmpty(info.mRID, "mRID")
