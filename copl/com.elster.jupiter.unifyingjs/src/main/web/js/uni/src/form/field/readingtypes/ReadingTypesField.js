@@ -89,6 +89,7 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
         grid.setVisible(hasReadingTypes);
         emptyText.setVisible(!hasReadingTypes);
         Ext.resumeLayouts(true);
+        me.updateLayout();
     },
 
     setValue: function (value) {
