@@ -171,10 +171,7 @@ public class UsagePointResource {
         validateLocation(validationBuilder, "location", info.extendedLocation);
         validationBuilder.validate();
 
-        GeoCoordinates geoCoordinates = usagePointInfoFactory.getGeoCoordinates(info);
-        if (geoCoordinates != null){
-            usagePoint.setGeoCoordinates(geoCoordinates);
-        }
+        usagePoint.setGeoCoordinates(usagePointInfoFactory.getGeoCoordinates(info));
         Location location = usagePointInfoFactory.getLocation(info);
         if (location != null){
             usagePoint.setLocation(location.getId());
