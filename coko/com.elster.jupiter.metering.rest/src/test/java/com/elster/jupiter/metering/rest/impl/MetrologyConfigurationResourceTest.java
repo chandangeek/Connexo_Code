@@ -63,6 +63,7 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         assertThat(jsonModel.<String>get("$.metrologyConfigurations[1].serviceCategory.id")).isEqualTo("WATER");
         assertThat(jsonModel.<List>get("$.metrologyConfigurations[1].readingTypes")).hasSize(1);
         assertThat(jsonModel.<String>get("$.metrologyConfigurations[1].readingTypes[0].mRID")).isEqualTo("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        assertThat(jsonModel.<Number>get("$.metrologyConfigurations[1].version")).isEqualTo(1);
     }
 
     @Test
