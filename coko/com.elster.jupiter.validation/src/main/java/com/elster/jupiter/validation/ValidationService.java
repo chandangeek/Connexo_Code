@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation;
 
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;

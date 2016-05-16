@@ -2,7 +2,6 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationTask;
@@ -20,7 +19,6 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     private Instant nextExecution;
     private boolean scheduleImmediately;
     private EndDeviceGroup endDeviceGroup;
-    private UsagePointGroup usagePointGroup;
     private MetrologyContract metrologyContract;
     private ValidationService dataValidationService;
     private String application;
@@ -46,12 +44,6 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     @Override
     public DataValidationTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup) {
         this.endDeviceGroup = endDeviceGroup;
-        return this;
-    }
-
-    @Override
-    public DataValidationTaskBuilder setUsagePointGroup(UsagePointGroup usagePointGroup) {
-        this.usagePointGroup = usagePointGroup;
         return this;
     }
 

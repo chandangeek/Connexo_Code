@@ -3,16 +3,12 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
-import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -31,8 +27,6 @@ import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
@@ -61,8 +55,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private final ValidationService dataValidationService;
 
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
-
-    private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
 
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
 
@@ -202,11 +194,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public Optional<UsagePointGroup> getUsagePointGroup() {
-        return usagePointGroup.getOptional();
-    }
-
-    @Override
     public Optional<MetrologyContract> getMetrologyContract() {
         return metrologyContract.getOptional();
     }
@@ -214,11 +201,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     @Override
     public void setEndDeviceGroup(EndDeviceGroup endDeviceGroup) {
         this.endDeviceGroup.set(endDeviceGroup);
-    }
-
-    @Override
-    public void setUsagePointGroup(UsagePointGroup usagePointGroup) {
-        this.usagePointGroup.set(usagePointGroup);
     }
 
     @Override

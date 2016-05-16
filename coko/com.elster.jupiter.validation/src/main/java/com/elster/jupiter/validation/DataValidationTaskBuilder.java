@@ -4,7 +4,6 @@ import aQute.bnd.annotation.ProviderType;
 
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
@@ -17,8 +16,6 @@ public interface DataValidationTaskBuilder {
     DataValidationTaskBuilder setApplication(String application);
 
     DataValidationTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
-
-    DataValidationTaskBuilder setUsagePointGroup(UsagePointGroup usagePointGroup);
 
     DataValidationTaskBuilder setMetrologyContract(MetrologyContract metrologyContract);
 
