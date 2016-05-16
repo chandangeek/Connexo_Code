@@ -149,8 +149,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .collect(Collectors.toList());
         info.customPropertySets.sort((cas1, cas2) -> cas1.name.compareTo(cas2.name));
 
-        info.geoCoordinates = new CoordinatesInfo(meteringService, usagePoint.getMRID());
-        info.location = new LocationInfo(meteringService, thesaurus, usagePoint.getMRID());
+        info.extendedGeoCoordinates = new CoordinatesInfo(meteringService, usagePoint.getMRID());
+        info.extendedLocation = new LocationInfo(meteringService, thesaurus, usagePoint.getMRID());
+
+        info.geoCoordinates = info.extendedGeoCoordinates.coordinatesDisplay;
+        info.location = info.extendedLocation.locationValue;
         return info;
     }
 
@@ -208,7 +211,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withReadRoute(usagePointInfo.readRoute)
                 .withServicePriority(usagePointInfo.servicePriority)
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
-                .withServiceLocationString(usagePointInfo.location.unformattedLocationValue);
+                .withServiceLocationString(usagePointInfo.extendedLocation.unformattedLocationValue);
 
         GeoCoordinates geoCoordinates = getGeoCoordinates(usagePointInfo);
         if (geoCoordinates != null){
@@ -223,16 +226,16 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     public GeoCoordinates getGeoCoordinates(UsagePointInfo usagePointInfo) {
-        if ((usagePointInfo.geoCoordinates != null) && (usagePointInfo.geoCoordinates.spatialCoordinates != null)) {
-            return meteringService.createGeoCoordinates(usagePointInfo.geoCoordinates.spatialCoordinates);
+        if ((usagePointInfo.extendedGeoCoordinates != null) && (usagePointInfo.extendedGeoCoordinates.spatialCoordinates != null)) {
+            return meteringService.createGeoCoordinates(usagePointInfo.extendedGeoCoordinates.spatialCoordinates);
         }
         return null;
     }
 
     public Location getLocation(UsagePointInfo usagePointInfo) {
-        if ((usagePointInfo.location.locationId != null) && (usagePointInfo.location.locationId == -1)
-                && (usagePointInfo.location.properties != null) && (usagePointInfo.location.properties.length > 0)) {
-            List<PropertyInfo> propertyInfoList = Arrays.asList(usagePointInfo.location.properties);
+        if ((usagePointInfo.extendedLocation.locationId != null) && (usagePointInfo.extendedLocation.locationId == -1)
+                && (usagePointInfo.extendedLocation.properties != null) && (usagePointInfo.extendedLocation.properties.length > 0)) {
+            List<PropertyInfo> propertyInfoList = Arrays.asList(usagePointInfo.extendedLocation.properties);
             List<String> locationData = propertyInfoList.stream()
                     .map(d -> d.propertyValueInfo.value.toString())
                     .collect(Collectors.toList());
@@ -250,8 +253,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 setLocationAttributes(builder.member(), locationData, ranking).add();
             }
             return builder.create();
-        } else if ((usagePointInfo.location.locationId != null) && (usagePointInfo.location.locationId > 0)) {
-            return meteringService.findLocation(usagePointInfo.location.locationId).get();
+        } else if ((usagePointInfo.extendedLocation.locationId != null) && (usagePointInfo.extendedLocation.locationId > 0)) {
+            return meteringService.findLocation(usagePointInfo.extendedLocation.locationId).get();
         }
         return null;
     }

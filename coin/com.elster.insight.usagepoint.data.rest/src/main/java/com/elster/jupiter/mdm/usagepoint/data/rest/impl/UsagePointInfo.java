@@ -19,8 +19,10 @@ public class UsagePointInfo {
     public Long id;
     public String serviceCategory;
     public Long serviceLocationId;
-    public LocationInfo location;
-    public CoordinatesInfo geoCoordinates;
+    public String location;
+    public String geoCoordinates;
+    public LocationInfo extendedLocation;
+    public CoordinatesInfo extendedGeoCoordinates;
 
 
     public String mRID;
@@ -54,11 +56,12 @@ public class UsagePointInfo {
 
     public void writeTo(UsagePoint usagePoint) {
         usagePoint.setName(this.name);
-        usagePoint.setServiceLocationString(this.location.unformattedLocationValue);
+        usagePoint.setServiceLocationString(this.extendedLocation.unformattedLocationValue);
         usagePoint.setReadRoute(this.readRoute);
         usagePoint.setServicePriority(this.servicePriority);
         usagePoint.setServiceDeliveryRemark(this.serviceDeliveryRemark);
 
         usagePoint.update();
     }
+
 }
