@@ -221,7 +221,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 optionsModel.load(deviceTypeId, {
                     success: function (options) {
-                        if(options.supportedOptions().count() > 0) {
+                        if (options.supportedOptions().count() > 0) {
                             view = Ext.widget('tou-devicetype-edit-specs-setup', {
                                 deviceTypeId: deviceTypeId,
                                 timeOfUseAllowed: options.get('isAllowed')
@@ -244,7 +244,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
 
     },
 
-    removeBreadcrumbs: function() {
+    removeBreadcrumbs: function () {
         var me = this;
         me.getBreadCrumbs().hide();
     },
@@ -352,7 +352,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         } else {
             previewForm.showEmptyMessage();
         }
-        if(preview.down('tou-devicetype-action-menu')) {
+        if (preview.down('tou-devicetype-action-menu')) {
             preview.down('tou-devicetype-action-menu').record = record;
         }
     },
