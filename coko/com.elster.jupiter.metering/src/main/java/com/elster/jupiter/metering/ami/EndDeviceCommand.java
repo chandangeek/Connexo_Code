@@ -5,11 +5,13 @@ import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
+import java.util.Map;
 
 public interface EndDeviceCommand {
     EndDeviceControlType getEndDeviceControlType();
     List<PropertySpec> getCommandArgumentSpecs();
     void setPropertyValue(PropertySpec propertySpec, Object value);
-    void removeProperty(PropertySpec propertySpec);
-    //EndDevice getEndDevice();
+    EndDevice getEndDevice();
+    Map<String, Object> getAttributes();
+    List<Long> getDeviceMessageIds();
 }

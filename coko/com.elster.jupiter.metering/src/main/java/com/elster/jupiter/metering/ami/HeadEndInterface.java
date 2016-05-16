@@ -19,8 +19,7 @@ public interface HeadEndInterface {
     CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall serviceCall);
     CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes);
     CompletionOptions readMeter(Meter meter, List<ReadingType> redingTypes, ServiceCall serviceCall);
-    CompletionOptions sendCommand(Meter meter, EndDeviceCommand meterCmd, Instant instant);
-    CompletionOptions sendCommand(Meter meter, EndDeviceCommand meterCmd, Instant instant, ServiceCall serviceCall) throws
-            UnsupportedCommandException;
+    CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant instant);
+    CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant instant, ServiceCall parentServiceCall);
     String getAmrSystem();
 }

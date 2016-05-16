@@ -8,11 +8,11 @@ import java.time.Instant;
 
 public interface CommandFactory{
 
-    EndDeviceCommand createCommand(EndDeviceControlType type);
-    EndDeviceCommand createArmCommand(boolean armForOpen);
-    EndDeviceCommand createConnectCommand();
-    EndDeviceCommand createDisconnectCommand();
-    EndDeviceCommand createEnableLoadLimitCommand(Quantity quantity);
-    EndDeviceCommand createDisableLoadLimitCommand();
+    EndDeviceCommand createCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, Instant activationDate, Quantity limit);
+    EndDeviceCommand createArmCommand(EndDevice endDevice, boolean armForOpen, Instant activationDate);
+    EndDeviceCommand createConnectCommand(EndDevice endDevice, Instant activationDate);
+    EndDeviceCommand createDisconnectCommand(EndDevice endDevice, Instant activationDate);
+    EndDeviceCommand createEnableLoadLimitCommand(EndDevice endDevice, Quantity limit);
+    EndDeviceCommand createDisableLoadLimitCommand(EndDevice endDevice);
 
 }
