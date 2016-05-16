@@ -192,12 +192,10 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         return !atLeastOneUsagePoint.isEmpty();
     }
 
-
     @Override
-    public Optional<MetrologyContract> findMetrologyContract(long id) {
-        return this.getDataModel().mapper(MetrologyContract.class).getUnique("id", id);
+    public Optional<MetrologyContract> findMetrologyContract(Object id) {
+        return this.getDataModel().mapper(MetrologyContract.class).getOptional(id);
     }
-
 
     @Override
     public ServerFormulaBuilder newFormulaBuilder(Formula.Mode mode) {
