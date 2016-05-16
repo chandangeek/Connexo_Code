@@ -6,7 +6,7 @@
 
     <groupId>com.elster.partners</groupId>
     <artifactId>jbpm.extension</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <name>[Partners] com.elster.partners.jbpm.extension</name>
 
     <parent>
@@ -15,9 +15,16 @@
         <version>1.2.0-SNAPSHOT</version>
     </parent>
 
+    <repositories>
+        <repository>
+            <id>JBoss GA</id>
+            <url>https://maven.repository.redhat.com/ga/</url>
+        </repository>
+    </repositories>
+
     <properties>
-        <jbpm.version>6.1.0.Final</jbpm.version>
-        <resteasy.version>2.3.7.Final</resteasy.version>
+        <jbpm.version>6.4.0.Final</jbpm.version>
+        <resteasy.version>2.3.10.Final</resteasy.version>
         <!--<resteasy.version>3.0.10.Final</resteasy.version>-->
         <jackson.version>1.9.9</jackson.version>
     </properties>
@@ -35,8 +42,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>tjws</artifactId>
+            <groupId>repository.org.jboss.resteasy</groupId>
+            <artifactId>resteasy-test-tjws</artifactId>
             <version>${resteasy.version}</version>
             <scope>test</scope>
         </dependency>

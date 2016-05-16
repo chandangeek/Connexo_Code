@@ -1,8 +1,7 @@
 package com.elster.partners.jbpm.extension;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.jbpm.kie.services.api.RuntimeDataService;
-import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.services.api.RuntimeDataService;
+import org.jbpm.services.api.model.ProcessDefinition;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ public class TaskSummaryList {
 
     public TaskSummaryList(RuntimeDataService runtimeDataService, List<TaskSummary> tasks) {
         for (TaskSummary summary : tasks) {
-            ProcessAssetDesc process = runtimeDataService.getProcessById(summary.getProcessName());
+            ProcessDefinition process = runtimeDataService.getProcessById(summary.getProcessName());
             if (process != null) {
                 summary.setProcessName(process.getName());
             }

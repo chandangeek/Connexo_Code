@@ -6,21 +6,22 @@ import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
 import org.jboss.resteasy.plugins.providers.jackson.ResteasyJacksonProvider;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
-import org.jbpm.kie.services.api.RuntimeDataService;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.kie.services.impl.model.ProcessInstanceDesc;
+import org.jbpm.services.api.DeploymentService;
+import org.jbpm.services.api.RuntimeDataService;
+import org.jbpm.services.api.model.DeployedAsset;
+import org.jbpm.services.api.model.DeployedUnit;
+import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.task.impl.model.UserImpl;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.kie.api.task.model.*;
+import org.kie.api.runtime.query.QueryContext;
+import org.kie.api.task.model.OrganizationalEntity;
+import org.kie.api.task.model.PeopleAssignments;
+import org.kie.api.task.model.Status;
+import org.kie.api.task.model.Task;
+import org.kie.api.task.model.TaskData;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.model.InternalTask;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -29,13 +30,29 @@ import javax.persistence.Query;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,6 +70,8 @@ public class JbpmTaskResourceTest {
     InternalTaskService internalTaskService;
     @Mock
     RuntimeDataService runtimeDataService;
+    @Mock
+    DeploymentService deploymentService;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -66,7 +85,8 @@ public class JbpmTaskResourceTest {
         baseUri = "http://localhost:" + port + "/tasks";
 
         ResteasyProviderFactory instance= ResteasyProviderFactory.getInstance();
-        RegisterBuiltin.register(instance); instance.registerProvider(ResteasyJacksonProvider.class);
+        RegisterBuiltin.register(instance);
+        instance.registerProvider(ResteasyJacksonProvider.class);
     }
 
     @AfterClass
@@ -290,20 +310,29 @@ public class JbpmTaskResourceTest {
                 "</form>";
         InternalTask task = mock(InternalTask.class);
         TaskData taskData = mock(TaskData.class);
-        ProcessAssetDesc processAssetDesc = mock(ProcessAssetDesc.class);
-        Collection<ProcessAssetDesc> processesList = new HashSet<>();
+        ProcessDefinition processDefinition = mock(ProcessDefinition.class);
+        Collection<ProcessDefinition> processesList = new HashSet<>();
         Map<String, String> forms = new HashMap<>();
         forms.put("FormName",template);
-        processesList.add(processAssetDesc);
+        processesList.add(processDefinition);
 
         when(task.getTaskData()).thenReturn(taskData);
         when(taskData.getDeploymentId()).thenReturn("TestDeploymentID");
         when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
-        when(runtimeDataService.getProcessesByDeploymentId(anyString())).thenReturn(processesList);
-        when(processAssetDesc.getDeploymentId()).thenReturn("TestDeploymentID");
+        when(runtimeDataService.getProcessesByDeploymentId(anyString(), any(QueryContext.class))).thenReturn(processesList);
+        when(processDefinition.getDeploymentId()).thenReturn("TestDeploymentID");
         when(task.getFormName()).thenReturn("FormName");
         when(internalTaskService.getTaskById(anyLong()).getTaskData().getOutputContentId()).thenReturn(-1L);
-        when(processAssetDesc.getForms()).thenReturn(forms);
+
+        DeployedUnit deployedUnit = mock(DeployedUnit.class);
+        when(deploymentService.getDeployedUnit("TestDeploymentID")).thenReturn(deployedUnit);
+        ProcessAssetDesc processDesc = mock(ProcessAssetDesc.class);
+        Set<DeployedAsset> assets = new HashSet<>();
+        assets.add(processDesc);
+        when(deployedUnit.getDeployedAssets()).thenReturn(assets);
+        when(processDefinition.getId()).thenReturn("ProcessID");
+        when(processDesc.getId()).thenReturn("ProcessID");
+        when(processDesc.getForms()).thenReturn(forms);
 
         ClientRequest request = new ClientRequest(baseUri + "/1/content");
 
@@ -316,7 +345,7 @@ public class JbpmTaskResourceTest {
 
     @Test
     public  void testGetProcessForm() throws Exception{
-        ProcessAssetDesc process = mock(ProcessAssetDesc.class);
+        ProcessDefinition process = mock(ProcessDefinition.class);
         String template = "\n" +
                 "<form id=\"1634463930\">\n" +
                 "<property name=\"subject\" value=\"\"/>\n" +
@@ -327,16 +356,24 @@ public class JbpmTaskResourceTest {
                 "<property name=\"readonly\" value=\"true\"/>\n" +
                 "</field>\n" +
                 "</form>";
-        Collection<ProcessAssetDesc> processesList = new HashSet<>();
+        Collection<ProcessDefinition> processesList = new HashSet<>();
         processesList.add(process);
         Map<String, String> forms = new HashMap<>();
         forms.put("processID",template);
 
         when(process.getDeploymentId()).thenReturn("deploymentID");
         when(runtimeDataService.getProcessById(anyString())).thenReturn(process);
-        when(runtimeDataService.getProcessesByDeploymentId(anyString())).thenReturn(processesList);
+        when(runtimeDataService.getProcessesByDeploymentId(anyString(), any(QueryContext.class))).thenReturn(processesList);
         when(process.getId()).thenReturn("processID");
-        when(process.getForms()).thenReturn(forms);
+
+        DeployedUnit deployedUnit = mock(DeployedUnit.class);
+        when(deploymentService.getDeployedUnit("deploymentID")).thenReturn(deployedUnit);
+        ProcessAssetDesc processDesc = mock(ProcessAssetDesc.class);
+        Set<DeployedAsset> assets = new HashSet<>();
+        assets.add(processDesc);
+        when(deployedUnit.getDeployedAssets()).thenReturn(assets);
+        when(processDesc.getId()).thenReturn("processID");
+        when(processDesc.getForms()).thenReturn(forms);
 
         ClientRequest request = new ClientRequest(baseUri + "/process/deploymentID/content/processID");
 
@@ -357,8 +394,8 @@ public class JbpmTaskResourceTest {
         TaskGroupsInfos taskGroupInfos = new TaskGroupsInfos(taskGroups);
         TaskData taskData = mock(TaskData.class);
         InternalTask task = mock(InternalTask.class);
-        Collection<ProcessAssetDesc> processesList = new HashSet<>();
-        ProcessAssetDesc process = mock(ProcessAssetDesc.class);
+        Collection<ProcessDefinition> processesList = new HashSet<>();
+        ProcessDefinition process = mock(ProcessDefinition.class);
         processesList.add(process);
         String template = "\n" +
                 "<form id=\"1634463930\">\n" +
@@ -371,26 +408,35 @@ public class JbpmTaskResourceTest {
                 "<property name=\"fieldRequired\" value=\"true\"/>\n" +
                 "</field>\n" +
                 "</form>";
-        ProcessAssetDesc processAssetDesc = mock(ProcessAssetDesc.class);
+        ProcessDefinition processDefinition = mock(ProcessDefinition.class);
         Map<String, String> forms = new HashMap<>();
         forms.put("FormName",template);
-        processesList.add(processAssetDesc);
+        processesList.add(processDefinition);
 
         when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
         when(task.getTaskData()).thenReturn(taskData);
         when(taskData.getDeploymentId()).thenReturn("deploymentID");
-        when(runtimeDataService.getProcessesByDeploymentId(anyString())).thenReturn(processesList);
+        when(runtimeDataService.getProcessesByDeploymentId(anyString(), any(QueryContext.class))).thenReturn(processesList);
         when(process.getDeploymentId()).thenReturn("deploymentID");
         when(task.getId()).thenReturn(1L);
         when(task.getTaskData()).thenReturn(taskData);
         when(taskData.getDeploymentId()).thenReturn("TestDeploymentID");
         when(taskData.getStatus()).thenReturn(Status.InProgress);
         when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
-        when(runtimeDataService.getProcessesByDeploymentId(anyString())).thenReturn(processesList);
-        when(processAssetDesc.getDeploymentId()).thenReturn("TestDeploymentID");
+        when(runtimeDataService.getProcessesByDeploymentId(anyString(), any(QueryContext.class))).thenReturn(processesList);
+        when(processDefinition.getDeploymentId()).thenReturn("TestDeploymentID");
         when(task.getFormName()).thenReturn("FormName");
         when(internalTaskService.getTaskById(anyLong()).getTaskData().getOutputContentId()).thenReturn(-1L);
-        when(processAssetDesc.getForms()).thenReturn(forms);
+
+        DeployedUnit deployedUnit = mock(DeployedUnit.class);
+        when(deploymentService.getDeployedUnit("TestDeploymentID")).thenReturn(deployedUnit);
+        ProcessAssetDesc processDesc = mock(ProcessAssetDesc.class);
+        Set<DeployedAsset> assets = new HashSet<>();
+        assets.add(processDesc);
+        when(deployedUnit.getDeployedAssets()).thenReturn(assets);
+        when(processDefinition.getId()).thenReturn("ProcessID");
+        when(processDesc.getId()).thenReturn("ProcessID");
+        when(processDesc.getForms()).thenReturn(forms);
         when(task.getName()).thenReturn("TestName");
 
         ClientRequest request = new ClientRequest(baseUri + "/mandatory");
