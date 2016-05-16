@@ -5,6 +5,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.rest.impl.LocaleInfo;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -12,8 +13,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class UserInfo {
@@ -27,6 +26,8 @@ public class UserInfo {
     public LocaleInfo language;
     public String createdOn;
     public String modifiedOn;
+    public String lastSuccessfulLogin;
+    public String lastUnSuccessfulLogin;
     public List<GroupInfo> groups = new ArrayList<>();
 
     public UserInfo() {
@@ -42,6 +43,8 @@ public class UserInfo {
         language = user.getLocale().map((locale) -> new LocaleInfo(locale, locale)).orElse(null);
         createdOn = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(user.getCreationDate().atZone(ZoneId.systemDefault()));
         modifiedOn = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(user.getModifiedDate().atZone(ZoneId.systemDefault()));
+        lastSuccessfulLogin = user.getLastSuccessfulLogin() == null ? null : user.getLastSuccessfulLogin().toString();
+        lastUnSuccessfulLogin = user.getLastSuccessfulLogin() == null ? null : user.getLastUnSuccessfulLogin().toString();
         for (Group group : user.getGroups()) {
             groups.add(new GroupInfo(thesaurus, group));
         }
