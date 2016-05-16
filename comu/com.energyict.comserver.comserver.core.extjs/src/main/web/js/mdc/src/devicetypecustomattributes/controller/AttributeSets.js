@@ -164,8 +164,10 @@ Ext.define('Mdc.devicetypecustomattributes.controller.AttributeSets', {
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 scope.getApplication().fireEvent('loadDeviceType', deviceType);
-                widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
+                if (widget.down('deviceTypeSideMenu')) {
+                    widget.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
+                    widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
+                }
             }
         });
     }

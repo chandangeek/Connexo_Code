@@ -59,42 +59,82 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
             }
         ];
 
-        me.executeIfDataLoggerSlave(function() {
-            me.down('#logbooksLink').hide();
-        });
-
-        me.callParent(arguments);
-    },
-
-    executeIfDataLoggerSlave: function(executeWhenDetermined) {
-        var me = this;
         if (me.isDataLoggerSlave === undefined) {
             Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
                 success: function (deviceType) {
                     me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
                     if (me.isDataLoggerSlave) {
-                        executeWhenDetermined();
+                        me.down('#logbooksLink').hide();
+                    } else {
+                        me.executeIfNoDataLoggerSlave();
                     }
+                },
+                failure: function (deviceType) {
+                    me.executeIfNoDataLoggerSlave();
                 }
-            });
-        } else if (me.isDataLoggerSlave) {
-            executeWhenDetermined();
+
+            })
+        }
+
+
+        me.callParent(arguments);
+    },
+
+    executeIfNoDataLoggerSlave: function () {
+        var me = this;
+        if (!me.isDataLoggerSlave) {
+            me.addMenuWithFirmware();
+        } else {
+            me.addMenuWithoutFirmware();
         }
     },
 
-    executeIfNoDataLoggerSlave: function(executeWhenDetermined) {
+    addMenuWithFirmware: function () {
         var me = this;
-        if (me.isDataLoggerSlave === undefined) {
-            Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
-                success: function (deviceType) {
-                    me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
-                    if (!me.isDataLoggerSlave) {
-                        executeWhenDetermined();
-                    }
+        me.addMenuItems([{
+            title: Uni.I18n.translate('general.specifications', 'MDC', 'Specifications'),
+            items: [
+                {
+                    text: Uni.I18n.translate('general.firmwareManagementOptions', 'MDC', 'Firmware management options'),
+                    privileges: Mdc.privileges.DeviceType.view,
+                    itemId: 'firmwareoptionsLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmware/options'
+                },
+                {
+                    text: Uni.I18n.translate('general.firmwareVersions', 'MDC', 'Firmware versions'),
+                    privileges: Mdc.privileges.DeviceType.view,
+                    itemId: 'firmwareversionsLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmware/versions'
+                },
+                {
+                    text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
+                    privileges: Mdc.privileges.DeviceType.view,
+                    itemId: 'timeOfUseLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/timeofuse'
                 }
-            });
-        } else if (!me.isDataLoggerSlave) {
-            executeWhenDetermined();
+            ]
+        }]);
+    },
+
+    addMenuWithoutFirmware: function () {
+        var me = this;
+        me.addMenuItems([{
+            title: Uni.I18n.translate('devicetypemenu.specifications', 'MDC', 'Specifications'),
+            itemId: 'specifications-menu-item',
+            items: [
+                {
+                    text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
+                    privileges: Mdc.privileges.DeviceType.view,
+                    itemId: 'timeOfUseLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/timeofuse'
+                }
+            ]
+        }]);
+    },
+
+    setDeviceTypeLink: function (name) {
+        if (this.down('#overviewLink')) {
+            this.down('#overviewLink').setText(name);
         }
     }
 });
