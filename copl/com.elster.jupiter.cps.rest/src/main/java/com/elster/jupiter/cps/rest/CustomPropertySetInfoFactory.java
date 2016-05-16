@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.QuantityValueFactory;
 import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
 import com.elster.jupiter.rest.util.properties.PropertyType;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
@@ -45,7 +46,6 @@ public class CustomPropertySetInfoFactory {
         this.propertyValueInfoService.addPropertyValueInfoConverter(new BooleanPropertyValueConverter());
         this.propertyValueInfoService.addPropertyValueInfoConverter(new NumberPropertyValueConverter());
         this.propertyValueInfoService.addPropertyValueInfoConverter(new InstantPropertyValueConverter());
-        this.propertyValueInfoService.addPropertyValueInfoConverter(new QuantityPropertyValueConverter());
     }
 
     public CustomPropertySetInfo getGeneralInfo(RegisteredCustomPropertySet rcps) {
@@ -318,69 +318,6 @@ public class CustomPropertySetInfoFactory {
             if (infoValue != null && (infoValue instanceof Long)) {
                 return Instant.ofEpochMilli((Long) infoValue);
             }
-            return null;
-        }
-    }
-
-    static class QuantityPropertyValueConverter implements PropertyValueInfoConverter {
-        static class QuantityInfo {
-            public String value;
-            public Integer multiplier;
-            public String unit;
-            public String displayValue;
-        }
-
-        @Override
-        public boolean canProcess(PropertySpec propertySpec) {
-            return propertySpec != null && propertySpec.getValueFactory().getValueType().equals(Quantity.class);
-        }
-
-        @Override
-        public PropertyType getPropertyType(PropertySpec propertySpec) {
-            return SimplePropertyType.QUANTITY;
-        }
-
-        @Override
-        public Object convertValueToInfo(Object domainValue, PropertySpec propertySpec) {
-            QuantityInfo quantityInfo = new QuantityInfo();
-            if (domainValue != null && domainValue instanceof Quantity) {
-                Quantity value = (Quantity) domainValue;
-                quantityInfo.value = value.getValue().toPlainString();
-                quantityInfo.multiplier = value.getMultiplier();
-                quantityInfo.unit = value.getUnit().toString();
-                String[] valueParts = value.toString(false).split(" ");
-                quantityInfo.displayValue = valueParts[1];
-            }
-            return quantityInfo;
-        }
-
-        @Override
-        public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
-            if (infoValue != null && infoValue instanceof Map) {
-                Map value = (Map) infoValue;
-                BigDecimal bigDecimalValue;
-                String unit;
-                int multiplier;
-
-                if (value.get("value") == null) {
-                    bigDecimalValue = new BigDecimal(0);
-                } else {
-                    bigDecimalValue = new BigDecimal(value.get("value").toString());
-                }
-                if (value.get("unit") == null) {
-                    return null;
-                } else {
-                    unit = String.valueOf(value.get("unit"));
-                }
-
-                if (Integer.valueOf(value.get("multiplier").toString()) == null) {
-                    return Quantity.create(bigDecimalValue, unit);
-                }
-
-                multiplier = Integer.valueOf(value.get("multiplier").toString());
-                return Quantity.create(bigDecimalValue, multiplier, unit);
-            }
-
             return null;
         }
     }
