@@ -6,6 +6,10 @@ import com.elster.jupiter.bpm.BpmProcessPrivilege;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
+import com.elster.jupiter.bpm.ProcessInstanceInfo;
+import com.elster.jupiter.bpm.ProcessInstanceInfos;
+import com.elster.jupiter.bpm.UserTaskInfo;
+import com.elster.jupiter.bpm.UserTaskInfos;
 import com.elster.jupiter.bpm.rest.AssigneeFilterListInfo;
 import com.elster.jupiter.bpm.rest.BpmProcessNotAvailable;
 import com.elster.jupiter.bpm.rest.BpmResourceAssignUserException;
@@ -24,15 +28,11 @@ import com.elster.jupiter.bpm.rest.ProcessHistoryInfos;
 import com.elster.jupiter.bpm.rest.ProcessInstanceNodeInfos;
 import com.elster.jupiter.bpm.rest.ProcessesPrivilegesInfo;
 import com.elster.jupiter.bpm.rest.PropertyUtils;
-import com.elster.jupiter.bpm.ProcessInstanceInfo;
-import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.bpm.rest.StartupInfo;
 import com.elster.jupiter.bpm.rest.TaskBulkReportInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfos;
 import com.elster.jupiter.bpm.rest.TaskGroupsInfos;
-import com.elster.jupiter.bpm.UserTaskInfo;
-import com.elster.jupiter.bpm.UserTaskInfos;
 import com.elster.jupiter.bpm.rest.TaskOutputContentInfo;
 import com.elster.jupiter.bpm.rest.VariableInfos;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
@@ -1155,6 +1155,8 @@ public class BpmResource {
                                             outputBindingContents.put(s.outputBinding, theKey);
                                         }
                                     }
+                                } else {
+                                    outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
                                 }
                             }else {
                                 outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
