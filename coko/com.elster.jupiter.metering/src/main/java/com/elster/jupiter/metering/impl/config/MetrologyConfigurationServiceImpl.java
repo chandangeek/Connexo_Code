@@ -115,6 +115,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         translationKeys.addAll(Arrays.asList(Privileges.values()));
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         translationKeys.addAll(Arrays.asList(DefaultReadingTypeTemplate.TemplateTranslation.values()));
+        translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));
         return translationKeys;
     }
 
