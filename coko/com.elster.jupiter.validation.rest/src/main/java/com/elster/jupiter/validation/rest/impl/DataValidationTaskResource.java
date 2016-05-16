@@ -276,7 +276,7 @@ public class DataValidationTaskResource {
         return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElse(null);
     }
 
-    private MetrologyContract metrologyContract(long metrologyContractId) {
+    private MetrologyContract metrologyContract(Object metrologyContractId) {
         return metrologyConfigurationService.findMetrologyContract(metrologyContractId).orElse(null);
     }
 

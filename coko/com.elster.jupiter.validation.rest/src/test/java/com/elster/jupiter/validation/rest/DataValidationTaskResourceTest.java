@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import javax.ws.rs.HttpMethod;
@@ -23,16 +22,13 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
-import com.elster.jupiter.validation.rest.impl.MetrologyCofigurationInfo;
-import com.elster.jupiter.validation.rest.impl.MetrologyContractInfo;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -41,14 +37,12 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     public static final int TASK_ID = 750;
     public static final String INSIGHT_KEY = "INS";
     public static final String MULTISENSE_KEY = "MDC";
+    public static final String HEADER_NAME = "X-CONNEXO-APPLICATION-NAME";
     public static final long OK_VERSION = 23L;
     public static final long BAD_VERSION = 21L;
 
     @Mock
     protected EndDeviceGroup endDeviceGroup;
-    
-    @Mock
-    protected UsagePointGroup usagePointGroup;
 
     DataValidationTaskBuilder taskBuilder;
 
@@ -66,37 +60,21 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Test
     public void getTasksTest() {
-        mockDataValidationTasks(mockDataValidationTask(13, MULTISENSE_KEY));
+        mockDataValidationTasks(mockDataValidationTask(13, MULTISENSE_KEY), mockDataValidationTask(15, INSIGHT_KEY));
 
-        Response response1 = target("/validationtasks").request().header("X-CONNEXO-APPLICATION-NAME", MULTISENSE_KEY).get();
-        assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        String jsonFromMultisense = target("/validationtasks").request().header(HEADER_NAME, MULTISENSE_KEY).get(String.class);
 
-        DataValidationTaskInfos infos1 = response1.readEntity(DataValidationTaskInfos.class);
-        assertThat(infos1.total).isEqualTo(1);
-        assertThat(infos1.dataValidationTasks).hasSize(1);
+        JsonModel jsonModelFromMultisense = JsonModel.create(jsonFromMultisense);
+        assertThat(jsonModelFromMultisense.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModelFromMultisense.<Number>get("$.dataValidationTasks[0].id")).isEqualTo(13);
+        assertThat(jsonModelFromMultisense.<String>get("$.dataValidationTasks[0].name")).isEqualTo("Name");
 
-        Response response2 = target("/validationtasks").request().header("X-CONNEXO-APPLICATION-NAME", INSIGHT_KEY).get();
-        assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        String jsonFromInsight = target("/validationtasks").request().header(HEADER_NAME, INSIGHT_KEY).get(String.class);
 
-        DataValidationTaskInfos infos2 = response2.readEntity(DataValidationTaskInfos.class);
-        assertThat(infos2.total).isEqualTo(0);
-        assertThat(infos2.dataValidationTasks).hasSize(0);
-
-        mockDataValidationTasks(mockDataValidationTask(13, INSIGHT_KEY));
-
-        Response response3 = target("/validationtasks").request().header("X-CONNEXO-APPLICATION-NAME", MULTISENSE_KEY).get();
-        assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        DataValidationTaskInfos infos3 = response3.readEntity(DataValidationTaskInfos.class);
-        assertThat(infos3.total).isEqualTo(0);
-        assertThat(infos3.dataValidationTasks).hasSize(0);
-
-        Response response4 = target("/validationtasks").request().header("X-CONNEXO-APPLICATION-NAME", INSIGHT_KEY).get();
-        assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        DataValidationTaskInfos infos4 = response4.readEntity(DataValidationTaskInfos.class);
-        assertThat(infos4.total).isEqualTo(1);
-        assertThat(infos4.dataValidationTasks).hasSize(1);
+        JsonModel jsonModelFromInsight = JsonModel.create(jsonFromInsight);
+        assertThat(jsonModelFromInsight.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModelFromInsight.<Number>get("$.dataValidationTasks[0].id")).isEqualTo(15);
+        assertThat(jsonModelFromInsight.<String>get("$.dataValidationTasks[0].name")).isEqualTo("Name");
     }
 
     @Test
@@ -106,22 +84,22 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         info.deviceGroup.id = 1;
         Entity<DataValidationTaskInfo> json = Entity.json(info);
 
-        Response response = target("/validationtasks").request().header("X-CONNEXO-APPLICATION-NAME", MULTISENSE_KEY).post(json);
+        Response response = target("/validationtasks").request().header(HEADER_NAME, MULTISENSE_KEY).post(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
     
     @Test
-    public void getCreateTasksUsagePointGroupTest() {
+    public void getCreateTasksMetrologyContractTest() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.deviceGroup = null;
-        info.metrologyContract = new MetrologyContractInfo();
-        info.metrologyConfiguration = new MetrologyCofigurationInfo();
+        info.metrologyContract = new IdWithNameInfo();
+        info.metrologyConfiguration = new IdWithNameInfo();
         info.metrologyContract.id = 1;
         info.metrologyConfiguration.id = 1;
         Entity<DataValidationTaskInfo> json = Entity.json(info);
 
-        Response response = target("/validationtasks").request().header("X-CONNEXO-APPLICATION-NAME", INSIGHT_KEY).post(json);
+        Response response = target("/validationtasks").request().header(HEADER_NAME, INSIGHT_KEY).post(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
@@ -134,22 +112,22 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         info.deviceGroup.id = 1;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
-        Response response = target("/validationtasks/" + TASK_ID).request().header("X-CONNEXO-APPLICATION-NAME", MULTISENSE_KEY).put(json);
+        Response response = target("/validationtasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
     
     @Test
-    public void updateTasksUsagePointGroupTest() {
+    public void updateTasksMetrologyContractTest() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(mockDataValidationTask(TASK_ID, INSIGHT_KEY), thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = null;
-        info.metrologyContract = new MetrologyContractInfo();
-        info.metrologyConfiguration = new MetrologyCofigurationInfo();
+        info.metrologyContract = new IdWithNameInfo();
+        info.metrologyConfiguration = new IdWithNameInfo();
         info.metrologyContract.id = 1;
         info.metrologyConfiguration.id = 1;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
-        Response response = target("/validationtasks/" + TASK_ID).request().header("X-CONNEXO-APPLICATION-NAME", INSIGHT_KEY).put(json);
+        Response response = target("/validationtasks/" + TASK_ID).request().header(HEADER_NAME, INSIGHT_KEY).put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
@@ -162,23 +140,23 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         info.version = BAD_VERSION;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
-        Response response = target("/validationtasks/" + TASK_ID).request().header("X-CONNEXO-APPLICATION-NAME", MULTISENSE_KEY).put(json);
+        Response response = target("/validationtasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
     
     @Test
-    public void updateTasksTestBadUsagePointGroupVersion() {
+    public void updateTasksTestBadMetrologyContractVersion() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = null;
-        info.metrologyContract = new MetrologyContractInfo();
-        info.metrologyConfiguration = new MetrologyCofigurationInfo();
+        info.metrologyContract = new IdWithNameInfo();
+        info.metrologyConfiguration = new IdWithNameInfo();
         info.metrologyContract.id = 1;
         info.metrologyConfiguration.id = 1;
         info.version = BAD_VERSION;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
-        Response response = target("/validationtasks/" + TASK_ID).request().header("X-CONNEXO-APPLICATION-NAME", MULTISENSE_KEY).put(json);
+        Response response = target("/validationtasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
@@ -203,7 +181,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
                 .queryParam("start", "0")
                 .queryParam("limit", "10")
                 .request()
-                .header("X-CONNEXO-APPLICATION-NAME", MULTISENSE_KEY)
+                .header(HEADER_NAME, MULTISENSE_KEY)
                 .get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
@@ -220,7 +198,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
                 .queryParam("start", "0")
                 .queryParam("limit", "10")
                 .request()
-                .header("X-CONNEXO-APPLICATION-NAME", MULTISENSE_KEY)
+                .header(HEADER_NAME, MULTISENSE_KEY)
                 .get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
@@ -237,7 +215,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
                 .queryParam("start", "0")
                 .queryParam("limit", "10")
                 .request()
-                .header("X-CONNEXO-APPLICATION-NAME", MULTISENSE_KEY)
+                .header(HEADER_NAME, MULTISENSE_KEY)
                 .get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
@@ -255,7 +233,6 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(validationTask.getName()).thenReturn("Name");
         when(validationTask.getLastRun()).thenReturn(Optional.<Instant> empty());
         when(validationTask.getEndDeviceGroup()).thenReturn(Optional.of(endDeviceGroup));
-        when(validationTask.getUsagePointGroup()).thenReturn(Optional.empty());
         when(validationTask.getApplication()).thenReturn(appName);
         when(validationTask.getMetrologyContract()).thenReturn(Optional.empty());
         DataValidationOccurrenceFinder finder = mock(DataValidationOccurrenceFinder.class);

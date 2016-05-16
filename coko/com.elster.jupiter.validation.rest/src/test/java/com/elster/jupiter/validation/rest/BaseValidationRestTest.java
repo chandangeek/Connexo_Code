@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;

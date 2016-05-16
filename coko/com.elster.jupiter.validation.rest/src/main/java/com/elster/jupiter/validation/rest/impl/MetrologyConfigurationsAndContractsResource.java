@@ -3,6 +3,8 @@ package com.elster.jupiter.validation.rest.impl;
 
 
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.validation.security.Privileges;
@@ -20,7 +22,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("/metrologyconfigurations")
+@Path("/field")
 public class MetrologyConfigurationsAndContractsResource {
 
 
@@ -34,29 +36,29 @@ public class MetrologyConfigurationsAndContractsResource {
 
 
     @GET
+    @Path("/metrologyconfigurations")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
-            Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public PagedInfoList getMetrologyConfigurations(@BeanParam JsonQueryParameters queryParameters) {
-        List<MetrologyCofigurationInfo> infos = metrologyConfigurationService.findAllMetrologyConfigurations()
+        List<IdWithNameInfo> infos = metrologyConfigurationService.findAllMetrologyConfigurations()
                 .stream()
-                .map(MetrologyCofigurationInfo::new)
+                .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
+                .map(IdWithNameInfo::new)
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("metrologyConfigurations", infos, queryParameters);
     }
 
     @GET
-    @Path("/{id}/contracts")
+    @Path("/metrologyconfigurations/{id}/contracts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
-            Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public PagedInfoList getMetrologyContracts(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
-        List<MetrologyContractInfo> infos = metrologyConfigurationService.findMetrologyConfiguration(id).get().getContracts()
+        List<IdWithNameInfo> infos = metrologyConfigurationService.findMetrologyConfiguration(id).get().getContracts()
                 .stream()
-                .map(MetrologyContractInfo::new)
+                .map(mc -> new IdWithNameInfo(mc.getId(), mc.getMetrologyPurpose().getName()))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("metrologyContracts", infos, queryParameters);
