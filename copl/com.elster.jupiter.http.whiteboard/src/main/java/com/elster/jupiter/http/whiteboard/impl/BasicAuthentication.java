@@ -11,6 +11,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.elster.jupiter.util.json.JsonService;
+
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -330,7 +331,7 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
     }
 
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
-        Optional<User> user = userService.authenticateBase64(authentication);
+        Optional<User> user = userService.authenticateBase64(authentication, request.getRemoteAddr());
         //securityToken.removeCookie(request, response);
         if (isAuthenticated(user)) {
             String token = securityToken.createToken(user.get(), 0);
