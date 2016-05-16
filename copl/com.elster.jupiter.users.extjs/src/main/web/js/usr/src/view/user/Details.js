@@ -154,7 +154,7 @@ Ext.define('Usr.view.user.Details', {
                                         {
                                             xtype: 'displayfield',
                                             name: 'lastSuccessfulLogin',
-                                            fieldLabel: Uni.I18n.translate('general.lastSuccessfulLogin', 'USR', 'Last successful login'),
+                                            fieldLabel: Uni.I18n.translate('general.lastSuccessfulLogin', 'USR', 'Last successful attempt'),
                                             renderer: function (value) {
                                                 if (value) {
                                                     var lastSuccessfulLogin = moment(value).toDate();
@@ -169,7 +169,7 @@ Ext.define('Usr.view.user.Details', {
                                         {
                                             xtype: 'displayfield',
                                             name: 'lastUnSuccessfulLogin',
-                                            fieldLabel: Uni.I18n.translate('general.lastUnSuccessfulLogin', 'USR', 'Last unsuccessful login'),
+                                            fieldLabel: Uni.I18n.translate('general.lastUnSuccessfulLogin', 'USR', 'Last unsuccessful attempt'),
                                             renderer: function (value) {
                                                 if (value) {
                                                     var lastUnSuccessfulLogin = moment(value).toDate();
