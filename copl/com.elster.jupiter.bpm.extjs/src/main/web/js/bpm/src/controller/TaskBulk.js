@@ -160,7 +160,7 @@ Ext.define('Bpm.controller.TaskBulk', {
                 record.data.tasksForm = this.data;
                 if(loadBpmForm) record.mandatoryValidated = false;
                 record.endEdit();
-                if(loadBpmForm) me.loadJbpmForm(record);
+                //if(loadBpmForm) me.loadJbpmForm(record);
 
                 if (operation.response.status == 400) {
                     var json = Ext.decode(operation.response.responseText, true);
@@ -181,6 +181,7 @@ Ext.define('Bpm.controller.TaskBulk', {
         return;
 
     },
+
     beforeDeselect: function (grid, record) {
 
         var me = this,
@@ -221,26 +222,27 @@ Ext.define('Bpm.controller.TaskBulk', {
             propertyForm;
 
         propertyForm = taskExecutionContent.down('property-form');
-        taskExecutionContent.setLoading();
 
-        if (taskRecord && taskRecord.tasksForm && taskRecord.tasksForm.properties() && taskRecord.tasksForm.properties().count()) {
-            propertyForm.loadRecord(taskRecord.tasksForm);
-            propertyForm.show();
-            me.getWizard().setLoading(false);
-        } else {
-            propertyForm.loadRecord(taskRecord.tasksForm);
-            propertyForm.add(
-                {
-                    xtype: 'component',
-                    html: Uni.I18n.translate('bpm.task.bulk.NoTaskForm', 'BPM', 'No form defined for this group of tasks.'),
-                    style: {
-                        fontStyle: 'italic',
-                        color: '#999'
-                    }
-                });
-            me.getWizard().setLoading(false);
+            taskExecutionContent.setLoading();
 
-        }
+            if (taskRecord && taskRecord.tasksForm && taskRecord.tasksForm.properties() && taskRecord.tasksForm.properties().count()) {
+                propertyForm.loadRecord(taskRecord.tasksForm);
+                propertyForm.show();
+                me.getWizard().setLoading(false);
+            } else {
+                propertyForm.loadRecord(taskRecord.tasksForm);
+                propertyForm.add(
+                    {
+                        xtype: 'component',
+                        html: Uni.I18n.translate('bpm.task.bulk.NoTaskForm', 'BPM', 'No form defined for this group of tasks.'),
+                        style: {
+                            fontStyle: 'italic',
+                            color: '#999'
+                        }
+                    });
+                me.getWizard().setLoading(false);
+            }
+
         taskExecutionContent.setLoading(false);
 
     },
