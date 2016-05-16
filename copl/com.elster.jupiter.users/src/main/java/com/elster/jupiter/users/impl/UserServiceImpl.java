@@ -3,7 +3,6 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -19,6 +18,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.Group;
@@ -53,6 +53,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -63,6 +64,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -87,6 +90,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private volatile BundleContext bundleContext;
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
+    private volatile Clock clock;
 
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
@@ -95,6 +99,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private static final String UNSUCCESSFUL_LOGIN = "Unsuccessful login attempt for user ";
 
     private static final String JUPITER_REALM = "Local";
+    private Logger userLogin = Logger.getLogger("userLog");
 
     private class PrivilegeAssociation{
         public String group;
@@ -152,6 +157,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 bind(UserService.class).toInstance(UserServiceImpl.this);
                 bind(MessageService.class).toInstance(messageService);
                 bind(JsonService.class).toInstance(jsonService);
+                bind(Clock.class).toInstance(clock);
             }
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
@@ -226,6 +232,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public Optional<User> authenticateBase64(String base64) {
+        return authenticateBase64(base64, null);
+    }
+
+    @Override
+    public Optional<User> authenticateBase64(String base64, String ipAddr) {
         if (base64 == null || base64.isEmpty()) {
             return Optional.empty();
         }
@@ -234,7 +245,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
         if (names.length <= 1) {
             if(names.length == 1) {
-                logMessage(UNSUCCESSFUL_LOGIN, "[" + names[0] + "]");
+                logMessage(UNSUCCESSFUL_LOGIN, names[0], ipAddr);
             }
             return Optional.empty();
         }
@@ -254,10 +265,10 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         }
         Optional<User> user = authenticate(domain, userName, names[1]);
         if(user.isPresent() && !user.get().getPrivileges().isEmpty()){
-            logMessage(SUCCESSFUL_LOGIN, "["+userName+"]");
+            logMessage(SUCCESSFUL_LOGIN, userName, ipAddr);
         }else{
             if(!userName.equals("")) {
-                logMessage(UNSUCCESSFUL_LOGIN, "[" + userName + "]");
+                logMessage(UNSUCCESSFUL_LOGIN, userName, ipAddr);
             }
         }
         return user;
@@ -661,6 +672,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Reference
+    public void setClockService(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
     public  final void setJsonService(JsonService jsonService){
         this.jsonService = jsonService;
     }
@@ -847,13 +863,25 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         this.loggedInUsers.remove(user);
     }
 
-    private void logMessage(String message, String userName){
-        Map<String, String> messageProperties = new HashMap<>();
-        messageProperties.put(message, userName);
-        Optional<DestinationSpec> found = messageService.getDestinationSpec(USR_QUEUE_DEST);
-        if(found.isPresent()){
-            String json = jsonService.serialize(messageProperties);
-            found.get().message(json).send();
+    private void logMessage(String message, String userName, String ipAddr){
+        if(message.equals(SUCCESSFUL_LOGIN)){
+            userLogin.log(Level.INFO, message + "[" + userName + "] " + ipAddr);
+            this.findUser(userName).ifPresent(user -> {
+                try(TransactionContext context = transactionService.getContext()) {
+                    user.setLastSuccessfulLogin(clock.instant());
+                    user.update();
+                    context.commit();
+                }
+            });
+        } else {
+            userLogin.log(Level.WARNING, message + "[" + userName + "] " + ipAddr);
+            this.findUser(userName).ifPresent(user -> {
+                try(TransactionContext context = transactionService.getContext()) {
+                    user.setLastUnSuccessfulLogin(clock.instant());
+                    user.update();
+                    context.commit();
+                }
+            });
         }
     }
 

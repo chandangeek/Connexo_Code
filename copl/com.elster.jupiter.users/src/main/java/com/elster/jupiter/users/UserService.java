@@ -5,9 +5,12 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface UserService {
 
     String COMPONENTNAME = "USR";
@@ -61,6 +64,8 @@ public interface UserService {
     Optional<Resource> getResource(String resourceName);
 
     Optional<User> authenticateBase64(String base64String);
+
+    Optional<User> authenticateBase64(String base64String, String ipAddr);
 
     List<Group> getGroups();
 
