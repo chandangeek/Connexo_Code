@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
@@ -21,6 +22,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -40,9 +42,9 @@ import java.util.List;
 import java.util.Set;
 
 
-@Component(name = "com.elster.jupiter.metering.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true,
+@Component(name = "com.elster.jupiter.metering.rest", service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true,
         property = {"alias=/mtr", "app=SYS", "name=" + MeteringApplication.COMPONENT_NAME})
-public class MeteringApplication extends Application implements TranslationKeyProvider {
+public class MeteringApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
     public static final String COMPONENT_NAME = "MTR";
 
     private volatile MeteringService meteringService;
@@ -127,6 +129,11 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     @Override
     public Layer getLayer() {
         return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
