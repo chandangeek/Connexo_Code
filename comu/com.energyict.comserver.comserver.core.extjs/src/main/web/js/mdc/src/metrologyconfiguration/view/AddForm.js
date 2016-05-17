@@ -41,10 +41,10 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
                 itemId: 'mc-serviceCategory-combobox',
                 fieldLabel: Uni.I18n.translate('general.serviceCategory', 'MDC', 'Service category'),
                 required: true,
-                store: 'Mdc.usagepointmanagement.store.ServiceCategories',
+                store: 'Mdc.metrologyconfiguration.store.ServiceCategories',
                 queryMode: 'local',
-                displayField: 'displayName',
-                valueField: 'name',
+                displayField: 'name',
+                valueField: 'id',
                 forceSelection: true,
                 valueIsRecordData: true
             },
@@ -53,7 +53,8 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
                 name: 'readingTypes',
                 itemId: 'mc-readingTypes-reading-types-field',
                 fieldLabel: Uni.I18n.translate('general.readingTypes', 'MDC', 'Reading types'),
-                required: true
+                required: true,
+                isEquidistant: true
             },
             {
                 xtype: 'fieldcontainer',

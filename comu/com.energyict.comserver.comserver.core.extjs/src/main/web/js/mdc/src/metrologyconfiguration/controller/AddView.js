@@ -9,7 +9,7 @@ Ext.define('Mdc.metrologyconfiguration.controller.AddView', {
     ],
 
     stores: [
-        'Mdc.usagepointmanagement.store.ServiceCategories'
+        'Mdc.metrologyconfiguration.store.ServiceCategories'
     ],
 
     views: [
@@ -49,7 +49,7 @@ Ext.define('Mdc.metrologyconfiguration.controller.AddView', {
                 ]
             });
 
-        me.getStore('Mdc.usagepointmanagement.store.ServiceCategories').load();
+        me.getStore('Mdc.metrologyconfiguration.store.ServiceCategories').load();
         me.getForm().loadRecord(Ext.create('Mdc.metrologyconfiguration.model.MetrologyConfiguration'));
         app.fireEvent('changecontentevent', widget);
     },
