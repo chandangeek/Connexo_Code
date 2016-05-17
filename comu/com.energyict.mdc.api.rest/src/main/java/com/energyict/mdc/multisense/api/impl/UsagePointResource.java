@@ -85,7 +85,6 @@ public class UsagePointResource {
      * <p>On a physical usage point one or multiple meters can be installed (sub metering, subtracting or control metering,
      * etc.), and these can change over time.</p>
      *
-     * @param usagePointId Unique identifier of the usage point
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
      * @param queryParameters queryParameters
@@ -95,8 +94,9 @@ public class UsagePointResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<UsagePointInfo> getAllUsagePoints(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection,
-                                                           @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList<UsagePointInfo> getAllUsagePoints(@BeanParam FieldSelection fieldSelection,
+                                                           @Context UriInfo uriInfo,
+                                                           @BeanParam JsonQueryParameters queryParameters) {
         UsagePointFilter usagePointFilter = new UsagePointFilter();
         usagePointFilter.setMrid(null);
         usagePointFilter.setAccountabilityOnly(false);
@@ -133,7 +133,9 @@ public class UsagePointResource {
     @Path("/{usagePointId}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
-    public UsagePointInfo updateUsagePoint(@PathParam("usagePointId") long usagePointId, UsagePointInfo usagePointInfo, @Context UriInfo uriInfo) {
+    public UsagePointInfo updateUsagePoint(@PathParam("usagePointId") long usagePointId,
+                                           UsagePointInfo usagePointInfo,
+                                           @Context UriInfo uriInfo) {
         if (usagePointInfo.version == null) {
             exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.VERSION_MISSING, "version");
         }

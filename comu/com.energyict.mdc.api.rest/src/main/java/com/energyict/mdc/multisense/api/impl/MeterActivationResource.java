@@ -49,6 +49,8 @@ public class MeterActivationResource {
     }
 
     /**
+     * The meter activation records which meter was associated with a usage point during which time frame.
+     *
      * @param usagePointId Unique identifier of the usage point
      * @param meterActivationId Unique identifier of the meter activation
      * @param uriInfo uriInfo
@@ -71,9 +73,12 @@ public class MeterActivationResource {
     }
 
     /**
+     * The meter activation records which meter was associated with a usage point during which time frame.
+     *
      * @param usagePointId Unique identifier of the usage point
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
+     * @param queryParameters  query parameters
      * @return All meter activations on a usage point
      * @summary fetch all meter activation on a usage point
      */
@@ -95,10 +100,13 @@ public class MeterActivationResource {
     }
 
     /**
+     * The meter activation records which meter was associated with a usage point during which time frame.
+     * When creating a meter activation, the start time must be provided. Meter is optional.
+     *
      * @param meterActivationInfo Description of the to be created meter activation
      * @param usagePointId Unique identifier of the usage point
      * @param uriInfo uriInfo
-     * @return All meter activations on a usage point
+     * @return The created meter activation
      * @summary Create a new activation for a meter
      */
     @POST

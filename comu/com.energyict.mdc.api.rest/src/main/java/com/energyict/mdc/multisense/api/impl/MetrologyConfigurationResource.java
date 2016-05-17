@@ -58,6 +58,15 @@ public class MetrologyConfigurationResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION));
     }
 
+    /**
+     * A metrology configuration is a definition of what is going to be measured. Through a metrology configuration the
+     * contract is made between a requirement and a deliverable
+     *
+     * @param fieldSelection fieldSelection
+     * @param uriInfo uriInfo
+     * @param queryParameters queryParameters
+     * @return All known metrology configurations in the system
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
@@ -70,6 +79,23 @@ public class MetrologyConfigurationResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
+    /**
+     * List the fields available on this type of entity.
+     * <br>E.g.
+     * <br>[
+     * <br> "id",
+     * <br> "name",
+     * <br> "actions",
+     * <br> "batch"
+     * <br>]
+     * <br>Fields in the list can be used as parameter on a GET request to the same resource, e.g.
+     * <br> <i></i>GET ..../resource?fields=id,name,batch</i>
+     * <br> The call above will return only the requested fields of the entity. In the absence of a field list, all fields
+     * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
+     *
+     * @return A list of field names that can be requested as parameter in the GET method on this entity type
+     * @summary List the fields available on this type of entity
+     */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
