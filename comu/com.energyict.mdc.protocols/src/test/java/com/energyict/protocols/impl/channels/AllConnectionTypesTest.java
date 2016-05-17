@@ -19,6 +19,7 @@ import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -119,6 +120,8 @@ public class AllConnectionTypesTest {
     private IdentificationService identificationService;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
+    @Mock
+    private DeviceMessageFileService deviceMessageFileService;
 
     private InMemoryBootstrapModule bootstrapModule;
     private ConnectionTypeService connectionTypeService;
@@ -286,6 +289,7 @@ public class AllConnectionTypesTest {
             bind(IdentificationService.class).toInstance(identificationService);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(SerialComponentService.class).toInstance(serialComponentService);
+            bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
         }
     }
 
