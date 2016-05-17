@@ -498,7 +498,7 @@
         </repository>
 
         <snapshotRepository>
-            <id>eict${revision}s</id>
+            <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
             <url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
             <uniqueVersion>false</uniqueVersion>
@@ -508,9 +508,9 @@
     <!-- Repositories specification to find parent pom. Rest of repos comes from parent pom-->
     <repositories>
         <repository>
-            <id>eict-public${revision}s</id>
+            <id>eict-public-snapshots</id>
             <name>EnergyICT snapshots repository group</name>
-            <url>http://source.eict.vpdc/nexus/content/groups/public${revision}s/
+            <url>http://source.eict.vpdc/nexus/content/groups/public-snapshots/
             </url>
             <releases>
                 <enabled>false</enabled>
