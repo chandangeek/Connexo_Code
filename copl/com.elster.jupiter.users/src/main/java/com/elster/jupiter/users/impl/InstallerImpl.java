@@ -1,8 +1,5 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.FormatKey;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -30,26 +27,14 @@ public class InstallerImpl {
         this.userService = userService;
     }
 
-    public void install(String defaultDomain, MessageService messageService) {
+    public void install(String defaultDomain) {
         try {
-            createUSRQueue(messageService);
             dataModel.install(true, true);
         } catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
 
         this.defaultDomain = defaultDomain;
-    }
-
-    private void createUSRQueue(MessageService messageService) {
-        try {
-            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(UserService.USR_QUEUE_DEST, DEFAULT_RETRY_DELAY_IN_SECONDS);
-            destinationSpec.activate();
-            destinationSpec.subscribe(UserService.USR_QUEUE_SUBSC);
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
     }
 
     public void addDefaults(String adminPassword) {

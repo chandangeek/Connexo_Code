@@ -3,11 +3,9 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -39,7 +37,6 @@ import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.json.JsonService;
 
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -88,8 +85,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private List<User> loggedInUsers = new CopyOnWriteArrayList<>();
     private volatile DataVaultService dataVaultService;
     private volatile BundleContext bundleContext;
-    private volatile MessageService messageService;
-    private volatile JsonService jsonService;
     private volatile Clock clock;
 
 
@@ -123,7 +118,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private final Object privilegeProviderRegistrationLock = new Object();
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService, MessageService messageService, JsonService jsonService) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
@@ -131,8 +126,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         setNlsService(nlsService);
         setDataVaultService(dataVaultService);
         setThreadPrincipalService(threadPrincipalService);
-        setMessageService(messageService);
-        setJsonService(jsonService);
         activate(null);
         if (!dataModel.isInstalled()) {
             installDataModel(true);
@@ -155,9 +148,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(UserService.class).toInstance(UserServiceImpl.this);
-                bind(MessageService.class).toInstance(messageService);
-                bind(JsonService.class).toInstance(jsonService);
-                bind(Clock.class).toInstance(clock);
             }
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
@@ -549,7 +539,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private void installDataModel(boolean inTest) {
         synchronized (privilegeProviderRegistrationLock) {
             InstallerImpl installer = new InstallerImpl(dataModel, this);
-            installer.install(getRealm(), messageService);
+            installer.install(getRealm());
             if (inTest) {
                 doInstallPrivileges(this);
             }
@@ -560,12 +550,10 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = Stream.of(
+        return Stream.of(
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
-        keys.add(new SimpleTranslationKey(UserService.USR_QUEUE_SUBSC, UserService.USR_QUEUE_DISPLAYNAME));
-        return keys;
     }
 
     @Override
@@ -586,7 +574,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "MSG");
+        return Collections.singletonList("ORM");
     }
 
     @Override
@@ -667,18 +655,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Reference
-    public final void setMessageService(MessageService messageService){
-        this.messageService = messageService;
-    }
-
-    @Reference
     public void setClockService(Clock clock) {
         this.clock = clock;
-    }
-
-    @Reference
-    public  final void setJsonService(JsonService jsonService){
-        this.jsonService = jsonService;
     }
 
     @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -864,6 +842,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     private void logMessage(String message, String userName, String ipAddr){
+        ipAddr = ipAddr.equals("0:0:0:0:0:0:0:1") ? "localhost" : ipAddr;
         if(message.equals(SUCCESSFUL_LOGIN)){
             userLogin.log(Level.INFO, message + "[" + userName + "] " + ipAddr);
             this.findUser(userName).ifPresent(user -> {
