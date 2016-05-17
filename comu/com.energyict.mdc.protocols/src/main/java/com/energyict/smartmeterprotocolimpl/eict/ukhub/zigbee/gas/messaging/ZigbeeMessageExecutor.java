@@ -5,10 +5,10 @@ import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
-import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.protocols.mdc.StoresConfigurationInformationInSystemGlobalFile;
 import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 
@@ -66,6 +66,7 @@ import java.util.logging.Level;
  * Date: 10-aug-2011
  * Time: 15:02:34
  */
+@StoresConfigurationInformationInSystemGlobalFile
 public class ZigbeeMessageExecutor extends MessageParser {
 
     private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("7.0.1.64.0.255");
@@ -313,7 +314,6 @@ public class ZigbeeMessageExecutor extends MessageParser {
         ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
         Array array = priceInformation.getValue().getArray();
         String priceInfo = "Pricing information unavailable: empty array";
-        String fileName = "PriceInformation_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
         if (array != null && array.nrOfDataTypes() > 0) {
             StringBuilder sb = new StringBuilder();
 
@@ -333,10 +333,8 @@ public class ZigbeeMessageExecutor extends MessageParser {
             priceInfo = sb.toString();
         }
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, priceInfo.getBytes("UTF-8"), "txt");
-        this.createUserFile(ufs);
-
-        log(Level.INFO, "Stored price information in userFile: " + fileName);
+        log(Level.SEVERE, "Storing of price information in userFile is no longer supported");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private void setCV(String content) throws IOException {
@@ -835,11 +833,6 @@ public class ZigbeeMessageExecutor extends MessageParser {
         } catch (IOException e) {
             throw new IOException("Could not keep connection alive." + e.getMessage());
         }
-    }
-
-
-    private DeviceMessageFile createUserFile(UserFileShadow shadow) throws SQLException {
-        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
 }

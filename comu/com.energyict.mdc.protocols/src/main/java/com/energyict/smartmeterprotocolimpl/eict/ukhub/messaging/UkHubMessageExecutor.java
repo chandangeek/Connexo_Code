@@ -5,9 +5,9 @@ import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
-import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.protocols.mdc.StoresConfigurationInformationInSystemGlobalFile;
 import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
 
 import com.energyict.dlms.DLMSUtils;
@@ -68,6 +68,7 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexStri
  * Date: 20-jul-2011
  * Time: 17:15:18
  */
+@StoresConfigurationInformationInSystemGlobalFile
 public class UkHubMessageExecutor extends MessageParser {
 
     public static ObisCode KEYS_LOCK_DOWN_SWITCH_OBIS = ObisCode.fromString("0.128.0.0.1.255");
@@ -408,21 +409,9 @@ public class UkHubMessageExecutor extends MessageParser {
 
     }
 
-    private void readZigBeeStatus() throws IOException, SQLException {
+    private void readZigBeeStatus() {
         ZigBeeStatus zigBeeStatus = new ZigBeeStatus(getCosemObjectFactory());
-        String status = zigBeeStatus.readStatus();
-        String fileName = "ZigBeeStatus_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
-        System.out.println("\n");
-        System.out.println(status);
-        System.out.println("\n");
-
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, status.getBytes("UTF-8"), "txt");
-        this.createUserFile(ufs);
-
-        log(Level.INFO, "Stored ZigBee status parameters in userFile: " + fileName);
-    }
-
-    private DeviceMessageFile createUserFile(UserFileShadow shadow) throws SQLException {
+        log(Level.SEVERE, "Storing of ZigBee status parameters in userFile is no longer supported");
         throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
@@ -446,14 +435,10 @@ public class UkHubMessageExecutor extends MessageParser {
         log(Level.INFO, "Create HAN Network");
         hanManagement.createHan();
 
-//        getLogger().info("Enable joining");
-//        ZigBeeSETCControl zigBeeSETCControl = getCosemObjectFactory().getZigBeeSETCControl();
-//        zigBeeSETCControl.writeEnableDisableJoining(true);
-
         log(Level.INFO, "Restore ZigBee Han Keys successful");
     }
 
-    private void backupZigBeeHanParameters() throws IOException, SQLException {
+    private void backupZigBeeHanParameters() throws IOException {
         log(Level.INFO, "Sending message : Backup ZigBee Han Keys");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.backup();
@@ -488,9 +473,8 @@ public class UkHubMessageExecutor extends MessageParser {
         hanBackupData.setLinkKey(linkKey);
         hanBackupData.setNetworkKey(networkKey);
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow("ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber(), hanBackupData.getBEREncodedByteArray(), "bin");
-        this.createUserFile(ufs);
-        log(Level.INFO, "Backed-up ZigBee parameters in userFile : ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber());
+        log(Level.SEVERE, "Backing-up of ZigBee parameters in userFile is no longer supported");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private void joinZigBeeSlave(MessageHandler messageHandler) throws IOException {
@@ -588,22 +572,8 @@ public class UkHubMessageExecutor extends MessageParser {
             builder.append("\r\n");
         }
 
-        StringBuilder fileName = new StringBuilder("DebugLogbook");
-        fileName.append("_");
-        fileName.append(protocol.getDlmsSession().getProperties().getSerialNumber());
-        fileName.append("_");
-        fileName.append("[");
-        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss", from.getTime()));
-        fileName.append("-");
-        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss", to.getTime()));
-        fileName.append("]");
-        fileName.append("_");
-        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
-
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), builder.toString().trim().getBytes("UTF-8"), "txt");
-        this.createUserFile(ufs);
-
-        log(Level.INFO, "Stored readout of debug logbook in userFile: " + fileName);
+        log(Level.SEVERE, "Storing of readout of debug logbook in userFile is no longer supported");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private void readElsterLogbook(final MessageHandler messageHandler) throws IOException, SQLException {
@@ -648,22 +618,8 @@ public class UkHubMessageExecutor extends MessageParser {
             builder.append("\r\n");
         }
 
-        StringBuilder fileName = new StringBuilder("ElsterLogbook");
-        fileName.append("_");
-        fileName.append(protocol.getDlmsSession().getProperties().getSerialNumber());
-        fileName.append("_");
-        fileName.append("[");
-        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss", from.getTime()));
-        fileName.append("-");
-        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss", to.getTime()));
-        fileName.append("]");
-        fileName.append("_");
-        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
-
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), builder.toString().trim().getBytes("UTF-8"), "txt");
-        this.createUserFile(ufs);
-
-        log(Level.INFO, "Stored readout of Elster logbook in userFile: " + fileName);
+        log(Level.SEVERE, "Storing of readout of Elster logbook in userFile is no longer supported");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private Calendar extractDate(String timeString) throws IOException {
