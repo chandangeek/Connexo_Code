@@ -66,6 +66,29 @@ com.elster.jupiter.token.expirationtime=300
 com.elster.jupiter.yellowfin.user=admin
 com.elster.jupiter.yellowfin.password=admin
 
+
+#   The location template depicts the order in which location elements are parsed during imports
+#   The mandatory fields refer to mandatory location entities in the system
+#   #cc - country code (optional)  -- i.e. BE
+#	#cn - country name -- i.e. Belgium
+#	#aa - administrative area  -- i.e. West Flanders
+#	#loc - locality -- i.e. Brugge
+#	#sloc - sublocality -- i.e. if the name of a commune is the same as the name of the village; will usually contain the same name as #loc
+#	#styp - street type -- i.e. Street, Boulevard, Alley, Entry, etc.
+#   #sname - street name
+#   #snum - street number (alphanumeric) -- i.e. 123A
+#   #etyp - establishment/household type -- i.e. Block of apartments
+#   #enum - establishment/household number (alphanumeric) -- i.e. 123A
+#   #enam - establishment/household name -- i.e. Building Europa
+#   #addtl - address detail, additional information pertinent to be saved with a certain location -- i.e. corner with Main Blv. next to the bakery
+#	#zip - zip code or postal code -- i.e. 123456A
+#	#locale - locale depicting the language in which the address is written -- i.e. en_US
+
+# Please edit the following as per inetrnal requirements
+# Please note that com.elster.jupiter.location.template will need to contain all the previously enumerated fields, the ordering being flexible
+com.elster.jupiter.location.template =#ccod,#cnam,#adma,#loc,#subloc,#styp,#snam,#snum,#etyp,#enam,#enum,#addtl,#zip,#locale
+com.elster.jupiter.location.template.mandatoryfields =#adma,#loc,#styp,#snam,#snum
+
 # When manually updating this file, uncomment and change the following lines
 # The install script will append these properties automatically
 # com.elster.jupiter.datasource.jdbcurl=jdbc:oracle:thin:@yourHost:yourPort:yourSID
