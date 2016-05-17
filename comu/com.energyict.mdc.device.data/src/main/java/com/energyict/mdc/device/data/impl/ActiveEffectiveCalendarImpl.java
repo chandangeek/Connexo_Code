@@ -47,7 +47,7 @@ public class ActiveEffectiveCalendarImpl implements ActiveEffectiveCalendar {
         this.dataModel = dataModel;
     }
 
-    public ActiveEffectiveCalendar initialize(Interval effectivityInterval, DeviceImpl device, AllowedCalendar allowedCalendar, Instant lastVerified) {
+    public ActiveEffectiveCalendar initialize(Interval effectivityInterval, Device device, AllowedCalendar allowedCalendar, Instant lastVerified) {
         setDevice(device);
         setInterval(effectivityInterval);
         setAllowedCalendar(allowedCalendar);
