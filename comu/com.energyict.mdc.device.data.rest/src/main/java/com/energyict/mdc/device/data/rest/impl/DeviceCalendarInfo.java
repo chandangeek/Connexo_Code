@@ -13,15 +13,20 @@ import java.util.stream.Collectors;
 
 public class DeviceCalendarInfo {
 
-    public List<String> passiveCalendars = new ArrayList<>();
+    public List<String> passiveCalendars;
     public CalendarInfo activeCalendar;
     private CalendarInfoFactory calendarInfoFactory;
 
     public DeviceCalendarInfo(Optional<ActiveEffectiveCalendar> activeCalendar, List<PassiveEffectiveCalendar> passiveCalendars, CalendarInfoFactory calendarInfoFactory) {
         this.calendarInfoFactory = calendarInfoFactory;
-        this.activeCalendar = this.calendarInfoFactory.detailedFromCalendar(activeCalendar.get().getAllowedCalendar().getCalendar().get());
-        this.passiveCalendars = passiveCalendars.stream()
-                .map(PEC -> PEC.getAllowedCalendar().getName())
-                .collect(Collectors.toList());
+        if(activeCalendar.isPresent()) {
+            this.activeCalendar = this.calendarInfoFactory.detailedFromCalendar(activeCalendar.get().getAllowedCalendar().getCalendar().get());
+        }
+        if(passiveCalendars.size() > 0) {
+            this.passiveCalendars = new ArrayList<>();
+            this.passiveCalendars = passiveCalendars.stream()
+                    .map(PEC -> PEC.getAllowedCalendar().getName())
+                    .collect(Collectors.toList());
+        }
     }
 }
