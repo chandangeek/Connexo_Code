@@ -9,7 +9,7 @@ import java.util.logging.LogRecord;
 
 public class SingleLineFormatter extends Formatter {
 
-    Date dat = new Date();
+    Date currentDate = new Date();
     private final static String format = "{0,date} {0,time}";
     private MessageFormat formatter;
     private Object args[] = new Object[1];
@@ -22,8 +22,8 @@ public class SingleLineFormatter extends Formatter {
      */
     public synchronized String format(LogRecord record) {
         StringBuilder sb = new StringBuilder();
-        dat.setTime(record.getMillis());
-        args[0] = dat;
+        currentDate.setTime(record.getMillis());
+        args[0] = currentDate;
         StringBuffer text = new StringBuffer();
         if (formatter == null) {
             formatter = new MessageFormat(format);
