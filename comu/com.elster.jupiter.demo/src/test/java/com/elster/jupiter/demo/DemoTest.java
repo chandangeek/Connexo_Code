@@ -3,6 +3,7 @@ package com.elster.jupiter.demo;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -331,7 +332,8 @@ public class DemoTest {
                 new FileImportModule(),
                 new MailModule(),
                 new DemoModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new CalendarModule()
         );
         doPreparations();
     }
