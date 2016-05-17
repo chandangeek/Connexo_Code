@@ -6,12 +6,9 @@ import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
 import org.jboss.resteasy.plugins.providers.jackson.ResteasyJacksonProvider;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
-import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.kie.services.impl.FormManagerService;
 import org.jbpm.kie.services.impl.model.ProcessInstanceDesc;
-import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.RuntimeDataService;
-import org.jbpm.services.api.model.DeployedAsset;
-import org.jbpm.services.api.model.DeployedUnit;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.task.impl.model.UserImpl;
 import org.kie.api.runtime.query.QueryContext;
@@ -39,7 +36,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -71,7 +67,7 @@ public class JbpmTaskResourceTest {
     @Mock
     RuntimeDataService runtimeDataService;
     @Mock
-    DeploymentService deploymentService;
+    FormManagerService formManagerService;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -323,16 +319,7 @@ public class JbpmTaskResourceTest {
         when(processDefinition.getDeploymentId()).thenReturn("TestDeploymentID");
         when(task.getFormName()).thenReturn("FormName");
         when(internalTaskService.getTaskById(anyLong()).getTaskData().getOutputContentId()).thenReturn(-1L);
-
-        DeployedUnit deployedUnit = mock(DeployedUnit.class);
-        when(deploymentService.getDeployedUnit("TestDeploymentID")).thenReturn(deployedUnit);
-        ProcessAssetDesc processDesc = mock(ProcessAssetDesc.class);
-        Set<DeployedAsset> assets = new HashSet<>();
-        assets.add(processDesc);
-        when(deployedUnit.getDeployedAssets()).thenReturn(assets);
-        when(processDefinition.getId()).thenReturn("ProcessID");
-        when(processDesc.getId()).thenReturn("ProcessID");
-        when(processDesc.getForms()).thenReturn(forms);
+        when(formManagerService.getFormByKey("TestDeploymentID", "FormName")).thenReturn(template);
 
         ClientRequest request = new ClientRequest(baseUri + "/1/content");
 
@@ -365,15 +352,7 @@ public class JbpmTaskResourceTest {
         when(runtimeDataService.getProcessById(anyString())).thenReturn(process);
         when(runtimeDataService.getProcessesByDeploymentId(anyString(), any(QueryContext.class))).thenReturn(processesList);
         when(process.getId()).thenReturn("processID");
-
-        DeployedUnit deployedUnit = mock(DeployedUnit.class);
-        when(deploymentService.getDeployedUnit("deploymentID")).thenReturn(deployedUnit);
-        ProcessAssetDesc processDesc = mock(ProcessAssetDesc.class);
-        Set<DeployedAsset> assets = new HashSet<>();
-        assets.add(processDesc);
-        when(deployedUnit.getDeployedAssets()).thenReturn(assets);
-        when(processDesc.getId()).thenReturn("processID");
-        when(processDesc.getForms()).thenReturn(forms);
+        when(formManagerService.getFormByKey("deploymentID", "processID")).thenReturn(template);
 
         ClientRequest request = new ClientRequest(baseUri + "/process/deploymentID/content/processID");
 
@@ -427,17 +406,7 @@ public class JbpmTaskResourceTest {
         when(processDefinition.getDeploymentId()).thenReturn("TestDeploymentID");
         when(task.getFormName()).thenReturn("FormName");
         when(internalTaskService.getTaskById(anyLong()).getTaskData().getOutputContentId()).thenReturn(-1L);
-
-        DeployedUnit deployedUnit = mock(DeployedUnit.class);
-        when(deploymentService.getDeployedUnit("TestDeploymentID")).thenReturn(deployedUnit);
-        ProcessAssetDesc processDesc = mock(ProcessAssetDesc.class);
-        Set<DeployedAsset> assets = new HashSet<>();
-        assets.add(processDesc);
-        when(deployedUnit.getDeployedAssets()).thenReturn(assets);
-        when(processDefinition.getId()).thenReturn("ProcessID");
-        when(processDesc.getId()).thenReturn("ProcessID");
-        when(processDesc.getForms()).thenReturn(forms);
-        when(task.getName()).thenReturn("TestName");
+        when(formManagerService.getFormByKey("TestDeploymentID", "FormName")).thenReturn(template);
 
         ClientRequest request = new ClientRequest(baseUri + "/mandatory");
         request.body(MediaType.APPLICATION_JSON_TYPE, taskGroupInfos);

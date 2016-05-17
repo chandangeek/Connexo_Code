@@ -1,18 +1,17 @@
 package com.elster.partners.jbpm.extension;
 
 
+import com.google.common.base.Strings;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.kie.services.impl.FormManagerService;
 import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.RuntimeDataService;
-import org.jbpm.services.api.model.DeployedAsset;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.task.impl.model.TaskImpl;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.kie.api.runtime.query.QueryContext;
-import org.kie.api.task.model.I18NText;
 import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
@@ -53,8 +52,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Path("/tasks")
 public class JbpmTaskResource {
@@ -73,6 +70,9 @@ public class JbpmTaskResource {
 
     @Inject
     DeploymentService deploymentService;
+
+    @Inject
+    FormManagerService formManagerService;
 
 
     @POST
@@ -564,72 +564,33 @@ public class JbpmTaskResource {
     @Path("/{taskId: [0-9-]+}/content")
     public ConnexoForm getTaskContent(@PathParam("taskId") long taskId) {
         ConnexoForm form = new ConnexoForm();
-        if(internalTaskService != null && runtimeDataService != null) {
-            String template = "";
+        if (internalTaskService != null && formManagerService != null) {
             Task task = internalTaskService.getTaskById(taskId);
             if (task != null) {
-                ProcessDefinition process = null;
-                Collection<ProcessDefinition> processesList = runtimeDataService.getProcessesByDeploymentId(task.getTaskData()
-                        .getDeploymentId(), new QueryContext());
-                for (ProcessDefinition each : processesList) {
-                    if (each.getDeploymentId().equals(task.getTaskData().getDeploymentId())) {
-                        process = each;
+                String template = formManagerService.getFormByKey(task.getTaskData()
+                        .getDeploymentId(), getTaskFormName(task));
+                if (Strings.isNullOrEmpty(template)) {
+                    template = formManagerService.getFormByKey(task.getTaskData()
+                            .getDeploymentId(), getTaskFormName(task) + "-taskform");
+                }
+                if (Strings.isNullOrEmpty(template)) {
+                    template = formManagerService.getFormByKey(task.getTaskData()
+                            .getDeploymentId(), getTaskFormName(task) + "-taskform.form");
+                }
+
+                if (!Strings.isNullOrEmpty(template)) {
+                    try {
+                        JAXBContext jc = JAXBContext.newInstance(ConnexoForm.class, ConnexoFormField.class, ConnexoProperty.class);
+                        Unmarshaller unmarshaller = jc.createUnmarshaller();
+
+                        StringReader reader = new StringReader(template);
+                        form = (ConnexoForm) unmarshaller.unmarshal(reader);
+
+                    } catch (JAXBException e) {
+                        e.printStackTrace();
                     }
                 }
-                if (process != null) {
-                    String lookupName = "";
-                    String formName = ((InternalTask) task).getFormName();
-                    if (formName != null && !formName.equals("")) {
-                        lookupName = formName;
-                    } else {
-                        if(((I18NText) task.getNames().get(0)).getText() != null) {
-                            lookupName = ((I18NText) task.getNames().get(0)).getText();
-                        }else{
-                            lookupName = "";
-                        }
 
-                    }
-
-                    //TODO: check if Java 8 syntax is not functional
-                    final String processId = process.getId();
-                    Optional<DeployedAsset> deployed = deploymentService.getDeployedUnit(process.getDeploymentId())
-                            .getDeployedAssets()
-                            .stream()
-                            .filter(asset -> asset.getId().equals(processId))
-                            .findFirst();
-                    if (deployed.isPresent()) {
-                        ProcessAssetDesc processDesc = ((ProcessAssetDesc) deployed.get());
-
-
-                        if (processDesc.getForms().containsKey(lookupName)) {
-                            template = processDesc.getForms().get(lookupName);
-                        }
-                        if (template.isEmpty() && processDesc.getForms()
-                                .containsKey(lookupName.replace(" ", "") + "-taskform")) {
-                            template = processDesc.getForms().get(lookupName.replace(" ", "") + "-taskform");
-                        }
-                        if (template.isEmpty() && processDesc.getForms()
-                                .containsKey(lookupName.replace(" ", "") + "-taskform.form")) {
-                            template = processDesc.getForms().get(lookupName.replace(" ", "") + "-taskform.form");
-                        }
-                        if (template.isEmpty() && processDesc.getForms().containsKey("DefaultTask")) {
-                            template = processDesc.getForms().get("DefaultTask");
-                        }
-
-                        if (!template.isEmpty()) {
-                            try {
-                                JAXBContext jc = JAXBContext.newInstance(ConnexoForm.class, ConnexoFormField.class, ConnexoProperty.class);
-                                Unmarshaller unmarshaller = jc.createUnmarshaller();
-
-                                StringReader reader = new StringReader(template);
-                                form = (ConnexoForm) unmarshaller.unmarshal(reader);
-
-                            } catch (JAXBException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
                 form.content = internalTaskService.getTaskContent(taskId);
                 long contentId = internalTaskService.getTaskById(taskId).getTaskData().getOutputContentId();
                 if (contentId != -1) {
@@ -647,53 +608,26 @@ public class JbpmTaskResource {
     @Produces("application/json")
     @Path("/process/{deploymentId}/content/{processId}")
     public ConnexoForm getProcessForm(@PathParam("processId") String processId, @PathParam("deploymentId") String deploymentId) {
-
-        if(runtimeDataService != null) {
-            String template = "";
-
-            ProcessDefinition process = runtimeDataService.getProcessById(processId);
-            List<ProcessDefinition> processDefinitions = runtimeDataService.getProcessesByDeploymentId(deploymentId, new QueryContext())
-                    .stream()
-                    .collect(Collectors.toList());
-            for (ProcessDefinition processDefinition : processDefinitions) {
-                if (processDefinition.getId().equals(processId)) {
-                    process = processDefinition;
-                }
+        if (formManagerService != null) {
+            String template = formManagerService.getFormByKey(deploymentId, processId);
+            if (Strings.isNullOrEmpty(template)) {
+                template = formManagerService.getFormByKey(deploymentId, processId + "-taskform");
+            }
+            if (Strings.isNullOrEmpty(template)) {
+                template = formManagerService.getFormByKey(deploymentId, processId + "-taskform.form");
             }
 
-            Optional<DeployedAsset> deployed = deploymentService.getDeployedUnit(deploymentId)
-                    .getDeployedAssets()
-                    .stream()
-                    .filter(asset -> asset.getId().equals(processId))
-                    .findFirst();
-            if (deployed.isPresent()) {
-                ProcessAssetDesc processDesc = ((ProcessAssetDesc) deployed.get());
+            if (!Strings.isNullOrEmpty(template)) {
+                try {
+                    JAXBContext jc = JAXBContext.newInstance(ConnexoForm.class, ConnexoFormField.class, ConnexoProperty.class);
+                    Unmarshaller unmarshaller = jc.createUnmarshaller();
 
-                if (processDesc.getForms().containsKey(process.getId())) {
-                    template = processDesc.getForms().get(process.getId());
-                }
-                if (template.isEmpty() && processDesc.getForms().containsKey(process.getId() + "-taskform")) {
-                    template = processDesc.getForms().get(process.getId() + "-taskform");
-                }
-                if (template.isEmpty() && processDesc.getForms().containsKey(process.getId() + "-taskform.form")) {
-                    template = processDesc.getForms().get(process.getId() + "-taskform.form");
-                }
-                if (template.isEmpty() && processDesc.getForms().containsKey("DefaultProcess")) {
-                    template = processDesc.getForms().get("DefaultProcess");
-                }
+                    StringReader reader = new StringReader(template);
+                    ConnexoForm form = (ConnexoForm) unmarshaller.unmarshal(reader);
 
-                if (!template.isEmpty()) {
-                    try {
-                        JAXBContext jc = JAXBContext.newInstance(ConnexoForm.class, ConnexoFormField.class, ConnexoProperty.class);
-                        Unmarshaller unmarshaller = jc.createUnmarshaller();
-
-                        StringReader reader = new StringReader(template);
-                        ConnexoForm form = (ConnexoForm) unmarshaller.unmarshal(reader);
-
-                        return form;
-                    } catch (JAXBException e) {
-                        e.printStackTrace();
-                    }
+                    return form;
+                } catch (JAXBException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -1107,5 +1041,31 @@ public class JbpmTaskResource {
         return filter;
     }
 
+    protected String getTaskFormName(Task task) {
+        String formName = ((InternalTask) task).getFormName();
+        if (formName != null && !formName.equals("")) {
+            // if the form name has extension it
+            if (formName.endsWith(getFormExtension())) {
+                return formName;
+            }
+            return formName + getFormSuffix();
+        } else {
+            if (task.getNames() != null && !task.getNames().isEmpty()) {
+                formName = task.getNames().get(0).getText();
+                if (formName != null) {
+                    return formName.replace(" ", "") + getFormSuffix();
+                }
+            }
+        }
+        return null;
+    }
+
+    protected String getFormSuffix() {
+        return "-taskform" + getFormExtension();
+    }
+
+    protected String getFormExtension() {
+        return "";
+    }
 
 }
