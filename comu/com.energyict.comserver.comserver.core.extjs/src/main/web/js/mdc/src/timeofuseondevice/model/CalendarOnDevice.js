@@ -4,7 +4,8 @@ Ext.define('Mdc.timeofuseondevice.model.CalendarOnDevice', {
         'Uni.model.timeofuse.Calendar'
     ],
     fields: [
-        {name: 'passiveCalendars', type: 'auto'}
+        {name: 'passiveCalendars', type: 'auto', defaultValue: null},
+        {name: 'lastVerified', type: 'number', defaultValue: null}
     ],
 
 

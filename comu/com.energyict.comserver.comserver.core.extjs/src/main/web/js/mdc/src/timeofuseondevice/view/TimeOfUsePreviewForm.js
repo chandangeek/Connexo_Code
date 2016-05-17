@@ -19,32 +19,38 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseCalendar', 'MDC', 'Time of use calendar'),
                     itemId: 'nameField',
-                    name: 'name'
+                    name: 'name',
+                    value: '-'
                 },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.lastVerifief', 'MDC', 'Last verified'),
-                    name: 'lastVefirifiedDisplayField'
+                    itemId: 'lastVefirifiedDisplayField',
+                    value: '-'
                 },
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('timeofuse.periods', 'MDC', 'Periods'),
-                    itemId: 'periodField'
+                    itemId: 'periodField',
+                    value: '-'
                 },
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('timeofuse.dayTypes', 'MDC', 'Day types'),
-                    itemId: 'dayTypesField'
+                    itemId: 'dayTypesField',
+                    value: '-'
                 },
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('timeofuse.tariffs', 'MDC', 'Tariffs'),
-                    itemId: 'tariffsField'
+                    itemId: 'tariffsField',
+                    value: '-'
                 },
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('timeofuse.passiveCalendars', 'MDC', 'Passive calendar(s)'),
-                    itemId: 'passiveField'
+                    itemId: 'passiveField',
+                    value: '-'
                 }
             ]
         };
@@ -53,13 +59,23 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
 
     fillFieldContainers: function (record) {
         var me = this,
-            calendarRecord = record.getActiveCalendar();
+            calendarRecord = record.getActiveCalendar(),
+            passiveCalendars = record.get('passiveCalendars'),
+            counter = 0,
+            value;
         Ext.suspendLayouts();
 
         me.down('#nameField').setValue(calendarRecord.get('name'));
+        if(record.get('lastVerified')) {
+            var creationTime = record.get('lastVerified');
+            me.down('#lastVefirifiedDisplayField').setValue(Uni.DateTime.formatDateLong(new Date(creationTime)));
+        } else {
+            me.down('#lastVefirifiedDisplayField').setValue('-');
+        }
 
         me.down('#periodField').removeAll();
         calendarRecord.periods().each(function (record) {
+            counter ++;
             me.down('#periodField').add(
                 {
                     xtype: 'displayfield',
@@ -69,8 +85,12 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                 }
             );
         });
+        me.fillEmpty(counter, '#periodField');
+        counter = 0;
+
         me.down('#dayTypesField').removeAll();
         calendarRecord.dayTypes().each(function (record) {
+            counter ++;
             me.down('#dayTypesField').add(
                 {
                     xtype: 'displayfield',
@@ -80,9 +100,12 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                 }
             );
         });
+        me.fillEmpty(counter, '#dayTypesField');
+        counter = 0;
 
-        this.down('#tariffsField').removeAll();
+        me.down('#tariffsField').removeAll();
         calendarRecord.events().each(function (record) {
+            counter ++;
             me.down('#tariffsField').add(
                 {
                     xtype: 'displayfield',
@@ -92,22 +115,53 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                 }
             );
         });
+        me.fillEmpty(counter, '#tariffsField');
+        counter = 0;
 
-        //this.down('#passiveField').removeAll();
-        //calendarRecord.passivecalendars().each(function (record) {
-        //    me.down('#passiveField').add(
-        //        {
-        //            xtype: 'displayfield',
-        //            fieldLabel: undefined,
-        //            value: record.get('name'),
-        //            margin: '0 0 -10 0'
-        //        }
-        //    );
-        //});
+        this.down('#passiveField').removeAll();
+        if(passiveCalendars) {
+            Ext.Array.each(passiveCalendars, function (passiveCalendar) {
+                value = passiveCalendar.name;
+                if(passiveCalendar.ghost) {
+                    value += ' (' + Uni.I18n.translate('calendars.ghost', 'MDC', 'Ghost') + ')';
+                }
+                me.down('#passiveField').add(
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: undefined,
+                        value: value,
+                        margin: '0 0 -10 0'
+                    }
+                );
+            });
+        } else {
+            me.down('#passiveField').add(
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: undefined,
+                    value: '-',
+                    margin: '0 0 -10 0'
+                }
+            );
+        }
         me.doComponentLayout();
         Ext.resumeLayouts(true);
         me.updateLayout();
         me.doLayout();
+    },
+
+    fillEmpty: function(counter, itemId) {
+        var me = this;
+        if(counter <= 0) {
+            me.down(itemId).add(
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: undefined,
+                    value: '-',
+                    margin: '0 0 -10 0'
+                }
+            );
+        }
     },
 
     getDays: function (record, id) {
