@@ -16,6 +16,7 @@ import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -36,16 +37,21 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
     private final Clock clock;
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
-    private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
+    private final Provider<MetrologyConfigurationInfoFactory> metrologyConfigurationInfoFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final Provider<MeterActivationInfoFactory> meterActivationInfoFactory;
 
     @Inject
-    public UsagePointInfoFactory(Clock clock, MeteringService meteringService, ExceptionFactory exceptionFactory, MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory, MetrologyConfigurationService metrologyConfigurationService) {
+    public UsagePointInfoFactory(Clock clock, MeteringService meteringService, ExceptionFactory exceptionFactory,
+                                 Provider<MetrologyConfigurationInfoFactory> metrologyConfigurationInfoFactory,
+                                 MetrologyConfigurationService metrologyConfigurationService,
+                                 Provider<MeterActivationInfoFactory> meterActivationInfoFactory) {
         this.clock = clock;
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.meterActivationInfoFactory = meterActivationInfoFactory;
     }
 
     public LinkInfo asLink(UsagePoint usagePoint, Relation relation, UriInfo uriInfo) {
@@ -292,12 +298,15 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("metrologyConfiguration", (usagePointInfo, usagePoint, uriInfo) -> {
             Optional<MetrologyConfiguration> metrologyConfiguration = usagePoint.getMetrologyConfiguration();
             metrologyConfiguration.ifPresent(mc -> usagePointInfo.metrologyConfiguration = metrologyConfigurationInfoFactory
+                    .get()
                     .asLink(mc, Relation.REF_RELATION, uriInfo));
         });
 
 //        map.put("serviceCategory", ((usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.serviceCategory = serviceCategoryInfoFactory.asLink(usagePoint.getServiceCategory(), Relation.REF_RELATION, uriInfo)));
 //
-//        map.put("meterActivations", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.meterActivations = meterActivationInfoFactory.asLink(usagePoint.getMeterActivations(), Relation.REL_RELATION, uriInfo));
+        map.put("meterActivations", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.meterActivations = meterActivationInfoFactory
+                .get()
+                .asLink(usagePoint.getMeterActivations(), Relation.REF_RELATION, uriInfo));
 //        map.put("accountabilities", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.accountabilities = accountabilitieInfoFactory.asLink(usagePoint.getAccountabilities(), Relation.REL_RELATION, uriInfo));
 //        map.put("usagePointConfigurations", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.usagePointConfigurations = usagePointConfigurationInfoFactory.asLink(usagePoint.getUsagePointConfigurations(), Relation.REL_RELATION, uriInfo));
         return map;

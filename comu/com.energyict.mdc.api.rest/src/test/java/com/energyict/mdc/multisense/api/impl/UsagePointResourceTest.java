@@ -520,7 +520,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
     public void testUsagePointFields() throws Exception {
         Response response = target("/usagepoints").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(33);
+        assertThat(model.<List>get("$")).hasSize(34);
         assertThat(model.<List<String>>get("$")).containsOnly(
                 "aliasName",
                 "bypass",
@@ -554,7 +554,8 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
                 "valve",
                 "version",
                 "serviceKind",
-                "metrologyConfiguration"
+                "metrologyConfiguration",
+                "meterActivations"
         );
     }
 }

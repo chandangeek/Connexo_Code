@@ -64,7 +64,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_SERVICE_CATEGORY(55, "NoSuchServiceCategory", "No such service category"),
     NO_SUCH_PROPERTY_SET(56, "NoSuchPropertySet", "No such custom property set or the custom property set is not available on the usage point"),
     UNSUPPORTED_TYPE(57, "TypeNotSupported", "The service category is not supported"),
-    NO_SUCH_METROLOGY_CONFIGURATION(58, "NoSuchMetrologyConfig", "No such metrology configuration");
+    NO_SUCH_METROLOGY_CONFIGURATION(58, "NoSuchMetrologyConfig", "No such metrology configuration"),
+    NO_SUCH_METER_ACTIVATION(59, "NoSuchMeterActivation", "No such meter activation on the usage point"),
+    EMPTY_REQUEST(60, "NoData", "No data found in your request"),
+    NO_SUCH_METER(61, "NoSuchMeter", "No such meter");
 
     private final int number;
     private final String key;

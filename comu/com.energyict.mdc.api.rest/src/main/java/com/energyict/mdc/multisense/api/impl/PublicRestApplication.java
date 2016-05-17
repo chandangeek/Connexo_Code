@@ -121,6 +121,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 UsagePointResource.class,
                 UsagePointCustomPropertySetResource.class,
                 MetrologyConfigurationResource.class,
+                MeterActivationResource.class,
 
                 RestExceptionMapper.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
@@ -346,6 +347,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointCustomPropertySetInfoFactory.class).to(UsagePointCustomPropertySetInfoFactory.class);
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
+            bind(MeterActivationInfoFactory.class).to(MeterActivationInfoFactory.class);
         }
     }
 
