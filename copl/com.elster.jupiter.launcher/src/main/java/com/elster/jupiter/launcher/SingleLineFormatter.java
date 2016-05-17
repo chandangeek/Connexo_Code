@@ -3,6 +3,7 @@ package com.elster.jupiter.launcher;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
@@ -33,11 +34,13 @@ public class SingleLineFormatter extends Formatter {
         sb.append(" ");
         String message = formatMessage(record);
         sb.append(record.getLevel().getLocalizedName());
-        sb.append(": ");
-        int iOffset = (1000 - record.getLevel().intValue()) / 100;
-        for( int i = 0; i < iOffset;  i++ ){
-            sb.append(" ");
-        }
+        Arrays.asList(record.getParameters()).stream().findFirst().ifPresent(param -> {
+            sb.append(" ").append(param.toString());
+            sb.append(" :");
+            for(int i=0; i < 8 - record.getLevel().getLocalizedName().length() + 15 - param.toString().length(); i++){
+                sb.append(" ");
+            }
+        });
         sb.append(message);
         sb.append(lineSeparator);
         if (record.getThrown() != null) {
