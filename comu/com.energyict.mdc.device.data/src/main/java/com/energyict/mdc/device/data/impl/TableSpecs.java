@@ -777,6 +777,7 @@ public enum TableSpecs {
             Column calendarColumn = table.column("ALLOWED_CALENDAR").number().notNull().add();
             Column deviceColumn = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
             table.column("ACTIVATION_DATE").type("number").conversion(NUMBER2INSTANT).map(PassiveEffectiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
+            Column comTaskExecColumn = table.column("COM_TASK_EXEC").number().conversion(NUMBER2LONG).add();
 
             table.primaryKey("DDC_PK_PASSIVE_CAL").on(idColumn).add();
             table.foreignKey("DDC_PASS_TO_ALLOWED")
@@ -791,6 +792,11 @@ public enum TableSpecs {
                     .map(PassiveEffectiveCalendarImpl.Fields.DEVICE.fieldName())
                     .reverseMap("passiveCalendars")
                     .onDelete(CASCADE)
+                    .add();
+            table.foreignKey("DDC_PASS_TO_COMTASK")
+                    .on(comTaskExecColumn)
+                    .references(DDC_COMTASKEXEC.name())
+                    .map(PassiveEffectiveCalendarImpl.Fields.COMTASKEXECUTION.fieldName())
                     .add();
         }
     },
