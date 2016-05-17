@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -205,7 +208,8 @@ public class SecurityPropertySetImplCrudIT {
                     new PluggableModule(),
                     new SchedulingModule(),
                     new TimeModule(),
-                    new CustomPropertySetsModule());
+                    new CustomPropertySetsModule(),
+                    new CalendarModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -237,7 +241,8 @@ public class SecurityPropertySetImplCrudIT {
                     injector.getInstance(EstimationService.class),
                     injector.getInstance(MasterDataService.class),
                     finiteStateMachineService,
-                    injector.getInstance(DeviceLifeCycleConfigurationService.class));
+                    injector.getInstance(DeviceLifeCycleConfigurationService.class),
+                    injector.getInstance(CalendarService.class));
             ctx.commit();
         }
         enhanceEventServiceForConflictCalculation();

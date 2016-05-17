@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -129,6 +130,12 @@ public interface DeviceType extends HasId, HasName {
 
     void removeRegisterType(RegisterType registerType);
 
+    List<AllowedCalendar> getAllowedCalendars();
+
+    void addCalendar(Calendar calendar);
+
+    void removeCalendar(long allowedCalendarId);
+
     List<LoadProfileType> getLoadProfileTypes();
 
     void addLoadProfileType(LoadProfileType loadProfileType);
@@ -250,7 +257,7 @@ public interface DeviceType extends HasId, HasName {
          * Note that there is no need to call the add method as that
          * will be done by the {@link DeviceConfigurationBuilder#add()} method.
          *
-         * @param channelType     The ChannelType
+         * @param channelType The ChannelType
          * @param loadProfileSpec The LoadProfileSpec
          * @return The builder
          * @see DeviceConfiguration#createChannelSpec(com.energyict.mdc.masterdata.ChannelType, LoadProfileSpec)
@@ -265,7 +272,7 @@ public interface DeviceType extends HasId, HasName {
          * Note that there is no need to call the add method as that
          * will be done by the {@link DeviceConfigurationBuilder#add()} method.
          *
-         * @param channelType            The ChannelType
+         * @param channelType The ChannelType
          * @param loadProfileSpecBuilder The LoadProfileSpecBuilder
          * @return The builder
          * @see DeviceConfiguration#createChannelSpec(com.energyict.mdc.masterdata.ChannelType, LoadProfileSpec)

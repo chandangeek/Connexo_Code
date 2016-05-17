@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
@@ -11,6 +12,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
 import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
@@ -75,6 +77,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         NAME("name"),
         CONFLICTINGMAPPING("deviceConfigConflictMappings"),
         CUSTOMPROPERTYSETUSAGE("deviceTypeCustomPropertySetUsages"),
+        ALLOWEDCALENDARS("allowedCalendars"),
         DEVICETYPEPURPOSE("deviceTypePurpose"),
         DEVICE_LIFE_CYCLE("deviceLifeCycle"),
         FILE_MANAGEMENT_ENABLED("fileManagementEnabled"),
@@ -106,6 +109,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = new ArrayList<>();
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
+    private List<AllowedCalendar> allowedCalendars = new ArrayList<>();
     @Valid
     private List<DeviceConfigConflictMappingImpl> deviceConfigConflictMappings = new ArrayList<>();
     @Valid
@@ -477,6 +481,26 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 .stream()
                 .map(DeviceTypeRegisterTypeUsage::getRegisterType)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AllowedCalendar> getAllowedCalendars() {
+        return Collections.unmodifiableList(this.allowedCalendars);
+    }
+
+    @Override
+    public void addCalendar(Calendar calendar) {
+        AllowedCalendar allowedCalendar = getDataModel().getInstance(AllowedCalendarImpl.class)
+                .initialize(calendar, this);
+        this.allowedCalendars.add(allowedCalendar);
+    }
+
+    @Override
+    public void removeCalendar(long allowedCalendarId) {
+        Optional<AllowedCalendar> allowedCalendar = allowedCalendars.stream()
+                .filter(cal -> cal.getId() == allowedCalendarId)
+                .findFirst();
+        allowedCalendar.ifPresent(calendar -> allowedCalendars.remove(calendar));
     }
 
     @Override

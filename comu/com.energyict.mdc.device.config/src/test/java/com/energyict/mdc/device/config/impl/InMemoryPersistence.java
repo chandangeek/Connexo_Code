@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -110,6 +113,7 @@ public class InMemoryPersistence {
     private Injector injector;
     private ValidationService validationService;
     private EstimationService estimationService;
+    private CalendarService calendarService;
     private PluggableService pluggableService;
     private CustomPropertySetService customPropertySetService;
 
@@ -164,6 +168,7 @@ public class InMemoryPersistence {
             this.taskService = injector.getInstance(TaskService.class);
             this.validationService = injector.getInstance(ValidationService.class);
             this.estimationService = injector.getInstance(EstimationService.class);
+            this.calendarService = injector.getInstance(CalendarService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.pluggableService = this.injector.getInstance(PluggableService.class);
             if (!mockedProtocolPluggableService) {
@@ -228,7 +233,8 @@ public class InMemoryPersistence {
                 new PluggableModule(),
                 new SchedulingModule(),
                 new TimeModule(),
-                new CustomPropertySetsModule()));
+                new CustomPropertySetsModule(),
+                new CalendarModule()));
         if (!mockedProtocolPluggableService) {
             modules.add(new IssuesModule());
             modules.add(new BasicPropertiesModule());
@@ -289,6 +295,10 @@ public class InMemoryPersistence {
 
     public EstimationService getEstimationService() {
         return estimationService;
+    }
+
+    public CalendarService getCalendarService() {
+        return calendarService;
     }
 
     public MasterDataService getMasterDataService() {
