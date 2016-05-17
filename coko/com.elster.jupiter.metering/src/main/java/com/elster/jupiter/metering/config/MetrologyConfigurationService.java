@@ -50,6 +50,8 @@ public interface MetrologyConfigurationService {
 
     MetrologyPurpose createMetrologyPurpose(NlsKey name, NlsKey description);
 
+    Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
+
     Optional<MetrologyPurpose> findMetrologyPurpose(long id);
 
     List<MetrologyPurpose> getMetrologyPurposes();
