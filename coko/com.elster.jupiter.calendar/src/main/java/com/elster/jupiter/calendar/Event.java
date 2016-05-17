@@ -5,6 +5,8 @@ import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
+
 /**
  * Models a thing that happens or takes place
  * and takes some time to complete or finish.
@@ -23,4 +25,15 @@ public interface Event extends HasId, HasName {
      * @return The value
      */
     long getCode();
+
+    Instant getCreateTime();
+
+    long getVersion();
+
+    Instant getModTime();
+
+    String getUserName();
+
+    Calendar getCalendar();
+
 }

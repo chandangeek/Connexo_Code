@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.calendar.impl
-Export-Package: com.elster.jupiter.calendar
+Private-Package: com.elster.jupiter.calendar.impl, com.elster.jupiter.calendar.impl.gogo
+Export-Package: com.elster.jupiter.calendar, com.elster.jupiter.calendar.security

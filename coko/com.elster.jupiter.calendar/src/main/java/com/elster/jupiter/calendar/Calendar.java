@@ -5,6 +5,7 @@ import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.time.Year;
 import java.util.List;
 import java.util.TimeZone;
@@ -86,8 +87,54 @@ public interface Calendar extends HasId, HasName {
      */
     List<Period> getPeriods();
 
+    /**
+     * Gets the List of {@link PeriodTransitionSpec} that specify
+     * when one {@link Period} transitions into another.
+     * The List is ordered by time, i.e. the earliest transitions
+     * are returned first.
+     * Note also that all transitions must be of the same type.
+     *
+     * @return The List of PeriodTransitionSpec
+     */
+    List<? extends PeriodTransitionSpec> getPeriodTransitionSpecs();
+
+    /**
+     * Gets the List of {@link PeriodTransition} that specify
+     * when one {@link Period} transitions into another.
+     * The List is ordered by time, i.e. the earliest transitions
+     * are returned first.
+     * This is especially useful when the transitions of the Calendar
+     * are using recurring dates. In that case all {@link PeriodTransitionSpec}s
+     * will be calculated and converted to PeriodTransition starting at
+     * the start year of this Calendar and running to the end of
+     * the current year.
+     *
+     * @return The List of PeriodTransition
+     */
+    List<PeriodTransition> getTransitions();
+
     List<DayType> getDayTypes();
 
     List<ExceptionalOccurrence> getExceptionalOccurrences();
+
+    String getDescription();
+
+    long getVersion();
+
+    Instant getCreateTime();
+
+    Instant getModTime();
+
+    String getUserName();
+
+    void save();
+
+    void delete();
+
+    Year getStartYear();
+
+    Year getEndYear();
+
+    boolean isAbstract();
 
 }

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
+import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -26,7 +27,12 @@ public interface CalendarService {
      * @param start The year from which any timeline will start
      * @return The CalendarBuilder
      */
+
+    String COMPONENTNAME = "CAL";
+
     CalendarBuilder newCalendar(String name, TimeZone timeZone, Year start);
+
+    List<Calendar> findAllCalendars();
 
     Optional<Calendar> findCalendar(long id);
 
@@ -34,11 +40,14 @@ public interface CalendarService {
 
     @ProviderType
     interface CalendarBuilder {
+        CalendarBuilder endYear(Year setStartYear);
         CalendarBuilder mRID(String mRID);
         CalendarBuilder description(String description);
         CalendarBuilder addEvent(String name, int code);
         DayTypeBuilder newDayType(String name);
-        CalendarBuilder addPeriod(String name, MonthDay start, String mondayDayTypeName, String tuesdayDayTypeName, String wednesdayDayTypeName, String thursdayDayTypeName, String fridayDayTypeName, String saturdayDayTypeName, String sundayDayTypeName);
+        CalendarBuilder addPeriod(String name, String mondayDayTypeName, String tuesdayDayTypeName, String wednesdayDayTypeName, String thursdayDayTypeName, String fridayDayTypeName, String saturdayDayTypeName, String sundayDayTypeName);
+        TransitionBuilder on(MonthDay occurrence);
+        TransitionBuilder on(LocalDate occurrence);
         ExceptionBuilder except(String dayTypeName);
         Calendar add();
     }
@@ -53,6 +62,11 @@ public interface CalendarService {
     @ProviderType
     interface DayTypeEventOccurrenceBuilder {
         DayTypeBuilder startsFrom(LocalTime localTime);
+    }
+
+    @ProviderType
+    interface TransitionBuilder {
+        CalendarBuilder transitionTo(String name);
     }
 
     @ProviderType

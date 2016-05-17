@@ -5,20 +5,25 @@ import aQute.bnd.annotation.ProviderType;
 import java.time.LocalDate;
 
 /**
- * Models an {@link ExceptionalOccurrence} that occurs only
- * at a very specific point in time. In other words
- * it is fixed on that point in time.
+ * Models an effective transition from one {@link Period} to another.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2016-04-07 (14:06)
+ * @since 2016-04-18 (10:44)
  */
 @ProviderType
-public interface FixedExceptionalOccurrence extends ExceptionalOccurrence {
+public interface PeriodTransition {
     /**
      * Gets the fixed point in time in the TimeZone of the related {@link Calendar}.
      *
      * @return The fixed point in time
      */
     LocalDate getOccurrence();
+
+    /**
+     * The {@link Period} to which is being transitioned.
+     *
+     * @return The Period to which is being transitioned
+     */
+    Period getPeriod();
 
 }

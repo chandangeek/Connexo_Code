@@ -6,7 +6,7 @@ import com.elster.jupiter.util.HasName;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.DayOfWeek;
-import java.time.MonthDay;
+import java.time.Instant;
 
 /**
  * Defines the standard occurrences of {@link Event}s
@@ -18,9 +18,15 @@ import java.time.MonthDay;
  */
 @ProviderType
 public interface Period extends HasId, HasName {
-
-    MonthDay getFrom();
-
     DayType getDayType(DayOfWeek dayOfWeek);
 
+    Calendar getCalendar();
+
+    Instant getCreateTime();
+
+    long getVersion();
+
+    Instant getModTime();
+
+    String getUserName();
 }

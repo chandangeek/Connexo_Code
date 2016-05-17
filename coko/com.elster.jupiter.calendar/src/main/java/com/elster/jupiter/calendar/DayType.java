@@ -5,6 +5,7 @@ import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -17,5 +18,15 @@ import java.util.List;
 public interface DayType extends HasId, HasName {
 
     List<EventOccurrence> getEventOccurrences();
+
+    Calendar getCalendar();
+
+    long getVersion();
+
+    Instant getCreateTime();
+
+    Instant getModTime();
+
+    String getUserName();
 
 }
