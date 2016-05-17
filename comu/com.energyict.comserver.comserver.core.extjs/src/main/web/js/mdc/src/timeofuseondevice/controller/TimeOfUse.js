@@ -50,11 +50,16 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                         success: function (response, opt) {
                             result = JSON.parse(response.responseText);
                             resultSet = reader.read(result);
+
                             if (view.down('device-tou-preview-form')) {
-                                view.down('device-tou-preview-form').fillFieldContainers(resultSet.records[0]);
+                                if (!(Object.keys(result).length === 0 && result.constructor === Object)) {
+                                    view.down('device-tou-preview-form').fillFieldContainers(resultSet.records[0]);
+
+                                }
                                 view.down('#wrappingPanel').setLoading(false);
                             }
-                        },
+                        }
+                        ,
                         failure: function () {
                             if (view.down('#wrappingPanel')) {
                                 view.down('#wrappingPanel').setLoading(false);
