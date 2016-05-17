@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
-import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
+
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.protocolimpl.base.AbstractContactorController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
@@ -62,8 +64,8 @@ public class GasValveController extends AbstractContactorController {
 	/**
 	 * {@inheritDoc}
 	 */
-	public ContactorState getContactorState() throws IOException {
-		return ContactorState.values()[getGasDevice().getCosemObjectFactory().getDisconnector(getGasDevice().getMeterConfig().
+	public BreakerStatus getContactorState() throws IOException {
+		return BreakerStatus.values()[getGasDevice().getCosemObjectFactory().getDisconnector(getGasDevice().getMeterConfig().
 				getMbusDisconnectControl(getGasDevice().getPhysicalAddress()).getObisCode()).getControlState().getValue()];
 	}
 

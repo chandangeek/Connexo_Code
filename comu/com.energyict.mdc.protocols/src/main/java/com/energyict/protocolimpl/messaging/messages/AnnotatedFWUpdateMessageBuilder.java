@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.messaging.messages;
 
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.messaging.MessageBuilder;
 
@@ -26,6 +27,10 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
     public static final String ATTR_USER_FILE_CONTENT = "userFileContent";
     public static final String ATTR_URL = "url";
 
+    public AnnotatedFWUpdateMessageBuilder(DeviceMessageFileService deviceMessageFileService) {
+        super(deviceMessageFileService);
+    }
+
     @Override
     public String getDescription() {
         final StringBuilder sb = new StringBuilder(TAG_FIRMWARE_UPGRADE);
@@ -36,9 +41,9 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
             sb.append(getUrl());
             sb.append("', ");
         }
-        if (getUserFile() != null) {
+        if (getDeviceMessageFile() != null) {
             sb.append("UserFile='");
-            sb.append(getUserFile().getName());
+            sb.append(getDeviceMessageFile().getName());
             sb.append('\'');
         }
         return sb.toString();
@@ -63,10 +68,7 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
         } catch (ParserConfigurationException e) {
             throw new NestedIOException(e);
         }
-
-
     }
-
 
     @Override
     public AdvancedMessageHandler getMessageHandler(MessageBuilder builder) {

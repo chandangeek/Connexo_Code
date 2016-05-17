@@ -2,10 +2,10 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -57,13 +57,13 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     protected AS300LoadProfileBuilder loadProfileBuilder;
     protected AS300Messaging messageProtocol;
     protected final CalendarService calendarService;
-    protected final UserFileFactory userFileFactory;
+    protected final DeviceMessageFileService deviceMessageFileService;
 
     @Inject
-    public AS300(PropertySpecService propertySpecService, CalendarService calendarService, UserFileFactory userFileFactory, OrmClient ormClient) {
+    public AS300(PropertySpecService propertySpecService, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService, OrmClient ormClient) {
         super(propertySpecService, ormClient);
         this.calendarService = calendarService;
-        this.userFileFactory = userFileFactory;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     @Override
@@ -99,8 +99,8 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return calendarService;
     }
 
-    protected UserFileFactory getUserFileFactory() {
-        return userFileFactory;
+    protected DeviceMessageFileService getDeviceMessageFileService() {
+        return deviceMessageFileService;
     }
 
     @Override
@@ -209,7 +209,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, this.calendarService, this.userFileFactory));
+            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, this.calendarService, this.deviceMessageFileService));
         }
         return messageProtocol;
     }

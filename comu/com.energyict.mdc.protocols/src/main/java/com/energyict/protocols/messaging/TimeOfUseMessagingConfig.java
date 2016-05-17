@@ -1,6 +1,6 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 
 /**
  * Gives a summary of all the TimeOfUseMessaging features that are supported by the protocol
@@ -25,10 +25,10 @@ public class TimeOfUseMessagingConfig {
      * @param needsName                   Indicates whether the protocol needs a 'name' for the tariff calendar or not.
      * @param supportsCodeTables          Indicates whether the tarif calendar data is saved in code table or not.
      * @param supportsUserFiles           Indicates whether the tariff calendar data is saved in a userfile or not.
-     * @param supportsUserFileReferences  Indicates whether the implementer supports {@link UserFile} references.
-     * @param supportsCodeTableReferences Indicates whether the implementer supports {@link com.energyict.mdw.core.Code} references
-     * @param zipContent                  Indicates whether the content of the {@link UserFile} of the {@link com.energyict.mdw.core.Code} must be zipped when it is inlined in the DeviceMessage.
-     * @param encodeContentToBase64       Indicate whether the content of the {@link UserFile} or {@link com.energyict.mdw.core.Code} must be Base64 Encoded.
+     * @param supportsUserFileReferences  Indicates whether the implementer supports {@link com.energyict.mdc.protocol.api.DeviceMessageFile} references.
+     * @param supportsCodeTableReferences Indicates whether the implementer supports {@link com.energyict.mdc.protocol.api.codetables.Code} references
+     * @param zipContent                  Indicates whether the content of the DeviceMessageFile of the Code must be zipped when it is inlined in the DeviceMessage.
+     * @param encodeContentToBase64       Indicate whether the content of the DeviceMessageFile or Code must be Base64 Encoded.
      */
     public TimeOfUseMessagingConfig(boolean needsName, boolean supportsCodeTables, boolean supportsUserFiles, boolean supportsUserFileReferences,
                                     boolean supportsCodeTableReferences, boolean zipContent, boolean encodeContentToBase64) {
@@ -79,10 +79,12 @@ public class TimeOfUseMessagingConfig {
     }
 
     /**
-     * Indicates whether the implementer supports {@link UserFile} references. This will typically be used by generic protocols, as these have
-     * access to the database. If {@link #supportsUserFiles()} is true, and this method returns <code>false</code>, the entire file is sent as payload in
-     * the message. If this method returns <code>true</code>, a user file ID is passed on to the implementer, who can then query the database for the
-     * contents of the file.
+     * Indicates whether the implementer supports {@link DeviceMessageFile} references.
+     * This will typically be used by generic protocols, as these have access to the database.
+     * If {@link #supportsUserFiles()} is true, and this method returns <code>false</code>,
+     * the entire file is sent as payload in the message.
+     * If this method returns <code>true</code>, a user file ID is passed on to the implementer,
+     * who can then query the database for the contents of the file.
      *
      * @return <code>true</code> if the protocol supports a file ID reference, <code>false</code> if it does not. This can equally be translated into
      *         <code>true</code> for a generic protocol, and <code>false</code> for a normal one.
@@ -92,10 +94,12 @@ public class TimeOfUseMessagingConfig {
     }
 
     /**
-     * Indicates whether the implementer supports {@link com.energyict.mdw.core.Code} references. This will typically be used by generic protocols, as these have
-     * access to the database. If {@link #supportsCodeTables()} is true, and this method returns <code>false</code>, the entire file is sent as payload in
-     * the message. If this method returns <code>true</code>, a user file ID is passed on to the implementer, who can then query the database for the
-     * contents of the file.
+     * Indicates whether the implementer supports {@link com.energyict.mdc.protocol.api.codetables.Code} references.
+     * This will typically be used by generic protocols, as these have access to the database.
+     * If {@link #supportsCodeTables()} is true, and this method returns <code>false</code>,
+     * the entire file is sent as payload in the message.
+     * If this method returns <code>true</code>, a user file ID is passed on to the implementer,
+     * who can then query the database for the contents of the file.
      *
      * @return <code>true</code> if the protocol supports a codeTable ID reference, <code>false</code> if it does not. This can equally be translated into
      *         <code>true</code> for a generic protocol, and <code>false</code> for a normal one.
@@ -105,8 +109,9 @@ public class TimeOfUseMessagingConfig {
     }
 
     /**
-     * Indicates whether the content of the {@link UserFile} of the {@link com.energyict.mdw.core.Code} must be zipped when it is inlined in the
-     * DeviceMessage. This is only taken into account when {@link #supportsCodeTableReferences()} or {@link #supportsUserFileReferences()} is false.</br>
+     * Indicates whether the content of the {@link com.energyict.mdc.protocol.api.DeviceMessageFile}
+     * of the {@link com.energyict.mdc.protocol.api.codetables.Code} must be zipped when it is inlined in the DeviceMessage.
+     * This is only taken into account when {@link #supportsCodeTableReferences()} or {@link #supportsUserFileReferences()} is false.</br>
      * <b><u>NOTE:</u> If the content is zipped, then Base64 Encoding is also applied!</b>
      *
      * @return true if the content needs to be zipped, false otherwise
@@ -116,7 +121,8 @@ public class TimeOfUseMessagingConfig {
     }
 
     /**
-     * Indicate whether the content of the {@link UserFile} or {@link com.energyict.mdw.core.Code} must be Base64 Encoded.
+     * Indicate whether the content of the {@link com.energyict.mdc.protocol.api.DeviceMessageFile}
+     * or {@link com.energyict.mdc.protocol.api.codetables.Code} must be Base64 Encoded.
      * <b><u>NOTE:</u> Base64 encoding will be automatically applied if {@link #zipContent()} returns true</b>
      *
      * @return true if the content needs to be Base64 encoded, false otherwise
@@ -152,4 +158,5 @@ public class TimeOfUseMessagingConfig {
     public void setEncodeContentToBase64(boolean encodeContentToBase64) {
         this.encodeContentToBase64 = encodeContentToBase64;
     }
+
 }

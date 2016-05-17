@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
@@ -43,12 +43,12 @@ public class ZMDMessages extends ProtocolMessages {
 
     private final ZMD protocol;
     private final CalendarService calendarService;
-    private final UserFileFactory userFileFactory;
+    private final DeviceMessageFileService deviceMessageFileService;
 
-    public ZMDMessages(final ZMD protocol, CalendarService calendarService, UserFileFactory userFileFactory) {
+    public ZMDMessages(final ZMD protocol, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService) {
         this.protocol = protocol;
         this.calendarService = calendarService;
-        this.userFileFactory = userFileFactory;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     /**
@@ -171,7 +171,7 @@ public class ZMDMessages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarService, this.userFileFactory);
+        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarService, this.deviceMessageFileService);
         ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
         if (builder.getCalendarId() > 0) { // codeTable implementation

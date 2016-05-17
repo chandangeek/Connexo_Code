@@ -2,8 +2,8 @@ package com.energyict.protocols.messaging;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.codetables.Code;
 
 import org.xml.sax.Attributes;
@@ -50,20 +50,19 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     private static final String TAG_CODE = "CodeId";
     private static final String TAG_USERFILE = "UserFileId";
 
+    private final DeviceMessageFileService deviceMessageFileService;
     private String name;
     private Date activationDate;
     private long calendarId = 0;
-    private int userFileId = 0;
+    private long deviceMessageFileId = 0;
+    private DeviceMessageFile deviceMessageFile;
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private Calendar calendar;
     private final CalendarService calendarService;
 
-    private UserFile userFile;
-    private final UserFileFactory userFileFactory;
-
     /**
-     * Indicates whether to inline the {@link UserFile} or not.
+     * Indicates whether to inline the {@link DeviceMessageFile} or not.
      */
     private boolean inlineUserFiles;
 
@@ -76,9 +75,9 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     private boolean encodeB64;
 
-    public TimeOfUseMessageBuilder(CalendarService calendarService, UserFileFactory userFileFactory) {
+    public TimeOfUseMessageBuilder(CalendarService calendarService, DeviceMessageFileService deviceMessageFileService) {
         this.calendarService = calendarService;
-        this.userFileFactory = userFileFactory;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     /**
@@ -156,36 +155,26 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     /**
      * Set the userfile to be used as content for this time of use schedule
      *
-     * @param userFile The userFile to be set
+     * @param deviceMessageFile The userFile to be set
      */
-    public void setUserFile(UserFile userFile) {
-        if (userFile != null) {
-            this.userFileId = userFile.getId();
-            this.userFile = userFile;
+    public void setDeviceMessageFile(DeviceMessageFile deviceMessageFile) {
+        if (deviceMessageFile != null) {
+            this.deviceMessageFileId = deviceMessageFile.getId();
+            this.deviceMessageFile = deviceMessageFile;
         } else {
-            this.userFileId = 0;
+            this.deviceMessageFileId = 0;
         }
     }
 
-    /**
-     * Set the id of the userfile to be used as content for this time of use schedule
-     *
-     * @param userFileId The id of the userFile to be set
-     */
-    public void setUserFileId(int userFileId) {
-        this.userFileId = userFileId;
+    public void setDeviceMessageFileId(int deviceMessageFileId) {
+        this.deviceMessageFileId = deviceMessageFileId;
     }
 
-    /**
-     * Get the userfile to be used as content for this time of use schedule
-     *
-     * @return the userfile to be used as content for this time of use schedule
-     */
-    public UserFile getUserFile() {
-        if (userFile == null) {
-            this.userFile = this.userFileFactory.findUserFile(this.userFileId);
+    public DeviceMessageFile getDeviceMessageFile() {
+        if (deviceMessageFile == null) {
+            this.deviceMessageFile = this.deviceMessageFileService.findDeviceMessageFile(this.deviceMessageFileId).orElse(null);
         }
-        return userFile;
+        return deviceMessageFile;
     }
 
     public static String getMessageNodeTag() {
@@ -196,8 +185,8 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      * {@inheritDoc}
      */
     protected String getMessageContent() throws ParserConfigurationException, IOException {
-        if ((calendarId == 0) && (userFileId == 0)) {
-            throw new IllegalArgumentException("Code or user file needed");
+        if ((calendarId == 0) && (deviceMessageFileId == 0)) {
+            throw new IllegalArgumentException("Calendar or device message file needed");
         }
         StringBuilder builder = new StringBuilder();
         builder.append("<");
@@ -212,12 +201,12 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
         if (calendarId > 0) {
             addChildTag(builder, TAG_CODE, calendarId);
         }
-        if (userFileId > 0) {
+        if (deviceMessageFileId > 0) {
             if (this.inlineUserFiles) {
                 builder.append("<").append(INCLUDED_USERFILE_TAG).append(">");
 
                 // This will generate a message that will make the RtuMessageContentParser inline the file.
-                builder.append("<").append(INCLUDE_USERFILE_TAG).append(" ").append(INCLUDE_USERFILE_ID_ATTRIBUTE).append("=\"").append(this.userFileId).append("\"");
+                builder.append("<").append(INCLUDE_USERFILE_TAG).append(" ").append(INCLUDE_USERFILE_ID_ATTRIBUTE).append("=\"").append(this.deviceMessageFileId).append("\"");
                 if (isZipMessageContent()) {
                     builder.append(" ").append(CREATEZIP_ATTRIBUTE_TAG).append("=\"true\"");
                 } else if (isEncodeB64()) {
@@ -227,7 +216,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
 
                 builder.append("</").append(INCLUDED_USERFILE_TAG).append(">");
             } else {
-                addChildTag(builder, TAG_USERFILE, userFileId);
+                addChildTag(builder, TAG_USERFILE, deviceMessageFileId);
             }
         }
         builder.append("</");
@@ -247,8 +236,8 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
             // Wanted to change this to Calendar= but was not sure if it was part of an agreed contract with the device firmware
             buf.append("Code='").append(getCalendar().getName()).append("', ");
         }
-        if (userFileId > 0) {
-            buf.append("UserFile='").append(getUserFile().getName()).append("'");
+        if (deviceMessageFileId > 0) {
+            buf.append("UserFile='").append(getDeviceMessageFile().getName()).append("'");
         }
 
         return buf.toString();
@@ -306,13 +295,13 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
                 String userFileId = (String) getCurrentValue();
                 if (userFileId != null) {
                     int id = Integer.parseInt(userFileId);
-                    msgBuilder.setUserFileId(id);
+                    msgBuilder.setDeviceMessageFileId(id);
                 }
             }
 
             // We have an included file...
             if (INCLUDED_USERFILE_TAG.equals(localName)) {
-                this.msgBuilder.setUserFile(new IncludedUserFile((String) this.getCurrentValue()));
+                this.msgBuilder.setDeviceMessageFile(new IncludedDeviceMessageFile((String) this.getCurrentValue()));
             }
         }
 
@@ -322,8 +311,8 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
         return calendarId;
     }
 
-    public int getUserFileId() {
-        return userFileId;
+    public long getDeviceMessageFileId() {
+        return deviceMessageFileId;
     }
 
     public static String getAttributeName() {

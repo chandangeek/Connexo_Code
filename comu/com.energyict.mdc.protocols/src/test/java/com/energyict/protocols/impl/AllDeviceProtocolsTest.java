@@ -11,15 +11,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.license.LicensedProtocolRule;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
@@ -29,15 +29,11 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.mdc.InboundDeviceProtocolRule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+
+import com.energyict.license.LicensedProtocolRule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -50,11 +46,20 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -102,7 +107,7 @@ public class AllDeviceProtocolsTest {
     @Mock
     private MdcReadingTypeUtilService mdcReadingTypeUtilService;
     @Mock
-    private UserFileFactory userFileFactory;
+    private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private CodeFactory codeFactory;
     @Mock
@@ -111,6 +116,8 @@ public class AllDeviceProtocolsTest {
     private IdentificationService identificationService;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
+    @Mock
+    private DeviceMessageFileService deviceMessageFileService;
 
     private InMemoryBootstrapModule bootstrapModule;
     private DeviceProtocolService deviceProtocolService;
@@ -212,12 +219,13 @@ public class AllDeviceProtocolsTest {
             bind(TopologyService.class).toInstance(topologyService);
             bind(IssueService.class).toInstance(issueService);
             bind(MdcReadingTypeUtilService.class).toInstance(mdcReadingTypeUtilService);
-            bind(UserFileFactory.class).toInstance(userFileFactory);
+            bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
             bind(CodeFactory.class).toInstance(codeFactory);
             bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
             bind(IdentificationService.class).toInstance(identificationService);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(SerialComponentService.class).toInstance(serialComponentService);
+            bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
         }
     }
 

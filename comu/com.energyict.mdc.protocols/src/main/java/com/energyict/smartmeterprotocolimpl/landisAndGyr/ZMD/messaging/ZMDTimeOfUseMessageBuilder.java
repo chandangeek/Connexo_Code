@@ -1,14 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 20/12/11
- * Time: 15:09
- */
-
-import com.elster.jupiter.calendar.CalendarService;
-import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -19,13 +12,17 @@ import java.io.IOException;
 
 /**
  * MessageBuilder for the TimeOfUse Message.
+ * Copyrights EnergyICT
+ * User: sva
+ * Date: 20/12/11
+ * Time: 15:09
  */
 public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
-    public ZMDTimeOfUseMessageBuilder(CalendarService calendarService, UserFileFactory userFileFactory) {
-        super(calendarService, userFileFactory);
+    public ZMDTimeOfUseMessageBuilder(CalendarService calendarService, DeviceMessageFileService deviceMessageFileService) {
+        super(calendarService, deviceMessageFileService);
     }
 
     /**
@@ -33,8 +30,8 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
      */
     @Override
     protected String getMessageContent() throws ParserConfigurationException, IOException {
-        if ((getCalendarId() == 0) && (getUserFileId() == 0)) {
-            throw new IllegalArgumentException("Code or userFile needed");
+        if ((getCalendarId() == 0) && (getDeviceMessageFileId() == 0)) {
+            throw new IllegalArgumentException("Calendar or device message file needed");
         }
         StringBuilder builder = new StringBuilder();
         builder.append("<");
@@ -56,4 +53,5 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
         builder.append(">");
         return builder.toString();
     }
+
 }

@@ -8,7 +8,7 @@ package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
  */
 
 import com.elster.jupiter.calendar.CalendarService;
-import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -26,8 +26,8 @@ public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.T
 
       public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
-    public TimeOfUseMessageBuilder(CalendarService calendarService, UserFileFactory userFileFactory) {
-        super(calendarService, userFileFactory);
+    public TimeOfUseMessageBuilder(CalendarService calendarService, DeviceMessageFileService deviceMessageFileService) {
+        super(calendarService, deviceMessageFileService);
     }
 
     /**
@@ -35,8 +35,8 @@ public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.T
      */
     @Override
     protected String getMessageContent() throws ParserConfigurationException, IOException {
-        if ((getCalendarId() == 0) && (getUserFileId() == 0)) {
-            throw new IllegalArgumentException("Code or userFile needed");
+        if ((getCalendarId() == 0) && (getDeviceMessageFileId() == 0)) {
+            throw new IllegalArgumentException("Calendar or device message file needed");
         }
         StringBuilder builder = new StringBuilder();
         builder.append("<");
@@ -58,4 +58,5 @@ public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.T
         builder.append(">");
         return builder.toString();
     }
+
 }

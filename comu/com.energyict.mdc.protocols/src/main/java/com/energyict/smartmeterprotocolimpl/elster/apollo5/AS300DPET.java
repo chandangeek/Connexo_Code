@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
 import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
@@ -37,8 +37,8 @@ public class AS300DPET extends AS300 {
     }
 
     @Inject
-    public AS300DPET(PropertySpecService propertySpecService, CalendarService calendarService, UserFileFactory userFileFactory, OrmClient ormClient) {
-        super(propertySpecService, calendarService, userFileFactory, ormClient);
+    public AS300DPET(PropertySpecService propertySpecService, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService, OrmClient ormClient) {
+        super(propertySpecService, calendarService, deviceMessageFileService, ormClient);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class AS300DPET extends AS300 {
     @Override
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300DPETMessaging(new AS300DPETMessageExecutor(this, this.getCalendarService(), this.getUserFileFactory()));
+            this.messageProtocol = new AS300DPETMessaging(new AS300DPETMessageExecutor(this, this.getCalendarService(), this.getDeviceMessageFileService()));
         }
         return messageProtocol;
     }

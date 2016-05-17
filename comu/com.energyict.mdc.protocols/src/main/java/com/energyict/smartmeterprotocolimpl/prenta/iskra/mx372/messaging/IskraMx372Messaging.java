@@ -6,11 +6,12 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
@@ -59,7 +60,6 @@ import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.Act
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.CosemActivityCalendarBuilder;
 import org.xml.sax.SAXException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -67,8 +67,8 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -88,7 +88,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     private final TopologyService topologyService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final LoadProfileFactory loadProfileFactory;
-    private BaseDevice rtu;
+    private final DeviceMessageFileService deviceMessageFileService;
 
     private ObisCode llsSecretObisCode1 = ObisCode.fromString("0.0.128.100.1.255");
     private ObisCode llsSecretObisCode2 = ObisCode.fromString("0.0.128.100.2.255");
@@ -104,25 +104,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     private ObisCode crMeterGroupID = ObisCode.fromString("0.0.128.62.6.255");
     private ObisCode contractPowerLimit = ObisCode.fromString("0.0.128.61.1.255");
 
-    public static final int MBUS_MAX = 0x04;
-
     private MbusDevice[] mbusDevices = {null, null, null, null};                // max. 4 MBus meters
-    private ObisCode[] mbusPrimaryAddress = {ObisCode.fromString("0.1.128.50.20.255"),
-            ObisCode.fromString("0.2.128.50.20.255"),
-            ObisCode.fromString("0.3.128.50.20.255"),
-            ObisCode.fromString("0.4.128.50.20.255")};
-    private ObisCode[] mbusCustomerID = {ObisCode.fromString("0.1.128.50.21.255"),
-            ObisCode.fromString("0.2.128.50.21.255"),
-            ObisCode.fromString("0.3.128.50.21.255"),
-            ObisCode.fromString("0.4.128.50.21.255")};
-    private ObisCode[] mbusUnit = {ObisCode.fromString("0.1.128.50.30.255"),
-            ObisCode.fromString("0.2.128.50.30.255"),
-            ObisCode.fromString("0.3.128.50.30.255"),
-            ObisCode.fromString("0.4.128.50.30.255")};
-    private ObisCode[] mbusMedium = {ObisCode.fromString("0.1.128.50.23.255"),
-            ObisCode.fromString("0.2.128.50.23.255"),
-            ObisCode.fromString("0.3.128.50.23.255"),
-            ObisCode.fromString("0.4.128.50.23.255")};
 
     private byte[] connectMsg = new byte[]{AxdrType.UNSIGNED.getTag(), 0x01};
     private byte[] disconnectMsg = new byte[]{AxdrType.UNSIGNED.getTag(), 0x00};
@@ -141,13 +123,13 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
      */
     private static final int maxNumbersManagedWhiteList = 8;
 
-
-    public IskraMx372Messaging(IskraMx372 protocol, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+    public IskraMx372Messaging(IskraMx372 protocol, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, DeviceMessageFileService deviceMessageFileService) {
         this.protocol = protocol;
         this.clock = clock;
         this.topologyService = topologyService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.loadProfileFactory = loadProfileFactory;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     public List getMessageCategories() {
@@ -251,12 +233,6 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         catWakeUp.addMessageSpec(addMsgWithPhoneNumbers("Add numbers to white list", RtuMessageConstant.WAKEUP_NR, false));
         catWakeUp.addMessageSpec(addMessageWithValue("Change inactivity timeout", RtuMessageConstant.WAKEUP_INACT_TIMEOUT, false));
         return catWakeUp;
-    }
-
-    private MessageCategorySpec getFirmwareCategory() {
-        MessageCategorySpec catFirmware = new MessageCategorySpec(RtuMessageCategoryConstants.FIRMWARE);
-        catFirmware.addMessageSpec(addMessageWithValue("Upgrade Firmware", RtuMessageConstant.FIRMWARE_CONTENT, false));
-        return catFirmware;
     }
 
     private MessageSpec addMsgWithPhoneNumbers(String keyId, String tagName, boolean advanced) {
@@ -416,8 +392,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 
     private String getMessageValue(String msgStr, String str) {
         try {
-            return msgStr.substring(msgStr.indexOf(str + ">") + str.length()
-                    + 1, msgStr.indexOf("</" + str));
+            return msgStr.substring(msgStr.indexOf(str + ">") + str.length() + 1, msgStr.indexOf("</" + str));
         } catch (Exception e) {
             return "";
         }
@@ -564,7 +539,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 
     private void sendActivityCalendar(MessageEntry messageEntry) throws IOException {
         infoLog("Sending new Tariff Program message to meter with serialnumber: " + messageEntry.getSerialNumber());
-        UserFile userFile = getUserFile(messageEntry.getContent());
+        DeviceMessageFile deviceMessageFile = getUserFile(messageEntry.getContent());
         ActivityCalendar activityCalendar =
                 protocol.getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
 
@@ -572,9 +547,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
                 new com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.ActivityCalendar();
         ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData, protocol.getTimeZone(), getDeviceTimeZone());
         calendarData.setReader(reader);
-        calendarData.read(new ByteArrayInputStream(userFile.loadFileInByteArray()));
-        CosemActivityCalendarBuilder builder = new
-                CosemActivityCalendarBuilder(calendarData);
+        deviceMessageFile.readWith(calendarData);
+        CosemActivityCalendarBuilder builder = new CosemActivityCalendarBuilder(calendarData);
 
         activityCalendar.writeCalendarNamePassive(builder.calendarNamePassive());
         activityCalendar.writeSeasonProfilePassive(builder.seasonProfilePassive());
@@ -604,16 +578,19 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         throw new UnsupportedException("We need a way to get the Other timeZone from the Device ...");
     }
 
-    protected UserFile getUserFile(String contents) throws IOException {
-        throw new UnsupportedException("UserFiles are not supported yet!");
+    protected DeviceMessageFile getUserFile(String contents) throws IOException {
+        long id = getTouFileId(contents);
+        return this.deviceMessageFileService
+                .findDeviceMessageFile(id)
+                .orElseThrow(() -> new IOException("No userfile found with id " + id));
     }
 
-    protected int getTouFileId(String contents) throws IOException {
+    protected long getTouFileId(String contents) throws IOException {
         int startIndex = 2 + RtuMessageConstant.TOU_SCHEDULE.length();  // <TOU>
         int endIndex = contents.indexOf("</" + RtuMessageConstant.TOU_SCHEDULE + ">");
         String value = contents.substring(startIndex, endIndex);
         try {
-            return Integer.parseInt(value);
+            return Long.parseLong(value);
         } catch (NumberFormatException e) {
             throw new IOException("Invalid userfile id: " + value);
         }
@@ -625,24 +602,19 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         if (groupID.isEmpty()) {
             throw new IllegalArgumentException("No groupID was entered.");
         }
-        int grID = 0;
-
         try {
-            grID = Integer.parseInt(groupID);
+            int grID = Integer.parseInt(groupID);
             crGroupIDMsg[1] = (byte) (grID >> 8);
             crGroupIDMsg[2] = (byte) grID;
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid groupID");
         }
 
-        String startDate = "";
-        String stopDate = "";
-        Calendar startCal = null;
+        String startDate = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_STARTDT);
+        String stopDate = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_STOPDT);
+        Calendar startCal = (startDate.isEmpty()) ? Calendar.getInstance(protocol.getTimeZone()) : getCalendarFromString(startDate);
         Calendar stopCal = null;
 
-        startDate = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_STARTDT);
-        stopDate = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_STOPDT);
-        startCal = (startDate.isEmpty()) ? Calendar.getInstance(protocol.getTimeZone()) : getCalendarFromString(startDate);
         if (stopDate.isEmpty()) {
             stopCal = Calendar.getInstance();
             stopCal.setTime(startCal.getTime());
@@ -714,10 +686,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         if (groupID.isEmpty()) {
             throw new IllegalArgumentException("No groupID was entered.");
         }
-        int grID = 0;
-
         try {
-            grID = Integer.parseInt(groupID);
+            int grID = Integer.parseInt(groupID);
             crGroupIDMsg[1] = (byte) (grID >> 8);
             crGroupIDMsg[2] = (byte) grID;
 
@@ -752,23 +722,20 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             throw new IllegalArgumentException("Neighter contractual nor threshold limit was given.");
         }
 
-        long conPL = 0;
-        long limit = 0;
-        int grID = -1;
         try {
-            grID = Integer.parseInt(groupID);
+            int grID = Integer.parseInt(groupID);
             crMeterGroupIDMsg[1] = (byte) (grID >> 8);
             crMeterGroupIDMsg[2] = (byte) grID;
 
             if (!contractPL.isEmpty()) {
-                conPL = Integer.parseInt(contractPL);
+                int conPL = Integer.parseInt(contractPL);
                 contractPowerLimitMsg[1] = (byte) (conPL >> 24);
                 contractPowerLimitMsg[2] = (byte) (conPL >> 16);
                 contractPowerLimitMsg[3] = (byte) (conPL >> 8);
                 contractPowerLimitMsg[4] = (byte) conPL;
             }
             if (!thresholdPL.isEmpty()) {
-                limit = Integer.parseInt(thresholdPL);
+                int limit = Integer.parseInt(thresholdPL);
                 crPowerLimitMsg[1] = (byte) (limit >> 24);
                 crPowerLimitMsg[2] = (byte) (limit >> 16);
                 crPowerLimitMsg[3] = (byte) (limit >> 8);
@@ -797,7 +764,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 
             // The LoadProfileReader loaded from the xml doesn't contain any channelInfo.
             // Here we build up a list of ChannelInfos, based on the list of registers, as each register corresponds to a channel.
-            List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+            List<ChannelInfo> channelInfos = new ArrayList<>();
             for (Register register : builder.getRegisters()) {
                 channelInfos.add(new ChannelInfo(channelInfos.size(), register.getObisCode().toString(), Unit.getUndefined(), register.getSerialNumber(),
                         this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), Unit.getUndefined())));
@@ -813,8 +780,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
                             reader.getMeterSerialNumber(),
                             reader.getLoadProfileIdentifier()));
 
-            List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
-            final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
+            List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Collections.singletonList(lpr));
+            final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Collections.singletonList(lpr));
 
             if (profileDatas.size() != 1) {
                 return MessageResult.createFailed(msgEntry, "We are supposed to receive 1 LoadProfile configuration in this message, but we received " + profileDatas.size());
@@ -880,8 +847,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
-            this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
-            final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
+            this.protocol.fetchLoadProfileConfiguration(Collections.singletonList(lpr));
+            final List<ProfileData> profileData = this.protocol.getLoadProfileData(Collections.singletonList(lpr));
 
             if (profileData.isEmpty()) {
                 return MessageResult.createFailed(msgEntry, "LoadProfile returned no data.");

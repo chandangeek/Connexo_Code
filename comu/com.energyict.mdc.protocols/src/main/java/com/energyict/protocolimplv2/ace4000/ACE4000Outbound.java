@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -377,5 +378,10 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         return new ReadFirmwareVersion(this, issueService).request(getDeviceIdentifier());
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return collectedDataFactory.createBreakerStatusCollectedData(offlineDevice.getDeviceIdentifier());
     }
 }

@@ -7,6 +7,7 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -37,6 +38,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.protocols.util.ProtocolUtils;
@@ -127,6 +129,8 @@ import java.util.logging.Logger;
  */
 @Deprecated
 public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
+
+    private final DeviceMessageFileService deviceMessageFileService;
 
     @Override
     public String getProtocolDescription() {
@@ -504,8 +508,9 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     private int cipheringType;
 
     @Inject
-    public EictZ3(PropertySpecService propertySpecService) {
+    public EictZ3(PropertySpecService propertySpecService, DeviceMessageFileService deviceMessageFileService) {
         super(propertySpecService);
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     public final DLMSConnection getDLMSConnection() {
@@ -1949,7 +1954,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         if (isEpIOFirmwareUpgrade(messageEntry.getContent())) {
             logger.info("Received a firmware upgrade message, using firmware message builder...");
 
-            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
+            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(this.deviceMessageFileService);
 
             try {
                 builder.initFromXml(messageEntry.getContent());
@@ -1967,14 +1972,14 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             }
 
             // We requested an inlined file...
-            if (builder.getUserFile() != null) {
+            if (builder.getDeviceMessageFile() != null) {
                 logger.info("Pulling out user file and dispatching to the device...");
 
-                final byte[] upgradeFileData = builder.getUserFile().loadFileInByteArray();
+                final byte[] upgradeFileData = DeviceMessageFileByteContentConsumer.readFrom(builder.getDeviceMessageFile());
 
                 if (upgradeFileData.length > 0) {
                     try {
-                        this.upgradeDevice(builder.getUserFile().loadFileInByteArray());
+                        this.upgradeDevice(upgradeFileData);
                     } catch (final IOException e) {
                         if (logger.isLoggable(Level.SEVERE)) {
                             logger.log(Level.SEVERE, "Caught an IO error when trying upgrade [" + e.getMessage() + "]", e);

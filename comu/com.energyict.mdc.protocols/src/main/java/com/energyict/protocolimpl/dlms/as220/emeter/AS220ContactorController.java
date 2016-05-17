@@ -1,8 +1,10 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
+
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.base.AbstractContactorController;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.as220.AS220;
@@ -74,7 +76,7 @@ public class AS220ContactorController extends AbstractContactorController {
 		} while (true);
 	}
 
-	public ContactorState getContactorState() throws IOException {
+	public BreakerStatus getContactorState() throws IOException {
 		TypeEnum currentState = null;
 		try {
 			currentState = getAs220().getCosemObjectFactory().getDisconnector(DISCONNECTOR_OBISCODE).readControlState();
@@ -82,17 +84,17 @@ public class AS220ContactorController extends AbstractContactorController {
 		}
 
 		if (currentState == null) {
-			return ContactorState.UNKNOWN;
+			throw new IOException("Failed to parse the contactor status");
 		} else {
 			switch (currentState.getValue()) {
 				case ARM:
-					return ContactorState.ARMED;
+					return BreakerStatus.ARMED;
 				case CONNECT:
-					return ContactorState.CONNECTED;
+					return BreakerStatus.CONNECTED;
 				case DISCONNECT:
-					return ContactorState.DISCONNECTED;
+					return BreakerStatus.DISCONNECTED;
 				default:
-					return ContactorState.UNKNOWN;
+					throw new IOException("Failed to parse the contactor status: received invalid state '" + currentState.getValue() + "'");
 			}
 		}
 	}

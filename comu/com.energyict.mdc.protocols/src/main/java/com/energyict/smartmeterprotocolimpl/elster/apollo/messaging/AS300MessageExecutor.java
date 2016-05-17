@@ -4,11 +4,11 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.UserFileShadow;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.protocols.mdc.StoresConfigurationInformationInSystemGlobalFile;
+import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 
 import com.energyict.dlms.DlmsSession;
@@ -46,7 +46,6 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -61,6 +60,7 @@ import java.util.logging.Logger;
  * Date: 8-aug-2011
  * Time: 15:02:14
  */
+@StoresConfigurationInformationInSystemGlobalFile
 public class AS300MessageExecutor extends MessageParser {
 
     private static final ObisCode ChangeOfSupplierObisCode = ObisCode.fromString("0.128.128.1.0.255");
@@ -86,14 +86,14 @@ public class AS300MessageExecutor extends MessageParser {
 
     protected final AbstractSmartDlmsProtocol protocol;
     protected final CalendarService calendarService;
-    protected final UserFileFactory userFileFactory;
+    protected final DeviceMessageFileService deviceMessageFileService;
 
     protected boolean success;
 
-    public AS300MessageExecutor(AbstractSmartDlmsProtocol protocol, CalendarService calendarService, UserFileFactory userFileFactory) {
+    public AS300MessageExecutor(AbstractSmartDlmsProtocol protocol, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService) {
         this.protocol = protocol;
         this.calendarService = calendarService;
-        this.userFileFactory = userFileFactory;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -153,7 +153,7 @@ public class AS300MessageExecutor extends MessageParser {
                     success = false;
                 }
             }
-        } catch (ParserConfigurationException | SAXException | IOException | SQLException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             logMessage = e.getMessage();
             success = false;
         }
@@ -167,11 +167,10 @@ public class AS300MessageExecutor extends MessageParser {
         }
     }
 
-    private void readPricePerUnit() throws IOException, SQLException {
+    private void readPricePerUnit() throws IOException {
         ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
         Array array = priceInformation.getValue().getArray();
         String priceInfo = "Pricing information unavailable: empty array";
-        String fileName = "PriceInformation_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
         if (array != null && array.nrOfDataTypes() > 0) {
             StringBuilder sb = new StringBuilder();
 
@@ -191,13 +190,11 @@ public class AS300MessageExecutor extends MessageParser {
             priceInfo = sb.toString();
         }
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, priceInfo.getBytes("UTF-8"), "txt");
-        this.createUserFile(ufs);
-
-        log(Level.INFO, "Stored price information in userFile: " + fileName);
+        log(Level.SEVERE, "Storing of price information in userFile is no longer supported");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
-    private void readActivityCalendar() throws IOException, SQLException {
+    private void readActivityCalendar() throws IOException {
         ActivityCalendar activityCalendar = getCosemObjectFactory().getActivityCalendar(ACTIVITY_CALENDAR_OBISCODE);
 
         StringBuilder sb = new StringBuilder();
@@ -264,11 +261,8 @@ public class AS300MessageExecutor extends MessageParser {
             }
         }
 
-        String fileName = "ActivityCalendar_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, sb.toString().getBytes("UTF-8"), "txt");
-        this.createUserFile(ufs);
-
-        log(Level.INFO, "Stored activity calendar information in user file: " + fileName);
+        log(Level.SEVERE, "Storing of activity calendar information in user file is no longer supported");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private void setStandingCharge(String content) throws IOException {
@@ -574,7 +568,7 @@ public class AS300MessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarService, this.userFileFactory);
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarService, this.deviceMessageFileService);
         ActivityCalendarController activityCalendarController = new AS300ActivityCalendarController((AS300) this.protocol);
         try {
             builder.initFromXml(content);
@@ -586,9 +580,9 @@ public class AS300MessageExecutor extends MessageParser {
                 activityCalendarController.writeCalendarName("");
                 log(Level.FINEST, "Sending out the new Passive Calendar objects.");
                 activityCalendarController.writeCalendar();
-            } else if (builder.getUserFile() != null) { // userFile implementation
+            } else if (builder.getDeviceMessageFile() != null) { // userFile implementation
                 log(Level.FINEST, "Getting UserFile from message");
-                final byte[] userFileData = builder.getUserFile().loadFileInByteArray();
+                final byte[] userFileData = DeviceMessageFileByteContentConsumer.readFrom(builder.getDeviceMessageFile());
                 if (userFileData.length > 0) {
                     log(Level.FINEST, "Sending out the new Passive Calendar objects.");
                     handleXmlToDlms(new String(userFileData, "US-ASCII"));
@@ -687,10 +681,6 @@ public class AS300MessageExecutor extends MessageParser {
     @Override
     protected TimeZone getTimeZone() {
         return this.protocol.getTimeZone();
-    }
-
-    private UserFile createUserFile(UserFileShadow shadow) throws SQLException {
-        return this.userFileFactory.createUserFile(shadow);
     }
 
 }

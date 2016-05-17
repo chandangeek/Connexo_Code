@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
@@ -52,12 +52,12 @@ public class Messages extends ProtocolMessages {
 
     private final ActarisSl7000 protocol;
     private final CalendarService calendarService;
-    private final UserFileFactory userFileFactory;
+    private final DeviceMessageFileService deviceMessageFileService;
 
-    public Messages(ActarisSl7000 protocol, CalendarService calendarService, UserFileFactory userFileFactory) {
+    public Messages(ActarisSl7000 protocol, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService) {
         this.protocol = protocol;
         this.calendarService = calendarService;
-        this.userFileFactory = userFileFactory;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     /**
@@ -194,7 +194,7 @@ public class Messages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder(this.calendarService, this.userFileFactory);
+        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder(this.calendarService, this.deviceMessageFileService);
         ActivityCalendarController activityCalendarController = new com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging.ActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
         if (builder.getCalendarId() > 0) { // codeTable implementation

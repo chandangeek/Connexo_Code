@@ -1,5 +1,13 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Integer16;
@@ -10,13 +18,6 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.dlms.prime.PrimeProperties;
 
 import java.io.IOException;
@@ -61,7 +62,7 @@ public abstract class PrimeMessageExecutor {
 
     public abstract MessageResult execute(final MessageEntry messageEntry) throws IOException;
 
-    protected static final boolean isMessageTag(final String tag, final MessageEntry messageEntry) {
+    protected static boolean isMessageTag(final String tag, final MessageEntry messageEntry) {
         return (messageEntry.getContent().contains("<" + tag));
     }
 
@@ -93,7 +94,7 @@ public abstract class PrimeMessageExecutor {
      *
      * @return	The value of the attribute, <code>null</code> if no such attribute could be found.
      */
-    protected static final String getAttributeValue(final String attributeName, final String messageContent) {
+    protected static String getAttributeValue(final String attributeName, final String messageContent) {
     	final StringBuilder patternBuilder = new StringBuilder(attributeName.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"));
     	patternBuilder.append("=\"(.*?)\"");
 
@@ -116,7 +117,7 @@ public abstract class PrimeMessageExecutor {
 	 * @param 	obisCode			The OBIS code of the register to write.
 	 * @param 	attributeName		The name of the attribute to fetch out of the message.
 	 * @param 	entry				The message itself.
-	 * @param	dataType			The data type.
+	 * @param	dataTypeWidth       The data type.
 	 * @param	parameterMultiplier	The multiplier for the parameter (should the meter use another scale).
 	 *
 	 * @return	The {@link MessageResult}.

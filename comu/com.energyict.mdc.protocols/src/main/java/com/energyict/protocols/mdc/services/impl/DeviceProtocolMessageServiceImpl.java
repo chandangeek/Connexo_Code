@@ -1,13 +1,13 @@
 package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
@@ -54,8 +54,8 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
     private volatile IdentificationService identificationService;
     private volatile CollectedDataFactory collectedDataFactory;
     private volatile CodeFactory codeFactory;
+    private volatile DeviceConfigurationService deviceConfigurationService;
 
-    private volatile UserFileFactory userFileFactory;
     private Injector injector;
 
     // For OSGi purpose
@@ -65,7 +65,7 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
 
     // For testing purposes
     @Inject
-    public DeviceProtocolMessageServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, ProtocolPluggableService protocolPluggableService) {
+    public DeviceProtocolMessageServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setMeteringService(meteringService);
         this.setIssueService(issueService);
@@ -79,7 +79,7 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
         this.setIdentificationService(identificationService);
         this.setCollectedDataFactory(collectedDataFactory);
         this.setCodeFactory(codeFactory);
-        this.setUserFileFactory(userFileFactory);
+        this.setDeviceConfigurationService(deviceConfigurationService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.activate();
     }
@@ -106,7 +106,7 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
                 bind(IdentificationService.class).toInstance(identificationService);
                 bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
                 bind(CodeFactory.class).toInstance(codeFactory);
-                bind(UserFileFactory.class).toInstance(userFileFactory);
+                bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DeviceProtocolMessageService.class).toInstance(DeviceProtocolMessageServiceImpl.this);
             }
@@ -179,8 +179,8 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
     }
 
     @Reference
-    public void setUserFileFactory(UserFileFactory userFileFactory) {
-        this.userFileFactory = userFileFactory;
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override

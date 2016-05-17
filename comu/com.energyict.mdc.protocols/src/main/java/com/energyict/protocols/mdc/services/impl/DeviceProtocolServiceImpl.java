@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -19,7 +20,7 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -99,7 +100,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile IdentificationService identificationService;
     private volatile CollectedDataFactory collectedDataFactory;
     private volatile CodeFactory codeFactory;
-    private volatile UserFileFactory userFileFactory;
+    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceMessageFileService deviceMessageFileService;
 
     private Injector injector;
     private volatile DataModel dataModel;
@@ -115,7 +117,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService, DeviceMessageFileService deviceMessageFileService, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setMeteringService(meteringService);
         this.setTransactionService(transactionService);
@@ -132,7 +134,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.setIdentificationService(identificationService);
         this.setCollectedDataFactory(collectedDataFactory);
         this.setCodeFactory(codeFactory);
-        this.setUserFileFactory(userFileFactory);
+        this.setDeviceConfigurationService(deviceConfigurationService);
+        this.setDeviceMessageFileService(deviceMessageFileService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.activate();
         this.install();
@@ -166,7 +169,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
                 bind(LoadProfileFactory.class).toInstance(new CompositeLoadProfileFactory());
                 bind(CodeFactory.class).toInstance(codeFactory);
-                bind(UserFileFactory.class).toInstance(userFileFactory);
+                bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
+                bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DeviceProtocolService.class).toInstance(DeviceProtocolServiceImpl.this);
             }
@@ -302,8 +306,13 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     }
 
     @Reference
-    public void setUserFileFactory(UserFileFactory userFileFactory) {
-        this.userFileFactory = userFileFactory;
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setDeviceMessageFileService(DeviceMessageFileService deviceMessageFileService) {
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     @Override
