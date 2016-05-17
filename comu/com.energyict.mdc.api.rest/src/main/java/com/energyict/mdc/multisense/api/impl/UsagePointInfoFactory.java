@@ -3,6 +3,7 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
+import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
@@ -109,7 +110,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("name", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.name = usagePoint.getName());
         map.put("aliasName", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.aliasName = usagePoint.getAliasName());
         map.put("description", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.description = usagePoint.getDescription());
-        map.put("location", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.location = usagePoint.getServiceLocationString());
+        map.put("serviceLocation", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.serviceLocation = usagePoint.getServiceLocationString());
         map.put("mrid", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.mrid = usagePoint.getMRID());
         map.put("outageRegion", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.outageRegion = usagePoint.getOutageRegion());
         map.put("readRoute", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.readRoute = usagePoint.getReadRoute());
@@ -307,9 +308,37 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("meterActivations", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.meterActivations = meterActivationInfoFactory
                 .get()
                 .asLink(usagePoint.getMeterActivations(), Relation.REF_RELATION, uriInfo));
+        map.put("locations", (usagePointInfo, usagePoint, uriInfo) -> {
+            usagePoint.getLocation()
+                    .ifPresent(l -> usagePointInfo.locations = l.getMembers()
+                            .stream()
+                            .map(this::newLocationInfo)
+                            .collect(toList()));
+        });
 //        map.put("accountabilities", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.accountabilities = accountabilitieInfoFactory.asLink(usagePoint.getAccountabilities(), Relation.REL_RELATION, uriInfo));
 //        map.put("usagePointConfigurations", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.usagePointConfigurations = usagePointConfigurationInfoFactory.asLink(usagePoint.getUsagePointConfigurations(), Relation.REL_RELATION, uriInfo));
         return map;
+    }
+
+    private LocationInfo newLocationInfo(LocationMember locationMember) {
+        LocationInfo info = new LocationInfo();
+        info.locationId = locationMember.getLocationId();
+        info.addressDetail = locationMember.getAddressDetail();
+        info.administrativeArea = locationMember.getAdministrativeArea();
+        info.countryCode = locationMember.getCountryCode();
+        info.countryName = locationMember.getCountryName();
+        info.defaultLocation = locationMember.isDefaultLocation();
+        info.establishmentName = locationMember.getEstablishmentName();
+        info.establishmentNumber = locationMember.getEstablishmentNumber();
+        info.establishmentType = locationMember.getEstablishmentType();
+        info.locale = locationMember.getLocale();
+        info.locality = locationMember.getLocality();
+        info.streetName = locationMember.getStreetName();
+        info.streetNumber = locationMember.getStreetNumber();
+        info.streetType = locationMember.getStreetType();
+        info.subLocality = locationMember.getSubLocality();
+        info.zipCode = locationMember.getZipCode();
+        return info;
     }
 
     public UsagePoint createUsagePoint(UsagePointInfo usagePointInfo) {
@@ -322,7 +351,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 .withOutageRegion(usagePointInfo.outageRegion)
                 .withReadRoute(usagePointInfo.readRoute)
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
-                .withServiceLocationString(usagePointInfo.location)
+                .withServiceLocationString(usagePointInfo.serviceLocation)
                 .withServicePriority(usagePointInfo.servicePriority)
                 .create();
         Instant now = clock.instant();

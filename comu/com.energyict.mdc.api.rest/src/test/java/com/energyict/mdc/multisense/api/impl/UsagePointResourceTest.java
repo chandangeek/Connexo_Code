@@ -9,6 +9,8 @@ import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.HeatDetail;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -37,6 +39,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -73,6 +76,49 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
     }
 
     @Test
+    public void testGetSingleUsagePointWithLocation() throws Exception {
+        UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        LocationMember locationMember = mock(LocationMember.class);
+        when(locationMember.getAddressDetail()).thenReturn("address detail");
+        when(locationMember.getAdministrativeArea()).thenReturn("administrative area");
+        when(locationMember.getCountryCode()).thenReturn("country code");
+        when(locationMember.getCountryName()).thenReturn("country name");
+        when(locationMember.getEstablishmentName()).thenReturn("establishment name");
+        when(locationMember.getEstablishmentNumber()).thenReturn("establishment number");
+        when(locationMember.getEstablishmentType()).thenReturn("establishment type");
+        when(locationMember.getLocale()).thenReturn("locale");
+        when(locationMember.getLocality()).thenReturn("locality");
+        when(locationMember.getLocationId()).thenReturn(111L);
+        when(locationMember.getStreetName()).thenReturn("street name");
+        when(locationMember.getStreetType()).thenReturn("street type");
+        when(locationMember.getStreetNumber()).thenReturn("321");
+        when(locationMember.getSubLocality()).thenReturn("sub locality");
+        when(locationMember.getZipCode()).thenReturn("zip code");
+        Location location = mock(Location.class);
+        doReturn(Collections.singletonList(locationMember)).when(location).getMembers();
+        when(usagePoint.getLocation()).thenReturn(Optional.of(location));
+        Response response = target("/usagepoints/31").request().get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<String>get("$.locations[0].addressDetail")).isEqualTo("address detail");
+        assertThat(model.<String>get("$.locations[0].administrativeArea")).isEqualTo("administrative area");
+        assertThat(model.<String>get("$.locations[0].countryCode")).isEqualTo("country code");
+        assertThat(model.<String>get("$.locations[0].countryName")).isEqualTo("country name");
+        assertThat(model.<String>get("$.locations[0].establishmentName")).isEqualTo("establishment name");
+        assertThat(model.<String>get("$.locations[0].establishmentNumber")).isEqualTo("establishment number");
+        assertThat(model.<String>get("$.locations[0].establishmentType")).isEqualTo("establishment type");
+        assertThat(model.<String>get("$.locations[0].locale")).isEqualTo("locale");
+        assertThat(model.<String>get("$.locations[0].locality")).isEqualTo("locality");
+        assertThat(model.<Integer>get("$.locations[0].locationId")).isEqualTo(111);
+        assertThat(model.<String>get("$.locations[0].streetName")).isEqualTo("street name");
+        assertThat(model.<String>get("$.locations[0].streetType")).isEqualTo("street type");
+        assertThat(model.<String>get("$.locations[0].streetNumber")).isEqualTo("321");
+        assertThat(model.<String>get("$.locations[0].subLocality")).isEqualTo("sub locality");
+        assertThat(model.<String>get("$.locations[0].zipCode")).isEqualTo("zip code");
+    }
+
+    @Test
     public void testGetSingleGasUsagePointAllFields() throws Exception {
         GasDetail gasDetail = mock(GasDetail.class);
         when(gasDetail.getBypassStatus()).thenReturn(BypassStatus.CLOSED);
@@ -101,7 +147,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<Integer>get("$.id")).isEqualTo(31);
         assertThat(model.<Integer>get("$.version")).isEqualTo(2);
         assertThat(model.<String>get("$.name")).isEqualTo("usage point");
-        assertThat(model.<String>get("$.location")).isEqualTo("location");
+        assertThat(model.<String>get("$.serviceLocation")).isEqualTo("location");
         assertThat(model.<String>get("$.mrid")).isEqualTo("MRID");
         assertThat(model.<String>get("$.readRoute")).isEqualTo("read route");
         assertThat(model.<String>get("$.serviceKind")).isEqualTo("Gas");
@@ -162,7 +208,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<Integer>get("$.id")).isEqualTo(31);
         assertThat(model.<Integer>get("$.version")).isEqualTo(2);
         assertThat(model.<String>get("$.name")).isEqualTo("usage point");
-        assertThat(model.<String>get("$.location")).isEqualTo("location");
+        assertThat(model.<String>get("$.serviceLocation")).isEqualTo("location");
         assertThat(model.<String>get("$.mrid")).isEqualTo("MRID");
         assertThat(model.<String>get("$.readRoute")).isEqualTo("read route");
         assertThat(model.<String>get("$.serviceKind")).isEqualTo("Water");
@@ -213,7 +259,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<Integer>get("$.id")).isEqualTo(31);
         assertThat(model.<Integer>get("$.version")).isEqualTo(2);
         assertThat(model.<String>get("$.name")).isEqualTo("usage point");
-        assertThat(model.<String>get("$.location")).isEqualTo("location");
+        assertThat(model.<String>get("$.serviceLocation")).isEqualTo("location");
         assertThat(model.<String>get("$.mrid")).isEqualTo("MRID");
         assertThat(model.<String>get("$.valve")).isEqualTo("YES");
         assertThat(model.<String>get("$.collar")).isEqualTo("YES");
@@ -259,7 +305,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<Integer>get("$.id")).isEqualTo(31);
         assertThat(model.<Integer>get("$.version")).isEqualTo(2);
         assertThat(model.<String>get("$.name")).isEqualTo("usage point");
-        assertThat(model.<String>get("$.location")).isEqualTo("location");
+        assertThat(model.<String>get("$.serviceLocation")).isEqualTo("location");
         assertThat(model.<String>get("$.mrid")).isEqualTo("MRID");
         assertThat(model.<String>get("$.collar")).isEqualTo("YES");
         assertThat(model.<String>get("$.limiter")).isEqualTo("YES");
@@ -294,7 +340,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         info.aliasName = "alias";
         info.description = "desc";
         info.installationTime = now;
-        info.location = "here";
+        info.serviceLocation = "here";
         info.mrid = "mmmmm";
         info.name = "naam";
         info.outageRegion = "outage";
@@ -435,7 +481,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         info.aliasName = "alias";
         info.description = "desc";
         info.installationTime = now;
-        info.location = "here";
+        info.serviceLocation = "here";
         info.mrid = "mmmmm";
         info.name = "naam";
         info.outageRegion = "outage";
@@ -485,7 +531,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         info.aliasName = "alias";
         info.description = "desc";
         info.installationTime = now;
-        info.location = "here";
+        info.serviceLocation = "here";
         info.mrid = "mmmmm";
         info.name = "naam";
         info.outageRegion = "outage";
@@ -520,7 +566,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
     public void testUsagePointFields() throws Exception {
         Response response = target("/usagepoints").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(34);
+        assertThat(model.<List>get("$")).hasSize(35);
         assertThat(model.<List<String>>get("$")).containsOnly(
                 "aliasName",
                 "bypass",
@@ -538,7 +584,8 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
                 "link",
                 "loadLimit",
                 "loadLimiterType",
-                "location",
+                "serviceLocation",
+                "locations",
                 "mrid",
                 "name",
                 "nominalServiceVoltage",

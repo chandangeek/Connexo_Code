@@ -22,7 +22,7 @@ abstract public class UsagePointInfo extends LinkInfo<Long> {
     public String name;
     public String aliasName;
     public String description;
-    public String location;
+    public String serviceLocation;
     public String mrid;
     public String outageRegion;
     public String readRoute;
@@ -30,7 +30,7 @@ abstract public class UsagePointInfo extends LinkInfo<Long> {
     public Instant installationTime;
     public String serviceDeliveryRemark;
     public LinkInfo<Long> metrologyConfiguration;
-//    public String serviceKind;
+    public List<LocationInfo> locations;
 
     public List<LinkInfo> meterActivations;
     public List<LinkInfo> accountabilities;

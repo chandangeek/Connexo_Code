@@ -672,6 +672,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
 
     private UsagePoint mockUsagePoint(long id, String name, long version, UsagePointCustomPropertySetExtension extension, ServiceKind serviceKind, UsagePointDetail detail) {
         UsagePoint usagePoint = mock(UsagePoint.class);
+        when(usagePoint.getLocation()).thenReturn(Optional.empty());
         when(usagePoint.getId()).thenReturn(id);
         when(usagePoint.getVersion()).thenReturn(version);
         when(usagePoint.getName()).thenReturn(name);
