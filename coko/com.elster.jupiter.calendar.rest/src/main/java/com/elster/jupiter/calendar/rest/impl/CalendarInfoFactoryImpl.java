@@ -54,6 +54,14 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         this.thesaurus = nlsService.getThesaurus(CalendarApplication.COMPONENT_NAME, Layer.REST);
     }
 
+    @Override
+    public CalendarInfo nameOnly(String name) {
+        CalendarInfo calendarInfo = new CalendarInfo();
+        calendarInfo.name = name;
+        return calendarInfo;
+    }
+
+    @Override
     public CalendarInfo detailedFromCalendar(Calendar calendar) {
         CalendarInfo calendarInfo = new CalendarInfo();
 
