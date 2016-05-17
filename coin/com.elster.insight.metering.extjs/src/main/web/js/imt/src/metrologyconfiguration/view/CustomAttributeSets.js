@@ -19,7 +19,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
         var me = this,
             router = me.router,
             casAddRoute = router.getRoute('administration/metrologyconfiguration/view/customAttributeSets/add'),
-            isActive = me.metrologyConfiguration.get('active');
+            isActive = me.metrologyConfiguration.get('status').id == 'active';
 
         me.content = {
             xtype: 'panel',
@@ -71,6 +71,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                             Uni.I18n.translate('Imt.metrologyconfiguration.empty.list.item1', 'IMT', 'No custom attribute sets added yet'),
                             Uni.I18n.translate('Imt.metrologyconfiguration.empty.list.item2', 'IMT', 'No custom attribute sets defined yet')
                         ],
+                        noStepItems: isActive,
                         stepItems: [
                             {
                                 text: casAddRoute.getTitle(),
