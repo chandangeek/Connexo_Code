@@ -845,7 +845,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         ipAddr = ipAddr.equals("0:0:0:0:0:0:0:1") ? "localhost" : ipAddr;
         if(message.equals(SUCCESSFUL_LOGIN)){
             userLogin.log(Level.INFO, message + "[" + userName + "] " + ipAddr);
-            this.findUser(userName).ifPresent(user -> {
+            this.findUserIgnoreStatus(userName).ifPresent(user -> {
                 try(TransactionContext context = transactionService.getContext()) {
                     user.setLastSuccessfulLogin(clock.instant());
                     user.update();
@@ -854,7 +854,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
             });
         } else {
             userLogin.log(Level.WARNING, message + "[" + userName + "] " + ipAddr);
-            this.findUser(userName).ifPresent(user -> {
+            this.findUserIgnoreStatus(userName).ifPresent(user -> {
                 try(TransactionContext context = transactionService.getContext()) {
                     user.setLastUnSuccessfulLogin(clock.instant());
                     user.update();
@@ -862,6 +862,15 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 }
             });
         }
+    }
+
+    private Optional<User> findUserIgnoreStatus(String authenticationName) {
+        Condition condition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
+        List<User> users = dataModel.query(User.class, UserInGroup.class).select(condition);
+        if (!users.isEmpty()) {
+            return Optional.of(users.get(0));
+        }
+        return Optional.empty();
     }
 
 }
