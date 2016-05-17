@@ -231,9 +231,9 @@ public class SecurityTokenImpl {
     private void logMessage(String message, String userName, String ipAddr){
         ipAddr = ipAddr.equals("0:0:0:0:0:0:0:1") ? "localhost" : ipAddr;
         if(message.equals(TOKEN_INVALID)){
-            tokenRenewal.log(Level.WARNING, message + userName + " " + ipAddr);
+            tokenRenewal.log(Level.WARNING, message + userName + " " , ipAddr);
         } else if(message.equals(TOKEN_GENERATED) || message.equals(TOKEN_EXPIRED) || message.equals(TOKEN_RENEWAL) || message.equals(USER_DISABLED) || message.equals(USER_NOT_FOUND)){
-            tokenRenewal.log(Level.INFO, message + userName + " " + ipAddr);
+            tokenRenewal.log(Level.INFO, message + userName + " " , ipAddr);
         }
     }
 
