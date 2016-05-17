@@ -225,6 +225,7 @@ public class SecurityPropertySetImplCrudIT {
                     injector.getInstance(ThreadPrincipalService.class),
                     eventService,
                     injector.getInstance(NlsService.class),
+                    injector.getInstance(com.elster.jupiter.properties.PropertySpecService.class),
                     injector.getInstance(MeteringService.class),
                     injector.getInstance(MdcReadingTypeUtilService.class),
                     injector.getInstance(UserService.class),

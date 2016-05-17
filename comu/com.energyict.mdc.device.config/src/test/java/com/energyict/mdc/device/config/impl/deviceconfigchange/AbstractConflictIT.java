@@ -238,6 +238,7 @@ public abstract class AbstractConflictIT {
                     injector.getInstance(ThreadPrincipalService.class),
                     eventService,
                     nlsService,
+                    injector.getInstance(com.elster.jupiter.properties.PropertySpecService.class),
                     injector.getInstance(MeteringService.class),
                     injector.getInstance(MdcReadingTypeUtilService.class),
                     injector.getInstance(UserService.class),
