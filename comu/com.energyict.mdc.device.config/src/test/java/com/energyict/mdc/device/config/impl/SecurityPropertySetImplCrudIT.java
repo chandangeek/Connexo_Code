@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -63,7 +62,6 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -233,7 +231,6 @@ public class SecurityPropertySetImplCrudIT {
                     injector.getInstance(MeteringService.class),
                     injector.getInstance(MdcReadingTypeUtilService.class),
                     injector.getInstance(UserService.class),
-                    injector.getInstance(PluggableService.class),
                     protocolPluggableService,
                     injector.getInstance(EngineConfigurationService.class),
                     injector.getInstance(SchedulingService.class),
