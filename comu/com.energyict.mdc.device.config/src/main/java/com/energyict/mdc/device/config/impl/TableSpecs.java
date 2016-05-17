@@ -1063,7 +1063,7 @@ public enum TableSpecs {
             table.column("SEND_SPECIAL_CONTRACT_DATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE.fieldName()).add();
             table.column("CLEAR_DISABLE_TARIFF").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.CLEAR_AND_DISABLE_PASSIVE_TARIFF.fieldName()).add();
             table.column("ACTIVATE_PASSIVE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.ACTIVATE_PASSIVE_CALENDAR.fieldName()).add();
-            table.addAuditColumns();
+            table.addAuditColumns( );
             table.primaryKey("DTC_PK_TIMEOFUSEOPTIONS").on(deviceTypeColumn).add();
             table.foreignKey("DTC_TOUOPTIONS_FK_DEVICETYPE")
                     .references(DTC_DEVICETYPE.name())
