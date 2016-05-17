@@ -5,6 +5,7 @@ import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.Period;
+import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.calendar.RecurringExceptionalOccurrence;
 import com.energyict.mdc.common.ApplicationException;
 
@@ -114,6 +115,7 @@ public class TariffConfiguration extends AbstractActarisObject {
         return seasonStrings;
     }
 
+    private List<PeriodTransition>
     private List<String> getSpecialDays() {
         String failMsg = "Cannot configure tariff settings, invalid arguments";
         if (calendar.getExceptionalOccurrences().size() > 36) {
