@@ -76,7 +76,7 @@ public class MdcPropertyUtils {
                     possibleValues = device.getLogBooks();
                 } else if (SimplePropertyType.REGISTER.equals(simplePropertyType)) {
                     possibleValues = device.getRegisters();
-                } else if (SimplePropertyType.DEVICEMESSAGEFILEREFERENCE.equals(simplePropertyType)) {
+                } else if (SimplePropertyType.REFERENCE.equals(simplePropertyType)) {
                     PropertySpecPossibleValues possibleValuesFromSpec = propertySpec.getPossibleValues();
                     if (possibleValuesFromSpec != null) {
                         possibleValues = possibleValuesFromSpec.getAllValues();

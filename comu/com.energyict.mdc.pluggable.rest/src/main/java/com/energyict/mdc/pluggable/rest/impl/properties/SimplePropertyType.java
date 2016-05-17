@@ -44,7 +44,7 @@ public enum SimplePropertyType implements PropertyType {
     CLOCK(DateAndTimeFactory.class),
     CODETABLE(Code.class, true),
     TIMEZONEINUSE(TimeZoneInUse.class, true),
-    DEVICEMESSAGEFILEREFERENCE(DeviceMessageFile.class, true),
+    REFERENCE(DeviceMessageFile.class, true),
     EAN13(Ean13.class),
     EAN18(Ean18.class),
     DATE(Date.class),

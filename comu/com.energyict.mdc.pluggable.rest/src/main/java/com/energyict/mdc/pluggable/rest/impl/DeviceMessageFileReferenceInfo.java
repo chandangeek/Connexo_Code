@@ -15,19 +15,19 @@ import java.util.Map;
 @XmlRootElement
 public class DeviceMessageFileReferenceInfo {
 
-    public long userFileReferenceId;
+    public long id;
     public String name;
 
     public DeviceMessageFileReferenceInfo() {
     }
 
     public DeviceMessageFileReferenceInfo(Map<String, Object> map) {
-        this.userFileReferenceId = (long) map.get("userFileId");
+        this.id = (long) map.get("id");
         this.name = (String) map.get("name");
     }
 
     public DeviceMessageFileReferenceInfo(DeviceMessageFile deviceMessageFile) {
-        userFileReferenceId = deviceMessageFile.getId();
+        id = deviceMessageFile.getId();
         name = deviceMessageFile.getName();
     }
 

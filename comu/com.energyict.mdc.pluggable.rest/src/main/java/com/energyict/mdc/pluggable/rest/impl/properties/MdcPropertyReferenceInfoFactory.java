@@ -99,7 +99,7 @@ public class MdcPropertyReferenceInfoFactory {
         } else if (Code.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             return SimplePropertyType.CODETABLE;
         } else if (DeviceMessageFile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
-            return SimplePropertyType.DEVICEMESSAGEFILEREFERENCE;
+            return SimplePropertyType.REFERENCE;
         } else if (LoadProfileType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             return SimplePropertyType.LOADPROFILETYPE;
         } else if (TimeDuration.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
