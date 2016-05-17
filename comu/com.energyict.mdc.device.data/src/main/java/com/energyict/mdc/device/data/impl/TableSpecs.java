@@ -817,6 +817,7 @@ public enum TableSpecs {
                     .on(device)
                     .references(DDC_DEVICE.name())
                     .map(ActiveEffectiveCalendarImpl.Fields.DEVICE.fieldName())
+                    .reverseMap("activeCalendar")
                     .onDelete(CASCADE)
                     .add();
         }

@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
@@ -11,6 +13,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 
 public class ActiveEffectiveCalendarImpl implements ActiveEffectiveCalendar {
+
 
     public enum Fields {
         CALENDAR("allowedCalendar"),
@@ -30,11 +33,28 @@ public class ActiveEffectiveCalendarImpl implements ActiveEffectiveCalendar {
     }
 
     private long id;
-
+    private DataModel dataModel;
+    @IsPresent
     private Reference<AllowedCalendar> allowedCalendar = ValueReference.absent();
+    @IsPresent
     private Reference<Device> device = ValueReference.absent();
     private Interval interval;
     private Instant lastVerifiedDate;
+
+    @Inject
+    public ActiveEffectiveCalendarImpl(DataModel dataModel) {
+        super();
+        this.dataModel = dataModel;
+    }
+
+    public ActiveEffectiveCalendar initialize(Interval effectivityInterval, DeviceImpl device, AllowedCalendar allowedCalendar, Instant lastVerified) {
+        setDevice(device);
+        setInterval(effectivityInterval);
+        setAllowedCalendar(allowedCalendar);
+        setLastVerifiedDate(lastVerified);
+
+        return this;
+    }
 
     @Override
     public AllowedCalendar getAllowedCalendar() {

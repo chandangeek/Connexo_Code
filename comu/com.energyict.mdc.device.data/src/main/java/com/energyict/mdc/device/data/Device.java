@@ -16,6 +16,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -447,7 +448,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     Optional<ActiveEffectiveCalendar> getActiveCalendar();
 
-    void setActiveCalendar(ActiveEffectiveCalendar activeEffectiveCalendar);
+    void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.

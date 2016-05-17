@@ -65,6 +65,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -2151,8 +2152,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return activeCalendar.effective(this.clock.instant());
     }
 
-    public void setActiveCalendar(ActiveEffectiveCalendar activeCalendar) {
-        this.activeCalendar.add(activeCalendar);
+    public void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified) {
+        Interval effectivityInterval = Interval.of(Range.atLeast(effective));
+        this.activeCalendar.add(
+                this.dataModel.getInstance(ActiveEffectiveCalendarImpl.class)
+                    .initialize(effectivityInterval, this, allowedCalendar, lastVerified)
+        );
     }
 
     @Override
