@@ -45,14 +45,14 @@ public interface Calendar extends HasId, HasName {
      *
      * @return The start of this Calendar
      */
-    Year getStart();
+    Year getStartYear();
 
     /**
      * Gets the last Year during which this Calendar produces {@link Event}s.
      *
      * @return The start of this Calendar
      */
-    Year getEnd();
+    Year getEndYear();
 
     /**
      * Gets the TimeZone that was used to defined the occurrences
@@ -130,10 +130,6 @@ public interface Calendar extends HasId, HasName {
     void save();
 
     void delete();
-
-    Year getStartYear();
-
-    Year getEndYear();
 
     boolean isAbstract();
 
