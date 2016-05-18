@@ -1,10 +1,11 @@
 package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -28,11 +29,12 @@ import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfos;
-import com.elster.jupiter.validation.rest.ValidatorInfos;
+import com.elster.jupiter.validation.rest.ValidatorInfo;
 import com.elster.jupiter.validation.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -440,33 +442,18 @@ public class ValidationResource {
     }
 
     @GET
-    @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules/{ruleId}/readingtypes")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
-    public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") final long ruleSetId,
-                                                   @PathParam("ruleSetVersionId") final long ruleSetVersionId,
-                                                   @PathParam("ruleId") long ruleId, @Context SecurityContext securityContext) {
-        Optional<? extends ValidationRuleSet> ruleSetRef = validationService.getValidationRuleSet(ruleSetId);
-        if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-
-        ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSetRef.get(), ruleSetVersionId);
-        ValidationRule validationRule = getValidationRuleFromVersionOrThrowException(ruleSetVersion, ruleId);
-        return new ReadingTypeInfos(validationRule.getReadingTypes());
-    }
-
-    @GET
     @Path("/validators")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
-    public ValidatorInfos getAvailableValidators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @Context UriInfo uriInfo) {
-        ValidatorInfos infos = new ValidatorInfos();
-        validationService.getAvailableValidators(applicationName).stream()
+    public PagedInfoList getAvailableValidators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @BeanParam JsonQueryParameters parameters) {
+        List<ValidatorInfo> data = validationService.getAvailableValidators(applicationName).stream()
                 .sorted(Compare.BY_DISPLAY_NAME)
-                .forEach(validator -> infos.add(validator.getClass().getName(), validator.getDisplayName(),
-                        propertyUtils.convertPropertySpecsToPropertyInfos(validator.getPropertySpecs())));
-        return infos;
+                .map(validator -> new ValidatorInfo(
+                        validator.getClass().getName(),
+                        validator.getDisplayName(),
+                        propertyUtils.convertPropertySpecsToPropertyInfos(validator.getPropertySpecs())))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("validators", data, parameters);
     }
 
     private enum Compare implements Comparator<Validator> {
