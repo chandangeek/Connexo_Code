@@ -25,8 +25,10 @@ Ext.define('Mdc.metrologyconfiguration.controller.ListView', {
 
     showList: function () {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('metrology-configurations-list-view', {
-                itemId: 'metrology-configurations-list-view'
+                itemId: 'metrology-configurations-list-view',
+                router: router
             });
 
         me.getApplication().fireEvent('changecontentevent', widget);

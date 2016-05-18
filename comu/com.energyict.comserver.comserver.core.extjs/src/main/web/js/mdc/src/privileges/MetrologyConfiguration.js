@@ -17,10 +17,10 @@ Ext.define('Mdc.privileges.MetrologyConfiguration', {
     },
 
     canView: function () {
-        return Uni.Auth.checkPrivileges(Mdc.privileges.MetrologyConfiguration.view);
+        return !Uni.util.CheckAppStatus.insightAppIsActive() && Uni.Auth.checkPrivileges(Mdc.privileges.MetrologyConfiguration.view);
     },
 
     canAdmin: function () {
-        return Uni.Auth.checkPrivileges(Mdc.privileges.MetrologyConfiguration.admin);
+        return !Uni.util.CheckAppStatus.insightAppIsActive() && Uni.Auth.checkPrivileges(Mdc.privileges.MetrologyConfiguration.admin);
     }
 });

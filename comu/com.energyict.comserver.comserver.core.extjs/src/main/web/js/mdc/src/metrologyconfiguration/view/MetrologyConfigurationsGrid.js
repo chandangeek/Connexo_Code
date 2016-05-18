@@ -7,6 +7,7 @@ Ext.define('Mdc.metrologyconfiguration.view.MetrologyConfigurationsGrid', {
     ],
 
     store: 'Mdc.metrologyconfiguration.store.MetrologyConfigurations',
+    router: null,
 
     initComponent: function () {
         var me = this;
@@ -39,7 +40,16 @@ Ext.define('Mdc.metrologyconfiguration.view.MetrologyConfigurationsGrid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('metrologyconfiguration.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} metrology configurations'),
                 displayMoreMsg: Uni.I18n.translate('metrologyconfiguration.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} metrologyconfigurations'),
-                emptyMsg: Uni.I18n.translate('metrologyconfiguration.pagingtoolbartop.emptyMsg', 'MDC', 'There are no metrology configurations to display')
+                emptyMsg: Uni.I18n.translate('metrologyconfiguration.pagingtoolbartop.emptyMsg', 'MDC', 'There are no metrology configurations to display'),
+                items: [
+                    {
+                        xtype: 'button',
+                        itemId: 'metrology-configurations-grid-add-btn',
+                        text: Uni.I18n.translate('general.addMetrologyConfiguration', 'MDC', 'Add metrology configuration'),
+                        privileges: Mdc.privileges.MetrologyConfiguration.canAdmin(),
+                        href: me.router.getRoute('administration/metrologyconfiguration/add').buildUrl()
+                    }
+                ]
             },
             {
                 xtype: 'pagingtoolbarbottom',

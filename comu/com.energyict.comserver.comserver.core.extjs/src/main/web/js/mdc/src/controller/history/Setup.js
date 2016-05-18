@@ -1112,7 +1112,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('general.addMetrologyConfiguration', 'MDC', 'Add metrology configuration'),
                             route: 'add',
                             controller: 'Mdc.metrologyconfiguration.controller.AddView',
-                            action: 'showForm'
+                            action: 'showForm',
+                            privileges: Mdc.privileges.MetrologyConfiguration.canAdmin()
                         }
                     }
                 }
