@@ -13,7 +13,6 @@ import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -206,28 +205,18 @@ public class EstimationResource {
     }
 
     @GET
-    @Path("/{ruleSetId}/rule/{ruleId}/readingtypes")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
-    public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleId") long ruleId) {
-        EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId);
-        EstimationRule estimationRule = getEstimationRuleFromSetOrThrowException(estimationRuleSet, ruleId);
-        return new ReadingTypeInfos(estimationRule.getReadingTypes());
-    }
-
-    @GET
     @Path("/estimators")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
-    public EstimatorInfos getAvailableEstimators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @Context UriInfo uriInfo) {
-        EstimatorInfos infos = new EstimatorInfos();
-        estimationService.getAvailableEstimators(applicationName).stream()
+    public PagedInfoList getAvailableEstimators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @BeanParam JsonQueryParameters parameters) {
+        List<EstimationInfo> data = estimationService.getAvailableEstimators(applicationName).stream()
                 .sorted(Compare.BY_DISPLAY_NAME)
-                .forEach(estimator -> infos.add(
+                .map(estimator -> new EstimationInfo(
                         estimator.getClass().getName(),
                         estimator.getDisplayName(),
-                        propertyUtils.convertPropertySpecsToPropertyInfos(estimator.getPropertySpecs())));
-        return infos;
+                        propertyUtils.convertPropertySpecsToPropertyInfos(estimator.getPropertySpecs())))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("estimators", data, parameters);
     }
 
     class RuleSetUsageInfo {

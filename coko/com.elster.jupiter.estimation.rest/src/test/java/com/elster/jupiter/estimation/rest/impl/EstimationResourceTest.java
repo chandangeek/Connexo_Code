@@ -35,9 +35,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -47,6 +45,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +62,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
-import static com.elster.jupiter.estimation.rest.impl.PropertyType.NULLABLE_BOOLEAN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -236,53 +234,39 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     }
 
     @Test
-    public void testGetEstimatorsNoEstimators() {
-        EstimatorInfos estimatorInfos = target("/estimation/estimators").request().header(APPLICATION_HEADER_PARAM, "APP").get(EstimatorInfos.class);
-
-        assertThat(estimatorInfos.total).isZero();
-        assertThat(estimatorInfos.estimators).isEmpty();
+    public void testGetEstimatorsNoEstimators() throws IOException {
+        Response response = target("/estimation/estimators").request().header(APPLICATION_HEADER_PARAM, "APP").get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel body = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        assertThat(body.<Integer>get("$.total")).isZero();
+        assertThat(body.<List>get("$.estimators")).isEmpty();
     }
 
     @Test
-    public void testGetEstimators() {
+    public void testGetEstimators() throws IOException {
         List<Estimator> mockEstimators = Arrays.asList(mockEstimator("B Estimator"), mockEstimator("A Estimator"));
         when(estimationService.getAvailableEstimators("APP")).thenReturn(mockEstimators);
 
-        EstimatorInfos estimatorInfos = target("/estimation/estimators").request().header(APPLICATION_HEADER_PARAM, "APP").get(EstimatorInfos.class);
-
-        assertThat(estimatorInfos.total).isEqualTo(2);
-        List<EstimationInfo> estimators = estimatorInfos.estimators;
-        assertThat(estimators).hasSize(2);
-
-        EstimationInfo estimatorAInfo = estimators.get(0);
-        assertThat(estimatorAInfo.displayName).isEqualTo("A Estimator");
-        assertThat(estimatorAInfo.implementation).isNotNull();
-
-        EstimationInfo estimatorBInfo = estimators.get(1);
-        assertThat(estimatorBInfo.displayName).isEqualTo("B Estimator");
-        assertThat(estimatorBInfo.implementation).isNotNull();
-
-        List<PropertyInfo> propertyInfos = estimatorAInfo.properties;
-        assertThat(propertyInfos).hasSize(1);
-
-        PropertyInfo propertyInfo = propertyInfos.get(0);
-        assertThat(propertyInfo.key).isEqualTo("listvalue");
-        assertThat(propertyInfo.required).isEqualTo(false);
-
-        PropertyTypeInfo typeInfo = propertyInfo.propertyTypeInfo;
-        PredefinedPropertyValuesInfo<?> predefinedValuesInfo = typeInfo.predefinedPropertyValuesInfo;
-        assertThat(predefinedValuesInfo.selectionMode).isEqualTo(PropertySelectionMode.LIST);
-
-        Object[] possibleValuesInfo = predefinedValuesInfo.possibleValues;
-        assertThat(possibleValuesInfo).hasSize(2);
-
-        Map<?, ?> possibleValue1 = (Map<?, ?>) possibleValuesInfo[0];
-        assertThat(possibleValue1.get("id")).isEqualTo("1");
-        assertThat(possibleValue1.get("name")).isEqualTo("first");
-
-        Map<?, ?> possibleValue2 = (Map<?, ?>) possibleValuesInfo[1];
-        assertThat(possibleValue2.get("id")).isEqualTo("2");
-        assertThat(possibleValue2.get("name")).isEqualTo("second");
+        Response response = target("/estimation/estimators").request().header(APPLICATION_HEADER_PARAM, "APP").get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel body = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(body.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(body.<List>get("$.estimators")).hasSize(2);
+        assertThat(body.<String>get("$.estimators[0].displayName")).isEqualTo("A Estimator");
+        assertThat(body.<String>get("$.estimators[0].implementation")).isNotNull();
+        assertThat(body.<String>get("$.estimators[1].displayName")).isEqualTo("B Estimator");
+        assertThat(body.<String>get("$.estimators[1].implementation")).isNotNull();
+        assertThat(body.<List>get("$.estimators[0].properties")).hasSize(1);
+        JsonModel property0 = JsonModel.model(body.<Object>get("$.estimators[0].properties[0]"));
+        assertThat(property0.<String>get("key")).isEqualTo("listvalue");
+        assertThat(property0.<Boolean>get("required")).isEqualTo(false);
+        JsonModel predefinedPropertyValuesInfo = JsonModel.model(property0.<Object>get("$.propertyTypeInfo.predefinedPropertyValuesInfo"));
+        assertThat(predefinedPropertyValuesInfo.<String>get("$.selectionMode")).isEqualTo(PropertySelectionMode.LIST.name());
+        assertThat(predefinedPropertyValuesInfo.<List>get("$.possibleValues")).hasSize(2);
+        assertThat(predefinedPropertyValuesInfo.<String>get("$.possibleValues[0].id")).isEqualTo("1");
+        assertThat(predefinedPropertyValuesInfo.<String>get("$.possibleValues[0].name")).isEqualTo("first");
+        assertThat(predefinedPropertyValuesInfo.<String>get("$.possibleValues[1].id")).isEqualTo("2");
+        assertThat(predefinedPropertyValuesInfo.<String>get("$.possibleValues[1].name")).isEqualTo("second");
     }
 
     @Test
@@ -487,18 +471,6 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         ConcurrentModificationInfo errorInfo = response.readEntity(ConcurrentModificationInfo.class);
         assertThat(errorInfo.version).isNull();
         assertThat(errorInfo.parent.version).isEqualTo(RULE_SET_SUCCESS_VERSION);
-    }
-
-    @Test
-    public void testGetReadingTypes() throws Exception {
-        EstimationRuleSet estimationRuleSet = mockDefaultRuleSet();
-        EstimationRule estimationRule = mockEstimationRuleInRuleSet(RULE_ID, estimationRuleSet);
-        ReadingType readingType = mockReadingType();
-        when(estimationRule.getReadingTypes()).thenReturn(new HashSet<>(Collections.singletonList(readingType)));
-        Response response = target("/estimation/"+RULE_SET_ID+"/rule/"+RULE_ID+"/readingtypes").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
     }
 
     private void mockRuleSetQuery(EstimationRuleSet... ruleSets) {
