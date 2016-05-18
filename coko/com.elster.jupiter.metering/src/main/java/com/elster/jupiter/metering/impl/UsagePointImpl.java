@@ -331,7 +331,6 @@ public class UsagePointImpl implements UsagePoint {
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
         } else {
             updateDeviceDefaultLocation();
-            updateDeviceDefaultGeoCoordinates();
             Save.UPDATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
         }
@@ -764,55 +763,38 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     private void updateDeviceDefaultLocation() {
-        if (upLocation.isPresent()) {
-            if (location != upLocation.get().getId()) {
-                this.getMeterActivations().stream()
-                        .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
-                            if (!meter.getLocation().isPresent() || meter.getLocationId() == upLocation.get().getId()) {
-                                meteringService.findLocation(location).ifPresent(storedLocation -> {
-                                    meter.setLocation(storedLocation);
-                                    meter.update();
-                                });
+        this.getMeterActivations().stream()
+                .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter ->{
+                    if(upLocation.isPresent()){
+                        if(location != upLocation.get().getId()){
+                            if(!meter.getLocation().isPresent() || meter.getLocationId() == upLocation.get().getId()){
+                                meteringService.findLocation(location).ifPresent(meter::setLocation);
                             }
-                        }));
-            }
-        } else if (location != 0) {
-            this.getMeterActivations().stream()
-                    .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
-                        if (!meter.getLocation().isPresent()) {
-                            meteringService.findLocation(location).ifPresent(storedLocation -> {
-                                meter.setLocation(storedLocation);
-                                meter.update();
-                            });
                         }
-                    }));
-        }
-    }
-
-    private void updateDeviceDefaultGeoCoordinates(){
-        geoCoordinates.getOptional().ifPresent(geo -> {
-            dataModel.mapper(UsagePoint.class).getOptional(this.getId()).ifPresent(up -> {
-                if(up.getGeoCoordinates().isPresent()) {
-                    if (up.getGeoCoordinates().get().getId() != geo.getId()) {
-                        this.getMeterActivations().stream()
-                                .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
-                                    if (!meter.getGeoCoordinates().isPresent() || meter.getGeoCoordinates().get().getId() == up.getGeoCoordinates().get().getId()) {
-                                        meter.setGeoCoordinates(geo);
-                                        meter.update();
-                                    }
-                                }));
+                    } else if(location != 0){
+                        if(!meter.getLocation().isPresent()){
+                            meteringService.findLocation(location).ifPresent(meter::setLocation);
+                        }
                     }
-                } else {
-                    this.getMeterActivations().stream()
-                            .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
+                    if(geoCoordinates.getOptional().isPresent()){
+                        GeoCoordinates geo = geoCoordinates.getOptional().get();
+                        dataModel.mapper(UsagePoint.class).getOptional(this.getId()).ifPresent(up -> {
+                            if (up.getGeoCoordinates().isPresent()) {
+                                if (!meter.getGeoCoordinates().isPresent() || meter.getGeoCoordinates()
+                                        .get()
+                                        .getId() == up.getGeoCoordinates().get().getId()) {
+                                    meter.setGeoCoordinates(geo);
+                                }
+                            } else {
                                 if (!meter.getGeoCoordinates().isPresent()) {
                                     meter.setGeoCoordinates(geo);
-                                    meter.update();
                                 }
-                            }));
-                }
-            });
-
-        });
+                            }
+                        });
+                    }else{
+                        meter.setGeoCoordinates(null);
+                    }
+                    meter.update();
+                }));
     }
 }
