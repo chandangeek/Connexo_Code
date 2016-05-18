@@ -19,7 +19,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
         var me = this,
             router = me.router,
             casAddRoute = router.getRoute('administration/metrologyconfiguration/view/customAttributeSets/add'),
-            isActive = me.metrologyConfiguration.get('active');
+            isActive = me.metrologyConfiguration.get('status').id == 'active';
 
         me.content = {
             xtype: 'panel',
@@ -28,7 +28,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
             items: [
                 {
                     xtype: 'uni-form-empty-message',
-                    text: Uni.I18n.translate('Imt.metrologyconfiguration.error.active', 'IMT', 'You cannot edit custom attribute set because the metrology configuration is active'),
+                    text: Uni.I18n.translate('Imt.metrologyconfiguration.error.cannotEditCAS', 'IMT', "You can't manage custom attribute sets because the metrology configuration is active"),
                     hidden: !isActive
                 },
                 {
@@ -71,6 +71,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                             Uni.I18n.translate('Imt.metrologyconfiguration.empty.list.item1', 'IMT', 'No custom attribute sets added yet'),
                             Uni.I18n.translate('Imt.metrologyconfiguration.empty.list.item2', 'IMT', 'No custom attribute sets defined yet')
                         ],
+                        noStepItems: isActive,
                         stepItems: [
                             {
                                 text: casAddRoute.getTitle(),
