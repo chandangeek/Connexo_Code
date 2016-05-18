@@ -35,23 +35,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Component(name = "com.elster.insight.usagepoint.config.console",
-        service = ConsoleCommands.class,
+        service = UsagePointConsoleCommands.class,
         property = {"osgi.command.scope=usagepoint",
                 "osgi.command.function=createMetrologyConfiguration",
                 "osgi.command.function=renameMetrologyConfiguration",
                 "osgi.command.function=deleteMetrologyConfiguration",
                 "osgi.command.function=metrologyConfigurations",
                 "osgi.command.function=linkUsagePointToMetrologyConfiguration",
-                "osgi.command.function=createValidationRuleSet",
                 "osgi.command.function=assignValRuleSetToMetrologyConfig",
-                "osgi.command.function=createMeter",
                 "osgi.command.function=createUsagePoint",
                 "osgi.command.function=saveRegister",
                 "osgi.command.function=saveLP",
                 "osgi.command.function=getLpReadings",
                 "osgi.command.function=activateValidation",
-                "osgi.command.function=deactivateValidation"}, immediate = true)
-public class ConsoleCommands {
+                "osgi.command.function=deactivateValidation"},
+        immediate = true)
+public class UsagePointConsoleCommands {
 
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
@@ -123,18 +122,6 @@ public class ConsoleCommands {
         }
     }
 
-    public void createValidationRuleSet(String name, String applicationName) {
-        try {
-            transactionService.builder()
-                    .principal(() -> "console")
-                    .run(() -> {
-                        validationService.createValidationRuleSet(name, applicationName);
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public void assignValRuleSetToMetrologyConfig(String metrologyConfigName, String ruleSetName) {
         try {
             transactionService.builder()
@@ -151,22 +138,6 @@ public class ConsoleCommands {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Descriptor("Create a meter")
-    public void createMeter(@Descriptor("System id (usually 2)") long amrSystemId,
-            @Descriptor("EA_MS Meter ID") String amrid,
-            @Descriptor("MRID") String mrId) {
-        transactionService.builder()
-                .principal(() -> "console")
-                .run(() -> {
-                    AmrSystem amrSystem = meteringService
-                            .findAmrSystem(amrSystemId)
-                            .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-                    Meter meter = amrSystem.newMeter(amrid).setName(amrid).setMRID(mrId).create();
-                    meter.update();
-                    System.out.println("Meter " + amrid + " created with ID: " + meter.getId());
-                });
     }
 
     @Descriptor("Create a usage point")
