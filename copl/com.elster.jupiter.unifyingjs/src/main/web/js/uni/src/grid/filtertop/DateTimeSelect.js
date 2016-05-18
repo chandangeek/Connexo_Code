@@ -118,10 +118,12 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
         me.getDateTime().resetValue();
         me.fireFilterUpdateEvent();
         me.getChooseIntervalButton().hideMenu();
+        me.updateTitle();
     },
 
     reset: function() {
         this.getDateTime().resetValue();
+        this.updateTitle();
     },
 
     getChooseIntervalButton: function () {
