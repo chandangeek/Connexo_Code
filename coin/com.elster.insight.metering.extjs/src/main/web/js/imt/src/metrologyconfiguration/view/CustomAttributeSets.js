@@ -28,7 +28,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
             items: [
                 {
                     xtype: 'uni-form-empty-message',
-                    text: Uni.I18n.translate('Imt.metrologyconfiguration.error.active', 'IMT', 'You cannot edit custom attribute set because the metrology configuration is active'),
+                    text: Uni.I18n.translate('Imt.metrologyconfiguration.error.cannotEditCAS', 'IMT', "You can't manage custom attribute sets because the metrology configuration is active"),
                     hidden: !isActive
                 },
                 {
