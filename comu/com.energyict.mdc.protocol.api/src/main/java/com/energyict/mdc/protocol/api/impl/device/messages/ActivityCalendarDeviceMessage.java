@@ -28,7 +28,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
     ACTIVITY_CALENDAR_READ(DeviceMessageId.ACTIVITY_CALENDAR_READ, "Read activity calendar") {
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.empty();
+            return Optional.of(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR);
         }
     },
     WRITE_CONTRACTS_FROM_XML_USERFILE(DeviceMessageId.ACTIVITY_CALENDAR_WRITE_CONTRACTS_FROM_XML_USERFILE, "Write contract from XML user file") {
