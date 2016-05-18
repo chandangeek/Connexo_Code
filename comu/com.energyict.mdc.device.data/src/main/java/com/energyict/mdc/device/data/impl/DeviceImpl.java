@@ -2138,7 +2138,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<PassiveEffectiveCalendar> getPassiveCalenders() {
+    public List<PassiveEffectiveCalendar> getPassiveCalendars() {
         return this.passiveCalendars;
     }
 
