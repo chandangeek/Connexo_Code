@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -34,6 +35,7 @@ import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurati
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -72,6 +74,7 @@ public class MinimalDeviceTypeInMemoryBootstrapModule {
                 new IdsModule(),
                 new EventsModule(),
                 new BasicPropertiesModule(),
+                new CalendarModule(),
                 new CustomPropertySetsModule(),
                 new PartyModule(),
                 new ValidationModule(),
@@ -90,6 +93,7 @@ public class MinimalDeviceTypeInMemoryBootstrapModule {
                 new DeviceConfigurationModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
+            injector.getInstance(PluggableService.class);
             ctx.commit();
         }
     }

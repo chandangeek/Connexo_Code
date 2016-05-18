@@ -62,6 +62,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -188,6 +189,7 @@ public class SecurityPropertySetImplCrudIT {
                     new MasterDataModule(),
                     new BasicPropertiesModule(),
                     new MdcDynamicModule(),
+                    new PluggableModule(),
                     new ProtocolApiModule(),
                     new TasksModule(),
                     new ValidationModule(),
@@ -221,6 +223,7 @@ public class SecurityPropertySetImplCrudIT {
             injector.getInstance(TaskService.class);
             injector.getInstance(ValidationService.class);
             injector.getInstance(DeviceLifeCycleConfigurationService.class);
+            injector.getInstance(PluggableService.class);
             deviceConfigurationService = new DeviceConfigurationServiceImpl(
                     injector.getInstance(OrmService.class),
                     injector.getInstance(Clock.class),
