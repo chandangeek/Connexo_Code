@@ -1,8 +1,8 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -18,14 +18,14 @@ import javax.ws.rs.core.UriInfo;
  * Date: 21/11/13
  * Time: 15:07
  */
-@Path("/codetables")
-public class CodeTableResource {
+@Path("/calendars")
+public class CalendarResource {
 
-    private final CodeFactory codeFactory;
+    private final CalendarService calendarService;
 
     @Inject
-    public CodeTableResource(CodeFactory codeFactory) {
-        this.codeFactory = codeFactory;
+    public CalendarResource(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @GET @Transactional
@@ -35,12 +35,12 @@ public class CodeTableResource {
             com.energyict.mdc.engine.config.security.Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION,
             com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE,
             com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
-    public CodeTableInfos getCodeTablePropertyContext(@Context UriInfo uriInfo){
-        CodeTableInfos timeZoneInUseInfos = new CodeTableInfos();
-        this.codeFactory
-                .findAllCodeTables()
+    public CalendarInfos getCodeTablePropertyContext(@Context UriInfo uriInfo){
+        CalendarInfos timeZoneInUseInfos = new CalendarInfos();
+        this.calendarService
+                .findAllCalendars()
                 .stream()
-                .map(CodeTableInfo::new)
+                .map(CalendarInfo::new)
                 .forEach(timeZoneInUseInfos.codeTableInfos::add);
         return timeZoneInUseInfos;
     }

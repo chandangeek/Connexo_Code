@@ -1,5 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -12,7 +13,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.google.common.collect.ImmutableSet;
@@ -32,7 +32,7 @@ public class MdcPluggableRestApplication extends Application implements MessageS
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "PLR";
 
-    private volatile CodeFactory codeFactory;
+    private volatile CalendarService calendarService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile PropertySpecService propertySpecService;
     private volatile TransactionService transactionService;
@@ -51,7 +51,7 @@ public class MdcPluggableRestApplication extends Application implements MessageS
                 TimeZoneInUseResource.class,
                 DeviceMessageFileReferenceResource.class,
                 LoadProfileTypeResource.class,
-                CodeTableResource.class);
+                CalendarResource.class);
     }
 
     @Override
@@ -63,8 +63,8 @@ public class MdcPluggableRestApplication extends Application implements MessageS
     }
 
     @Reference
-    public void setCodeFactory(CodeFactory codeFactory) {
-        this.codeFactory = codeFactory;
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Reference
@@ -117,7 +117,7 @@ public class MdcPluggableRestApplication extends Application implements MessageS
 
         @Override
         protected void configure() {
-            bind(codeFactory).to(CodeFactory.class);
+            bind(calendarService).to(CalendarService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(propertySpecService).to(PropertySpecService.class);
             bind(transactionService).to(TransactionService.class);
