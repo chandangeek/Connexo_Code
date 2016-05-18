@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -338,12 +339,13 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     }
 
     @Override
-    public void setDataLogger(Device slave, Device dataLogger, Map<Channel, Channel> slaveDataLoggerChannelMap){
+    public void setDataLogger(Device slave, Device dataLogger, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap){
         Instant now = this.clock.instant();
         this.getPhysicalGatewayReference(slave, now).ifPresent(r -> terminateTemporal(r, now));
 
         final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, now);
         slaveDataLoggerChannelMap.forEach((k,v) -> this.addChannelDataLoggerUsage(dataLoggerReference, k, v));
+        slaveDataLoggerRegisterMap.forEach((k,v) -> this.addRegisterDataLoggerUsage(dataLoggerReference, k, v));
         Save.CREATE.validate(this.dataModel, dataLoggerReference);
         this.dataModel.persist(dataLoggerReference);
     }
@@ -365,8 +367,23 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     }
 
     @Override
+    public Optional<Register> getSlaveRegister(Register dataLoggerRegister, Instant when) {
+        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerRegister).get(),when).map((dataLoggerChannelUsage) -> {
+            Device slaveDevice = dataLoggerChannelUsage.getDataLoggerReference().getOrigin();
+            ReadingType slaveChannelReadingType = dataLoggerChannelUsage.getSlaveChannel().getMainReadingType();
+            return slaveDevice.getRegisters().stream().filter((channel)-> channel.getReadingType() == slaveChannelReadingType).findFirst().get();
+        });
+    }
+
+
+    @Override
     public boolean isReferenced(Channel dataLoggerChannel) {
         return this.isReferenced(getMeteringChannel(dataLoggerChannel).get());
+    }
+
+    @Override
+    public boolean isReferenced(Register dataLoggerRegister) {
+        return false;
     }
 
     boolean isReferenced(com.elster.jupiter.metering.Channel dataLoggerChannel) {
@@ -407,12 +424,18 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         dataLoggerReference.addDataLoggerChannelUsage(channelForSlave.get(),channelForDataLogger.get());
     }
 
+    private void addRegisterDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Register slave, Register dataLogger){
+        Optional<com.elster.jupiter.metering.Channel> channelForSlave = getMeteringChannel(slave);
+        Optional<com.elster.jupiter.metering.Channel> channelForDataLogger = getMeteringChannel(dataLogger);
+        dataLoggerReference.addDataLoggerChannelUsage(channelForSlave.get(),channelForDataLogger.get());
+    }
+
     Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final com.energyict.mdc.device.data.Channel channel){
         return channel.getDevice().getCurrentMeterActivation().get().getChannels().stream().filter((x)-> x.getMainReadingType() == channel.getReadingType()).findFirst();
     }
 
-    Optional<Channel> getMdcChannel(final Device device, final com.elster.jupiter.metering.Channel meteringChannel){
-        return device.getChannels().stream().filter((channel) -> channel.getReadingType() == meteringChannel.getMainReadingType()).findFirst();
+    Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final Register register){
+        return register.getDevice().getCurrentMeterActivation().get().getChannels().stream().filter((x)-> x.getMainReadingType() == register.getReadingType()).findFirst();
     }
 
     private void terminateTemporal(PhysicalGatewayReference gatewayReference, Instant now) {

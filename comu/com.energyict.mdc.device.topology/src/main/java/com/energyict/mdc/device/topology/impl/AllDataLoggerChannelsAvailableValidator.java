@@ -31,8 +31,8 @@ public class AllDataLoggerChannelsAvailableValidator implements ConstraintValida
     public boolean isValid(DataLoggerReferenceImpl dataLoggerReference, ConstraintValidatorContext constraintValidatorContext) {
         List<DataLoggerChannelUsage> currentUsages =  dataLoggerReference.getDataLoggerChannelUsages();
         Set<Channel> dataLoggerChannels = currentUsages.stream().map(DataLoggerChannelUsage::getDataLoggerChannel).collect(Collectors.toSet());
-        return dataLoggerChannels.size() == currentUsages.size() &&
-               dataLoggerChannels.stream().filter(this::isAvailable).findAny().isPresent();
+        return currentUsages.isEmpty() ||
+               (dataLoggerChannels.size() == currentUsages.size() && dataLoggerChannels.stream().filter(this::isAvailable).findAny().isPresent());
     }
 
     public boolean isAvailable(Channel dataloggerChannel){

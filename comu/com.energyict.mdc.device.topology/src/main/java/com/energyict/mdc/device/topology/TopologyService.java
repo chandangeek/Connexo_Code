@@ -6,6 +6,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 
@@ -220,15 +221,17 @@ public interface TopologyService {
      * Link the slave device to the data logger device
      * @param datalogger which can have slave devices
      * @param slave device to link to the datalogger
+     * @param slaveDataLoggerChannelMap  mapping of data logger (mdc) channels to slave (mdc) channels
+     * @param slaveDataLoggerRegisterMap mapping of data logger registers to slave registers
      *
      * The datalogger's {@link com.energyict.mdc.device.config.DeviceType} purpose must be REGULAR{@link com.energyict.mdc.device.config.DeviceTypePurpose} and its actual
      * {@link DeviceConfiguration} must be set as datalogger enabled.
      * The slave device's DeviceType must have the DATALOGGER_SLAVE {@link com.energyict.mdc.device.config.DeviceTypePurpose}
      *
      * Technically the link is persisted as a {@link com.energyict.mdc.device.topology.impl.PhysicalGatewayReference} object.
-     * This PhysicalGateWayReference holds a List of DataLoggerChannelUsage linking the slave channel to the datalogger channel
+     * This PhysicalGateWayReference holds a List of DataLoggerChannelUsage linking the slave (pulse) channel to the datalogger (pulse) channel
      */
-    void setDataLogger(Device slave, Device datalogger, Map<Channel, Channel> slaveDataLoggerChannelMap);
+    void setDataLogger(Device slave, Device datalogger, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap);
 
     /**
      *
@@ -254,12 +257,28 @@ public interface TopologyService {
     Optional<Channel> getSlaveChannel(Channel dataLoggerChannel, Instant when);
 
     /**
-     * Checks wether a (datalogger Channel) is referenced
+     * Checks whether a (datalogger Channel) is referenced
      * @param dataLoggerChannel channel to inspect
      * @return true if the channel is already present as gateway channel in one or more DataLoggerChannelUsages
-     *         false if not DataloggerChannelUsages were found having the given channel as gateway channel;
+     *         false if not DataloggerChannelUsages were found having the given ('pulse') channel as gateway channel;
      */
     boolean isReferenced(Channel dataLoggerChannel);
+
+    /**
+     * @param dataLoggerRegister
+     * @param when Time at which the link should be effective
+     * @return an Optional channel of the slave device to which the data logger register is linked. Optional<empty> if the $
+     * dataLogger register is not linked
+     */
+    Optional<Register> getSlaveRegister(Register dataLoggerRegister, Instant when);
+
+    /**
+     * Checks whether a (datalogger Register) is referenced
+     * @param dataLoggerRegister register to inspect
+     * @return true if the channel is already present as gateway channel in one or more DataLoggerChannelUsages
+     *         false if no DataloggerChannelUsages were found having the given register (pulse channel) as gateway channel;
+     */
+    boolean isReferenced(Register dataLoggerRegister);
 
     public interface G3CommunicationPathSegmentBuilder {
 
