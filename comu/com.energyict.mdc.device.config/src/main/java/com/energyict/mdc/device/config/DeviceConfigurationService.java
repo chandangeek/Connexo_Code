@@ -325,7 +325,7 @@ public interface DeviceConfigurationService {
 
     Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id);
 
-    Set<ProtocolSupportedCalendarOptions> getSupportedTimeOfUseOptionsFor(DeviceType deviceType);
+    Set<ProtocolSupportedCalendarOptions> getSupportedTimeOfUseOptionsFor(DeviceType deviceType, boolean checkForVerifyCalendar);
 
     Optional<TimeOfUseOptions> findTimeOfUseOptions(DeviceType deviceType);
 

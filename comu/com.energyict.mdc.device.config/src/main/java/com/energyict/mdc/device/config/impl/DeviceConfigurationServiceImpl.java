@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.impl.CalendarImpl;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
@@ -221,14 +219,17 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public void changeDeviceLifeCycle(DeviceType deviceType, DeviceLifeCycle deviceLifeCycle) throws IncompatibleDeviceLifeCycleChangeException {
+    public void changeDeviceLifeCycle(DeviceType deviceType, DeviceLifeCycle deviceLifeCycle) throws
+            IncompatibleDeviceLifeCycleChangeException {
         if (deviceType.getDeviceLifeCycle().getId() != deviceLifeCycle.getId()) {
             this.changeDeviceLifeCycle((ServerDeviceType) deviceType, deviceLifeCycle);
         }
     }
 
-    private void changeDeviceLifeCycle(ServerDeviceType deviceType, DeviceLifeCycle deviceLifeCycle) throws IncompatibleDeviceLifeCycleChangeException {
-        DeviceLifeCycleChangeEventSimpleImpl event = new DeviceLifeCycleChangeEventSimpleImpl(this.clock.instant(), deviceType, deviceLifeCycle, this.getCurrentUser());
+    private void changeDeviceLifeCycle(ServerDeviceType deviceType, DeviceLifeCycle deviceLifeCycle) throws
+            IncompatibleDeviceLifeCycleChangeException {
+        DeviceLifeCycleChangeEventSimpleImpl event = new DeviceLifeCycleChangeEventSimpleImpl(this.clock.instant(), deviceType, deviceLifeCycle, this
+                .getCurrentUser());
         this.eventService.postEvent(this.changeDeviceLifeCycleTopicName(), event);
         deviceType.updateDeviceLifeCycle(deviceLifeCycle);
     }
@@ -299,7 +300,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<RegisterSpec> findRegisterSpecsByChannelSpecAndLinkType(ChannelSpec channelSpec, ChannelSpecLinkType linkType) {
-        return this.getDataModel().mapper(RegisterSpec.class).find("linkedChannelSpec", channelSpec, "channelSpecLinkType", linkType);
+        return this.getDataModel()
+                .mapper(RegisterSpec.class)
+                .find("linkedChannelSpec", channelSpec, "channelSpecLinkType", linkType);
     }
 
     @Override
@@ -319,7 +322,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Optional<LoadProfileSpec> findLoadProfileSpecByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
-        return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("deviceConfiguration", deviceConfig, "loadProfileType", loadProfileType);
+        return this.getDataModel()
+                .mapper(LoadProfileSpec.class)
+                .getUnique("deviceConfiguration", deviceConfig, "loadProfileType", loadProfileType);
     }
 
     @Override
@@ -339,12 +344,17 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Optional<ChannelSpec> findChannelSpecForLoadProfileSpecAndChannelType(LoadProfileSpec loadProfileSpec, ChannelType channelType) {
-        return this.getDataModel().mapper(ChannelSpec.class).getUnique("loadProfileSpec", loadProfileSpec, "channelType", channelType);
+        return this.getDataModel()
+                .mapper(ChannelSpec.class)
+                .getUnique("loadProfileSpec", loadProfileSpec, "channelType", channelType);
     }
 
     @Override
     public ChannelSpec findChannelSpecByDeviceConfigurationAndName(DeviceConfiguration deviceConfiguration, String name) {
-        return this.getDataModel().mapper(ChannelSpec.class).getUnique("deviceConfiguration", deviceConfiguration, "name", name).orElse(null);
+        return this.getDataModel()
+                .mapper(ChannelSpec.class)
+                .getUnique("deviceConfiguration", deviceConfiguration, "name", name)
+                .orElse(null);
     }
 
     @Override
@@ -376,7 +386,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return this.getDataModel().
                 query(ChannelSpec.class, LoadProfileSpec.class).
                 select(where("channelType").isEqualTo(channelType).
-                                and(where("loadProfileSpec.loadProfileType").isEqualTo(loadProfileType))
+                        and(where("loadProfileSpec.loadProfileType").isEqualTo(loadProfileType))
                 );
     }
 
@@ -426,13 +436,17 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public boolean isRegisterTypeUsedByDeviceType(RegisterType registerType) {
-        return !this.getDataModel().
-                query(DeviceTypeRegisterTypeUsage.class).select(where("registerType").isEqualTo(registerType)).isEmpty();
+        return !this.getDataModel()
+                .
+                        query(DeviceTypeRegisterTypeUsage.class)
+                .select(where("registerType").isEqualTo(registerType))
+                .isEmpty();
     }
 
     @Override
     public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType) {
-        return DefaultFinder.of(DeviceConfiguration.class, where("deviceType").isEqualTo(deviceType), this.getDataModel()).defaultSortColumn("lower(name)");
+        return DefaultFinder.of(DeviceConfiguration.class, where("deviceType").isEqualTo(deviceType), this.getDataModel())
+                .defaultSortColumn("lower(name)");
     }
 
     @Override
@@ -447,7 +461,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass) {
-        return dataModel.query(PartialConnectionTask.class).select(where("pluggableClass").isEqualTo(connectionTypePluggableClass));
+        return dataModel.query(PartialConnectionTask.class)
+                .select(where("pluggableClass").isEqualTo(connectionTypePluggableClass));
     }
 
     @Override
@@ -641,7 +656,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
-    public void setCalendarService(CalendarService calendarService){
+    public void setCalendarService(CalendarService calendarService) {
         this.calendarService = calendarService;
     }
 
@@ -705,7 +720,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return comTaskMap.values();
     }
 
-    private List<DeviceConfiguration> getDeviceConfigurationsFromComSchedule(ComSchedule comSchedule, Connection connection) throws SQLException {
+    private List<DeviceConfiguration> getDeviceConfigurationsFromComSchedule(ComSchedule comSchedule, Connection connection) throws
+            SQLException {
         List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
 /* Todo: Check with Karel to figure out how to get select distinct activated in code below
         DataMapper<DeviceConfiguration> mapper = this.dataModel.mapper(DeviceConfiguration.class);
@@ -731,7 +747,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public Finder<DeviceConfiguration> findActiveDeviceConfigurationsForDeviceType(DeviceType deviceType) {
-        return DefaultFinder.of(DeviceConfiguration.class, where("deviceType").isEqualTo(deviceType).and(where("active").isEqualTo(true)), this.getDataModel()).defaultSortColumn("lower(name)");
+        return DefaultFinder.of(DeviceConfiguration.class, where("deviceType").isEqualTo(deviceType)
+                .and(where("active").isEqualTo(true)), this.getDataModel()).defaultSortColumn("lower(name)");
     }
 
     @Override
@@ -744,8 +761,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
         Condition condition = where(DeviceConfigurationImpl.Fields.DEVICECONF_ESTIMATIONRULESET_USAGES.fieldName() + "." +
-                                    DeviceConfigurationEstimationRuleSetUsageImpl.Fields.ESTIMATIONRULESET.fieldName()).isEqualTo(estimationRuleSet);
-        return DefaultFinder.of(DeviceConfiguration.class, condition, dataModel, DeviceConfigurationEstimationRuleSetUsage.class).sorted("deviceType", true).sorted("name", true);
+                DeviceConfigurationEstimationRuleSetUsageImpl.Fields.ESTIMATIONRULESET.fieldName()).isEqualTo(estimationRuleSet);
+        return DefaultFinder.of(DeviceConfiguration.class, condition, dataModel, DeviceConfigurationEstimationRuleSetUsage.class)
+                .sorted("deviceType", true)
+                .sorted("name", true);
     }
 
     @Override
@@ -778,11 +797,13 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet) {
-        return new LinkableConfigResolverBySql(queryService.wrap(dataModel.query(DeviceConfiguration.class, DeviceType.class))).getLinkableDeviceConfigurations(validationRuleSet);
+        return new LinkableConfigResolverBySql(queryService.wrap(dataModel.query(DeviceConfiguration.class, DeviceType.class)))
+                .getLinkableDeviceConfigurations(validationRuleSet);
     }
 
     public List<DeviceConfiguration> getLinkableDeviceConfigurations(EstimationRuleSet estimationRuleSet) {
-        return new LinkableConfigResolverBySql(queryService.wrap(dataModel.query(DeviceConfiguration.class, DeviceType.class))).getLinkableDeviceConfigurations(estimationRuleSet);
+        return new LinkableConfigResolverBySql(queryService.wrap(dataModel.query(DeviceConfiguration.class, DeviceType.class)))
+                .getLinkableDeviceConfigurations(estimationRuleSet);
     }
 
 
@@ -795,8 +816,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 if (found.isPresent()) {
                     privileges.add(privilege);
                 }
-                Optional<DeviceMessageUserAction> deviceMessageUserAction = DeviceMessageUserAction.forPrivilege(privilege.getName());
-                if(deviceMessageUserAction.isPresent()){
+                Optional<DeviceMessageUserAction> deviceMessageUserAction = DeviceMessageUserAction.forPrivilege(privilege
+                        .getName());
+                if (deviceMessageUserAction.isPresent()) {
                     privileges.add(privilege);
                 }
             }
@@ -811,8 +833,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 .filter(s -> s.getId() ==
                         securityPropertySets.stream()
                                 .filter(s2 -> s2.getName().equals(s.getName()))
-                                .sorted((s3, s4) -> s4.getAuthenticationDeviceAccessLevel().getId() - s3.getAuthenticationDeviceAccessLevel().getId())
-                                .sorted((s3, s4) -> s4.getEncryptionDeviceAccessLevel().getId() - s3.getEncryptionDeviceAccessLevel().getId())
+                                .sorted((s3, s4) -> s4.getAuthenticationDeviceAccessLevel()
+                                        .getId() - s3.getAuthenticationDeviceAccessLevel().getId())
+                                .sorted((s3, s4) -> s4.getEncryptionDeviceAccessLevel()
+                                        .getId() - s3.getEncryptionDeviceAccessLevel().getId())
                                 .findFirst().get().getId())
                 .collect(toList());
     }
@@ -820,9 +844,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public boolean usedByDeviceConfigurations(ComTask comTask) {
         return !this.dataModel
-                    .mapper(ComTaskEnablement.class)
-                    .find(ComTaskEnablementImpl.Fields.COM_TASK.fieldName(), comTask)
-                    .isEmpty();
+                .mapper(ComTaskEnablement.class)
+                .find(ComTaskEnablementImpl.Fields.COM_TASK.fieldName(), comTask)
+                .isEmpty();
     }
 
     @Override
@@ -833,11 +857,15 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<ResourceDefinition> getModuleResources() {
         return Arrays.asList(
-                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, Privileges.RESOURCE_MASTER_DATA.getKey(), Privileges.RESOURCE_MASTER_DATA_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA)),
-                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, Privileges.RESOURCE_DEVICE_TYPES.getKey(), Privileges.RESOURCE_DEVICE_TYPES_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE)),
-                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, Privileges.RESOURCE_DEVICE_SECURITY.getKey(), Privileges.RESOURCE_DEVICE_SECURITY_DESCRIPTION.getKey(), Arrays.asList(DeviceSecurityUserAction
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, Privileges.RESOURCE_MASTER_DATA
+                        .getKey(), Privileges.RESOURCE_MASTER_DATA_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA)),
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, Privileges.RESOURCE_DEVICE_TYPES
+                        .getKey(), Privileges.RESOURCE_DEVICE_TYPES_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE)),
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, Privileges.RESOURCE_DEVICE_SECURITY
+                        .getKey(), Privileges.RESOURCE_DEVICE_SECURITY_DESCRIPTION.getKey(), Arrays.asList(DeviceSecurityUserAction
                         .values()).stream().map(DeviceSecurityUserAction::getPrivilege).collect(toList())),
-                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, Privileges.RESOURCE_DEVICE_COMMANDS.getKey(), Privileges.RESOURCE_DEVICE_COMMANDS_DESCRIPTION.getKey(), Arrays.asList(DeviceMessageUserAction
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, Privileges.RESOURCE_DEVICE_COMMANDS
+                        .getKey(), Privileges.RESOURCE_DEVICE_COMMANDS_DESCRIPTION.getKey(), Arrays.asList(DeviceMessageUserAction
                         .values()).stream().map(DeviceMessageUserAction::getPrivilege).collect(toList()))
         );
     }
@@ -854,17 +882,26 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public Set<ProtocolSupportedCalendarOptions> getSupportedTimeOfUseOptionsFor(DeviceType deviceType) {
-        return deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages().stream()
+    public Set<ProtocolSupportedCalendarOptions> getSupportedTimeOfUseOptionsFor(DeviceType deviceType, boolean checkForVerifyCalendar) {
+        Set<ProtocolSupportedCalendarOptions> protocolSupportedCalendarOptions = deviceType.getDeviceProtocolPluggableClass()
+                .getDeviceProtocol()
+                .getSupportedMessages()
+                .stream()
                 .map(this.deviceMessageSpecificationService::getProtocolSupportedCalendarOptionsFor)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .collect(Collectors.toCollection(HashSet::new));
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toCollection(HashSet::new));
+        if(!checkForVerifyCalendar) {
+            protocolSupportedCalendarOptions.remove(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR);
+        }
+
+        return protocolSupportedCalendarOptions;
     }
 
     @Override
     public Optional<TimeOfUseOptions> findTimeOfUseOptions(DeviceType deviceType) {
-        return dataModel.mapper(TimeOfUseOptions.class).getUnique(TimeOfUseOptionsImpl.Fields.DEVICETYPE.fieldName(), deviceType);
+        return dataModel.mapper(TimeOfUseOptions.class)
+                .getUnique(TimeOfUseOptionsImpl.Fields.DEVICETYPE.fieldName(), deviceType);
     }
 
     @Override
