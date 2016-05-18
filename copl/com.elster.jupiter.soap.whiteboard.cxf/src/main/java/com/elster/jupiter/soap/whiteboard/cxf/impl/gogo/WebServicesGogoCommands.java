@@ -100,17 +100,26 @@ public class WebServicesGogoCommands {
     }
 
     public void publish(String name) {
-//        endPointConfigurationService.getEndPointConfiguration(name).ifPresent(endPointConfigurationService::activate);
-        endPointConfigurationService.getEndPointConfiguration(name).ifPresent(
-                ep -> webServicesService.publishEndPoint(ep)
-        );
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            endPointConfigurationService.getEndPointConfiguration(name)
+                    .ifPresent(endPointConfigurationService::activate);
+            context.commit();
+        }
+    }
+
+    public void unpublish() {
+        System.out.println("usage: unpublish <end point name>");
     }
 
     public void unpublish(String name) {
-//        endPointConfigurationService.getEndPointConfiguration(name).ifPresent(endPointConfigurationService::deactivate);
-        endPointConfigurationService.getEndPointConfiguration(name).ifPresent(
-                epc -> webServicesService.removeEndPoint(epc)
-        );
+        threadPrincipalService.set(() -> "Console");
 
+        try (TransactionContext context = transactionService.getContext()) {
+            endPointConfigurationService.getEndPointConfiguration(name)
+                    .ifPresent(endPointConfigurationService::deactivate);
+            context.commit();
+        }
     }
 }
