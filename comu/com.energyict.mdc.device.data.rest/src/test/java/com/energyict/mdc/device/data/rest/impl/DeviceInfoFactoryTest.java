@@ -449,7 +449,7 @@ public class DeviceInfoFactoryTest {
         assertThat(info.dataLoggerSlaveDevices.get(0).dataLoggerSlaveChannelInfos.get(0).slaveChannel.name).isEqualTo(SLAVE_CHANNEL_NAME_1);
         assertThat(info.dataLoggerSlaveDevices.get(0).dataLoggerSlaveChannelInfos.get(0).dataLoggerChannel.name).isEqualTo("dataLoggerChn1");
 
-        assertThat(info.dataLoggerSlaveDevices.get(1).containsTheUnlinkedDataLoggerChannels()).isTrue();
+        assertThat(info.dataLoggerSlaveDevices.get(1).placeHolderForUnlinkedDataLoggerChannelsAndRegisters()).isTrue();
         assertThat(info.dataLoggerSlaveDevices.get(1).dataLoggerSlaveChannelInfos).hasSize(4);
 
         assertThat(info.dataLoggerSlaveDevices.get(2).mRID).isEqualTo(SLAVE_MRID_2);

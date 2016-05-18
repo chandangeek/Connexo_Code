@@ -29,6 +29,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
@@ -292,7 +293,7 @@ public class DeviceResource {
     }
 
     private void setDataLogger(DataLoggerSlaveDeviceInfo slaveDeviceInfo, Device dataLogger){
-        if (!slaveDeviceInfo.containsTheUnlinkedDataLoggerChannels()) {
+        if (!slaveDeviceInfo.placeHolderForUnlinkedDataLoggerChannelsAndRegisters()) {
             Device slave;
             if (slaveDeviceInfo.id == 0 && slaveDeviceInfo.version == 0) {
                 slave = newDevice(slaveDeviceInfo.deviceConfigurationId, null, slaveDeviceInfo.mRID, slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification);
@@ -301,8 +302,14 @@ public class DeviceResource {
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_ID, slaveDeviceInfo.mRID));
             }
             final HashMap<Channel, Channel> channelMap = new HashMap<>();
-            slaveDeviceInfo.dataLoggerSlaveChannelInfos.stream().map(info -> slaveDataLoggerChannelPair(slave, info)).forEach((pair) -> channelMap.put(pair.getFirst(), pair.getLast()));
-            topologyService.setDataLogger(slave, dataLogger, channelMap);
+            if (slaveDeviceInfo.dataLoggerSlaveChannelInfos != null) {
+                slaveDeviceInfo.dataLoggerSlaveChannelInfos.stream().map(info -> slaveDataLoggerChannelPair(slave, info)).forEach((pair) -> channelMap.put(pair.getFirst(), pair.getLast()));
+            }
+            final HashMap<Register, Register> registerMap = new HashMap<>();
+            if (slaveDeviceInfo.dataLoggerSlaveRegisterInfos != null) {
+                slaveDeviceInfo.dataLoggerSlaveRegisterInfos.stream().map(info -> slaveDataLoggerRegisterPair(slave, info)).forEach((pair) -> registerMap.put(pair.getFirst(), pair.getLast()));
+            }
+            topologyService.setDataLogger(slave, dataLogger, channelMap, registerMap);
         }
     }
 
@@ -314,12 +321,24 @@ public class DeviceResource {
         return info.dataLoggerSlaveDevices.stream().filter((dataLoggerSlaveDeviceInfo) -> dataLoggerSlaveDeviceInfo.id == slave.getId()).findFirst().isPresent();
     }
 
+    private Pair<Register, Register> slaveDataLoggerRegisterPair(Device slave, DataLoggerSlaveRegisterInfo info){
+       return Pair.of(registerInfoToRegister(slave, info.slaveRegister), registerInfoToRegister(info.dataLoggerRegister));
+    }
+
     private Channel channelInfoToChannel(ChannelInfo info){
         return resourceHelper.findChannelOnDeviceOrThrowException(info.parent.id, info.id );
     }
 
     private Channel channelInfoToChannel(Device slave, ChannelInfo info){
         return resourceHelper.findChannelOnDeviceOrThrowException(slave, info.id );
+    }
+
+    private Register registerInfoToRegister(RegisterInfo info){
+        return resourceHelper.findRegisterOnDeviceOrThrowException(info.mRID, info.id );
+    }
+
+    private Register registerInfoToRegister(Device slave, RegisterInfo info){
+        return resourceHelper.findRegisterOnDeviceOrThrowException(slave, info.id );
     }
 
     private void updateGateway(Device device, String gatewayMRID) {

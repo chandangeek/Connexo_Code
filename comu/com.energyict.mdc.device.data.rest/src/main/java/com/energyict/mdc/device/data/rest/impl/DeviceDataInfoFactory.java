@@ -57,6 +57,14 @@ public class DeviceDataInfoFactory {
         this.clock = clock;
     }
 
+    DeviceDataInfoFactory(Clock clock){
+        this.validationInfoFactory = null;
+        this.estimationRuleInfoFactory = null;
+        this.thesaurus = null;
+        this.validationRuleInfoFactory = null;
+        this.clock = clock;
+    }
+
     public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation) {
         ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
@@ -270,6 +278,20 @@ public class DeviceDataInfoFactory {
             NumericalRegisterInfo info = createNumericalRegisterInfo((NumericalRegister) register);
             info.detailedValidationInfo = registerValidationInfo;
             return info;
+        } else if (register instanceof TextRegister) {
+            return createTextRegisterInfo((TextRegister) register);
+        } else if (register instanceof FlagsRegister) {
+            return createFlagsRegisterInfo((FlagsRegister) register);
+        }
+
+        throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());
+    }
+
+    public RegisterInfo createLeanRegisterInfo(Register register){
+        if (register instanceof BillingRegister) {
+            return createBillingRegisterInfo((BillingRegister) register);
+        } else if (register instanceof NumericalRegister) {
+            return createNumericalRegisterInfo((NumericalRegister) register);
         } else if (register instanceof TextRegister) {
             return createTextRegisterInfo((TextRegister) register);
         } else if (register instanceof FlagsRegister) {

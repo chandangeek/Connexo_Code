@@ -1359,7 +1359,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), any(Map.class));
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
     }
 
     private Channel prepareMockedChannel(Channel mockedChannel){
@@ -1528,7 +1528,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(topologyService, times(1)).clearDataLogger(slave1);
-        verify(topologyService, never()).setDataLogger(any(Device.class), eq(dataLogger), any(Map.class));
+        verify(topologyService, never()).setDataLogger(any(Device.class), eq(dataLogger), any(Map.class), any(Map.class));
     }
 
     @Test
@@ -1569,7 +1569,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(topologyService, never()).setDataLogger(any(Device.class), eq(dataLogger), any(Map.class));
+        verify(topologyService, never()).setDataLogger(any(Device.class), eq(dataLogger), any(Map.class), any(Map.class));
     }
 
     @Test
