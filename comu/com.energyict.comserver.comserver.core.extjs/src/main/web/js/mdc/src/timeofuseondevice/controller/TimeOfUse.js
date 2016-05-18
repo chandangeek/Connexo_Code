@@ -11,7 +11,8 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
     models: [
         'Mdc.model.Device',
         'Uni.model.timeofuse.Calendar',
-        'Mdc.timeofuseondevice.model.CalendarOnDevice'
+        'Mdc.timeofuseondevice.model.CalendarOnDevice',
+        'Mdc.timeofuseondevice.model.NextPassiveCalendar'
     ],
 
     init: function () {
@@ -55,8 +56,20 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                                 if (!(Object.keys(result).length === 0 && result.constructor === Object)) {
                                     view.down('device-tou-preview-form').fillFieldContainers(resultSet.records[0]);
 
+
                                 }
                                 view.down('#wrappingPanel').setLoading(false);
+                            }
+
+
+                            if(view.down('device-tou-planned-on-form')) {
+                                if(resultSet.records[0].getNextPassiveCalendar() === null) {
+                                    view.down('device-tou-planned-on-form').hide();
+                                } else {
+                                    view.down('device-tou-planned-on-form').show();
+                                    view.down('device-tou-planned-on-form').down('form').loadRecord(resultSet.records[0].getNextPassiveCalendar());
+                                }
+
                             }
                         }
                         ,
