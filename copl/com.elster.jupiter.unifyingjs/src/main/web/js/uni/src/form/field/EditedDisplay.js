@@ -21,19 +21,19 @@ Ext.define('Uni.form.field.EditedDisplay', {
             );
             switch (value.flag) {
                 case 'ADDED':
-                    iconClass = 'uni-icon-edit';
+                    iconClass = 'icon-pencil4';
                     tooltipText = Uni.I18n.translate('general.addedOnX', 'UNI', 'Added on {0}', formattedDate);
                     break;
                 case 'EDITED':
-                    iconClass = 'uni-icon-edit';
+                    iconClass = 'icon-pencil4';
                     tooltipText = Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedDate);
                     break;
                 case 'ESTIMATED':
-                    iconClass = 'uni-icon-edit';
+                    iconClass = 'icon-pencil4';
                     tooltipText = Uni.I18n.translate('general.estimatedOnX', 'UNI', 'Estimated on {0}', formattedDate);
                     break;
                 case 'REMOVED':
-                    iconClass = 'uni-icon-remove';
+                    iconClass = 'icon-cancel-circle';
                     tooltipText = Uni.I18n.translate('general.removedOnX', 'UNI', 'Removed on {0}', formattedDate);
                     break;
             }

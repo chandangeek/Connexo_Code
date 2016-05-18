@@ -91,6 +91,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
      *     ]
      */
     stepItems: [],
+    noStepItems: false,
 
     layout: {
         type: 'vbox'
@@ -142,7 +143,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
             });
         }
 
-        if (!Ext.isEmpty(me.stepItems)) {
+        if (!Ext.isEmpty(me.stepItems) && !me.noStepItems) {
             var itemsContainer = me.createSteps(me.stepItems);
 
             if (!!itemsContainer) {

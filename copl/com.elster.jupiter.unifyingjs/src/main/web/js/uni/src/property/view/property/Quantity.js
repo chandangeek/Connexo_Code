@@ -26,8 +26,6 @@ Ext.define('Uni.property.view.property.Quantity', {
             {
                 xtype: 'numberfield',
                 itemId: me.key + 'value',
-                minValue: 0,
-                autoStripChars: true,
                 allowExponential: false,
                 margin: '0 10 0 0',
                 width: me.width - 90

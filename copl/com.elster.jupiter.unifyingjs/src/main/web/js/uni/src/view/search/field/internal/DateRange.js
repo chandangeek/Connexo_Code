@@ -21,7 +21,9 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
     getValue: function() {
         var value = [];
         this.items.each(function(item){
-            value.push(item.getValue());
+            if (!Ext.isEmpty(item.getValue())) {
+                value.push(item.getValue());
+            }
         });
         return Ext.isEmpty(value) ? null : value;
     },
@@ -40,12 +42,9 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
                 xtype: 'uni-search-internal-datetimefield',
                 itemId: 'from',
                 listeners: {
-                    change: function(field) {
-                        me.down('#to datefield').setMinValue(new Date(field.getValue()));
+                    change: function (field, newValue) {
+                        me.down('#to').setMinValue(!Ext.isEmpty(newValue) ? new Date(newValue) : null);
                         me.fireEvent('change', me, me.getValue());
-                    },
-                    reset: function() {
-                        me.down('#to datefield').setMinValue(null);
                     }
                 }
             },
@@ -53,12 +52,9 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
                 xtype: 'uni-search-internal-datetimefield',
                 itemId: 'to',
                 listeners: {
-                    change: function(field) {
-                        me.down('#from datefield').setMaxValue(new Date(field.getValue()));
+                    change: function (field, newValue) {
+                        me.down('#from').setMaxValue(!Ext.isEmpty(newValue) ? new Date(newValue) : null);
                         me.fireEvent('change', me, me.getValue());
-                    },
-                    reset: function() {
-                        me.down('#from datefield').setMaxValue(null);
                     }
                 }
             }
