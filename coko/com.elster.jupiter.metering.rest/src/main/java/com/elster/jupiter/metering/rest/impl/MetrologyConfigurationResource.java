@@ -104,7 +104,7 @@ public class MetrologyConfigurationResource {
 
         info.readingTypes.stream().forEach(readingTypeInfo -> {
             ReadingType readingType = meteringService.findReadingTypes(Collections.singletonList(readingTypeInfo.mRID)).stream().findFirst()
-                    .orElseThrow(IllegalArgumentException::new);
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.READING_TYPE_NOT_FOUND));
             FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(readingType.getName())
                     .withMeterRole(meterRoleDefault)
                     .withReadingType(readingType);

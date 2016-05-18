@@ -8,7 +8,8 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
     SERVICE_CATEGORY_NOT_FOUND(1, "service.category.not.found", "Service category not found"),
     DEFAULT_METROLOGY_PURPOSE_NOT_FOUND(2, "default.metrology.purpose.not.found", "Default metrology purpose not found"),
-    DEFAULT_METER_ROLE_NOT_FOUND(3, "default.meter.role.not.found", "Default meter role not found");
+    DEFAULT_METER_ROLE_NOT_FOUND(3, "default.meter.role.not.found", "Default meter role not found"),
+    READING_TYPE_NOT_FOUND(4, "reading.type.not.found", "Reading type not found");
 
     private final int number;
     private final String key;
