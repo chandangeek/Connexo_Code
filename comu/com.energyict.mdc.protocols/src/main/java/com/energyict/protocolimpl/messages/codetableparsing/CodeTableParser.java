@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.messages.codetableparsing;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.protocol.api.codetables.CodeDayType;
 
 import com.energyict.protocolimpl.generic.messages.ArrayIndexGenerator;
 
@@ -108,9 +107,6 @@ public class CodeTableParser {
         return tempDayIDMap.get(dbDayId);
     }
 
-    /**
-     * Construct a list of {@link CodeDayType}s
-     */
     private void constructDayProfileMap() {
         this.dayProfiles =
                 this.calendar

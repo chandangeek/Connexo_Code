@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.messages.codetableparsing;
 
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
-import com.elster.jupiter.calendar.RecurringExceptionalOccurrence;
+import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 
 /**
  * Describes 1 SpecialDay.
@@ -17,8 +17,8 @@ class SpecialDayDefinition {
 
     SpecialDayDefinition(CodeTableParser codeTableParser, ExceptionalOccurrence exceptionalOccurrence) {
         this.dayTypeId = codeTableParser.getDayIDValue(exceptionalOccurrence.getDayType().getId());
-        if (exceptionalOccurrence instanceof RecurringExceptionalOccurrence) {
-            RecurringExceptionalOccurrence occurrence = (RecurringExceptionalOccurrence) exceptionalOccurrence;
+        if (exceptionalOccurrence instanceof RecurrentExceptionalOccurrence) {
+            RecurrentExceptionalOccurrence occurrence = (RecurrentExceptionalOccurrence) exceptionalOccurrence;
             this.year = -1;
             this.month = occurrence.getOccurrence().getMonthValue();
             this.day = occurrence.getOccurrence().getDayOfMonth();

@@ -41,7 +41,7 @@ public class AS300TimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
         }
         builder.append(">");
         if (getCalendarId() > 0L) {
-            String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(getCalendarId(), Calendar.getInstance().getTime().before(getActivationDate())?getActivationDate().getTime():1, getName());
+            String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(this.getCalendar(), Calendar.getInstance().getTime().before(getActivationDate())?getActivationDate().getTime():1, getName());
             addChildTag(builder, getTagCode(), getCalendarId());
             addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
         }

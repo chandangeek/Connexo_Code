@@ -1,5 +1,6 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -11,7 +12,6 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
@@ -56,7 +56,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
     private volatile SerialComponentService serialComponentService;
     private volatile IdentificationService identificationService;
     private volatile CollectedDataFactory collectedDataFactory;
-    private volatile CodeFactory codeFactory;
+    private volatile CalendarService calendarService;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
     private volatile Thesaurus thesaurus;
@@ -72,7 +72,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
                                              PropertySpecService propertySpecService, TopologyService topologyService,
                                              SocketService socketService, SerialComponentService serialComponentService,
                                              MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService,
-                                             CollectedDataFactory collectedDataFactory, CodeFactory codeFactory,
+                                             CollectedDataFactory collectedDataFactory, CalendarService calendarService,
                                              DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService,
                                              NlsService nlsService) {
         this();
@@ -87,7 +87,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
         this.setReadingTypeUtilService(readingTypeUtilService);
         this.setIdentificationService(identificationService);
         this.setCollectedDataFactory(collectedDataFactory);
-        this.setCodeFactory(codeFactory);
+        this.setCalendarService(calendarService);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setNlsService(nlsService);
@@ -115,7 +115,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(IdentificationService.class).toInstance(identificationService);
                 bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
-                bind(CodeFactory.class).toInstance(codeFactory);
+                bind(CalendarService.class).toInstance(calendarService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DeviceProtocolSecurityService.class).toInstance(DeviceProtocolSecurityServiceImpl.this);
@@ -194,8 +194,8 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
     }
 
     @Reference
-    public void setCodeFactory(CodeFactory codeFactory) {
-        this.codeFactory = codeFactory;
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Reference

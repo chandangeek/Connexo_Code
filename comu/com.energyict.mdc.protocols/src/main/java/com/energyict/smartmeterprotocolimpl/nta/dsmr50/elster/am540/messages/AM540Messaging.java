@@ -82,7 +82,7 @@ public class AM540Messaging extends G3Messaging {
     }
 
     public AM540Messaging(AM540 protocol, TopologyService topologyService, Class<? extends AnnotatedMessage>[] messages, Clock clock, CalendarService calendarService) {
-        super(protocol.getDlmsSession(), messages);
+        super(protocol.getDlmsSession(), calendarService, messages);
         this.protocol = protocol;
         this.topologyService = topologyService;
         this.clock = clock;

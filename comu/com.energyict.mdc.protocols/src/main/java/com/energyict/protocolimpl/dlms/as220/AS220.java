@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
@@ -59,6 +60,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     private static final ObisCode FW_VERSION_PASSIVE_OBISCODE = ObisCode.fromString("1.1.0.2.0.255");
 
     private int iNROfIntervals = -1;
+    private final CalendarService calendarService;
     private final DeviceMessageFileService deviceMessageFileService;
     private final EMeter eMeter = new EMeter(this);
     private final PLC plc = new PLC(this);
@@ -72,11 +74,12 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     private FirmwareVersions passiveFirmwareVersion;
 
     @Inject
-    public AS220(PropertySpecService propertySpecService, OrmClient ormClient, DeviceMessageFileService deviceMessageFileService) {
+    public AS220(PropertySpecService propertySpecService, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService, OrmClient ormClient) {
         super(propertySpecService, ormClient);
+        this.calendarService = calendarService;
         this.deviceMessageFileService = deviceMessageFileService;
         messagingList = new ArrayList<>();
-        messagingList.add(new AS220Messaging(this));
+        messagingList.add(new AS220Messaging(this, this.calendarService));
         messagingList.add(new PLCMessaging(this));
     }
 
@@ -87,7 +90,6 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     public EMeter geteMeter() {
         return eMeter;
     }
-
 
     public void setGMeter(GMeter gMeter) {
         this.gMeter = gMeter;

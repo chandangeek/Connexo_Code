@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.idis;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -82,9 +83,11 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     private static final String CONFIGURATION_DOWNLOAD = "Configuration download";
     private static final String CONFIGURATION_USER_FILE = "Configuration user file";
     protected IDIS idis;
+    private final CalendarService calendarService;
 
-    public IDISMessageHandler(IDIS idis) {
+    public IDISMessageHandler(IDIS idis, CalendarService calendarService) {
         this.idis = idis;
+        this.calendarService = calendarService;
     }
 
     public void applyMessages(List messageEntries) throws IOException {
@@ -784,7 +787,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
 
             String name = "";
             String activationDate = "1";
-            long codeId = 0;
+            long calendarId = 0;
 
             // b. Attributes
             for (Object o1 : msgTag.getAttributes()) {
@@ -799,15 +802,15 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
                     }
                 } else if (RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE.equalsIgnoreCase(att.getSpec().getName())) {
                     if (att.getValue() != null) {
-                        codeId = Integer.valueOf(att.getValue());
+                        calendarId = Long.valueOf(att.getValue());
                     }
                 }
             }
 
             Date actDate = new Date(Long.valueOf(activationDate));
-            if (codeId > 0) {
+            if (calendarId > 0L) {
                 try {
-                    String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(codeId, Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(actDate) ? actDate.getTime() : 1, name);
+                    String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(this.findCalendar(calendarId), Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(actDate) ? actDate.getTime() : 1, name);
                     addChildTag(builder, RAW_CONTENT, ProtocolTools.compress(xmlContent));
                 } catch (ParserConfigurationException e) {
                     idis.getLogger().severe(e.getMessage());
@@ -888,6 +891,10 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
 
             return buf.toString();
         }
+    }
+
+    private com.elster.jupiter.calendar.Calendar findCalendar(long id) {
+        return this.calendarService.findCalendar(id).orElse(null);
     }
 
     /**

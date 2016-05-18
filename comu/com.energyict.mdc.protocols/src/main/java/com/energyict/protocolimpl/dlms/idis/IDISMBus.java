@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.idis;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -47,8 +48,8 @@ public class IDISMBus extends IDIS {
     private static final int MAX_MBUS_CHANNELS = 4;
 
     @Inject
-    public IDISMBus(PropertySpecService propertySpecService, OrmClient ormClient) {
-        super(propertySpecService, ormClient);
+    public IDISMBus(PropertySpecService propertySpecService, CalendarService calendarService, OrmClient ormClient) {
+        super(propertySpecService, calendarService, ormClient);
     }
 
     @Override
@@ -88,8 +89,8 @@ public class IDISMBus extends IDIS {
                     sb.append(" or ");
                 } else {
                     sb.append(", ");
-        }
-    }
+                }
+            }
             if (receivedSerialNumbers.isEmpty()) {
                 throw new IOException("No MBus device found with serialNumber '" + expectedSerialNumber + "' on the E-meter. No MBus devices are connected.");
             }
@@ -121,7 +122,7 @@ public class IDISMBus extends IDIS {
 
     protected IDISMessageHandler getMessageHandler() {
         if (messageHandler == null) {
-            messageHandler = new IDISMBusMessageHandler(this);
+            messageHandler = new IDISMBusMessageHandler(this, this.getCalendarService());
         }
         return messageHandler;
     }
@@ -170,4 +171,5 @@ public class IDISMBus extends IDIS {
     public int getGasSlotId() {
         return gasMeterSlot;
     }
+
 }

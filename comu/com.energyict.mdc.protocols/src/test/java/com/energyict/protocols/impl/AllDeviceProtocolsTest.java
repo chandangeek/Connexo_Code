@@ -1,6 +1,7 @@
 package com.energyict.protocols.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -20,7 +21,6 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
@@ -109,7 +109,7 @@ public class AllDeviceProtocolsTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
-    private CodeFactory codeFactory;
+    private CalendarService calendarService;
     @Mock
     private CollectedDataFactory collectedDataFactory;
     @Mock
@@ -220,7 +220,7 @@ public class AllDeviceProtocolsTest {
             bind(IssueService.class).toInstance(issueService);
             bind(MdcReadingTypeUtilService.class).toInstance(mdcReadingTypeUtilService);
             bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
-            bind(CodeFactory.class).toInstance(codeFactory);
+            bind(CalendarService.class).toInstance(calendarService);
             bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
             bind(IdentificationService.class).toInstance(identificationService);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);

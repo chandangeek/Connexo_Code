@@ -1,12 +1,20 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.DayType;
+import com.elster.jupiter.calendar.ExceptionalOccurrence;
+import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
+import com.elster.jupiter.calendar.Period;
+import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.Holidays;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.DayOfWeek;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Copyrights EnergyICT
@@ -15,15 +23,15 @@ import java.util.Date;
  */
 public class CodeCalendarObject implements Serializable {
 
-    private int codeId;
+    private long codeId;
     private String dayTypeName;
     private int year;
     private int month;
     private int day;
     private int dayOfWeek;
-    private int seasonId;
+    private long seasonId;
 
-    private static final Calendar[] HOLIDAYS = new Calendar[] {
+    private static final java.util.Calendar[] HOLIDAYS = new java.util.Calendar[] {
             ProtocolTools.createCalendar(2000, 1, 1),
             ProtocolTools.createCalendar(2000, 1, 6),
             null, // Easter monday has no fixed date!
@@ -37,23 +45,75 @@ public class CodeCalendarObject implements Serializable {
             ProtocolTools.createCalendar(2000, 12, 26)
     };
 
-    public static CodeCalendarObject fromCodeCalendar(CodeCalendar codeCalendar) {
+    public static List<CodeCalendarObject> allFrom(Calendar calendar) {
+        List<CodeCalendarObject> all = new ArrayList<>();
+        calendar
+            .getPeriods()
+            .stream()
+            .flatMap(CodeCalendarObject::from)
+            .forEach(all::add);
+        calendar
+            .getExceptionalOccurrences()
+            .stream()
+            .map(CodeCalendarObject::from)
+            .forEach(all::add);
+        return all;
+    }
+
+    private static Stream<CodeCalendarObject> from(Period period) {
+        return Stream.of(DayOfWeek.values()).map(dayOfWeek -> from(period, dayOfWeek));
+    }
+
+    private static CodeCalendarObject from(Period period, DayOfWeek dayOfWeek) {
         CodeCalendarObject cc = new CodeCalendarObject();
-        cc.setCodeId(codeCalendar.getCode().getId());
-        cc.setDayTypeName(codeCalendar.getDayType().getName());
-        cc.setYear(codeCalendar.getYear());
-        cc.setMonth(codeCalendar.getMonth());
-        cc.setDay(codeCalendar.getDay());
-        cc.setDayOfWeek(codeCalendar.getDayOfWeek());
-        cc.setSeasonId(codeCalendar.getSeason());
+        cc.setCodeId(period.getCalendar().getId());
+        DayType dayType = period.getDayType(dayOfWeek);
+        cc.setDayTypeName(dayType.getName());
+        cc.setYear(-1);
+        cc.setMonth(-1);
+        cc.setDay(-1);
+        cc.setDayOfWeek(dayOfWeek.getValue());
+        cc.setSeasonId(period.getId());
         return cc;
     }
 
-    public int getCodeId() {
+    private static CodeCalendarObject from(ExceptionalOccurrence exceptionalOccurrence) {
+        if (exceptionalOccurrence instanceof FixedExceptionalOccurrence) {
+            return from((FixedExceptionalOccurrence) exceptionalOccurrence);
+        } else {
+            return from((RecurrentExceptionalOccurrence) exceptionalOccurrence);
+        }
+    }
+
+    private static CodeCalendarObject from(FixedExceptionalOccurrence exceptionalOccurrence) {
+        CodeCalendarObject cc = new CodeCalendarObject();
+        cc.setCodeId(exceptionalOccurrence.getCalendar().getId());
+        cc.setDayTypeName(exceptionalOccurrence.getDayType().getName());
+        cc.setYear(exceptionalOccurrence.getOccurrence().getYear());
+        cc.setMonth(exceptionalOccurrence.getOccurrence().getMonthValue());
+        cc.setDay(exceptionalOccurrence.getOccurrence().getDayOfMonth());
+        cc.setDayOfWeek(-1);
+        cc.setSeasonId(-1);
+        return cc;
+    }
+
+    private static CodeCalendarObject from(RecurrentExceptionalOccurrence exceptionalOccurrence) {
+        CodeCalendarObject cc = new CodeCalendarObject();
+        cc.setCodeId(exceptionalOccurrence.getCalendar().getId());
+        cc.setDayTypeName(exceptionalOccurrence.getDayType().getName());
+        cc.setYear(-1);
+        cc.setMonth(exceptionalOccurrence.getOccurrence().getMonthValue());
+        cc.setDay(exceptionalOccurrence.getOccurrence().getDayOfMonth());
+        cc.setDayOfWeek(-1);
+        cc.setSeasonId(-1);
+        return cc;
+    }
+
+    public long getCodeId() {
         return codeId;
     }
 
-    public void setCodeId(int codeId) {
+    public void setCodeId(long codeId) {
         this.codeId = codeId;
     }
 
@@ -89,11 +149,11 @@ public class CodeCalendarObject implements Serializable {
         this.month = month;
     }
 
-    public int getSeasonId() {
+    public long getSeasonId() {
         return seasonId;
     }
 
-    public void setSeasonId(int seasonId) {
+    public void setSeasonId(long seasonId) {
         this.seasonId = seasonId;
     }
 
@@ -108,9 +168,9 @@ public class CodeCalendarObject implements Serializable {
     public boolean isHoliday() {
         if (isFullDate()) {
             if (dayTypeName.endsWith("Holiday")) {
-                for (Calendar holiday : HOLIDAYS) {
+                for (java.util.Calendar holiday : HOLIDAYS) {
                     if (holiday != null) {
-                        holiday.set(Calendar.YEAR, getYear());
+                        holiday.set(java.util.Calendar.YEAR, getYear());
                         if (isSameDate(holiday)) {
                             return true;
                         }
@@ -128,9 +188,9 @@ public class CodeCalendarObject implements Serializable {
     public int getHolidayID() {
         if (isHoliday()) {
             for (int i = 0; i < HOLIDAYS.length; i++) {
-                Calendar holiday = HOLIDAYS[i];
+                java.util.Calendar holiday = HOLIDAYS[i];
                 if (holiday != null) {
-                    holiday.set(Calendar.YEAR, getYear());
+                    holiday.set(java.util.Calendar.YEAR, getYear());
                     if (isSameDate(holiday)) {
                         return i;
                     }
@@ -156,19 +216,13 @@ public class CodeCalendarObject implements Serializable {
         return (year != -1) && (month != -1) && (day != -1);
     }
 
-    public boolean isSameDate(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        return isSameDate(calendar);
-    }
-
-    public boolean isSameDate(Calendar calendar) {
-        Calendar cc = getCalendar();
+    public boolean isSameDate(java.util.Calendar calendar) {
+        java.util.Calendar cc = getCalendar();
         if (calendar != null) {
             boolean same = true;
-            same &= (cc.get(Calendar.YEAR) == calendar.get(Calendar.YEAR));
-            same &= (cc.get(Calendar.MONTH) == calendar.get(Calendar.MONTH));
-            same &= (cc.get(Calendar.DAY_OF_MONTH) == calendar.get(Calendar.DAY_OF_MONTH));
+            same &= (cc.get(java.util.Calendar.YEAR) == calendar.get(java.util.Calendar.YEAR));
+            same &= (cc.get(java.util.Calendar.MONTH) == calendar.get(java.util.Calendar.MONTH));
+            same &= (cc.get(java.util.Calendar.DAY_OF_MONTH) == calendar.get(java.util.Calendar.DAY_OF_MONTH));
             return same;
         } else {
             return false;
@@ -179,7 +233,7 @@ public class CodeCalendarObject implements Serializable {
         return isSameDate(codeCalendarObject.getCalendar());
     }
 
-    public Calendar getCalendar() {
+    public java.util.Calendar getCalendar() {
         return isFullDate() ? ProtocolTools.createCalendar(year, month, day) : null;
     }
 
@@ -200,19 +254,18 @@ public class CodeCalendarObject implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("CodeCalendarObject");
-        sb.append("{codeId=").append(codeId);
-        sb.append(", dayTypeId=").append(dayTypeName);
-        sb.append(", year=").append(year);
-        sb.append(", month=").append(month);
-        sb.append(", day=").append(day);
-        sb.append(", dayOfWeek=").append(dayOfWeek);
-        sb.append(", seasonId=").append(seasonId);
-        sb.append(", holiday=").append(isHoliday());
-        sb.append(", customDay=").append(isCustomDay());
-        sb.append(", specialDay=").append(isSpecialDay());
-        sb.append('}');
-        return sb.toString();
+        return "CodeCalendarObject" +
+               "{codeId=" + codeId +
+               ", dayTypeId=" + dayTypeName +
+               ", year=" + year +
+               ", month=" + month +
+               ", day=" + day +
+               ", dayOfWeek=" + dayOfWeek +
+               ", seasonId=" + seasonId +
+               ", holiday=" + isHoliday() +
+               ", customDay=" + isCustomDay() +
+               ", specialDay=" + isSpecialDay() +
+               '}';
     }
+
 }

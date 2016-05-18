@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.messaging;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -156,17 +157,19 @@ public class G3Messaging extends AnnotatedMessaging {
     private static final ObisCode PLC_G3_TIMEOUT_OBISCODE = ObisCode.fromString("0.0.94.33.10.255");
     private static final ObisCode PRODUCER_CONSUMER_MODE_OBISCODE = ObisCode.fromString("1.0.96.63.11.255");
 
+    private final CalendarService calendarService;
     protected DlmsSession session;
     private G3Properties properties;
 
-    public G3Messaging(final DlmsSession session, G3Properties properties) {
-        this(session, MESSAGES);
+    public G3Messaging(final DlmsSession session, G3Properties properties, CalendarService calendarService) {
+        this(session, calendarService, MESSAGES);
         this.properties = properties;
     }
 
-    public G3Messaging(final DlmsSession session, final Class<? extends AnnotatedMessage>... messages) {
+    public G3Messaging(final DlmsSession session, CalendarService calendarService, final Class<? extends AnnotatedMessage>... messages) {
         super(session != null ? session.getLogger() : null, messages);
         this.session = session;
+        this.calendarService = calendarService;
     }
 
     @Override
@@ -219,7 +222,7 @@ public class G3Messaging extends AnnotatedMessaging {
                     if (msgTag.getName().contains(RtuMessageConstant.TOU_ACTIVITY_CAL) && Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().after(actDate)) {
                         throw new ApplicationException("Invalid activation date, should be in the future");
                     }
-                    String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(codeId, actDate.getTime(), name);
+                    String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calendarService.findCalendar(codeId).orElse(null), actDate.getTime(), name);
                     addChildTag(builder, IDISMessageHandler.RAW_CONTENT, ProtocolTools.compress(xmlContent));
                 } catch (ParserConfigurationException e) {
                     getLogger().severe(e.getMessage());

@@ -4,7 +4,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
-import com.elster.jupiter.calendar.RecurringExceptionalOccurrence;
+import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -686,8 +686,8 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     private void addAsSpecialDay(Array specialDays, ArrayIndexGenerator dayIndex, ExceptionalOccurrence exceptionalOccurrence) {
         try {
-            if (exceptionalOccurrence instanceof RecurringExceptionalOccurrence) {
-                this.addAsSpecialDay(specialDays, dayIndex, (RecurringExceptionalOccurrence) exceptionalOccurrence);
+            if (exceptionalOccurrence instanceof RecurrentExceptionalOccurrence) {
+                this.addAsSpecialDay(specialDays, dayIndex, (RecurrentExceptionalOccurrence) exceptionalOccurrence);
             } else {
                 this.addAsSpecialDay(specialDays, dayIndex, (FixedExceptionalOccurrence) exceptionalOccurrence);
             }
@@ -696,7 +696,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         }
     }
 
-    private void addAsSpecialDay(Array specialDays, ArrayIndexGenerator dayIndex, RecurringExceptionalOccurrence exceptionalOccurrence) throws ProtocolException {
+    private void addAsSpecialDay(Array specialDays, ArrayIndexGenerator dayIndex, RecurrentExceptionalOccurrence exceptionalOccurrence) throws ProtocolException {
         OctetString timeStamp =
                 OctetString.fromByteArray(
                         new byte[]{

@@ -276,9 +276,9 @@ public class MessageFactory implements DeviceMessageSupport {
         }
     }
 
-    private String convertCodeTableToXML(com.elster.jupiter.calendar.Calendar messageAttribute) {
+    private String convertCodeTableToXML(com.elster.jupiter.calendar.Calendar calendar) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0L, "0");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calendar, 0L, "0");
         } catch (ParserConfigurationException e) {
             throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }

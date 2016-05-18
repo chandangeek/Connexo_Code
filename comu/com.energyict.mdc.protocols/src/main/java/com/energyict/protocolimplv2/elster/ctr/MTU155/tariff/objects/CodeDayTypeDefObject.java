@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.protocol.api.codetables.CodeDayTypeDef;
+import com.elster.jupiter.calendar.EventOccurrence;
 
 import java.io.Serializable;
+import java.time.LocalTime;
 
 /**
  * Copyrights EnergyICT
@@ -11,33 +12,33 @@ import java.io.Serializable;
  */
 public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTypeDefObject> {
 
-    private int dayTypeId;
+    private long dayTypeId;
     private String dayTypeName;
     private int from;
-    private int codeValue;
+    private long codeValue;
 
-    public static CodeDayTypeDefObject fromCodeDayTypeDef(CodeDayTypeDef def) {
+    public static CodeDayTypeDefObject from(EventOccurrence eventOccurrence) {
         CodeDayTypeDefObject dtd = new CodeDayTypeDefObject();
-        dtd.setCodeValue(def.getCodeValue());
-        dtd.setFrom(def.getTstampFrom());
-        dtd.setDayTypeId(def.getDayType().getId());
-        dtd.setDayTypeName(def.getDayType().getName());
+        dtd.setCodeValue(eventOccurrence.getEvent().getCode());
+        dtd.setFrom(eventOccurrence.getFrom());
+        dtd.setDayTypeId(eventOccurrence.getDayType().getId());
+        dtd.setDayTypeName(eventOccurrence.getDayType().getName());
         return dtd;
     }
 
-    public int getCodeValue() {
+    public long getCodeValue() {
         return codeValue;
     }
 
-    public void setCodeValue(int codeValue) {
+    public void setCodeValue(long codeValue) {
         this.codeValue = codeValue;
     }
 
-    public int getDayTypeId() {
+    public long getDayTypeId() {
         return dayTypeId;
     }
 
-    public void setDayTypeId(int dayTypeId) {
+    public void setDayTypeId(long dayTypeId) {
         this.dayTypeId = dayTypeId;
     }
 
@@ -47,6 +48,10 @@ public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTyp
 
     public void setFrom(int from) {
         this.from = from;
+    }
+
+    private void setFrom(LocalTime from) {
+        this.setFrom(from.getHour() * 10000 + from.getMinute() * 100 + from.getSecond());
     }
 
     public String getDayTypeName() {
@@ -59,17 +64,16 @@ public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTyp
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("CodeDayTypeDefObject");
-        sb.append("{codeValue=").append(codeValue);
-        sb.append(", dayTypeId=").append(dayTypeId);
-        sb.append(", dayTypeName='").append(dayTypeName).append('\'');
-        sb.append(", from=").append(from);
-        sb.append('}');
-        return sb.toString();
+        return "CodeDayTypeDefObject" +
+               "{codeValue=" + codeValue +
+               ", dayTypeId=" + dayTypeId +
+               ", dayTypeName='" + dayTypeName + '\'' +
+               ", from=" + from +
+               '}';
     }
 
     public int compareTo(CodeDayTypeDefObject other) {
         return this.from - (other == null ? 0 : other.from);
     }
+
 }

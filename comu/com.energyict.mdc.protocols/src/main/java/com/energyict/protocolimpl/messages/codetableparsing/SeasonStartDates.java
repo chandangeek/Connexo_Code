@@ -1,11 +1,13 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
 import com.elster.jupiter.calendar.Period;
-import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
+
+import java.time.DayOfWeek;
 
 /**
- * Describes 1 Season of the CodeTable.
- * Each season contains a startDate and a seasonID
+ * Describes 1 Season of the CodeTable that is now supported
+ * by a {@link Period} of a {@link com.elster.jupiter.calendar.Calendar}.
+ * Each season contains a startDate and a seasonID.
  */
 class SeasonStartDates {
 
@@ -30,21 +32,10 @@ class SeasonStartDates {
         this.weekProfileName = -1;
     }
 
-    /**
-     * Constructor with a CodeCalendar as variable
-     *
-     * @param cc the CodeCalendar containing the necessary dates
-     */
-    SeasonStartDates(CodeCalendar cc) {
-        this.year = cc.getYear();
-        this.month = cc.getMonth();
-        this.day = cc.getDay();
-    }
-
     SeasonStartDates(Period period) {
         this.year = -1;
-        this.month = period.getFrom().getMonthValue();
-        this.day = period.getFrom().getDayOfMonth();
+        this.month = -1;
+        this.day = DayOfWeek.MONDAY.getValue();
     }
 
     /**

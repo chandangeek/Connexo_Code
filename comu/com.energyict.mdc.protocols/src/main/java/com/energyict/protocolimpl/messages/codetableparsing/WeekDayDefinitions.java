@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
 import com.elster.jupiter.calendar.Period;
-import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 
 import java.time.DayOfWeek;
 import java.util.List;
@@ -16,11 +15,6 @@ class WeekDayDefinitions {
 
     final int dayOfWeek;
     final int dayTypeId;
-
-    WeekDayDefinitions(CodeTableParser codeTableParser, CodeCalendar cc) {
-        this.dayOfWeek = cc.getDayOfWeek();
-        this.dayTypeId = codeTableParser.getDayIDValue(cc.getDayType().getId());
-    }
 
     private WeekDayDefinitions(DayOfWeek dayOfWeek, Period period, CodeTableParser codeTableParser) {
         this.dayOfWeek = dayOfWeek.ordinal() + 1;

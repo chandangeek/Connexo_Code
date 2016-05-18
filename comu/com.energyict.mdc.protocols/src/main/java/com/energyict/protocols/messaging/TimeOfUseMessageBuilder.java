@@ -4,7 +4,6 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
-import com.energyict.mdc.protocol.api.codetables.Code;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -119,13 +118,13 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
     }
 
     /**
-     * Set the codetable to be used as content for this time of use schedule
+     * Set the Calendar to be used as content for this time of use schedule
      *
-     * @param code The code to be set
+     * @param calendar The calendar to be set
      */
-    public void setCode(Code code) {
-        if (code != null) {
-            this.calendarId = code.getId();
+    public void setCalendar(Calendar calendar) {
+        if (calendar != null) {
+            this.calendarId = calendar.getId();
         } else {
             this.calendarId = 0;
         }
@@ -147,7 +146,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     public Calendar getCalendar() {
         if (this.calendar == null) {
-            this.calendar = this.calendarService.findCalendar(this.calendarId).get();
+            this.calendar = this.calendarService.findCalendar(this.calendarId).orElse(null);
         }
         return this.calendar;
     }

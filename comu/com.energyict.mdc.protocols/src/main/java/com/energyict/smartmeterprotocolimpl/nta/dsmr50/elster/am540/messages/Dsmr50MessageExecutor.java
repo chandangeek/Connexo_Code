@@ -5,7 +5,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
-import com.elster.jupiter.calendar.RecurringExceptionalOccurrence;
+import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 
@@ -80,14 +80,14 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
     }
 
     private void addAsSpecialDay(Array specialDays, ArrayIndexGenerator dayIndex, Map<Long, Integer> dayTypeIds, ExceptionalOccurrence exceptionalOccurrence) {
-        if (exceptionalOccurrence instanceof RecurringExceptionalOccurrence) {
-            this.addAsSpecialDay(specialDays, dayIndex, dayTypeIds, (RecurringExceptionalOccurrence) exceptionalOccurrence);
+        if (exceptionalOccurrence instanceof RecurrentExceptionalOccurrence) {
+            this.addAsSpecialDay(specialDays, dayIndex, dayTypeIds, (RecurrentExceptionalOccurrence) exceptionalOccurrence);
         } else {
             this.addAsSpecialDay(specialDays, dayIndex, dayTypeIds, (FixedExceptionalOccurrence) exceptionalOccurrence);
         }
     }
 
-    private void addAsSpecialDay(Array specialDays, ArrayIndexGenerator dayIndex, Map<Long, Integer> dayTypeIds, RecurringExceptionalOccurrence exceptionalOccurrence) {
+    private void addAsSpecialDay(Array specialDays, ArrayIndexGenerator dayIndex, Map<Long, Integer> dayTypeIds, RecurrentExceptionalOccurrence exceptionalOccurrence) {
         OctetString timeStamp =
                 OctetString.fromByteArray(
                         new byte[]{

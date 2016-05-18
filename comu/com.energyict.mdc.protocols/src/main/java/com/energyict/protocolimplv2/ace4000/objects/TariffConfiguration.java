@@ -6,7 +6,7 @@ import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
-import com.elster.jupiter.calendar.RecurringExceptionalOccurrence;
+import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.energyict.mdc.common.ApplicationException;
 
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
@@ -15,8 +15,8 @@ import org.w3c.dom.Element;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,6 +27,7 @@ import java.util.stream.Stream;
  */
 public class TariffConfiguration extends AbstractActarisObject {
 
+    private static final String FAILURE_MESSAGE = "Cannot configure tariff settings, invalid arguments";
     private com.elster.jupiter.calendar.Calendar calendar = null;
 
     public TariffConfiguration(ObjectFactory of) {
@@ -54,20 +55,19 @@ public class TariffConfiguration extends AbstractActarisObject {
     }
 
     private List<String> getSwitchingTimes() {
-        String failMsg = "Cannot configure tariff settings, invalid arguments";
         if (calendar == null) {
-            throw new ApplicationException(failMsg);
+            throw new ApplicationException(FAILURE_MESSAGE);
         }
 
         List<String> switchingTimes = new ArrayList<>();
         if (calendar.getDayTypes().size() > 16) {
-            throw new ApplicationException(failMsg);
+            throw new ApplicationException(FAILURE_MESSAGE);
         }
 
         String switchingTime;
         for (DayType dayType : calendar.getDayTypes()) {
             if (dayType.getEventOccurrences().size() > 8) {
-                throw new ApplicationException(failMsg);
+                throw new ApplicationException(FAILURE_MESSAGE);
             }
             switchingTime = "";
             for (EventOccurrence eventOccurrence : dayType.getEventOccurrences()) {
@@ -77,7 +77,7 @@ public class TariffConfiguration extends AbstractActarisObject {
                 switchingTime += pad(Integer.toString(minute, 16), 2);
                 long codeValue = eventOccurrence.getEvent().getCode();
                 if (codeValue > numberOfRates) {
-                    throw new ApplicationException(failMsg);
+                    throw new ApplicationException(FAILURE_MESSAGE);
                 }
                 switchingTime += "0" + String.valueOf(codeValue);
             }
@@ -87,39 +87,49 @@ public class TariffConfiguration extends AbstractActarisObject {
     }
 
     private List<String> getSeasonDefinitions() {
-        String failMsg = "Cannot configure tariff settings, invalid arguments";
         List<Period> seasons = calendar.getPeriods();
-        List<String> seasonStrings = new ArrayList<>();
         if (seasons.size() > 4 || seasons.size() < 1) {
-            throw new ApplicationException(failMsg);
+            throw new ApplicationException(FAILURE_MESSAGE);
         }
-
-        for (Period season : seasons) {
-            int month = season.getFrom().getMonthValue();
-            int dayOfMonth = season.getFrom().getDayOfMonth();
-            Map<Integer, Long> dayProfileIds =
-                    Stream
-                        .of(DayOfWeek.values())
-                        .collect(Collectors.toMap(
-                            DayOfWeek::getValue,
-                            dayOfWeek -> season.getDayType(dayOfWeek).getId()));
-            String weekProfile = "";
-            for (int i = 1; i < 8; i++) {
-                Long dayProfile = dayProfileIds.get(i);
-                weekProfile = String.valueOf(dayProfile) + weekProfile;
-            }
-            String seasonStartMoment = "64" + pad(Integer.toString(month, 16), 2) + pad(Integer.toString(dayOfMonth, 16), 2) + pad(Integer.toString(dayOfWeek, 16), 2);
-            weekProfile = seasonStartMoment + "0" + weekProfile;
-            seasonStrings.add(weekProfile);
-        }
-        return seasonStrings;
+        return seasons
+                .stream()
+                .map(this::toSeasonDefinitions)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
-    private List<PeriodTransition>
+    private List<String> toSeasonDefinitions(Period period) {
+        return this.transitionsTo(period).map(this::toString).collect(Collectors.toList());
+    }
+
+    private String toString(PeriodTransition transition) {
+        int dayOfWeek = transition.getOccurrence().getDayOfWeek().getValue();
+        int month = transition.getOccurrence().getMonthValue();
+        int dayOfMonth = transition.getOccurrence().getDayOfMonth();
+        String seasonStartMoment = "64" + pad(Integer.toString(month, 16), 2) + pad(Integer.toString(dayOfMonth, 16), 2) + pad(Integer.toString(dayOfWeek, 16), 2);
+        return seasonStartMoment + "0" + this.toWeekProfile(transition.getPeriod());
+    }
+
+    private String toWeekProfile(Period period) {
+        // Freaky but the meter explicitly needs the week in reverse order
+        return Stream
+                    .of(DayOfWeek.SUNDAY, DayOfWeek.SATURDAY, DayOfWeek.FRIDAY, DayOfWeek.THURSDAY, DayOfWeek.WEDNESDAY, DayOfWeek.TUESDAY, DayOfWeek.MONDAY)
+                    .map(period::getDayType)
+                    .map(this::dayRateFrom)
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(""));
+    }
+
+    private Stream<PeriodTransition> transitionsTo(Period period) {
+        return this.calendar
+                .getTransitions()
+                .stream()
+                .filter(t -> t.getPeriod().equals(period));
+    }
+
     private List<String> getSpecialDays() {
-        String failMsg = "Cannot configure tariff settings, invalid arguments";
         if (calendar.getExceptionalOccurrences().size() > 36) {
-            throw new ApplicationException(failMsg);
+            throw new ApplicationException(FAILURE_MESSAGE);
         }
         return this.calendar
                 .getExceptionalOccurrences()
@@ -132,7 +142,7 @@ public class TariffConfiguration extends AbstractActarisObject {
         if (exceptionalOccurrence instanceof FixedExceptionalOccurrence) {
             return this.toSpecialDay((FixedExceptionalOccurrence) exceptionalOccurrence);
         } else {
-            return this.toSpecialDay((RecurringExceptionalOccurrence) exceptionalOccurrence);
+            return this.toSpecialDay((RecurrentExceptionalOccurrence) exceptionalOccurrence);
         }
     }
 
@@ -145,7 +155,7 @@ public class TariffConfiguration extends AbstractActarisObject {
         return this.toSpecialDay(year, month, dayOfMonth, dayOfWeek, dayRate);
     }
 
-    private String toSpecialDay(RecurringExceptionalOccurrence exceptionalOccurrence) {
+    private String toSpecialDay(RecurrentExceptionalOccurrence exceptionalOccurrence) {
         int year = 0x64;
         int month = exceptionalOccurrence.getOccurrence().getMonthValue();
         int dayOfMonth = exceptionalOccurrence.getOccurrence().getDayOfMonth();
@@ -155,11 +165,14 @@ public class TariffConfiguration extends AbstractActarisObject {
     }
 
     private int dayRateFrom(ExceptionalOccurrence exceptionalOccurrence) {
+        return this.dayRateFrom(exceptionalOccurrence.getDayType());
+    }
+
+    private int dayRateFrom(DayType dayType) {
         try {
-            // Todo: see mail sent to Kristof, Stijn and Govanni about the purpose of parsing the day type's name to an int
-            return Integer.parseInt(exceptionalOccurrence.getDayType().getName()) - 1;
+            return Integer.parseInt(dayType.getName()) - 1;
         } catch (NumberFormatException e) {
-            throw new ApplicationException(failMsg);
+            throw new ApplicationException(FAILURE_MESSAGE);
         }
     }
 
@@ -249,4 +262,5 @@ public class TariffConfiguration extends AbstractActarisObject {
         }
         return text;
     }
+
 }

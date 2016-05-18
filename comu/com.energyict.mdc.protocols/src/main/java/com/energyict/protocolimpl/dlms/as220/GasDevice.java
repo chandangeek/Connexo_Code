@@ -3,6 +3,7 @@
  */
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -49,7 +50,7 @@ import java.util.Properties;
  * @author jeroen.meulemeester
  *
  */
-public class GasDevice extends AS220 implements MessageProtocol{
+public class GasDevice extends AS220 implements MessageProtocol {
 
 	@Override
 	public String getProtocolDescription() {
@@ -68,8 +69,8 @@ public class GasDevice extends AS220 implements MessageProtocol{
     private int dif = -1;
 
 	@Inject
-	public GasDevice(PropertySpecService propertySpecService, OrmClient ormClient, DeviceMessageFileService deviceMessageFileService) {
-		super(propertySpecService, ormClient, deviceMessageFileService);
+	public GasDevice(PropertySpecService propertySpecService, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService, OrmClient ormClient) {
+		super(propertySpecService, calendarService, deviceMessageFileService, ormClient);
 	}
 
 	@Override

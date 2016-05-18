@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -43,8 +43,8 @@ public class ZMDTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder {
             addAttribute(builder, getAttributeActivationDate(), getActivationDate().getTime() / 1000);
         }
         builder.append(">");
-        if (getCalendarId() > 0l) {
-            String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(getCalendarId(), getActivationDate().getTime(), getName());
+        if (getCalendarId() > 0L) {
+            String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(this.getCalendar(), getActivationDate().getTime(), getName());
             addChildTag(builder, getTagCode(), getCalendarId());
             addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
         }

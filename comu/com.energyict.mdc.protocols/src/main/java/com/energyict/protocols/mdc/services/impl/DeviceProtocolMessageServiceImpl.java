@@ -1,5 +1,6 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -8,7 +9,6 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
@@ -53,7 +53,7 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
     private volatile SerialComponentService serialComponentService;
     private volatile IdentificationService identificationService;
     private volatile CollectedDataFactory collectedDataFactory;
-    private volatile CodeFactory codeFactory;
+    private volatile CalendarService calendarService;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
     private Injector injector;
@@ -65,7 +65,7 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
 
     // For testing purposes
     @Inject
-    public DeviceProtocolMessageServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService) {
+    public DeviceProtocolMessageServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CalendarService calendarService, DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService) {
         this();
         this.setMeteringService(meteringService);
         this.setIssueService(issueService);
@@ -77,8 +77,8 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
         this.setSerialComponentService(serialComponentService);
         this.setReadingTypeUtilService(readingTypeUtilService);
         this.setIdentificationService(identificationService);
+        this.setCalendarService(calendarService);
         this.setCollectedDataFactory(collectedDataFactory);
-        this.setCodeFactory(codeFactory);
         this.setDeviceConfigurationService(deviceConfigurationService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.activate();
@@ -105,7 +105,7 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(IdentificationService.class).toInstance(identificationService);
                 bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
-                bind(CodeFactory.class).toInstance(codeFactory);
+                bind(CalendarService.class).toInstance(calendarService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DeviceProtocolMessageService.class).toInstance(DeviceProtocolMessageServiceImpl.this);
@@ -174,8 +174,8 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
     }
 
     @Reference
-    public void setCodeFactory(CodeFactory codeFactory) {
-        this.codeFactory = codeFactory;
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Reference

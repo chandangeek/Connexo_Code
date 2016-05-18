@@ -1,12 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/04/12
- * Time: 11:59
- */
-
 import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 
@@ -24,7 +17,7 @@ import java.io.IOException;
  */
 public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.TimeOfUseMessageBuilder {
 
-      public static final String RAW_CONTENT_TAG = "Activity_Calendar";
+    public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
     public TimeOfUseMessageBuilder(CalendarService calendarService, DeviceMessageFileService deviceMessageFileService) {
         super(calendarService, deviceMessageFileService);
@@ -48,8 +41,8 @@ public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.T
             addAttribute(builder, getAttributeActivationDate(), getActivationDate().getTime() / 1000);
         }
         builder.append(">");
-        if (getCalendarId() > 0l) {
-            String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(getCalendarId(), getActivationDate().getTime(), getName());
+        if (getCalendarId() > 0L) {
+            String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(this.getCalendar(), getActivationDate().getTime(), getName());
             addChildTag(builder, getTagCode(), getCalendarId());
             addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
         }
