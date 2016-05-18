@@ -140,7 +140,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
@@ -214,8 +214,7 @@ public class DemoTest {
             bind(FtpClientService.class).toInstance(mock(FtpClientService.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(DeviceConfigurationService.class).toInstance(mock(DeviceConfigurationService.class));
-            bind(CodeFactory.class).toInstance(mock(CodeFactory.class));
+            bind(DeviceMessageFileService.class).toInstance(mock(DeviceMessageFileService.class));
             bind(CollectedDataFactory.class).toInstance(mock(CollectedDataFactory.class));
 
             Thesaurus thesaurus = mock(Thesaurus.class);
