@@ -286,7 +286,7 @@ Ext.define('Uni.form.field.Coordinates', {
             spatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null && elevTextField.getValue() == null) ? null :
                 Ext.String.format('{0}:{1}:{2}', latTextField.getValue(), longTextField.getValue(), elevTextField.getValue()),
             coordinatesDisplay: null,
-            isInherited: defaultButton.disabled,
+            isInherited: (me.displayValue.usagePointGeoCoordinatesId == undefined) ? false : defaultButton.disabled,
             usagePointGeoCoordinatesId: me.displayValue ? me.displayValue.usagePointGeoCoordinatesId : 0
         } :
         {
