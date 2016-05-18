@@ -168,6 +168,7 @@ public class InMemoryIntegrationPersistence {
     private EstimationService estimationService;
     private ServiceCallInfoFactory serviceCallInfoFactory;
     private CalendarInfoFactory calendarInfoFactory;
+    private DeviceCalendarInfoFactory deviceCalendarInfoFactory;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
@@ -281,6 +282,7 @@ public class InMemoryIntegrationPersistence {
             this.serviceCallService = injector.getInstance(ServiceCallService.class);
             this.serviceCallInfoFactory = injector.getInstance(ServiceCallInfoFactory.class);
             this.calendarInfoFactory = injector.getInstance(CalendarInfoFactory.class);
+            this.deviceCalendarInfoFactory = injector.getInstance(DeviceCalendarInfoFactory.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
@@ -481,6 +483,10 @@ public class InMemoryIntegrationPersistence {
 
     public CalendarInfoFactory getCalendarInfoFactory() {
         return calendarInfoFactory;
+    }
+
+    public DeviceCalendarInfoFactory getDeviceCalendarInfoFactory() {
+        return deviceCalendarInfoFactory;
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {

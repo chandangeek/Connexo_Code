@@ -112,6 +112,7 @@ public class DeviceResource {
     private final TransactionService transactionService;
     private final ServiceCallService serviceCallService;
     private final CalendarInfoFactory calendarInfoFactory;
+    private final DeviceCalendarInfoFactory deviceCalendarInfoFactory;
 
     @Inject
     public DeviceResource(
@@ -148,7 +149,8 @@ public class DeviceResource {
             ServiceCallInfoFactory serviceCallInfoFactory,
             TransactionService transactionService,
             ServiceCallService serviceCallService,
-            CalendarInfoFactory calendarInfoFactory) {
+            CalendarInfoFactory calendarInfoFactory,
+            DeviceCalendarInfoFactory deviceCalendarInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -183,6 +185,7 @@ public class DeviceResource {
         this.transactionService = transactionService;
         this.serviceCallService = serviceCallService;
         this.calendarInfoFactory = calendarInfoFactory;
+        this.deviceCalendarInfoFactory = deviceCalendarInfoFactory;
     }
 
     @GET
@@ -780,7 +783,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
     public Response getCalendarInfo(@PathParam("mRID")String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        DeviceCalendarInfo info = new DeviceCalendarInfo(device.getActiveCalendar(), device.getPassiveCalenders(), calendarInfoFactory);
+        DeviceCalendarInfo info = deviceCalendarInfoFactory.from(device.getActiveCalendar(), device.getPassiveCalendars(), calendarInfoFactory);
 
         return Response.ok(info).build();
     }
