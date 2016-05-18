@@ -292,7 +292,9 @@ public class DeviceAttributesInfoFactory {
                     meteringService.findGeoCoordinates(info.geoCoordinates.displayValue.usagePointGeoCoordinatesId).ifPresent(device::setGeoCoordinates);
                 }
             } else {
-                device.setGeoCoordinates(info.geoCoordinates.displayValue.spatialCoordinates == null ? null : meteringService.createGeoCoordinates(info.geoCoordinates.displayValue.spatialCoordinates));
+                if(info.geoCoordinates.displayValue.spatialCoordinates != null ){
+                    device.setGeoCoordinates(meteringService.createGeoCoordinates(info.geoCoordinates.displayValue.spatialCoordinates));
+                }
             }
         }
 
