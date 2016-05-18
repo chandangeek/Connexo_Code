@@ -511,7 +511,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(GoingOnResource.class).to(GoingOnResource.class);
             bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
             bind(calendarInfoFactory).to(CalendarInfoFactory.class);
-            bind(DeviceCalendarInfoFactory.class).to(DeviceCalendarInfoFactory.class);
+            bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
         }
     }
 }

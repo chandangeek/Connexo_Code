@@ -8,7 +8,9 @@ import com.elster.jupiter.metering.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.BatchService;
@@ -18,12 +20,16 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -56,11 +62,12 @@ public class DeviceInfo extends DeviceVersionInfo {
     public String location;
     public LocationInfo locationInfo;
     public String geoCoordinates;
+    public boolean isTimeOfUseAllowed;
 
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus, String location, String geoCoordinates) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus, String location, String geoCoordinates, DeviceConfigurationService deviceConfigurationService) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
@@ -110,8 +117,22 @@ public class DeviceInfo extends DeviceVersionInfo {
             deviceInfo.location = location;
         }
 
+        deviceInfo.isTimeOfUseAllowed = isTimeOfUseAllowed(device, deviceConfigurationService);
+
         return deviceInfo;
     }
+
+    static boolean isTimeOfUseAllowed(Device device, DeviceConfigurationService deviceConfigurationService) {
+        Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(device.getDeviceConfiguration().getDeviceType());
+        Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions).orElse(Collections
+                .emptySet());
+        if(allowedOptions.size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     static Optional<? extends IssueDataValidation> getOpenDataValidationIssue(Device device, MeteringService meteringService, IssueService issueService, IssueDataValidationService issueDataValidationService) {
         Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());

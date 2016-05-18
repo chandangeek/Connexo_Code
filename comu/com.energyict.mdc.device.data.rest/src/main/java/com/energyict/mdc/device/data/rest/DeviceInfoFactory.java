@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.impl.DeviceApplication;
@@ -36,18 +37,20 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private IssueService issueService;
     private IssueDataValidationService issueDataValidationService;
     private MeteringService meteringService;
+    private DeviceConfigurationService deviceConfigurationService;
 
     public DeviceInfoFactory() {
     }
 
     @Inject
-    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService) {
+    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, DeviceConfigurationService deviceConfigurationService) {
         this.thesaurus = thesaurus;
         this.batchService = batchService;
         this.topologyService = topologyService;
         this.issueService = issueService;
         this.issueDataValidationService = issueDataValidationService;
         this.meteringService = meteringService;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Reference
@@ -107,7 +110,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                     .collect(Collectors.joining(", "));
         }
         return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates
-                .isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
+                .isPresent() ? geoCoordinates.get().getCoordinates().toString() : null, deviceConfigurationService);
     }
 
 

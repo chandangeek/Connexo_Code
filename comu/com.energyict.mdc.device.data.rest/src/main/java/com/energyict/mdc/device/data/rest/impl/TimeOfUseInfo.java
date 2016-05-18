@@ -13,10 +13,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class DeviceCalendarInfo {
+public class TimeOfUseInfo {
 
     public List<PassiveCalendarInfo> passiveCalendars;
     public NextCalendarInfo nextPassiveCalendar;
     public CalendarInfo activeCalendar;
     public long lastVerified;
+    public boolean activeIsGhost = false;
+    public List<String> supportedOptions;
 }
