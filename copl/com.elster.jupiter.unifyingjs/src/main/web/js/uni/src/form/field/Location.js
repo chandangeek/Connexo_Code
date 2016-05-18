@@ -219,13 +219,15 @@ Ext.define('Uni.form.field.Location', {
             comboLocation.oldRawValue = comboLocation.getRawValue();
             propertyForm.setVisible(newValue);
             comboLocation.setDisabled(newValue);
+            defaultButton.setDisabled(true);
             comboLocation.reset();
         }
         else {
             propertyForm.setVisible(newValue);
             comboLocation.setDisabled(newValue);
             comboLocation.setRawValue(comboLocation.oldRawValue);
-            defaultButton.setDisabled(me.displayValue.usagePointLocationId == comboLocation.locationId);
+            defaultButton.setDisabled((me.displayValue.usagePointLocationId == undefined) ||
+                ((me.displayValue.usagePointLocationId != undefined) && (me.displayValue.usagePointLocationId == comboLocation.locationId)));
         }
     },
 
