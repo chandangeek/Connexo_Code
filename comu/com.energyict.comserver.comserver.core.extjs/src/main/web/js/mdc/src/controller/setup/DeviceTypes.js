@@ -171,12 +171,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                         logBookLink = me.getDeviceTypeDetailLogBookLink(),
                         loadProfilesLink = me.getDeviceTypeDetailLoadProfilesLink(),
                         deviceConfigurationsLink = me.getDeviceConfigurationsDetailLink(),
-                        deviceLifeCycleLink = me.getDeviceTypeDetailLifeCycleLink();
+                        deviceLifeCycleLink = widget.down('#details-device-life-cycle-link'),
+                        actionMenu = widget.down('device-type-action-menu');
 
-                    Ext.suspendLayouts();
+                Ext.suspendLayouts();
+                if (widget.rendered) {
 
-                    me.getDeviceTypeDetailOverviewLink().setText(deviceType.get('name'));
-                    me.getDeviceTypeDetailConflictingMappingLink().setText(
+                    widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+                    widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
                         Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
                     );
 
@@ -212,8 +214,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                             'No device configurations', '{0} device configuration', '{0} device configurations')
                     );
 
-                    me.getDeviceTypeDetailForm().loadRecord(deviceType);
-                    me.getDeviceTypeDetailActionMenu().record = deviceType;
+                    widget.down('form').loadRecord(deviceType);
+                    if (actionMenu) {
+                        actionMenu.record = deviceType;
+                    }
+                }
 
                     Ext.resumeLayouts(true);
 
@@ -521,10 +526,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
 
-                widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
-                    Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
-                );
+                if (widget.down('deviceTypeSideMenu')) {
+                    widget.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
+                    widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
+                        Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
+                    );
+                }
 
                 me.getDeviceTypeLogbookPanel().setTitle(Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'));
                 widget.setLoading(false);
