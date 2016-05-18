@@ -59,10 +59,22 @@ Ext.define('Cal.controller.Calendars', {
     showPreview: function (selectionModel, record) {
         var me = this,
             preview = me.getPreview(),
-            previewForm = preview.down('tou-preview-form');
+            previewForm = preview.down('tou-preview-form'),
+            model = Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar');
+
+        model.getProxy().setUrl('/api/cal/calendars/timeofusecalendars');
+        previewForm.setLoading(true);
+        Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar').load(record.get('id'), {
+           success: function (calendar) {
+               previewForm.fillFieldContainers(calendar);
+               previewForm.setLoading(false);
+           },
+            failure: function() {
+                previewForm.setLoading(false);
+            }
+        });
 
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
-        previewForm.fillFieldContainers(record);
         preview.down('tou-action-menu').record = record;
     },
 
