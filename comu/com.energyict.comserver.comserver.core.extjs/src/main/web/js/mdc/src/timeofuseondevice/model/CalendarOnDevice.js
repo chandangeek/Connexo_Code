@@ -7,6 +7,7 @@ Ext.define('Mdc.timeofuseondevice.model.CalendarOnDevice', {
     fields: [
         {name: 'passiveCalendars', type: 'auto', defaultValue: null},
         {name: 'lastVerified', type: 'number', defaultValue: null},
+        {name: 'activeIsGhost', type: 'boolean'}
 
     ],
 

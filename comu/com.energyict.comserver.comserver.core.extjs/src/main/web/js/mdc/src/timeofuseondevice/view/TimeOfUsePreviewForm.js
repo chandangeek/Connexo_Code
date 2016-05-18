@@ -65,15 +65,25 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
             value;
         Ext.suspendLayouts();
 
-        me.down('#nameField').setValue(calendarRecord.get('name'));
+        if(record.get('activeIsGhost')) {
+            me.down('#nameField').setValue(calendarRecord.get('name') + ' (' +Uni.I18n.translate('calendars.ghost', 'MDC', 'Ghost') + ')');
+        } else {
+            me.down('#nameField').setValue(calendarRecord.get('name'));
+        }
+
         if(record.get('lastVerified')) {
             var creationTime = record.get('lastVerified');
-            me.down('#lastVefirifiedDisplayField').setValue(Uni.DateTime.formatDateLong(new Date(creationTime)));
+            if(new Date(creationTime).toDateString() === new Date().toDateString()) {
+                me.down('#lastVefirifiedDisplayField').setValue(Uni.DateTime.formatTimeLong(new Date(creationTime)));
+            } else {
+                me.down('#lastVefirifiedDisplayField').setValue(Uni.DateTime.formatDateLong(new Date(creationTime)));
+            }
         } else {
             me.down('#lastVefirifiedDisplayField').setValue('-');
         }
 
         me.down('#periodField').removeAll();
+        me.down('#periodField').setVisible(!record.get('activeIsGhost'));
         calendarRecord.periods().each(function (record) {
             counter ++;
             me.down('#periodField').add(
@@ -89,6 +99,7 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
         counter = 0;
 
         me.down('#dayTypesField').removeAll();
+        me.down('#dayTypesField').setVisible(!record.get('activeIsGhost'));
         calendarRecord.dayTypes().each(function (record) {
             counter ++;
             me.down('#dayTypesField').add(
@@ -104,6 +115,7 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
         counter = 0;
 
         me.down('#tariffsField').removeAll();
+        me.down('#tariffsField').setVisible(!record.get('activeIsGhost'));
         calendarRecord.events().each(function (record) {
             counter ++;
             me.down('#tariffsField').add(
@@ -144,6 +156,9 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                 }
             );
         }
+
+
+
         me.doComponentLayout();
         Ext.resumeLayouts(true);
         me.updateLayout();
