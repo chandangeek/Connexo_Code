@@ -26,7 +26,9 @@ Ext.define('Uni.form.field.readingtypes.AddingView', {
                         store: me.readingTypesStore,
                         isEquidistant: me.isEquidistant,
                         isActive: me.isActive,
-                        selectedReadingTypes: me.selectedReadingTypes
+                        selectedReadingTypes: _.map(me.selectedReadingTypes, function (readingType) {
+                            return readingType.mRID
+                        })
                     },
                     {
                         xtype: 'uni-add-reading-types-grid-container',
@@ -77,6 +79,8 @@ Ext.define('Uni.form.field.readingtypes.AddingView', {
     onAddReadingTypes: function (button) {
         var me = this;
 
-        me.fireEvent('addReadingTypes', button.action === 'addSelectedReadingTypes' ? me.down('#uni-add-reading-types-grid-container').selectedReadingTypes : []);
+        me.fireEvent('addReadingTypes', button.action === 'addSelectedReadingTypes'
+            ? Ext.Array.merge(me.down('#uni-add-reading-types-grid-container').selectedReadingTypes, me.selectedReadingTypes || [])
+            : []);
     }
 });

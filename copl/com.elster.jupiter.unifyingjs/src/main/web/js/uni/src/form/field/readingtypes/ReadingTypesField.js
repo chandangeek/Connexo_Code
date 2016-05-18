@@ -167,9 +167,7 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
 
         me.addReadingTypesView = Ext.widget('uni-add-reading-types-view', {
             itemId: 'uni-add-reading-types-view',
-            selectedReadingTypes: _.map(me.getValue(), function (readingType) {
-                return readingType.mRID
-            }),
+            selectedReadingTypes: me.getValue(),
             isEquidistant: me.isEquidistant,
             isActive: me.isActive,
             additionalReasons: me.additionalReasons
