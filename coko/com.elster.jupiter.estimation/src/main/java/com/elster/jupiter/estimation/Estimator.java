@@ -4,12 +4,15 @@ import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
+@ConsumerType
 public interface Estimator extends HasDynamicProperties {
 
     @Override

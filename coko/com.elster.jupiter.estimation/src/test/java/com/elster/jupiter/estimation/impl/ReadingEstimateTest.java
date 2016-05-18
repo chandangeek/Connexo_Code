@@ -166,7 +166,7 @@ public class ReadingEstimateTest {
 
                 @Override
                 public Set<String> getSupportedApplications() {
-                    return null;
+                    return Collections.emptySet();
                 }
             };
         }
