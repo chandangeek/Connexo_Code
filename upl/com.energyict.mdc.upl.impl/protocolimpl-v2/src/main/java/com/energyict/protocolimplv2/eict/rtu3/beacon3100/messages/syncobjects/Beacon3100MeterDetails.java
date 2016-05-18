@@ -1,13 +1,11 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.VisibleString;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -25,12 +23,14 @@ public class Beacon3100MeterDetails {
     private String llsSecret;
     private String authenticationKey;
     private String encryptionKey;
+    private List<Beacon3100ClientDetails> clientDetails;
 
-    public Beacon3100MeterDetails(String macAddress, long deviceTypeId, String deviceTimeZone, String serialNumber, String llsSecret, String authenticationKey, String encryptionKey) {
+    public Beacon3100MeterDetails(String macAddress, long deviceTypeId, String deviceTimeZone, String serialNumber, List<Beacon3100ClientDetails> clientDetails, String llsSecret, String authenticationKey, String encryptionKey) {
         this.macAddress = macAddress;
         this.deviceTypeId = deviceTypeId;
         this.deviceTimeZone = deviceTimeZone;
         this.serialNumber = serialNumber;
+        this.clientDetails = clientDetails;
         this.llsSecret = llsSecret;
         this.authenticationKey = authenticationKey;
         this.encryptionKey = encryptionKey;
@@ -75,15 +75,28 @@ public class Beacon3100MeterDetails {
         return serialNumber;
     }
 
-    public Structure toStructure() {
+    @XmlAttribute
+    public List<Beacon3100ClientDetails> getClientDetails() {
+        return clientDetails;
+    }
+
+    public Structure toStructure(boolean isFirmwareVersion140OrAbove) {
         final Structure structure = new Structure();
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getMacAddress(), "")));
         structure.addDataType(new Unsigned32(getDeviceTypeId()));
         structure.addDataType(new VisibleString(getDeviceTimeZone()));
         structure.addDataType(OctetString.fromString(getSerialNumber()));
-        structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getLlsSecret(), "")));
-        structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getAuthenticationKey(), "")));
-        structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getEncryptionKey(), "")));
+        if(isFirmwareVersion140OrAbove){
+            final Array clientDetailsArray = new Array();
+            for (Beacon3100ClientDetails beacon3100ClientDetails : getClientDetails()) {
+                clientDetailsArray.addDataType(beacon3100ClientDetails.toStructure());
+            }
+            structure.addDataType(clientDetailsArray);
+        } else {
+            structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getLlsSecret(), "")));
+            structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getAuthenticationKey(), "")));
+            structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getEncryptionKey(), "")));
+        }
         return structure;
     }
 }

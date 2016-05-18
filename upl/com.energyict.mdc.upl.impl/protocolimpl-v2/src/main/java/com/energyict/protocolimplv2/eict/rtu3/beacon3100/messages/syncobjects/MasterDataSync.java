@@ -11,6 +11,7 @@ import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
@@ -22,12 +23,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -150,9 +146,26 @@ public class MasterDataSync {
         return beacon3100Messaging.getProtocol();
     }
 
+    private boolean getIsFirmwareVersion140OrAbove() throws IOException {
+        String firmwareVersion = getProtocol().getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString("0.0.0.2.1.255")).getString();
+        StringTokenizer tokenizer = new StringTokenizer(firmwareVersion, ".");
+        String token = tokenizer.nextToken();
+        int firstNr = Integer.parseInt(token);
+        if(firstNr < 1){
+            return false;
+        }
+        token = tokenizer.nextToken();
+        int secondNr = Integer.parseInt(token);
+        if(secondNr < 4){
+            return false;
+        }
+        return true;
+    }
+
     private void syncDevices(Beacon3100MeterDetails[] allMeterDetails) throws IOException {
+        boolean isFirmwareVersion140OrAbove = getIsFirmwareVersion140OrAbove();
         for (Beacon3100MeterDetails beacon3100MeterDetails : allMeterDetails) {
-            getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().assignDeviceType(beacon3100MeterDetails.toStructure());
+            getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().assignDeviceType(beacon3100MeterDetails.toStructure(isFirmwareVersion140OrAbove));
         }
     }
 
@@ -219,8 +232,9 @@ public class MasterDataSync {
         }
 
         info.append("ClientType Sync:\n");
-
+        boolean isFirmwareVersion140OrAbove = getIsFirmwareVersion140OrAbove();
         for (Beacon3100ClientType beacon3100ClientType : allMasterData.getClientTypes()) {
+            beacon3100ClientType.setIsFirmware140orAbove(isFirmwareVersion140OrAbove);
             active.put(beacon3100ClientType.getId(), true); // types found in masterdata are still active
             if (existingClientTypes.containsKey(beacon3100ClientType.getId())) {
                 if (beacon3100ClientType.equals( existingClientTypes.get(beacon3100ClientType.getId()))){
