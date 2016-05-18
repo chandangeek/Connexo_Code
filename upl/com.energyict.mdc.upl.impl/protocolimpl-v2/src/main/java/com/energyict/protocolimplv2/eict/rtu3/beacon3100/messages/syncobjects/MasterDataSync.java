@@ -232,8 +232,9 @@ public class MasterDataSync {
         }
 
         info.append("ClientType Sync:\n");
-
+        boolean isFirmwareVersion140OrAbove = getIsFirmwareVersion140OrAbove();
         for (Beacon3100ClientType beacon3100ClientType : allMasterData.getClientTypes()) {
+            beacon3100ClientType.setIsFirmware140orAbove(isFirmwareVersion140OrAbove);
             active.put(beacon3100ClientType.getId(), true); // types found in masterdata are still active
             if (existingClientTypes.containsKey(beacon3100ClientType.getId())) {
                 if (beacon3100ClientType.equals( existingClientTypes.get(beacon3100ClientType.getId()))){
