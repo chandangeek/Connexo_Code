@@ -56,7 +56,8 @@ Ext.define('Mdc.view.setup.dataloggerslaves.Setup', {
                             {
                                 text: Uni.I18n.translate('general.linkDataLoggerSlave', 'MDC', 'Link data logger slave'),
                                 itemId: 'mdc-link-dataloggerslave-btn',
-                                action: 'linkDataLoggerSlave'
+                                action: 'linkDataLoggerSlave',
+                                privileges: Mdc.privileges.Device.addDevice // Todo: change to the renamed version: Mdc.privileges.Device.administrate
                             }
                         ]
                     }

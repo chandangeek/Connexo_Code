@@ -2,7 +2,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     extend: 'Ext.app.Controller',
 
     models: [
-        'Mdc.model.Device'
+        'Mdc.model.Device',
+        'Mdc.model.DataLoggerSlaveDevice',
+        'Mdc.model.DataLoggerSlaveChannel',
+        'Mdc.model.Channel'
     ],
 
     stores: [
@@ -10,7 +13,6 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         'Mdc.store.AvailableDataLoggerSlaves',
         'Mdc.store.Devices',
         'Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration',
-        'Mdc.store.ChannelsOfLoadProfilesOfDevice',
         'Mdc.store.RegisterConfigsOfDevice',
         'Mdc.store.RegisterConfigsOfDeviceConfig'
     ],
@@ -63,6 +65,9 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             },
             '#mdc-dataloggerslave-unlink-window-unlink': {
                 click: this.onUnlinkDataLoggerSlave
+            },
+            '#mdc-dataloggerslave-link-wizard button[action=cancel]': {
+                click: this.onCancelWizard
             }
         });
     },
@@ -102,24 +107,21 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             });
 
         me.getApplication().fireEvent('changecontentevent', widget);
+        me.wizardInformation = {};
         mainView.setLoading(true);
         widget.down('dataloggerslave-link-wizard').loadRecord(Ext.create('Mdc.model.Device'));
-        if ( (me.wizardInformation && me.wizardInformation.dataLogger &&
-              me.wizardInformation.dataLogger.get('mRID') !== mRID) // 1.Outdated info
-             ||
-             (Ext.isEmpty(me.wizardInformation) || Ext.isEmpty(me.wizardInformation.dataLogger)) ) { // 2.no info yet
-            Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
-                success: function (device) {
-                    me.wizardInformation = {};
-                    me.wizardInformation.dataLogger = device;
-                    me.getApplication().fireEvent('loadDevice', device);
-                    mainView.setLoading(false);
-                }
-            });
-        } else {
-            me.getApplication().fireEvent('loadDevice', me.wizardInformation.dataLogger);
-            mainView.setLoading(false);
-        }
+        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+            success: function (device) {
+                me.wizardInformation.dataLogger = device;
+                me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').push(Ext.create('Mdc.model.DataLoggerSlaveDevice'));
+                me.getApplication().fireEvent('loadDevice', device);
+                mainView.setLoading(false);
+            }
+        });
+    },
+
+    onCancelWizard: function() {
+        this.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').pop();
     },
 
     onStep1OptionChange: function(radioGroup, newValue) {
@@ -326,6 +328,17 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 slaveCombo.allowBlank = true;
                 me.clearPreviousWizardInfoWhenNeeded(slaveDevice.get('deviceTypeId'), slaveDevice.get('deviceConfigurationId'));
                 me.wizardInformation.useExisting = true;
+
+                var slaveDeviceModel = me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').length-1];
+                slaveDeviceModel.id = slaveDevice.get('id');
+                slaveDeviceModel.mRID = slaveDevice.get('mRID');
+                slaveDeviceModel.serialNumber = slaveDevice.get('serialNumber');
+                slaveDeviceModel.deviceTypeName = slaveDevice.get('deviceTypeName');
+                slaveDeviceModel.deviceConfigurationId = slaveDevice.get('deviceConfigurationId');
+                slaveDeviceModel.deviceConfigurationName = slaveDevice.get('deviceConfigurationName');
+                slaveDeviceModel.yearOfCertification = slaveDevice.get('yearOfCertification');
+                slaveDeviceModel.version = slaveDevice.get('version');
+
                 me.wizardInformation.slaveMRID = slaveDevice.get('mRID');
                 me.wizardInformation.slaveDeviceTypeId = slaveDevice.get('deviceTypeId');
                 me.wizardInformation.slaveDeviceConfigurationId = slaveDevice.get('deviceConfigurationId');
@@ -354,6 +367,17 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                         if (!records.length) {
                             me.clearPreviousWizardInfoWhenNeeded(formRecord.get('deviceTypeId'), formRecord.get('deviceConfigurationId'));
                             me.wizardInformation.useExisting = false;
+
+                            var slaveDeviceModel = me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').length-1];
+                            slaveDeviceModel.id = 0;
+                            slaveDeviceModel.mRID = formRecord.get('mRID');
+                            slaveDeviceModel.serialNumber = formRecord.get('serialNumber');
+                            slaveDeviceModel.deviceTypeName =
+                                wizard.down('#deviceAdd #deviceAddType').findRecordByValue(wizard.down('#deviceAdd #deviceAddType').getValue()).get('name');
+                            slaveDeviceModel.deviceConfigurationId = formRecord.get('deviceConfigurationId');
+                            slaveDeviceModel.yearOfCertification = formRecord.get('yearOfCertification');
+                            slaveDeviceModel.version = formRecord.get('version');
+
                             me.wizardInformation.slaveMRID = formRecord.get('mRID');
                             me.wizardInformation.slaveDeviceTypeId = formRecord.get('deviceTypeId');
                             me.wizardInformation.slaveDeviceConfigurationId = formRecord.get('deviceConfigurationId');
@@ -379,24 +403,28 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     prepareStep2: function () {
         var me = this,
             wizard = me.getWizard(),
-            loadProfileConfigStore = me.getStore('Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration'),
-            channelsStore = me.getStore('Mdc.store.ChannelsOfLoadProfilesOfDevice');
+            loadProfileConfigStore = me.getStore('Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration');
 
         wizard.setLoading();
         loadProfileConfigStore.getProxy().setUrl(me.wizardInformation.slaveDeviceTypeId, me.wizardInformation.slaveDeviceConfigurationId);
         loadProfileConfigStore.load({
             callback: function (loadProfileConfigRecords) {
-                channelsStore.getProxy().setUrl(me.wizardInformation.dataLogger.get('mRID'));
-                channelsStore.load({
-                    callback: function (channelRecords) {
-                        wizard.setLoading(false);
-                        wizard.down('dataloggerslave-link-wizard-step2').initialize(
-                            loadProfileConfigRecords,
-                            channelRecords,
-                            me.wizardInformation ? me.wizardInformation.mappedChannels : undefined
-                        );
+                var channelRecords = [];
+                Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
+                    if (dataLoggerSlaveDeviceRecord.id === 0) { // the container of the unlinked channels
+                        Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos, function(dataLoggerSlaveChannelInfoRecord){
+                            channelRecords.push(dataLoggerSlaveChannelInfoRecord.dataLoggerChannel);
+                        }, me);
                     }
-                });
+                }, me);
+                me.wizardInformation.loadProfileConfigRecords = loadProfileConfigRecords;
+                me.wizardInformation.dataLoggerChannels = channelRecords;
+                wizard.setLoading(false);
+                wizard.down('dataloggerslave-link-wizard-step2').initialize(
+                    loadProfileConfigRecords,
+                    channelRecords,
+                    me.wizardInformation ? me.wizardInformation.mappedChannels : undefined
+                );
             }
         });
     },
@@ -430,16 +458,17 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                     errorsFound = true;
                     step2ErrorMsg.show();
                 }
-                channelCombo.markInvalid(Uni.I18n.translate('general.requiredField', 'MDC', 'This is a required field'));
+                channelCombo.markInvalid(Uni.I18n.translate('general.requiredField', 'MDC', 'This field is required'));
             } else {
                 if (channelCombo.getValue() in channelsMapped) {
                     if (!errorsFound) {
                         errorsFound = true;
                         step2ErrorMsg.show();
                     }
-                    channelCombo.markInvalid(Uni.I18n.translate('general.channelAlreadyMapped', 'MDC', 'This channel is already mapped'));
+                    channelCombo.markInvalid(Uni.I18n.translate('general.channelAlreadyMapped', 'MDC', 'This field must be unique'));
+                    channelsMapped[channelCombo.getValue()].markInvalid(Uni.I18n.translate('general.channelAlreadyMapped', 'MDC', 'This field must be unique'));
                 } else {
-                    channelsMapped[channelCombo.getValue()] = true;
+                    channelsMapped[channelCombo.getValue()] = channelCombo;
                     mappedChannels[counter] = channelCombo.getValue();
                 }
             }
@@ -447,6 +476,30 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
         if (!errorsFound) {
             me.wizardInformation.mappedChannels = mappedChannels;
+
+            var slaveDeviceModel = me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').length-1];
+            slaveDeviceModel.dataLoggerSlaveChannelInfos = [];
+
+            counter = 0;
+            Ext.Array.forEach(me.wizardInformation.loadProfileConfigRecords, function(record) {
+                Ext.Array.forEach(record.get('channels'), function(channel) {
+                    var slaveChannelModel = Ext.create('Mdc.model.DataLoggerSlaveChannel');
+                    slaveChannelModel.slaveChannel = channel;
+
+                    counter++;
+                    channelCombo = wizard.down('#mdc-step2-channel-combo-' + counter);
+                    var selectedChannelRecord = channelCombo.findRecordByValue(channelCombo.getValue());
+
+                    Ext.Array.forEach(me.wizardInformation.dataLoggerChannels, function(channelRecord) {
+                        if (channelRecord.id === selectedChannelRecord.get('id')) {
+                            slaveChannelModel.dataLoggerChannel = channelRecord;
+                        }
+                    }, me);
+
+                    slaveDeviceModel.dataLoggerSlaveChannelInfos.push(slaveChannelModel);
+                }, me);
+            }, me);
+
             endMethod();
         }
     },
@@ -506,16 +559,17 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                     errorsFound = true;
                     step3ErrorMsg.show();
                 }
-                registerCombo.markInvalid(Uni.I18n.translate('general.requiredField', 'MDC', 'This is a required field'));
+                registerCombo.markInvalid(Uni.I18n.translate('general.requiredField', 'MDC', 'This field is required'));
             } else {
                 if (registerCombo.getValue() in registersMapped) {
                     if (!errorsFound) {
                         errorsFound = true;
                         step3ErrorMsg.show();
                     }
-                    registerCombo.markInvalid(Uni.I18n.translate('general.registerAlreadyMapped', 'MDC', 'This register is already mapped'));
+                    registerCombo.markInvalid(Uni.I18n.translate('general.registerAlreadyMapped', 'MDC', 'This field must be unique'));
+                    registersMapped[registerCombo.getValue()].markInvalid(Uni.I18n.translate('general.registerAlreadyMapped', 'MDC', 'This field must be unique'));
                 } else {
-                    registersMapped[registerCombo.getValue()] = true;
+                    registersMapped[registerCombo.getValue()] = registerCombo;
                     mappedRegisters[counter] = registerCombo.getValue();
                 }
             }
@@ -575,6 +629,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             wizard = me.getWizard(),
             progressbar = wizard.down('#mdc-dataloggerslave-link-wizard-step6-progressbar'),
             doLink = function() {
+                me.doLinkTheSlave();
                 Ext.suspendLayouts();
                 wizard.down('dataloggerslave-link-wizard-step6').update(
                     Ext.String.format(
@@ -600,6 +655,22 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         Ext.resumeLayouts(true);
 
         setTimeout(doLink, 1500);
+    },
+
+    doLinkTheSlave: function() {
+        // The rest call to do the linking should come here
+        var me = this;
+
+        me.wizardInformation.dataLogger.save({
+            success: function (record) {
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    form.markInvalid(json.errors);
+                }
+            }
+        });
     },
 
     getSlaveMRID: function() {

@@ -5,6 +5,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep3', {
 
     requires: [
         'Uni.util.FormErrorMessage',
+        'Uni.util.FormEmptyMessage',
         'Mdc.model.Register'
     ],
 
@@ -116,6 +117,15 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep3', {
             }
 
         }, me);
+        if (Ext.isEmpty(registerConfigRecords)) {
+            Ext.suspendLayouts();
+            me.down('#mdc-dataloggerslave-link-wizard-step3-container').add({
+                xtype: 'uni-form-empty-message',
+                text: Uni.I18n.translate('general.noRegistersToMap', 'MDC', 'No registers to map')
+            });
+            Ext.resumeLayouts(true);
+            me.doLayout();
+        }
 
         // 1. (Pre)select combo items according to previously made choices
         // 2. (Pre)select a combo item if it's the only one available

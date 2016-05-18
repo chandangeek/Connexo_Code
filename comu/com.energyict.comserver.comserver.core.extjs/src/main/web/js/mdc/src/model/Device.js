@@ -3,7 +3,8 @@ Ext.define('Mdc.model.Device', {
     requires: [
         'Mdc.model.DeviceLabel',
         'Mdc.model.DeviceConnection',
-        'Mdc.model.DeviceCommunication'
+        'Mdc.model.DeviceCommunication',
+        'Mdc.model.DataLoggerSlaveDevice'
     ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
@@ -32,7 +33,8 @@ Ext.define('Mdc.model.Device', {
         {name: 'usagePoint', type: 'string', useNull: true},
         {name: 'serviceCategory', type: 'string', useNull: true},
         {name: 'version', type: 'number', useNull: true},
-        {name: 'estimationStatus', defaultValue: null}
+        {name: 'estimationStatus', defaultValue: null},
+        {name: 'dataLoggerSlaveDevices', type: 'auto', defaultValue: null}
     ],
 
     associations: [
@@ -74,9 +76,9 @@ Ext.define('Mdc.model.Device', {
             }
         },
         {
-            name: 'dataLoggerslaveDevices',
+            name: 'dataLoggerSlaveDevices',
             type: 'hasMany',
-            model: 'Mdc.model.Device',
+            model: 'Mdc.model.DataLoggerSlaveDevice',
             associationKey: 'dataLoggerSlaveDevices',
             foreignKey: 'dataLoggerSlaveDevices'
         }

@@ -1601,7 +1601,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: Uni.I18n.translate('general.linkDataLoggerSlace', 'MDC', 'Link data logger slave'),
                                     route: 'link',
                                     controller: 'Mdc.controller.setup.DataLoggerSlaves',
-                                    // privileges: ????,
+                                    privileges: Mdc.privileges.Device.addDevice, // Todo: change to the renamed version: Mdc.privileges.Device.administrate
                                     action: 'showLinkWizard'
                                 }
                             }

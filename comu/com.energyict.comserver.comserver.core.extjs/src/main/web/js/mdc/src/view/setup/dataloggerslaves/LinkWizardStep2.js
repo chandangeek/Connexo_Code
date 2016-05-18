@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep2', {
 
     requires: [
         'Uni.util.FormErrorMessage',
-        'Mdc.model.ChannelOfLoadProfilesOfDevice'
+        'Uni.util.FormEmptyMessage',
+        'Mdc.model.Channel'
     ],
 
     initComponent: function () {
@@ -133,6 +134,15 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep2', {
             }, me);
 
         }, me);
+        if (Ext.isEmpty(loadProfileConfigurationRecords)) {
+            Ext.suspendLayouts();
+            me.down('#mdc-dataloggerslave-link-wizard-step2-container').add({
+                xtype: 'uni-form-empty-message',
+                text: Uni.I18n.translate('general.noChannelsToMap', 'MDC', 'No channels to map')
+            });
+            Ext.resumeLayouts(true);
+            me.doLayout();
+        }
 
         // 1. (Pre)select combo items according to previously made choices
         // 2. (Pre)select a combo item if it's the only one available
@@ -156,20 +166,19 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep2', {
     createChannelStore: function(loadProfileConfigurationRecord, dataLoggerChannelRecords) {
         var me = this,
             store = Ext.create('Ext.data.Store', {
-                model: 'Mdc.model.ChannelOfLoadProfilesOfDevice',
+                model: 'Mdc.model.Channel',
                 sorters: [{
-                    property: 'name',
+                    property: 'extendedChannelName',
                     direction: 'ASC'
                 }],
                 autoLoad: false
             });
 
         Ext.Array.forEach(dataLoggerChannelRecords, function(channelRecord){
-            if (loadProfileConfigurationRecord.get('timeDuration').asSeconds === channelRecord.get('interval').asSeconds) {
+            if (loadProfileConfigurationRecord.get('timeDuration').asSeconds === channelRecord.interval.asSeconds) {
                 store.add(channelRecord);
             }
         }, me);
-
         return store;
     }
 });
