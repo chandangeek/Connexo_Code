@@ -47,7 +47,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
         startProcessPanel.setLoading();
 
         me.processRecord = processRecord.lastSelection[0].data;
-        processContent.getProxy().setUrl(me.processRecord.processId);
+        processContent.getProxy().setUrl(me.processRecord.deploymentId);
         processContent.load(me.processRecord.deploymentId,{
             success: function (startProcessRecord) {
 

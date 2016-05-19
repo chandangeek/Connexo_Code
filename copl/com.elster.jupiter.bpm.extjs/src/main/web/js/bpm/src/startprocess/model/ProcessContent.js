@@ -20,12 +20,12 @@ Ext.define('Bpm.startprocess.model.ProcessContent', {
     ],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/bpm/runtime/processcontent/{id}',
+        urlTpl: '/api/bpm/runtime/processcontent/{deploymentId}',
         reader: {
             type: 'json'
         },
-        setUrl: function(processId){
-            this.url = this.urlTpl.replace('{id}', encodeURIComponent(processId));
+        setUrl: function (deploymentId) {
+            this.url = this.urlTpl.replace('{deploymentId}', encodeURIComponent(deploymentId));
         }
     }
 });
