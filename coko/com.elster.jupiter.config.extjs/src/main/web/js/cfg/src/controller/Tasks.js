@@ -120,7 +120,6 @@ Ext.define('Cfg.controller.Tasks', {
             actionsMenu = view.down('cfg-validation-tasks-action-menu');
 
         me.fromDetails = true;
-        me.getApplication().fireEvent('changecontentevent', view);
         taskModel.load(currentTaskId, {
             success: function (record) {
                 var detailsForm = view.down('cfg-tasks-preview-form'),
@@ -129,6 +128,7 @@ Ext.define('Cfg.controller.Tasks', {
                 actionsMenu.record = record;
                 actionsMenu.down('#view-details').hide();
                 view.down('#tasks-view-menu #tasks-view-link').setText(record.get('name'));
+                me.getApplication().fireEvent('changecontentevent', view);
                 me.getApplication().fireEvent('validationtaskload', record);
                 detailsForm.loadRecord(record);
                 if (record.get('status') !== 'Busy') {
@@ -138,7 +138,8 @@ Ext.define('Cfg.controller.Tasks', {
 					if (Cfg.privileges.Validation.canRun()) {
                         view.down('#run-task').show();
                     }
-                }              
+                }
+
             }
         });
     },
@@ -157,12 +158,11 @@ Ext.define('Cfg.controller.Tasks', {
             taskId: currentTaskId
         });
 
-        me.getApplication().fireEvent('changecontentevent', view);
-        store.load();
-
         taskModel.load(currentTaskId, {
             success: function (record) {
                 view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
+                me.getApplication().fireEvent('changecontentevent', view);
+                store.load();
             }
         });
     },

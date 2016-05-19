@@ -16,13 +16,13 @@ Ext.define('Cfg.view.log.Setup', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('validationTasks.general.validationTask', 'CFG', 'Validation task'),
+                //title: Uni.I18n.translate('validationTasks.general.validationTask', 'CFG', 'Validation task'),
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'log-menu',
-                        itemId: 'log-view-menu',
-                        toggle: 0
+                        router: me.router,
+                        itemId: 'log-view-menu'
                     }
                 ]
             }
