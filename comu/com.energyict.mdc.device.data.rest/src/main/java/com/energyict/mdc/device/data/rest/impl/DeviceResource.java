@@ -299,7 +299,7 @@ public class DeviceResource {
                 slave = newDevice(slaveDeviceInfo.deviceConfigurationId, null, slaveDeviceInfo.mRID, slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification);
             } else {
                 slave = deviceService.findByUniqueMrid(slaveDeviceInfo.mRID)
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_ID, slaveDeviceInfo.mRID));
+                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, slaveDeviceInfo.mRID));
             }
             final HashMap<Channel, Channel> channelMap = new HashMap<>();
             if (slaveDeviceInfo.dataLoggerSlaveChannelInfos != null) {
@@ -329,8 +329,8 @@ public class DeviceResource {
         return resourceHelper.findChannelOnDeviceOrThrowException(info.parent.id, info.id );
     }
 
-    private Channel channelInfoToChannel(Device slave, ChannelInfo info){
-        return resourceHelper.findChannelOnDeviceOrThrowException(slave, info.id );
+    private Channel channelInfoToChannel(Device device, ChannelInfo info){
+        return resourceHelper.findChannelOnDeviceOrThrowException(device, info.id );
     }
 
     private Register registerInfoToRegister(RegisterInfo info){
@@ -747,22 +747,22 @@ public class DeviceResource {
         }
         return dataLoggerSlaves;
     }
-//
-//    @GET @Transactional
-//    @Path("/unlinkeddataloggerslaves")
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-//    public DeviceInfos getUnlinkedSlaves(@BeanParam JsonQueryParameters queryParameters) {
-//        String searchText = queryParameters.getLike();
-//        if (searchText != null && !searchText.isEmpty()) {
-//            return new DeviceInfos(
-//                deviceService.findAllDevices(getUnlinkedSlaveDevicesCondition(searchText)).stream()
-//                .limit(50)
-//                .collect(Collectors.<Device>toList())
-//            );
-//        }
-//        return new DeviceInfos();
-//    }
+
+    @GET @Transactional
+    @Path("/unlinkeddataloggerslaves")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public DeviceInfos getUnlinkedSlaves(@BeanParam JsonQueryParameters queryParameters) {
+        String searchText = queryParameters.getLike();
+        if (searchText != null && !searchText.isEmpty()) {
+            return new DeviceInfos(
+                deviceService.findAllDevices(getUnlinkedSlaveDevicesCondition(searchText)).stream()
+                .limit(50)
+                .collect(Collectors.<Device>toList())
+            );
+        }
+        return new DeviceInfos();
+    }
 
     private Condition getUnlinkedSlaveDevicesCondition(String dbSearchText) {
         // TODO: add extra conditions in order to only get
@@ -770,7 +770,7 @@ public class DeviceResource {
         // b. that are not linked yet to a data logger
         String regex = "*".concat(dbSearchText.replace(" ", "*").concat("*"));
         return Where.where("mRID").likeIgnoreCase(regex)
-            .and(Where.where("deviceType.deviceTypePurpose").isEqualTo(DeviceTypePurpose.DATALOGGER_SLAVE)); // (a)
+            .and(Where.where("deviceType.deviceTypePurpose").isEqualTo(DeviceTypePurpose.DATALOGGER_SLAVE));
     }
 
 

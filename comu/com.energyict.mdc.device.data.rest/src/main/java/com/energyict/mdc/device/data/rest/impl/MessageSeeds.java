@@ -38,6 +38,7 @@ public enum MessageSeeds implements MessageSeed {
     UPDATE_SECURITY_PROPERTY_SET_NOT_ALLOWED(217, "UpdateSecurityPropertySetNotAllowed", "Update security property set not allowed"),
     NO_SUCH_LABEL_CATEGORY(219, "NoSuchLabelCategory", "No such label category"),
     NO_SUCH_CHANNEL_ON_DEVICE(221, "NoSuchChannelOnDevice", "Device {0} has no channel {1}"),
+    NO_SUCH_REGISTER_ON_DEVICE(222, "NoSuchRegisterOnDevice", "Device {0} has no register {1}"),
     RUN_CONNECTIONTASK_IMPOSSIBLE(224, "runConTaskImpossible", "Running of this connection task is impossible"),
     NO_SUCH_COMMUNICATION(225, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),
     NO_SUCH_KPI(226, "NoSuchKpi", "No data collection with id ''{0}'' could be found"),

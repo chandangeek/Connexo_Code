@@ -354,7 +354,7 @@ public class ResourceHelper {
     public Register findRegisterOnDeviceOrThrowException(Device device, long registerId) {
         return device.getRegisters().stream().filter(r -> r.getRegisterSpecId() == registerId)
                         .findFirst()
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, device.getmRID(), registerId));
+                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_REGISTER_ON_DEVICE, device.getmRID(), registerId));
     }
 
 

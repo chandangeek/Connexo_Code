@@ -7,8 +7,10 @@ import com.energyict.mdc.device.data.Device;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoField;
 import java.util.Optional;
 
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -37,12 +39,12 @@ public class DeviceTopologyInfoTest {
     @Mock
     private Device device;
 
+    @Test
     public void testFromDevice(){
         when(device.getId()).thenReturn(DEVICE_ID);
         when(device.getmRID()).thenReturn(DEVICE_MRID);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getSerialNumber()).thenReturn(DEVICE_SERIAL_NUMBER);
-
         when(deviceType.getName()).thenReturn(DEVICE_TYPE_NAME);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
@@ -57,6 +59,6 @@ public class DeviceTopologyInfoTest {
         assertThat(info.serialNumber).isEqualTo(DEVICE_SERIAL_NUMBER);
         assertThat(info.deviceTypeName).isEqualTo(DEVICE_TYPE_NAME);
         assertThat(info.deviceConfigurationName).isEqualTo(DEVICE_CONFIGURATION_NAME);
-        assertThat(info.creationTime).isEqualTo(initialTimestamp.getEpochSecond());
+        assertThat(info.creationTime).isEqualTo(initialTimestamp.toEpochMilli());
     }
 }
