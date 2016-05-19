@@ -110,7 +110,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                     .collect(Collectors.joining(", "));
         }
         return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates
-                .isPresent() ? geoCoordinates.get().getCoordinates().toString() : null, deviceConfigurationService);
+                .isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
     }
 
 
