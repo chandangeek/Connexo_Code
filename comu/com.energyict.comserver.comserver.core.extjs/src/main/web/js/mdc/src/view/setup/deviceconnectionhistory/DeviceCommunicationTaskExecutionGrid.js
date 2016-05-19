@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.grid.column.Duration'
+        'Uni.grid.column.Duration',
+        'Uni.DateTime'
     ],
     store: 'DeviceCommunicationTaskExecutions',
     columns: {
@@ -41,7 +42,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                 dataIndex: 'startTime',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 }
             },
             {

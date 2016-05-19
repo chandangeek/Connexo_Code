@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.devicechannels.TableView', {
     alias: 'widget.deviceLoadProfileChannelTableView',
     itemId: 'deviceLoadProfileChannelTableView',
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.devicechannels.DataGrid',
         'Mdc.view.setup.devicechannels.DataPreview'
     ],
@@ -12,12 +12,9 @@ Ext.define('Mdc.view.setup.devicechannels.TableView', {
     router: null,
 
     emptyComponent: {
-        xtype: 'no-items-found-panel',
+        xtype: 'uni-form-empty-message',
         itemId: 'ctr-table-no-data',
-        title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
-        reasons: [
-            Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.')
-        ]
+        text: Uni.I18n.translate('deviceloadprofiles.data.empty', 'MDC', 'No readings have been defined yet.')
     },
 
     initComponent: function () {
