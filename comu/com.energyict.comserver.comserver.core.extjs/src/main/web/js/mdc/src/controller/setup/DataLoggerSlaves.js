@@ -607,6 +607,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         // TODO: Validate the given arrival date
 
         me.wizardInformation.arrivalDate = dateField.getValue();
+        me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[0] = me.wizardInformation.arrivalDate;
         endMethod();
     },
 
@@ -662,7 +663,6 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     doLinkTheSlave: function() {
         // The rest call to do the linking should come here
         var me = this;
-
         me.wizardInformation.dataLogger.save({
             success: function (record) {
             },
