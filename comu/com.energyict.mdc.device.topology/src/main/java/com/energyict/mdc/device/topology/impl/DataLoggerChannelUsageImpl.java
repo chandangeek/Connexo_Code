@@ -8,6 +8,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.ImplField;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 
+import java.time.Instant;
+
 /**
  * Copyrights EnergyICT
  * Date: 28/04/2016

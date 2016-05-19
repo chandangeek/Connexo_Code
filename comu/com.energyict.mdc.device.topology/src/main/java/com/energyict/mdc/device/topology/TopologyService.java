@@ -221,6 +221,7 @@ public interface TopologyService {
      * Link the slave device to the data logger device
      * @param datalogger which can have slave devices
      * @param slave device to link to the datalogger
+     * @param arrivalDate datetime at which the logger-slave relation becomes effective
      * @param slaveDataLoggerChannelMap  mapping of data logger (mdc) channels to slave (mdc) channels
      * @param slaveDataLoggerRegisterMap mapping of data logger registers to slave registers
      *
@@ -231,7 +232,7 @@ public interface TopologyService {
      * Technically the link is persisted as a {@link com.energyict.mdc.device.topology.impl.PhysicalGatewayReference} object.
      * This PhysicalGateWayReference holds a List of DataLoggerChannelUsage linking the slave (pulse) channel to the datalogger (pulse) channel
      */
-    void setDataLogger(Device slave, Device datalogger, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap);
+    void setDataLogger(Device slave, Device datalogger, Instant arrivalDate, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap);
 
     /**
      *

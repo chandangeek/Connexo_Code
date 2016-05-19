@@ -324,7 +324,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, channelMapping, registerMapping);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger,  Instant.now(), channelMapping, registerMapping);
 
         slave1.delete();
         dataLogger.delete();
@@ -344,7 +344,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping.put(slave1.getChannels().get(0), dataLogger.getChannels().get(0));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, channelMapping, registerMapping);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, Instant.now(), channelMapping, registerMapping);
 
         slave1.delete();
         dataLogger.delete();
@@ -364,7 +364,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping, registerMapping );
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), channelMapping, registerMapping );
 
         slave2.delete();
         dataLogger.delete();
@@ -384,7 +384,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
 
         channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping, registerMapping);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), channelMapping, registerMapping);
 
         slave2.delete();
 
@@ -407,7 +407,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping, registerMapping);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), channelMapping, registerMapping);
 
         dataLogger.delete();
 
@@ -433,14 +433,14 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping1.put(slave1.getChannels().get(1), dataLogger.getChannels().get(1));
         channelMapping1.put(slave1.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping1 = new HashMap<>();
-        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, channelMapping1, registerMapping1);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, Instant.now(), channelMapping1, registerMapping1);
 
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
 
         HashMap<Channel, Channel> channelMapping2 = new HashMap<>();
         channelMapping2.put(slave2.getChannels().get(0), dataLogger.getChannels().get(4));
         HashMap<Register, Register> registerMapping2 = new HashMap<>();
-        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping2, registerMapping2);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), channelMapping2, registerMapping2);
 
         slave1.delete();
         slave2.delete();
@@ -464,7 +464,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping, registerMapping);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), channelMapping, registerMapping);
         List<Device> slaves = inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger);
 
         assertThat(slaves.contains(slave2));
@@ -486,7 +486,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping, registerMapping);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), channelMapping, registerMapping);
 
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
 
@@ -506,7 +506,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
         channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
         HashMap<Register, Register> registerMapping = new HashMap<>();
-        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping, registerMapping);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), channelMapping, registerMapping);
 
         assertThat(inMemoryPersistence.getTopologyService().getSlaveChannel(dataLogger.getChannels().get(0),  Instant.now())).isPresent();
 
@@ -526,7 +526,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
         channelMapping.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
         HashMap<Register, Register> registerMapping = new HashMap<>();
-        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping, registerMapping);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger,  Instant.now(), channelMapping, registerMapping);
 
         assertThat(inMemoryPersistence.getTopologyService().getSlaveChannel(dataLogger.getChannels().get(1),  Instant.now())).isEmpty();
 
@@ -548,7 +548,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping1.put(slave1.getChannels().get(1), dataLogger.getChannels().get(1));
         channelMapping1.put(slave1.getChannels().get(2), dataLogger.getChannels().get(0));
         HashMap<Register, Register> registerMapping1 = new HashMap<>();
-        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, channelMapping1, registerMapping1);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, Instant.now(), channelMapping1, registerMapping1);
 
         slave1.delete();
         dataLogger.delete();
@@ -570,14 +570,14 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping1.put(slave1.getChannels().get(1), dataLogger.getChannels().get(1));
         channelMapping1.put(slave1.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping1 = new HashMap<>();
-        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, channelMapping1, registerMapping1);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, Instant.now(), channelMapping1, registerMapping1);
 
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
 
         HashMap<Channel, Channel> channelMapping2 = new HashMap<>();
         channelMapping2.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
         HashMap<Register, Register> registerMapping2 = new HashMap<>();
-        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping2, registerMapping2);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger,  Instant.now(), channelMapping2, registerMapping2);
 
         slave1.delete();
         slave2.delete();
@@ -600,12 +600,12 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping1.put(slave1.getChannels().get(1), dataLogger.getChannels().get(1));
         channelMapping1.put(slave1.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping1 = new HashMap<>();
-        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, channelMapping1, registerMapping1);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, Instant.now(), channelMapping1, registerMapping1);
 
         HashMap<Channel, Channel> channelMapping2 = new HashMap<>();
         channelMapping2.put(slave2.getChannels().get(0), dataLogger.getChannels().get(4));
         HashMap<Register, Register> registerMapping2 = new HashMap<>();
-        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, channelMapping2, registerMapping2);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), channelMapping2, registerMapping2);
 
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(4))).isTrue();

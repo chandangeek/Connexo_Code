@@ -338,11 +338,11 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     }
 
     @Override
-    public void setDataLogger(Device slave, Device dataLogger, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap){
+    public void setDataLogger(Device slave, Device dataLogger, Instant arrivalDate, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap){
         Instant now = this.clock.instant();
-        this.getPhysicalGatewayReference(slave, now).ifPresent(r -> terminateTemporal(r, now));
+        this.getPhysicalGatewayReference(slave, now).ifPresent(r -> terminateTemporal(r, arrivalDate));
 
-        final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, now);
+        final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, arrivalDate);
         slaveDataLoggerChannelMap.forEach((k,v) -> this.addChannelDataLoggerUsage(dataLoggerReference, k, v));
         slaveDataLoggerRegisterMap.forEach((k,v) -> this.addRegisterDataLoggerUsage(dataLoggerReference, k, v));
         Save.CREATE.validate(this.dataModel, dataLoggerReference);
@@ -381,7 +381,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     @Override
     public boolean isReferenced(Register dataLoggerRegister) {
-        return false;
+        return this.isReferenced(getMeteringChannel(dataLoggerRegister));
     }
 
     boolean isReferenced(com.elster.jupiter.metering.Channel dataLoggerChannel) {

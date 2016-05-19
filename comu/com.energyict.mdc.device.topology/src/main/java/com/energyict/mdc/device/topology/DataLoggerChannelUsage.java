@@ -2,6 +2,8 @@ package com.energyict.mdc.device.topology;
 
 import com.energyict.mdc.device.topology.impl.DataLoggerReferenceImpl;
 
+import java.time.Instant;
+
 /**
  * Represents the usage of a Data Logger channel by a slave channel
  * Copyrights EnergyICT

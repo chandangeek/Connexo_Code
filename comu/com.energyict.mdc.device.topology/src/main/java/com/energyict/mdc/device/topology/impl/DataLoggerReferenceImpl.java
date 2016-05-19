@@ -38,4 +38,15 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         return Collections.unmodifiableList(dataLoggerChannelUsages);
     }
 
+//    /**
+//     * Data from each DataLogger Channel is transferred to the slave channel for this DataLoggerReference's interval
+//     */
+//    public void transferChannelData(){
+//         this.dataLoggerChannelUsages.stream().forEach(this::transferChannelData);
+//    }
+//
+//    private void transferChannelData(DataLoggerChannelUsage channelUsage){
+//        channelUsage.getDataLoggerChannel().getReadings(channelUsage, this.getInterval());
+//
+//    }
 }

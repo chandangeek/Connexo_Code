@@ -1219,7 +1219,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device slave = createSlaveDevice("Data Logger");
 
         // Business method
-        this.getTopologyService().setDataLogger(slave, slave, Collections.emptyMap(), Collections.emptyMap());
+        this.getTopologyService().setDataLogger(slave, slave, Instant.now(), Collections.emptyMap(), Collections.emptyMap());
     }
 
     @Test
@@ -1229,7 +1229,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device slave = createSimpleDeviceWithName("Not a datalogger slave");
         Device datalogger = createDataLoggerDevice("Data logger enabled");
         // Business method
-        this.getTopologyService().setDataLogger(slave, datalogger, Collections.emptyMap(), Collections.emptyMap());
+        this.getTopologyService().setDataLogger(slave, datalogger, Instant.now(), Collections.emptyMap(), Collections.emptyMap());
     }
 
     @Test
@@ -1239,7 +1239,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device slave = createSlaveDevice("Slave");
         Device datalogger = createSimpleDeviceWithName("Data logger");
         // Business method
-        this.getTopologyService().setDataLogger(slave, datalogger, Collections.emptyMap(), Collections.emptyMap());
+        this.getTopologyService().setDataLogger(slave, datalogger, Instant.now(), Collections.emptyMap(), Collections.emptyMap());
     }
 
     @Test
@@ -1251,7 +1251,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device slave = createSlaveDevice("Slave2");
         Device dataLogger = createDataLoggerDevice("Data logger enabled");
         // Business method
-        this.getTopologyService().setDataLogger(slave, dataLogger, Collections.emptyMap(), Collections.emptyMap());
+        this.getTopologyService().setDataLogger(slave, dataLogger, now, Collections.emptyMap(), Collections.emptyMap());
 
         List<DataLoggerReferenceImpl> gatewayReferences = ((ServerTopologyService) this.getTopologyService()).dataModel().query(DataLoggerReferenceImpl.class).select(com.elster.jupiter.util.conditions.Condition.TRUE);
         assertThat(gatewayReferences).hasSize(1);
@@ -1274,8 +1274,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(now);
 
         // Business method
-        this.getTopologyService().setDataLogger(slave1, dataLogger, Collections.emptyMap(), Collections.emptyMap());
-        this.getTopologyService().setDataLogger(slave2, dataLogger, Collections.emptyMap(), Collections.emptyMap());
+        this.getTopologyService().setDataLogger(slave1, dataLogger,  Instant.now(), Collections.emptyMap(), Collections.emptyMap());
+        this.getTopologyService().setDataLogger(slave2, dataLogger,  Instant.now(), Collections.emptyMap(), Collections.emptyMap());
 
         // Business method
         List<Device> downstreamDevices = this.getTopologyService().findPhysicalConnectedDevices(dataLogger);
@@ -1294,8 +1294,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(now);
 
         // Business method
-        this.getTopologyService().setDataLogger(slave1, dataLogger, Collections.emptyMap(), Collections.emptyMap());
-        this.getTopologyService().setDataLogger(slave2, dataLogger, Collections.emptyMap(), Collections.emptyMap());
+        this.getTopologyService().setDataLogger(slave1, dataLogger, Instant.now(), Collections.emptyMap(), Collections.emptyMap());
+        this.getTopologyService().setDataLogger(slave2, dataLogger,  Instant.now(), Collections.emptyMap(), Collections.emptyMap());
 
         // Business method
         List<Device> downstreamDevices = this.getTopologyService().findDataLoggerSlaves(dataLogger);
