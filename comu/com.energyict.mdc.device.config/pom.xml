@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.2.0${revision}</version>
         <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>mdc.device.config</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.config [init DTC]</name>
     <description>
@@ -136,6 +136,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>calendar</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -234,11 +238,11 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>com.google.inject</groupId>-->
-        <!--<artifactId>guice</artifactId>-->
-        <!--<version>4.0-beta5</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>4.0</version>
+        </dependency>
     </dependencies>
 
 </project>
