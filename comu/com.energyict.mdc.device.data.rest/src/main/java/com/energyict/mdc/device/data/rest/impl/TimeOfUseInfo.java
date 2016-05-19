@@ -20,5 +20,4 @@ public class TimeOfUseInfo {
     public CalendarInfo activeCalendar;
     public long lastVerified;
     public boolean activeIsGhost = false;
-    public List<String> supportedOptions;
 }

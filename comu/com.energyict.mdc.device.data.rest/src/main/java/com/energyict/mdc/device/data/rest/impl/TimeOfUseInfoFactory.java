@@ -3,32 +3,26 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.TimeOfUseOptions;
-import com.energyict.mdc.device.configuration.rest.impl.OptionInfo;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TimeOfUseInfoFactory {
     private Thesaurus thesaurus;
     private CalendarInfoFactory calendarInfoFactory;
-    private DeviceConfigurationService deviceConfigurationService;
+    private Clock clock;
 
     @Inject
-    public TimeOfUseInfoFactory(Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
+    public TimeOfUseInfoFactory(Thesaurus thesaurus, Clock clock) {
         this.thesaurus = thesaurus;
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.clock = clock;
     }
 
     public TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, List<PassiveEffectiveCalendar> passiveCalendars, Device device, CalendarInfoFactory calendarInfoFactory) {
@@ -53,6 +47,7 @@ public class TimeOfUseInfoFactory {
 
             Optional<PassiveEffectiveCalendar> nextInLine = passiveCalendars.stream()
                     .filter(passiveCalendar -> passiveCalendar.getComTaskExecution().isPresent())
+                    .filter(passiveEffectiveCalendar -> passiveEffectiveCalendar.getComTaskExecution().get().getNextExecutionTimestamp().isAfter(this.clock.instant()))
                     .sorted((p1, p2) -> compareNextExecution(p1, p2))
                     .findFirst();
 
@@ -63,22 +58,7 @@ public class TimeOfUseInfoFactory {
             }
         }
 
-        info.supportedOptions = getOptions(device);
         return info;
-    }
-
-    private List<String> getOptions(Device device) {
-        Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(device.getDeviceConfiguration().getDeviceType(), true);
-        Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(device.getDeviceConfiguration().getDeviceType());
-        Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions).orElse(Collections
-                .emptySet());
-        if(supportedCalendarOptions.contains(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR)) {
-            allowedOptions.add(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR);
-        }
-
-        return allowedOptions.stream()
-                .map(ProtocolSupportedCalendarOptions::getId)
-                .collect(Collectors.toList());
     }
 
     private int compareNextExecution(PassiveEffectiveCalendar p1, PassiveEffectiveCalendar p2) {
