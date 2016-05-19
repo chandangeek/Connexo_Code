@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.Setup', {
     router: null,
     toggleId: null,
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.view.container.PreviewContainer',
+        'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.devicelogbooks.Grid',
         'Mdc.view.setup.devicelogbooks.Preview'
@@ -44,11 +45,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.Setup', {
                         itemId: 'deviceLogbooksGrid'
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('devicelogbooks.empty.title', 'MDC', 'No logbooks found'),
-                        reasons: [
-                            Uni.I18n.translate('devicelogbooks.empty.list.item1', 'MDC', 'No logbooks have been defined yet.')
-                        ]
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('devicelogbooks.empty', 'MDC', 'No logbooks have been defined yet.')
                     },
                     previewComponent: {
                         xtype: 'deviceLogbooksPreview',
