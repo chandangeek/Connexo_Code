@@ -171,6 +171,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         calendarInfo.category = calendar.getCategory().getName();
         calendarInfo.id = calendar.getId();
         calendarInfo.description = calendar.getDescription();
+        calendarInfo.startYear = calendar.getStartYear().getValue();
         calendarInfo.timeZone = calendar.getTimeZone() == null ? "" : calendar.getTimeZone().getDisplayName();
     }
 

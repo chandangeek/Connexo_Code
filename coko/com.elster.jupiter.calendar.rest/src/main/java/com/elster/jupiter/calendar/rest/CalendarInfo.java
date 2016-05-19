@@ -15,7 +15,7 @@ public class CalendarInfo {
     public String mRID;
     public String description;
     public String timeZone;
-    public long startYear;
+    public int startYear;
     public List<EventInfo> events;
     public List<DayTypeInfo> dayTypes;
     public List<PeriodInfo> periods;
