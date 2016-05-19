@@ -23,6 +23,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -122,9 +123,12 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     }
 
     private List<DeviceMessageSpec> allMessageSpecs() {
-        return Stream.of(DeviceMessageCategories.values())
-                .map(deviceMessageCategories -> ((DeviceMessageCategory) new DeviceMessageCategoryImpl(deviceMessageCategories)))
-                .flatMap(category -> category.getMessageSpecifications().stream()).collect(Collectors.toList());
+        return Stream
+                .of(DeviceMessageCategories.values())
+                .map(DeviceMessageCategoryImpl::new)
+                .map(DeviceMessageCategory::getMessageSpecifications)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     @Override
