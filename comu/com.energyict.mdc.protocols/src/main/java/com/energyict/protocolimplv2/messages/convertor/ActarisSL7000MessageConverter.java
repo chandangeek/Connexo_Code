@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.dayOfMonth;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.dayOfWeek;
@@ -56,7 +56,7 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET, new DemandResetMessageEntry());
 
         // Time of use
-        registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
+        registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarAttributeName));
         return registry;
     }
 
@@ -69,7 +69,7 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
                 return ((Boolean) messageAttribute).booleanValue() ? "1" : "0";
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
-            case activityCalendarCodeTableAttributeName:
+            case activityCalendarAttributeName:
                 Calendar codeTable = (Calendar) messageAttribute;
                 return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + encode(codeTable); //The ID and the XML representation of the code table, separated by a |
             default:

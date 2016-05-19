@@ -38,7 +38,7 @@ import java.util.Set;
 
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.UserFileConfigAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.authenticationLevelAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.encryptionLevelAttributeName;
@@ -51,7 +51,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newPasswordAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.toDateAttributeName;
 
 /**
@@ -148,7 +148,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case UserFileConfigAttributeName:
             case firmwareUpdateFileAttributeName:
                 return ProtocolTools.getHexStringFromBytes(((FirmwareVersion) messageAttribute).getFirmwareFile(), "");
-            case activityCalendarCodeTableAttributeName:
+            case activityCalendarAttributeName:
                 return convertCodeTableToXML((Calendar) messageAttribute);
             case authenticationLevelAttributeName:
                 return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
@@ -162,7 +162,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
                 return ((Password) messageAttribute).getValue();
             case meterTimeAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());
-            case specialDaysCodeTableAttributeName:
+            case specialDaysAttributeName:
                 return parseSpecialDays(((Calendar) messageAttribute));
             case loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);

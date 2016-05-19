@@ -166,7 +166,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     private void configureHolidayList(OfflineDeviceMessage pendingMessage) throws AbntException {
         AbntActivityCalendarXmlParser activityCalendarXmlParser = new AbntActivityCalendarXmlParser();
-        activityCalendarXmlParser.parseContent(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.specialDaysCodeTableAttributeName));
+        activityCalendarXmlParser.parseContent(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.specialDaysAttributeName));
 
         HolidayRecords holidayRecords = new HolidayRecords();
         for (String holiday : activityCalendarXmlParser.getSpecialDays()) {

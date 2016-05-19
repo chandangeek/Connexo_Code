@@ -26,7 +26,7 @@ import java.util.TimeZone;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.alarmFilterAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.capturePeriodAttributeName;
@@ -45,7 +45,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.phaseAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.relayNumberAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.underThresholdDurationAttributeName;
 
@@ -85,9 +85,9 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
             simpleDateFormat.setTimeZone(TimeZone.getDefault());  //Use system timezone
             return simpleDateFormat.format((Date) messageAttribute);
-        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
+        } else if (propertySpec.getName().equals(activityCalendarAttributeName)) {
             return convertCodeTableToXML((Calendar) messageAttribute);
-        } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
+        } else if (propertySpec.getName().equals(specialDaysAttributeName)) {
             return convertSpecialDaysCodeTableToXML((Calendar) messageAttribute);
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)) {
             return messageAttribute.toString();
@@ -114,8 +114,8 @@ public class IDISMessageConverter extends AbstractMessageConverter {
 
     protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
         Map<DeviceMessageId, MessageEntryCreator> registry = new HashMap<>();
-        registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-        registry.put(DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND, new SpecialDaysMessageEntry(specialDaysCodeTableAttributeName));
+        registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarAttributeName));
+        registry.put(DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND, new SpecialDaysMessageEntry(specialDaysAttributeName));
 
         registry.put(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS, new SimpleTagMessageEntry("ResetAllAlarmBits"));
         registry.put(DeviceMessageId.ALARM_CONFIGURATION_WRITE_ALARM_FILTER, new MultipleAttributeMessageEntry("WriteAlarmFilter", "Alarm filter (decimal value)"));

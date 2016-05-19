@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 
 /**
@@ -62,7 +62,7 @@ public class AS300MessageConverter extends AbstractMessageConverter {
                 return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
-            case activityCalendarCodeTableAttributeName:
+            case activityCalendarAttributeName:
                 Calendar codeTable = (Calendar) messageAttribute;
                 return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + encode(codeTable); //The ID and the XML representation of the code table, separated by a |
             default:
@@ -81,7 +81,7 @@ public class AS300MessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.ACTIVITY_CALENDAR_READ, new SimpleTagMessageEntry("ReadActivityCalendar"));
 
         // Time of Use
-        registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
+        registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarAttributeName));
 
         // Change of Supplier
         registry.put(DeviceMessageId.CONFIGURATION_CHANGE_CHANGE_OF_SUPPLIER, new MultipleAttributeMessageEntry("Change_Of_Supplier", "Change_Of_Supplier_Name", "Change_Of_Supplier_ID", "Change_Of_Supplier_ActivationDate"));

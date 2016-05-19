@@ -129,7 +129,7 @@ public class Messaging implements DeviceMessageSupport {
                 return Long.toString(((Date) messageAttribute).getTime());
             case DeviceMessageConstants.passwordAttributeName:
                 return ((Password) messageAttribute).getValue();
-            case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
+            case DeviceMessageConstants.activityCalendarAttributeName:
                 return CodeTableBase64Builder.getXmlStringFromCodeTable((Calendar) messageAttribute);
             case DeviceMessageConstants.loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);

@@ -30,10 +30,10 @@ import java.util.List;
 import java.util.Set;
 
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.configUserFileAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysAttributeName;
 
 /**
  * Class that:
@@ -83,7 +83,7 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
-            case activityCalendarCodeTableAttributeName:
+            case activityCalendarAttributeName:
                 Calendar calendar = (Calendar) messageAttribute;
                 EDPActivityCalendarParser parser = new EDPActivityCalendarParser(calendar);
                 try {
@@ -95,7 +95,7 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
                 String weekProfile = ProtocolTools.getHexStringFromBytes(parser.getWeekProfile().getBEREncodedByteArray(), "");
                 String seasonProfile = ProtocolTools.getHexStringFromBytes(parser.getSeasonProfile().getBEREncodedByteArray(), "");
                 return dayProfile + "|" + weekProfile + "|" + seasonProfile;
-            case specialDaysCodeTableAttributeName:
+            case specialDaysAttributeName:
                 return parseSpecialDays((Calendar) messageAttribute);
             case configUserFileAttributeName:
             case firmwareUpdateFileAttributeName:
