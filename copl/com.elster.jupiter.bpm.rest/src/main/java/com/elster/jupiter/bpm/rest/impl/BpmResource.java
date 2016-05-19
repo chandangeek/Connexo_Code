@@ -627,12 +627,11 @@ public class BpmResource {
                         .filter(p -> p.getProperties().keySet().stream()
                                 .filter(filterProperties::containsKey)
                                 .filter(f -> List.class.isInstance(p.getProperties().get(f)))
-                                .filter(f -> ((List<Object>) p.getProperties().get(f)).stream()
+                                .allMatch(f -> ((List<Object>) p.getProperties().get(f)).stream()
                                         .filter(HasIdAndName.class::isInstance)
                                         .anyMatch(v -> ((HasIdAndName) v).getId()
                                                 .toString()
-                                                .equals(filterProperties.get(f).get(0))))
-                                .findAny().isPresent())
+                                                .equals(filterProperties.get(f).get(0)))))
                         .collect(Collectors.toList());
 
                 List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
