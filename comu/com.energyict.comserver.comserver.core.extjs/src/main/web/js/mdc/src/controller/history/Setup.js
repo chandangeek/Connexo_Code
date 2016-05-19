@@ -1657,12 +1657,18 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('general.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
                             route: 'timeofuse',
                             controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
+                            privileges: Mdc.privileges.Device.viewDevice,
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.timeOfUseAllowed,
                             action: 'showTimeOfUseOverview',
                             items: {
                                 viewpreview: {
                                     title: Uni.I18n.translate('tou.viewPreview', 'MDC', 'View preview'),
                                     route: '{calendarId}/viewpreview',
                                     controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
+                                    privileges: Mdc.privileges.Device.viewDevice,
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.timeOfUseAllowed,
                                     action: 'showPreviewCalendarView'
                                 }
                             }

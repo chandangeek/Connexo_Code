@@ -27,6 +27,11 @@ Ext.define('Mdc.dynamicprivileges.DeviceState', {
     changeDeviceConfiguration: 'devices.actions.change.device.configuration',
     communicationPlanningPages: 'devices.pages.communication.planning',
     deviceCommandWithPrivileges: 'privilege.command.has.privileges',
+    timeOfUseAllowed: 'devices.pages.timeofuseallowed',
+    sendCalendar: 'devices.actions.timeofuse.send',
+    verifyCalendar: 'devices.actions.timeofuse.verify',
+    clearAndDisable: 'devices.actions.timeofuse.clearanddisable',
+    activatePassive: 'devices.actions.timeofuse.activatepassive',
 
     allDeviceCommandPrivileges: [ 'privilege.command.has.privileges', 'devices.actions.device.commands' ],
 

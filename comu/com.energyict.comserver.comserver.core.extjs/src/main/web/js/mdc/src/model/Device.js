@@ -30,8 +30,7 @@ Ext.define('Mdc.model.Device', {
         {name: 'usagePoint', type: 'string', useNull: true},
         {name: 'serviceCategory', type: 'string', useNull: true},
         {name: 'version', type: 'number', useNull: true},
-        {name: 'estimationStatus', defaultValue: null},
-        {name: 'isTimeOfUseAllowed', type: 'boolean'}
+        {name: 'estimationStatus', defaultValue: null}
     ],
 
     associations: [
