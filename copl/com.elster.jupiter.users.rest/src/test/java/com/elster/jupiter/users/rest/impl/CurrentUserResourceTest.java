@@ -59,17 +59,19 @@ public class CurrentUserResourceTest extends UsersRestApplicationJerseyTest {
         when(securityContext.getUserPrincipal()).thenReturn(user);
         when(user.getLocale()).thenReturn(Optional.of(Locale.ENGLISH));
         List<UserPreference> preferences = Arrays.asList(
-                mockUserPreference(FormatKey.SHORT_DATE, "short date"),
-                mockUserPreference(FormatKey.SHORT_TIME, "short time"),
-                mockUserPreference(FormatKey.SHORT_DATETIME, "short datetime"));
+            mockUserPreference(FormatKey.SHORT_DATE, "short date"),
+            mockUserPreference(FormatKey.SHORT_TIME, "short time"),
+            mockUserPreference(FormatKey.DATETIME_ORDER, "DT"),
+            mockUserPreference(FormatKey.DATETIME_SEPARATOR, "-")
+        );
         when(userPreferencesService.getPreferences(user)).thenReturn(preferences);
         
         String response = target("/currentuser/preferences").request().get(String.class);
         
         JsonModel model = JsonModel.model(response);
-        assertThat(model.<List<Object>>get("$.preferences")).hasSize(3);
-        assertThat(model.<List<String>>get("$.preferences[*].key")).containsExactly(FormatKey.SHORT_DATE.getKey(), FormatKey.SHORT_TIME.getKey(), FormatKey.SHORT_DATETIME.getKey());
-        assertThat(model.<List<String>>get("$.preferences[*].value")).containsExactly("short date", "short time", "short datetime");
+        assertThat(model.<List<Object>>get("$.preferences")).hasSize(4);
+        assertThat(model.<List<String>>get("$.preferences[*].key")).containsExactly(FormatKey.SHORT_DATE.getKey(), FormatKey.SHORT_TIME.getKey(), FormatKey.DATETIME_ORDER.getKey(), FormatKey.DATETIME_SEPARATOR.getKey());
+        assertThat(model.<List<String>>get("$.preferences[*].value")).containsExactly("short date", "short time", "DT", "-");
     }
     
     private UserPreference mockUserPreference(FormatKey key, String formatFE) {
