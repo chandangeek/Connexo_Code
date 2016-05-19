@@ -16,7 +16,6 @@ import com.elster.jupiter.orm.Table;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTNULLZERO;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
-import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 /**
  * Created by igh on 18/04/2016.
@@ -28,7 +27,7 @@ public enum TableSpecs {
             Table<Category> table = dataModel.addTable(name(), Category.class);
             table.map(CategoryImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map(CategoryImpl.Fields.NAME.fieldName()).add();
+            table.column("NAME").varChar().notNull().map(CategoryImpl.Fields.NAME.fieldName()).add();
             table.primaryKey("CAL_PK_CATEGORY").on(idColumn).add();
         }
     },
@@ -38,13 +37,13 @@ public enum TableSpecs {
             Table<Calendar> table = dataModel.addTable(name(), Calendar.class);
             table.map(CalendarImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map(CalendarImpl.Fields.NAME.fieldName()).add();
-            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map(CalendarImpl.Fields.MRID.fieldName()).add();
+            table.column("NAME").varChar().notNull().map(CalendarImpl.Fields.NAME.fieldName()).add();
+            Column mRIDColumn = table.column("MRID").varChar().map(CalendarImpl.Fields.MRID.fieldName()).add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map(CalendarImpl.Fields.DESCRIPTION.fieldName()).add();
             table.column("STARTYEAR").type("number").notNull().conversion(ColumnConversion.NUMBER2INT).map(CalendarImpl.Fields.STARTYEAR.fieldName()).add();
             table.column("ENDYEAR").type("number").conversion(ColumnConversion.NUMBER2INT).map(CalendarImpl.Fields.ENDYEAR.fieldName()).add();
             table.column("ABSTRACT_CALENDAR").bool().notNull().map(CalendarImpl.Fields.ABSTRACT_CALENDAR.fieldName()).add();
-            table.column("TIMEZONENAME").varChar(NAME_LENGTH).map(CalendarImpl.Fields.TIMEZONENAME.fieldName()).add();
+            table.column("TIMEZONENAME").varChar().map(CalendarImpl.Fields.TIMEZONENAME.fieldName()).add();
             Column categoryColumn = table.column(CalendarImpl.Fields.CATEGORY.fieldName()).number().notNull().add();
             table.addAuditColumns();
             table.primaryKey("CAL_PK_CALENDAR").on(idColumn).add();
@@ -62,7 +61,7 @@ public enum TableSpecs {
             Table<Event> table = dataModel.addTable(name(), Event.class);
             table.map(EventImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map(EventImpl.Fields.NAME.fieldName()).add();
+            table.column("NAME").varChar().notNull().map(EventImpl.Fields.NAME.fieldName()).add();
             table.column("CODE").type("number").notNull().conversion(ColumnConversion.NUMBER2LONG).map(EventImpl.Fields.CODE.fieldName()).add();
             Column calendarColumn = table.column("calendar").number().notNull().add();
             table.addAuditColumns();
@@ -114,7 +113,7 @@ public enum TableSpecs {
             Table<DayType> table = dataModel.addTable(name(), DayType.class);
             table.map(DayTypeImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map(DayTypeImpl.Fields.NAME.fieldName()).add();
+            table.column("NAME").varChar().notNull().map(DayTypeImpl.Fields.NAME.fieldName()).add();
             Column calendarColumn = table.column("calendar").number().notNull().add();
             table.primaryKey("CAL_PK_DAYTYPE").on(idColumn).add();
             table.addAuditColumns();
@@ -154,7 +153,7 @@ public enum TableSpecs {
             Table<Period> table = dataModel.addTable(name(), Period.class);
             table.map(PeriodImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map(PeriodImpl.Fields.NAME.fieldName()).add();
+            table.column("NAME").varChar().notNull().map(PeriodImpl.Fields.NAME.fieldName()).add();
             Column calendarColumn = table.column("calendar").number().notNull().add();
 
             Column mondayColumn = table.column(PeriodImpl.Fields.MONDAY.fieldName()).number().notNull().add();

@@ -76,7 +76,9 @@ public class CalendarImpl implements Calendar {
     private String name;
     @Size(max = Table.DESCRIPTION_LENGTH, message = "{" + MessageSeeds.Constants.DESCRIPTION_FIELD_TOO_LONG + "}")
     private String description;
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.CAL_MRID_FIELD_TOO_LONG + "}")
     private String mRID;
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.CAL_TIMEZONE_FIELD_TOO_LONG + "}")
     private String timeZoneName;
     private boolean abstractCalendar = false;
     @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")

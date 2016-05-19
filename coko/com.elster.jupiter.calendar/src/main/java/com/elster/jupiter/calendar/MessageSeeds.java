@@ -47,6 +47,9 @@ public enum MessageSeeds implements MessageSeed {
     DAYTYPE_NAME_FIELD_TOO_LONG(2025, Constants.DAYTYPE_NAME_FIELD_TOO_LONG, "Daytype name is too long, it must not exceed 80 characters.", Level.SEVERE),
     EVENT_NAME_FIELD_TOO_LONG(2026, Constants.EVENT_NAME_FIELD_TOO_LONG, "Event name is too long, it must not exceed 80 characters.", Level.SEVERE),
     PERIOD_NAME_FIELD_TOO_LONG(2027, Constants.PERIOD_NAME_FIELD_TOO_LONG, "Period name is too long, it must not exceed 80 characters.", Level.SEVERE),
+    CAL_MRID_FIELD_TOO_LONG(2028, Constants.CAL_MRID_FIELD_TOO_LONG, "Calendar MRID is too long, it must not exceed 80 characters.", Level.SEVERE),
+    CAL_TIMEZONE_FIELD_TOO_LONG(2029, Constants.CAL_TIMEZONE_FIELD_TOO_LONG, "Calendar timezone id is too long, it must not exceed 80 characters.", Level.SEVERE),
+
     ;
 
     private final int number;
@@ -134,6 +137,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DAYTYPE_NAME_FIELD_TOO_LONG = "calendar.daytype.name.too.long";
         public static final String EVENT_NAME_FIELD_TOO_LONG = "calendar.event.name.too.long";
         public static final String PERIOD_NAME_FIELD_TOO_LONG = "calendar.period.name.too.long";
+        public static final String CAL_MRID_FIELD_TOO_LONG = "calendar.mrid.too.long";
+        public static final String CAL_TIMEZONE_FIELD_TOO_LONG = "calendar.timezone.too.long";
 
     }
 }
