@@ -45,6 +45,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
     private final MeterActivation meterActivation;
     private VirtualReadingType targetReadingType;
     private VirtualReadingTypeRequirement virtualRequirement;
+    private boolean finished;
 
     VirtualRequirementNode(Formula.Mode mode, VirtualFactory virtualFactory, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
         super();
@@ -53,11 +54,20 @@ class VirtualRequirementNode implements ServerExpressionNode {
         this.requirement = requirement;
         this.deliverable = deliverable;
         this.meterActivation = meterActivation;
-        this.targetReadingType = VirtualReadingType.from(this.deliverable.getReadingType());
+        this.targetReadingType = this.preferredReadingTypeFor(VirtualReadingType.from(this.deliverable.getReadingType()));
+        if (this.targetReadingType.isUnsupported()) {
+            this.targetReadingType = VirtualReadingType.from(this.deliverable.getReadingType());
+        }
+        this.finished = false;
     }
 
     ReadingTypeRequirement getRequirement() {
         return requirement;
+    }
+
+    @Override
+    public IntermediateDimension getIntermediateDimension() {
+        return IntermediateDimension.of(this.getSourceReadingType().getDimension());
     }
 
     /**
@@ -68,16 +78,20 @@ class VirtualRequirementNode implements ServerExpressionNode {
      * @return The preferred reading type
      */
     VirtualReadingType getPreferredReadingType() {
+        return this.preferredReadingTypeFor(this.getTargetReadingType());
+    }
+
+    private VirtualReadingType preferredReadingTypeFor(VirtualReadingType targetReadingType) {
         /* Preferred interval is the smallest matching reading type
          * that is compatible with the target interval. */
-        Optional<VirtualReadingType> preferredReadingType = new MatchingChannelSelector(this.requirement, this.meterActivation).getPreferredReadingType(this.getTargetReadingType());
+        Optional<VirtualReadingType> preferredReadingType = new MatchingChannelSelector(this.requirement, this.meterActivation).getPreferredReadingType(targetReadingType);
         if (preferredReadingType.isPresent()) {
             Loggers.ANALYSIS.debug(() ->
                     MessageFormat.format(
                         "Preferred reading type for requirement ''{0}'' in meter activation {1} for the calculation of deliverable ''{2}'' : {3}",
-                        this.requirement.getName() + "-" + this.targetReadingTypeForLogging(),
+                        this.requirement.getName() + "-" + this.requirementReadingTypeForLogging(),
                         this.meterActivation.getRange(),
-                        this.deliverable.getName() + "-" + this.getTargetReadingType(),
+                        this.deliverable.getName() + "-" + targetReadingType,
                         preferredReadingType.get().toString()));
             return preferredReadingType.get();
         }
@@ -85,15 +99,15 @@ class VirtualRequirementNode implements ServerExpressionNode {
             Loggers.ANALYSIS.severe(() ->
                     MessageFormat.format(
                             "Unable to find matching channel for the requirement ''{0}'' in meter activation {1} as part of calculation for deliverable ''{2}''",
-                            this.requirement.getName() + "-" + this.targetReadingTypeForLogging(),
+                            this.requirement.getName() + "-" + this.requirementReadingTypeForLogging(),
                             this.meterActivation.getRange().toString(),
-                            this.deliverable.getName() + "-" + this.getTargetReadingType()));
+                            this.deliverable.getName() + "-" + targetReadingType));
             Loggers.ANALYSIS.debug(() -> verboseAvailableMainReadingTypesOnMeterActivation(this.meterActivation));
             return VirtualReadingType.notSupported();
         }
     }
 
-    private String targetReadingTypeForLogging() {
+    private String requirementReadingTypeForLogging() {
         if (this.requirement instanceof FullySpecifiedReadingTypeRequirement) {
             FullySpecifiedReadingTypeRequirement requirement = (FullySpecifiedReadingTypeRequirement) this.requirement;
             return requirement.getReadingType().getMRID();
@@ -129,8 +143,29 @@ class VirtualRequirementNode implements ServerExpressionNode {
         return new MatchingChannelSelector(this.requirement, this.meterActivation).isReadingTypeSupported(readingType);
     }
 
-    VirtualReadingType getTargetReadingType() {
-        return this.targetReadingType;
+    /**
+     * Tests if the specified {@link VirtualReadingType}
+     * can be supported in a {@link UnitConversionNode}
+     * by looking at the backing channels of
+     * the actual {@link ReadingTypeRequirement}.
+     *
+     * @param readingType The readingType
+     * @return A flag that indicates if the readingType is backed by one of the channels
+     */
+    boolean supportsInUnitConversion(VirtualReadingType readingType) {
+        return new MatchingChannelSelector(this.requirement, this.meterActivation).isReadingTypeSupportedInUnitConversion(readingType);
+    }
+
+    VirtualReadingType getSourceReadingType() {
+        if (this.finished) {
+            return this.virtualRequirement.getSourceReadingType();
+        } else {
+            return this.getTargetReadingType();
+        }
+    }
+
+    ReadingType getDeliverableReadingType() {
+        return this.deliverable.getReadingType();
     }
 
     ChannelContract getPreferredChannel() {
@@ -138,24 +173,32 @@ class VirtualRequirementNode implements ServerExpressionNode {
         return this.virtualRequirement.getPreferredChannel();
     }
 
-    void setTargetReadingType(VirtualReadingType targetReadingType) {
-        this.targetReadingType = targetReadingType;
+    VirtualReadingType getTargetReadingType() {
+        return this.targetReadingType;
     }
 
-    void setTargetInterval(IntervalLength intervalLength) {
-        this.targetReadingType = this.targetReadingType.withIntervalLength(intervalLength);
+    void setTargetReadingType(VirtualReadingType targetReadingType) {
+        this.targetReadingType = targetReadingType;
+        if (this.virtualRequirement != null) {
+            this.virtualRequirement.setTargetReadingType(targetReadingType);
+        }
+    }
+
+    void setTargetIntervalLength(IntervalLength intervalLength) {
+        this.setTargetReadingType(this.targetReadingType.withIntervalLength(intervalLength));
     }
 
     void setTargetMultiplier(MetricMultiplier multiplier) {
-        this.targetReadingType = this.targetReadingType.withMetricMultiplier(multiplier);
+        this.setTargetReadingType(this.targetReadingType.withMetricMultiplier(multiplier));
     }
 
-    void setCommodity(Commodity commodity) {
-        this.targetReadingType = this.targetReadingType.withCommondity(commodity);
+    void setTargetCommodity(Commodity commodity) {
+        this.setTargetReadingType(this.targetReadingType.withCommondity(commodity));
     }
 
     void finish() {
         this.ensureVirtualized();
+        this.finished = true;
     }
 
     /**
@@ -170,9 +213,6 @@ class VirtualRequirementNode implements ServerExpressionNode {
 
     /**
      * Creates the {@link VirtualReadingTypeRequirement} from the current target interval.
-     * Postpone calls as long as possible and avoid changing the target interval after
-     * calls to this method.
-     * Todo: support changing the target interval with notification to the factory that old requirement is no longer necessary
      */
     private void virtualize() {
         this.virtualRequirement = this.virtualFactory.requirementFor(this.mode, this.requirement, this.deliverable, this.targetReadingType);
@@ -185,11 +225,23 @@ class VirtualRequirementNode implements ServerExpressionNode {
 
     /**
      * Appends the necessary sql constructs to the specified {@link SqlBuilder}
-     * to get the value of this nodes's {@link ReadingTypeRequirement}.
+     * to get the simple value of this nodes's {@link ReadingTypeRequirement}.
      *
      * @param sqlBuilder The SqlBuilder
      */
     void appendTo(SqlBuilder sqlBuilder) {
+        this.ensureVirtualized();
+        this.virtualRequirement.appendSimpleReferenceTo(sqlBuilder);
+    }
+
+    /**
+     * Appends the necessary sql constructs to the specified {@link SqlBuilder}
+     * to get the value of this nodes's {@link ReadingTypeRequirement}
+     * and apply unit conversion if that is necessary.
+     *
+     * @param sqlBuilder The SqlBuilder
+     */
+    void appendToWithUnitConversion(SqlBuilder sqlBuilder) {
         this.ensureVirtualized();
         this.virtualRequirement.appendReferenceTo(sqlBuilder);
     }

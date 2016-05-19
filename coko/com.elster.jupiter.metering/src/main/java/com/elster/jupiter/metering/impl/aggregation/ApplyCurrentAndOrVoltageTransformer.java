@@ -6,8 +6,10 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,11 +40,27 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
         ReadingType readingType = requirement.getPreferredChannel().getMainReadingType();
         return RequirementNodeReplacer
                 .from(readingType)
-                .to(requirement.getTargetReadingType())
+                .to(this.getTargetReadingType(requirement, requirement.getDeliverableReadingType()))
                 .apply(new Context(
                         requirement,
                         this.meteringService,
                         this.meterActivation));
+    }
+
+    private VirtualReadingType getTargetReadingType(VirtualRequirementNode requirementNode, ReadingType deliverableReadingType) {
+        VirtualReadingType targetReadingType = requirementNode.getTargetReadingType();
+        if (this.readingTypeIsElectricity(deliverableReadingType)) {
+            targetReadingType = targetReadingType.withCommondity(deliverableReadingType.getCommodity());
+        }
+        return targetReadingType;
+    }
+
+    private boolean readingTypeIsElectricity(ReadingType readingType) {
+        Commodity commodity = VirtualReadingType.from(readingType).getCommodity();
+        return EnumSet.of(
+                Commodity.ELECTRICITY_PRIMARY_METERED,
+                Commodity.ELECTRICITY_SECONDARY_METERED)
+                .contains(commodity);
     }
 
     @Override
@@ -58,13 +76,13 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     }
 
     @Override
-    public ServerExpressionNode visitNull(NullNodeImpl nullNode) {
+    public ServerExpressionNode visitNull(NullNode nullNode) {
         // No replacement
         return nullNode;
     }
 
     @Override
-    public ServerExpressionNode visitVariable(VariableReferenceNode variable) {
+    public ServerExpressionNode visitSqlFragment(SqlFragmentNode variable) {
         // No replacement
         return variable;
     }
@@ -76,6 +94,14 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     }
 
     @Override
+    public ServerExpressionNode visitUnitConversion(UnitConversionNode unitConversionNode) {
+        return new UnitConversionNode(
+                unitConversionNode.getExpressionNode().accept(this),
+                unitConversionNode.getSourceReadingType(),
+                unitConversionNode.getTargetReadingType());
+    }
+
+    @Override
     public ServerExpressionNode visitOperation(OperationNode operationNode) {
         // Copy as child nodes may be replaced
         Operator operator = operationNode.getOperator();
@@ -84,12 +110,14 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
         if (Operator.SAFE_DIVIDE.equals(operator)) {
             return new OperationNode(
                     operator,
+                    operationNode.getIntermediateDimension(),
                     operand1,
                     operand2,
                     operationNode.getSafeDivisor().accept(this));
         } else {
             return new OperationNode(
                     operator,
+                    operationNode.getIntermediateDimension(),
                     operand1,
                     operand2);
         }
@@ -99,7 +127,7 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     public ServerExpressionNode visitFunctionCall(FunctionCallNode functionCall) {
         // Copy as child nodes may be replaced
         List<ServerExpressionNode> arguments = functionCall.getArguments().stream().map(child -> child.accept(this)).collect(Collectors.toList());
-        return new FunctionCallNode(functionCall.getFunction(), arguments);
+        return new FunctionCallNode(functionCall.getFunction(), IntermediateDimension.of(Dimension.DIMENSIONLESS), arguments);
     }
 
     @Override
@@ -126,10 +154,7 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
         }
 
         ServerExpressionNode multiply(BigDecimal multiplier) {
-            return new OperationNode(
-                    Operator.MULTIPLY,
-                    new NumericalConstantNode(multiplier),
-                    this.node);
+            return Operator.MULTIPLY.node(multiplier, this.node);
         }
 
     }
@@ -198,13 +223,9 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
                 Optional<BigDecimal> ctMultiplier = context.getMultiplier(MultiplierType.StandardType.CT);
                 Optional<BigDecimal> vtMultiplier = context.getMultiplier(MultiplierType.StandardType.VT);
                 if (ctMultiplier.isPresent() && vtMultiplier.isPresent()) {
-                    return new OperationNode(
-                            Operator.MULTIPLY,
-                            new OperationNode(
-                                    Operator.DIVIDE,
-                                    new NumericalConstantNode(ctMultiplier.get()),
-                                    new NumericalConstantNode(vtMultiplier.get())),
-                            context.node);
+                    return Operator.MULTIPLY.node(
+                                Operator.DIVIDE.node(ctMultiplier.get(), vtMultiplier.get()),
+                                context.node);
                 } else {
                     return context.node;
                 }

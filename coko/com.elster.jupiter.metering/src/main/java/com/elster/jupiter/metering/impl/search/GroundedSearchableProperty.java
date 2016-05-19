@@ -27,7 +27,7 @@ public class GroundedSearchableProperty implements SearchableUsagePointProperty 
 
     private SearchDomain domain;
     private Clock clock;
-    private SearchablePropertyGroup group;
+    private ServiceKindAwareSearchablePropertyGroup group;
     private static final String FIELD_NAME = "detail.grounded";
     private String uniqueName;
 
@@ -37,7 +37,7 @@ public class GroundedSearchableProperty implements SearchableUsagePointProperty 
         this.thesaurus = thesaurus;
     }
 
-    GroundedSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, Clock clock) {
+    GroundedSearchableProperty init(SearchDomain domain, ServiceKindAwareSearchablePropertyGroup group, Clock clock) {
         this.domain = domain;
         this.group = group;
         this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
@@ -107,7 +107,12 @@ public class GroundedSearchableProperty implements SearchableUsagePointProperty 
 
     @Override
     public Condition toCondition(Condition specification) {
-        List<Object> values = new ArrayList<>(((Contains) specification).getCollection());
-        return Where.where(FIELD_NAME).in(values).and(Where.where("detail.interval").isEffective(this.clock.instant()));
+        Contains condition = (Contains) specification;
+        List<Object> values = new ArrayList<>(condition.getCollection());
+        return condition.getOperator()
+                .contains(FIELD_NAME, values)
+                .and(Where.where("detail.interval").isEffective(this.clock.instant()))
+                .and(Where.where("serviceCategory.kind")
+                        .isEqualTo(this.group.getServiceKind()));
     }
 }
