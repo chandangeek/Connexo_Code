@@ -49,7 +49,7 @@ public class PeriodImpl implements Period {
 
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.NAME_FIELD_TOO_LONG + "}")
     private String name;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();

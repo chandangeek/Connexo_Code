@@ -38,47 +38,48 @@ public class TimeOfUseCalendarImporter implements FileImporter {
                     (com.elster.jupiter.calendar.impl.xmlbinding.Calendar) u.unmarshal(fileImportOccurrence.getContents());
             log(fileImportOccurrence, MessageSeeds.VALIDATION_OF_FILE_SUCCEEDED);
             com.elster.jupiter.calendar.Calendar calendar = factory.getCalendar(result);
+            log(fileImportOccurrence, MessageSeeds.CALENDAR_CREATED);
             markSuccess(fileImportOccurrence, calendar);
         } catch (JAXBException e) {
-            log(fileImportOccurrence, (e.getLinkedException() != null) ? e.getLinkedException() : e);
-            log(fileImportOccurrence, MessageSeeds.VALIDATION_OF_FILE_FAILED);
-            markFailure(fileImportOccurrence, false);
+            logValidationFailed(fileImportOccurrence, e);
+            markFailure(fileImportOccurrence);
         } catch (CalendarParserException e) {
-            log(fileImportOccurrence, e);
-            markFailure(fileImportOccurrence, true);
+            logImportFailed(fileImportOccurrence, e);
+            markFailure(fileImportOccurrence);
         } catch (Exception e) {
-            log(fileImportOccurrence, e);
-            markFailure(fileImportOccurrence, true);
+            logImportFailed(fileImportOccurrence, e);
+            markFailure(fileImportOccurrence);
         } catch (Throwable e) {
-            log (fileImportOccurrence, e);
-            markFailure(fileImportOccurrence, true);
+            logImportFailed(fileImportOccurrence, e);
+            markFailure(fileImportOccurrence);
         }
     }
 
-    private void log(FileImportOccurrence fileImportOccurrence, Throwable e) {
-        String message = e.getLocalizedMessage();
+    private void logValidationFailed(FileImportOccurrence fileImportOccurrence, JAXBException e) {
+        Throwable toLog = (e.getLinkedException() != null) ? e.getLinkedException() : e;
+        String message = toLog.getLocalizedMessage();
         if ("Content is not allowed in prolog.".equals(message)) {
-            log (fileImportOccurrence, MessageSeeds.INVALID_CONTENT);
+            MessageSeeds.VALIDATION_OF_FILE_FAILED.log(fileImportOccurrence.getLogger(), context.getThesaurus());
         } else {
-            fileImportOccurrence.getLogger().severe(e.getLocalizedMessage());
+            MessageSeeds.VALIDATION_OF_FILE_FAILED_WITH_DETAIL.log(fileImportOccurrence.getLogger(), context.getThesaurus(), message);
         }
+    }
+
+    private void logImportFailed(FileImportOccurrence fileImportOccurrence, Throwable e) {
+        MessageSeeds.IMPORT_FAILED_OTHER_ERROR.log(fileImportOccurrence.getLogger(), context.getThesaurus(), e.getLocalizedMessage());
     }
 
     private void log(FileImportOccurrence fileImportOccurrence, MessageSeeds messageSeeds) {
         messageSeeds.log(fileImportOccurrence.getLogger(), context.getThesaurus());
     }
 
-    private void markFailure(FileImportOccurrence fileImportOccurrence, boolean valiationOk) {
-        if (valiationOk) {
-            fileImportOccurrence.markFailure(context.getThesaurus().getFormat(TranslationKeys.TOU_CALENDAR_IMPORT_FAILED_XML_OK).format());
-        } else {
-            fileImportOccurrence.markFailure(context.getThesaurus().getFormat(TranslationKeys.TOU_CALENDAR_IMPORT_FAILED_XML_NOT_OK).format());
-        }
+    private void markFailure(FileImportOccurrence fileImportOccurrence) {
+        fileImportOccurrence.markFailure(context.getThesaurus().getFormat(TranslationKeys.CALENDAR_IMPORT_FAILED).format());
     }
 
     private void markSuccess(FileImportOccurrence fileImportOccurrence, com.elster.jupiter.calendar.Calendar calendar) {
         fileImportOccurrence.markSuccess(
-                context.getThesaurus().getFormat(TranslationKeys.TOU_CALENDAR_IMPORTED_SUCCESSFULLY).format(calendar.getName()));
+                context.getThesaurus().getFormat(TranslationKeys.CALENDAR_IMPORTED_SUCCESSFULLY).format());
     }
 
     private Schema getSchema() {

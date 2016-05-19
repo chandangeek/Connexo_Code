@@ -17,6 +17,9 @@ public enum MessageSeeds implements MessageSeed {
     DAYTYPES_REQUIRED(1002, Constants.DAYTYPES_REQUIRED, "At least one daytype is required"),
     PERIODS_REQUIRED(1003, Constants.PERIODS_REQUIRED, "At least one period is required"),
 
+    CALENDAR_CREATED(1004, Constants.CALENDAR_CREATED, "Time of use calendar had been created."),
+    CALENDAR_UPDATED(1005, Constants.CALENDAR_UPDATED, "Time of use calendar had been updated."),
+
     SCHEMA_FAILED(2001, Constants.SCHEMA_FAILED, "XSD schema for calendar import could not be read"),
     JAXB_FAILED(2002, Constants.JAXB_FAILED, "JAXB error occurred"),
     PROPERTY_NOT_FOUND_ON_EVENT(2003, Constants.PROPERTY_NOT_FOUND_ON_EVENT, "Missing property \"{0}\" on event"),
@@ -33,10 +36,13 @@ public enum MessageSeeds implements MessageSeed {
     NO_TIMEZONE_FOUND_WITH_ID(2013, Constants.NO_TIMEZONE_FOUND_WITH_ID, "Timzone \"{0}\" does not exist"),
     YEAR_NOT_ALLOWED_FOR_RECURRING_TRANSITIONS(2014, Constants.YEAR_NOT_ALLOWED_FOR_RECURRING_TRANSITIONS, "\"year\" is not allowed for recurring transitions"),
     YEAR_REQUIRED_FOR_NOT_RECURRING_TRANSITIONS(2015, Constants.YEAR_REQUIRED_FOR_NOT_RECURRING_TRANSITIONS, "\"year\" is required for non recurring transitions"),
-    VALIDATION_OF_FILE_SUCCEEDED(2016, Constants.VALIDATION_OF_FILE_SUCCEEDED, "The validation of the file succeeded.", Level.INFO),
-    VALIDATION_OF_FILE_FAILED(2017, Constants.VALIDATION_OF_FILE_FAILED, "The validation of the file failed."),
+    VALIDATION_OF_FILE_SUCCEEDED(2016, Constants.VALIDATION_OF_FILE_SUCCEEDED, "Validation succeeded.", Level.INFO),
+    VALIDATION_OF_FILE_FAILED(2017, Constants.VALIDATION_OF_FILE_FAILED, "Validation failed, please check your file for invalid content."),
+    VALIDATION_OF_FILE_FAILED_WITH_DETAIL(2017, Constants.VALIDATION_OF_FILE_FAILED_WITH_DETAIL, "Validation failed: \"{0}\""),
     DUPLICATE_CALENDAR(2018, Constants.DUPLICATE_CALENDAR, "MRID must be unique", Level.SEVERE),
-    INVALID_CONTENT(2019, Constants.INVALID_CONTENT, "Please check your file, it contains invalid content.", Level.SEVERE)
+    IMPORT_FAILED_OTHER_ERROR(2019, Constants.IMPORT_FAILED_OTHER_ERROR, "Import failed: \"{0}\"", Level.SEVERE),
+    DESCRIPTION_FIELD_TOO_LONG(2020, Constants.DESCRIPTION_FIELD_TOO_LONG, "Field length must not exceed 4000 characters.", Level.SEVERE),
+    NAME_FIELD_TOO_LONG(2021, Constants.NAME_FIELD_TOO_LONG, "Field length must not exceed 80 characters.", Level.SEVERE),
     ;
 
     private final int number;
@@ -93,7 +99,8 @@ public enum MessageSeeds implements MessageSeed {
     public enum Constants {
         ;
         public static final String REQUIRED = "isRequired";
-        public static final String FIELD_TOO_LONG = "invalidFieldLength";
+        public static final String NAME_FIELD_TOO_LONG = "invalidNameFieldLength";
+        public static final String DESCRIPTION_FIELD_TOO_LONG = "invalidDescriptionFieldLength";
         public static final String DAYTYPES_REQUIRED = "dayTypes.required";
         public static final String PERIODS_REQUIRED = "periods.required";
         public static final String SCHEMA_FAILED = "calendar.import.schema.failed";
@@ -115,7 +122,10 @@ public enum MessageSeeds implements MessageSeed {
         public static final String VALIDATION_OF_FILE_SUCCEEDED = "calendar.import.validation succeeded";
         public static final String VALIDATION_OF_FILE_FAILED = "calendar.import.validation.failed";
         public static final String DUPLICATE_CALENDAR = "calendar.mridalreadyexists";
-        public static final String INVALID_CONTENT = "calendar.import.invalid.content";
+        public static final String VALIDATION_OF_FILE_FAILED_WITH_DETAIL = "calendar.import.validation.failed.with.detail";
+        public static final String IMPORT_FAILED_OTHER_ERROR = "calendar.import.failed.other.error";
+        public static final String CALENDAR_CREATED = "calendar.import.calendar.created";
+        public static final String CALENDAR_UPDATED = "calendar.import.calendar.updated";
 
     }
 }
