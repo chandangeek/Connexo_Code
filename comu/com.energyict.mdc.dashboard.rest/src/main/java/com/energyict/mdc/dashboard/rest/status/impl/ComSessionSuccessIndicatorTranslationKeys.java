@@ -1,9 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 
 import java.util.stream.Stream;
 
@@ -29,7 +28,7 @@ public enum ComSessionSuccessIndicatorTranslationKeys implements TranslationKey 
 
     @Override
     public String getKey() {
-        return ComSession.class.getSimpleName() + "." + this.successIndicator.name();
+        return this.successIndicator.name();
     }
 
     @Override
