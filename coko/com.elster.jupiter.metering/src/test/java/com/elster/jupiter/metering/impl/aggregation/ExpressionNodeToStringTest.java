@@ -5,14 +5,20 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.units.Dimension;
+
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Collections;
 
 import org.junit.Test;
 
@@ -34,7 +40,7 @@ public class ExpressionNodeToStringTest {
     @Test
     public void testNull() {
         // Business method
-        String expression = testInstance().visitNull(new NullNodeImpl());
+        String expression = testInstance().visitNull(new NullNode());
 
         // Asserts
         assertThat(expression).isEqualTo("null");
@@ -61,73 +67,73 @@ public class ExpressionNodeToStringTest {
     }
 
     @Test
-    public void testVariableReference() {
-        String name = "variableName";
+    public void testSqlFragment() {
+        String sql = "select sysdate from dual";
 
         // Business method
-        String expression = testInstance().visitVariable(new VariableReferenceNode(name));
+        String expression = testInstance().visitSqlFragment(new SqlFragmentNode(sql));
 
         // Asserts
-        assertThat(expression).isEqualTo(name);
+        assertThat(expression).isEqualTo(sql);
     }
 
     @Test
-    public void testVariablePlusConstant() {
-        String variableName = "var";
-        VariableReferenceNode variable = new VariableReferenceNode(variableName);
-        OperationNode operation = new OperationNode(Operator.PLUS, variable, new NumericalConstantNode(BigDecimal.TEN));
-
-        // Business method
-        String expression = testInstance().visitOperation(operation);
-
-        // Asserts
-        assertThat(expression).isEqualTo("(" + variableName + " + 10)");
-    }
-
-    @Test
-    public void testVariableMinusConstant() {
-        String variableName = "var";
-        VariableReferenceNode variable = new VariableReferenceNode(variableName);
-        OperationNode operation = new OperationNode(Operator.MINUS, variable, new NumericalConstantNode(BigDecimal.TEN));
+    public void testSqlPlusConstant() {
+        String sqlText = "sequence.nextval";
+        SqlFragmentNode sql = new SqlFragmentNode(sqlText);
+        OperationNode operation = Operator.PLUS.node(sql, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         String expression = testInstance().visitOperation(operation);
 
         // Asserts
-        assertThat(expression).isEqualTo("(" + variableName + " - 10)");
+        assertThat(expression).isEqualTo("(" + sqlText + " + 10)");
     }
 
     @Test
-    public void testVariableTimesConstant() {
-        String variableName = "var";
-        VariableReferenceNode variable = new VariableReferenceNode(variableName);
-        OperationNode operation = new OperationNode(Operator.MULTIPLY, variable, new NumericalConstantNode(BigDecimal.TEN));
+    public void testSqlMinusConstant() {
+        String sqlText = "sequence.nextval";
+        SqlFragmentNode sql = new SqlFragmentNode(sqlText);
+        OperationNode operation = Operator.MINUS.node(sql, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         String expression = testInstance().visitOperation(operation);
 
         // Asserts
-        assertThat(expression).isEqualTo("(" + variableName + " * 10)");
+        assertThat(expression).isEqualTo("(" + sqlText + " - 10)");
     }
 
     @Test
-    public void testVariableDividedByConstant() {
-        String variableName = "var";
-        VariableReferenceNode variable = new VariableReferenceNode(variableName);
-        OperationNode operation = new OperationNode(Operator.DIVIDE, variable, new NumericalConstantNode(BigDecimal.TEN));
+    public void testSqlTimesConstant() {
+        String sqlText = "sequence.nextval";
+        SqlFragmentNode sql = new SqlFragmentNode(sqlText);
+        OperationNode operation = Operator.MULTIPLY.node(sql, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         String expression = testInstance().visitOperation(operation);
 
         // Asserts
-        assertThat(expression).isEqualTo("(" + variableName + " / 10)");
+        assertThat(expression).isEqualTo("(" + sqlText + " * 10)");
     }
 
     @Test
-    public void testSafeVariableDivision() {
-        VariableReferenceNode variable1 = new VariableReferenceNode("var1");
-        VariableReferenceNode variable2 = new VariableReferenceNode("var2");
-        OperationNode operation = new OperationNode(Operator.SAFE_DIVIDE, variable1, variable2, new NumericalConstantNode(BigDecimal.TEN));
+    public void testSqlDividedByConstant() {
+        String sqlText = "sequence.nextval";
+        SqlFragmentNode sql = new SqlFragmentNode(sqlText);
+        OperationNode operation = Operator.DIVIDE.node(sql, new NumericalConstantNode(BigDecimal.TEN));
+
+        // Business method
+        String expression = testInstance().visitOperation(operation);
+
+        // Asserts
+        assertThat(expression).isEqualTo("(" + sqlText + " / 10)");
+    }
+
+    @Test
+    public void testSafeDivision() {
+        SqlFragmentNode sql1 = new SqlFragmentNode("var1");
+        SqlFragmentNode sql2 = new SqlFragmentNode("var2");
+        OperationNode operation = Operator.SAFE_DIVIDE.safeNode(sql1, sql2, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         String expression = testInstance().visitOperation(operation);
@@ -138,9 +144,9 @@ public class ExpressionNodeToStringTest {
 
     @Test
     public void testFunctionCall() {
-        VariableReferenceNode variable1 = new VariableReferenceNode("var1");
-        VariableReferenceNode variable2 = new VariableReferenceNode("var2");
-        FunctionCallNode node = new FunctionCallNode(Function.SUM, variable1, variable2, new NumericalConstantNode(BigDecimal.TEN));
+        SqlFragmentNode sql1 = new SqlFragmentNode("var1");
+        SqlFragmentNode sql2 = new SqlFragmentNode("var2");
+        FunctionCallNode node = new FunctionCallNode(Function.SUM, IntermediateDimension.of(Dimension.DIMENSIONLESS), sql1, sql2, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         String expression = testInstance().visitFunctionCall(node);
@@ -223,7 +229,10 @@ public class ExpressionNodeToStringTest {
 
     @Test
     public void testRequirement() {
-        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("ExpressionNodeToSqlTest");
+        when(requirement.getReadingType()).thenReturn(readingType);
         VirtualFactory virtualFactory = mock(VirtualFactory.class);
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         ReadingType hourlyWattHours = this.mockHourlyWattHoursReadingType();
@@ -231,13 +240,15 @@ public class ExpressionNodeToStringTest {
         VirtualReadingTypeRequirement virtualRequirement = mock(VirtualReadingTypeRequirement.class);
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(requirement), eq(deliverable), any(VirtualReadingType.class)))
             .thenReturn(virtualRequirement);
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         VirtualRequirementNode node =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         virtualFactory,
                         requirement,
                         deliverable,
-                        mock(MeterActivation.class));
+                        meterActivation);
 
         // Business method
         testInstance().visitVirtualRequirement(node);
@@ -260,6 +271,73 @@ public class ExpressionNodeToStringTest {
         verify(deliverable).appendReferenceTo(any(SqlBuilder.class), eq(VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED)));
     }
 
+    @Test
+    public void testUnitConversion() {
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+        VirtualFactory virtualFactory = mock(VirtualFactory.class);
+        ReadingType hourWattHours = this.mockHourlyWattHoursReadingType();
+        ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
+        when(deliverable.getReadingType()).thenReturn(hourWattHours);
+
+        ReadingType ampereReadingType = this.mock15MinutesAmpereReadingType();
+        FullySpecifiedReadingTypeRequirement currentRequirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(currentRequirement.getDimension()).thenReturn(Dimension.ELECTRIC_CURRENT);
+        when(currentRequirement.getReadingType()).thenReturn(ampereReadingType);
+        Channel ampereChannel = mock(Channel.class);
+        when(ampereChannel.getMainReadingType()).thenReturn(ampereReadingType);
+        when(currentRequirement.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(ampereChannel));
+        VirtualReadingTypeRequirement virtualCurrentRequirement = mock(VirtualReadingTypeRequirement.class);
+        when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(currentRequirement), eq(deliverable), any(VirtualReadingType.class)))
+                .thenReturn(virtualCurrentRequirement);
+        VirtualRequirementNode current =
+                new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
+                        virtualFactory,
+                        currentRequirement,
+                        deliverable,
+                        meterActivation);
+        // Similate effect of InferReadingType
+        current.setTargetReadingType(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.AMPERE, Commodity.ELECTRICITY_PRIMARY_METERED));
+
+        ReadingType voltReadingType = this.mock15MinutesVoltReadingType();
+        FullySpecifiedReadingTypeRequirement voltageRequirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(voltageRequirement.getDimension()).thenReturn(Dimension.ELECTRIC_POTENTIAL);
+        when(voltageRequirement.getReadingType()).thenReturn(voltReadingType);
+        Channel voltChannel = mock(Channel.class);
+        when(voltChannel.getMainReadingType()).thenReturn(voltReadingType);
+        when(voltageRequirement.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(voltChannel));
+        VirtualReadingTypeRequirement virtualVoltageRequirement = mock(VirtualReadingTypeRequirement.class);
+        when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(voltageRequirement), eq(deliverable), any(VirtualReadingType.class)))
+                .thenReturn(virtualVoltageRequirement);
+        VirtualRequirementNode voltage =
+                new VirtualRequirementNode(
+                        Formula.Mode.AUTO,
+                        virtualFactory,
+                        voltageRequirement,
+                        deliverable,
+                        meterActivation);
+        // Similate effect of InferReadingType
+        voltage.setTargetReadingType(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.VOLT, Commodity.ELECTRICITY_PRIMARY_METERED));
+
+        UnitConversionNode node = new UnitConversionNode(
+                Operator.MULTIPLY.node(current, voltage),
+                Dimension.POWER,
+                VirtualReadingType.from(
+                        IntervalLength.HOUR1,
+                        MetricMultiplier.KILO,
+                        ReadingTypeUnit.WATTHOUR,
+                        Commodity.ELECTRICITY_PRIMARY_METERED));
+
+        // Business method
+        String expression = testInstance().visitUnitConversion(node).replace(" ", "");
+
+        // Asserts
+        verify(virtualCurrentRequirement).appendSimpleReferenceTo(any(SqlBuilder.class));
+        verify(virtualVoltageRequirement).appendSimpleReferenceTo(any(SqlBuilder.class));
+        assertThat(expression).isEqualTo("(((*)/4)*0.001)"); // because the requirements are mocked, their appendSimpleReferenceTo method does not actually append anything to the StringBuilder
+    }
+
     private ReadingType mockHourlyWattHoursReadingType() {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
@@ -270,8 +348,28 @@ public class ExpressionNodeToStringTest {
         return readingType;
     }
 
+    private ReadingType mock15MinutesAmpereReadingType() {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
+        when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        return readingType;
+    }
+
+    private ReadingType mock15MinutesVoltReadingType() {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.VOLT);
+        when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        return readingType;
+    }
+
     private ExpressionNodeToString testInstance() {
-        return new ExpressionNodeToString();
+        return new ExpressionNodeToString(Formula.Mode.AUTO);
     }
 
 }

@@ -121,6 +121,7 @@ public abstract class AbstractNode implements ServerExpressionNode {
         dataModel.remove(this);
     }
 
+    @Override
     public IntermediateDimension getIntermediateDimension() {
         return IntermediateDimension.of(getDimension());
     }

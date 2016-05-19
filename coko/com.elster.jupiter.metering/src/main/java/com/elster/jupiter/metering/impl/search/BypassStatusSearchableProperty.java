@@ -26,7 +26,7 @@ public class BypassStatusSearchableProperty implements SearchableUsagePointPrope
     private final Thesaurus thesaurus;
 
     private SearchDomain domain;
-    private SearchablePropertyGroup group;
+    private ServiceKindAwareSearchablePropertyGroup group;
     private Clock clock;
     private static final String FIELD_NAME = "detail.bypassStatus";
     private String uniqueName;
@@ -37,7 +37,7 @@ public class BypassStatusSearchableProperty implements SearchableUsagePointPrope
         this.thesaurus = thesaurus;
     }
 
-    BypassStatusSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, Clock clock) {
+    BypassStatusSearchableProperty init(SearchDomain domain, ServiceKindAwareSearchablePropertyGroup group, Clock clock) {
         this.domain = domain;
         this.group = group;
         this.clock = clock;
@@ -107,7 +107,12 @@ public class BypassStatusSearchableProperty implements SearchableUsagePointPrope
 
     @Override
     public Condition toCondition(Condition specification) {
-        List<Object> values = new ArrayList<>(((Contains) specification).getCollection());
-        return Where.where(FIELD_NAME).in(values).and(Where.where("detail.interval").isEffective(this.clock.instant()));
+        Contains condition = (Contains) specification;
+        List<Object> values = new ArrayList<>(condition.getCollection());
+        return condition.getOperator()
+                .contains(FIELD_NAME, values)
+                .and(Where.where("detail.interval").isEffective(this.clock.instant()))
+                .and(Where.where("serviceCategory.kind")
+                        .isEqualTo(this.group.getServiceKind()));
     }
 }
