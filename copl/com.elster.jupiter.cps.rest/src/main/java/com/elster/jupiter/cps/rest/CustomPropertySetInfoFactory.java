@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.QuantityValueFactory;
 import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
 import com.elster.jupiter.rest.util.properties.PropertyType;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
@@ -324,9 +325,7 @@ public class CustomPropertySetInfoFactory {
 
     static class QuantityPropertyValueConverter implements PropertyValueInfoConverter {
         static class QuantityInfo {
-            public String value;
-            public Integer multiplier;
-            public String unit;
+            public String id;
             public String displayValue;
         }
 
@@ -345,10 +344,8 @@ public class CustomPropertySetInfoFactory {
             QuantityInfo quantityInfo = new QuantityInfo();
             if (domainValue != null && domainValue instanceof Quantity) {
                 Quantity value = (Quantity) domainValue;
-                quantityInfo.value = value.getValue().toPlainString();
-                quantityInfo.multiplier = value.getMultiplier();
-                quantityInfo.unit = value.getUnit().toString();
-                String[] valueParts = value.toString(false).split(" ");
+                quantityInfo.id = new QuantityValueFactory().toStringValue(value);
+                String[] valueParts = value.toString().split(" ");
                 quantityInfo.displayValue = valueParts[1];
             }
             return quantityInfo;
@@ -358,27 +355,11 @@ public class CustomPropertySetInfoFactory {
         public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
             if (infoValue != null && infoValue instanceof Map) {
                 Map value = (Map) infoValue;
-                BigDecimal bigDecimalValue;
-                String unit;
-                int multiplier;
-
-                if (value.get("value") == null) {
-                    bigDecimalValue = new BigDecimal(0);
-                } else {
-                    bigDecimalValue = new BigDecimal(value.get("value").toString());
+                if (value.get("id") != null) {
+                    return new QuantityValueFactory().fromStringValue(value.get("id").toString());
                 }
-                if (value.get("unit") == null) {
-                    return null;
-                } else {
-                    unit = String.valueOf(value.get("unit"));
-                }
-
-                if (Integer.valueOf(value.get("multiplier").toString()) == null) {
-                    return Quantity.create(bigDecimalValue, unit);
-                }
-
-                multiplier = Integer.valueOf(value.get("multiplier").toString());
-                return Quantity.create(bigDecimalValue, multiplier, unit);
+            } else if (infoValue instanceof String){
+                return new QuantityValueFactory().fromStringValue((String)infoValue);
             }
 
             return null;
