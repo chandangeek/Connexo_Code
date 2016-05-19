@@ -1473,6 +1473,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getState()).thenReturn(state);
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
 
+        DeviceConfiguration configuration = mock(DeviceConfiguration.class);
+        when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.EMPTY_SET);
+        when(deviceConfigurationService.findTimeOfUseOptions(anyObject())).thenReturn(Optional.empty());
+        when(device.getDeviceConfiguration()).thenReturn(configuration);
+        when(device.getDeviceConfiguration().getDeviceType()).thenReturn(null);
+
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(17);
@@ -1506,6 +1512,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getState()).thenReturn(state);
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
 
+        DeviceConfiguration configuration = mock(DeviceConfiguration.class);
+        when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.EMPTY_SET);
+        when(deviceConfigurationService.findTimeOfUseOptions(anyObject())).thenReturn(Optional.empty());
+        when(device.getDeviceConfiguration()).thenReturn(configuration);
+        when(device.getDeviceConfiguration().getDeviceType()).thenReturn(null);
+
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(0);
@@ -1520,6 +1532,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         when(device.getState()).thenReturn(state);
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        DeviceConfiguration configuration = mock(DeviceConfiguration.class);
+        when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.EMPTY_SET);
+        when(deviceConfigurationService.findTimeOfUseOptions(anyObject())).thenReturn(Optional.empty());
+        when(device.getDeviceConfiguration()).thenReturn(configuration);
+        when(device.getDeviceConfiguration().getDeviceType()).thenReturn(null);
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);

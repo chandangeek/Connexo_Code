@@ -528,6 +528,10 @@ public class DeviceResource {
                 .stream()
                 .map(privilege -> new IdWithNameInfo(null, privilege))
                 .collect(Collectors.toList());
+        privileges.addAll(DevicePrivileges.getTimeOfUsePrivilegesFor(device, deviceConfigurationService)
+                .stream()
+                .map(privilege -> new IdWithNameInfo(null, privilege))
+                .collect(Collectors.toList()));
         return Response.ok(PagedInfoList.fromCompleteList("privileges", privileges, queryParameters)).build();
     }
 
@@ -711,7 +715,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("{mRID}/runningservicecalls/{id}")
     public Response cancelServiceCall(@PathParam("mRID") String mrid, @PathParam("id") long serviceCallId, ServiceCallInfo info) {
-        if(info.state.id.equals("sclc.default.cancelled")) {
+        if (info.state.id.equals("sclc.default.cancelled")) {
             serviceCallService.getServiceCall(serviceCallId).ifPresent(ServiceCall::cancel);
             return Response.status(Response.Status.ACCEPTED).build();
         }
@@ -781,7 +785,7 @@ public class DeviceResource {
     @Path("/{mRID}/timeofuse")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
-    public Response getCalendarInfo(@PathParam("mRID")String id) {
+    public Response getCalendarInfo(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         TimeOfUseInfo info = timeOfUseInfoFactory.from(device.getActiveCalendar(), device.getPassiveCalendars(), device, calendarInfoFactory);
 

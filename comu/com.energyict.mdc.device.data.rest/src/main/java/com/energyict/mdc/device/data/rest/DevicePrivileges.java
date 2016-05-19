@@ -2,16 +2,23 @@ package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class DevicePrivileges {
     private DevicePrivileges() {}
@@ -37,10 +44,55 @@ public final class DevicePrivileges {
     public static final String DEVICES_ACTIONS_DATA_EDIT = "devices.actions.data.edit";
     public static final String DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION = "devices.actions.change.device.configuration";
     public static final String DEVICES_PAGES_COMMUNICATION_PLANNING = "devices.pages.communication.planning";
+    public static final String DEVICES_TIME_OF_USE_ALLOWED = "devices.pages.timeofuseallowed";
+
+    private static Map<ProtocolSupportedCalendarOptions, String> option2Privilege = createMap();
 
     public static List<String> getPrivilegesFor(Device device, User user){
-        return PrivilegesBasedOnDeviceState.get(device.getState()).getPrivileges(user);
+        List<String> privileges = PrivilegesBasedOnDeviceState.get(device.getState()).getPrivileges(user);
+        return privileges;
     }
+
+    public static List<String> getTimeOfUsePrivilegesFor(Device device, DeviceConfigurationService deviceConfigurationService) {
+        Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(device.getDeviceConfiguration().getDeviceType(), true);
+        Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(device.getDeviceConfiguration().getDeviceType());
+        Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions).orElse(Collections
+                .emptySet());
+        if(allowedOptions.size() > 0) {
+            if(supportedCalendarOptions.contains(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR)) {
+                allowedOptions.add(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR);
+            }
+            return getTimeOfUsePrivileges(allowedOptions) ;
+        } else {
+            return Collections.EMPTY_LIST;
+        }
+    }
+
+    private static List<String> getTimeOfUsePrivileges(Set<ProtocolSupportedCalendarOptions> allowedOptions) {
+        List<String> list =  allowedOptions.stream()
+                .map(option -> option2Privilege.get(option))
+                .collect(Collectors.toList());
+        list.add(DEVICES_TIME_OF_USE_ALLOWED);
+        return list;
+    }
+
+    private static Map<ProtocolSupportedCalendarOptions, String> createMap() {
+        Map<ProtocolSupportedCalendarOptions, String> map = new EnumMap<>(ProtocolSupportedCalendarOptions.class);
+        map.put(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR, "devices.actions.timeofuse.verify");
+        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, "devices.actions.timeofuse.send");
+        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE, "devices.actions.timeofuse.send");
+        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE, "devices.actions.timeofuse.send");
+        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT, "devices.actions.timeofuse.send");
+        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME, "devices.actions.timeofuse.send");
+        map.put(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, "devices.actions.timeofuse.send");
+        map.put(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE, "devices.actions.timeofuse.send");
+        map.put(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE, "devices.actions.timeofuse.send");
+        map.put(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF, "devices.actions.timeofuse.clearanddisable");
+        map.put(ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR, "devices.actions.timeofuse.activatepassive");
+
+        return map;
+    }
+
 
     private enum PrivilegesBasedOnDeviceState {
         DEFAULT(null),

@@ -62,7 +62,6 @@ public class DeviceInfo extends DeviceVersionInfo {
     public String location;
     public LocationInfo locationInfo;
     public String geoCoordinates;
-    public boolean isTimeOfUseAllowed;
 
     public DeviceInfo() {
     }
@@ -116,22 +115,10 @@ public class DeviceInfo extends DeviceVersionInfo {
         if(location!=null){
             deviceInfo.location = location;
         }
-
-        deviceInfo.isTimeOfUseAllowed = isTimeOfUseAllowed(device, deviceConfigurationService);
-
         return deviceInfo;
     }
 
-    static boolean isTimeOfUseAllowed(Device device, DeviceConfigurationService deviceConfigurationService) {
-        Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(device.getDeviceConfiguration().getDeviceType());
-        Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions).orElse(Collections
-                .emptySet());
-        if(allowedOptions.size() > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+
 
 
     static Optional<? extends IssueDataValidation> getOpenDataValidationIssue(Device device, MeteringService meteringService, IssueService issueService, IssueDataValidationService issueDataValidationService) {
