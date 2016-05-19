@@ -3,7 +3,6 @@ package com.energyict.mdc.device.topology.impl;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -359,7 +358,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     @Override
     public Optional<Channel> getSlaveChannel(Channel dataLoggerChannel, Instant when) {
-        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerChannel).get(),when).map((dataLoggerChannelUsage) -> {
+        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerChannel),when).map((dataLoggerChannelUsage) -> {
             Device slaveDevice = dataLoggerChannelUsage.getDataLoggerReference().getOrigin();
             ReadingType slaveChannelReadingType = dataLoggerChannelUsage.getSlaveChannel().getMainReadingType();
             return slaveDevice.getChannels().stream().filter((channel)-> channel.getReadingType() == slaveChannelReadingType).findFirst().get();
@@ -368,17 +367,16 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     @Override
     public Optional<Register> getSlaveRegister(Register dataLoggerRegister, Instant when) {
-        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerRegister).get(),when).map((dataLoggerChannelUsage) -> {
+        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerRegister),when).map((dataLoggerChannelUsage) -> {
             Device slaveDevice = dataLoggerChannelUsage.getDataLoggerReference().getOrigin();
             ReadingType slaveChannelReadingType = dataLoggerChannelUsage.getSlaveChannel().getMainReadingType();
-            return slaveDevice.getRegisters().stream().filter((channel)-> channel.getReadingType() == slaveChannelReadingType).findFirst().get();
+            return slaveDevice.getRegisters().stream().filter((register)-> register.getReadingType() == slaveChannelReadingType).findFirst().get();
         });
     }
 
-
     @Override
     public boolean isReferenced(Channel dataLoggerChannel) {
-        return this.isReferenced(getMeteringChannel(dataLoggerChannel).get());
+        return this.isReferenced(getMeteringChannel(dataLoggerChannel));
     }
 
     @Override
@@ -419,23 +417,27 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     }
 
     private void addChannelDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Channel slave, Channel dataLogger){
-        Optional<com.elster.jupiter.metering.Channel> channelForSlave = getMeteringChannel(slave);
-        Optional<com.elster.jupiter.metering.Channel> channelForDataLogger = getMeteringChannel(dataLogger);
-        dataLoggerReference.addDataLoggerChannelUsage(channelForSlave.get(),channelForDataLogger.get());
+        com.elster.jupiter.metering.Channel channelForSlave = getMeteringChannel(slave);
+        com.elster.jupiter.metering.Channel channelForDataLogger = getMeteringChannel(dataLogger);
+        dataLoggerReference.addDataLoggerChannelUsage(channelForSlave,channelForDataLogger);
     }
 
     private void addRegisterDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Register slave, Register dataLogger){
-        Optional<com.elster.jupiter.metering.Channel> channelForSlave = getMeteringChannel(slave);
-        Optional<com.elster.jupiter.metering.Channel> channelForDataLogger = getMeteringChannel(dataLogger);
-        dataLoggerReference.addDataLoggerChannelUsage(channelForSlave.get(),channelForDataLogger.get());
+        com.elster.jupiter.metering.Channel channelForSlave = getMeteringChannel(slave);
+        com.elster.jupiter.metering.Channel channelForDataLogger = getMeteringChannel(dataLogger);
+        dataLoggerReference.addDataLoggerChannelUsage(channelForSlave,channelForDataLogger);
     }
 
-    Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final com.energyict.mdc.device.data.Channel channel){
-        return channel.getDevice().getCurrentMeterActivation().get().getChannels().stream().filter((x)-> x.getMainReadingType() == channel.getReadingType()).findFirst();
+    com.elster.jupiter.metering.Channel getMeteringChannel(final com.energyict.mdc.device.data.Channel channel){
+        return channel.getDevice().getCurrentMeterActivation().get().getChannels().stream().filter((x)-> x.getReadingTypes().contains(channel.getReadingType()))
+                .findFirst()
+                .orElseThrow(() -> DataLoggerLinkException.noPhysicalChannelForReadingType(this.thesaurus, channel.getReadingType()));
     }
 
-    Optional<com.elster.jupiter.metering.Channel> getMeteringChannel(final Register register){
-        return register.getDevice().getCurrentMeterActivation().get().getChannels().stream().filter((x)-> x.getMainReadingType() == register.getReadingType()).findFirst();
+    com.elster.jupiter.metering.Channel getMeteringChannel(final Register register){
+        return register.getDevice().getCurrentMeterActivation().get().getChannels().stream().filter((x)-> x.getReadingTypes().contains(register.getReadingType()))
+                .findFirst()
+                .orElseThrow(() -> DataLoggerLinkException.noPhysicalChannelForReadingType(this.thesaurus, register.getReadingType()));
     }
 
     private void terminateTemporal(PhysicalGatewayReference gatewayReference, Instant now) {
