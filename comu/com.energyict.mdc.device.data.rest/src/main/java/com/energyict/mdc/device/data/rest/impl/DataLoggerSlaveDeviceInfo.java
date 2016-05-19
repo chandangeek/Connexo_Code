@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.Device;
 
 import java.time.Instant;
@@ -8,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
-
 
 /**
  * Slave devices linked to a data logger : rest counterpart of {@link com.energyict.mdc.device.topology.impl.DataLoggerReferenceImpl}
@@ -26,6 +24,7 @@ public class DataLoggerSlaveDeviceInfo {
     public String serialNumber;
     public int yearOfCertification;
     public long version;
+    public Instant arrivalDate;
 
     public List<DataLoggerSlaveChannelInfo> dataLoggerSlaveChannelInfos;   //mapping slave channel to data logger channel
     public List<DataLoggerSlaveRegisterInfo> dataLoggerSlaveRegisterInfos;   //mapping slave register to data logger register

@@ -1367,6 +1367,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.yearOfCertification = 1960;
         slaveInfo1.version = 1;
         slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
+        Instant now = Instant.now();
+        slaveInfo1.arrivalDate = now;
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
@@ -1380,7 +1382,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(now), any(Map.class), any(Map.class));
     }
 
     @Test
@@ -1511,6 +1513,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.yearOfCertification = 1960;
         slaveInfo1.version = 1;
         slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
+        Instant now = Instant.now();
+        slaveInfo1.arrivalDate = now;
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
@@ -1522,13 +1526,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.of(slaveChannel1));
         Mockito.doThrow(DataLoggerLinkException.noPhysicalChannelForReadingType(thesaurus, readingType))
                 .when(topologyService)
-                .setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
+                .setDataLogger(eq(slave1), eq(dataLogger), eq(now), any(Map.class), any(Map.class));
 
 
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         // Simulating a mismatch between mdc-channels and pulse channels: e.g. pulse channel having the mdc-channels' readingtype does not exist
-        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(now), any(Map.class), any(Map.class));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         assertThat(response.hasEntity()).isTrue();
@@ -1690,6 +1694,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         channelMappingForSlave1.dataLoggerChannel = newChannelInfo(2L, "dataLogger", 13L);
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
+        Instant now = Instant.now();
+        slaveInfo1.arrivalDate = now;
         slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
 
         DeviceInfo info = new DeviceInfo();
@@ -1706,7 +1712,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(topologyService, times(1)).clearDataLogger(slave1);
-        verify(topologyService, never()).setDataLogger(any(Device.class), eq(dataLogger), any(Map.class), any(Map.class));
+        verify(topologyService, never()).setDataLogger(any(Device.class), eq(dataLogger), eq(now), any(Map.class), any(Map.class));
     }
 
     @Test
@@ -1733,6 +1739,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         channelMappingForSlave1.dataLoggerChannel = newChannelInfo(2L, "dataLogger", 13L);
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
+        Instant now = Instant.now();
+        slaveInfo1.arrivalDate = now;
         slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
 
         DeviceInfo info = new DeviceInfo();
@@ -1747,7 +1755,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(topologyService, never()).setDataLogger(any(Device.class), eq(dataLogger), any(Map.class), any(Map.class));
+        verify(topologyService, never()).setDataLogger(any(Device.class), eq(dataLogger), eq(now), any(Map.class), any(Map.class));
     }
 
     @Test
@@ -1812,6 +1820,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.yearOfCertification = 1960;
         slaveInfo1.version = 1;
         slaveInfo1.dataLoggerSlaveRegisterInfos = Collections.singletonList(registerMappingForSlave1);
+        Instant now = Instant.now();
+        slaveInfo1.arrivalDate = now;
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
@@ -1825,7 +1835,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(now), any(Map.class), any(Map.class));
     }
 
     @Test
@@ -1906,6 +1916,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.version = 1;
         slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
         slaveInfo1.dataLoggerSlaveRegisterInfos = Collections.singletonList(registerMappingForSlave1);
+        Instant now = Instant.now();
+        slaveInfo1.arrivalDate = now;
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
@@ -1920,7 +1932,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(now) , any(Map.class), any(Map.class));
     }
 
 
@@ -1986,6 +1998,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.yearOfCertification = 1960;
         slaveInfo1.version = 1;
         slaveInfo1.dataLoggerSlaveRegisterInfos = Collections.singletonList(registerMappingForSlave1);
+        Instant now = Instant.now();
+        slaveInfo1.arrivalDate = now;
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
@@ -1997,12 +2011,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getSlaveRegister(eq(dataLoggerRegister), any(Instant.class))).thenReturn(Optional.of(slaveRegister1));
         Mockito.doThrow(DataLoggerLinkException.noPhysicalChannelForReadingType(thesaurus, readingType))
                 .when(topologyService)
-                .setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
+                .setDataLogger(eq(slave1), eq(dataLogger), eq(now), any(Map.class), any(Map.class));
 
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         // Simulating a mismatch between mdc-channels and pulse channels: e.g. pulse channel having the mdc-channels' readingtype does not exist
-        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(now), any(Map.class), any(Map.class));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         assertThat(response.hasEntity()).isTrue();

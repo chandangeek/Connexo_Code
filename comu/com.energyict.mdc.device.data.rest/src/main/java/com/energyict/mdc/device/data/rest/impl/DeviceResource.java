@@ -309,7 +309,7 @@ public class DeviceResource {
             if (slaveDeviceInfo.dataLoggerSlaveRegisterInfos != null) {
                 slaveDeviceInfo.dataLoggerSlaveRegisterInfos.stream().map(info -> slaveDataLoggerRegisterPair(slave, info)).forEach((pair) -> registerMap.put(pair.getFirst(), pair.getLast()));
             }
-            topologyService.setDataLogger(slave, dataLogger, channelMap, registerMap);
+            topologyService.setDataLogger(slave, dataLogger, slaveDeviceInfo.arrivalDate, channelMap, registerMap);
         }
     }
 

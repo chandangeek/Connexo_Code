@@ -39,19 +39,20 @@ public class DataLoggerSlaveDeviceInfoFactory {
             // DataLoggerSlaveDeviceInfo holding the unlinked data logger channels/registers
             slaveDeviceInfoForUnlinkedDataLoggerElements = new DataLoggerSlaveDeviceInfo();
             List<DataLoggerSlaveDeviceInfo> slaveDeviceInfos = new ArrayList<>();
-            dataLogger.getChannels().stream().forEach((channel) -> addDataLoggerChannelInfos(channel, slaveDeviceInfos));
-            dataLogger.getRegisters().stream().forEach((register) -> addDataLoggerRegisterInfos(register, slaveDeviceInfos));
+            dataLogger.getChannels().stream().forEach((channel) -> addDataLoggerChannelInfo(channel, slaveDeviceInfos));
+            dataLogger.getRegisters().stream().forEach((register) -> addDataLoggerRegisterInfo(register, slaveDeviceInfos));
             return slaveDeviceInfos;
         }
         return null;
     }
 
-    private List<DataLoggerSlaveDeviceInfo> addDataLoggerChannelInfos(Channel dataLoggerChannel, List<DataLoggerSlaveDeviceInfo> slaveDeviceInfos){
+    private List<DataLoggerSlaveDeviceInfo> addDataLoggerChannelInfo(Channel dataLoggerChannel, List<DataLoggerSlaveDeviceInfo> slaveDeviceInfos){
         Optional<Channel> slaveChannel = topologyService.getSlaveChannel(dataLoggerChannel, clock.instant());
         Optional<DataLoggerSlaveDeviceInfo> existingSlaveDeviceInfo;
         DataLoggerSlaveChannelInfo slaveChannelInfo =  slaveChannelInfoFactory.from(ChannelInfo.from(dataLoggerChannel, clock), slaveChannel.map((channel) -> ChannelInfo.from(channel, clock)));
         if (slaveChannel.isPresent()){
             Device slave = slaveChannel.get().getDevice();
+
             existingSlaveDeviceInfo = slaveDeviceInfos.stream().filter(slaveDeviceInfo -> slaveDeviceInfo.id == slave.getId()).findFirst();
             if (!existingSlaveDeviceInfo.isPresent()){
                 DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = DataLoggerSlaveDeviceInfo.from(slave);
@@ -68,7 +69,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
         return slaveDeviceInfos;
     }
 
-    private List<DataLoggerSlaveDeviceInfo> addDataLoggerRegisterInfos(Register dataLoggerRegister, List<DataLoggerSlaveDeviceInfo> slaveDeviceInfos){
+    private List<DataLoggerSlaveDeviceInfo> addDataLoggerRegisterInfo(Register dataLoggerRegister, List<DataLoggerSlaveDeviceInfo> slaveDeviceInfos){
         Optional<Register> slaveRegister = topologyService.getSlaveRegister(dataLoggerRegister, clock.instant());
         Optional<DataLoggerSlaveDeviceInfo> existingSlaveDeviceInfo;
         DataLoggerSlaveRegisterInfo slaveRegisterInfo =  slaveRegisterInfoFactory.from(deviceDataInfoFactory.createRegisterInfo(dataLoggerRegister, null),
