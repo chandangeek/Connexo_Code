@@ -901,7 +901,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22intervalStart%22,%22value%22:2%7D,%7B%22property%22:%22intervalEnd%22,%22value%22:1%7D]").request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22intervalStart%22,%22value%22:2%7D,%7B%22property%22:%22intervalEnd%22,%22value%22:1%7D]")
+                .request()
+                .get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -1328,7 +1330,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testLinkFirstSlaveToDataLogger(){
+    public void testLinkFirstSlaveToDataLogger() {
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
         Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
         when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
@@ -1518,7 +1520,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
         when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.of(slaveChannel1));
-        Mockito.doThrow(DataLoggerLinkException.noPhysicalChannelForReadingType(thesaurus, readingType)).when(topologyService).setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
+        Mockito.doThrow(DataLoggerLinkException.noPhysicalChannelForReadingType(thesaurus, readingType))
+                .when(topologyService)
+                .setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
 
 
         Response response = target("/devices/1").request().put(Entity.json(info));
@@ -1535,8 +1539,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
 
-
-    private Channel prepareMockedChannel(Channel mockedChannel){
+    private Channel prepareMockedChannel(Channel mockedChannel) {
         ReadingType readingType = prepareMockedReadingType(mock(ReadingType.class));
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         when(loadProfileType.getName()).thenReturn("some loadprofile type");
@@ -1563,7 +1566,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         return mockedChannel;
     }
 
-    private ReadingType prepareMockedReadingType(ReadingType readingType){
+    private ReadingType prepareMockedReadingType(ReadingType readingType) {
         when(readingType.getMRID()).thenReturn("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         when(readingType.getName()).thenReturn("readingTypeName");
         when(readingType.isActive()).thenReturn(true);
@@ -1575,20 +1578,20 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.NOTAPPLICABLE);
         when(readingType.getCommodity()).thenReturn(Commodity.DEVICE);
         when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.CURRENT);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(0,1));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(0,1));
+        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(0, 1));
+        when(readingType.getArgument()).thenReturn(new RationalNumber(0, 1));
         when(readingType.getTou()).thenReturn(0);
         when(readingType.getCpp()).thenReturn(0);
-    	when(readingType.getConsumptionTier()).thenReturn(0);
-    	when(readingType.getPhases()).thenReturn(Phase.PHASES1);
-    	when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
-    	when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-    	when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
+        when(readingType.getConsumptionTier()).thenReturn(0);
+        when(readingType.getPhases()).thenReturn(Phase.PHASES1);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         when(readingType.getVersion()).thenReturn(1L);
         return readingType;
     }
 
-    private ChannelInfo newChannelInfo(long id, String deviceMRID, long version){
+    private ChannelInfo newChannelInfo(long id, String deviceMRID, long version) {
         ChannelInfo mock = new ChannelInfo();
         mock.id = id;
         mock.interval = new TimeDurationInfo(900);
@@ -1597,7 +1600,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testLinkNewSlavesToDataLogger(){
+    public void testLinkNewSlavesToDataLogger() {
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
         Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
         when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
@@ -1654,8 +1657,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         // A slave device need to be created
         verify(deviceService).newDevice(eq(slaveDeviceConfig), eq("firstSlave"), eq("firstSlave"), any(Instant.class));
     }
+
     @Test
-    public void testUnlinkDataLoggerChannelWhenDataLoggerChannelLinked(){
+    public void testUnlinkDataLoggerChannelWhenDataLoggerChannelLinked() {
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
         Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
         when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
@@ -1706,7 +1710,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testUnlinkedWhenDataLoggerChannelUnlinked(){
+    public void testUnlinkedWhenDataLoggerChannelUnlinked() {
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
         Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
         when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
@@ -1747,7 +1751,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testLinkFirstSlaveThroughRegistersToDataLogger(){
+    public void testLinkFirstSlaveThroughRegistersToDataLogger() {
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
 
         RegisterType registerType = mock(RegisterType.class);
@@ -1756,7 +1760,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         NumericalRegisterSpec dataLoggerRegisterSpec = mock(NumericalRegisterSpec.class);
         when(dataLoggerRegisterSpec.getId()).thenReturn(2L);
         when(dataLoggerRegisterSpec.getRegisterType()).thenReturn(registerType);
-        when(dataLoggerRegisterSpec.getObisCode()).thenReturn(new ObisCode(1,2,3,4,5,6));
+        when(dataLoggerRegisterSpec.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(dataLoggerRegisterSpec.getDeviceObisCode()).thenReturn(null);
         when(dataLoggerRegisterSpec.getOverflowValue()).thenReturn(Optional.empty());
         when(dataLoggerRegisterSpec.isUseMultiplier()).thenReturn(false);
@@ -1772,7 +1776,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(slave1.getmRID()).thenReturn("firstSlave");
         NumericalRegisterSpec slave1RegisterSpec = mock(NumericalRegisterSpec.class);
         when(slave1RegisterSpec.getRegisterType()).thenReturn(registerType);
-        when(slave1RegisterSpec.getObisCode()).thenReturn(new ObisCode(1,2,3,4,5,6));
+        when(slave1RegisterSpec.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(slave1RegisterSpec.getDeviceObisCode()).thenReturn(null);
         when(slave1RegisterSpec.getOverflowValue()).thenReturn(Optional.empty());
         when(slave1RegisterSpec.isUseMultiplier()).thenReturn(false);
@@ -1795,7 +1799,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
 
         DataLoggerSlaveRegisterInfo registerMappingForSlave1 = new DataLoggerSlaveRegisterInfo();
-        registerMappingForSlave1.slaveRegister = newRegisterInfo(1L, "firstSlave",1L);
+        registerMappingForSlave1.slaveRegister = newRegisterInfo(1L, "firstSlave", 1L);
         registerMappingForSlave1.dataLoggerRegister = newRegisterInfo(2L, "dataLogger", 13L);
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
@@ -1824,7 +1828,191 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
     }
 
-    private NumericalRegister prepareMockedRegister(NumericalRegister mockedRegister, Device device){
+    @Test
+    public void testLinkFirstSlaveThroughChannelsAndRegistersToDataLogger() {
+        Device dataLogger = mockDeviceForTopologyTest("dataLogger");
+
+        Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
+        when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
+        when(dataLoggerChannel.getId()).thenReturn(2L);
+        when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
+
+        RegisterType registerType = mock(RegisterType.class);
+        when(registerType.getId()).thenReturn(222L);
+
+        NumericalRegisterSpec dataLoggerRegisterSpec = mock(NumericalRegisterSpec.class);
+        when(dataLoggerRegisterSpec.getId()).thenReturn(2L);
+        when(dataLoggerRegisterSpec.getRegisterType()).thenReturn(registerType);
+        when(dataLoggerRegisterSpec.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
+        when(dataLoggerRegisterSpec.getDeviceObisCode()).thenReturn(null);
+        when(dataLoggerRegisterSpec.getOverflowValue()).thenReturn(Optional.empty());
+        when(dataLoggerRegisterSpec.isUseMultiplier()).thenReturn(false);
+
+        NumericalRegister dataLoggerRegister = prepareMockedRegister(mock(NumericalRegister.class), dataLogger);
+        when(dataLoggerRegister.getDevice()).thenReturn(dataLogger);
+        when(dataLoggerRegister.getRegisterSpec()).thenReturn(dataLoggerRegisterSpec);
+        when(dataLoggerRegister.getRegisterSpecId()).thenReturn(2L);
+        when(dataLoggerRegister.getLastReading()).thenReturn(Optional.empty());
+        when(dataLogger.getRegisters()).thenReturn(Collections.singletonList(dataLoggerRegister));
+
+        Device slave1 = mockDeviceForTopologyTest("slave1");
+        when(slave1.getmRID()).thenReturn("firstSlave");
+
+        Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
+        when(slaveChannel1.getDevice()).thenReturn(slave1);
+        when(slaveChannel1.getId()).thenReturn(1L);
+        when(slave1.getChannels()).thenReturn(Collections.singletonList(slaveChannel1));
+
+        NumericalRegisterSpec slave1RegisterSpec = mock(NumericalRegisterSpec.class);
+        when(slave1RegisterSpec.getRegisterType()).thenReturn(registerType);
+        when(slave1RegisterSpec.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
+        when(slave1RegisterSpec.getDeviceObisCode()).thenReturn(null);
+        when(slave1RegisterSpec.getOverflowValue()).thenReturn(Optional.empty());
+        when(slave1RegisterSpec.isUseMultiplier()).thenReturn(false);
+
+        NumericalRegister slaveRegister1 = prepareMockedRegister(mock(NumericalRegisterImpl.class), slave1);
+        when(slaveRegister1.getDevice()).thenReturn(slave1);
+        when(slaveRegister1.getRegisterSpec()).thenReturn(slave1RegisterSpec);
+        when(slaveRegister1.getRegisterSpecId()).thenReturn(1L);
+        when(slaveRegister1.getLastReading()).thenReturn(Optional.empty());
+        when(slave1.getRegisters()).thenReturn(Collections.singletonList(slaveRegister1));
+
+        DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
+
+        when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
+        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
+        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+
+        DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
+        channelMappingForSlave1.slaveChannel = newChannelInfo(1L, "firstSlave", 1L);
+        channelMappingForSlave1.dataLoggerChannel = newChannelInfo(2L, "dataLogger", 13L);
+
+        DataLoggerSlaveRegisterInfo registerMappingForSlave1 = new DataLoggerSlaveRegisterInfo();
+        registerMappingForSlave1.slaveRegister = newRegisterInfo(1L, "firstSlave", 1L);
+        registerMappingForSlave1.dataLoggerRegister = newRegisterInfo(2L, "dataLogger", 13L);
+
+        DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
+        slaveInfo1.id = 100L;
+        slaveInfo1.mRID = "firstSlave";
+        slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
+        slaveInfo1.deviceConfigurationId = 2L;
+        slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
+        slaveInfo1.serialNumber = "100";
+        slaveInfo1.yearOfCertification = 1960;
+        slaveInfo1.version = 1;
+        slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
+        slaveInfo1.dataLoggerSlaveRegisterInfos = Collections.singletonList(registerMappingForSlave1);
+
+        DeviceInfo info = new DeviceInfo();
+        info.id = 1L;
+        info.version = 13L;
+        info.mRID = "dataLogger";
+        info.parent = new VersionInfo<>(1L, 1L);
+        info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
+
+        when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.of(slaveChannel1));
+        when(topologyService.getSlaveRegister(eq(dataLoggerRegister), any(Instant.class))).thenReturn(Optional.of(slaveRegister1));
+
+        Response response = target("/devices/1").request().put(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
+    }
+
+
+    @Test
+    public void testLinkSlaveToDataLoggerThroughRegistersThrowsError() throws IOException {
+        Device dataLogger = mockDeviceForTopologyTest("dataLogger");
+
+        RegisterType registerType = mock(RegisterType.class);
+        when(registerType.getId()).thenReturn(222L);
+
+        NumericalRegisterSpec dataLoggerRegisterSpec = mock(NumericalRegisterSpec.class);
+        when(dataLoggerRegisterSpec.getId()).thenReturn(2L);
+        when(dataLoggerRegisterSpec.getRegisterType()).thenReturn(registerType);
+        when(dataLoggerRegisterSpec.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
+        when(dataLoggerRegisterSpec.getDeviceObisCode()).thenReturn(null);
+        when(dataLoggerRegisterSpec.getOverflowValue()).thenReturn(Optional.empty());
+        when(dataLoggerRegisterSpec.isUseMultiplier()).thenReturn(false);
+
+        NumericalRegister dataLoggerRegister = prepareMockedRegister(mock(NumericalRegister.class), dataLogger);
+        when(dataLoggerRegister.getDevice()).thenReturn(dataLogger);
+        when(dataLoggerRegister.getRegisterSpec()).thenReturn(dataLoggerRegisterSpec);
+        when(dataLoggerRegister.getRegisterSpecId()).thenReturn(2L);
+        when(dataLoggerRegister.getLastReading()).thenReturn(Optional.empty());
+        when(dataLogger.getRegisters()).thenReturn(Collections.singletonList(dataLoggerRegister));
+
+        Device slave1 = mockDeviceForTopologyTest("slave1");
+        when(slave1.getmRID()).thenReturn("firstSlave");
+        NumericalRegisterSpec slave1RegisterSpec = mock(NumericalRegisterSpec.class);
+        when(slave1RegisterSpec.getRegisterType()).thenReturn(registerType);
+        when(slave1RegisterSpec.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
+        when(slave1RegisterSpec.getDeviceObisCode()).thenReturn(null);
+        when(slave1RegisterSpec.getOverflowValue()).thenReturn(Optional.empty());
+        when(slave1RegisterSpec.isUseMultiplier()).thenReturn(false);
+
+        NumericalRegister slaveRegister1 = prepareMockedRegister(mock(NumericalRegisterImpl.class), slave1);
+        when(slaveRegister1.getDevice()).thenReturn(slave1);
+        when(slaveRegister1.getRegisterSpec()).thenReturn(slave1RegisterSpec);
+        when(slaveRegister1.getRegisterSpecId()).thenReturn(1L);
+        when(slaveRegister1.getLastReading()).thenReturn(Optional.empty());
+        when(slave1.getRegisters()).thenReturn(Collections.singletonList(slaveRegister1));
+
+        DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
+
+        when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
+        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
+        when(batchService.findBatch(dataLogger)).thenReturn(Optional.empty());
+        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+
+        DataLoggerSlaveRegisterInfo registerMappingForSlave1 = new DataLoggerSlaveRegisterInfo();
+        registerMappingForSlave1.slaveRegister = newRegisterInfo(1L, "firstSlave", 1L);
+        registerMappingForSlave1.dataLoggerRegister = newRegisterInfo(2L, "dataLogger", 13L);
+
+        DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
+        slaveInfo1.id = 100L;
+        slaveInfo1.mRID = "firstSlave";
+        slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
+        slaveInfo1.deviceConfigurationId = 2L;
+        slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
+        slaveInfo1.serialNumber = "100";
+        slaveInfo1.yearOfCertification = 1960;
+        slaveInfo1.version = 1;
+        slaveInfo1.dataLoggerSlaveRegisterInfos = Collections.singletonList(registerMappingForSlave1);
+
+        DeviceInfo info = new DeviceInfo();
+        info.id = 1L;
+        info.version = 13L;
+        info.mRID = "dataLogger";
+        info.parent = new VersionInfo<>(1L, 1L);
+        info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
+
+        when(topologyService.getSlaveRegister(eq(dataLoggerRegister), any(Instant.class))).thenReturn(Optional.of(slaveRegister1));
+        Mockito.doThrow(DataLoggerLinkException.noPhysicalChannelForReadingType(thesaurus, readingType))
+                .when(topologyService)
+                .setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
+
+        Response response = target("/devices/1").request().put(Entity.json(info));
+
+        // Simulating a mismatch between mdc-channels and pulse channels: e.g. pulse channel having the mdc-channels' readingtype does not exist
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), any(Map.class), any(Map.class));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.hasEntity()).isTrue();
+
+        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Boolean>get("$.success")).isFalse();
+        assertThat(model.<String>get("$.error")).isEqualTo("DataLoggerLinkException.noPhysicalSlaveChannelForReadingTypeX");
+    }
+
+    private NumericalRegister prepareMockedRegister(NumericalRegister mockedRegister, Device device) {
         when(mockedRegister.getDevice()).thenReturn(device);
         when(mockedRegister.getLastReadingDate()).thenReturn(Optional.empty());
         when(mockedRegister.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
@@ -1837,7 +2025,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         return mockedRegister;
     }
 
-    private RegisterInfo newRegisterInfo(long id,  String deviceMRID, long version){
+    private RegisterInfo newRegisterInfo(long id, String deviceMRID, long version) {
         RegisterInfo mock = new NumericalRegisterInfo();
         mock.id = id;
         mock.mRID = deviceMRID;
