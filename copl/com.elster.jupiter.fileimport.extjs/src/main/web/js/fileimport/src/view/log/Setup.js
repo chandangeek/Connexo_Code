@@ -17,14 +17,13 @@ Ext.define('Fim.view.log.Setup', {
         me.side = [
             {
                 xtype: 'panel',
-                title: '',
                 itemId: 'pnl-histoty-log-menu',
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'fim-log-menu',
                         itemId: 'mnu-histoty-log',
-                        toggle: 0,
+                        router: me.router,
                         importServiceId: me.importService.get('importServiceId')
                     }
                 ]
