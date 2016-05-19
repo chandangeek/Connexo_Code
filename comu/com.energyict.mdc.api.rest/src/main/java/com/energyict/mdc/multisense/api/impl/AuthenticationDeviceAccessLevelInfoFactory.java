@@ -1,9 +1,9 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
+import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
-import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
@@ -12,7 +12,6 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;

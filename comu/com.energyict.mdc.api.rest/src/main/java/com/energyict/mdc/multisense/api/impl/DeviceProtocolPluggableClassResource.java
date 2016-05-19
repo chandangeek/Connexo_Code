@@ -4,9 +4,9 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
+import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
+import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
-import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 

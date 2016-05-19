@@ -1,12 +1,12 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
+import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
-import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 

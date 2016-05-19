@@ -1,8 +1,8 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
+import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
-import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;

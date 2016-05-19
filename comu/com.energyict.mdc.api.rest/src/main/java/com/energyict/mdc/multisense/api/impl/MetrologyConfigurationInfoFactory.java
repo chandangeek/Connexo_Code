@@ -1,8 +1,8 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
-import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
+import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
+import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
 
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;

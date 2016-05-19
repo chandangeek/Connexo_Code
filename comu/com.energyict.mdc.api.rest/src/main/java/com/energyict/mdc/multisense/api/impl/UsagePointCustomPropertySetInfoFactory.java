@@ -6,8 +6,8 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointPropertySet;
-import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
-import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
+import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
+import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
