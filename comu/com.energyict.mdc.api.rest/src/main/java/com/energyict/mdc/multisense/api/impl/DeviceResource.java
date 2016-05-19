@@ -96,7 +96,6 @@ public class DeviceResource {
      * @param queryParameters Paging parameters 'start' and 'limit'
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
-     * @param queryParameters queryParameters
      * @return Device information and links to related resources
      */
     @GET @Transactional

@@ -317,6 +317,13 @@
                             </output>
 
                             <restModel>
+                                <externalSources>
+                                    <sourceDirs>
+                                        <sourceDir>
+                                            ${project.basedir}/../../copl/com.elster.jupiter.public.rest.util/src/main/java
+                                        </sourceDir>
+                                    </sourceDirs>
+                                </externalSources>
                                 <httpStatusCodes>
                                     <httpStatusCode>
                                         <httpCode>200</httpCode>
