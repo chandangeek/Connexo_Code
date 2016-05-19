@@ -1838,7 +1838,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
 
         RegisterType registerType = mock(RegisterType.class);
-        when(registerType.getId()).thenReturn(222L);
+        when(registerType.getId()).thenReturn(2222L);
 
         NumericalRegisterSpec dataLoggerRegisterSpec = mock(NumericalRegisterSpec.class);
         when(dataLoggerRegisterSpec.getId()).thenReturn(2L);
