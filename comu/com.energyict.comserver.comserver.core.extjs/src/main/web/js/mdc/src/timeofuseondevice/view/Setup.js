@@ -43,7 +43,7 @@ Ext.define('Mdc.timeofuseondevice.view.Setup', {
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                    //privileges: Scs.privileges.ServiceCall.admin,
+                    privileges: Mdc.privileges.Device.viewDevice,
                     iconCls: 'x-uni-action-iconD',
                     itemId: 'tou-device-actions-button',
                     margin: '0 20 0 0',
@@ -62,10 +62,31 @@ Ext.define('Mdc.timeofuseondevice.view.Setup', {
                     title: Uni.I18n.translate('general.plannedOn', 'MDC', 'Planned on'),
                     ui: 'large',
                     xtype: 'device-tou-planned-on-form'
+                },
+                {
+                    xtype: 'no-items-found-panel',
+                    title: Uni.I18n.translate('timeofUse.noCalendarsFound', 'MDC', 'No active time of use calendar found'),
+                    reasons: [
+                        Uni.I18n.translate('timeofUse.noCalendarsFound.list.item1', 'MDC', 'There is no active calendar.'),
+                        Uni.I18n.translate('timeofUse.noCalendarsFound.list.item2', 'MDC', 'There is no planned calendar.'),
+                        Uni.I18n.translate('timeofUse.noCalendarsFound.list.item3', 'MDC', 'There is an active calendar but you need to verify.')
+                    ],
+                    hidden: true
                 }
             ]
         };
 
         me.callParent(arguments);
+    },
+
+    showEmptyComponent: function() {
+        var me = this;
+        if(me.down('#tou-device-actions-button')) {
+            me.down('#tou-device-actions-button').hide();
+            me.down('device-tou-preview-form').hide();
+            me.down('device-tou-planned-on-form').hide();
+            me.down('no-items-found-panel').show();
+            me.down('#wrappingPanel').setLoading(false);
+        }
     }
 });

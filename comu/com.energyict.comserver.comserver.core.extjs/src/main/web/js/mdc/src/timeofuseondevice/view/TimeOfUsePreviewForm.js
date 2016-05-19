@@ -29,6 +29,12 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                     value: '-'
                 },
                 {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('timeofuse.startOfCalculations', 'MDC', 'Start of calculations'),
+                    itemId: 'startYear',
+                    value: '-'
+                },
+                {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('timeofuse.periods', 'MDC', 'Periods'),
                     itemId: 'periodField',
@@ -61,31 +67,35 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
         var me = this,
             calendarRecord = record.getActiveCalendar(),
             passiveCalendars = record.get('passiveCalendars'),
-            counter = 0,
-            value;
+            counter = 0;
         Ext.suspendLayouts();
 
-        if(record.get('activeIsGhost')) {
-            me.down('#nameField').setValue(calendarRecord.get('name') + ' (' +Uni.I18n.translate('calendars.ghost', 'MDC', 'Ghost') + ')');
-        } else {
-            me.down('#nameField').setValue(calendarRecord.get('name'));
-        }
+        if (calendarRecord !== null) {
 
-        if(record.get('lastVerified')) {
-            var creationTime = record.get('lastVerified');
-            if(new Date(creationTime).toDateString() === new Date().toDateString()) {
-                me.down('#lastVefirifiedDisplayField').setValue(Uni.DateTime.formatTimeLong(new Date(creationTime)));
+            if (record.get('activeIsGhost')) {
+                me.down('#nameField').setValue(calendarRecord.get('name') + ' (' + Uni.I18n.translate('calendars.ghost', 'MDC', 'Ghost') + ')');
             } else {
-                me.down('#lastVefirifiedDisplayField').setValue(Uni.DateTime.formatDateLong(new Date(creationTime)));
+                me.down('#nameField').setValue(calendarRecord.get('name'));
             }
-        } else {
-            me.down('#lastVefirifiedDisplayField').setValue('-');
+
+            me.down('#startYear').setValue(calendarRecord.get('startYear'));
+
+            if (record.get('lastVerified')) {
+                var creationTime = record.get('lastVerified');
+                if (new Date(creationTime).toDateString() === new Date().toDateString()) {
+                    me.down('#lastVefirifiedDisplayField').setValue(Uni.DateTime.formatTimeLong(new Date(creationTime)));
+                } else {
+                    me.down('#lastVefirifiedDisplayField').setValue(Uni.DateTime.formatDateLong(new Date(creationTime)));
+                }
+            } else {
+                me.down('#lastVefirifiedDisplayField').setValue('-');
+            }
         }
 
         me.down('#periodField').removeAll();
         me.down('#periodField').setVisible(!record.get('activeIsGhost'));
         calendarRecord.periods().each(function (record) {
-            counter ++;
+            counter++;
             me.down('#periodField').add(
                 {
                     xtype: 'displayfield',
@@ -101,7 +111,7 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
         me.down('#dayTypesField').removeAll();
         me.down('#dayTypesField').setVisible(!record.get('activeIsGhost'));
         calendarRecord.dayTypes().each(function (record) {
-            counter ++;
+            counter++;
             me.down('#dayTypesField').add(
                 {
                     xtype: 'displayfield',
@@ -117,7 +127,7 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
         me.down('#tariffsField').removeAll();
         me.down('#tariffsField').setVisible(!record.get('activeIsGhost'));
         calendarRecord.events().each(function (record) {
-            counter ++;
+            counter++;
             me.down('#tariffsField').add(
                 {
                     xtype: 'displayfield',
@@ -130,11 +140,33 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
         me.fillEmpty(counter, '#tariffsField');
         counter = 0;
 
-        this.down('#passiveField').removeAll();
-        if(passiveCalendars) {
+        me.doComponentLayout();
+        Ext.resumeLayouts(true);
+        me.updateLayout();
+        me.doLayout();
+    },
+
+    fillEmpty: function (counter, itemId) {
+        var me = this;
+        if (counter <= 0) {
+            me.down(itemId).add(
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: undefined,
+                    value: '-',
+                    margin: '0 0 -10 0'
+                }
+            );
+        }
+    },
+
+    fillPassiveCalendars: function(passiveCalendars) {
+        var me = this;
+        me.down('#passiveField').removeAll();
+        if (passiveCalendars) {
             Ext.Array.each(passiveCalendars, function (passiveCalendar) {
                 value = passiveCalendar.name;
-                if(passiveCalendar.ghost) {
+                if (passiveCalendar.ghost) {
                     value += ' (' + Uni.I18n.translate('calendars.ghost', 'MDC', 'Ghost') + ')';
                 }
                 me.down('#passiveField').add(
@@ -156,27 +188,20 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                 }
             );
         }
-
-
-
-        me.doComponentLayout();
-        Ext.resumeLayouts(true);
-        me.updateLayout();
-        me.doLayout();
     },
 
-    fillEmpty: function(counter, itemId) {
-        var me = this;
-        if(counter <= 0) {
-            me.down(itemId).add(
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: undefined,
-                    value: '-',
-                    margin: '0 0 -10 0'
-                }
-            );
-        }
+    fillWithDashes: function() {
+        var me = this,
+            dash = {
+                xtype: 'displayfield',
+                fieldLabel: undefined,
+                value: '-',
+                margin: '0 0 -10 0'
+            };
+        me.down('#tariffsField').add(dash);
+        me.down('#dayTypesField').add(dash);
+        me.down('#periodField').add(dash);
+
     },
 
     getDays: function (record, id) {

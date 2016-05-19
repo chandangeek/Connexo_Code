@@ -51,23 +51,32 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                         success: function (response, opt) {
                             result = JSON.parse(response.responseText);
                             resultSet = reader.read(result);
+                            if (resultSet.records[0].getActiveCalendar() === null && resultSet.records[0].get('passiveCalendars') === null) {
+                                view.showEmptyComponent();
+                            } else {
 
-                            if (view.down('device-tou-preview-form')) {
-                                if (!(Object.keys(result).length === 0 && result.constructor === Object)) {
-                                    view.down('device-tou-preview-form').fillFieldContainers(resultSet.records[0]);
-                                    view.down('tou-device-action-menu').record = resultSet.records[0].getActiveCalendar();
+                                if (view.down('device-tou-preview-form')) {
+                                    if (!(Object.keys(result).length === 0 && result.constructor === Object)  && resultSet.records[0].getActiveCalendar() !== null) {
+                                        view.down('device-tou-preview-form').fillFieldContainers(resultSet.records[0]);
+                                        view.down('device-tou-preview-form').show();
+                                        view.down('tou-device-action-menu').record = resultSet.records[0].getActiveCalendar();
 
+                                    } else {
+                                        view.down('device-tou-preview-form').fillWithDashes();
+                                        view.down('tou-device-action-menu').showPreview = false;
+                                    }
+                                    view.down('device-tou-preview-form').fillPassiveCalendars(resultSet.records[0].get('passiveCalendars'));
+                                    view.down('#wrappingPanel').setLoading(false);
                                 }
-                                view.down('#wrappingPanel').setLoading(false);
-                            }
 
+                                if (view.down('device-tou-planned-on-form')) {
+                                    if (resultSet.records[0].getNextPassiveCalendar() === null) {
+                                        view.down('device-tou-planned-on-form').hide();
+                                    } else {
+                                        view.down('device-tou-planned-on-form').show();
+                                        view.down('device-tou-planned-on-form').down('form').loadRecord(resultSet.records[0].getNextPassiveCalendar());
+                                    }
 
-                            if(view.down('device-tou-planned-on-form')) {
-                                if(resultSet.records[0].getNextPassiveCalendar() === null) {
-                                    view.down('device-tou-planned-on-form').hide();
-                                } else {
-                                    view.down('device-tou-planned-on-form').show();
-                                    view.down('device-tou-planned-on-form').down('form').loadRecord(resultSet.records[0].getNextPassiveCalendar());
                                 }
 
                             }
@@ -96,7 +105,6 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             case 'verifycalendars':
                 break;
             case 'viewpreview':
-                debugger;
                 me.redirectToPreview(menu.record.get('id'));
                 break;
         }
