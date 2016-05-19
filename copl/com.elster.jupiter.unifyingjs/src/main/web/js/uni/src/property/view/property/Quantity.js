@@ -40,9 +40,12 @@ Ext.define('Uni.property.view.property.Quantity', {
             valueRegExp = /(\d*)\:\d*\:.*/,
             unitRegExp = /\d*(\:\d*\:.*)/;
 
+        if (Ext.isObject(value) && Ext.isString(value.id)) {
+            value = value.id
+        }
         if (!me.isEdit) {
             me.down('displayfield').setValue(me.getValueAsDisplayString(value));
-        } else if (!Ext.isEmpty(value)) {
+        } else if (!Ext.isEmpty(value) && Ext.isString(value)) {
             Ext.suspendLayouts();
             me.down('numberfield').setValue(value.replace(valueRegExp, '$1'));
             me.down('combobox').setValue(value.replace(unitRegExp, '0$1'));
@@ -96,10 +99,13 @@ Ext.define('Uni.property.view.property.Quantity', {
     },
 
     getValueAsDisplayString: function (value) {
-        var me = this;
+        var me = this,
+            valueRegExp = /(\d*)\:\d*\:.*/,
+            unitRegExp = /\d*(\:\d*\:.*)/,
+            possibleValues = me.getProperty().getPossibleValues();
 
-        if (Ext.isObject(value)) {
-            return ('' + (value.value || '') + (value.displayValue ? ' ' + value.displayValue : '') || '-');
+        if (!Ext.isEmpty(value) && Ext.isString(value)) {
+            return value.replace(valueRegExp, '$1') + ' ' + Ext.Array.findBy(possibleValues, function (possibleValue) {return possibleValue.id === value.replace(unitRegExp, '0$1')}).displayValue;
         } else {
             return '-';
         }
