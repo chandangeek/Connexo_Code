@@ -412,9 +412,11 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 var channelRecords = [];
                 Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
                     if (dataLoggerSlaveDeviceRecord.id === 0) { // the container of the unlinked channels
-                        Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos, function(dataLoggerSlaveChannelInfoRecord){
-                            channelRecords.push(dataLoggerSlaveChannelInfoRecord.dataLoggerChannel);
-                        }, me);
+                        if (dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos){
+                            Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos, function(dataLoggerSlaveChannelInfoRecord){
+                                      channelRecords.push(dataLoggerSlaveChannelInfoRecord.dataLoggerChannel);
+                            }, me);
+                        }
                     }
                 }, me);
                 me.wizardInformation.loadProfileConfigRecords = loadProfileConfigRecords;
