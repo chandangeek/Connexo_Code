@@ -38,7 +38,7 @@ public class EventImpl implements Event {
 
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.NAME_FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.EVENT_NAME_FIELD_TOO_LONG + "}")
     private String name;
     private long code;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")

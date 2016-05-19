@@ -55,11 +55,6 @@ public class CalendarFactory {
                     getStartYear())
                    .description(getDescription()).mRID(getMRID());
 
-        Optional<Year> endYear = getEndYear();
-        if (endYear.isPresent()) {
-            builder.endYear(endYear.get());
-        }
-
         events = new HashMap<BigInteger, String>();
         for (Event event : calendar.getEvents().getEvent()) {
             BigInteger eventId = getEventId(event);
@@ -215,17 +210,6 @@ public class CalendarFactory {
 
     private String getMRID() {
         return calendar.getMRID();
-    }
-
-    private Optional<Year> getEndYear() {
-        BigInteger endYear = calendar.getEndYear();
-        if (endYear == null)  {
-            return Optional.empty();
-        }
-        if (endYear.equals(BigInteger.ZERO)) {
-            throw new CalendarParserException(thesaurus, MessageSeeds.ENDYEAR_CANNOT_BE_ZERO);
-        }
-        return Optional.of(Year.of(endYear.intValue()));
     }
 
     private String getDayTypeNameById(BigInteger id) {

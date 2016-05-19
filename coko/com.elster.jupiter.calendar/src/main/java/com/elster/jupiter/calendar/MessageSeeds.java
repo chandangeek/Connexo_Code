@@ -17,8 +17,8 @@ public enum MessageSeeds implements MessageSeed {
     DAYTYPES_REQUIRED(1002, Constants.DAYTYPES_REQUIRED, "At least one daytype is required"),
     PERIODS_REQUIRED(1003, Constants.PERIODS_REQUIRED, "At least one period is required"),
 
-    CALENDAR_CREATED(1004, Constants.CALENDAR_CREATED, "Time of use calendar had been created."),
-    CALENDAR_UPDATED(1005, Constants.CALENDAR_UPDATED, "Time of use calendar had been updated."),
+    CALENDAR_CREATED(1004, Constants.CALENDAR_CREATED, "Time of use calendar has been created."),
+    CALENDAR_UPDATED(1005, Constants.CALENDAR_UPDATED, "Time of use calendar has been updated."),
 
     SCHEMA_FAILED(2001, Constants.SCHEMA_FAILED, "XSD schema for calendar import could not be read"),
     JAXB_FAILED(2002, Constants.JAXB_FAILED, "JAXB error occurred"),
@@ -32,17 +32,21 @@ public enum MessageSeeds implements MessageSeed {
     NO_PERIOD_DEFINED_WITH_ID(2009, Constants.NO_PERIOD_DEFINED_WITH_ID, "There is no period defined with id \"{0}\""),
     INVALID_EVENT_ID(2010, Constants.INVALID_EVENT_ID, "Event id \"{0}\" should be numeric"),
     NO_EVENT_DEFINED_WITH_ID(2011, Constants.NO_EVENT_DEFINED_WITH_ID, "There is no daytype defined with id \"{0}\""),
-    ENDYEAR_CANNOT_BE_ZERO(2012, Constants.ENDYEAR_CANNOT_BE_ZERO, "Calendar end year cannot be zero"),
     NO_TIMEZONE_FOUND_WITH_ID(2013, Constants.NO_TIMEZONE_FOUND_WITH_ID, "Timzone \"{0}\" does not exist"),
     YEAR_NOT_ALLOWED_FOR_RECURRING_TRANSITIONS(2014, Constants.YEAR_NOT_ALLOWED_FOR_RECURRING_TRANSITIONS, "\"year\" is not allowed for recurring transitions"),
     YEAR_REQUIRED_FOR_NOT_RECURRING_TRANSITIONS(2015, Constants.YEAR_REQUIRED_FOR_NOT_RECURRING_TRANSITIONS, "\"year\" is required for non recurring transitions"),
     VALIDATION_OF_FILE_SUCCEEDED(2016, Constants.VALIDATION_OF_FILE_SUCCEEDED, "Validation succeeded.", Level.INFO),
     VALIDATION_OF_FILE_FAILED(2017, Constants.VALIDATION_OF_FILE_FAILED, "Validation failed, please check your file for invalid content."),
     VALIDATION_OF_FILE_FAILED_WITH_DETAIL(2017, Constants.VALIDATION_OF_FILE_FAILED_WITH_DETAIL, "Validation failed: \"{0}\""),
-    DUPLICATE_CALENDAR(2018, Constants.DUPLICATE_CALENDAR, "MRID must be unique", Level.SEVERE),
-    IMPORT_FAILED_OTHER_ERROR(2019, Constants.IMPORT_FAILED_OTHER_ERROR, "Import failed: \"{0}\"", Level.SEVERE),
-    DESCRIPTION_FIELD_TOO_LONG(2020, Constants.DESCRIPTION_FIELD_TOO_LONG, "Field length must not exceed 4000 characters.", Level.SEVERE),
-    NAME_FIELD_TOO_LONG(2021, Constants.NAME_FIELD_TOO_LONG, "Field length must not exceed 80 characters.", Level.SEVERE),
+    DUPLICATE_CALENDAR_MRID(2018, Constants.DUPLICATE_CALENDAR_MRID, "The calendar MRID must be unique.", Level.SEVERE),
+    DUPLICATE_CALENDAR_NAME(2019, Constants.DUPLICATE_CALENDAR_NAME, "The calendar name must be unique.", Level.SEVERE),
+    IMPORT_FAILED_OTHER_ERROR(2020, Constants.IMPORT_FAILED_OTHER_ERROR, "Import failed: \"{0}\"", Level.SEVERE),
+    DESCRIPTION_FIELD_TOO_LONG(2022, Constants.DESCRIPTION_FIELD_TOO_LONG, "Calendar description is too long, it must not exceed 4000 characters.", Level.SEVERE),
+    CAL_NAME_FIELD_TOO_LONG(2023, Constants.CAL_NAME_FIELD_TOO_LONG, "Calendar name is too long, it must not exceed 80 characters.", Level.SEVERE),
+    CATEGORY_NAME_FIELD_TOO_LONG(2024, Constants.CATEGORY_NAME_FIELD_TOO_LONG, "Category name is too long, it must not exceed 80 characters.", Level.SEVERE),
+    DAYTYPE_NAME_FIELD_TOO_LONG(2025, Constants.DAYTYPE_NAME_FIELD_TOO_LONG, "Daytype name is too long, it must not exceed 80 characters.", Level.SEVERE),
+    EVENT_NAME_FIELD_TOO_LONG(2026, Constants.EVENT_NAME_FIELD_TOO_LONG, "Event name is too long, it must not exceed 80 characters.", Level.SEVERE),
+    PERIOD_NAME_FIELD_TOO_LONG(2027, Constants.PERIOD_NAME_FIELD_TOO_LONG, "Period name is too long, it must not exceed 80 characters.", Level.SEVERE),
     ;
 
     private final int number;
@@ -99,8 +103,7 @@ public enum MessageSeeds implements MessageSeed {
     public enum Constants {
         ;
         public static final String REQUIRED = "isRequired";
-        public static final String NAME_FIELD_TOO_LONG = "invalidNameFieldLength";
-        public static final String DESCRIPTION_FIELD_TOO_LONG = "invalidDescriptionFieldLength";
+        public static final String DESCRIPTION_FIELD_TOO_LONG = "calendar.description.too.long";
         public static final String DAYTYPES_REQUIRED = "dayTypes.required";
         public static final String PERIODS_REQUIRED = "periods.required";
         public static final String SCHEMA_FAILED = "calendar.import.schema.failed";
@@ -115,17 +118,22 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_PERIOD_DEFINED_WITH_ID = "calendar.import.no.period.defined.with.id";
         public static final String INVALID_EVENT_ID = "calendar.import.invalid.event.id";
         public static final String NO_EVENT_DEFINED_WITH_ID = "calendar.import.invalid.event.id";
-        public static final String ENDYEAR_CANNOT_BE_ZERO = "calendar.import.endyear.cannot.be.zero";
         public static final String NO_TIMEZONE_FOUND_WITH_ID = "calendar.import.no.timezone.found.with.id";
         public static final String YEAR_NOT_ALLOWED_FOR_RECURRING_TRANSITIONS = "calendar.import.year.not.allowed.for.recuring.trainsitions";
         public static final String YEAR_REQUIRED_FOR_NOT_RECURRING_TRANSITIONS = "calendar.import.year.required.for.non.recuring.trainsitions";
         public static final String VALIDATION_OF_FILE_SUCCEEDED = "calendar.import.validation succeeded";
         public static final String VALIDATION_OF_FILE_FAILED = "calendar.import.validation.failed";
-        public static final String DUPLICATE_CALENDAR = "calendar.mridalreadyexists";
+        public static final String DUPLICATE_CALENDAR_MRID = "calendar.mrid.alreadyexists";
+        public static final String DUPLICATE_CALENDAR_NAME = "calendar.name.alreadyexists";
         public static final String VALIDATION_OF_FILE_FAILED_WITH_DETAIL = "calendar.import.validation.failed.with.detail";
         public static final String IMPORT_FAILED_OTHER_ERROR = "calendar.import.failed.other.error";
         public static final String CALENDAR_CREATED = "calendar.import.calendar.created";
         public static final String CALENDAR_UPDATED = "calendar.import.calendar.updated";
+        public static final String CAL_NAME_FIELD_TOO_LONG = "calendar.calendar.name.too.long";
+        public static final String CATEGORY_NAME_FIELD_TOO_LONG = "calendar.category.name.too.long";
+        public static final String DAYTYPE_NAME_FIELD_TOO_LONG = "calendar.daytype.name.too.long";
+        public static final String EVENT_NAME_FIELD_TOO_LONG = "calendar.event.name.too.long";
+        public static final String PERIOD_NAME_FIELD_TOO_LONG = "calendar.period.name.too.long";
 
     }
 }

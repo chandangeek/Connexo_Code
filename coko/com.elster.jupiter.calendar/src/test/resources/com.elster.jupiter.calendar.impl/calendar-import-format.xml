@@ -7,7 +7,6 @@
     <description>From example provide by Robert Ritchy</description>
     <timezone>CST</timezone>
     <start-year>2010</start-year>
-    <end-year>2015</end-year>
     <events>
         <event>
             <id>1</id>

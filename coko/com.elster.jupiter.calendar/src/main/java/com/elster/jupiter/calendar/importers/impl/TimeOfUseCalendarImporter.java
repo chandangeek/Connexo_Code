@@ -1,20 +1,17 @@
 package com.elster.jupiter.calendar.importers.impl;
 
 import com.elster.jupiter.calendar.MessageSeeds;
-import com.elster.jupiter.calendar.impl.xmlbinding.Calendar;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;;
 import org.xml.sax.SAXException;
 
+import javax.validation.ConstraintViolationException;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
-import java.net.URISyntaxException;
 
 /**
  * Created by igh on 27/04/2016.
@@ -45,6 +42,9 @@ public class TimeOfUseCalendarImporter implements FileImporter {
             markFailure(fileImportOccurrence);
         } catch (CalendarParserException e) {
             logImportFailed(fileImportOccurrence, e);
+            markFailure(fileImportOccurrence);
+        } catch (ConstraintViolationException e) {
+            new ExceptionLogFormatter(context.getThesaurus(), fileImportOccurrence.getLogger()).log(e);
             markFailure(fileImportOccurrence);
         } catch (Exception e) {
             logImportFailed(fileImportOccurrence, e);
