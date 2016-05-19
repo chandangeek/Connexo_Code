@@ -27,6 +27,7 @@ import java.sql.SQLException;
  * <ul>
  * <li><code>com.elster.jupiter.datasource.pool.maxlimit</code> : max limit, will default to 50.</li>
  * <li><code>com.elster.jupiter.datasource.pool.maxstatements</code> : max statements, will default to 50.</li>
+ * <li><code>com.elster.jupiter.datasource.pool.oracle.ons.nodes</code> : ons nodes information. </li>
  * </ul>
  */
 @Component(name = "com.elster.jupiter.bootstrap.oracle",
