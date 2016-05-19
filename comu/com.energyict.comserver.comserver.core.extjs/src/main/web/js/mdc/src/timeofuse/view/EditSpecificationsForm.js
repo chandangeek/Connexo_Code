@@ -103,7 +103,7 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                 {
                     boxLabel: option.get('name'),
                     inputValue: option.get('id'),
-                    checked: record.allowedOptions().findRecord('id', option.get('id')) ? true : false
+                    checked: record.allowedOptions().findExact('id', option.get('id')) >= 0
                 }
             );
         });
