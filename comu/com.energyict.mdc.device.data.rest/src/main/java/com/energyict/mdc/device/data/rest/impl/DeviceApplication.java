@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
@@ -129,6 +130,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile BpmService bpmService;
     private volatile ServiceCallInfoFactory serviceCallInfoFactory;
     private volatile CalendarInfoFactory calendarInfoFactory;
+    private volatile CalendarService calendarService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -270,6 +272,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setCalendarInfoFactory(CalendarInfoFactory calendarInfoFactory) {
         this.calendarInfoFactory = calendarInfoFactory;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Override
@@ -511,6 +518,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(GoingOnResource.class).to(GoingOnResource.class);
             bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
             bind(calendarInfoFactory).to(CalendarInfoFactory.class);
+            bind(calendarService).to(CalendarService.class);
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
         }
     }

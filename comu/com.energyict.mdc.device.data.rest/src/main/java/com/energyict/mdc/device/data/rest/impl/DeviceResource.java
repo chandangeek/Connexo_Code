@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.domain.util.Finder;
@@ -59,6 +62,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -113,6 +119,7 @@ public class DeviceResource {
     private final ServiceCallService serviceCallService;
     private final CalendarInfoFactory calendarInfoFactory;
     private final TimeOfUseInfoFactory timeOfUseInfoFactory;
+    private final CalendarService calendarService;
 
     @Inject
     public DeviceResource(
@@ -150,7 +157,8 @@ public class DeviceResource {
             TransactionService transactionService,
             ServiceCallService serviceCallService,
             CalendarInfoFactory calendarInfoFactory,
-            TimeOfUseInfoFactory timeOfUseInfoFactory) {
+            TimeOfUseInfoFactory timeOfUseInfoFactory,
+            CalendarService calendarService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -186,6 +194,7 @@ public class DeviceResource {
         this.serviceCallService = serviceCallService;
         this.calendarInfoFactory = calendarInfoFactory;
         this.timeOfUseInfoFactory = timeOfUseInfoFactory;
+        this.calendarService = calendarService;
     }
 
     @GET
@@ -790,6 +799,29 @@ public class DeviceResource {
         TimeOfUseInfo info = timeOfUseInfoFactory.from(device.getActiveCalendar(), device.getPassiveCalendars(), device, calendarInfoFactory);
 
         return Response.ok(info).build();
+    }
+
+    @GET
+    @Path("/{mRID}/timeofuse/{calendarId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
+    public Response getCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
+        if(milliseconds <= 0) {
+            return  Response.ok(calendarService.findCalendar(calendarId)
+                    .map(calendarInfoFactory::detailedFromCalendar)
+                    .orElseThrow(IllegalArgumentException::new)).build();
+        } else {
+            Instant instant = Instant.ofEpochMilli(milliseconds);
+            Calendar calendar = calendarService.findCalendar(calendarId).get();
+            LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
+                    .toLocalDate();
+
+            return Response.ok(transformToWeekCalendar(calendar, localDate)).build();
+        }
+    }
+
+    private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
+        return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);
     }
 
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {

@@ -4,6 +4,7 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
@@ -167,6 +168,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     ServiceCallInfoFactory serviceCallInfoFactory;
     @Mock
     CalendarInfoFactory calendarInfoFactory;
+    @Mock
+    CalendarService calendarService;
 
     @Before
     public void setup() {
@@ -232,6 +235,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setServiceCallInfoFactory(serviceCallInfoFactory);
         application.setBpmService(bpmService);
         application.setCalendarInfoFactory(calendarInfoFactory);
+        application.setCalendarService(calendarService);
         return application;
     }
 
